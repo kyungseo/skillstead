@@ -1,6 +1,6 @@
 ---
 name: svg-infographic
-description: Author technical/structured SVG infographics. Best for architecture diagrams, topology maps, flows, before/after comparisons, and social-ready technical one-pagers. When browser-based rendering is available, exports an editable SVG plus a sharp 2x PNG. Not for photo-heavy, illustration-heavy, or data-plot-heavy graphics.
+description: Author technical/structured SVG infographics. Best for architecture diagrams, topology maps, flows, before/after comparisons, and social-ready technical one-pagers. When browser-based rendering is available, exports an editable SVG plus a sharp 2x PNG. Not for photo-heavy or illustration-heavy graphics, statistical charts, hand-drawn/crayon sketchnote styles, or mascot/character illustration.
 ---
 
 # svg-infographic

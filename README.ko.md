@@ -4,7 +4,7 @@
 
 AI 코딩 에이전트를 위한 작고 실용적인 skill 모음 — 각 skill을 개별적으로 읽고, 설치하고, 공유하기 쉽게 패키징한다.
 
-각 skill은 실전에서 막히는 구체적인 capability gap을 메우고, 설치 전에 결과를 확인할 수 있도록 예제 artifact를 함께 제공한다.
+각 skill은 실전에서 막히는 구체적인 capability gap을 메우고, 설치 전에 결과를 확인할 수 있도록 예제 artifact를 함께 제공한다. (첫 skill의 예제는 release-gated이며 아직 공개되지 않았다.)
 
 > **한국어 / CJK 렌더링 우선 지원.** 첫 skill은 한국어를 비롯한 CJK 텍스트에 맞춘 font stack과 glyph 확인으로 SVG 인포그래픽을 작성한다 — 많은 다이어그램/인포그래픽 도구가 깨지는 지점이다.
 
