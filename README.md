@@ -1,8 +1,13 @@
 <!-- 한국어: [README.ko.md](./README.ko.md) -->
 
-# Agent Skills
+# Skillstead
 
-Reusable skills for AI coding agents, starting with one practical gap: making clean technical visuals from plain text.
+Small, practical skills you install into Claude Code, one at a time.
+
+Community project, not affiliated with Anthropic's official Agent Skills.
+
+> [!TIP]
+> **Skillstead = skill + homestead.** The name points to a small, durable place for practical Claude Code skills, starting with `svg-infographic`.
 
 The first skill, [`svg-infographic`](./skills/svg-infographic), helps Claude Code turn architecture notes, migration plans, process flows, decision matrices, and technical concepts into editable SVGs and crisp 2x PNGs for docs, decks, and social posts.
 
@@ -26,16 +31,16 @@ Claude can produce good visual artifacts in chat, but Claude Code often works in
 | Decision and priority matrices | 2×2 quadrant maps, scope/uncertainty grids, trade-off views |
 | Korean-ready share images | CJK-safe SVG + PNG output for docs and social posts |
 
-See the full [example gallery](./examples/svg-infographic) for eight examples across seven archetypes — architecture, migration, workflow, decision matrix, and more — in English and Korean, with the prompts that produced them.
+See the full [example gallery](./examples/svg-infographic) for eight examples across several archetypes — architecture, migration, workflow, decision matrix, and more — in English and Korean, with the prompts that produced them.
 
 ## Quick Start
 
 Install the first skill for Claude Code:
 
 ```bash
-git clone --depth 1 https://github.com/kyungseo/agent-skills.git /tmp/agent-skills
+git clone --depth 1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.claude/skills
-cp -R /tmp/agent-skills/skills/svg-infographic ~/.claude/skills/
+cp -R /tmp/skillstead/skills/svg-infographic ~/.claude/skills/
 ```
 
 Or install it **per project** (`.claude/skills/` in a repo, so your team gets it on clone). Project-scoped install, Windows PowerShell, pinned versions, update, and uninstall are in [`docs/INSTALL.md`](./docs/INSTALL.md).
@@ -56,6 +61,8 @@ The skill produces:
 - `*.png` as a 2x export for sharing, slides, and social posts
 
 ## Skill Catalog
+
+Starting with one practical skill. More skills can be added when they meet the same evidence and example bar.
 
 | Skill | Agent | Status | What it does |
 | --- | --- | --- | --- |

@@ -14,17 +14,17 @@ Both use the same **clone + copy** method below (recommended over `curl \| bash`
 **macOS / Linux:**
 
 ```bash
-git clone --depth 1 https://github.com/kyungseo/agent-skills.git /tmp/agent-skills
+git clone --depth 1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.claude/skills
-cp -R /tmp/agent-skills/skills/svg-infographic ~/.claude/skills/
+cp -R /tmp/skillstead/skills/svg-infographic ~/.claude/skills/
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-git clone --depth 1 https://github.com/kyungseo/agent-skills.git "$env:TEMP\agent-skills"
+git clone --depth 1 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
-Copy-Item -Recurse -Force "$env:TEMP\agent-skills\skills\svg-infographic" "$env:USERPROFILE\.claude\skills\"
+Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\svg-infographic" "$env:USERPROFILE\.claude\skills\"
 ```
 
 ## Project install (one repo, shareable with your team)
@@ -34,17 +34,17 @@ Run from your project's root, so the skill lands in that repo's `.claude/skills/
 **macOS / Linux:**
 
 ```bash
-git clone --depth 1 https://github.com/kyungseo/agent-skills.git /tmp/agent-skills
+git clone --depth 1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .claude/skills
-cp -R /tmp/agent-skills/skills/svg-infographic .claude/skills/
+cp -R /tmp/skillstead/skills/svg-infographic .claude/skills/
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-git clone --depth 1 https://github.com/kyungseo/agent-skills.git "$env:TEMP\agent-skills"
+git clone --depth 1 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force ".claude\skills" | Out-Null
-Copy-Item -Recurse -Force "$env:TEMP\agent-skills\skills\svg-infographic" ".claude\skills\"
+Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\svg-infographic" ".claude\skills\"
 ```
 
 Then **commit `.claude/skills/svg-infographic/`** to your repo. Everyone who clones the project gets the skill automatically — no per-person install. (License is Apache-2.0, so vendoring the folder is fine; keep the `LICENSE`/attribution if you redistribute it.)
@@ -54,8 +54,8 @@ Then **commit `.claude/skills/svg-infographic/`** to your repo. Everyone who clo
 Add `--branch <tag>` to any clone above, then copy to the global or project location:
 
 ```bash
-git clone --depth 1 --branch v0.1.0 https://github.com/kyungseo/agent-skills.git /tmp/agent-skills
-cp -R /tmp/agent-skills/skills/svg-infographic ~/.claude/skills/      # or .claude/skills/ for project scope
+git clone --depth 1 --branch v0.1.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+cp -R /tmp/skillstead/skills/svg-infographic ~/.claude/skills/      # or .claude/skills/ for project scope
 ```
 
 ## Manual install

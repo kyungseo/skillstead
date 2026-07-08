@@ -123,7 +123,7 @@ GitHub install commands (global and project scope) for macOS, Linux, and Windows
 
 Browse the full gallery:
 
-**https://github.com/kyungseo/agent-skills/tree/main/examples/svg-infographic**
+**https://github.com/kyungseo/skillstead/tree/main/examples/svg-infographic**
 
 It includes English and Korean examples for topology, layer/onion models, before/after comparison, process flow, roadmap, and a self-demo.
 

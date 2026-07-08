@@ -2,7 +2,7 @@
 
 Real outputs from the [`svg-infographic`](../../skills/svg-infographic) skill. Each example is a flat, structural visual shipped as source SVG + 2× PNG, in English and Korean, with the prompt that generated it.
 
-Every example is originally authored, synthetic, non-client, and non-confidential. Together they cover seven archetypes the skill advertises.
+Every example is originally authored, synthetic, non-client, and non-confidential. Together they cover several archetypes the skill advertises.
 
 ![svg-infographic gallery preview](./gallery-preview.en.png)
 
@@ -87,13 +87,13 @@ uncertainty.
 
 ## Render smoke test (per OS)
 
-Honest status — only macOS is verified in this build. Windows/Linux paths are documented in [`SKILL.md`](../../skills/svg-infographic/SKILL.md) §6 but not yet smoke-tested here; contributions welcome.
+Windows and Linux install paths are documented in [`SKILL.md`](../../skills/svg-infographic/SKILL.md) §6 and are expected to work with Chrome/Edge/Chromium. For v0.1.0, PNG export has been smoke-tested on macOS; Windows/Linux render verification is still pending.
 
 | Environment | Browser | en/ko SVG → 2× PNG | Status |
 | --- | --- | --- | --- |
 | macOS 15 | Chrome (headless) | all 8 examples | ✅ verified — correct 2× dimensions, no tofu |
-| Windows 10/11 | Chrome / Edge | — | ⏳ not yet verified (see SKILL.md §6 PowerShell path) |
-| Linux / WSL | Chrome / Chromium | — | ⏳ not yet verified (install Noto Sans CJK/KR for Korean) |
+| Windows 10/11 | Chrome / Edge | documented path | ⏳ expected; render verification pending |
+| Linux / WSL | Chrome / Chromium | documented path | ⏳ expected; render verification pending (install Noto Sans CJK/KR for Korean) |
 
 ## Scope
 

@@ -85,7 +85,7 @@ Define CSS variables in a `<style>` block and reference them (`fill:var(--k8s-fi
 
 Colors encode role, not decoration. Keep roles; change hex to rebrand. Dark variant: override the same vars under `@media (prefers-color-scheme:dark)` (PNG renders light unless forced).
 
-**Gotcha — a global `text{ fill:… }` rule overrides inline `fill` on every `<text>`.** CSS wins over presentation attributes, so a blanket `text{ fill:var(--ink) }` silently turns an inline `fill="#FFFFFF"` label (a badge number, or white text on an accent pill) dark — low-contrast and easy to miss until you inspect the PNG. For on-accent light text, raise specificity with a class (e.g. `.on-accent{ fill:#FFFFFF }` applied to those `<text>`), or drop the blanket `text{fill}` rule and set each text's color inline.
+**Gotcha — blanket text color rules can hide contrast problems.** In headless Chrome, an inline `fill="#FFFFFF"` usually wins over a global `text{ fill:var(--ink) }` rule, but inherited text (`<tspan>`, grouped labels, or generated variants) can still lose its intended on-accent contrast. Always inspect the PNG. For light text on accent backgrounds, prefer an explicit class such as `.on-accent{ fill:#FFFFFF }` on those labels, or avoid the blanket `text{fill}` rule when the diagram mixes dark body text and light-on-accent text.
 
 ## 5. Icons — icon-first (default on)
 
