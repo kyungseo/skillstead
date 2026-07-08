@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 900" width="680" height="900" role="img"
+  style="font-family:Pretendard,'Apple SD Gothic Neo','Noto Sans KR',sans-serif">
+  <title>Azure 레퍼런스 토폴로지 — AGW에서 APIM, AKS, PostgreSQL까지</title>
+  <desc>인터넷에서 Application Gateway(WAF), API Management, AKS 클러스터(Ingress, Service, Pod)를 거쳐 Azure Database for PostgreSQL로 이어지는 요청 경로. Azure VNet 내부.</desc>
+  <style>
+    svg{ --bg:#FFFFFF; --ink:#2A2E37; --muted:#6B7280; --hair:#C9D2DE;
+      --edge-fill:#E8F1FB; --edge-line:#1F6FB2; --edge-ink:#124267;
+      --api-fill:#ECEBFB;  --api-line:#534AB7;  --api-ink:#3C3489;
+      --k8s-fill:#E7F5EF;  --k8s-line:#0F7A5F;  --k8s-ink:#085041;
+      --data-fill:#F1F1EE; --data-line:#7A8398; --data-ink:#3F4453;
+      --zone-fill:#FBFCFE; }
+    text{ fill:var(--ink) }
+    .lbl{ font-size:14px; font-weight:600 }
+    .sub{ font-size:11px; fill:var(--muted) }
+    .box{ stroke-width:1 }
+    .zone{ stroke-width:1 }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M1,1 L7,4.5 L1,8" fill="none" stroke="#6B7280" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="680" height="900" fill="var(--bg)"/>
+
+  <!-- title -->
+  <rect x="30" y="26" width="6" height="40" rx="2" fill="var(--edge-line)"/>
+  <text x="48" y="40" style="font-size:22px;font-weight:700">Azure 레퍼런스 토폴로지</text>
+  <text x="48" y="62" class="sub" style="font-size:13px">요청 경로: Application Gateway → APIM → AKS → PostgreSQL</text>
+
+  <!-- Internet -->
+  <rect class="box" x="250" y="92" width="180" height="40" rx="20"
+        style="fill:#F1F1EE;stroke:var(--data-line)"/>
+  <text x="340" y="112" text-anchor="middle" class="lbl" style="fill:var(--data-ink)">인터넷 / 클라이언트</text>
+  <line x1="340" y1="132" x2="340" y2="176" stroke="#6B7280" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- VNet frame -->
+  <rect class="zone" x="34" y="182" width="612" height="600" rx="14"
+        style="fill:var(--zone-fill);stroke:var(--hair)"/>
+  <text x="52" y="206" class="sub" style="font-size:12px;font-weight:600;fill:var(--muted)">Azure VNet</text>
+
+  <!-- Application Gateway -->
+  <rect class="box" x="190" y="220" width="300" height="58" rx="9"
+        style="fill:var(--edge-fill);stroke:var(--edge-line)"/>
+  <text x="340" y="243" text-anchor="middle" class="lbl" style="fill:var(--edge-ink)">Application Gateway + WAF</text>
+  <text x="340" y="262" text-anchor="middle" class="sub">공개 진입 · TLS 종료 · L7 라우팅</text>
+  <line x1="340" y1="278" x2="340" y2="316" stroke="#6B7280" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- APIM -->
+  <rect class="box" x="190" y="320" width="300" height="58" rx="9"
+        style="fill:var(--api-fill);stroke:var(--api-line)"/>
+  <text x="340" y="343" text-anchor="middle" class="lbl" style="fill:var(--api-ink)">API Management (APIM)</text>
+  <text x="340" y="362" text-anchor="middle" class="sub">인증 · 속도 제한 · 정책 · 버전 관리</text>
+  <line x1="340" y1="378" x2="340" y2="416" stroke="#6B7280" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- AKS cluster zone -->
+  <rect class="zone" x="96" y="420" width="488" height="252" rx="11"
+        style="fill:#F3FAF7;stroke:var(--k8s-line)"/>
+  <text x="116" y="443" class="sub" style="font-size:12px;font-weight:700;fill:var(--k8s-ink)">AKS 클러스터</text>
+
+  <!-- Ingress -->
+  <rect class="box" x="188" y="452" width="304" height="46" rx="8"
+        style="fill:var(--k8s-fill);stroke:var(--k8s-line)"/>
+  <text x="340" y="475" text-anchor="middle" class="lbl" style="fill:var(--k8s-ink)">Ingress 컨트롤러</text>
+  <line x1="340" y1="498" x2="340" y2="524" stroke="#6B7280" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <!-- Service -->
+  <rect class="box" x="208" y="528" width="264" height="42" rx="8"
+        style="fill:#FFFFFF;stroke:var(--k8s-line)"/>
+  <text x="340" y="549" text-anchor="middle" class="lbl" style="fill:var(--k8s-ink)">서비스 (ClusterIP)</text>
+
+  <!-- fan-out to pods -->
+  <line x1="260" y1="570" x2="260" y2="600" stroke="#6B7280" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <line x1="340" y1="570" x2="340" y2="600" stroke="#6B7280" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <line x1="420" y1="570" x2="420" y2="600" stroke="#6B7280" stroke-width="1.3" marker-end="url(#arrow)"/>
+
+  <rect class="box" x="216" y="604" width="88" height="52" rx="8" style="fill:var(--k8s-fill);stroke:var(--k8s-line)"/>
+  <text x="260" y="626" text-anchor="middle" class="lbl" style="fill:var(--k8s-ink);font-size:13px">Pod</text>
+  <text x="260" y="643" text-anchor="middle" class="sub" style="font-size:10px">레플리카</text>
+  <rect class="box" x="296" y="604" width="88" height="52" rx="8" style="fill:var(--k8s-fill);stroke:var(--k8s-line)"/>
+  <text x="340" y="626" text-anchor="middle" class="lbl" style="fill:var(--k8s-ink);font-size:13px">Pod</text>
+  <text x="340" y="643" text-anchor="middle" class="sub" style="font-size:10px">레플리카</text>
+  <rect class="box" x="376" y="604" width="88" height="52" rx="8" style="fill:var(--k8s-fill);stroke:var(--k8s-line)"/>
+  <text x="420" y="626" text-anchor="middle" class="lbl" style="fill:var(--k8s-ink);font-size:13px">Pod</text>
+  <text x="420" y="643" text-anchor="middle" class="sub" style="font-size:10px">레플리카</text>
+
+  <!-- AKS to Postgres (private, dashed) -->
+  <line x1="340" y1="672" x2="340" y2="708" stroke="#6B7280" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+
+  <!-- PostgreSQL -->
+  <rect class="box" x="182" y="712" width="316" height="58" rx="9"
+        style="fill:var(--data-fill);stroke:var(--data-line)"/>
+  <text x="340" y="735" text-anchor="middle" class="lbl" style="fill:var(--data-ink)">Azure Database for PostgreSQL</text>
+  <text x="340" y="754" text-anchor="middle" class="sub">Flexible Server · 프라이빗 엔드포인트</text>
+
+  <!-- legend -->
+  <line x1="228" y1="812" x2="268" y2="812" stroke="#6B7280" stroke-width="1.3"/>
+  <text x="276" y="816" class="sub" style="font-size:11px">요청 경로 (동기)</text>
+  <line x1="410" y1="812" x2="450" y2="812" stroke="#6B7280" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text x="458" y="816" class="sub" style="font-size:11px">프라이빗 링크 (관리형)</text>
+</svg>

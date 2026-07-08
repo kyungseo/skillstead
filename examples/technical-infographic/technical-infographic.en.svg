@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350" width="1080" height="1350" role="img"
+  style="font-family:Pretendard,'Apple SD Gothic Neo','Noto Sans KR',sans-serif">
+  <title>The 4 Layers of AI Engineering</title>
+  <desc>Four nested layers — Prompt inside Context inside Harness inside Loop — each wrapping the one before it, with a one-line description of each engineering layer.</desc>
+  <style>
+    svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#D6E0EC;
+      --l1:#1F6FB2; --l2:#5A8DC4; --l3:#7AA6D2; --l4:#9DBEDE;
+      --card:#F7FAFD; }
+    text{ fill:var(--ink) }
+    .sub{ fill:var(--muted) }
+  </style>
+
+  <rect x="0" y="0" width="1080" height="1350" fill="var(--bg)"/>
+
+  <!-- title -->
+  <rect x="80" y="60" width="9" height="52" rx="3" fill="var(--l1)"/>
+  <text x="106" y="98" style="font-size:46px;font-weight:800">The 4 Layers of AI Engineering</text>
+  <text x="106" y="134" class="sub" style="font-size:21px">Each layer wraps the one before it.</text>
+
+  <!-- nested onion -->
+  <rect x="120" y="182" width="840" height="428" rx="22" style="fill:#E8F1FB;stroke:#9DBEDE;stroke-width:1.5"/>
+  <text x="540" y="214" text-anchor="middle" style="font-size:26px;font-weight:700;fill:#2C5A86">Loop</text>
+
+  <rect x="212" y="246" width="656" height="300" rx="20" style="fill:#CFE0F2;stroke:#7AA6D2;stroke-width:1.5"/>
+  <text x="540" y="278" text-anchor="middle" style="font-size:25px;font-weight:700;fill:#274F79">Harness</text>
+
+  <rect x="318" y="304" width="444" height="184" rx="18" style="fill:#9DC0E4;stroke:#5A8DC4;stroke-width:1.5"/>
+  <text x="540" y="335" text-anchor="middle" style="font-size:24px;font-weight:700;fill:#193A5C">Context</text>
+
+  <rect x="410" y="356" width="260" height="86" rx="16" style="fill:#1F6FB2;stroke:#175789;stroke-width:1.5"/>
+  <text x="540" y="407" text-anchor="middle" style="font-size:24px;font-weight:700;fill:#FFFFFF">Prompt</text>
+
+  <!-- cards 2x2 -->
+  <!-- card 1: Prompt -->
+  <rect x="110" y="666" width="410" height="270" rx="18" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
+  <circle cx="150" cy="712" r="19" fill="#1F6FB2"/>
+  <text x="150" y="713" text-anchor="middle" style="font-size:20px;font-weight:700;fill:#FFFFFF">1</text>
+  <text x="184" y="720" style="font-size:26px;font-weight:700">Prompt Engineering</text>
+  <text x="150" y="792" class="sub" style="font-size:19px">
+    <tspan x="150" dy="0">The exact wording, instructions, and</tspan>
+    <tspan x="150" dy="28">constraints you type directly into the chat.</tspan>
+  </text>
+
+  <!-- card 2: Context -->
+  <rect x="560" y="666" width="410" height="270" rx="18" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
+  <circle cx="600" cy="712" r="19" fill="#5A8DC4"/>
+  <text x="600" y="713" text-anchor="middle" style="font-size:20px;font-weight:700;fill:#FFFFFF">2</text>
+  <text x="634" y="720" style="font-size:26px;font-weight:700">Context Engineering</text>
+  <text x="600" y="792" class="sub" style="font-size:19px">
+    <tspan x="600" dy="0">The system instructions, reference files,</tspan>
+    <tspan x="600" dy="28">and history the model reads before your prompt.</tspan>
+  </text>
+
+  <!-- card 3: Harness -->
+  <rect x="110" y="966" width="410" height="270" rx="18" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
+  <circle cx="150" cy="1012" r="19" fill="#7AA6D2"/>
+  <text x="150" y="1013" text-anchor="middle" style="font-size:20px;font-weight:700;fill:#FFFFFF">3</text>
+  <text x="184" y="1020" style="font-size:26px;font-weight:700">Harness Engineering</text>
+  <text x="150" y="1092" class="sub" style="font-size:19px">
+    <tspan x="150" dy="0">The code that routes tools, verifies outputs,</tspan>
+    <tspan x="150" dy="28">and retries so the model checks its own work.</tspan>
+  </text>
+
+  <!-- card 4: Loop -->
+  <rect x="560" y="966" width="410" height="270" rx="18" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
+  <circle cx="600" cy="1012" r="19" fill="#9DBEDE"/>
+  <text x="600" y="1013" text-anchor="middle" style="font-size:20px;font-weight:700;fill:#2C5A86">4</text>
+  <text x="634" y="1020" style="font-size:26px;font-weight:700">Loop Engineering</text>
+  <text x="600" y="1092" class="sub" style="font-size:19px">
+    <tspan x="600" dy="0">A goal and stop condition that let the system</tspan>
+    <tspan x="600" dy="28">prompt, check, and adjust without you in the loop.</tspan>
+  </text>
+
+  <!-- footer -->
+  <text x="540" y="1300" text-anchor="middle" class="sub" style="font-size:18px">A great prompt without context is a guess · without a harness it drifts · without a loop it waits for you.</text>
+</svg>

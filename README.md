@@ -4,7 +4,7 @@
 
 Small, practical skills for AI coding agents — packaged so each one is easy to read, install, and share on its own.
 
-Each skill fills a concrete capability gap you hit in real work, and ships with example artifacts so you can see the output before you install. (Examples for the first skill are release-gated and not published yet.)
+Each skill fills a concrete capability gap you hit in real work, and ships with example artifacts so you can see the output before you install. See [`examples/`](./examples) for the first skill's outputs (English + Korean).
 
 > **First-class Korean / CJK rendering.** The first skill authors SVG infographics with a font stack and glyph checks tuned for Korean and other CJK text — an area where many diagram/infographic tools break.
 

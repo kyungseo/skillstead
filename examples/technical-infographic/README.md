@@ -1,15 +1,42 @@
-# Example: Non-Architecture Technical Infographic
+<!-- 한국어는 아래 -->
 
-_Placeholder — release-gated._
+# Example: Technical Infographic
 
-This example is a **public release blocker**. It will hold a non-architecture technical infographic (e.g. a before/after comparison or a process/flow one-pager) produced by `svg-infographic`, with both the source `.svg` and the exported `.png`.
+A non-architecture technical infographic — "The 4 Layers of AI Engineering" — produced by `svg-infographic`, in English and Korean.
 
-## Provenance requirement
+| English | 한국어 |
+| --- | --- |
+| ![4 Layers of AI Engineering (EN)](./technical-infographic.en.png) | ![AI 엔지니어링의 4가지 레이어 (KO)](./technical-infographic.ko.png) |
 
-The example must be **originally authored, non-client, and non-confidential**. It must not be a real engagement artifact or a recognizable derivative of one.
+Files: `*.en.svg` / `*.en.png` / `*.ko.svg` / `*.ko.png` — SVG is the editable source, PNG is the 2x export.
 
-## Quality bar
+## Prompt
 
-- No text overflow
-- Correct Korean / CJK glyph rendering
-- Matching SVG / PNG dimensions
+```text
+Use svg-infographic to make a 4:5 social infographic titled "The 4 Layers of AI
+Engineering". Show four nested rounded rectangles (an onion): Loop wraps Harness
+wraps Context wraps Prompt, shaded from light to saturated blue with each layer
+labeled. Below, a 2x2 card grid with numbered badges — 1 Prompt, 2 Context,
+3 Harness, 4 Loop Engineering — each with a one-line description. Flat vector style,
+muted blue palette. Export SVG + 2x PNG.
+```
+
+This is a **flat, structural** infographic — the skill's sweet spot. Hand-drawn / crayon "sketchnote" styles and character illustration are out of scope.
+
+---
+
+# 예제: 기술 인포그래픽
+
+아키텍처가 아닌 기술 인포그래픽 — "AI 엔지니어링의 4가지 레이어". `svg-infographic`으로 영문·한글 두 본을 만들었다.
+
+## 프롬프트
+
+```text
+svg-infographic으로 "AI 엔지니어링의 4가지 레이어" 제목의 4:5 소셜 인포그래픽을 만들어줘.
+중첩된 둥근 사각형 4개(양파 구조): 루프가 하네스를, 하네스가 컨텍스트를, 컨텍스트가 프롬프트를
+감싸고, 밝은 파랑에서 진한 파랑으로 음영을 주고 각 레이어에 라벨을 달아줘. 아래에는 넘버 badge가
+있는 2x2 카드 그리드 — 1 프롬프트, 2 컨텍스트, 3 하네스, 4 루프 엔지니어링 — 각각 한 줄 설명.
+flat 벡터 스타일, muted 블루 팔레트. SVG + 2x PNG로 export해줘.
+```
+
+이건 **flat·구조적** 인포그래픽으로 skill의 sweet spot이다. 손그림/크레용 스케치노트 스타일과 캐릭터 일러스트는 범위 밖이다.
