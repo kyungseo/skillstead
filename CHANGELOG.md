@@ -1,26 +1,21 @@
 # Changelog
 
-All notable changes to this repository are documented here.
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+Notable changes to this repository. Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
-## [Unreleased]
+Granular, per-change entries begin at the first public release. Until then, the entry below summarizes what the initial release provides. (Development history is in the git log.)
 
-### Added
+## [Unreleased] — initial release
 
-- Repository skeleton: root README (EN) + Korean mirror, naming convention, install guide.
-- First skill draft: `svg-infographic` (Claude Code) — technical/structured SVG infographic authoring with 2x PNG export.
+### svg-infographic (Claude Code)
+
+- Author technical/structured SVG infographics and diagrams from a description, and render crisp **2× PNG** via a headless Chromium browser (Chrome / Edge / Chromium) on macOS, Windows, and Linux.
+- **Archetypes:** cloud/network topology, layer & nested "onion" models, icon cards, before/after comparison, process/data flow, roadmap, qualitative risk matrix — each with a mini recipe.
+- **Icon-first:** reusable line-icon set in soft tinted circles; number badges only when sequence matters.
+- **First-class Korean/CJK** text with cross-platform font fallback (Apple SD Gothic Neo / Malgun Gothic / Noto Sans KR).
+- CSS-variable color tokens (recolor in one place), canvas presets, vertical-centering, text-wrapping, and connector-routing rules.
+- **Examples** (English + Korean, source SVG + 2× PNG, each with its prompt and provenance): `technical-infographic`, `before-after-migration`, `cloud-infra-topology`, `skill-overview`.
+
+### Repository
+
+- GitHub install guide (clone + copy, latest or pinned tag, update, uninstall) — no remote script executed.
 - Apache-2.0 license.
-- Example artifacts under `examples/svg-infographic/` (namespaced by skill; SVG + 2x PNG, English + Korean, each with the generating prompt + Provenance):
-  - `technical-infographic` — "The 4 Layers of AI Engineering" (flat, structural; icon cards).
-  - `before-after-migration` — Monolith → Microservices comparison (two-panel before/after).
-  - `cloud-infra-topology` — Azure AGW → APIM → AKS → PostgreSQL reference topology (icon badges).
-  - `skill-overview` — the skill introducing itself (purpose + mechanism).
-- Cross-platform hardening: per-OS browser discovery, `--no-sandbox` fallback, Windows `file://` path handling, CJK font fallback (macOS/Windows/Linux) with a Linux Noto-CJK install note.
-- GitHub install guide (clone + copy, latest + pinned tag, update, uninstall) in `docs/INSTALL.md`; quick install in the READMEs.
-- SKILL.md layout guide: per-archetype recipes, text-wrapping and connector-routing rules, canvas presets, sharpened non-goals (simple qualitative matrices allowed).
-- Gallery + per-OS render smoke-test table in `examples/svg-infographic/README.md`.
-
-### Notes
-
-- Private-first. The two original, non-client example artifacts are in place and pass the quality bar (no text overflow, correct Korean/CJK glyphs, matching SVG/PNG dimensions); remaining public-release gates (repo name freeze, distribution baseline) are tracked in Toolstead.
-- Codex support, install scripts, versioning policy, compatibility matrix, and plugin/marketplace packaging are deferred.

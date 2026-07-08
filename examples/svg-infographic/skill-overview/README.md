@@ -18,26 +18,28 @@ Originally authored synthetic example. Non-client, non-confidential. Describes t
 ## Prompt
 
 ```text
-Use svg-infographic to make a 4:5 portrait overview of the svg-infographic skill
-itself. Title + tagline, then a "How it works" 4-step flow (Confirm → Author SVG →
-Render → Verify) with arrows, a two-panel "What it's for" (Great for / Not for)
-with check and cross marks, a "You get" row (.svg source + 2x .png), and a band
-highlighting first-class Korean/CJK text with a 가나다라 · ABCabc · 0123 sample.
-Flat vector style, muted blue palette. Export SVG + 2x PNG.
+Use svg-infographic to make a portrait overview of the svg-infographic skill itself.
+Title + tagline, then a "Diagram types it makes" 2×3 icon-card grid (Topology,
+Layer/Onion, Flow, Before/After, Cards, Roadmap), a "How it works" 4-step flow
+(Confirm → Author SVG → Render → Verify), and two feature bands — first-class
+Korean/CJK (with a 가나다라 · ABCabc · 0123 sample) and Cross-platform (macOS ·
+Windows · Linux) — plus a "Not for" line. Flat vector, muted blue, line icons in
+soft circles. Export SVG + 2x PNG.
 ```
 
 ---
 
 # 예제: 스킬 소개
 
-`svg-infographic` 자체를 소개하는 한 장짜리 인포그래픽 — 용도와 동작 방식 — 을 **그 스킬로** 만들었다. 영문·한글.
+`svg-infographic` 자체를 소개하는 한 장짜리 인포그래픽 — 만들 수 있는 다이어그램 유형과 동작 방식 — 을 **그 스킬로** 만들었다. 영문·한글.
 
 ## 프롬프트
 
 ```text
-svg-infographic으로 svg-infographic 스킬 자체를 소개하는 4:5 세로 인포그래픽을 만들어줘.
-제목 + 태그라인, "동작 방식" 4단계 플로우(확인 → SVG 작성 → 렌더 → 검증)와 화살표,
-"용도" 2패널(적합 / 부적합)에 체크·엑스 표시, "결과물" 행(.svg 원본 + 2x .png), 그리고
-한국어/CJK 텍스트 우선 지원을 강조하는 밴드(가나다라 · ABCabc · 0123 샘플 포함).
-flat 벡터 스타일, muted 블루 팔레트. SVG + 2x PNG로 export해줘.
+svg-infographic으로 svg-infographic 스킬 자체를 소개하는 세로 인포그래픽을 만들어줘.
+제목 + 태그라인, "만들 수 있는 다이어그램" 2×3 아이콘 카드 그리드(토폴로지, 레이어/온니언,
+플로우, 비교, 카드, 로드맵), "동작 방식" 4단계 플로우(확인 → SVG 작성 → 렌더 → 검증),
+그리고 기능 밴드 2개 — 한국어/CJK 우선(가나다라 · ABCabc · 0123 샘플)과 크로스플랫폼
+(macOS · Windows · Linux) — 에 "부적합" 한 줄. flat 벡터, muted 블루, 연한 원형 line 아이콘.
+SVG + 2x PNG로 export해줘.
 ```
