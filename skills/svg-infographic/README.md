@@ -1,3 +1,5 @@
+<!-- 한국어: [README.ko.md](./README.ko.md) -->
+
 # svg-infographic
 
 Author technical/structured SVG infographics with a consistent style system, and export both an editable SVG and a crisp 2x PNG artifact.

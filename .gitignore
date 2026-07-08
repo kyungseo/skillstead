@@ -1,4 +1,4 @@
-# Environment (절대 커밋 금지)
+# Environment
 .env
 .env.local
 .env.*.local
@@ -7,31 +7,10 @@
 .idea/
 *.iml
 *.code-workspace
-# IDE: .vscode는 개인 환경 설정이므로 전체 ignore
 .vscode/
 
-# [ AI 정리 ]
-# commit 권장:
-#   .claude/
-#   .cursor/rules/
-#   .claudeignore
-#   .cursorignore
-#   prompts/
-#
-# ignore:
-#   .vscode/
-#   개인 설정
-#   secrets
-
-# Claude Code local settings
-.claude/settings.local.json
-
-# Generated / ephemeral working files (SVG→PNG 렌더링·검증용 작업 파일)
+# Generated / ephemeral working files (SVG-to-PNG rendering and verification scratch)
 outputs/
-
-# OS
-.DS_Store
-Thumbs.db
 
 # Logs
 *.log
@@ -39,9 +18,10 @@ logs/
 
 # Misc
 temp/
-tmp/
-bak/
-*.bak
 
 # Office lock files
 ~$*
+
+# OS
+.DS_Store
+Thumbs.db
