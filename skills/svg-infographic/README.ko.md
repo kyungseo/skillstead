@@ -51,13 +51,13 @@ svg-infographic으로 이 4가지 레이어를 설명하는 한국어 4:5 소셜
 
 ## 설치
 
-이 폴더를 Claude Code skills 디렉터리에 복사합니다:
+이 폴더를 Claude Code skills 디렉터리에 복사합니다 — **전역**(`~/.claude/skills/`, 모든 프로젝트에서 사용) 또는 **프로젝트**(repo의 `.claude/skills/`, 팀원이 clone만으로 사용) 중 선택:
 
 ```text
-<claude-skills-dir>/svg-infographic/SKILL.md
+<skills-dir>/svg-infographic/SKILL.md
 ```
 
-macOS, Linux, Windows용 GitHub 설치 명령은 [../../docs/INSTALL.md](../../docs/INSTALL.md)를 참고하세요.
+전역·프로젝트 scope의 macOS, Linux, Windows용 GitHub 설치 명령은 [../../docs/INSTALL.md](../../docs/INSTALL.md)를 참고하세요.
 
 ## 예제
 

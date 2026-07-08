@@ -37,7 +37,7 @@ mkdir -p ~/.claude/skills
 cp -R /tmp/agent-skills/skills/svg-infographic ~/.claude/skills/
 ```
 
-Windows PowerShell, pinned versions, update, and uninstall instructions are in [`docs/INSTALL.md`](./docs/INSTALL.md).
+Or install it **per project** (`.claude/skills/` in a repo, so your team gets it on clone). Project-scoped install, Windows PowerShell, pinned versions, update, and uninstall are in [`docs/INSTALL.md`](./docs/INSTALL.md).
 
 Then ask Claude Code for a visual:
 

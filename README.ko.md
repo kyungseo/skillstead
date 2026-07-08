@@ -37,7 +37,7 @@ mkdir -p ~/.claude/skills
 cp -R /tmp/agent-skills/skills/svg-infographic ~/.claude/skills/
 ```
 
-Windows PowerShell, 버전 고정 설치, 업데이트, 제거 방법은 [`docs/INSTALL.md`](./docs/INSTALL.md)에 있습니다.
+**프로젝트 단위**로 설치할 수도 있습니다(repo의 `.claude/skills/`에 두면 팀원이 clone만으로 사용). 프로젝트 단위 설치, Windows PowerShell, 버전 고정 설치, 업데이트, 제거 방법은 [`docs/INSTALL.md`](./docs/INSTALL.md)에 있습니다.
 
 이후 Claude Code에서 이렇게 요청합니다:
 

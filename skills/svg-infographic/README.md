@@ -51,13 +51,13 @@ Before drawing, the skill tells you these defaults and gives you a chance to cha
 
 ## Install
 
-Copy this folder into your Claude Code skills directory:
+Copy this folder into a Claude Code skills directory — either **global** (`~/.claude/skills/`, available in all your projects) or **project** (`.claude/skills/` in a repo, so your team gets it on clone):
 
 ```text
-<claude-skills-dir>/svg-infographic/SKILL.md
+<skills-dir>/svg-infographic/SKILL.md
 ```
 
-For GitHub install commands on macOS, Linux, and Windows, see [../../docs/INSTALL.md](../../docs/INSTALL.md).
+GitHub install commands (global and project scope) for macOS, Linux, and Windows are in [../../docs/INSTALL.md](../../docs/INSTALL.md).
 
 ## Examples
 
