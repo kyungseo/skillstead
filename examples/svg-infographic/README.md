@@ -12,15 +12,23 @@ Concept infographics: nested/onion models + icon cards.
 
 → [`technical-infographic/`](./technical-infographic) · English + 한국어
 
-### 2. Cloud infrastructure topology
+### 2. Before / after migration
 
-Architecture/topology proof: zones, components with icons, request-path arrows.
+Comparison archetype — beyond architecture: two equal panels, semantic colors, ✓/✕ points.
+
+[![Monolith to microservices](./before-after-migration/before-after-migration.en.png)](./before-after-migration)
+
+→ [`before-after-migration/`](./before-after-migration) · English + 한국어
+
+### 3. Cloud infrastructure topology
+
+Architecture/topology proof: zones, components with icon badges, request-path arrows.
 
 [![Azure reference topology](./cloud-infra-topology/cloud-infra-topology.en.png)](./cloud-infra-topology)
 
 → [`cloud-infra-topology/`](./cloud-infra-topology) · English + 한국어
 
-### 3. Skill overview — self-demo
+### 4. Skill overview — self-demo
 
 The skill introducing itself: purpose, mechanism, scope.
 
@@ -36,6 +44,16 @@ The skill introducing itself: purpose, mechanism, scope.
 - [x] `<title>` / `<desc>` present for accessibility
 - [x] No host-specific or client paths in the source
 - [x] Icons render (no broken `<use>` references)
+
+## Render smoke test (per OS)
+
+Honest status — only macOS is verified in this build. Windows/Linux paths are documented in [`SKILL.md`](../../skills/svg-infographic/SKILL.md) §6 but not yet smoke-tested here; contributions welcome.
+
+| Environment | Browser | en/ko SVG → 2× PNG | Status |
+| --- | --- | --- | --- |
+| macOS 15 | Chrome (headless) | all 4 examples | ✅ verified — correct 2× dimensions, no tofu |
+| Windows 10/11 | Chrome / Edge | — | ⏳ not yet verified (see SKILL.md §6 PowerShell path) |
+| Linux / WSL | Chrome / Chromium | — | ⏳ not yet verified (install Noto Sans CJK/KR for Korean) |
 
 ## Scope
 

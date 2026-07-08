@@ -28,7 +28,16 @@ Brand identity는 skill 이름이 아니라 repository metadata, README, 소셜 
 
 ## 설치
 
-[`docs/INSTALL.md`](./docs/INSTALL.md)를 참고한다. 기본 배포 방식은 에이전트의 skills 디렉터리로 수동 복사이며, 설치 스크립트는 필요 없다.
+repo를 clone하고 원하는 skill 폴더 하나만 복사한다 — 원격 스크립트를 실행하지 않는다. 전체 가이드(Windows PowerShell, 업데이트, 제거): [`docs/INSTALL.md`](./docs/INSTALL.md).
+
+**최신 설치** (macOS / Linux):
+
+```bash
+git clone --depth 1 https://github.com/kyungseo/agent-skills.git /tmp/agent-skills
+mkdir -p ~/.claude/skills && cp -R /tmp/agent-skills/skills/svg-infographic ~/.claude/skills/
+```
+
+**버전 고정 설치**(재현 가능): `--branch <tag>` 추가, 예 `--branch v0.1.0`.
 
 ## 범위
 

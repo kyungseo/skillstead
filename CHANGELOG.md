@@ -10,10 +10,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Repository skeleton: root README (EN) + Korean mirror, naming convention, install guide.
 - First skill draft: `svg-infographic` (Claude Code) — technical/structured SVG infographic authoring with 2x PNG export.
 - Apache-2.0 license.
-- Example artifacts under `examples/svg-infographic/` (namespaced by skill; SVG + 2x PNG, English + Korean, each with the generating prompt):
+- Example artifacts under `examples/svg-infographic/` (namespaced by skill; SVG + 2x PNG, English + Korean, each with the generating prompt + Provenance):
+  - `technical-infographic` — "The 4 Layers of AI Engineering" (flat, structural; icon cards).
+  - `before-after-migration` — Monolith → Microservices comparison (two-panel before/after).
+  - `cloud-infra-topology` — Azure AGW → APIM → AKS → PostgreSQL reference topology (icon badges).
   - `skill-overview` — the skill introducing itself (purpose + mechanism).
-  - `cloud-infra-topology` — Azure AGW → APIM → AKS → PostgreSQL reference topology.
-  - `technical-infographic` — "The 4 Layers of AI Engineering" (flat, structural).
+- Cross-platform hardening: per-OS browser discovery, `--no-sandbox` fallback, Windows `file://` path handling, CJK font fallback (macOS/Windows/Linux) with a Linux Noto-CJK install note.
+- GitHub install guide (clone + copy, latest + pinned tag, update, uninstall) in `docs/INSTALL.md`; quick install in the READMEs.
+- SKILL.md layout guide: per-archetype recipes, text-wrapping and connector-routing rules, canvas presets, sharpened non-goals (simple qualitative matrices allowed).
+- Gallery + per-OS render smoke-test table in `examples/svg-infographic/README.md`.
 
 ### Notes
 

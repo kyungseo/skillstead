@@ -28,7 +28,16 @@ Brand identity lives in repository metadata, README copy, and social posts — n
 
 ## Install
 
-See [`docs/INSTALL.md`](./docs/INSTALL.md). The default distribution is manual copy into your agent's skills directory; no install script required.
+Clone the repo and copy the one skill folder you want — no remote script is run. Full guide (Windows PowerShell, update, uninstall): [`docs/INSTALL.md`](./docs/INSTALL.md).
+
+**Install latest** (macOS / Linux):
+
+```bash
+git clone --depth 1 https://github.com/kyungseo/agent-skills.git /tmp/agent-skills
+mkdir -p ~/.claude/skills && cp -R /tmp/agent-skills/skills/svg-infographic ~/.claude/skills/
+```
+
+**Install a pinned version** (reproducible): add `--branch <tag>`, e.g. `--branch v0.1.0`.
 
 ## Scope
 

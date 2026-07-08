@@ -9,7 +9,9 @@ Use this skill when the user wants a technical or structured infographic/diagram
 
 Good for: architecture diagrams, cloud/network topology, component/layer diagrams, before/after, process/data flow, nested "onion" models, roadmap/risk maps, social-ready technical one-pagers.
 
-Do **not** use for: photo/illustration-heavy marketing graphics; statistical charts (bar/line/scatter/heatmap — use a chart tool); hand-drawn/crayon "sketchnote" styles; mascots or character illustration; custom logo design or bespoke icon design. (Using the built-in line-icon set in §5 is expected and encouraged — the non-goal is *designing new brand marks*, not using icons.)
+Do **not** use for: photo/illustration-heavy marketing graphics; **data-accurate** statistical charts (bar/line/scatter/heatmap — use a chart tool); hand-drawn/crayon "sketchnote" styles; mascots or character illustration; custom logo design or bespoke icon design.
+
+Nuances: a **simple qualitative** 2×2/3×3 matrix or a status-count badge is fine (it's structure, not a data-accurate chart). Using the built-in line-icon set (§5) is expected and encouraged — the non-goal is *designing new brand marks*, not using icons.
 
 ## 0. Preflight — confirm, then offer to change
 
@@ -26,10 +28,21 @@ Before drawing, confirm visual intent, audience, output ratio, and language. The
 | Cards | 2×N grid of icon + title + one-line description |
 | Before/after · Roadmap · Risk map | two panels · swimlane/milestones · grid |
 
+Per-archetype recipe (each line prevents that type's common failure):
+
+- **Topology:** top→bottom, outer zone → ingress → app/service → data; one icon badge per component; legend for line styles (solid=request, dashed=private).
+- **Flow:** ≤5 main nodes left→right; branches drop to a lower row; no crossing edges; async = dashed.
+- **Onion / layer:** concentric, light→saturated inward; label each band at its top strip, centered; keep 3–4 layers.
+- **Component architecture:** draw a system boundary; distinguish external vs internal actors; dependency arrows point consumer → provider.
+- **Before/after:** two **equal-height** panels; semantic colors — unchanged = neutral, added = green, removed = red (or strikethrough), changed = amber.
+- **Roadmap:** 3–5 phases; phase labels over exact dates; optional "now" marker; even spacing.
+- **Risk / priority matrix:** 2×2 or 3×3 grid with **both** axis labels and quadrant labels; severity color; nudge labels to avoid collision.
+- **Sequence-like:** only a **simple request path** (a→b→c). Full sequence diagrams (lifelines, activations) are out of scope.
+
 ## 2. Canvas & type scale
 
-- Root: `<svg xmlns viewBox="0 0 W H" width=W height=H role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">`. Include `<title>`/`<desc>`. The stack covers Korean/CJK on macOS (Apple SD Gothic Neo), Windows (Malgun Gothic), and Linux (Noto Sans KR).
-- Canvas: **680** wide for docs/decks; **1080×1350** (4:5) for social. Height as needed.
+- Root: `<svg xmlns viewBox="0 0 W H" width=W height=H role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">`. Include `<title>`/`<desc>`. The stack covers Korean/CJK on macOS (Apple SD Gothic Neo), Windows (Malgun Gothic), and Linux (Noto Sans KR). **On Linux the CJK font is not guaranteed** — if Korean renders as tofu (□), install Noto Sans CJK/KR (e.g. `fonts-noto-cjk`) and re-render.
+- Canvas presets (pick by use): **compact doc** 680w · **wide architecture** 1400×900 · **16:9 slide** 1600×900 · **social portrait** 1080×1350 (4:5). Height is flexible for the doc width.
 - **Type scale — keep it unified across the diagram** (don't vary per box):
   - 1080-wide social: H1 46 / section 24 / card title 25 / body 19 / caption 16
   - 680-wide docs: title 22 / box label 14 / caption 11
@@ -40,6 +53,8 @@ Before drawing, confirm visual intent, audience, output ratio, and language. The
 - Rounded rect `rx="8"` (wide bands `rx="12–22"`), hairline border `stroke-width:1`. Each box = tinted fill + same-family border + same-family text (a single semantic color family).
 - **Vertical centering (important):** center text with `dominant-baseline="central"` and set `y` to the box's vertical center. For two lines, straddle the center: title at `center−11`, sub at `center+10`, both `central`. Never rely on the default alphabetic baseline for box labels — it sits high.
 - Arrows: define one `<marker>` arrowhead, use `marker-end`. Solid = sync/request, dashed (`stroke-dasharray="5 4"`) = async/batch/private.
+- **Text wrapping (SVG has no auto-wrap — top failure mode):** break lines yourself with `<tspan x=.. dy=..>`. Keep ~28–36 chars/line for Latin, fewer for Korean; 2–3 lines per box; abbreviate an over-long token rather than let it overflow. Re-check against the box width after writing.
+- **Connector routing:** prefer straight orthogonal (horizontal/vertical) connectors; avoid crossings (route around, or move the node); leave an **8–12px gap** between the arrowhead and the target box; place edge labels *beside* the line, not on top of it.
 - Generous margins; align to a grid; consistent gutters.
 
 ## 4. Color tokens (recolor in one place)
@@ -88,13 +103,11 @@ Use example: `<circle cx="172" cy="726" r="38" fill="#E3EEF8"/><use href="#ic-te
 
 ## 6. Render to PNG (headless Chromium browser, 2×)
 
-Any Chromium-based browser works — Chrome, Microsoft Edge, or Chromium — with the **same headless flags on every OS**. Resolve the binary for the user's platform first:
+Any Chromium-based browser works — Chrome, Microsoft Edge, or Chromium — with the **same headless flags on every OS**. **Discover the binary first** (use the first that resolves):
 
-| OS | Typical binary (use whichever exists) |
-| --- | --- |
-| macOS | `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome` · `.../Microsoft Edge.app/Contents/MacOS/Microsoft Edge` · `/Applications/Chromium.app/Contents/MacOS/Chromium` |
-| Windows | `C:\Program Files\Google\Chrome\Application\chrome.exe` · `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe` |
-| Linux | `google-chrome` · `chromium` · `chromium-browser` (usually on `PATH`) |
+- **macOS** — test each path, use the first executable: `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`, `.../Microsoft Edge.app/Contents/MacOS/Microsoft Edge`, `/Applications/Chromium.app/Contents/MacOS/Chromium`.
+- **Linux** — `command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser`.
+- **Windows (PowerShell)** — `Get-Command chrome, msedge -ErrorAction SilentlyContinue`; else test `C:\Program Files\Google\Chrome\Application\chrome.exe` and `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`.
 
 Wrapper HTML (W/H = SVG viewBox), placed next to the .svg in the session scratchpad (not in the repo):
 
@@ -108,21 +121,25 @@ img{display:block;width:Wpx;height:Hpx}
 macOS / Linux:
 
 ```bash
-BROWSER="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"   # or edge/chromium; on Linux just: google-chrome
+BROWSER="$(command -v google-chrome || command -v chromium || echo '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome')"
 "$BROWSER" --headless=new --disable-gpu --hide-scrollbars \
   --force-device-scale-factor=2 --window-size=W,H \
-  --screenshot="diagram.png" "file:///ABS/PATH/wrapper.html"
+  --screenshot="diagram.png" "file://$PWD/wrapper.html"
 ```
 
-Windows (PowerShell) — same flags, `.exe` path:
+On locked-down Linux / CI / containers, add `--no-sandbox` **only if** the render fails with a sandbox error (not a default).
+
+Windows (PowerShell) — same flags; build a proper `file://` URL (forward slashes) and keep the path quoted so spaces don't break it:
 
 ```powershell
-& "C:\Program Files\Google\Chrome\Application\chrome.exe" --headless=new --disable-gpu --hide-scrollbars `
+$chrome = "C:\Program Files\Google\Chrome\Application\chrome.exe"
+$url = "file:///" + ((Resolve-Path .\wrapper.html).Path -replace '\\','/')
+& $chrome --headless=new --disable-gpu --hide-scrollbars `
   --force-device-scale-factor=2 --window-size=W,H `
-  --screenshot="diagram.png" "file:///C:/ABS/PATH/wrapper.html"
+  --screenshot="diagram.png" $url
 ```
 
-`--window-size` = viewBox (not 2×); the scale factor upscales. Transparent bg: add `--default-background-color=00000000`. If no Chromium-based browser is available, deliver the SVG only and state the limitation.
+`--window-size` = viewBox (not 2×); the scale factor upscales. Transparent bg: add `--default-background-color=00000000`. Prefer a wrapper path without spaces; if it has spaces, keep it quoted. If no Chromium-based browser is available, deliver the SVG only and state the limitation.
 
 ## 7. Defaults to state (and let the user change)
 
