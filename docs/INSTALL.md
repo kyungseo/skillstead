@@ -1,6 +1,8 @@
 # Install
 
-A skill is a folder that Claude Code loads. Install = copy the folder into a skills directory; no remote script is executed. Claude Code reads skills from two places, so pick the scope you want:
+This page documents the supported Claude Code install path for Skillstead v0.1.0. Skillstead is intended as a portable skill catalog over time, but this release ships a Claude Code package.
+
+A Claude Code skill is a folder that Claude Code loads. Install = copy the folder into a skills directory; no remote script is executed. Claude Code reads skills from two places, so pick the scope you want:
 
 | Scope | Location | Use it for |
 | --- | --- | --- |
@@ -89,6 +91,6 @@ Remove-Item -Recurse -Force ".claude\skills\svg-infographic"                    
 
 PNG export uses a headless Chromium-based browser (Chrome / Edge / Chromium) — see the skill's `SKILL.md` §6 for per-OS binary discovery and flags. Without one, the skill delivers the SVG only. On Linux, install Noto Sans CJK/KR if Korean text renders as tofu.
 
-## Codex
+## Other Agent Runtimes
 
-Codex support is deferred for the first release. Revisit once (1) there is confirmed Codex demand and (2) browser-based PNG export is verified in the target Codex CLI / App environment.
+Codex / Codex CLI and other agent runtime support is deferred for the first release. Revisit once (1) there is confirmed demand and (2) browser-based PNG export is verified in the target environment.

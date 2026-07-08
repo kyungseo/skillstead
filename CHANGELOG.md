@@ -6,7 +6,7 @@ Granular, per-change entries begin at the first public release. Until then, the 
 
 ## [Unreleased] — initial release
 
-### svg-infographic (Claude Code)
+### svg-infographic
 
 - Author technical/structured SVG infographics and diagrams from a description, and render crisp **2× PNG** via a headless Chromium browser (Chrome / Edge / Chromium) on macOS, Windows, and Linux.
 - **Archetypes:** cloud/network topology, layer & nested "onion" models, icon cards, before/after comparison, process/data flow, roadmap, qualitative risk matrix — each with a mini recipe.
@@ -17,5 +17,6 @@ Granular, per-change entries begin at the first public release. Until then, the 
 
 ### Repository
 
+- Multi-agent catalog positioning, with Claude Code as the supported v0.1.0 runtime.
 - GitHub install guide (clone + copy, latest or pinned tag, update, uninstall) — no remote script executed.
 - Apache-2.0 license.

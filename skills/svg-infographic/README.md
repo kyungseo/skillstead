@@ -2,7 +2,7 @@
 
 # svg-infographic
 
-Create flat, structured technical visuals in Claude Code: architecture diagrams, cloud topologies, process flows, before/after comparisons, roadmaps, and share-ready infographics.
+Create flat, structured technical visuals for agentic coding workflows: architecture diagrams, cloud topologies, process flows, before/after comparisons, roadmaps, and share-ready infographics. The current package is authored for Claude Code.
 
 The skill writes an editable SVG first, then exports a crisp 2x PNG when a Chromium-based browser is available.
 
@@ -111,7 +111,7 @@ Before drawing, the skill tells you these defaults and gives you a chance to cha
 
 ## Install
 
-Copy this folder into a Claude Code skills directory — either **global** (`~/.claude/skills/`, available in all your projects) or **project** (`.claude/skills/` in a repo, so your team gets it on clone):
+Copy this Claude Code package into a skills directory — either **global** (`~/.claude/skills/`, available in all your projects) or **project** (`.claude/skills/` in a repo, so your team gets it on clone):
 
 ```text
 <skills-dir>/svg-infographic/SKILL.md
