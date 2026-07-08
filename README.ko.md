@@ -4,8 +4,6 @@
 
 Claude Code에 하나씩 설치해 쓰는 작고 실용적인 community skill 모음입니다.
 
-Anthropic 공식 Agent Skills와 무관한 community project입니다.
-
 > [!TIP]
 > **Skillstead = skill + homestead.** 실용적인 Claude Code skill을 하나씩 모아 두는 작은 터전이라는 뜻입니다. 첫 skill은 `svg-infographic`입니다.
 

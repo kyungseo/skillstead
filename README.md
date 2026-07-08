@@ -4,8 +4,6 @@
 
 Small, practical skills you install into Claude Code, one at a time.
 
-Community project, not affiliated with Anthropic's official Agent Skills.
-
 > [!TIP]
 > **Skillstead = skill + homestead.** The name points to a small, durable place for practical Claude Code skills, starting with `svg-infographic`.
 
