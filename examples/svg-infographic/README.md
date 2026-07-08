@@ -1,6 +1,6 @@
 # Examples — svg-infographic
 
-Real outputs from the [`svg-infographic`](../../skills/svg-infographic) skill. Each is a **flat, structural** diagram (the skill's sweet spot), shipped as source SVG + 2× PNG, in English and Korean, with the prompt that generated it. Every example is an originally authored, non-client synthetic (see each folder's Provenance).
+Real outputs from the [`svg-infographic`](../../skills/svg-infographic) skill. Each is a **flat, structural** diagram (the skill's sweet spot), shipped as source SVG + 2× PNG, in English and Korean, with the prompt that generated it. Every example is an originally authored, non-client synthetic (see each folder's Provenance). Together they cover the six archetypes the skill advertises.
 
 ## Gallery
 
@@ -14,13 +14,29 @@ Concept infographics: nested/onion models + icon cards.
 
 ### 2. Before / after migration
 
-Comparison archetype — beyond architecture: two equal panels, semantic colors, ✓/✕ points.
+Comparison archetype: two equal panels, semantic colors, ✓/✕ points.
 
 [![Monolith to microservices](./before-after-migration/before-after-migration.en.png)](./before-after-migration)
 
 → [`before-after-migration/`](./before-after-migration) · English + 한국어
 
-### 3. Cloud infrastructure topology
+### 3. Process / data flow
+
+Flow archetype: left-to-right nodes with icons and arrows (a RAG query pipeline).
+
+[![RAG query pipeline](./process-flow/process-flow.en.png)](./process-flow)
+
+→ [`process-flow/`](./process-flow) · English + 한국어
+
+### 4. Roadmap / timeline
+
+Timeline archetype: phases, status dots, a "now" marker, milestone cards.
+
+[![Product roadmap](./roadmap/roadmap.en.png)](./roadmap)
+
+→ [`roadmap/`](./roadmap) · English + 한국어
+
+### 5. Cloud infrastructure topology
 
 Architecture/topology proof: zones, components with icon badges, request-path arrows.
 
@@ -28,9 +44,9 @@ Architecture/topology proof: zones, components with icon badges, request-path ar
 
 → [`cloud-infra-topology/`](./cloud-infra-topology) · English + 한국어
 
-### 4. Skill overview — self-demo
+### 6. Skill overview — self-demo
 
-The skill introducing itself: purpose, mechanism, scope.
+The skill introducing itself: the diagram types it makes, how it works, scope.
 
 [![svg-infographic overview](./skill-overview/skill-overview.en.png)](./skill-overview)
 
@@ -43,7 +59,7 @@ The skill introducing itself: purpose, mechanism, scope.
 - [x] No tofu — Korean/CJK glyphs render correctly
 - [x] `<title>` / `<desc>` present for accessibility
 - [x] No host-specific or client paths in the source
-- [x] Icons render (no broken `<use>` references)
+- [x] Icons render (no broken `<use>` references); paired boxes have visible gutters
 
 ## Render smoke test (per OS)
 
@@ -51,7 +67,7 @@ Honest status — only macOS is verified in this build. Windows/Linux paths are 
 
 | Environment | Browser | en/ko SVG → 2× PNG | Status |
 | --- | --- | --- | --- |
-| macOS 15 | Chrome (headless) | all 4 examples | ✅ verified — correct 2× dimensions, no tofu |
+| macOS 15 | Chrome (headless) | all 6 examples | ✅ verified — correct 2× dimensions, no tofu |
 | Windows 10/11 | Chrome / Edge | — | ⏳ not yet verified (see SKILL.md §6 PowerShell path) |
 | Linux / WSL | Chrome / Chromium | — | ⏳ not yet verified (install Noto Sans CJK/KR for Korean) |
 

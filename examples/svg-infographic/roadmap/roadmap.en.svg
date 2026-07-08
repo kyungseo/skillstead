@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" width="1200" height="600" role="img"
+  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>Product roadmap — Discovery to GA</title>
+  <desc>A four-phase product roadmap on a timeline — Discovery (done), Alpha (now), Beta (next), GA (later) — each with a few milestone items and a "now" marker.</desc>
+  <style>
+    svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#D6E0EC; --primary:#1F6FB2; --card:#F7FAFD;
+      --done:#0F7A5F; --now:#1F6FB2; --next:#5A8DC4; --later:#8A94A3; }
+    text{ fill:var(--ink) }
+    .sub{ fill:var(--muted) }
+    .b{ font-size:14px; fill:var(--ink) }
+  </style>
+
+  <rect x="0" y="0" width="1200" height="600" fill="var(--bg)"/>
+
+  <!-- title -->
+  <rect x="50" y="44" width="9" height="46" rx="3" fill="var(--primary)"/>
+  <text x="76" y="74" style="font-size:34px;font-weight:800">Product Roadmap</text>
+  <text x="76" y="104" class="sub" style="font-size:18px">Phases over exact dates · Discovery → GA</text>
+
+  <!-- timeline -->
+  <line x1="60" y1="200" x2="1140" y2="200" stroke="var(--hair)" stroke-width="2"/>
+  <!-- now marker -->
+  <line x1="577" y1="168" x2="577" y2="560" stroke="var(--now)" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <rect x="548" y="150" width="58" height="26" rx="13" fill="var(--now)"/>
+  <text x="577" y="163" text-anchor="middle" dominant-baseline="central" style="font-size:13px;font-weight:700;fill:#FFFFFF;letter-spacing:1px">NOW</text>
+
+  <!-- dots + connectors (dots at 180,445,710,975; cards centered under dots) -->
+  <circle cx="180" cy="200" r="9" fill="var(--done)"/>
+  <line x1="180" y1="209" x2="180" y2="250" stroke="var(--hair)" stroke-width="1.5"/>
+  <circle cx="445" cy="200" r="9" fill="var(--now)"/>
+  <line x1="445" y1="209" x2="445" y2="250" stroke="var(--hair)" stroke-width="1.5"/>
+  <circle cx="710" cy="200" r="9" fill="#FFFFFF" stroke="var(--next)" stroke-width="2.5"/>
+  <line x1="710" y1="209" x2="710" y2="250" stroke="var(--hair)" stroke-width="1.5"/>
+  <circle cx="975" cy="200" r="9" fill="#FFFFFF" stroke="var(--later)" stroke-width="2.5"/>
+  <line x1="975" y1="209" x2="975" y2="250" stroke="var(--hair)" stroke-width="1.5"/>
+
+  <!-- card 1: Discovery (done) -->
+  <rect x="55" y="250" width="250" height="300" rx="14" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
+  <text x="79" y="292" style="font-size:20px;font-weight:800;fill:var(--done)">Discovery</text>
+  <rect x="228" y="276" width="54" height="24" rx="12" fill="#E7F5EF"/>
+  <text x="255" y="289" text-anchor="middle" dominant-baseline="central" style="font-size:12px;font-weight:700;fill:var(--done)">Done</text>
+  <g class="b">
+    <text x="79" y="340">• Problem validated</text>
+    <text x="79" y="372">• Scope &amp; non-goals set</text>
+    <text x="79" y="404">• Go decision</text>
+  </g>
+
+  <!-- card 2: Alpha (now) -->
+  <rect x="320" y="250" width="250" height="300" rx="14" style="fill:#FFFFFF;stroke:var(--now);stroke-width:2.5"/>
+  <text x="344" y="292" style="font-size:20px;font-weight:800;fill:var(--now)">Alpha</text>
+  <rect x="500" y="276" width="46" height="24" rx="12" fill="#E8F1FB"/>
+  <text x="523" y="289" text-anchor="middle" dominant-baseline="central" style="font-size:12px;font-weight:700;fill:var(--now)">Now</text>
+  <g class="b">
+    <text x="344" y="340">• Core MVP build</text>
+    <text x="344" y="372">• Internal testing</text>
+    <text x="344" y="404">• First examples</text>
+  </g>
+
+  <!-- card 3: Beta (next) -->
+  <rect x="585" y="250" width="250" height="300" rx="14" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
+  <text x="609" y="292" style="font-size:20px;font-weight:800;fill:var(--next)">Beta</text>
+  <rect x="769" y="276" width="46" height="24" rx="12" fill="#EEF3FA"/>
+  <text x="792" y="289" text-anchor="middle" dominant-baseline="central" style="font-size:12px;font-weight:700;fill:var(--next)">Next</text>
+  <g class="b">
+    <text x="609" y="340">• Public preview</text>
+    <text x="609" y="372">• Feedback loop</text>
+    <text x="609" y="404">• Hardening</text>
+  </g>
+
+  <!-- card 4: GA (later) -->
+  <rect x="850" y="250" width="250" height="300" rx="14" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
+  <text x="874" y="292" style="font-size:20px;font-weight:800;fill:var(--later)">GA</text>
+  <rect x="1030" y="276" width="52" height="24" rx="12" fill="#EEF1F4"/>
+  <text x="1056" y="289" text-anchor="middle" dominant-baseline="central" style="font-size:12px;font-weight:700;fill:var(--later)">Later</text>
+  <g class="b">
+    <text x="874" y="340">• Stable release</text>
+    <text x="874" y="372">• Full docs</text>
+    <text x="874" y="404">• Distribution</text>
+  </g>
+</svg>

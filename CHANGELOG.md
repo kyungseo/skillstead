@@ -13,7 +13,7 @@ Granular, per-change entries begin at the first public release. Until then, the 
 - **Icon-first:** reusable line-icon set in soft tinted circles; number badges only when sequence matters.
 - **First-class Korean/CJK** text with cross-platform font fallback (Apple SD Gothic Neo / Malgun Gothic / Noto Sans KR).
 - CSS-variable color tokens (recolor in one place), canvas presets, vertical-centering, text-wrapping, and connector-routing rules.
-- **Examples** (English + Korean, source SVG + 2× PNG, each with its prompt and provenance): `technical-infographic`, `before-after-migration`, `cloud-infra-topology`, `skill-overview`.
+- **Examples** covering all six archetypes (English + Korean, source SVG + 2× PNG, each with its prompt and provenance): `technical-infographic`, `before-after-migration`, `process-flow`, `roadmap`, `cloud-infra-topology`, `skill-overview`.
 
 ### Repository
 

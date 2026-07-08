@@ -55,6 +55,10 @@ Per-archetype recipe (each line prevents that type's common failure):
 - Arrows: define one `<marker>` arrowhead, use `marker-end`. Solid = sync/request, dashed (`stroke-dasharray="5 4"`) = async/batch/private.
 - **Text wrapping (SVG has no auto-wrap — top failure mode):** break lines yourself with `<tspan x=.. dy=..>`. Keep ~28–36 chars/line for Latin, fewer for Korean; 2–3 lines per box; abbreviate an over-long token rather than let it overflow. Re-check against the box width after writing.
 - **Connector routing:** prefer straight orthogonal (horizontal/vertical) connectors; avoid crossings (route around, or move the node); leave an **8–12px gap** between the arrowhead and the target box; place edge labels *beside* the line, not on top of it.
+- **Fan-out connectors** (one source → many targets): one vertical stem from the source, one horizontal bus, then a centered vertical branch to each target. No orphan stubs, and no line that nearly overlaps a box edge.
+- **Paired / side-by-side boxes:** always leave a **visible gutter of 24–32px** between them; never let two boxes touch. Balance the left/right margins.
+- **Icon placement is formula-based:** derive the icon-circle center from the card geometry (e.g. `cy = card_y + card_h/2`), never a hand-tuned per-language offset. EN and KO variants must use the **same formula** so icons align identically.
+- **Header band on a rounded panel:** use a **top-only rounded** header — a `<path>` with rounded top corners and a square bottom edge (`M x+r,y H x+w-r A r r 0 0 1 x+w,y+r V y+h H x V y+r A r r 0 0 1 x+r,y Z`), or a header rect clipped to the panel. Never stack a fully-rounded rect plus a square "cover" rect — it smears the lower corners.
 - Generous margins; align to a grid; consistent gutters.
 
 ## 4. Color tokens (recolor in one place)

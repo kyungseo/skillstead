@@ -17,7 +17,7 @@ Each skill fills a concrete capability gap you hit in real work, and ships with 
 </tr>
 </table>
 
-More in the [example gallery](./examples/svg-infographic) — topology, layer/onion, before/after, and a self-demo, each in English + Korean with the prompt that made it.
+More in the [example gallery](./examples/svg-infographic) — six archetypes (onion, before/after, flow, roadmap, topology, self-demo), each in English + Korean with the prompt that made it.
 
 ## Skills
 

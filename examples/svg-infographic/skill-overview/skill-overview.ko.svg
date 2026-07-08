@@ -91,14 +91,14 @@
   </g>
 
   <!-- feature bands -->
-  <rect x="80" y="808" width="459" height="120" rx="16" style="fill:#EAF2FB;stroke:#9DBEDE;stroke-width:1.5"/>
+  <rect x="80" y="808" width="444" height="120" rx="16" style="fill:#EAF2FB;stroke:#9DBEDE;stroke-width:1.5"/>
   <text x="110" y="850" style="font-size:21px;font-weight:700;fill:#1B4F7D">한국어 / CJK 우선 지원</text>
   <text x="110" y="884" class="sub" style="font-size:15px">렌더·검증 완료, 두부 없음 — 가나다라 · ABCabc · 0123</text>
 
-  <rect x="539" y="808" width="459" height="120" rx="16" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-  <circle cx="588" cy="868" r="26" fill="#E3EEF8"/><use href="#ic-globe" x="573" y="853" width="30" height="30" style="color:#1F6FB2"/>
-  <text x="628" y="850" style="font-size:21px;font-weight:700">크로스플랫폼</text>
-  <text x="628" y="884" class="sub" style="font-size:15px">macOS · Windows · Linux · Chrome/Edge/Chromium</text>
+  <rect x="556" y="808" width="444" height="120" rx="16" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
+  <circle cx="604" cy="868" r="26" fill="#E3EEF8"/><use href="#ic-globe" x="589" y="853" width="30" height="30" style="color:#1F6FB2"/>
+  <text x="644" y="850" style="font-size:21px;font-weight:700">크로스플랫폼</text>
+  <text x="644" y="884" class="sub" style="font-size:15px">macOS · Windows · Linux · Chrome/Edge/Chromium</text>
 
   <!-- not for -->
   <text x="80" y="984" style="font-size:15px;font-weight:700;fill:var(--no-ink)">부적합</text>

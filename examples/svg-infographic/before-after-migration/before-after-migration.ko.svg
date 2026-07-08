@@ -28,8 +28,7 @@
 
   <!-- BEFORE panel -->
   <rect x="50" y="150" width="490" height="520" rx="18" style="fill:#FFFFFF;stroke:var(--hair);stroke-width:1.5"/>
-  <rect x="50" y="150" width="490" height="60" rx="18" style="fill:var(--before-fill);stroke:var(--before-line);stroke-width:1.5"/>
-  <rect x="50" y="188" width="490" height="22" fill="var(--before-fill)"/>
+  <path d="M68 150 H522 A18 18 0 0 1 540 168 V210 H50 V168 A18 18 0 0 1 68 150 Z" style="fill:var(--before-fill);stroke:var(--before-line);stroke-width:1.5"/>
   <text x="78" y="180" dominant-baseline="central" style="font-size:15px;font-weight:700;fill:var(--before-line);letter-spacing:1px">이전</text>
   <text x="510" y="180" text-anchor="end" dominant-baseline="central" style="font-size:22px;font-weight:800;fill:var(--before-ink)">모놀리스</text>
 
@@ -59,8 +58,7 @@
 
   <!-- AFTER panel -->
   <rect x="580" y="150" width="490" height="520" rx="18" style="fill:#FFFFFF;stroke:var(--hair);stroke-width:1.5"/>
-  <rect x="580" y="150" width="490" height="60" rx="18" style="fill:var(--after-fill);stroke:var(--after-line);stroke-width:1.5"/>
-  <rect x="580" y="188" width="490" height="22" fill="var(--after-fill)"/>
+  <path d="M598 150 H1052 A18 18 0 0 1 1070 168 V210 H580 V168 A18 18 0 0 1 598 150 Z" style="fill:var(--after-fill);stroke:var(--after-line);stroke-width:1.5"/>
   <text x="608" y="180" dominant-baseline="central" style="font-size:15px;font-weight:700;fill:var(--after-line);letter-spacing:1px">이후</text>
   <text x="1040" y="180" text-anchor="end" dominant-baseline="central" style="font-size:22px;font-weight:800;fill:var(--after-ink)">마이크로서비스</text>
 
@@ -78,11 +76,11 @@
     <text x="996" y="308" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:600;fill:var(--after-ink)">결제</text>
     <text x="996" y="330" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:11px">전용 DB</text>
   </g>
-  <line x1="825" y1="268" x2="825" y2="278" stroke="#8A94A3" stroke-width="1.2"/>
-  <line x1="696" y1="278" x2="996" y2="278" stroke="#8A94A3" stroke-width="1.2"/>
-  <line x1="696" y1="278" x2="696" y2="288" stroke="#8A94A3" stroke-width="1.2"/>
-  <line x1="852" y1="278" x2="852" y2="288" stroke="#8A94A3" stroke-width="1.2"/>
-  <line x1="996" y1="278" x2="996" y2="288" stroke="#8A94A3" stroke-width="1.2"/>
+  <line x1="825" y1="268" x2="825" y2="276" stroke="#8A94A3" stroke-width="1.2"/>
+  <line x1="696" y1="276" x2="996" y2="276" stroke="#8A94A3" stroke-width="1.2"/>
+  <line x1="696" y1="276" x2="696" y2="288" stroke="#8A94A3" stroke-width="1.2"/>
+  <line x1="852" y1="276" x2="852" y2="288" stroke="#8A94A3" stroke-width="1.2"/>
+  <line x1="996" y1="276" x2="996" y2="288" stroke="#8A94A3" stroke-width="1.2"/>
 
   <!-- after points -->
   <g>

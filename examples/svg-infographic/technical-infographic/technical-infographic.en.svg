@@ -44,8 +44,8 @@
   <!-- cards 2x2 -->
   <!-- card 1: Prompt -->
   <rect x="110" y="646" width="410" height="196" rx="18" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-  <circle cx="172" cy="726" r="38" fill="#E3EEF8"/>
-  <use href="#ic-terminal" x="152" y="706" width="40" height="40" style="color:#1F6FB2"/>
+  <circle cx="172" cy="744" r="38" fill="#E3EEF8"/>
+  <use href="#ic-terminal" x="152" y="724" width="40" height="40" style="color:#1F6FB2"/>
   <text x="230" y="704" style="font-size:25px;font-weight:700">Prompt Engineering</text>
   <text x="230" y="742" class="sub" style="font-size:19px">
     <tspan x="230" dy="0">The exact words, instructions,</tspan>
@@ -54,8 +54,8 @@
 
   <!-- card 2: Context -->
   <rect x="560" y="646" width="410" height="196" rx="18" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-  <circle cx="622" cy="726" r="38" fill="#E3EEF8"/>
-  <use href="#ic-doc" x="602" y="706" width="40" height="40" style="color:#3F72A8"/>
+  <circle cx="622" cy="744" r="38" fill="#E3EEF8"/>
+  <use href="#ic-doc" x="602" y="724" width="40" height="40" style="color:#3F72A8"/>
   <text x="680" y="704" style="font-size:25px;font-weight:700">Context Engineering</text>
   <text x="680" y="742" class="sub" style="font-size:19px">
     <tspan x="680" dy="0">System prompt, reference files,</tspan>
@@ -64,8 +64,8 @@
 
   <!-- card 3: Harness -->
   <rect x="110" y="866" width="410" height="196" rx="18" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-  <circle cx="172" cy="946" r="38" fill="#EAF1F8"/>
-  <use href="#ic-gear" x="152" y="926" width="40" height="40" style="color:#4E7DAE"/>
+  <circle cx="172" cy="964" r="38" fill="#EAF1F8"/>
+  <use href="#ic-gear" x="152" y="944" width="40" height="40" style="color:#4E7DAE"/>
   <text x="230" y="924" style="font-size:25px;font-weight:700">Harness Engineering</text>
   <text x="230" y="962" class="sub" style="font-size:19px">
     <tspan x="230" dy="0">Code that routes tools, checks</tspan>
@@ -74,8 +74,8 @@
 
   <!-- card 4: Loop -->
   <rect x="560" y="866" width="410" height="196" rx="18" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-  <circle cx="622" cy="946" r="38" fill="#EEF3F9"/>
-  <use href="#ic-loop" x="602" y="926" width="40" height="40" style="color:#5E8AB8"/>
+  <circle cx="622" cy="964" r="38" fill="#EEF3F9"/>
+  <use href="#ic-loop" x="602" y="944" width="40" height="40" style="color:#5E8AB8"/>
   <text x="680" y="924" style="font-size:25px;font-weight:700">Loop Engineering</text>
   <text x="680" y="962" class="sub" style="font-size:19px">
     <tspan x="680" dy="0">A goal and stop condition, so</tspan>
