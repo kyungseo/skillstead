@@ -29,6 +29,67 @@ svg-infographic으로 이 모놀리스-마이크로서비스 전환 계획을 Be
 svg-infographic으로 이 4가지 레이어를 설명하는 한국어 4:5 소셜 인포그래픽을 만들어줘.
 ```
 
+## 상세 프롬프트 예시
+
+레이아웃, 강조점, 검증 기준까지 맡기고 싶을 때는 조금 더 긴 프롬프트를 쓰면 좋습니다.
+
+```text
+svg-infographic으로 아래 내용을 한국어 기술 인포그래픽으로 만들어줘.
+
+주제: AI 코드 리뷰 루프
+
+목표:
+- 개발자가 PR을 올린 뒤 AI agent가 리뷰하고, 사람이 승인하고, 변경사항이 다시 반영되는 흐름을 한눈에 보여준다.
+- 문서나 소셜에 공유할 수 있는 깔끔한 flat technical infographic 스타일로 만든다.
+
+구성:
+1. Developer opens PR
+   - 코드 변경
+   - 테스트 결과 첨부
+2. AI Review Agent
+   - diff 분석
+   - 위험 지점 표시
+   - 테스트 누락 확인
+3. Human Reviewer
+   - 판단이 필요한 코멘트 확인
+   - false positive 정리
+4. Patch & Verify
+   - 수정 반영
+   - 테스트 재실행
+5. Merge Ready
+   - 승인 완료
+   - PR merge
+
+표현 방식:
+- 왼쪽에서 오른쪽으로 흐르는 process flow
+- 각 단계는 둥근 카드로 표현
+- 각 카드에는 간단한 line icon을 넣기
+- AI Review Agent 단계는 강조 색상으로 표시
+- 하단에 작은 legend를 넣기:
+  - solid arrow = normal path
+  - dashed arrow = feedback loop
+
+출력:
+- 현재 프로젝트 안의 적당한 디렉터리를 먼저 제안하고 확인받은 뒤 파일을 생성해줘.
+- SVG 원본과 2x PNG를 모두 만들어줘.
+- 한국어 글자가 깨지지 않는지 확인해줘.
+- 기본 스타일, 폰트, 색상은 skill 기본값을 쓰되, 작업 전에 바꿀 수 있다고 알려줘.
+```
+
+## 생성 전 안내
+
+실제로 실행하면 skill은 파일을 만들기 전에 다음 표와 같은 기본값을 먼저 보여주고, 바꿀 수 있는 항목을 알려줍니다. 사용자는 이 단계에서 비율, 색상, 언어, 출력 위치 등을 조정할 수 있습니다.
+
+| 항목 | 기본값 | 변경 가능 |
+| --- | --- | --- |
+| 스타일 | flat / muted technical, 밝은 배경 | dark mode |
+| 아이콘 | soft 원형 배경 + line icon | 배경 없는 line, solid, mono |
+| 폰트 | Pretendard -> Apple SD Gothic Neo -> Malgun Gothic / Noto Sans KR 폴백 | 지정 폰트 |
+| 색상 | 단계별 semantic 색상, 핵심 카드 accent | 브랜드 색상 |
+| 비율 | 요청에 맞춰 선택, 예: wide landscape 또는 4:5 social | 원하는 크기 |
+| 언어 | 프롬프트 기준으로 추론 | 한국어, 영어, bilingual |
+| 출력 | 현재 프로젝트 안에 SVG + 2x PNG | SVG만 |
+
 ## 출력
 
 파일을 쓰기 전에 skill이 현재 프로젝트 안의 출력 디렉터리를 먼저 제안합니다.

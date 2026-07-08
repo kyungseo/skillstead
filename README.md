@@ -4,7 +4,7 @@
 
 Reusable skills for AI coding agents, starting with one practical gap: making clean technical visuals from plain text.
 
-The first skill, [`svg-infographic`](./skills/svg-infographic), helps Claude Code turn architecture notes, migration plans, process flows, and technical concepts into editable SVGs and crisp 2x PNGs for docs, decks, and social posts.
+The first skill, [`svg-infographic`](./skills/svg-infographic), helps Claude Code turn architecture notes, migration plans, process flows, decision matrices, and technical concepts into editable SVGs and crisp 2x PNGs for docs, decks, and social posts.
 
 [![svg-infographic example gallery](./examples/svg-infographic/gallery-preview.en.png)](./examples/svg-infographic)
 
@@ -23,9 +23,10 @@ Claude can produce good visual artifacts in chat, but Claude Code often works in
 | Before / after comparisons | Migration plans, modernization stories, tradeoff panels |
 | Process and data flows | RAG pipelines, approval flows, system handoffs |
 | Roadmaps and timelines | Product phases, milestones, status snapshots |
+| Decision and priority matrices | 2×2 quadrant maps, scope/uncertainty grids, trade-off views |
 | Korean-ready share images | CJK-safe SVG + PNG output for docs and social posts |
 
-See the full [example gallery](./examples/svg-infographic) for six archetypes in English and Korean, with the prompts that produced them.
+See the full [example gallery](./examples/svg-infographic) for eight examples across seven archetypes — architecture, migration, workflow, decision matrix, and more — in English and Korean, with the prompts that produced them.
 
 ## Quick Start
 

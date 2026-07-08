@@ -59,6 +59,12 @@ Per-archetype recipe (each line prevents that type's common failure):
 - **Paired / side-by-side boxes:** always leave a **visible gutter of 24–32px** between them; never let two boxes touch. Balance the left/right margins.
 - **Icon placement is formula-based:** derive the icon-circle center from the card geometry (e.g. `cy = card_y + card_h/2`), never a hand-tuned per-language offset. EN and KO variants must use the **same formula** so icons align identically.
 - **Header band on a rounded panel:** use a **top-only rounded** header — a `<path>` with rounded top corners and a square bottom edge (`M x+r,y H x+w-r A r r 0 0 1 x+w,y+r V y+h H x V y+r A r r 0 0 1 x+r,y Z`), or a header rect clipped to the panel. Never stack a fully-rounded rect plus a square "cover" rect — it smears the lower corners.
+- **Top accent bar / highlight on a rounded card — prefer none:** to emphasize a card, use **stroke + shadow + a number/status badge + a corner label + a filled icon badge**. Those alone read clearly; a top accent bar is usually redundant. Two failure modes make the bar risky, so treat it as opt-in only under strict conditions:
+  1. *Corner smear* — a bar sharing the outer card's `x`/`y`/`width` has square corners that collide with the card's `rx` arc and render torn in headless-Chrome PNG.
+  2. *Band collision* — if the card top already carries a **number badge, status label, or KEY STEP-style tag**, a top accent bar shares their horizontal band and visually crosses through them; the top of the card reads cluttered.
+  So: emphasis comes from **stroke + shadow + a number/status badge + a corner label + a filled icon badge** — those alone carry a "key step" clearly, and a top accent bar is redundant. **If a card top has a number badge or a KEY STEP-style label, do not add a top accent bar at all** — every bar placement either smears the corner or crosses the badge/label band. Reserve a top accent bar for a card with a **clearly separated header band** (its own row, no badge/label in it), and even then keep the fill **inset clear of the corner radius** (`≥ rx` in from each side and below the top) — it must never touch the corner-radius zone.
+- **Card / quadrant corner decorations — keep them apart:** a number/corner badge, a status label (e.g. a caution tag), and a top-right icon must **not** crowd the same corner. Give each **≥ 20–24px clearance** so their bounding boxes never overlap — a reliable arrangement is badge top-left, status label on the **same row just right of the badge**, icon top-right. This is the top failure mode for 2×2 / decision-matrix quadrant cards; verify against the **exported PNG**, not just the SVG source tree.
+- **Text on an accent-filled pill / chip / badge:** default to **light (white / near-white) text on a saturated fill** — never dark text on a mid/dark accent. A light-tinted chip may keep dark ink, but a saturated fill needs light text. Confirm the label reads clearly on the **exported PNG** (aim for an AA-like separation), since low contrast is invisible in the SVG tree.
 - Generous margins; align to a grid; consistent gutters.
 
 ## 4. Color tokens (recolor in one place)
@@ -78,6 +84,8 @@ Define CSS variables in a `<style>` block and reference them (`fill:var(--k8s-fi
 ```
 
 Colors encode role, not decoration. Keep roles; change hex to rebrand. Dark variant: override the same vars under `@media (prefers-color-scheme:dark)` (PNG renders light unless forced).
+
+**Gotcha — a global `text{ fill:… }` rule overrides inline `fill` on every `<text>`.** CSS wins over presentation attributes, so a blanket `text{ fill:var(--ink) }` silently turns an inline `fill="#FFFFFF"` label (a badge number, or white text on an accent pill) dark — low-contrast and easy to miss until you inspect the PNG. For on-accent light text, raise specificity with a class (e.g. `.on-accent{ fill:#FFFFFF }` applied to those `<text>`), or drop the blanket `text{fill}` rule and set each text's color inline.
 
 ## 5. Icons — icon-first (default on)
 

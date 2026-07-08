@@ -2,7 +2,7 @@
 
 Real outputs from the [`svg-infographic`](../../skills/svg-infographic) skill. Each example is a flat, structural visual shipped as source SVG + 2× PNG, in English and Korean, with the prompt that generated it.
 
-Every example is originally authored, synthetic, non-client, and non-confidential. Together they cover the six archetypes the skill advertises.
+Every example is originally authored, synthetic, non-client, and non-confidential. Together they cover seven archetypes the skill advertises.
 
 ![svg-infographic gallery preview](./gallery-preview.en.png)
 
@@ -56,6 +56,26 @@ The skill introducing itself: the diagram types it makes, how it works, scope.
 
 → [`skill-overview/`](./skill-overview) · English + 한국어
 
+### 7. AI code review loop
+
+Flow archetype (feature demo): left-to-right cards with an emphasized "key step",
+a legend, and a dashed feedback loop — an AI-in-the-loop PR review cycle.
+
+[![AI code review loop](./ai-code-review-loop/ai-code-review-loop.en.png)](./ai-code-review-loop)
+
+→ [`ai-code-review-loop/`](./ai-code-review-loop) · English + 한국어
+
+### 8. AI agent task selection matrix
+
+Decision-matrix archetype: a 2×2 quadrant grid with axis labels and direction
+arrows, a number badge + icon per quadrant, recommendation pills, and one
+emphasized quadrant — choosing an AI agent's execution mode by scope and
+uncertainty.
+
+[![AI agent task selection matrix](./agent-task-matrix/agent-task-matrix.en.png)](./agent-task-matrix)
+
+→ [`agent-task-matrix/`](./agent-task-matrix) · English + 한국어
+
 ## Quality bar (every example passes)
 
 - [x] SVG and PNG dimensions match (PNG is exactly 2× the SVG viewBox)
@@ -71,7 +91,7 @@ Honest status — only macOS is verified in this build. Windows/Linux paths are 
 
 | Environment | Browser | en/ko SVG → 2× PNG | Status |
 | --- | --- | --- | --- |
-| macOS 15 | Chrome (headless) | all 6 examples | ✅ verified — correct 2× dimensions, no tofu |
+| macOS 15 | Chrome (headless) | all 8 examples | ✅ verified — correct 2× dimensions, no tofu |
 | Windows 10/11 | Chrome / Edge | — | ⏳ not yet verified (see SKILL.md §6 PowerShell path) |
 | Linux / WSL | Chrome / Chromium | — | ⏳ not yet verified (install Noto Sans CJK/KR for Korean) |
 

@@ -29,6 +29,66 @@ Use svg-infographic to turn this monolith-to-microservices plan into a before/af
 Use svg-infographic to make a Korean 4:5 social infographic explaining these four layers.
 ```
 
+## Detailed Example
+
+Use a longer prompt when you want the skill to make layout decisions, choose an archetype, and verify the output.
+
+```text
+Use svg-infographic to create a technical infographic from the content below.
+
+Topic: AI code review loop
+
+Goal:
+- Show the flow from a developer opening a PR, to an AI agent reviewing it, to a human reviewer approving it, to changes being patched and verified.
+- Make it a clean flat technical infographic suitable for docs, slides, or a social post.
+
+Content:
+1. Developer opens PR
+   - code changes
+   - test results attached
+2. AI Review Agent
+   - analyze diff
+   - flag risky areas
+   - check missing tests
+3. Human Reviewer
+   - inspect comments that need judgment
+   - filter false positives
+4. Patch & Verify
+   - apply fixes
+   - rerun tests
+5. Merge Ready
+   - approved
+   - PR merge
+
+Visual direction:
+- Use a left-to-right process flow.
+- Put each step in a rounded card.
+- Add a simple line icon to each card.
+- Highlight the AI Review Agent step with an accent color.
+- Add a small legend at the bottom:
+  - solid arrow = normal path
+  - dashed arrow = feedback loop
+
+Output:
+- Propose an output directory inside the current project and ask before writing files.
+- Create both the SVG source and a 2x PNG.
+- Use the skill defaults for style, font, and colors, but tell me before drawing that I can change them.
+```
+
+## Before Generation
+
+When you run it, the skill shows defaults like the table below before writing files, then tells you what you can change. This makes the result predictable and gives you a chance to adjust the style before files are written.
+
+| Item | Default | You can change |
+| --- | --- | --- |
+| Style | flat / muted technical, light background | dark mode |
+| Icons | line icons inside soft circular badges | iconless line, solid, mono |
+| Font | Pretendard -> Apple SD Gothic Neo -> Malgun Gothic / Noto Sans KR fallback | a specific font |
+| Color | semantic colors per step, accent for the key card | brand colors |
+| Ratio | chosen for the request, such as wide landscape or 4:5 social | any target size |
+| Language | inferred from the prompt | English, Korean, or bilingual |
+| Output | SVG + 2x PNG, inside the current project | SVG only |
+
 ## Output
 
 The skill proposes an output directory inside your current project before writing files.
