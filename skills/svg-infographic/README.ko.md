@@ -71,4 +71,8 @@ svg-infographic으로 이 4단계 프로세스를 한국어 한 장짜리 인포
 
 ## 예제
 
-[`examples/svg-infographic/`](../../examples/svg-infographic) 참고 — 스킬 소개, 클라우드 토폴로지, 기술 인포그래픽을 영문·한글 각각, 생성 프롬프트와 함께 제공한다.
+저장소의 예제를 참고한다 — 스킬 소개, 클라우드 토폴로지, 기술 인포그래픽을 영문·한글 각각, 생성 프롬프트와 함께 제공한다:
+
+**https://github.com/kyungseo/agent-skills/tree/main/examples/svg-infographic**
+
+(스킬 폴더만 설치했다면 로컬 경로 대신 위 링크에서 예제를 확인한다.)

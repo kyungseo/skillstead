@@ -65,4 +65,8 @@ You can change brand color, ratio, language, dark mode, and output format before
 
 ## Examples
 
-See [`examples/svg-infographic/`](../../examples/svg-infographic) — a skill overview, a cloud topology, and a technical infographic, each in English and Korean, with the prompt that generated it.
+See the examples in the repository — a skill overview, a cloud topology, and a technical infographic, each in English and Korean, with the prompt that generated it:
+
+**https://github.com/kyungseo/agent-skills/tree/main/examples/svg-infographic**
+
+(If you installed only this skill folder, browse the examples at the link above rather than a local path.)
