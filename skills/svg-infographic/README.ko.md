@@ -2,77 +2,78 @@
 
 # svg-infographic
 
-일관된 스타일 시스템으로 technical/structured SVG 인포그래픽을 작성하고, 편집 가능한 SVG와 선명한 2x PNG artifact를 함께 export한다.
+Claude Code에서 flat하고 구조적인 기술 시각 자료를 만듭니다. 아키텍처 다이어그램, 클라우드 토폴로지, 프로세스 플로우, Before / After 비교, 로드맵, 공유용 인포그래픽에 맞춰져 있습니다.
 
-## 개요
+먼저 편집 가능한 SVG를 만들고, Chromium 기반 브라우저를 사용할 수 있으면 선명한 2x PNG까지 export합니다.
 
-`svg-infographic`은 Claude Code가 아키텍처 다이어그램, 클라우드 토폴로지, before/after 비교, 프로세스 플로우, 로드맵 패널, 구조적인 한 장짜리 technical 인포그래픽을 깔끔한 hand-authored SVG로 작성하도록 돕는다.
+## 잘 맞는 작업
 
-**사진·일러스트 중심 마케팅 그래픽, 통계 차트, 손그림/크레용 스케치노트, 마스코트·캐릭터 일러스트에는 사용하지 않는다.**
+- 텍스트 설명을 아키텍처 / 토폴로지 다이어그램으로 정리
+- 문서, 슬라이드, 소셜 포스트에 넣을 기술 한 장 요약
+- 마이그레이션 또는 현대화 Before / After 비교
+- 프로세스, 데이터, 요청 경로 플로우
+- 한국어/CJK 텍스트가 깨지면 안 되는 다이어그램
 
-한국어를 비롯한 CJK 텍스트가 깨지지 않고 올바르게 렌더되도록 폰트 스택과 glyph 확인을 기본으로 둔다.
+## 프롬프트 예시
 
-## 언제 사용하나
+```text
+svg-infographic으로 이 클라우드 아키텍처를 깔끔한 토폴로지 다이어그램으로 그려줘:
+Application Gateway -> APIM -> AKS -> PostgreSQL.
+```
 
-- 텍스트 설명에서 깔끔한 아키텍처 / 토폴로지 / 플로우 / 레이어 다이어그램을 만들고 싶을 때.
-- 덱, 문서, 소셜 포스트에 넣을 구조적인 technical 한 장짜리 자료가 필요할 때.
-- 출력에 한국어 / CJK 텍스트가 정확히 들어가야 할 때.
+```text
+svg-infographic으로 이 모놀리스-마이크로서비스 전환 계획을 Before / After 인포그래픽으로 바꿔줘.
+```
 
-## 언제 사용하지 않나
+```text
+svg-infographic으로 이 4가지 레이어를 설명하는 한국어 4:5 소셜 인포그래픽을 만들어줘.
+```
 
-- 사진·일러스트 중심 마케팅 인포그래픽.
-- 통계 차트(막대, 선, 산점도, 히트맵).
-- 손그림 / 크레용 스케치노트 스타일, 마스코트, 캐릭터 일러스트.
+## 출력
+
+파일을 쓰기 전에 skill이 현재 프로젝트 안의 출력 디렉터리를 먼저 제안합니다.
+
+- `*.svg` — 나중에 편집할 수 있는 원본
+- `*.png` — 문서, 슬라이드, 소셜 공유용 2x 렌더
+
+## 기본 스타일
+
+기본값은 다음과 같습니다:
+
+- 밝은 배경
+- 차분한 technical palette
+- 둥근 구조 카드와 패널
+- 옅은 원형 배지 안의 단순 line icon
+- 한 곳에 모은 CSS variables
+- 한국어/CJK 대응 폰트 스택: Pretendard, Apple SD Gothic Neo, Malgun Gothic, Noto Sans KR, sans-serif
+
+작업 전에 skill이 이 기본값을 알려주고, 비율, 언어, brand color, 테마, 출력 형식을 바꿀 수 있게 합니다.
 
 ## 설치
 
-skill 폴더를 Claude Code skills 디렉터리에 복사한다.
+이 폴더를 Claude Code skills 디렉터리에 복사합니다:
 
 ```text
 <claude-skills-dir>/svg-infographic/SKILL.md
 ```
 
-정확한 경로는 환경마다 다르므로 이 문서는 machine-specific 절대 경로 대신 `<claude-skills-dir>` placeholder를 쓴다. [../../docs/INSTALL.md](../../docs/INSTALL.md) 참고.
-
-## 사용 예시 (프롬프트)
-
-```text
-svg-infographic으로 이 아키텍처를 클라우드 인프라 토폴로지 다이어그램으로 만들어줘.
-```
-
-```text
-svg-infographic으로 이 before/after 마이그레이션 설명을 구조적인 소셜 인포그래픽으로 바꿔줘.
-```
-
-```text
-svg-infographic으로 이 4단계 프로세스를 한국어 한 장짜리 인포그래픽으로 그려줘. 4:5 소셜 비율로.
-```
-
-## 출력 artifact
-
-- `*.svg` — 편집 가능한 source of truth
-- `*.png` — 공유·슬라이드·소셜 포스트용 2x export
-
-파일을 쓰기 전에 skill은 현재 프로젝트 안의 출력 디렉터리를 제안하고 사용자 확인을 받는다.
-
-## 기본 스타일
-
-- 스타일: muted technical
-- 폰트 스택: Pretendard, Apple SD Gothic Neo, Noto Sans KR, sans-serif
-- 테마: light background
-- 컬러 시스템: 한 곳에 모은 CSS variables
-
-생성 전에 brand color, 비율, 언어, 다크 모드, 출력 형식을 바꿀 수 있다.
-
-## 한계
-
-- PNG export는 browser-based rendering에 의존한다. 사용할 수 없는 환경에서는 SVG만 전달하고 그 한계를 명시한다.
-- 출력은 벡터/구조 기반이다. 래스터 일러스트, 사진, 손그림 질감은 만들지 않는다.
+macOS, Linux, Windows용 GitHub 설치 명령은 [../../docs/INSTALL.md](../../docs/INSTALL.md)를 참고하세요.
 
 ## 예제
 
-저장소의 예제를 참고한다 — 스킬 소개, 클라우드 토폴로지, 기술 인포그래픽을 영문·한글 각각, 생성 프롬프트와 함께 제공한다:
+전체 갤러리:
 
 **https://github.com/kyungseo/agent-skills/tree/main/examples/svg-infographic**
 
-(스킬 폴더만 설치했다면 로컬 경로 대신 위 링크에서 예제를 확인한다.)
+토폴로지, 레이어/온니언 모델, Before / After 비교, 프로세스 플로우, 로드맵, self-demo를 영문·한글 예제로 제공합니다.
+
+## 범위
+
+이 skill은 flat하고 구조적인 시각 자료에 맞춰져 있습니다. 다음 작업에는 적합하지 않습니다:
+
+- 사진 또는 일러스트 중심 마케팅 그래픽
+- 막대, 선, 산점도, 히트맵 같은 통계 차트
+- 손그림/크레용 스케치노트 스타일
+- 마스코트, 캐릭터, 커스텀 일러스트
+
+PNG export를 사용할 수 없는 환경에서는 SVG를 먼저 제공하고 한계를 명시합니다.

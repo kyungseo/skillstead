@@ -2,68 +2,79 @@
 
 # Agent Skills
 
-AI 코딩 에이전트를 위한 작고 실용적인 skill 모음 — 각 skill을 개별적으로 읽고, 설치하고, 공유하기 쉽게 패키징한다.
+AI 코딩 에이전트가 실제 작업에서 바로 써먹을 수 있는 skill 모음입니다. 첫 번째 skill은 아주 구체적인 문제를 해결합니다: 텍스트 설명을 깔끔한 기술 다이어그램과 인포그래픽 파일로 바꾸기.
 
-각 skill은 실전에서 막히는 구체적인 capability gap을 메우고, 설치 전에 결과를 확인할 수 있도록 예제 artifact를 함께 제공한다. 첫 skill의 출력 예제(영문 + 한글)는 [`examples/svg-infographic/`](./examples/svg-infographic)를 참고한다.
+[`svg-infographic`](./skills/svg-infographic)은 Claude Code에서 아키텍처 설명, 마이그레이션 계획, 프로세스 흐름, 기술 개념을 편집 가능한 SVG와 선명한 2x PNG로 만들어 줍니다. 문서, 제안서, 슬라이드, 소셜 포스트에 바로 넣을 수 있는 형태를 목표로 합니다.
 
-> **한국어 / CJK 렌더링 우선 지원.** 첫 skill은 한국어를 비롯한 CJK 텍스트에 맞춘 font stack과 glyph 확인으로 SVG 인포그래픽을 작성한다 — 많은 다이어그램/인포그래픽 도구가 깨지는 지점이다.
+[![svg-infographic 예제 갤러리](./examples/svg-infographic/gallery-preview.ko.png)](./examples/svg-infographic)
 
-## 미리보기
+## 왜 만들었나
 
-<table>
-<tr>
-<td width="34%"><a href="./examples/svg-infographic/technical-infographic"><img src="./examples/svg-infographic/technical-infographic/technical-infographic.ko.png" alt="AI 엔지니어링의 4가지 레이어" width="100%"></a></td>
-<td width="46%"><a href="./examples/svg-infographic/before-after-migration"><img src="./examples/svg-infographic/before-after-migration/before-after-migration.ko.png" alt="모놀리스에서 마이크로서비스로" width="100%"></a></td>
-</tr>
-</table>
+Claude 앱에서는 시각 자료를 만들기 쉽지만, Claude Code에서는 보통 저장소 안에서 작업합니다. 그래서 “그럴듯한 그림”보다 실제 파일이 필요합니다. 나중에 고칠 수 있는 SVG, 바로 공유할 수 있는 PNG, 한국어가 깨지지 않는 폰트와 렌더링 확인까지요.
 
-더 많은 예제는 [example gallery](./examples/svg-infographic) — 6가지 archetype(온니언, before/after, 플로우, 로드맵, 토폴로지, self-demo)을 영문·한글 각각, 생성 프롬프트와 함께 제공한다.
+`svg-infographic`은 Claude Code가 그런 산출물을 안정적으로 만들도록 돕는 workflow입니다. 결과물은 flat하고 구조적이며, repo에 넣어 관리하기 좋게 만듭니다.
 
-## Skills
+## 만들 수 있는 것
 
-| Skill | Agent | Status | 요약 |
-| --- | --- | --- | --- |
-| [`svg-infographic`](./skills/svg-infographic) | Claude Code | Beta | technical/structured SVG 인포그래픽을 작성하고 선명한 PNG artifact로 export한다. |
+| 용도 | 예시 |
+| --- | --- |
+| 아키텍처 / 클라우드 토폴로지 | Azure / AWS 요청 경로, 네트워크 구역, 서비스, 데이터베이스 |
+| 기술 인포그래픽 | 레이어 모델, capability map, 한 장짜리 설명 자료 |
+| Before / After 비교 | 마이그레이션, 현대화, 개선 전후 비교 |
+| 프로세스 / 데이터 플로우 | RAG 파이프라인, 승인 흐름, 시스템 handoff |
+| 로드맵 / 타임라인 | 제품 단계, 마일스톤, 현재 상태 |
+| 한국어 공유 이미지 | CJK 렌더링을 확인한 SVG + PNG 산출물 |
 
-## 네이밍 규칙
+전체 [예제 갤러리](./examples/svg-infographic)에서 6가지 archetype을 영문·한글 버전과 생성 프롬프트로 확인할 수 있습니다.
 
-Skill 이름은 maker나 brand가 아니라 기능 trigger를 앞세운다 — 에이전트의 skill selector에서 안정적으로 매칭되게 하기 위함이다.
+## 빠른 시작
 
-```text
-<medium-or-capability>-<job>
-```
-
-예시: `svg-infographic`, `review-pr`, `docs-redline`.
-
-Brand identity는 skill 이름이 아니라 repository metadata, README, 소셜 포스트에서 강조한다.
-
-## 사용법
-
-Claude Code에서 말로 다이어그램을 요청하면 된다 — 매칭되는 요청에 skill이 자동 트리거되거나, 이름으로 직접 호출한다:
-
-```text
-svg-infographic으로 Azure 토폴로지를 그려줘: AGW → APIM → AKS → PostgreSQL.
-```
-
-편집 가능한 `.svg`(원본)와 슬라이드·문서·소셜용 선명한 2× `.png`가 나온다. 각 [예제](./examples/svg-infographic)에 실제 프롬프트가 있다.
-
-## 설치
-
-repo를 clone하고 원하는 skill 폴더 하나만 복사한다 — 원격 스크립트를 실행하지 않는다. 전체 가이드(Windows PowerShell, 업데이트, 제거): [`docs/INSTALL.md`](./docs/INSTALL.md).
-
-**최신 설치** (macOS / Linux):
+Claude Code용 첫 skill을 설치합니다:
 
 ```bash
 git clone --depth 1 https://github.com/kyungseo/agent-skills.git /tmp/agent-skills
-mkdir -p ~/.claude/skills && cp -R /tmp/agent-skills/skills/svg-infographic ~/.claude/skills/
+mkdir -p ~/.claude/skills
+cp -R /tmp/agent-skills/skills/svg-infographic ~/.claude/skills/
 ```
 
-**버전 고정 설치**(재현 가능): `--branch <tag>` 추가, 예 `--branch v0.1.0`.
+Windows PowerShell, 버전 고정 설치, 업데이트, 제거 방법은 [`docs/INSTALL.md`](./docs/INSTALL.md)에 있습니다.
 
-## 범위
+이후 Claude Code에서 이렇게 요청합니다:
 
-- **Claude Code 우선.** Codex / Codex CLI 지원은 수요와 browser 기반 export 경로 검증 전까지 보류한다.
-- **clone + copy 설치.** GitHub clone + copy(latest 또는 pinned tag) — [`docs/INSTALL.md`](./docs/INSTALL.md) 참고. 설치 스크립트, plugin/marketplace, 정식 버저닝 정책은 비용을 정당화하기 전까지 범위 밖이다.
+```text
+svg-infographic으로 Azure 토폴로지를 그려줘: Application Gateway -> APIM -> AKS -> PostgreSQL.
+```
+
+```text
+svg-infographic으로 이 before/after 마이그레이션 계획을 슬라이드용 기술 인포그래픽으로 바꿔줘.
+```
+
+결과물은 다음 두 파일을 기본으로 합니다:
+
+- `*.svg` — 나중에 고칠 수 있는 원본
+- `*.png` — 공유, 슬라이드, 소셜 포스트용 2x export
+
+## Skill 목록
+
+| Skill | Agent | Status | 설명 |
+| --- | --- | --- | --- |
+| [`svg-infographic`](./skills/svg-infographic) | Claude Code | Beta | flat하고 구조적인 SVG 인포그래픽을 만들고 PNG로 export합니다. |
+
+## 품질 기준
+
+포함된 예제는 모두 직접 만든 synthetic 예제이며, client 산출물에서 파생하지 않았습니다. 각 예제는 SVG + 2x PNG로 제공되고 다음을 확인합니다:
+
+- 텍스트 넘침 없음
+- 한국어/CJK 글자 깨짐 없음
+- SVG/PNG 크기 일치
+- SVG 접근성 메타데이터 포함
+- host-specific path 또는 client path 없음
+
+## 현재 범위
+
+이 repo는 우선 Claude Code를 대상으로 합니다. Codex / Codex CLI 지원은 수요와 browser 기반 PNG export 경로가 확인되면 다시 검토합니다.
+
+`svg-infographic`은 flat하고 구조적인 시각 자료에 초점을 둡니다. 사진 중심 마케팅 그래픽, 통계 차트, 손그림/크레용 스타일, 마스코트·캐릭터 일러스트는 의도적으로 범위 밖에 둡니다.
 
 ## 라이선스
 

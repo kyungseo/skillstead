@@ -1,6 +1,10 @@
 # Examples — svg-infographic
 
-Real outputs from the [`svg-infographic`](../../skills/svg-infographic) skill. Each is a **flat, structural** diagram (the skill's sweet spot), shipped as source SVG + 2× PNG, in English and Korean, with the prompt that generated it. Every example is an originally authored, non-client synthetic (see each folder's Provenance). Together they cover the six archetypes the skill advertises.
+Real outputs from the [`svg-infographic`](../../skills/svg-infographic) skill. Each example is a flat, structural visual shipped as source SVG + 2× PNG, in English and Korean, with the prompt that generated it.
+
+Every example is originally authored, synthetic, non-client, and non-confidential. Together they cover the six archetypes the skill advertises.
+
+![svg-infographic gallery preview](./gallery-preview.en.png)
 
 ## Gallery
 

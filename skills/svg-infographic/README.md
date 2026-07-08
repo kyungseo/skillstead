@@ -2,71 +2,78 @@
 
 # svg-infographic
 
-Author technical/structured SVG infographics with a consistent style system, and export both an editable SVG and a crisp 2x PNG artifact.
+Create flat, structured technical visuals in Claude Code: architecture diagrams, cloud topologies, process flows, before/after comparisons, roadmaps, and share-ready infographics.
 
-## Overview
+The skill writes an editable SVG first, then exports a crisp 2x PNG when a Chromium-based browser is available.
 
-`svg-infographic` helps Claude Code produce clean, hand-authored SVGs for architecture diagrams, cloud topology, before/after comparisons, process flows, roadmap panels, and structured one-page technical infographics.
+## Best For
 
-It is **not** for photo- or illustration-heavy marketing graphics, statistical charts, or hand-drawn "sketchnote" styles with mascots or character art.
+- Architecture and topology diagrams from text notes
+- Technical one-pagers for docs, decks, and social posts
+- Migration or modernization before/after visuals
+- Process, data, or request-path flows
+- Korean/CJK diagrams that must render correctly
 
-## When To Use
+## Example Prompts
 
-- You want a clean architecture / topology / flow / layer diagram from a text description.
-- You want a structured technical one-pager for a deck, doc, or social post.
-- You need correct Korean / CJK text in the output.
+```text
+Use svg-infographic to draw this cloud architecture as a clean topology diagram:
+Application Gateway -> APIM -> AKS -> PostgreSQL.
+```
 
-## When Not To Use
+```text
+Use svg-infographic to turn this monolith-to-microservices plan into a before/after infographic.
+```
 
-- Photo- or illustration-heavy marketing infographics.
-- Statistical charts (bar, line, scatter, heatmap).
-- Hand-drawn / crayon sketchnote styles, mascots, or character illustration.
+```text
+Use svg-infographic to make a Korean 4:5 social infographic explaining these four layers.
+```
+
+## Output
+
+The skill proposes an output directory inside your current project before writing files.
+
+- `*.svg` — editable source of truth
+- `*.png` — 2x render for docs, slides, and social sharing
+
+## Style Defaults
+
+By default, the output uses:
+
+- light background
+- muted technical palette
+- rounded structural cards and panels
+- simple line icons in soft tinted circles
+- CSS variables collected in one place
+- Korean/CJK-safe font stack: Pretendard, Apple SD Gothic Neo, Malgun Gothic, Noto Sans KR, sans-serif
+
+Before drawing, the skill tells you these defaults and gives you a chance to change ratio, language, brand color, theme, or output format.
 
 ## Install
 
-Copy the skill folder into your Claude Code skills directory:
+Copy this folder into your Claude Code skills directory:
 
 ```text
 <claude-skills-dir>/svg-infographic/SKILL.md
 ```
 
-The exact path varies by environment, so this doc uses a `<claude-skills-dir>` placeholder rather than a machine-specific absolute path. See [../../docs/INSTALL.md](../../docs/INSTALL.md).
-
-## Usage Examples
-
-```text
-Use svg-infographic to turn this architecture into a cloud infrastructure topology diagram.
-```
-
-```text
-Use svg-infographic to turn this before/after migration into a structured social infographic.
-```
-
-## Output Artifacts
-
-- `*.svg` — the editable source of truth
-- `*.png` — the 2x export for sharing, slides, and social posts
-
-Before writing files, the skill proposes an output directory inside your current project and asks for confirmation.
-
-## Style Defaults
-
-- Style: muted technical
-- Font stack: Pretendard, Apple SD Gothic Neo, Noto Sans KR, sans-serif
-- Theme: light background
-- Color system: CSS variables collected in one place
-
-You can change brand color, ratio, language, dark mode, and output format before generation.
-
-## Limitations
-
-- PNG export depends on browser-based rendering. Where it is unavailable, the skill delivers the SVG only and states the limitation.
-- Output is vector/structural. It does not produce raster illustration, photography, or hand-drawn textures.
+For GitHub install commands on macOS, Linux, and Windows, see [../../docs/INSTALL.md](../../docs/INSTALL.md).
 
 ## Examples
 
-See the examples in the repository — a skill overview, a cloud topology, and a technical infographic, each in English and Korean, with the prompt that generated it:
+Browse the full gallery:
 
 **https://github.com/kyungseo/agent-skills/tree/main/examples/svg-infographic**
 
-(If you installed only this skill folder, browse the examples at the link above rather than a local path.)
+It includes English and Korean examples for topology, layer/onion models, before/after comparison, process flow, roadmap, and a self-demo.
+
+## Boundaries
+
+Use this skill for flat, structural visuals. It is not designed for:
+
+- photo-heavy or illustration-heavy marketing graphics
+- statistical charts such as bar, line, scatter, or heatmap charts
+- hand-drawn/crayon sketchnote styles
+- mascots, character art, or custom illustration
+
+If PNG export is unavailable, the skill still delivers SVG and states the limitation.

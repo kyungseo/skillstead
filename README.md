@@ -2,68 +2,79 @@
 
 # Agent Skills
 
-Small, practical skills for AI coding agents — packaged so each one is easy to read, install, and share on its own.
+Reusable skills for AI coding agents, starting with one practical gap: making clean technical visuals from plain text.
 
-Each skill fills a concrete capability gap you hit in real work, and ships with example artifacts so you can see the output before you install. See [`examples/svg-infographic/`](./examples/svg-infographic) for the first skill's outputs (English + Korean).
+The first skill, [`svg-infographic`](./skills/svg-infographic), helps Claude Code turn architecture notes, migration plans, process flows, and technical concepts into editable SVGs and crisp 2x PNGs for docs, decks, and social posts.
 
-> **First-class Korean / CJK rendering.** The first skill authors SVG infographics with a font stack and glyph checks tuned for Korean and other CJK text — an area where many diagram/infographic tools break.
+[![svg-infographic example gallery](./examples/svg-infographic/gallery-preview.en.png)](./examples/svg-infographic)
 
-## Preview
+## Why This Exists
 
-<table>
-<tr>
-<td width="34%"><a href="./examples/svg-infographic/technical-infographic"><img src="./examples/svg-infographic/technical-infographic/technical-infographic.en.png" alt="The 4 Layers of AI Engineering" width="100%"></a></td>
-<td width="46%"><a href="./examples/svg-infographic/before-after-migration"><img src="./examples/svg-infographic/before-after-migration/before-after-migration.en.png" alt="Monolith to microservices" width="100%"></a></td>
-</tr>
-</table>
+Claude can produce good visual artifacts in chat, but Claude Code often works inside a repository where you need files: an SVG you can edit, a PNG you can share, and a repeatable style that does not fall apart when the diagram has Korean or CJK text.
 
-More in the [example gallery](./examples/svg-infographic) — six archetypes (onion, before/after, flow, roadmap, topology, self-demo), each in English + Korean with the prompt that made it.
+`svg-infographic` gives Claude Code a focused workflow for those artifacts. It keeps the output flat, structured, and source-controlled.
 
-## Skills
+## What You Can Create
 
-| Skill | Agent | Status | Summary |
-| --- | --- | --- | --- |
-| [`svg-infographic`](./skills/svg-infographic) | Claude Code | Beta | Author technical/structured SVG infographics and export them as crisp PNG artifacts. |
+| Use case | Example |
+| --- | --- |
+| Architecture and cloud topology | Azure / AWS style request paths, zones, services, databases |
+| Technical infographics | Layer models, capability maps, one-page explainers |
+| Before / after comparisons | Migration plans, modernization stories, tradeoff panels |
+| Process and data flows | RAG pipelines, approval flows, system handoffs |
+| Roadmaps and timelines | Product phases, milestones, status snapshots |
+| Korean-ready share images | CJK-safe SVG + PNG output for docs and social posts |
 
-## Naming Convention
+See the full [example gallery](./examples/svg-infographic) for six archetypes in English and Korean, with the prompts that produced them.
 
-Skill names lead with the function trigger, not a maker or brand name — this makes them match reliably in an agent's skill selector.
+## Quick Start
 
-```text
-<medium-or-capability>-<job>
-```
-
-Examples: `svg-infographic`, `review-pr`, `docs-redline`.
-
-Brand identity lives in repository metadata, README copy, and social posts — not in the skill name.
-
-## Usage
-
-In Claude Code, ask for a diagram in plain language — the skill triggers on matching requests, or invoke it by name:
-
-```text
-Use svg-infographic to draw an Azure topology: AGW → APIM → AKS → PostgreSQL.
-```
-
-You get an editable `.svg` (source of truth) and a crisp 2× `.png` for slides, docs, and social posts. Each [example](./examples/svg-infographic) shows a real prompt.
-
-## Install
-
-Clone the repo and copy the one skill folder you want — no remote script is run. Full guide (Windows PowerShell, update, uninstall): [`docs/INSTALL.md`](./docs/INSTALL.md).
-
-**Install latest** (macOS / Linux):
+Install the first skill for Claude Code:
 
 ```bash
 git clone --depth 1 https://github.com/kyungseo/agent-skills.git /tmp/agent-skills
-mkdir -p ~/.claude/skills && cp -R /tmp/agent-skills/skills/svg-infographic ~/.claude/skills/
+mkdir -p ~/.claude/skills
+cp -R /tmp/agent-skills/skills/svg-infographic ~/.claude/skills/
 ```
 
-**Install a pinned version** (reproducible): add `--branch <tag>`, e.g. `--branch v0.1.0`.
+Windows PowerShell, pinned versions, update, and uninstall instructions are in [`docs/INSTALL.md`](./docs/INSTALL.md).
 
-## Scope
+Then ask Claude Code for a visual:
 
-- **Claude Code first.** Codex / Codex CLI support is deferred until there is demand and the browser-based export path is verified there.
-- **Clone + copy install.** GitHub clone + copy (latest or pinned tag) — see [`docs/INSTALL.md`](./docs/INSTALL.md). Install scripts, a plugin/marketplace, and a formal versioning policy are out of scope until they earn their cost.
+```text
+Use svg-infographic to draw an Azure topology: Application Gateway -> APIM -> AKS -> PostgreSQL.
+```
+
+```text
+Use svg-infographic to turn this before/after migration plan into a technical infographic for a slide.
+```
+
+The skill produces:
+
+- `*.svg` as the editable source of truth
+- `*.png` as a 2x export for sharing, slides, and social posts
+
+## Skill Catalog
+
+| Skill | Agent | Status | What it does |
+| --- | --- | --- | --- |
+| [`svg-infographic`](./skills/svg-infographic) | Claude Code | Beta | Creates flat, structured SVG infographics and exports PNGs. |
+
+## Quality Bar
+
+The included examples are synthetic, non-client artifacts. Each ships as SVG + 2x PNG and is checked for:
+
+- no text overflow
+- correct Korean/CJK rendering
+- matching SVG/PNG dimensions
+- accessible SVG metadata
+- no host-specific or client paths
+
+## Current Scope
+
+This repo is Claude Code first. Codex / Codex CLI support is deferred until there is confirmed demand and the browser-based PNG export path is verified there.
+
+`svg-infographic` is for flat, structural visuals. It intentionally does not target photo-heavy marketing graphics, statistical charts, hand-drawn/crayon styles, or mascot/character illustration.
 
 ## License
 
