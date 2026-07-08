@@ -10,9 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Repository skeleton: root README (EN) + Korean mirror, naming convention, install guide.
 - First skill draft: `svg-infographic` (Claude Code) — technical/structured SVG infographic authoring with 2x PNG export.
 - Apache-2.0 license.
-- Example artifacts (SVG + 2x PNG, English + Korean), each with the generating prompt:
-  - `examples/cloud-infra-topology` — Azure AGW → APIM → AKS → PostgreSQL reference topology.
-  - `examples/technical-infographic` — "The 4 Layers of AI Engineering" (flat, structural).
+- Example artifacts under `examples/svg-infographic/` (namespaced by skill; SVG + 2x PNG, English + Korean, each with the generating prompt):
+  - `skill-overview` — the skill introducing itself (purpose + mechanism).
+  - `cloud-infra-topology` — Azure AGW → APIM → AKS → PostgreSQL reference topology.
+  - `technical-infographic` — "The 4 Layers of AI Engineering" (flat, structural).
 
 ### Notes
 

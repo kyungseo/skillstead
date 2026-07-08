@@ -65,4 +65,4 @@ You can change brand color, ratio, language, dark mode, and output format before
 
 ## Examples
 
-See [`examples/`](../../examples) — a cloud topology and a technical infographic, each in English and Korean, with the prompt that generated it.
+See [`examples/svg-infographic/`](../../examples/svg-infographic) — a skill overview, a cloud topology, and a technical infographic, each in English and Korean, with the prompt that generated it.

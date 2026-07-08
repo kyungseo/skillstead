@@ -34,41 +34,41 @@
   <!-- card 1: Prompt -->
   <rect x="110" y="666" width="410" height="270" rx="18" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
   <circle cx="150" cy="712" r="19" fill="#1F6FB2"/>
-  <text x="150" y="713" text-anchor="middle" style="font-size:20px;font-weight:700;fill:#FFFFFF">1</text>
+  <text x="150" y="712" text-anchor="middle" dominant-baseline="central" style="font-size:20px;font-weight:700;fill:#FFFFFF">1</text>
   <text x="184" y="720" style="font-size:26px;font-weight:700">Prompt Engineering</text>
-  <text x="150" y="792" class="sub" style="font-size:19px">
-    <tspan x="150" dy="0">The exact wording, instructions, and</tspan>
-    <tspan x="150" dy="28">constraints you type directly into the chat.</tspan>
+  <text x="150" y="790" class="sub" style="font-size:18px">
+    <tspan x="150" dy="0">The exact words, instructions, and</tspan>
+    <tspan x="150" dy="27">constraints you type into the chat.</tspan>
   </text>
 
   <!-- card 2: Context -->
   <rect x="560" y="666" width="410" height="270" rx="18" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
   <circle cx="600" cy="712" r="19" fill="#5A8DC4"/>
-  <text x="600" y="713" text-anchor="middle" style="font-size:20px;font-weight:700;fill:#FFFFFF">2</text>
+  <text x="600" y="712" text-anchor="middle" dominant-baseline="central" style="font-size:20px;font-weight:700;fill:#FFFFFF">2</text>
   <text x="634" y="720" style="font-size:26px;font-weight:700">Context Engineering</text>
-  <text x="600" y="792" class="sub" style="font-size:19px">
-    <tspan x="600" dy="0">The system instructions, reference files,</tspan>
-    <tspan x="600" dy="28">and history the model reads before your prompt.</tspan>
+  <text x="600" y="790" class="sub" style="font-size:18px">
+    <tspan x="600" dy="0">The system prompt, reference files,</tspan>
+    <tspan x="600" dy="27">and history read before your prompt.</tspan>
   </text>
 
   <!-- card 3: Harness -->
   <rect x="110" y="966" width="410" height="270" rx="18" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
   <circle cx="150" cy="1012" r="19" fill="#7AA6D2"/>
-  <text x="150" y="1013" text-anchor="middle" style="font-size:20px;font-weight:700;fill:#FFFFFF">3</text>
+  <text x="150" y="1012" text-anchor="middle" dominant-baseline="central" style="font-size:20px;font-weight:700;fill:#FFFFFF">3</text>
   <text x="184" y="1020" style="font-size:26px;font-weight:700">Harness Engineering</text>
-  <text x="150" y="1092" class="sub" style="font-size:19px">
-    <tspan x="150" dy="0">The code that routes tools, verifies outputs,</tspan>
-    <tspan x="150" dy="28">and retries so the model checks its own work.</tspan>
+  <text x="150" y="1090" class="sub" style="font-size:18px">
+    <tspan x="150" dy="0">Code that routes tools, checks</tspan>
+    <tspan x="150" dy="27">outputs, and retries automatically.</tspan>
   </text>
 
   <!-- card 4: Loop -->
   <rect x="560" y="966" width="410" height="270" rx="18" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
   <circle cx="600" cy="1012" r="19" fill="#9DBEDE"/>
-  <text x="600" y="1013" text-anchor="middle" style="font-size:20px;font-weight:700;fill:#2C5A86">4</text>
+  <text x="600" y="1012" text-anchor="middle" dominant-baseline="central" style="font-size:20px;font-weight:700;fill:#2C5A86">4</text>
   <text x="634" y="1020" style="font-size:26px;font-weight:700">Loop Engineering</text>
-  <text x="600" y="1092" class="sub" style="font-size:19px">
-    <tspan x="600" dy="0">A goal and stop condition that let the system</tspan>
-    <tspan x="600" dy="28">prompt, check, and adjust without you in the loop.</tspan>
+  <text x="600" y="1090" class="sub" style="font-size:18px">
+    <tspan x="600" dy="0">A goal and stop condition that lets</tspan>
+    <tspan x="600" dy="27">it run and self-correct on its own.</tspan>
   </text>
 
   <!-- footer -->

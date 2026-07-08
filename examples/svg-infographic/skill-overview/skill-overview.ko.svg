@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350" width="1080" height="1350" role="img"
+  style="font-family:Pretendard,'Apple SD Gothic Neo','Noto Sans KR',sans-serif">
+  <title>svg-infographic — 용도와 동작 방식</title>
+  <desc>svg-infographic 스킬 소개: 텍스트 설명을 깔끔한 기술 SVG 다이어그램과 2x PNG로 만든다. 확인·작성·렌더·검증 흐름을 거치며, 구조적 다이어그램에 적합하고 사진·차트·손그림에는 부적합하다.</desc>
+  <style>
+    svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#D6E0EC; --primary:#1F6FB2;
+      --card:#F7FAFD;
+      --ok-fill:#E7F5EF; --ok-line:#0F7A5F; --ok-ink:#0B5E49;
+      --no-fill:#FBE9E4; --no-line:#C2502B; --no-ink:#8A3618; }
+    text{ fill:var(--ink) }
+    .sub{ fill:var(--muted) }
+  </style>
+
+  <rect x="0" y="0" width="1080" height="1350" fill="var(--bg)"/>
+  <defs>
+    <marker id="a2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M1,1 L7,4.5 L1,8" fill="none" stroke="#8A94A3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- title -->
+  <rect x="80" y="58" width="9" height="54" rx="3" fill="var(--primary)"/>
+  <text x="106" y="98" style="font-size:44px;font-weight:800">svg-infographic</text>
+  <text x="106" y="134" class="sub" style="font-size:21px">설명을 입력하면 깔끔한 기술 다이어그램과 공유용 PNG를 만든다.</text>
+
+  <!-- 동작 방식 -->
+  <text x="80" y="204" style="font-size:24px;font-weight:700">동작 방식</text>
+
+  <!-- step boxes -->
+  <g>
+    <rect x="80" y="230" width="212" height="158" rx="16" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
+    <circle cx="112" cy="266" r="17" fill="var(--primary)"/>
+    <text x="112" y="266" text-anchor="middle" dominant-baseline="central" style="font-size:18px;font-weight:700;fill:#FFFFFF">1</text>
+    <text x="140" y="272" style="font-size:20px;font-weight:700">확인</text>
+    <text x="102" y="316" class="sub" style="font-size:14px"><tspan x="102" dy="0">의도·비율,</tspan><tspan x="102" dy="22">스타일·언어</tspan></text>
+
+    <rect x="316" y="230" width="212" height="158" rx="16" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
+    <circle cx="348" cy="266" r="17" fill="var(--primary)"/>
+    <text x="348" y="266" text-anchor="middle" dominant-baseline="central" style="font-size:18px;font-weight:700;fill:#FFFFFF">2</text>
+    <text x="376" y="272" style="font-size:20px;font-weight:700">SVG 작성</text>
+    <text x="338" y="316" class="sub" style="font-size:14px"><tspan x="338" dy="0">컬러 토큰,</tspan><tspan x="338" dy="22">CJK 폰트</tspan></text>
+
+    <rect x="552" y="230" width="212" height="158" rx="16" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
+    <circle cx="584" cy="266" r="17" fill="var(--primary)"/>
+    <text x="584" y="266" text-anchor="middle" dominant-baseline="central" style="font-size:18px;font-weight:700;fill:#FFFFFF">3</text>
+    <text x="612" y="272" style="font-size:20px;font-weight:700">렌더</text>
+    <text x="574" y="316" class="sub" style="font-size:14px"><tspan x="574" dy="0">headless 브라우저</tspan><tspan x="574" dy="22">→ 2× PNG</tspan></text>
+
+    <rect x="788" y="230" width="212" height="158" rx="16" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
+    <circle cx="820" cy="266" r="17" fill="var(--primary)"/>
+    <text x="820" y="266" text-anchor="middle" dominant-baseline="central" style="font-size:18px;font-weight:700;fill:#FFFFFF">4</text>
+    <text x="848" y="272" style="font-size:20px;font-weight:700">검증</text>
+    <text x="810" y="316" class="sub" style="font-size:14px"><tspan x="810" dy="0">넘침·글리프,</tspan><tspan x="810" dy="22">크기 확인</tspan></text>
+
+    <line x1="294" y1="309" x2="314" y2="309" stroke="#8A94A3" stroke-width="1.5" marker-end="url(#a2)"/>
+    <line x1="530" y1="309" x2="550" y2="309" stroke="#8A94A3" stroke-width="1.5" marker-end="url(#a2)"/>
+    <line x1="766" y1="309" x2="786" y2="309" stroke="#8A94A3" stroke-width="1.5" marker-end="url(#a2)"/>
+  </g>
+
+  <!-- 용도 -->
+  <text x="80" y="456" style="font-size:24px;font-weight:700">용도</text>
+
+  <!-- 적합 -->
+  <rect x="80" y="484" width="440" height="322" rx="16" style="fill:var(--ok-fill);stroke:var(--ok-line);stroke-width:1.5"/>
+  <text x="108" y="524" style="font-size:20px;font-weight:700;fill:var(--ok-ink)">적합</text>
+  <g style="font-size:17px" fill="var(--ok-ink)">
+    <text x="112" y="562">✓  아키텍처 다이어그램</text>
+    <text x="112" y="596">✓  클라우드 / 네트워크 토폴로지</text>
+    <text x="112" y="630">✓  컴포넌트 &amp; 레이어 맵</text>
+    <text x="112" y="664">✓  프로세스 / 데이터 플로우</text>
+    <text x="112" y="698">✓  Before / After 비교</text>
+    <text x="112" y="732">✓  로드맵 / 리스크 맵</text>
+    <text x="112" y="766">✓  기술 원페이저</text>
+  </g>
+
+  <!-- 부적합 -->
+  <rect x="560" y="484" width="440" height="322" rx="16" style="fill:var(--no-fill);stroke:var(--no-line);stroke-width:1.5"/>
+  <text x="588" y="524" style="font-size:20px;font-weight:700;fill:var(--no-ink)">부적합</text>
+  <g style="font-size:17px" fill="var(--no-ink)">
+    <text x="592" y="562">✕  사진 / 일러스트 중심</text>
+    <text x="592" y="596">✕  통계 차트</text>
+    <text x="592" y="630">✕  손그림 / 크레용 스케치노트</text>
+    <text x="592" y="664">✕  마스코트 &amp; 캐릭터</text>
+    <text x="592" y="698">✕  자유형 로고 / 아이콘</text>
+  </g>
+
+  <!-- 결과물 -->
+  <text x="80" y="866" style="font-size:24px;font-weight:700">결과물</text>
+  <rect x="80" y="894" width="440" height="82" rx="14" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
+  <text x="108" y="928" style="font-size:20px;font-weight:700">.svg</text>
+  <text x="172" y="928" class="sub" style="font-size:17px">편집 가능한 원본</text>
+  <text x="108" y="955" class="sub" style="font-size:14px">토큰 한 곳 → 몇 초 만에 recolor</text>
+  <rect x="560" y="894" width="440" height="82" rx="14" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
+  <text x="588" y="928" style="font-size:20px;font-weight:700">.png</text>
+  <text x="652" y="928" class="sub" style="font-size:17px">선명한 2× export</text>
+  <text x="588" y="955" class="sub" style="font-size:14px">슬라이드·문서·소셜 포스트용</text>
+
+  <!-- CJK band -->
+  <rect x="80" y="1024" width="920" height="104" rx="16" style="fill:#EAF2FB;stroke:#9DBEDE;stroke-width:1.5"/>
+  <text x="112" y="1068" style="font-size:21px;font-weight:700;fill:#1B4F7D">한국어 / CJK 텍스트 우선 지원</text>
+  <text x="112" y="1100" class="sub" style="font-size:16px">렌더링·검증 완료, 두부(tofu) 없음 —  가나다라  ·  ABCabc  ·  0123</text>
+
+  <!-- footer -->
+  <text x="540" y="1200" text-anchor="middle" class="sub" style="font-size:17px">Claude Code 스킬 · 말로 설명하면 다이어그램과 PNG가 나온다.</text>
+</svg>
