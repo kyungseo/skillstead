@@ -10,6 +10,11 @@ An Azure reference topology for a typical web request path — produced by `svg-
 
 Files: `*.en.svg` / `*.en.png` / `*.ko.svg` / `*.ko.png` — SVG is the editable source, PNG is the 2x export.
 
+## Provenance
+
+Originally authored synthetic example. Non-client, non-confidential. Not derived from any engagement artifact — the topology is a generic Azure reference pattern.
+(오리지널 합성 예제. 특정 고객·기밀과 무관하며 실제 프로젝트 산출물에서 파생하지 않았다.)
+
 ## Prompt
 
 ```text

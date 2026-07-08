@@ -9,7 +9,7 @@ Use this skill when the user wants a technical or structured infographic/diagram
 
 Good for: architecture diagrams, cloud/network topology, component/layer diagrams, before/after, process/data flow, nested "onion" models, roadmap/risk maps, social-ready technical one-pagers.
 
-Do **not** use for: photo/illustration-heavy marketing graphics; statistical charts (bar/line/scatter/heatmap — use a chart tool); hand-drawn/crayon "sketchnote" styles; mascots or character illustration; freeform logos/icons.
+Do **not** use for: photo/illustration-heavy marketing graphics; statistical charts (bar/line/scatter/heatmap — use a chart tool); hand-drawn/crayon "sketchnote" styles; mascots or character illustration; custom logo design or bespoke icon design. (Using the built-in line-icon set in §5 is expected and encouraged — the non-goal is *designing new brand marks*, not using icons.)
 
 ## 0. Preflight — confirm, then offer to change
 

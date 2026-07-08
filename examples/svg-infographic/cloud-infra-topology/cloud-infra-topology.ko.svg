@@ -19,6 +19,10 @@
     <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
       <path d="M1,1 L7,4.5 L1,8" fill="none" stroke="#6B7280" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
     </marker>
+    <symbol id="ic-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="ic-api" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></symbol>
+    <symbol id="ic-network" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></symbol>
+    <symbol id="ic-database" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v14c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></symbol>
   </defs>
 
   <rect x="0" y="0" width="680" height="900" fill="var(--bg)"/>
@@ -42,15 +46,19 @@
   <!-- Application Gateway -->
   <rect class="box" x="190" y="220" width="300" height="58" rx="9"
         style="fill:var(--edge-fill);stroke:var(--edge-line)"/>
-  <text x="340" y="238" text-anchor="middle" dominant-baseline="central" class="lbl" style="fill:var(--edge-ink)">Application Gateway + WAF</text>
-  <text x="340" y="260" text-anchor="middle" dominant-baseline="central" class="sub">공개 진입 · TLS 종료 · L7 라우팅</text>
+  <circle cx="224" cy="249" r="16" fill="#FFFFFF"/>
+  <use href="#ic-shield" x="211" y="236" width="26" height="26" style="color:var(--edge-line)"/>
+  <text x="252" y="240" text-anchor="start" dominant-baseline="central" class="lbl" style="fill:var(--edge-ink)">Application Gateway + WAF</text>
+  <text x="252" y="261" text-anchor="start" dominant-baseline="central" class="sub">공개 진입 · TLS 종료 · L7 라우팅</text>
   <line x1="340" y1="278" x2="340" y2="316" stroke="#6B7280" stroke-width="1.3" marker-end="url(#arrow)"/>
 
   <!-- APIM -->
   <rect class="box" x="190" y="320" width="300" height="58" rx="9"
         style="fill:var(--api-fill);stroke:var(--api-line)"/>
-  <text x="340" y="338" text-anchor="middle" dominant-baseline="central" class="lbl" style="fill:var(--api-ink)">API Management (APIM)</text>
-  <text x="340" y="360" text-anchor="middle" dominant-baseline="central" class="sub">인증 · 속도 제한 · 정책 · 버전 관리</text>
+  <circle cx="224" cy="349" r="16" fill="#FFFFFF"/>
+  <use href="#ic-api" x="211" y="336" width="26" height="26" style="color:var(--api-line)"/>
+  <text x="252" y="340" text-anchor="start" dominant-baseline="central" class="lbl" style="fill:var(--api-ink)">API Management (APIM)</text>
+  <text x="252" y="361" text-anchor="start" dominant-baseline="central" class="sub">인증 · 속도 제한 · 정책 · 버전 관리</text>
   <line x1="340" y1="378" x2="340" y2="416" stroke="#6B7280" stroke-width="1.3" marker-end="url(#arrow)"/>
 
   <!-- AKS cluster zone -->
@@ -61,7 +69,9 @@
   <!-- Ingress -->
   <rect class="box" x="188" y="452" width="304" height="46" rx="8"
         style="fill:var(--k8s-fill);stroke:var(--k8s-line)"/>
-  <text x="340" y="475" text-anchor="middle" dominant-baseline="central" class="lbl" style="fill:var(--k8s-ink)">Ingress 컨트롤러</text>
+  <circle cx="222" cy="475" r="15" fill="#FFFFFF"/>
+  <use href="#ic-network" x="210" y="463" width="24" height="24" style="color:var(--k8s-line)"/>
+  <text x="248" y="475" text-anchor="start" dominant-baseline="central" class="lbl" style="fill:var(--k8s-ink)">Ingress 컨트롤러</text>
   <line x1="340" y1="498" x2="340" y2="524" stroke="#6B7280" stroke-width="1.3" marker-end="url(#arrow)"/>
 
   <!-- Service -->
@@ -90,8 +100,10 @@
   <!-- PostgreSQL -->
   <rect class="box" x="182" y="712" width="316" height="58" rx="9"
         style="fill:var(--data-fill);stroke:var(--data-line)"/>
-  <text x="340" y="730" text-anchor="middle" dominant-baseline="central" class="lbl" style="fill:var(--data-ink)">Azure Database for PostgreSQL</text>
-  <text x="340" y="752" text-anchor="middle" dominant-baseline="central" class="sub">Flexible Server · 프라이빗 엔드포인트</text>
+  <circle cx="216" cy="741" r="16" fill="#FFFFFF"/>
+  <use href="#ic-database" x="203" y="728" width="26" height="26" style="color:var(--data-line)"/>
+  <text x="244" y="732" text-anchor="start" dominant-baseline="central" class="lbl" style="fill:var(--data-ink)">Azure Database for PostgreSQL</text>
+  <text x="244" y="753" text-anchor="start" dominant-baseline="central" class="sub">Flexible Server · 프라이빗 엔드포인트</text>
 
   <!-- legend -->
   <line x1="228" y1="812" x2="268" y2="812" stroke="#6B7280" stroke-width="1.3"/>

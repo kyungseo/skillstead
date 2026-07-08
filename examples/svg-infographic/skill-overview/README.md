@@ -10,6 +10,11 @@ A one-page infographic that introduces `svg-infographic` itself — what it's fo
 
 Files: `*.en.svg` / `*.en.png` / `*.ko.svg` / `*.ko.png` — SVG is the editable source, PNG is the 2x export.
 
+## Provenance
+
+Originally authored synthetic example. Non-client, non-confidential. Describes the skill itself; not derived from any engagement artifact.
+(오리지널 합성 예제. 특정 고객·기밀과 무관하며 스킬 자체를 설명한다.)
+
 ## Prompt
 
 ```text

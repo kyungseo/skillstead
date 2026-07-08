@@ -33,11 +33,11 @@
 
   <!-- nested onion -->
   <rect x="120" y="176" width="840" height="404" rx="22" style="fill:#E8F1FB;stroke:#9DBEDE;stroke-width:1.5"/>
-  <text x="540" y="208" text-anchor="middle" style="font-size:26px;font-weight:700;fill:#2C5A86">루프</text>
+  <text x="540" y="208" text-anchor="middle" dominant-baseline="central" style="font-size:26px;font-weight:700;fill:#2C5A86">루프</text>
   <rect x="212" y="238" width="656" height="284" rx="20" style="fill:#CFE0F2;stroke:#7AA6D2;stroke-width:1.5"/>
-  <text x="540" y="270" text-anchor="middle" style="font-size:25px;font-weight:700;fill:#274F79">하네스</text>
+  <text x="540" y="270" text-anchor="middle" dominant-baseline="central" style="font-size:25px;font-weight:700;fill:#274F79">하네스</text>
   <rect x="318" y="294" width="444" height="172" rx="18" style="fill:#9DC0E4;stroke:#5A8DC4;stroke-width:1.5"/>
-  <text x="540" y="325" text-anchor="middle" style="font-size:24px;font-weight:700;fill:#193A5C">컨텍스트</text>
+  <text x="540" y="325" text-anchor="middle" dominant-baseline="central" style="font-size:24px;font-weight:700;fill:#193A5C">컨텍스트</text>
   <rect x="410" y="342" width="260" height="82" rx="16" style="fill:#1F6FB2;stroke:#175789;stroke-width:1.5"/>
   <text x="540" y="386" text-anchor="middle" dominant-baseline="central" style="font-size:24px;font-weight:700;fill:#FFFFFF">프롬프트</text>
 
