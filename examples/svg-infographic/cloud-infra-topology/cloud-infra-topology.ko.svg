@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 900" width="680" height="900" role="img"
-  style="font-family:Pretendard,'Apple SD Gothic Neo','Noto Sans KR',sans-serif">
+  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
   <title>Azure 레퍼런스 토폴로지 — AGW에서 APIM, AKS, PostgreSQL까지</title>
   <desc>인터넷에서 Application Gateway(WAF), API Management, AKS 클러스터(Ingress, Service, Pod)를 거쳐 Azure Database for PostgreSQL로 이어지는 요청 경로. Azure VNet 내부.</desc>
   <style>

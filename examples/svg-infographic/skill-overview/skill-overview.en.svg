@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350" width="1080" height="1350" role="img"
-  style="font-family:Pretendard,'Apple SD Gothic Neo','Noto Sans KR',sans-serif">
+  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
   <title>svg-infographic — what it does and how it works</title>
   <desc>An overview of the svg-infographic skill: it turns a text description into a clean technical SVG diagram and a 2x PNG, through a confirm, author, render, and verify flow. Good for structural diagrams, not for photos, charts, or hand-drawn art.</desc>
   <style>

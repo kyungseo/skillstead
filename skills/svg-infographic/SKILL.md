@@ -28,7 +28,7 @@ Before drawing, confirm visual intent, audience, output ratio, and language. The
 
 ## 2. Canvas & type scale
 
-- Root: `<svg xmlns viewBox="0 0 W H" width=W height=H role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Noto Sans KR',sans-serif">`. Include `<title>`/`<desc>`.
+- Root: `<svg xmlns viewBox="0 0 W H" width=W height=H role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">`. Include `<title>`/`<desc>`. The stack covers Korean/CJK on macOS (Apple SD Gothic Neo), Windows (Malgun Gothic), and Linux (Noto Sans KR).
 - Canvas: **680** wide for docs/decks; **1080×1350** (4:5) for social. Height as needed.
 - **Type scale — keep it unified across the diagram** (don't vary per box):
   - 1080-wide social: H1 46 / section 24 / card title 25 / body 19 / caption 16
@@ -86,7 +86,15 @@ Reusable icon set (drop into `<defs>`; all 24×24, `fill="none" stroke="currentC
 
 Use example: `<circle cx="172" cy="726" r="38" fill="#E3EEF8"/><use href="#ic-terminal" x="152" y="706" width="40" height="40" style="color:#1F6FB2"/>`.
 
-## 6. Render to PNG (Chrome headless, 2×)
+## 6. Render to PNG (headless Chromium browser, 2×)
+
+Any Chromium-based browser works — Chrome, Microsoft Edge, or Chromium — with the **same headless flags on every OS**. Resolve the binary for the user's platform first:
+
+| OS | Typical binary (use whichever exists) |
+| --- | --- |
+| macOS | `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome` · `.../Microsoft Edge.app/Contents/MacOS/Microsoft Edge` · `/Applications/Chromium.app/Contents/MacOS/Chromium` |
+| Windows | `C:\Program Files\Google\Chrome\Application\chrome.exe` · `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe` |
+| Linux | `google-chrome` · `chromium` · `chromium-browser` (usually on `PATH`) |
 
 Wrapper HTML (W/H = SVG viewBox), placed next to the .svg in the session scratchpad (not in the repo):
 
@@ -97,19 +105,29 @@ img{display:block;width:Wpx;height:Hpx}
 </style></head><body><img src="diagram.svg"></body></html>
 ```
 
+macOS / Linux:
+
 ```bash
-CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-"$CHROME" --headless=new --disable-gpu --hide-scrollbars \
+BROWSER="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"   # or edge/chromium; on Linux just: google-chrome
+"$BROWSER" --headless=new --disable-gpu --hide-scrollbars \
   --force-device-scale-factor=2 --window-size=W,H \
   --screenshot="diagram.png" "file:///ABS/PATH/wrapper.html"
 ```
 
-`--window-size` = viewBox (not 2×); the scale factor upscales. Transparent bg: add `--default-background-color=00000000`. If no browser renderer is available, deliver the SVG only and state the limitation.
+Windows (PowerShell) — same flags, `.exe` path:
+
+```powershell
+& "C:\Program Files\Google\Chrome\Application\chrome.exe" --headless=new --disable-gpu --hide-scrollbars `
+  --force-device-scale-factor=2 --window-size=W,H `
+  --screenshot="diagram.png" "file:///C:/ABS/PATH/wrapper.html"
+```
+
+`--window-size` = viewBox (not 2×); the scale factor upscales. Transparent bg: add `--default-background-color=00000000`. If no Chromium-based browser is available, deliver the SVG only and state the limitation.
 
 ## 7. Defaults to state (and let the user change)
 
 - Style: muted technical · light background · icons = soft circular bg + line icon
-- Font stack: Pretendard, Apple SD Gothic Neo, Noto Sans KR, sans-serif
+- Font stack: Pretendard, Apple SD Gothic Neo, Malgun Gothic, Noto Sans KR, sans-serif (covers macOS/Windows/Linux CJK)
 - Changeable: brand color, ratio (docs vs 4:5 social), dark mode, icon style, Korean/English, SVG-only vs SVG+PNG
 
 ## 8. Verify (quality bar)
@@ -118,4 +136,4 @@ Before handoff, check: no text overflow; text vertically centered in its box; co
 
 ## 9. Output & handoff
 
-Save both the **SVG** (editable source of truth) and the **PNG** (2× export for slides/docs/social). Font stack must be installed locally or Chrome falls back (Apple SD Gothic Neo on macOS is fine for Korean).
+Save both the **SVG** (editable source of truth) and the **PNG** (2× export for slides/docs/social). The renderer uses locally installed fonts, so Korean/CJK falls back to the platform default (Apple SD Gothic Neo on macOS, Malgun Gothic on Windows, Noto Sans KR on Linux) — verify no tofu in the PNG.

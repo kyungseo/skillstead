@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 900" width="680" height="900" role="img"
-  style="font-family:Pretendard,'Apple SD Gothic Neo','Noto Sans KR',sans-serif">
+  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
   <title>Azure Reference Topology — AGW to APIM to AKS to PostgreSQL</title>
   <desc>Request path from Internet through Application Gateway (WAF), API Management, an AKS cluster (Ingress, Service, Pods), to Azure Database for PostgreSQL, inside an Azure VNet.</desc>
   <style>

@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350" width="1080" height="1350" role="img"
-  style="font-family:Pretendard,'Apple SD Gothic Neo','Noto Sans KR',sans-serif">
+  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
   <title>svg-infographic — 용도와 동작 방식</title>
   <desc>svg-infographic 스킬 소개: 텍스트 설명을 깔끔한 기술 SVG 다이어그램과 2x PNG로 만든다. 확인·작성·렌더·검증 흐름을 거치며, 구조적 다이어그램에 적합하고 사진·차트·손그림에는 부적합하다.</desc>
   <style>

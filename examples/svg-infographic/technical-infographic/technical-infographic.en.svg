@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350" width="1080" height="1350" role="img"
-  style="font-family:Pretendard,'Apple SD Gothic Neo','Noto Sans KR',sans-serif">
+  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
   <title>The 4 Layers of AI Engineering</title>
   <desc>Four nested layers — Prompt inside Context inside Harness inside Loop — each wrapping the one before it, with an icon and one-line description of each engineering layer.</desc>
   <style>
