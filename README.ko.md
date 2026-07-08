@@ -15,9 +15,9 @@ Agentic coding workflow에 붙여 쓰는 실용적이고 portable한 skill catal
 
 ## 왜 만들었나
 
-Agentic coding workflow는 보통 저장소 안에서 진행됩니다. 그래서 “그럴듯한 그림”보다 실제 파일이 필요합니다. 나중에 고칠 수 있는 SVG, 바로 공유할 수 있는 PNG, 한국어가 깨지지 않는 폰트와 렌더링 확인까지요.
+Claude 앱에서는 시각 자료를 만들기 쉽지만, Claude Code에서는 저장소 안에 실제 제작 파일이 남아야 합니다. 문서와 HTML에 바로 넣을 수 있고, PPTX 슬라이드에 가져가 개체화한 뒤 빠르게 고칠 수 있는 SVG가 필요합니다. 공유 이미지나 썸네일이 필요할 때를 위한 PNG export도 같이 있으면 좋고요.
 
-`svg-infographic`은 agent가 그런 산출물을 안정적으로 만들도록 돕는 workflow입니다. 결과물은 flat하고 구조적이며, repo에 넣어 관리하기 좋게 만듭니다.
+`svg-infographic`은 agent가 그런 제작 자산을 안정적으로 만들도록 돕는 workflow입니다. 결과물은 flat하고 구조적이며, repo에 넣어 관리하기 좋고, 한국어/CJK 렌더링까지 확인하도록 설계했습니다.
 
 ## 만들 수 있는 것
 
@@ -29,7 +29,7 @@ Agentic coding workflow는 보통 저장소 안에서 진행됩니다. 그래서
 | 프로세스 / 데이터 플로우 | RAG 파이프라인, 승인 흐름, 시스템 handoff |
 | 로드맵 / 타임라인 | 제품 단계, 마일스톤, 현재 상태 |
 | 의사결정 / 우선순위 매트릭스 | 2×2 quadrant map, 범위·불확실성 그리드, 트레이드오프 뷰 |
-| 한국어 공유 이미지 | CJK 렌더링을 확인한 SVG + PNG 산출물 |
+| 한국어 시각 자산 | 문서, HTML, 슬라이드용 CJK-safe SVG와 preview/social용 PNG |
 
 전체 [예제 갤러리](./examples/svg-infographic)에서 여러 archetype을 다루는 8개 예제 — architecture, migration, workflow, decision matrix 등 — 를 영문·한글 버전과 생성 프롬프트로 확인할 수 있습니다.
 
@@ -57,8 +57,8 @@ svg-infographic으로 이 before/after 마이그레이션 계획을 슬라이드
 
 결과물은 다음 두 파일을 기본으로 합니다:
 
-- `*.svg` — 나중에 고칠 수 있는 원본
-- `*.png` — 공유, 슬라이드, 소셜 포스트용 2x export
+- `*.svg` — 핵심 산출물: 문서, HTML, PPTX workflow에 바로 넣어 편집 가능한 vector asset
+- `*.png` — 공유 이미지, 썸네일, 소셜 포스트용 선명한 2x preview/export
 
 ## Skill 목록
 

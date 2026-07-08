@@ -13,9 +13,9 @@ The first release supports Claude Code. The first skill, [`svg-infographic`](./s
 
 ## Why This Exists
 
-Agentic coding workflows often happen inside a repository where you need files: an SVG you can edit, a PNG you can share, and a repeatable style that does not fall apart when the diagram has Korean or CJK text.
+Claude can make good visuals in chat, but Claude Code works inside a repository, where a useful diagram needs to become an actual asset. You want an SVG that can go straight into docs, HTML pages, and PPTX slides as editable vector content, plus a PNG preview/export when you need a share image.
 
-`svg-infographic` gives the agent a focused workflow for those artifacts. It keeps the output flat, structured, and source-controlled.
+`svg-infographic` gives the agent a focused workflow for those assets. It keeps the output flat, structured, source-controlled, and checked so Korean/CJK text does not fall apart at render time.
 
 ## What You Can Create
 
@@ -27,7 +27,7 @@ Agentic coding workflows often happen inside a repository where you need files: 
 | Process and data flows | RAG pipelines, approval flows, system handoffs |
 | Roadmaps and timelines | Product phases, milestones, status snapshots |
 | Decision and priority matrices | 2×2 quadrant maps, scope/uncertainty grids, trade-off views |
-| Korean-ready share images | CJK-safe SVG + PNG output for docs and social posts |
+| Korean-ready visual assets | CJK-safe SVG for docs, HTML, and slide decks; PNG for previews and social posts |
 
 See the full [example gallery](./examples/svg-infographic) for eight examples across several archetypes — architecture, migration, workflow, decision matrix, and more — in English and Korean, with the prompts that produced them.
 
@@ -55,8 +55,8 @@ Use svg-infographic to turn this before/after migration plan into a technical in
 
 The skill produces:
 
-- `*.svg` as the editable source of truth
-- `*.png` as a 2x export for sharing, slides, and social posts
+- `*.svg` — the primary deliverable: editable vector content for docs, HTML, and PPTX workflows
+- `*.png` — a crisp 2x preview/export for sharing, thumbnails, and social posts
 
 ## Skill Catalog
 

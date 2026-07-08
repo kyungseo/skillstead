@@ -93,8 +93,8 @@ When you run it, the skill shows defaults like the table below before writing fi
 
 The skill proposes an output directory inside your current project before writing files.
 
-- `*.svg` — editable source of truth
-- `*.png` — 2x render for docs, slides, and social sharing
+- `*.svg` — primary editable vector asset for docs, HTML, and PPTX workflows
+- `*.png` — 2x preview/export for sharing, thumbnails, and social posts
 
 ## Style Defaults
 
