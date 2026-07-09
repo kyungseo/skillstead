@@ -60,6 +60,8 @@ git clone --depth 1 --branch v0.1.0 https://github.com/kyungseo/skillstead.git /
 cp -R /tmp/skillstead/skills/svg-infographic ~/.claude/skills/      # or .claude/skills/ for project scope
 ```
 
+A shallow pinned-tag clone may print `refs/tags/v0.1.0 ... is not a commit`. It is harmless; the checkout still lands on the tagged commit.
+
 ## Manual install
 
 If you already have the files locally, copy the skill folder into your skills directory:
