@@ -20,8 +20,9 @@
   <rect x="0" y="0" width="1300" height="1070" fill="#FFFFFF"/>
 
   <!-- Header -->
-  <text x="60" y="54" font-size="32" font-weight="700" fill="#1F2733">AI Agent Task Selection Matrix</text>
-  <text x="60" y="86" font-size="16" fill="#5B6675">Choose the right execution mode by scope and uncertainty</text>
+  <rect x="44" y="30" width="6" height="42" rx="3" fill="#1F6FB2"/>
+  <text x="66" y="54" font-size="32" font-weight="800" fill="#1F2733">AI Agent Task Selection Matrix</text>
+  <text x="66" y="84" font-size="16" fill="#5B6675">Choose the right execution mode by scope and uncertainty</text>
 
   <!-- ===================== Axes ===================== -->
   <!-- Y axis (uncertainty, up) -->
