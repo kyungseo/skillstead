@@ -1,64 +1,72 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480" width="1200" height="480" role="img"
-  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
-  <title>RAG query pipeline — process flow</title>
-  <desc>A left-to-right process flow for retrieval-augmented generation: user query, embed, vector search, augmented prompt, and generate answer.</desc>
-  <style>
-    svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#D6E0EC; --primary:#1F6FB2; --card:#F7FAFD;
-      --ok-fill:#E7F5EF; --ok-line:#0F7A5F; --ok-ink:#0B5E49; }
-    text{ fill:var(--ink) }
-    .sub{ fill:var(--muted) }
-  </style>
-  <defs>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto"><path d="M1,1 L8,5 L1,9" fill="none" stroke="#8A94A3" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
-    <symbol id="ic-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-4 4V5z"/><path d="M8 10h8M8 13h5"/></symbol>
-    <symbol id="ic-api" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></symbol>
-    <symbol id="ic-database" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v14c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></symbol>
-    <symbol id="ic-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 16.5h6M9 9.5h2"/></symbol>
-    <symbol id="ic-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z"/></symbol>
-  </defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 540" width="1240" height="540" role="img"
+     shape-rendering="geometricPrecision" text-rendering="optimizeLegibility"
+     style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+<title>RAG query pipeline — process flow</title>
+<desc>A left-to-right process flow for retrieval-augmented generation: user query, embed, vector search, augmented prompt, and generate answer.</desc>
+<style>
+  svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#DCE3EC; --primary:#1F6FB2; --pf-tint:#E3EEF8;
+    --band:#F7FAFD; --ok-fill:#E7F5EF; --ok-line:#0F7A5F; --ok-ink:#0B5E49; --ok-tint:#D0EBDF; }
+  text{ fill:var(--ink) }
+  .sub{ fill:var(--muted) }
+  .ct{ font-size:17px; font-weight:700 }
+  .cs{ font-size:13px }
+  .ic{ fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round }
+</style>
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8A94A3"/></marker>
+  <symbol id="ic-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-4 4V5z"/><path d="M8 10h8M8 13h5"/></symbol>
+  <symbol id="ic-api" viewBox="0 0 24 24"><path d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></symbol>
+  <symbol id="ic-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v14c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></symbol>
+  <symbol id="ic-doc" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 16.5h6M9 9.5h2"/></symbol>
+  <symbol id="ic-spark" viewBox="0 0 24 24"><path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z"/></symbol>
+</defs>
+<rect width="1240" height="540" fill="var(--bg)"/>
 
-  <rect x="0" y="0" width="1200" height="480" fill="var(--bg)"/>
+<!-- header -->
+<rect x="44" y="40" width="6" height="46" rx="3" fill="var(--primary)"/>
+<text x="66" y="64" style="font-size:32px;font-weight:800">RAG Query Pipeline</text>
+<text x="66" y="94" class="sub" style="font-size:16px">Retrieval-augmented generation — retrieved context grounds the model before it answers</text>
 
-  <!-- title -->
-  <rect x="50" y="44" width="9" height="46" rx="3" fill="var(--primary)"/>
-  <text x="76" y="74" style="font-size:34px;font-weight:800">RAG Query Pipeline</text>
-  <text x="76" y="104" class="sub" style="font-size:18px">Retrieval-augmented generation — left-to-right flow</text>
+<!-- band container -->
+<rect x="44" y="130" width="1152" height="290" rx="18" fill="var(--band)" stroke="var(--hair)"/>
+<rect x="68" y="152" width="150" height="32" rx="16" fill="var(--primary)"/>
+<text x="143" y="169" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:700;fill:#FFFFFF">RAG PIPELINE</text>
 
-  <!-- flow row (5 nodes) -->
-  <!-- node template: box w200 h140 at y190 -->
-  <g>
-    <rect x="40" y="200" width="200" height="150" rx="14" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-    <circle cx="140" cy="248" r="25" fill="#E3EEF8"/><use href="#ic-chat" x="123" y="231" width="34" height="34" style="color:#1F6FB2"/>
-    <text x="140" y="296" text-anchor="middle" dominant-baseline="central" style="font-size:17px;font-weight:700">User Query</text>
-    <text x="140" y="320" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:13px">the question</text>
+<!-- 5 flow cards -->
+<g>
+  <rect x="72" y="204" width="206" height="176" rx="14" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
+  <circle cx="175" cy="254" r="28" fill="var(--pf-tint)"/><use href="#ic-chat" class="ic" x="157" y="236" width="36" height="36" style="color:var(--primary)"/>
+  <text x="175" y="308" text-anchor="middle" dominant-baseline="central" class="ct">User Query</text>
+  <text x="175" y="332" text-anchor="middle" dominant-baseline="central" class="sub cs">the question</text>
 
-    <rect x="270" y="200" width="200" height="150" rx="14" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-    <circle cx="370" cy="248" r="25" fill="#E3EEF8"/><use href="#ic-api" x="353" y="231" width="34" height="34" style="color:#1F6FB2"/>
-    <text x="370" y="296" text-anchor="middle" dominant-baseline="central" style="font-size:17px;font-weight:700">Embed</text>
-    <text x="370" y="320" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:13px">text → vector</text>
+  <rect x="308" y="204" width="206" height="176" rx="14" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
+  <circle cx="411" cy="254" r="28" fill="var(--pf-tint)"/><use href="#ic-api" class="ic" x="393" y="236" width="36" height="36" style="color:var(--primary)"/>
+  <text x="411" y="308" text-anchor="middle" dominant-baseline="central" class="ct">Embed</text>
+  <text x="411" y="332" text-anchor="middle" dominant-baseline="central" class="sub cs">text → vector</text>
 
-    <rect x="500" y="200" width="200" height="150" rx="14" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-    <circle cx="600" cy="248" r="25" fill="#E3EEF8"/><use href="#ic-database" x="583" y="231" width="34" height="34" style="color:#1F6FB2"/>
-    <text x="600" y="296" text-anchor="middle" dominant-baseline="central" style="font-size:17px;font-weight:700">Vector Search</text>
-    <text x="600" y="320" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:13px">top-k retrieve</text>
+  <rect x="544" y="204" width="206" height="176" rx="14" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
+  <circle cx="647" cy="254" r="28" fill="var(--pf-tint)"/><use href="#ic-database" class="ic" x="629" y="236" width="36" height="36" style="color:var(--primary)"/>
+  <text x="647" y="308" text-anchor="middle" dominant-baseline="central" class="ct">Vector Search</text>
+  <text x="647" y="332" text-anchor="middle" dominant-baseline="central" class="sub cs">top-k retrieve</text>
 
-    <rect x="730" y="200" width="200" height="150" rx="14" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-    <circle cx="830" cy="248" r="25" fill="#E3EEF8"/><use href="#ic-doc" x="813" y="231" width="34" height="34" style="color:#1F6FB2"/>
-    <text x="830" y="296" text-anchor="middle" dominant-baseline="central" style="font-size:17px;font-weight:700">Augment</text>
-    <text x="830" y="320" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:13px">query + context</text>
+  <rect x="780" y="204" width="206" height="176" rx="14" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
+  <circle cx="883" cy="254" r="28" fill="var(--pf-tint)"/><use href="#ic-doc" class="ic" x="865" y="236" width="36" height="36" style="color:var(--primary)"/>
+  <text x="883" y="308" text-anchor="middle" dominant-baseline="central" class="ct">Augment</text>
+  <text x="883" y="332" text-anchor="middle" dominant-baseline="central" class="sub cs">query + context</text>
 
-    <rect x="960" y="200" width="200" height="150" rx="14" style="fill:var(--ok-fill);stroke:var(--ok-line);stroke-width:1.5"/>
-    <circle cx="1060" cy="248" r="25" fill="#FFFFFF"/><use href="#ic-spark" x="1043" y="231" width="34" height="34" style="color:var(--ok-line)"/>
-    <text x="1060" y="296" text-anchor="middle" dominant-baseline="central" style="font-size:17px;font-weight:700;fill:var(--ok-ink)">Generate</text>
-    <text x="1060" y="320" text-anchor="middle" dominant-baseline="central" style="font-size:13px;fill:var(--ok-ink)">LLM → answer</text>
-  </g>
+  <rect x="1016" y="204" width="206" height="176" rx="14" fill="var(--ok-fill)" stroke="var(--ok-line)" stroke-width="1.6"/>
+  <circle cx="1119" cy="254" r="28" fill="var(--ok-tint)"/><use href="#ic-spark" class="ic" x="1101" y="236" width="36" height="36" style="color:var(--ok-line)"/>
+  <text x="1119" y="308" text-anchor="middle" dominant-baseline="central" class="ct" style="fill:var(--ok-ink)">Generate</text>
+  <text x="1119" y="332" text-anchor="middle" dominant-baseline="central" class="cs" style="fill:var(--ok-ink)">LLM → answer</text>
+</g>
 
-  <!-- arrows -->
-  <line x1="240" y1="275" x2="270" y2="275" stroke="#8A94A3" stroke-width="1.7" marker-end="url(#arrow)"/>
-  <line x1="470" y1="275" x2="500" y2="275" stroke="#8A94A3" stroke-width="1.7" marker-end="url(#arrow)"/>
-  <line x1="700" y1="275" x2="730" y2="275" stroke="#8A94A3" stroke-width="1.7" marker-end="url(#arrow)"/>
-  <line x1="930" y1="275" x2="960" y2="275" stroke="#8A94A3" stroke-width="1.7" marker-end="url(#arrow)"/>
+<!-- arrows -->
+<line x1="282" y1="292" x2="304" y2="292" stroke="#8A94A3" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="518" y1="292" x2="540" y2="292" stroke="#8A94A3" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="754" y1="292" x2="776" y2="292" stroke="#8A94A3" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="990" y1="292" x2="1012" y2="292" stroke="#8A94A3" stroke-width="2" marker-end="url(#arrow)"/>
 
-  <!-- legend -->
-  <text x="600" y="420" text-anchor="middle" class="sub" style="font-size:14px">solid = request path · retrieved context grounds the model before it answers</text>
+<!-- footer note -->
+<rect x="44" y="446" width="1152" height="58" rx="14" fill="var(--band)" stroke="var(--hair)"/>
+<text x="620" y="475" text-anchor="middle" dominant-baseline="central" style="font-size:15px;font-weight:600;fill:var(--primary)">Retrieved top-k context is added to the prompt so the model answers from grounded facts, not memory alone.</text>
 </svg>

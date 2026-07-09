@@ -1,79 +1,73 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" width="1200" height="600" role="img"
-  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
-  <title>제품 로드맵 — Discovery에서 GA까지</title>
-  <desc>타임라인 위 4단계 제품 로드맵 — 발견(완료), 알파(현재), 베타(다음), 정식출시(이후) — 각 단계 마일스톤과 현재 마커.</desc>
-  <style>
-    svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#D6E0EC; --primary:#1F6FB2; --card:#F7FAFD;
-      --done:#0F7A5F; --now:#1F6FB2; --next:#5A8DC4; --later:#8A94A3; }
-    text{ fill:var(--ink) }
-    .sub{ fill:var(--muted) }
-    .b{ font-size:14px; fill:var(--ink) }
-  </style>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 620" width="1240" height="620" role="img"
+     shape-rendering="geometricPrecision" text-rendering="optimizeLegibility"
+     style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+<title>제품 로드맵 — Discovery에서 GA까지</title>
+<desc>타임라인 위 4단계 제품 로드맵 — Discovery(완료), Alpha(진행중), Beta(다음), GA(이후) — 각 단계별 마일스톤과 now 마커.</desc>
+<style>
+  svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#DCE3EC; --band:#F7FAFD;
+    --done:#0F7A5F; --donet:#D0EBDF; --now:#1F6FB2; --nowt:#DCEBFA; --next:#5A8DC4; --nextt:#E4EDF7; --later:#8A94A3; --latert:#EBEEF2; }
+  text{ fill:var(--ink) }
+  .sub{ fill:var(--muted) }
+  .ph{ font-size:20px; font-weight:800 }
+  .bl{ font-size:15px }
+  .pill{ font-size:12px; font-weight:700 }
+</style>
+<rect width="1240" height="620" fill="var(--bg)"/>
 
-  <rect x="0" y="0" width="1200" height="600" fill="var(--bg)"/>
+<!-- header -->
+<rect x="44" y="40" width="6" height="46" rx="3" fill="var(--now)"/>
+<text x="66" y="64" style="font-size:32px;font-weight:800">제품 로드맵</text>
+<text x="66" y="94" class="sub" style="font-size:16px">정확한 날짜보다 단계 중심 · Discovery → GA</text>
 
-  <!-- title -->
-  <rect x="50" y="44" width="9" height="46" rx="3" fill="var(--primary)"/>
-  <text x="76" y="74" style="font-size:34px;font-weight:800">제품 로드맵</text>
-  <text x="76" y="104" class="sub" style="font-size:18px">정확한 날짜보다 단계 · Discovery → GA</text>
+<!-- timeline -->
+<line x1="60" y1="196" x2="1180" y2="196" stroke="var(--hair)" stroke-width="2.5"/>
+<circle cx="179" cy="196" r="9" fill="var(--done)"/>
+<circle cx="473" cy="196" r="10" fill="var(--now)" stroke="#FFFFFF" stroke-width="3"/>
+<circle cx="767" cy="196" r="9" fill="#FFFFFF" stroke="var(--next)" stroke-width="3"/>
+<circle cx="1061" cy="196" r="9" fill="#FFFFFF" stroke="var(--later)" stroke-width="3"/>
+<line x1="179" y1="205" x2="179" y2="248" stroke="var(--hair)" stroke-width="1.5"/>
+<line x1="473" y1="206" x2="473" y2="248" stroke="var(--now)" stroke-width="1.5"/>
+<line x1="767" y1="205" x2="767" y2="248" stroke="var(--hair)" stroke-width="1.5"/>
+<line x1="1061" y1="205" x2="1061" y2="248" stroke="var(--hair)" stroke-width="1.5"/>
 
-  <!-- timeline -->
-  <line x1="60" y1="200" x2="1140" y2="200" stroke="var(--hair)" stroke-width="2"/>
-  <!-- now marker -->
-  <line x1="577" y1="168" x2="577" y2="560" stroke="var(--now)" stroke-width="1.6" stroke-dasharray="5 4"/>
-  <rect x="546" y="150" width="62" height="26" rx="13" fill="var(--now)"/>
-  <text x="577" y="163" text-anchor="middle" dominant-baseline="central" style="font-size:13px;font-weight:700;fill:#FFFFFF">현재</text>
+<!-- NOW marker -->
+<line x1="473" y1="150" x2="473" y2="196" stroke="var(--now)" stroke-width="1.6" stroke-dasharray="5 4"/>
+<rect x="444" y="132" width="58" height="26" rx="13" fill="var(--now)"/>
+<text x="473" y="145" text-anchor="middle" dominant-baseline="central" style="font-size:13px;font-weight:700;fill:#FFFFFF;letter-spacing:1px">NOW</text>
 
-  <circle cx="180" cy="200" r="9" fill="var(--done)"/>
-  <line x1="180" y1="209" x2="180" y2="250" stroke="var(--hair)" stroke-width="1.5"/>
-  <circle cx="445" cy="200" r="9" fill="var(--now)"/>
-  <line x1="445" y1="209" x2="445" y2="250" stroke="var(--hair)" stroke-width="1.5"/>
-  <circle cx="710" cy="200" r="9" fill="#FFFFFF" stroke="var(--next)" stroke-width="2.5"/>
-  <line x1="710" y1="209" x2="710" y2="250" stroke="var(--hair)" stroke-width="1.5"/>
-  <circle cx="975" cy="200" r="9" fill="#FFFFFF" stroke="var(--later)" stroke-width="2.5"/>
-  <line x1="975" y1="209" x2="975" y2="250" stroke="var(--hair)" stroke-width="1.5"/>
+<!-- card 1: Discovery (완료) -->
+<rect x="44" y="250" width="270" height="316" rx="16" fill="var(--band)" stroke="var(--hair)" stroke-width="1.4"/>
+<text x="68" y="296" class="ph" style="fill:var(--done)">Discovery</text>
+<rect x="228" y="280" width="62" height="26" rx="13" fill="var(--donet)"/><text x="259" y="293" text-anchor="middle" dominant-baseline="central" class="pill" style="fill:var(--done)">완료</text>
+<line x1="68" y1="324" x2="290" y2="324" stroke="var(--hair)"/>
+<circle cx="76" cy="366" r="2.8" fill="var(--done)"/><text x="90" y="366" class="bl" dominant-baseline="central">문제 검증</text>
+<circle cx="76" cy="406" r="2.8" fill="var(--done)"/><text x="90" y="406" class="bl" dominant-baseline="central">범위·비목표 설정</text>
+<circle cx="76" cy="446" r="2.8" fill="var(--done)"/><text x="90" y="446" class="bl" dominant-baseline="central">Go 결정</text>
 
-  <!-- card 1: 발견 (완료) -->
-  <rect x="55" y="250" width="250" height="300" rx="14" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-  <text x="79" y="292" style="font-size:20px;font-weight:800;fill:var(--done)">발견</text>
-  <rect x="228" y="276" width="54" height="24" rx="12" fill="#E7F5EF"/>
-  <text x="255" y="289" text-anchor="middle" dominant-baseline="central" style="font-size:12px;font-weight:700;fill:var(--done)">완료</text>
-  <g class="b">
-    <text x="79" y="340">• 문제 검증</text>
-    <text x="79" y="372">• 범위·비목표 확정</text>
-    <text x="79" y="404">• Go 결정</text>
-  </g>
+<!-- card 2: Alpha (진행중) -->
+<rect x="338" y="250" width="270" height="316" rx="16" fill="#FFFFFF" stroke="var(--now)" stroke-width="2.6"/>
+<text x="362" y="296" class="ph" style="fill:var(--now)">Alpha</text>
+<rect x="514" y="280" width="70" height="26" rx="13" fill="var(--nowt)"/><text x="549" y="293" text-anchor="middle" dominant-baseline="central" class="pill" style="fill:var(--now)">진행중</text>
+<line x1="362" y1="324" x2="584" y2="324" stroke="var(--hair)"/>
+<circle cx="370" cy="366" r="2.8" fill="var(--now)"/><text x="384" y="366" class="bl" dominant-baseline="central">코어 MVP 구축</text>
+<circle cx="370" cy="406" r="2.8" fill="var(--now)"/><text x="384" y="406" class="bl" dominant-baseline="central">내부 테스트</text>
+<circle cx="370" cy="446" r="2.8" fill="var(--now)"/><text x="384" y="446" class="bl" dominant-baseline="central">첫 예제</text>
 
-  <!-- card 2: 알파 (현재) -->
-  <rect x="320" y="250" width="250" height="300" rx="14" style="fill:#FFFFFF;stroke:var(--now);stroke-width:2.5"/>
-  <text x="344" y="292" style="font-size:20px;font-weight:800;fill:var(--now)">알파</text>
-  <rect x="500" y="276" width="46" height="24" rx="12" fill="#E8F1FB"/>
-  <text x="523" y="289" text-anchor="middle" dominant-baseline="central" style="font-size:12px;font-weight:700;fill:var(--now)">현재</text>
-  <g class="b">
-    <text x="344" y="340">• 핵심 MVP 구축</text>
-    <text x="344" y="372">• 내부 테스트</text>
-    <text x="344" y="404">• 첫 예제</text>
-  </g>
+<!-- card 3: Beta (다음) -->
+<rect x="632" y="250" width="270" height="316" rx="16" fill="var(--band)" stroke="var(--hair)" stroke-width="1.4"/>
+<text x="656" y="296" class="ph" style="fill:var(--next)">Beta</text>
+<rect x="816" y="280" width="62" height="26" rx="13" fill="var(--nextt)"/><text x="847" y="293" text-anchor="middle" dominant-baseline="central" class="pill" style="fill:var(--next)">다음</text>
+<line x1="656" y1="324" x2="878" y2="324" stroke="var(--hair)"/>
+<circle cx="664" cy="366" r="2.8" fill="var(--next)"/><text x="678" y="366" class="bl" dominant-baseline="central">공개 프리뷰</text>
+<circle cx="664" cy="406" r="2.8" fill="var(--next)"/><text x="678" y="406" class="bl" dominant-baseline="central">피드백 루프</text>
+<circle cx="664" cy="446" r="2.8" fill="var(--next)"/><text x="678" y="446" class="bl" dominant-baseline="central">안정화</text>
 
-  <!-- card 3: 베타 (다음) -->
-  <rect x="585" y="250" width="250" height="300" rx="14" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-  <text x="609" y="292" style="font-size:20px;font-weight:800;fill:var(--next)">베타</text>
-  <rect x="769" y="276" width="46" height="24" rx="12" fill="#EEF3FA"/>
-  <text x="792" y="289" text-anchor="middle" dominant-baseline="central" style="font-size:12px;font-weight:700;fill:var(--next)">다음</text>
-  <g class="b">
-    <text x="609" y="340">• 공개 프리뷰</text>
-    <text x="609" y="372">• 피드백 루프</text>
-    <text x="609" y="404">• 안정화</text>
-  </g>
-
-  <!-- card 4: 정식출시 (이후) -->
-  <rect x="850" y="250" width="250" height="300" rx="14" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-  <text x="874" y="292" style="font-size:20px;font-weight:800;fill:var(--later)">정식출시</text>
-  <rect x="1030" y="276" width="52" height="24" rx="12" fill="#EEF1F4"/>
-  <text x="1056" y="289" text-anchor="middle" dominant-baseline="central" style="font-size:12px;font-weight:700;fill:var(--later)">이후</text>
-  <g class="b">
-    <text x="874" y="340">• 안정 릴리스</text>
-    <text x="874" y="372">• 전체 문서</text>
-    <text x="874" y="404">• 배포</text>
-  </g>
+<!-- card 4: GA (이후) -->
+<rect x="926" y="250" width="270" height="316" rx="16" fill="var(--band)" stroke="var(--hair)" stroke-width="1.4"/>
+<text x="950" y="296" class="ph" style="fill:var(--later)">GA</text>
+<rect x="1110" y="280" width="62" height="26" rx="13" fill="var(--latert)"/><text x="1141" y="293" text-anchor="middle" dominant-baseline="central" class="pill" style="fill:var(--later)">이후</text>
+<line x1="950" y1="324" x2="1172" y2="324" stroke="var(--hair)"/>
+<circle cx="958" cy="366" r="2.8" fill="var(--later)"/><text x="972" y="366" class="bl" dominant-baseline="central">정식 릴리스</text>
+<circle cx="958" cy="406" r="2.8" fill="var(--later)"/><text x="972" y="406" class="bl" dominant-baseline="central">전체 문서</text>
+<circle cx="958" cy="446" r="2.8" fill="var(--later)"/><text x="972" y="446" class="bl" dominant-baseline="central">배포</text>
 </svg>

@@ -1,113 +1,105 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 710" width="1600" height="710" role="img"
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 720" width="1600" height="720" role="img"
+     shape-rendering="geometricPrecision" text-rendering="optimizeLegibility"
      style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
-  <title>AI Code Review Loop</title>
-  <desc>Left-to-right code review process flow: Open PR to AI Review Agent to Human Reviewer to Patch and Verify to Merge Ready. AI review step emphasized, with a dashed feedback loop for re-review after patch.</desc>
+<title>AI Code Review Loop</title>
+<desc>Left-to-right code review flow: Open PR, AI Review Agent (emphasized), Human Reviewer, Patch and Verify, Merge Ready, with a dashed feedback loop for re-review after a patch.</desc>
+<style>
+  svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#DCE3EC;
+    --b1:#1F6FB2; --b1t:#DCEBFA; --b1k:#124267;
+    --p:#534AB7; --pt:#DEDCF6; --pk:#322B7A;
+    --am:#B5771F; --amt:#F5E4C4; --amk:#7A4E12;
+    --cy:#0E7C90; --cyt:#CDEAEF; --cyk:#084A57;
+    --gr:#0F7A5F; --grt:#D3EEE2; --grk:#085041; }
+  text{ fill:var(--ink) }
+  .num{ font-size:15px; font-weight:700; fill:#FFFFFF }
+  .ct{ font-size:22px; font-weight:700 }
+  .cs{ font-size:13px; fill:var(--muted) }
+  .bl{ font-size:16px }
+  .ic{ fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round }
+</style>
+<defs>
+  <marker id="arw" viewBox="0 0 9 9" refX="7" refY="4" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0.5,0.5 L8,4 L0.5,7.5 z" fill="#5B6675"/></marker>
+  <marker id="arwfb" viewBox="0 0 9 9" refX="7" refY="4" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0.5,0.5 L8,4 L0.5,7.5 z" fill="#534AB7"/></marker>
+  <filter id="soft" x="-25%" y="-25%" width="150%" height="160%"><feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#534AB7" flood-opacity="0.22"/></filter>
+  <symbol id="ic-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 9l3 3-3 3"/><path d="M13 15h4"/></symbol>
+  <symbol id="ic-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+  <symbol id="ic-doc" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 16.5h6M9 9.5h2"/></symbol>
+  <symbol id="ic-loop" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 0 1 12.8-5.3L20 9"/><path d="M20 3.5V9h-5.5"/><path d="M19.5 12a7.5 7.5 0 0 1-12.8 5.3L4 15"/><path d="M4 20.5V15h5.5"/></symbol>
+  <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+</defs>
+<rect width="1600" height="720" fill="var(--bg)"/>
 
-  <style>
-    svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#DCE4EE; }
-    text{ fill:var(--ink) }
-  </style>
+<!-- header -->
+<rect x="44" y="40" width="6" height="46" rx="3" fill="var(--p)"/>
+<text x="66" y="64" style="font-size:32px;font-weight:800">AI Code Review Loop</text>
+<text x="66" y="94" class="cs" style="font-size:16px">From PR to merge — AI review · human approval · re-review, in one flow</text>
 
-  <defs>
-    <marker id="arw" viewBox="0 0 9 9" refX="7" refY="4" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
-      <path d="M0.5,0.5 L8,4 L0.5,7.5 z" fill="#5B6675"/>
-    </marker>
-    <marker id="arwfb" viewBox="0 0 9 9" refX="7" refY="4" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
-      <path d="M0.5,0.5 L8,4 L0.5,7.5 z" fill="#534AB7"/>
-    </marker>
-    <filter id="soft" x="-20%" y="-20%" width="140%" height="150%">
-      <feDropShadow dx="0" dy="4" stdDeviation="7" flood-color="#534AB7" flood-opacity="0.20"/>
-    </filter>
+<!-- solid arrows -->
+<line x1="326" y1="300" x2="350" y2="300" stroke="#5B6675" stroke-width="2.2" marker-end="url(#arw)"/>
+<line x1="634" y1="300" x2="658" y2="300" stroke="#5B6675" stroke-width="2.2" marker-end="url(#arw)"/>
+<line x1="942" y1="300" x2="966" y2="300" stroke="#5B6675" stroke-width="2.2" marker-end="url(#arw)"/>
+<line x1="1250" y1="300" x2="1274" y2="300" stroke="#5B6675" stroke-width="2.2" marker-end="url(#arw)"/>
 
-    <symbol id="ic-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 9l3 3-3 3"/><path d="M13 15h4"/></symbol>
-    <symbol id="ic-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
-    <symbol id="ic-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 16.5h6M9 9.5h2"/></symbol>
-    <symbol id="ic-loop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12a7.5 7.5 0 0 1 12.8-5.3L20 9"/><path d="M20 3.5V9h-5.5"/><path d="M19.5 12a7.5 7.5 0 0 1-12.8 5.3L4 15"/><path d="M4 20.5V15h5.5"/></symbol>
-    <symbol id="ic-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
-  </defs>
+<!-- feedback loop: Patch(4) -> AI Review(2) -->
+<path d="M1108 526 V566 H492 V526" fill="none" stroke="var(--p)" stroke-width="2.2" stroke-dasharray="6 5" marker-end="url(#arwfb)"/>
+<rect x="690" y="551" width="220" height="30" rx="15" fill="#FFFFFF" stroke="var(--p)" stroke-width="1"/>
+<text x="800" y="566" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:600;fill:var(--p)">Re-review after patch</text>
 
-  <rect x="0" y="0" width="1600" height="710" fill="#FFFFFF"/>
+<!-- Card 1: Open PR -->
+<rect x="44" y="150" width="280" height="368" rx="16" fill="#FFFFFF" stroke="var(--b1)" stroke-width="1.4"/>
+<circle cx="72" cy="178" r="15" fill="var(--b1)"/><text x="72" y="178" class="num" text-anchor="middle" dominant-baseline="central">1</text>
+<circle cx="184" cy="238" r="36" fill="var(--b1t)"/><use href="#ic-terminal" class="ic" x="164" y="218" width="40" height="40" style="color:var(--b1)"/>
+<text x="184" y="316" class="ct" text-anchor="middle" dominant-baseline="central" style="fill:var(--b1k)">Open PR</text>
+<text x="184" y="342" class="cs" text-anchor="middle" dominant-baseline="central">Developer opens PR</text>
+<line x1="68" y1="372" x2="300" y2="372" stroke="var(--hair)"/>
+<circle cx="80" cy="410" r="2.6" fill="var(--b1)"/><text x="94" y="410" class="bl" dominant-baseline="central">Code changes</text>
+<circle cx="80" cy="446" r="2.6" fill="var(--b1)"/><text x="94" y="446" class="bl" dominant-baseline="central">Attach test results</text>
 
-  <!-- Header -->
-  <text x="70" y="56" font-size="34" font-weight="700" fill="#1F2733">AI Code Review Loop</text>
-  <text x="70" y="88" font-size="17" fill="#5B6675">From PR to merge &#8212; AI review · human approval · re-review, in one flow</text>
+<!-- Card 2: AI Review Agent (KEY STEP) -->
+<rect x="352" y="150" width="280" height="368" rx="16" fill="#F3F2FC" stroke="var(--p)" stroke-width="2.6" filter="url(#soft)"/>
+<circle cx="380" cy="178" r="15" fill="var(--p)"/><text x="380" y="178" class="num" text-anchor="middle" dominant-baseline="central">2</text>
+<rect x="516" y="166" width="96" height="24" rx="12" fill="var(--p)"/><text x="564" y="178" text-anchor="middle" dominant-baseline="central" style="font-size:12px;font-weight:700;fill:#FFFFFF;letter-spacing:.5px">KEY STEP</text>
+<circle cx="492" cy="238" r="38" fill="var(--p)"/><use href="#ic-gear" class="ic" x="471" y="217" width="42" height="42" style="color:#FFFFFF"/>
+<text x="492" y="316" class="ct" text-anchor="middle" dominant-baseline="central" style="fill:var(--pk)">AI Review Agent</text>
+<text x="492" y="342" class="cs" text-anchor="middle" dominant-baseline="central" style="fill:#6B63C0">Automated diff review</text>
+<line x1="376" y1="372" x2="608" y2="372" stroke="#D7D4F3"/>
+<circle cx="388" cy="404" r="2.6" fill="var(--p)"/><text x="402" y="404" class="bl" dominant-baseline="central">Analyze diff</text>
+<circle cx="388" cy="440" r="2.6" fill="var(--p)"/><text x="402" y="440" class="bl" dominant-baseline="central">Flag risky spots</text>
+<circle cx="388" cy="476" r="2.6" fill="var(--p)"/><text x="402" y="476" class="bl" dominant-baseline="central">Check missing tests</text>
 
-  <!-- ===================== Solid path arrows (normal) ===================== -->
-  <line x1="338" y1="360" x2="360" y2="360" stroke="#5B6675" stroke-width="2.2" marker-end="url(#arw)"/>
-  <line x1="638" y1="360" x2="660" y2="360" stroke="#5B6675" stroke-width="2.2" marker-end="url(#arw)"/>
-  <line x1="938" y1="360" x2="960" y2="360" stroke="#5B6675" stroke-width="2.2" marker-end="url(#arw)"/>
-  <line x1="1238" y1="360" x2="1260" y2="360" stroke="#5B6675" stroke-width="2.2" marker-end="url(#arw)"/>
+<!-- Card 3: Human Reviewer -->
+<rect x="660" y="150" width="280" height="368" rx="16" fill="#FFFFFF" stroke="var(--am)" stroke-width="1.4"/>
+<circle cx="688" cy="178" r="15" fill="var(--am)"/><text x="688" y="178" class="num" text-anchor="middle" dominant-baseline="central">3</text>
+<circle cx="800" cy="238" r="36" fill="var(--amt)"/><use href="#ic-doc" class="ic" x="780" y="218" width="40" height="40" style="color:var(--am)"/>
+<text x="800" y="316" class="ct" text-anchor="middle" dominant-baseline="central" style="fill:var(--amk)">Human Reviewer</text>
+<text x="800" y="342" class="cs" text-anchor="middle" dominant-baseline="central">Human review &amp; triage</text>
+<line x1="684" y1="372" x2="916" y2="372" stroke="var(--hair)"/>
+<circle cx="696" cy="410" r="2.6" fill="var(--am)"/><text x="710" y="410" class="bl" dominant-baseline="central">Review flagged comments</text>
+<circle cx="696" cy="446" r="2.6" fill="var(--am)"/><text x="710" y="446" class="bl" dominant-baseline="central">Clear false positives</text>
 
-  <!-- ===================== Feedback loop (dashed) : Patch -> AI Review ===================== -->
-  <path d="M1100 552 V600 H500 V562" fill="none" stroke="#534AB7" stroke-width="2.2"
-        stroke-dasharray="6 5" marker-end="url(#arwfb)"/>
-  <text x="800" y="590" font-size="15" font-weight="600" text-anchor="middle" fill="#534AB7">Re-review after patch · re-check tests</text>
+<!-- Card 4: Patch & Verify -->
+<rect x="968" y="150" width="280" height="368" rx="16" fill="#FFFFFF" stroke="var(--cy)" stroke-width="1.4"/>
+<circle cx="996" cy="178" r="15" fill="var(--cy)"/><text x="996" y="178" class="num" text-anchor="middle" dominant-baseline="central">4</text>
+<circle cx="1108" cy="238" r="36" fill="var(--cyt)"/><use href="#ic-loop" class="ic" x="1088" y="218" width="40" height="40" style="color:var(--cy)"/>
+<text x="1108" y="316" class="ct" text-anchor="middle" dominant-baseline="central" style="fill:var(--cyk)">Patch &amp; Verify</text>
+<text x="1108" y="342" class="cs" text-anchor="middle" dominant-baseline="central">Fix and re-test</text>
+<line x1="992" y1="372" x2="1224" y2="372" stroke="var(--hair)"/>
+<circle cx="1004" cy="410" r="2.6" fill="var(--cy)"/><text x="1018" y="410" class="bl" dominant-baseline="central">Apply fixes</text>
+<circle cx="1004" cy="446" r="2.6" fill="var(--cy)"/><text x="1018" y="446" class="bl" dominant-baseline="central">Re-run tests</text>
 
-  <!-- ===================== Card 1 : Open PR (blue) ===================== -->
-  <rect x="70" y="170" width="260" height="380" rx="16" fill="#EEF5FC" stroke="#1F6FB2" stroke-width="1.3"/>
-  <circle cx="98" cy="198" r="15" fill="#1F6FB2"/>
-  <text x="98" y="198" font-size="16" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">1</text>
-  <circle cx="200" cy="264" r="37" fill="#DCEBFA"/>
-  <use href="#ic-terminal" x="180" y="244" width="40" height="40" style="color:#1F6FB2"/>
-  <text x="200" y="350" font-size="23" font-weight="700" fill="#124267" text-anchor="middle" dominant-baseline="central">Open PR</text>
-  <text x="200" y="376" font-size="13" fill="#5B6675" text-anchor="middle" dominant-baseline="central">Developer opens PR</text>
-  <line x1="94" y1="398" x2="306" y2="398" stroke="#CBDDF0" stroke-width="1"/>
-  <circle cx="102" cy="448" r="2.6" fill="#1F6FB2"/><text x="114" y="448" font-size="17" fill="#1F2733" dominant-baseline="central">Code changes</text>
-  <circle cx="102" cy="484" r="2.6" fill="#1F6FB2"/><text x="114" y="484" font-size="17" fill="#1F2733" dominant-baseline="central">Attach test results</text>
+<!-- Card 5: Merge Ready -->
+<rect x="1276" y="150" width="280" height="368" rx="16" fill="var(--grt)" stroke="var(--gr)" stroke-width="1.6"/>
+<circle cx="1304" cy="178" r="15" fill="var(--gr)"/><text x="1304" y="178" class="num" text-anchor="middle" dominant-baseline="central">5</text>
+<circle cx="1416" cy="238" r="36" fill="#FFFFFF"/><use href="#ic-shield" class="ic" x="1396" y="218" width="40" height="40" style="color:var(--gr)"/>
+<text x="1416" y="316" class="ct" text-anchor="middle" dominant-baseline="central" style="fill:var(--grk)">Merge Ready</text>
+<text x="1416" y="342" class="cs" text-anchor="middle" dominant-baseline="central" style="fill:var(--grk)">Approved &amp; merged</text>
+<line x1="1300" y1="372" x2="1532" y2="372" stroke="#C4E6D6"/>
+<circle cx="1312" cy="410" r="2.6" fill="var(--gr)"/><text x="1326" y="410" class="bl" dominant-baseline="central">Approval complete</text>
+<circle cx="1312" cy="446" r="2.6" fill="var(--gr)"/><text x="1326" y="446" class="bl" dominant-baseline="central">Merge PR</text>
 
-  <!-- ===================== Card 2 : AI Review Agent (purple, EMPHASIZED) ===================== -->
-  <rect x="370" y="170" width="260" height="380" rx="16" fill="#ECEBFB" stroke="#534AB7" stroke-width="2.4" filter="url(#soft)"/>
-  <circle cx="398" cy="200" r="15" fill="#534AB7"/>
-  <text x="398" y="200" font-size="16" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">2</text>
-  <text x="600" y="196" font-size="12" font-weight="700" fill="#534AB7" text-anchor="end" letter-spacing="1">KEY STEP</text>
-  <circle cx="500" cy="266" r="38" fill="#534AB7"/>
-  <use href="#ic-gear" x="479" y="245" width="42" height="42" style="color:#FFFFFF"/>
-  <text x="500" y="352" font-size="23" font-weight="700" fill="#322B7A" text-anchor="middle" dominant-baseline="central">AI Review Agent</text>
-  <text x="500" y="378" font-size="13" fill="#6B63C0" text-anchor="middle" dominant-baseline="central">Automated diff review</text>
-  <line x1="394" y1="400" x2="606" y2="400" stroke="#C9C5F0" stroke-width="1"/>
-  <circle cx="402" cy="432" r="2.6" fill="#534AB7"/><text x="414" y="432" font-size="17" fill="#1F2733" dominant-baseline="central">Analyze diff</text>
-  <circle cx="402" cy="468" r="2.6" fill="#534AB7"/><text x="414" y="468" font-size="17" fill="#1F2733" dominant-baseline="central">Flag risky spots</text>
-  <circle cx="402" cy="504" r="2.6" fill="#534AB7"/><text x="414" y="504" font-size="17" fill="#1F2733" dominant-baseline="central">Check missing tests</text>
-
-  <!-- ===================== Card 3 : Human Reviewer (amber) ===================== -->
-  <rect x="670" y="170" width="260" height="380" rx="16" fill="#FBF2E1" stroke="#B5771F" stroke-width="1.3"/>
-  <circle cx="698" cy="198" r="15" fill="#B5771F"/>
-  <text x="698" y="198" font-size="16" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">3</text>
-  <circle cx="800" cy="264" r="37" fill="#F5E4C4"/>
-  <use href="#ic-doc" x="780" y="244" width="40" height="40" style="color:#B5771F"/>
-  <text x="800" y="350" font-size="23" font-weight="700" fill="#7A4E12" text-anchor="middle" dominant-baseline="central">Human Reviewer</text>
-  <text x="800" y="376" font-size="13" fill="#5B6675" text-anchor="middle" dominant-baseline="central">Human review &amp; triage</text>
-  <line x1="694" y1="398" x2="906" y2="398" stroke="#E7D3A9" stroke-width="1"/>
-  <circle cx="702" cy="448" r="2.6" fill="#B5771F"/><text x="714" y="448" font-size="17" fill="#1F2733" dominant-baseline="central">Review flagged comments</text>
-  <circle cx="702" cy="484" r="2.6" fill="#B5771F"/><text x="714" y="484" font-size="17" fill="#1F2733" dominant-baseline="central">Clear false positives</text>
-
-  <!-- ===================== Card 4 : Patch & Verify (cyan) ===================== -->
-  <rect x="970" y="170" width="260" height="380" rx="16" fill="#E4F4F6" stroke="#0E7C90" stroke-width="1.3"/>
-  <circle cx="998" cy="198" r="15" fill="#0E7C90"/>
-  <text x="998" y="198" font-size="16" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">4</text>
-  <circle cx="1100" cy="264" r="37" fill="#CDEAEF"/>
-  <use href="#ic-loop" x="1080" y="244" width="40" height="40" style="color:#0E7C90"/>
-  <text x="1100" y="350" font-size="23" font-weight="700" fill="#084A57" text-anchor="middle" dominant-baseline="central">Patch &amp; Verify</text>
-  <text x="1100" y="376" font-size="13" fill="#5B6675" text-anchor="middle" dominant-baseline="central">Fix and re-test</text>
-  <line x1="994" y1="398" x2="1206" y2="398" stroke="#BEE2E8" stroke-width="1"/>
-  <circle cx="1002" cy="448" r="2.6" fill="#0E7C90"/><text x="1014" y="448" font-size="17" fill="#1F2733" dominant-baseline="central">Apply fixes</text>
-  <circle cx="1002" cy="484" r="2.6" fill="#0E7C90"/><text x="1014" y="484" font-size="17" fill="#1F2733" dominant-baseline="central">Re-run tests</text>
-
-  <!-- ===================== Card 5 : Merge Ready (green) ===================== -->
-  <rect x="1270" y="170" width="260" height="380" rx="16" fill="#E7F5EF" stroke="#0F7A5F" stroke-width="1.3"/>
-  <circle cx="1298" cy="198" r="15" fill="#0F7A5F"/>
-  <text x="1298" y="198" font-size="16" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">5</text>
-  <circle cx="1400" cy="264" r="37" fill="#D3EEE2"/>
-  <use href="#ic-shield" x="1380" y="244" width="40" height="40" style="color:#0F7A5F"/>
-  <text x="1400" y="350" font-size="23" font-weight="700" fill="#085041" text-anchor="middle" dominant-baseline="central">Merge Ready</text>
-  <text x="1400" y="376" font-size="13" fill="#5B6675" text-anchor="middle" dominant-baseline="central">Approved &amp; merged</text>
-  <line x1="1294" y1="398" x2="1506" y2="398" stroke="#C4E6D6" stroke-width="1"/>
-  <circle cx="1302" cy="448" r="2.6" fill="#0F7A5F"/><text x="1314" y="448" font-size="17" fill="#1F2733" dominant-baseline="central">Approval complete</text>
-  <circle cx="1302" cy="484" r="2.6" fill="#0F7A5F"/><text x="1314" y="484" font-size="17" fill="#1F2733" dominant-baseline="central">Merge PR</text>
-
-  <!-- ===================== Legend ===================== -->
-  <line x1="90" y1="662" x2="150" y2="662" stroke="#5B6675" stroke-width="2.2" marker-end="url(#arw)"/>
-  <text x="162" y="662" font-size="15" fill="#3F4453" dominant-baseline="central">solid arrow = normal path</text>
-  <line x1="470" y1="662" x2="530" y2="662" stroke="#534AB7" stroke-width="2.2" stroke-dasharray="6 5" marker-end="url(#arwfb)"/>
-  <text x="542" y="662" font-size="15" fill="#3F4453" dominant-baseline="central">dashed arrow = feedback loop</text>
+<!-- legend -->
+<line x1="66" y1="662" x2="126" y2="662" stroke="#5B6675" stroke-width="2.2" marker-end="url(#arw)"/>
+<text x="138" y="662" style="font-size:15px;fill:#3F4453" dominant-baseline="central">solid = normal path</text>
+<line x1="392" y1="662" x2="452" y2="662" stroke="var(--p)" stroke-width="2.2" stroke-dasharray="6 5" marker-end="url(#arwfb)"/>
+<text x="464" y="662" style="font-size:15px;fill:#3F4453" dominant-baseline="central">dashed = feedback loop</text>
 </svg>
