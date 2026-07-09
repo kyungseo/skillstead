@@ -17,6 +17,14 @@ Nuances: a **simple qualitative** 2×2/3×3 matrix or a status-count badge is fi
 
 Before drawing, confirm visual intent, audience, output ratio, and language. Then state the defaults below and note the user can change any of them. Propose an output directory **inside the current project** and confirm before writing files.
 
+**Classify the input mode first** (it sets how much to ask before drawing):
+
+- **brief-first** — only a topic/goal is given → ask up to ~3 focused questions (audience, key message, ratio), then propose the structure.
+- **source-first** — a doc, notes, or paste is provided → summarize the source and agree the key message before drawing; don't transcribe it box-for-box.
+- **research-first** — "just draft it" → state your assumptions (and any missing data) up front; external lookup may be unavailable, so proceed from the given material plus explicit assumptions.
+
+**Lead with the conclusion.** Prefer a conclusion-style title over a topic label — "Phased Migration Cuts Cutover Risk" beats "Migration Plan". For a multi-part diagram, sketch the one-to-two-sentence story spine (context → tension → resolution) before placing boxes, so the visual makes a point rather than just listing parts. Exception: for a **named pattern or archetype showcase**, a concise topic/pattern title is fine as long as the subtitle or `<desc>` carries the conclusion.
+
 ## 1. Pick an archetype (shape first)
 
 | Archetype | Layout |
@@ -27,6 +35,8 @@ Before drawing, confirm visual intent, audience, output ratio, and language. The
 | Nested / onion | concentric rounded rects, light (outer) → saturated (inner) |
 | Cards | 2×N grid of icon + title + one-line description |
 | Before/after · Roadmap · Risk map | two panels · swimlane/milestones · grid |
+
+**Pick the archetype from the content signal:** systems/components and their links → Topology/component; ordered steps or handoffs → Flow; options / approval / trade-off → Cards or a qualitative risk/decision matrix; old vs new → Before/after; layered capability → Layer/onion; time or phases → Roadmap; a few headline numbers → icon cards with number badges (not a chart).
 
 Per-archetype recipe (each line prevents that type's common failure):
 
@@ -54,6 +64,7 @@ Per-archetype recipe (each line prevents that type's common failure):
 - **Vertical centering (important):** center text with `dominant-baseline="central"` and set `y` to the box's vertical center. For two lines, straddle the center: title at `center−11`, sub at `center+10`, both `central`. Never rely on the default alphabetic baseline for box labels — it sits high.
 - Arrows: define one `<marker>` arrowhead, use `marker-end`. Solid = sync/request, dashed (`stroke-dasharray="5 4"`) = async/batch/private.
 - **Text wrapping (SVG has no auto-wrap — top failure mode):** break lines yourself with `<tspan x=.. dy=..>`. Keep ~28–36 chars/line for Latin, fewer for Korean; 2–3 lines per box; abbreviate an over-long token rather than let it overflow. Re-check against the box width after writing.
+- **Optional layout aid for busy architecture/flow diagrams:** if nodes collide, first assign each to a **3×3 zone** (top-left … center … bottom-right), route edges only between zones, and wrap co-located nodes in one group frame. It's a quick sketching aid to cut crossings — not a required schema or DSL; simple diagrams don't need it.
 - **Connector routing:** prefer straight orthogonal (horizontal/vertical) connectors; avoid crossings (route around, or move the node); leave an **8–12px gap** between the arrowhead and the target box; place edge labels *beside* the line, not on top of it.
 - **Fan-out connectors** (one source → many targets): one vertical stem from the source, one horizontal bus, then a centered vertical branch to each target. No orphan stubs, and no line that nearly overlaps a box edge.
 - **Paired / side-by-side boxes:** always leave a **visible gutter of 24–32px** between them; never let two boxes touch. Balance the left/right margins.
@@ -158,10 +169,14 @@ $url = "file:///" + ((Resolve-Path .\wrapper.html).Path -replace '\\','/')
 - Style: muted technical · light background · icons = soft circular bg + line icon
 - Font stack: Pretendard, Apple SD Gothic Neo, Malgun Gothic, Noto Sans KR, sans-serif (covers macOS/Windows/Linux CJK)
 - Changeable: brand color, ratio (docs vs 4:5 social), dark mode, icon style, Korean/English, SVG-only vs SVG+PNG
+- Optional attribution/footer layer: **off by default.** On request, add a small footer strip (source, author, or date) as its own bottom layer — a labeled footer, not a watermark laid over the content.
 
 ## 8. Verify (quality bar)
 
-Before handoff, check: no text overflow; text vertically centered in its box; correct CJK (Korean) glyph rendering (no tofu); SVG and PNG dimensions match; icons render (no broken `<use>`).
+Before handoff, check both the rendering and the message:
+
+- **Rendering:** no text overflow; text vertically centered in its box; correct CJK (Korean) glyph rendering (no tofu); SVG and PNG dimensions match (PNG is 2×); icons render (no broken `<use>`); the SVG stays editable — tokens in one `<style>` block, no flattened or rasterized text.
+- **Message:** the archetype fits the content; there is one clear reading order/flow; the title states a conclusion, not just a topic; text density stays low per box (2–3 lines); any qualitative matrix or labels read unambiguously; content depth and language fit the stated audience.
 
 ## 9. Output & handoff
 

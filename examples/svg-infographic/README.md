@@ -1,3 +1,5 @@
+<!-- 한국어: [README.ko.md](./README.ko.md) -->
+
 # Examples — svg-infographic
 
 Real outputs from the [`svg-infographic`](../../skills/svg-infographic) skill. Each example is a flat, structural visual shipped as source SVG + 2× PNG, in English and Korean, with the prompt that generated it.
@@ -5,6 +7,8 @@ Real outputs from the [`svg-infographic`](../../skills/svg-infographic) skill. E
 Every example is originally authored, synthetic, non-client, and non-confidential. Together they cover several archetypes the skill advertises.
 
 ![svg-infographic gallery preview](./gallery-preview.en.png)
+
+_The preview above is a curated six-example montage; all ten examples are listed below._
 
 ## Gallery
 
@@ -76,6 +80,27 @@ uncertainty.
 
 → [`agent-task-matrix/`](./agent-task-matrix) · English + 한국어
 
+### 9. CI/CD artifact promotion
+
+Pipeline archetype: a build-once / promote-the-same-digest release model across
+three labelled bands — build, promote (dev → test → prod behind an approval
+gate), and release fix (a test bug produces a new RC).
+
+[![Release candidate artifact promotion](./ci-cd-artifact-promotion/ci-cd-artifact-promotion.en.png)](./ci-cd-artifact-promotion)
+
+→ [`ci-cd-artifact-promotion/`](./ci-cd-artifact-promotion) · English + 한국어
+
+### 10. Issue tracker ↔ CI/CD approval flow
+
+Flow + state-rail archetype: an issue key threads commit → build → test →
+approval → prod deploy, with a parallel issue-state rail (Open → In Progress →
+In Test → Approved → Deployed) and the approval gate modelled as a state
+transition.
+
+[![Issue tracker CI/CD approval flow](./issue-tracker-cicd-approval-flow/issue-tracker-cicd-approval-flow.en.png)](./issue-tracker-cicd-approval-flow)
+
+→ [`issue-tracker-cicd-approval-flow/`](./issue-tracker-cicd-approval-flow) · English + 한국어
+
 ## Quality bar (every example passes)
 
 - [x] SVG and PNG dimensions match (PNG is exactly 2× the SVG viewBox)
@@ -87,11 +112,11 @@ uncertainty.
 
 ## Render smoke test (per OS)
 
-Windows and Linux install paths are documented in [`SKILL.md`](../../skills/svg-infographic/SKILL.md) §6 and are expected to work with Chrome/Edge/Chromium. For v0.1.0, PNG export has been smoke-tested on macOS; Windows/Linux render verification is still pending.
+Windows and Linux install paths are documented in [`SKILL.md`](../../skills/svg-infographic/SKILL.md) §6 and are expected to work with Chrome/Edge/Chromium. So far, PNG export has been smoke-tested on macOS (all ten examples); Windows/Linux render verification is still pending.
 
 | Environment | Browser | en/ko SVG → 2× PNG | Status |
 | --- | --- | --- | --- |
-| macOS 15 | Chrome (headless) | all 8 examples | ✅ verified — correct 2× dimensions, no tofu |
+| macOS 15 | Chrome (headless) | all 10 examples | ✅ verified — correct 2× dimensions, no tofu |
 | Windows 10/11 | Chrome / Edge | documented path | ⏳ expected; render verification pending |
 | Linux / WSL | Chrome / Chromium | documented path | ⏳ expected; render verification pending (install Noto Sans CJK/KR for Korean) |
 

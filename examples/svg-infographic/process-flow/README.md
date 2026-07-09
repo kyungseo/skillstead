@@ -12,8 +12,10 @@ Files: `*.en.svg` / `*.en.png` / `*.ko.svg` / `*.ko.png` — SVG is the editable
 
 ## Provenance
 
-Originally authored synthetic example. Non-client, non-confidential. A generic RAG pipeline illustration, not derived from any engagement artifact.
-(오리지널 합성 예제. 특정 고객·기밀과 무관하며 실제 프로젝트 산출물에서 파생하지 않았다.)
+Sample content is synthetic. Names, identifiers, digests, tools, and environments
+are placeholders; no customer or confidential identifiers are included.
+(샘플 내용은 합성 예제입니다. 이름, 식별자, digest, 도구, 환경은 placeholder이며
+고객·기밀 식별자는 포함하지 않습니다.)
 
 ## Prompt
 

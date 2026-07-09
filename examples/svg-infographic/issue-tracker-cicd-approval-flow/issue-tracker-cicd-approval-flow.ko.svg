@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 480" width="760" height="480" role="img"
+     shape-rendering="geometricPrecision" text-rendering="optimizeLegibility"
+     style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+<title>이슈 트래커 ↔ CI/CD 승인 연동 흐름</title>
+<desc>이슈 키가 커밋·빌드·배포·승인을 하나로 엮고, 승인 게이트는 이슈 상태 전이로 처리되며, 승인 후 파이프라인이 동일 digest를 배포하는 연동 흐름.</desc>
+<style>
+  svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675;
+    --primary:#1F6FB2; --pf:#EAF1F8; --pf-tint:#D6E6F5;
+    --ok-fill:#E7F5EF;  --ok-line:#0F7A5F;  --ok-ink:#085041;  --ok-tint:#CFEBDF;
+    --app-fill:#ECEBFB; --app-line:#534AB7; --app-ink:#3C3489; --app-tint:#DEDCF6;
+    --data-fill:#F1F2F4; --data-line:#7A8398; --data-ink:#414755; --data-tint:#E3E6EB;
+    --rail:#F7F9FC; }
+  text{ fill:var(--ink) }
+  .t{ font-size:12.5px; font-weight:600 }
+  .d{ font-size:10.5px }
+  .mono{ font-family:"SFMono-Regular",Menlo,monospace; font-size:10.5px }
+  .num{ font-size:12px; font-weight:700; fill:#FFFFFF }
+  .chip{ font-size:10.5px; font-weight:700 }
+  .ic{ fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round }
+</style>
+<defs>
+  <marker id="arw" markerWidth="9" markerHeight="9" refX="6.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="var(--primary)"/></marker>
+  <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></symbol>
+  <symbol id="ic-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1"/></symbol>
+  <symbol id="ic-server" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="7" rx="2"/><rect x="4" y="13" width="16" height="7" rx="2"/><path d="M8 7.5h.01M8 16.5h.01"/></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l2.5 2.5L16 9"/></symbol>
+  <symbol id="ic-rocket" viewBox="0 0 24 24"><path d="M12 3c3.2 1.4 5 4.4 5 8.2L14.5 14h-5L7 11.2C7 7.4 8.8 4.4 12 3z"/><circle cx="12" cy="9.5" r="1.6"/><path d="M9.5 14.5l-2 3.5M14.5 14.5l2 3.5M12 14.5V19"/></symbol>
+</defs>
+<rect width="760" height="480" fill="var(--bg)"/>
+<text x="28" y="36" style="font-size:19px;font-weight:700">이슈 트래커 &#8596; CI/CD 승인 연동 흐름</text>
+<text x="28" y="57" class="d" style="fill:var(--muted);font-size:12px">이슈 키 하나가 커밋·빌드·배포·승인을 엮는다 — 승인 게이트 = 이슈 상태 전이.</text>
+
+<!-- Right rail: issue state machine -->
+<rect x="582" y="86" width="150" height="330" rx="10" style="fill:var(--rail);stroke:#D6DEE8;stroke-width:1"/>
+<text x="657" y="104" text-anchor="middle" class="d" style="fill:var(--muted);font-weight:700" dominant-baseline="central">이슈 상태</text>
+<text x="657" y="120" text-anchor="middle" class="mono" style="fill:var(--ink)" dominant-baseline="central">TICKET-123</text>
+<line x1="657" y1="150" x2="657" y2="392" stroke="#C4CDDA" stroke-width="2"/>
+
+<!-- vertical flow spine (left) -->
+<line x1="54" y1="150" x2="54" y2="390" stroke="#C4CDDA" stroke-width="2"/>
+
+<!-- Step 1: Developer -->
+<circle cx="54" cy="150" r="15" fill="var(--data-line)"/><text x="54" y="150" text-anchor="middle" class="num" dominant-baseline="central">1</text>
+<rect x="80" y="124" width="486" height="52" rx="9" style="fill:var(--data-fill);stroke:var(--data-line);stroke-width:1"/>
+<circle cx="108" cy="150" r="15" fill="var(--data-tint)"/><use href="#ic-user" class="ic" x="97" y="139" width="22" height="22" style="color:var(--data-ink)"/>
+<text x="136" y="142" class="t" style="fill:var(--data-ink)" dominant-baseline="central">개발자 &#183; 이슈 등록</text>
+<text x="136" y="159" class="d" style="fill:var(--muted)" dominant-baseline="central">브랜치·커밋에 이슈 키 참조 &#183; <tspan class="mono">feature/TICKET-123</tspan></text>
+<rect x="590" y="136" width="134" height="28" rx="8" style="fill:#FFFFFF;stroke:var(--data-line);stroke-width:1"/>
+<text x="657" y="150" text-anchor="middle" class="chip" style="fill:var(--data-ink)" dominant-baseline="central">Open</text>
+
+<!-- Step 2: CI Pipeline build -->
+<circle cx="54" cy="210" r="15" fill="var(--primary)"/><text x="54" y="210" text-anchor="middle" class="num" dominant-baseline="central">2</text>
+<rect x="80" y="184" width="486" height="52" rx="9" style="fill:var(--pf);stroke:var(--primary);stroke-width:1"/>
+<circle cx="108" cy="210" r="15" fill="var(--pf-tint)"/><use href="#ic-gear" class="ic" x="97" y="199" width="22" height="22" style="color:var(--primary)"/>
+<text x="136" y="202" class="t" style="fill:var(--primary)" dominant-baseline="central">CI 파이프라인 &#183; 빌드 &amp; 기록</text>
+<text x="136" y="219" class="d" style="fill:var(--muted)" dominant-baseline="central">머지 &#8594; 빌드 &#8594; <tspan class="mono">digest</tspan> &#8594; 아티팩트·상태 전이 기록</text>
+<rect x="590" y="196" width="134" height="28" rx="8" style="fill:#FFFFFF;stroke:var(--primary);stroke-width:1"/>
+<text x="657" y="210" text-anchor="middle" class="chip" style="fill:var(--primary)" dominant-baseline="central">In Progress</text>
+
+<!-- Step 3: Environment test deploy -->
+<circle cx="54" cy="270" r="15" fill="var(--ok-line)"/><text x="54" y="270" text-anchor="middle" class="num" dominant-baseline="central">3</text>
+<rect x="80" y="244" width="486" height="52" rx="9" style="fill:var(--ok-fill);stroke:var(--ok-line);stroke-width:1"/>
+<circle cx="108" cy="270" r="15" fill="var(--ok-tint)"/><use href="#ic-server" class="ic" x="97" y="259" width="22" height="22" style="color:var(--ok-line)"/>
+<text x="136" y="262" class="t" style="fill:var(--ok-ink)" dominant-baseline="central">환경 &#183; test 배포 &amp; 검증</text>
+<text x="136" y="279" class="d" style="fill:var(--muted)" dominant-baseline="central">동일 <tspan class="mono">@digest</tspan>로 test 배포 &#183; 배포 이력·QA 결과 첨부</text>
+<rect x="590" y="256" width="134" height="28" rx="8" style="fill:#FFFFFF;stroke:var(--ok-line);stroke-width:1"/>
+<text x="657" y="270" text-anchor="middle" class="chip" style="fill:var(--ok-ink)" dominant-baseline="central">In Test</text>
+
+<!-- Step 4: Issue Tracker approval gate -->
+<circle cx="54" cy="330" r="15" fill="var(--app-line)"/><text x="54" y="330" text-anchor="middle" class="num" dominant-baseline="central">4</text>
+<rect x="80" y="304" width="486" height="52" rx="9" style="fill:var(--app-fill);stroke:var(--app-line);stroke-width:1"/>
+<circle cx="108" cy="330" r="15" fill="var(--app-tint)"/><use href="#ic-check" class="ic" x="97" y="319" width="22" height="22" style="color:var(--app-line)"/>
+<text x="136" y="322" class="t" style="fill:var(--app-ink)" dominant-baseline="central">이슈 트래커 &#183; 승인 게이트</text>
+<text x="136" y="339" class="d" style="fill:var(--app-line)" dominant-baseline="central">승인자가 티켓 상태 전이 &#183; 승인자·시각 자동 기록(감사 추적)</text>
+<rect x="590" y="316" width="134" height="28" rx="8" style="fill:var(--app-fill);stroke:var(--app-line);stroke-width:1"/>
+<text x="657" y="330" text-anchor="middle" class="chip" style="fill:var(--app-ink)" dominant-baseline="central">Approved</text>
+
+<!-- Step 5: CI Pipeline prod deploy -->
+<circle cx="54" cy="390" r="15" fill="var(--primary)"/><text x="54" y="390" text-anchor="middle" class="num" dominant-baseline="central">5</text>
+<rect x="80" y="364" width="486" height="52" rx="9" style="fill:var(--pf);stroke:var(--primary);stroke-width:1"/>
+<circle cx="108" cy="390" r="15" fill="var(--pf-tint)"/><use href="#ic-rocket" class="ic" x="97" y="379" width="22" height="22" style="color:var(--primary)"/>
+<text x="136" y="382" class="t" style="fill:var(--primary)" dominant-baseline="central">CI 파이프라인 &#183; prod 배포</text>
+<text x="136" y="399" class="d" style="fill:var(--muted)" dominant-baseline="central">파이프라인이 승인 상태 확인 &#8594; 동일 <tspan class="mono">@digest</tspan> prod 배포</text>
+<rect x="590" y="376" width="134" height="28" rx="8" style="fill:var(--ok-fill);stroke:var(--ok-line);stroke-width:1"/>
+<text x="657" y="390" text-anchor="middle" class="chip" style="fill:var(--ok-ink)" dominant-baseline="central">Deployed</text>
+
+<!-- flow arrowheads on the left spine -->
+<path d="M54 179 l0 1" stroke="var(--primary)" stroke-width="2" marker-end="url(#arw)"/>
+<path d="M54 239 l0 1" stroke="var(--primary)" stroke-width="2" marker-end="url(#arw)"/>
+<path d="M54 299 l0 1" stroke="var(--primary)" stroke-width="2" marker-end="url(#arw)"/>
+<path d="M54 359 l0 1" stroke="var(--primary)" stroke-width="2" marker-end="url(#arw)"/>
+
+<!-- Footer -->
+<rect x="28" y="428" width="704" height="42" rx="10" style="fill:var(--pf);stroke:var(--primary);stroke-width:1"/>
+<text x="46" y="444" class="d" style="fill:var(--primary);font-weight:700" dominant-baseline="central">파이프라인이 트래커 API / webhook으로 기록·조회 — 개발자는 이슈 키만 참조한다.</text>
+<text x="46" y="461" class="d" style="fill:var(--primary)" dominant-baseline="central">수동 승인 변형: ④는 상태 전이 대신 이메일 / 체크리스트 서명 + 파이프라인 input 게이트.</text>
+</svg>

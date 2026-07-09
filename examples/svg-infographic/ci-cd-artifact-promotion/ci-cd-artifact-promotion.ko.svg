@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 470" width="760" height="470" role="img"
+     shape-rendering="geometricPrecision" text-rendering="optimizeLegibility"
+     style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+<title>릴리스 후보 아티팩트 승격</title>
+<desc>한 번 빌드한 동일 image digest를 dev·test·prod로 승격하고, test 버그가 나면 같은 RC를 재빌드하지 않고 새 릴리스 후보를 만드는 승격 모델.</desc>
+<style>
+  svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675;
+    --primary:#1F6FB2; --pf:#EAF1F8; --pf-tint:#D6E6F5;
+    --ok-fill:#E7F5EF;  --ok-line:#0F7A5F;  --ok-ink:#085041;  --ok-tint:#CFEBDF;
+    --amber-fill:#FBEED8; --amber-line:#A5660E; --amber-ink:#633806; --amber-tint:#F3DDB4;
+    --risk-fill:#FBE9E4; --risk-line:#C2502B; --risk-ink:#7A2E15; --risk-tint:#F5D7CD;
+    --data-fill:#F1F2F4; --data-line:#7A8398; --data-ink:#414755; --data-tint:#E3E6EB; }
+  text{ fill:var(--ink) }
+  .sec{ font-size:12.5px; font-weight:700 }
+  .t{ font-size:12.5px; font-weight:600 }
+  .d{ font-size:10.5px }
+  .mono{ font-family:"SFMono-Regular",Menlo,monospace; font-size:10.5px }
+  .band{ stroke-width:1 }
+  .ic{ fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round }
+</style>
+<defs>
+  <marker id="arw" markerWidth="9" markerHeight="9" refX="6.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="var(--primary)"/></marker>
+  <marker id="arwa" markerWidth="9" markerHeight="9" refX="6.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="var(--amber-line)"/></marker>
+  <symbol id="ic-git" viewBox="0 0 24 24"><circle cx="6.5" cy="6" r="2.5"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="8.5" r="2.5"/><path d="M6.5 8.5v7M17.5 11c0 4-5 2.5-7 5.5"/></symbol>
+  <symbol id="ic-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1"/></symbol>
+  <symbol id="ic-cube" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+  <symbol id="ic-alert" viewBox="0 0 24 24"><path d="M12 3.5l9 16H3z"/><path d="M12 10v4.2"/><path d="M12 17h.01"/></symbol>
+</defs>
+<rect width="760" height="470" fill="var(--bg)"/>
+<text x="28" y="36" style="font-size:19px;font-weight:700">릴리스 후보 아티팩트 승격</text>
+<text x="28" y="57" class="d" style="fill:var(--muted);font-size:12px">빌드는 한 번, 승격은 동일 digest — 추적 단위는 브랜치가 아니라 RC 아티팩트다.</text>
+
+<!-- Band 1: BUILD -->
+<text x="28" y="82" class="sec" style="fill:var(--primary)">1 &#183; BUILD — 한 번만 빌드</text>
+<g>
+ <rect class="band" x="28" y="90" width="184" height="44" rx="9" style="fill:var(--data-fill);stroke:var(--data-line)"/>
+ <circle cx="52" cy="112" r="14" fill="var(--data-tint)"/><use href="#ic-git" class="ic" x="41" y="101" width="22" height="22" style="color:var(--data-ink)"/>
+ <text x="76" y="105" class="t" style="fill:var(--data-ink)" dominant-baseline="central">소스 (릴리스 tip)</text>
+ <text x="76" y="122" class="d" style="fill:var(--muted)" dominant-baseline="central">릴리스 라인에 머지</text>
+</g>
+<g>
+ <rect class="band" x="254" y="90" width="146" height="44" rx="9" style="fill:var(--pf);stroke:var(--primary)"/>
+ <circle cx="278" cy="112" r="14" fill="var(--pf-tint)"/><use href="#ic-gear" class="ic" x="267" y="101" width="22" height="22" style="color:var(--primary)"/>
+ <text x="300" y="112" class="t" style="fill:var(--primary)" dominant-baseline="central">CI 빌드 (1회)</text>
+</g>
+<g>
+ <rect class="band" x="442" y="90" width="290" height="44" rx="9" style="fill:var(--ok-fill);stroke:var(--ok-line)"/>
+ <circle cx="466" cy="112" r="14" fill="var(--ok-tint)"/><use href="#ic-cube" class="ic" x="455" y="101" width="22" height="22" style="color:var(--ok-line)"/>
+ <text x="490" y="105" class="t" style="fill:var(--ok-ink)" dominant-baseline="central">RC-01 아티팩트</text>
+ <text x="490" y="122" class="mono" style="fill:var(--ok-ink)" dominant-baseline="central">image@sha256:aaa111&#8230;</text>
+</g>
+<line x1="214" y1="112" x2="250" y2="112" stroke="var(--primary)" stroke-width="2" marker-end="url(#arw)"/>
+<line x1="402" y1="112" x2="438" y2="112" stroke="var(--primary)" stroke-width="2" marker-end="url(#arw)"/>
+
+<!-- Band 2: PROMOTE -->
+<text x="28" y="164" class="sec" style="fill:var(--primary)">2 &#183; PROMOTE — 동일 digest(aaa111) 전진</text>
+<g>
+ <rect class="band" x="28" y="174" width="180" height="48" rx="9" style="fill:var(--pf);stroke:var(--primary)"/>
+ <text x="118" y="192" text-anchor="middle" class="t" style="fill:var(--primary)" dominant-baseline="central">dev</text>
+ <text x="118" y="209" text-anchor="middle" class="d" style="fill:var(--muted)" dominant-baseline="central">@aaa111 &#183; 자동 배포</text>
+</g>
+<g>
+ <rect class="band" x="290" y="174" width="180" height="48" rx="9" style="fill:var(--ok-fill);stroke:var(--ok-line)"/>
+ <text x="380" y="192" text-anchor="middle" class="t" style="fill:var(--ok-ink)" dominant-baseline="central">test</text>
+ <text x="380" y="209" text-anchor="middle" class="d" style="fill:var(--ok-ink)" dominant-baseline="central">@aaa111 &#183; 검증</text>
+</g>
+<g>
+ <rect class="band" x="552" y="174" width="180" height="48" rx="9" style="fill:var(--ok-fill);stroke:var(--ok-line)"/>
+ <text x="642" y="192" text-anchor="middle" class="t" style="fill:var(--ok-ink)" dominant-baseline="central">prod</text>
+ <text x="642" y="209" text-anchor="middle" class="d" style="fill:var(--ok-ink)" dominant-baseline="central">@aaa111 &#183; 운영</text>
+</g>
+<line x1="208" y1="198" x2="288" y2="198" stroke="var(--primary)" stroke-width="2" marker-end="url(#arw)"/>
+<line x1="470" y1="198" x2="550" y2="198" stroke="var(--amber-line)" stroke-width="2" marker-end="url(#arwa)"/>
+<g>
+ <rect x="464" y="150" width="94" height="20" rx="10" style="fill:var(--amber-fill);stroke:var(--amber-line);stroke-width:.75"/>
+ <text x="511" y="160" text-anchor="middle" class="d" style="fill:var(--amber-ink);font-weight:700" dominant-baseline="central">승인 게이트</text>
+</g>
+<rect class="band" x="290" y="230" width="442" height="24" rx="8" style="fill:#F1FAF6;stroke:var(--ok-line);stroke-width:.75"/>
+<text x="511" y="242" text-anchor="middle" class="d" style="fill:var(--ok-ink);font-weight:600" dominant-baseline="central">test == prod (동일 digest) &#183; dev는 다음 통합 빌드로 앞설 수 있음</text>
+
+<!-- Band 3: RELEASE FIX -->
+<text x="28" y="282" class="sec" style="fill:var(--risk-ink)">3 &#183; RELEASE FIX — test 버그는 새 RC (RC-01 승격 폐기)</text>
+<g>
+ <rect class="band" x="28" y="292" width="150" height="44" rx="9" style="fill:var(--risk-fill);stroke:var(--risk-line)"/>
+ <circle cx="52" cy="314" r="14" fill="var(--risk-tint)"/><use href="#ic-alert" class="ic" x="41" y="303" width="22" height="22" style="color:var(--risk-line)"/>
+ <text x="76" y="307" class="t" style="fill:var(--risk-ink)" dominant-baseline="central">test 버그</text>
+ <text x="76" y="324" class="d" style="fill:var(--risk-ink)" dominant-baseline="central">RC-01 중단</text>
+</g>
+<g>
+ <rect class="band" x="200" y="292" width="150" height="44" rx="9" style="fill:var(--amber-fill);stroke:var(--amber-line)"/>
+ <circle cx="224" cy="314" r="14" fill="var(--amber-tint)"/><use href="#ic-git" class="ic" x="213" y="303" width="22" height="22" style="color:var(--amber-line)"/>
+ <text x="248" y="314" class="t" style="fill:var(--amber-ink)" dominant-baseline="central">릴리스 라인 수정</text>
+</g>
+<g>
+ <rect class="band" x="372" y="292" width="120" height="44" rx="9" style="fill:var(--pf);stroke:var(--primary)"/>
+ <circle cx="396" cy="314" r="14" fill="var(--pf-tint)"/><use href="#ic-gear" class="ic" x="385" y="303" width="22" height="22" style="color:var(--primary)"/>
+ <text x="418" y="314" class="t" style="fill:var(--primary)" dominant-baseline="central">CI 빌드</text>
+</g>
+<g>
+ <rect class="band" x="514" y="292" width="218" height="44" rx="9" style="fill:var(--ok-fill);stroke:var(--ok-line)"/>
+ <circle cx="538" cy="314" r="14" fill="var(--ok-tint)"/><use href="#ic-cube" class="ic" x="527" y="303" width="22" height="22" style="color:var(--ok-line)"/>
+ <text x="562" y="307" class="t" style="fill:var(--ok-ink)" dominant-baseline="central">RC-02 아티팩트</text>
+ <text x="562" y="324" class="mono" style="fill:var(--ok-ink)" dominant-baseline="central">image@sha256:bbb222&#8230;</text>
+</g>
+<line x1="178" y1="314" x2="198" y2="314" stroke="var(--primary)" stroke-width="2" marker-end="url(#arw)"/>
+<line x1="350" y1="314" x2="370" y2="314" stroke="var(--primary)" stroke-width="2" marker-end="url(#arw)"/>
+<line x1="492" y1="314" x2="512" y2="314" stroke="var(--primary)" stroke-width="2" marker-end="url(#arw)"/>
+<text x="28" y="354" class="d" style="fill:var(--muted)">RC-02를 test에서 재검증한 뒤 prod로 승격. &#8220;빌드 한 번, 승격 여러 번&#8221;은 RC 하나 단위로 성립.</text>
+
+<!-- Footer -->
+<rect class="band" x="28" y="372" width="704" height="74" rx="10" style="fill:var(--pf);stroke:var(--primary)"/>
+<text x="46" y="392" class="d" style="fill:var(--primary);font-weight:700" dominant-baseline="central">배포는 tag가 아니라 digest(@sha256)로 — test에서 검증한 바이트 그대로 prod에 반영.</text>
+<text x="46" y="412" class="d" style="fill:var(--primary)" dominant-baseline="central">롤백 = 이전에 승인된 digest를 재배포 (재빌드 불필요).</text>
+<text x="46" y="432" class="d" style="fill:var(--primary)" dominant-baseline="central">prod 배포 성공 후 태그 — 태그는 배포 소스가 아니라 결과 기록이다.</text>
+</svg>
