@@ -1,116 +1,101 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 900" width="680" height="900" role="img"
-  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
-  <title>Azure Reference Topology — AGW to APIM to AKS to PostgreSQL</title>
-  <desc>Request path from Internet through Application Gateway (WAF), API Management, an AKS cluster (Ingress, Service, Pods), to Azure Database for PostgreSQL, inside an Azure VNet.</desc>
-  <style>
-    svg{ --bg:#FFFFFF; --ink:#2A2E37; --muted:#6B7280; --hair:#C9D2DE;
-      --edge-fill:#E8F1FB; --edge-line:#1F6FB2; --edge-ink:#124267;
-      --api-fill:#ECEBFB;  --api-line:#534AB7;  --api-ink:#3C3489;
-      --k8s-fill:#E7F5EF;  --k8s-line:#0F7A5F;  --k8s-ink:#085041;
-      --data-fill:#F1F1EE; --data-line:#7A8398; --data-ink:#3F4453;
-      --zone-fill:#FBFCFE; }
-    text{ fill:var(--ink) }
-    .lbl{ font-size:14px; font-weight:600 }
-    .sub{ font-size:11px; fill:var(--muted) }
-    .box{ stroke-width:1 }
-    .zone{ stroke-width:1 }
-  </style>
-  <defs>
-    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
-      <path d="M1,1 L7,4.5 L1,8" fill="none" stroke="#6B7280" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-    </marker>
-    <symbol id="ic-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
-    <symbol id="ic-api" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></symbol>
-    <symbol id="ic-network" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></symbol>
-    <symbol id="ic-database" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v14c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></symbol>
-    <symbol id="ic-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="7" rx="2"/><rect x="3.5" y="13" width="17" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></symbol>
-  </defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 900" width="720" height="900" role="img"
+     shape-rendering="geometricPrecision" text-rendering="optimizeLegibility"
+     style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+<title>Azure Reference Topology — AGW to APIM to AKS to PostgreSQL</title>
+<desc>Request path from Internet through Application Gateway (WAF), API Management, an AKS cluster (Ingress, Service, Pods), to Azure Database for PostgreSQL, inside an Azure VNet.</desc>
+<style>
+  svg{ --bg:#FFFFFF; --ink:#2A2E37; --muted:#6B7280; --hair:#DCE3EC; --band:#F7FAFD;
+    --edge-fill:#E8F1FB; --edge-line:#1F6FB2; --edge-ink:#124267; --edge-tint:#DCEBFA;
+    --api-fill:#ECEBFB;  --api-line:#534AB7;  --api-ink:#3C3489; --api-tint:#DEDCF6;
+    --k8s-fill:#E7F5EF;  --k8s-line:#0F7A5F;  --k8s-ink:#085041; --k8s-tint:#D0EBDF;
+    --data-fill:#F1F1EE; --data-line:#7A8398; --data-ink:#3F4453; --data-tint:#E4E6EA; }
+  text{ fill:var(--ink) }
+  .lbl{ font-size:14.5px; font-weight:700 }
+  .sub{ font-size:11.5px; fill:var(--muted) }
+  .ic{ fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round }
+</style>
+<defs>
+  <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8A94A3"/></marker>
+  <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+  <symbol id="ic-api" viewBox="0 0 24 24"><path d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></symbol>
+  <symbol id="ic-network" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></symbol>
+  <symbol id="ic-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v14c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></symbol>
+  <symbol id="ic-server" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="7" rx="2"/><rect x="3.5" y="13" width="17" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></symbol>
+</defs>
+<rect width="720" height="900" fill="var(--bg)"/>
 
-  <rect x="0" y="0" width="680" height="900" fill="var(--bg)"/>
+<!-- title -->
+<rect x="36" y="34" width="6" height="42" rx="3" fill="var(--edge-line)"/>
+<text x="56" y="56" style="font-size:24px;font-weight:800">Azure Reference Topology</text>
+<text x="56" y="80" class="sub" style="font-size:13px">Request path: Application Gateway → APIM → AKS → PostgreSQL</text>
 
-  <!-- title -->
-  <rect x="30" y="26" width="6" height="40" rx="2" fill="var(--edge-line)"/>
-  <text x="48" y="40" style="font-size:22px;font-weight:700">Azure Reference Topology</text>
-  <text x="48" y="62" class="sub" style="font-size:13px">Request path: Application Gateway → APIM → AKS → PostgreSQL</text>
+<!-- Internet -->
+<rect x="270" y="104" width="180" height="44" rx="22" fill="var(--data-fill)" stroke="var(--data-line)"/>
+<text x="360" y="126" text-anchor="middle" dominant-baseline="central" class="lbl" style="fill:var(--data-ink)">Internet / Client</text>
+<line x1="360" y1="150" x2="360" y2="176" stroke="#8A94A3" stroke-width="1.6" marker-end="url(#arrow)"/>
 
-  <!-- Internet -->
-  <rect class="box" x="250" y="92" width="180" height="40" rx="20"
-        style="fill:#F1F1EE;stroke:var(--data-line)"/>
-  <text x="340" y="112" text-anchor="middle" dominant-baseline="central" class="lbl" style="fill:var(--data-ink)">Internet / Client</text>
-  <line x1="340" y1="132" x2="340" y2="176" stroke="#6B7280" stroke-width="1.3" marker-end="url(#arrow)"/>
+<!-- VNet zone -->
+<rect x="40" y="180" width="640" height="640" rx="18" fill="var(--band)" stroke="var(--hair)" stroke-width="1.2"/>
+<text x="60" y="206" class="sub" style="font-size:12px;font-weight:700;fill:var(--muted)">Azure VNet</text>
 
-  <!-- VNet frame -->
-  <rect class="zone" x="34" y="182" width="612" height="600" rx="14"
-        style="fill:var(--zone-fill);stroke:var(--hair)"/>
-  <text x="52" y="206" class="sub" style="font-size:12px;font-weight:600;fill:var(--muted)">Azure VNet</text>
+<!-- Application Gateway -->
+<rect x="150" y="222" width="420" height="66" rx="12" fill="#FFFFFF" stroke="var(--edge-line)" stroke-width="1.4"/>
+<circle cx="188" cy="255" r="19" fill="var(--edge-tint)"/><use href="#ic-shield" class="ic" x="174" y="241" width="28" height="28" style="color:var(--edge-line)"/>
+<text x="222" y="248" class="lbl" style="fill:var(--edge-ink)" dominant-baseline="central">Application Gateway + WAF</text>
+<text x="222" y="269" class="sub" dominant-baseline="central">Public entry · TLS termination · L7 routing</text>
+<line x1="360" y1="288" x2="360" y2="312" stroke="#8A94A3" stroke-width="1.6" marker-end="url(#arrow)"/>
 
-  <!-- Application Gateway -->
-  <rect class="box" x="190" y="220" width="300" height="58" rx="9"
-        style="fill:var(--edge-fill);stroke:var(--edge-line)"/>
-  <circle cx="224" cy="249" r="16" fill="#FFFFFF"/>
-  <use href="#ic-shield" x="211" y="236" width="26" height="26" style="color:var(--edge-line)"/>
-  <text x="252" y="240" text-anchor="start" dominant-baseline="central" class="lbl" style="fill:var(--edge-ink)">Application Gateway + WAF</text>
-  <text x="252" y="261" text-anchor="start" dominant-baseline="central" class="sub">Public entry · TLS termination · L7 routing</text>
-  <line x1="340" y1="278" x2="340" y2="316" stroke="#6B7280" stroke-width="1.3" marker-end="url(#arrow)"/>
+<!-- APIM -->
+<rect x="150" y="316" width="420" height="66" rx="12" fill="#FFFFFF" stroke="var(--api-line)" stroke-width="1.4"/>
+<circle cx="188" cy="349" r="19" fill="var(--api-tint)"/><use href="#ic-api" class="ic" x="174" y="335" width="28" height="28" style="color:var(--api-line)"/>
+<text x="222" y="342" class="lbl" style="fill:var(--api-ink)" dominant-baseline="central">API Management (APIM)</text>
+<text x="222" y="363" class="sub" dominant-baseline="central">Auth · rate limit · policy · versioning</text>
+<line x1="360" y1="382" x2="360" y2="406" stroke="#8A94A3" stroke-width="1.6" marker-end="url(#arrow)"/>
 
-  <!-- APIM -->
-  <rect class="box" x="190" y="320" width="300" height="58" rx="9"
-        style="fill:var(--api-fill);stroke:var(--api-line)"/>
-  <circle cx="224" cy="349" r="16" fill="#FFFFFF"/>
-  <use href="#ic-api" x="211" y="336" width="26" height="26" style="color:var(--api-line)"/>
-  <text x="252" y="340" text-anchor="start" dominant-baseline="central" class="lbl" style="fill:var(--api-ink)">API Management (APIM)</text>
-  <text x="252" y="361" text-anchor="start" dominant-baseline="central" class="sub">Auth · rate limit · policy · versioning</text>
-  <line x1="340" y1="378" x2="340" y2="416" stroke="#6B7280" stroke-width="1.3" marker-end="url(#arrow)"/>
+<!-- AKS cluster zone -->
+<rect x="80" y="410" width="560" height="308" rx="14" fill="#F3FAF7" stroke="var(--k8s-line)" stroke-width="1.1"/>
+<text x="100" y="434" class="sub" style="font-size:12px;font-weight:700;fill:var(--k8s-ink)">AKS Cluster</text>
 
-  <!-- AKS cluster zone -->
-  <rect class="zone" x="96" y="420" width="488" height="252" rx="11"
-        style="fill:#F3FAF7;stroke:var(--k8s-line)"/>
-  <text x="116" y="443" class="sub" style="font-size:12px;font-weight:700;fill:var(--k8s-ink)">AKS Cluster</text>
+<!-- Ingress -->
+<rect x="150" y="446" width="420" height="54" rx="10" fill="var(--k8s-fill)" stroke="var(--k8s-line)" stroke-width="1.2"/>
+<circle cx="186" cy="473" r="17" fill="#FFFFFF"/><use href="#ic-network" class="ic" x="173" y="460" width="26" height="26" style="color:var(--k8s-line)"/>
+<text x="220" y="473" class="lbl" style="fill:var(--k8s-ink)" dominant-baseline="central">Ingress Controller</text>
+<line x1="360" y1="500" x2="360" y2="522" stroke="#8A94A3" stroke-width="1.6" marker-end="url(#arrow)"/>
 
-  <!-- Ingress -->
-  <rect class="box" x="188" y="452" width="304" height="46" rx="8"
-        style="fill:var(--k8s-fill);stroke:var(--k8s-line)"/>
-  <circle cx="222" cy="475" r="15" fill="#FFFFFF"/>
-  <use href="#ic-network" x="210" y="463" width="24" height="24" style="color:var(--k8s-line)"/>
-  <text x="248" y="475" text-anchor="start" dominant-baseline="central" class="lbl" style="fill:var(--k8s-ink)">Ingress Controller</text>
-  <line x1="340" y1="498" x2="340" y2="524" stroke="#6B7280" stroke-width="1.3" marker-end="url(#arrow)"/>
+<!-- Service -->
+<rect x="220" y="526" width="280" height="50" rx="10" fill="#FFFFFF" stroke="var(--k8s-line)" stroke-width="1.2"/>
+<circle cx="252" cy="551" r="15" fill="var(--k8s-fill)"/><use href="#ic-server" class="ic" x="240" y="539" width="24" height="24" style="color:var(--k8s-line)"/>
+<text x="278" y="551" class="lbl" style="fill:var(--k8s-ink)" dominant-baseline="central">Service (ClusterIP)</text>
 
-  <!-- Service -->
-  <rect class="box" x="208" y="528" width="264" height="42" rx="8"
-        style="fill:#FFFFFF;stroke:var(--k8s-line)"/>
-  <circle cx="238" cy="549" r="14" fill="var(--k8s-fill)"/>
-  <use href="#ic-server" x="227" y="538" width="22" height="22" style="color:var(--k8s-line)"/>
-  <text x="262" y="549" text-anchor="start" dominant-baseline="central" class="lbl" style="fill:var(--k8s-ink)">Service (ClusterIP)</text>
+<!-- fan-out bus -->
+<line x1="360" y1="576" x2="360" y2="590" stroke="#8A94A3" stroke-width="1.4"/>
+<line x1="245" y1="590" x2="475" y2="590" stroke="#8A94A3" stroke-width="1.4"/>
+<line x1="245" y1="590" x2="245" y2="606" stroke="#8A94A3" stroke-width="1.6" marker-end="url(#arrow)"/>
+<line x1="360" y1="590" x2="360" y2="606" stroke="#8A94A3" stroke-width="1.6" marker-end="url(#arrow)"/>
+<line x1="475" y1="590" x2="475" y2="606" stroke="#8A94A3" stroke-width="1.6" marker-end="url(#arrow)"/>
 
-  <!-- fan-out to pods -->
-  <line x1="260" y1="570" x2="260" y2="600" stroke="#6B7280" stroke-width="1.3" marker-end="url(#arrow)"/>
-  <line x1="340" y1="570" x2="340" y2="600" stroke="#6B7280" stroke-width="1.3" marker-end="url(#arrow)"/>
-  <line x1="420" y1="570" x2="420" y2="600" stroke="#6B7280" stroke-width="1.3" marker-end="url(#arrow)"/>
+<rect x="200" y="610" width="90" height="60" rx="10" fill="var(--k8s-fill)" stroke="var(--k8s-line)" stroke-width="1.2"/>
+<text x="245" y="632" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:700;fill:var(--k8s-ink)">Pod</text>
+<text x="245" y="650" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:10.5px">replica</text>
+<rect x="315" y="610" width="90" height="60" rx="10" fill="var(--k8s-fill)" stroke="var(--k8s-line)" stroke-width="1.2"/>
+<text x="360" y="632" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:700;fill:var(--k8s-ink)">Pod</text>
+<text x="360" y="650" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:10.5px">replica</text>
+<rect x="430" y="610" width="90" height="60" rx="10" fill="var(--k8s-fill)" stroke="var(--k8s-line)" stroke-width="1.2"/>
+<text x="475" y="632" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:700;fill:var(--k8s-ink)">Pod</text>
+<text x="475" y="650" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:10.5px">replica</text>
 
-  <rect class="box" x="224" y="604" width="72" height="52" rx="8" style="fill:var(--k8s-fill);stroke:var(--k8s-line)"/>
-  <text x="260" y="622" text-anchor="middle" dominant-baseline="central" class="lbl" style="fill:var(--k8s-ink);font-size:13px">Pod</text>
-  <text x="260" y="640" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:10px">replica</text>
-  <rect class="box" x="304" y="604" width="72" height="52" rx="8" style="fill:var(--k8s-fill);stroke:var(--k8s-line)"/>
-  <text x="340" y="622" text-anchor="middle" dominant-baseline="central" class="lbl" style="fill:var(--k8s-ink);font-size:13px">Pod</text>
-  <text x="340" y="640" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:10px">replica</text>
-  <rect class="box" x="384" y="604" width="72" height="52" rx="8" style="fill:var(--k8s-fill);stroke:var(--k8s-line)"/>
-  <text x="420" y="622" text-anchor="middle" dominant-baseline="central" class="lbl" style="fill:var(--k8s-ink);font-size:13px">Pod</text>
-  <text x="420" y="640" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:10px">replica</text>
+<!-- AKS to Postgres (private, dashed) -->
+<line x1="360" y1="718" x2="360" y2="740" stroke="#8A94A3" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
 
-  <!-- AKS to Postgres (private, dashed) -->
-  <line x1="340" y1="672" x2="340" y2="708" stroke="#6B7280" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+<!-- PostgreSQL -->
+<rect x="150" y="744" width="420" height="66" rx="12" fill="#FFFFFF" stroke="var(--data-line)" stroke-width="1.4"/>
+<circle cx="188" cy="777" r="19" fill="var(--data-tint)"/><use href="#ic-database" class="ic" x="174" y="763" width="28" height="28" style="color:var(--data-line)"/>
+<text x="222" y="770" class="lbl" style="fill:var(--data-ink)" dominant-baseline="central">Azure Database for PostgreSQL</text>
+<text x="222" y="791" class="sub" dominant-baseline="central">Flexible Server · private endpoint</text>
 
-  <!-- PostgreSQL -->
-  <rect class="box" x="182" y="712" width="316" height="58" rx="9"
-        style="fill:var(--data-fill);stroke:var(--data-line)"/>
-  <circle cx="216" cy="741" r="16" fill="#FFFFFF"/>
-  <use href="#ic-database" x="203" y="728" width="26" height="26" style="color:var(--data-line)"/>
-  <text x="244" y="732" text-anchor="start" dominant-baseline="central" class="lbl" style="fill:var(--data-ink)">Azure Database for PostgreSQL</text>
-  <text x="244" y="753" text-anchor="start" dominant-baseline="central" class="sub">Flexible Server · private endpoint</text>
-
-  <!-- legend -->
-  <line x1="238" y1="812" x2="278" y2="812" stroke="#6B7280" stroke-width="1.3"/>
-  <text x="286" y="816" class="sub" style="font-size:11px">request path (sync)</text>
-  <line x1="418" y1="812" x2="458" y2="812" stroke="#6B7280" stroke-width="1.3" stroke-dasharray="5 4"/>
-  <text x="466" y="816" class="sub" style="font-size:11px">private link (managed)</text>
+<!-- legend -->
+<line x1="222" y1="852" x2="262" y2="852" stroke="#8A94A3" stroke-width="1.6"/>
+<text x="270" y="852" class="sub" dominant-baseline="central">request path (sync)</text>
+<line x1="430" y1="852" x2="470" y2="852" stroke="#8A94A3" stroke-width="1.6" stroke-dasharray="5 4"/>
+<text x="478" y="852" class="sub" dominant-baseline="central">private link (managed)</text>
 </svg>

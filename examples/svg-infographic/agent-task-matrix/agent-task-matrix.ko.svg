@@ -20,8 +20,9 @@
   <rect x="0" y="0" width="1300" height="1070" fill="#FFFFFF"/>
 
   <!-- Header -->
-  <text x="60" y="54" font-size="32" font-weight="700" fill="#1F2733">AI Agent 작업 유형 선택 매트릭스</text>
-  <text x="60" y="86" font-size="16" fill="#5B6675">작업을 AI agent에 맡길 때 &#8212; 범위와 불확실성으로 실행 방식을 고른다</text>
+  <rect x="44" y="30" width="6" height="42" rx="3" fill="#1F6FB2"/>
+  <text x="66" y="54" font-size="32" font-weight="800" fill="#1F2733">AI Agent 작업 유형 선택 매트릭스</text>
+  <text x="66" y="84" font-size="16" fill="#5B6675">작업을 AI agent에 맡길 때 &#8212; 범위와 불확실성으로 실행 방식을 고른다</text>
 
   <!-- ===================== Axes ===================== -->
   <!-- Y axis (uncertainty, up) -->
@@ -98,5 +99,5 @@
 
   <!-- ===================== Bottom note ===================== -->
   <rect x="292" y="1012" width="716" height="38" rx="19" fill="#F2F4F8"/>
-  <text x="650" y="1031" font-size="14.5" fill="#3F4453" text-anchor="middle" dominant-baseline="central">Rule of thumb: uncertainty decides review depth; scope decides planning depth.</text>
+  <text x="650" y="1031" font-size="14.5" fill="#3F4453" text-anchor="middle" dominant-baseline="central">경험칙: 불확실성이 리뷰 깊이를, 범위가 계획 깊이를 결정한다.</text>
 </svg>

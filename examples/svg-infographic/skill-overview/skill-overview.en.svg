@@ -1,112 +1,112 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1100" width="1080" height="1100" role="img"
-  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
-  <title>svg-infographic — what it makes and how it works</title>
-  <desc>An overview of the svg-infographic skill: the diagram types it makes (topology, layer/onion, flow, before/after, cards, roadmap), a confirm–author–render–verify flow, first-class Korean/CJK text, and cross-platform rendering.</desc>
-  <style>
-    svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#D6E0EC; --primary:#1F6FB2; --card:#F7FAFD;
-      --no-ink:#8A3618; }
-    text{ fill:var(--ink) }
-    .sub{ fill:var(--muted) }
-  </style>
-  <defs>
-    <marker id="a2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M1,1 L7,4.5 L1,8" fill="none" stroke="#8A94A3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
-    <g id="iconset" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></g>
-    <symbol id="ic-network" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></symbol>
-    <symbol id="ic-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 16l9 5 9-5"/></symbol>
-    <symbol id="ic-flow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="2.4"/><circle cx="19" cy="12" r="2.4"/><path d="M7.4 12h6.2M14 8.5l3.5 3.5-3.5 3.5"/></symbol>
-    <symbol id="ic-compare" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/></symbol>
-    <symbol id="ic-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.6"/><rect x="13" y="3" width="8" height="8" rx="1.6"/><rect x="3" y="13" width="8" height="8" rx="1.6"/><rect x="13" y="13" width="8" height="8" rx="1.6"/></symbol>
-    <symbol id="ic-roadmap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4"/><path d="M6 4h12l-2.5 4L18 12H6"/></symbol>
-    <symbol id="ic-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></symbol>
-  </defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1120" width="1080" height="1120" role="img"
+     shape-rendering="geometricPrecision" text-rendering="optimizeLegibility"
+     style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+<title>svg-infographic — what it makes and how it works</title>
+<desc>An overview of the svg-infographic skill: the diagram types it makes, a confirm-author-render-verify flow, first-class Korean/CJK text, and cross-platform rendering.</desc>
+<style>
+  svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#DCE3EC; --primary:#1F6FB2; --pf-tint:#E3EEF8;
+    --band:#F7FAFD; --no-ink:#8A3618; }
+  text{ fill:var(--ink) }
+  .sub{ fill:var(--muted) }
+  .sec{ font-size:23px; font-weight:800 }
+  .ic{ fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round }
+</style>
+<defs>
+  <marker id="a2" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8A94A3"/></marker>
+  <symbol id="ic-network" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></symbol>
+  <symbol id="ic-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 16l9 5 9-5"/></symbol>
+  <symbol id="ic-flow" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2.4"/><circle cx="19" cy="12" r="2.4"/><path d="M7.4 12h6.2M14 8.5l3.5 3.5-3.5 3.5"/></symbol>
+  <symbol id="ic-compare" viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/></symbol>
+  <symbol id="ic-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.6"/><rect x="13" y="3" width="8" height="8" rx="1.6"/><rect x="3" y="13" width="8" height="8" rx="1.6"/><rect x="13" y="13" width="8" height="8" rx="1.6"/></symbol>
+  <symbol id="ic-roadmap" viewBox="0 0 24 24"><path d="M6 21V4"/><path d="M6 4h12l-2.5 4L18 12H6"/></symbol>
+  <symbol id="ic-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></symbol>
+</defs>
+<rect width="1080" height="1120" fill="var(--bg)"/>
 
-  <rect x="0" y="0" width="1080" height="1100" fill="var(--bg)"/>
+<!-- title -->
+<rect x="64" y="54" width="8" height="54" rx="4" fill="var(--primary)"/>
+<text x="90" y="94" style="font-size:44px;font-weight:800">svg-infographic</text>
+<text x="90" y="130" class="sub" style="font-size:20px">Describe it — get a clean technical diagram and a share-ready PNG.</text>
 
-  <!-- title -->
-  <rect x="80" y="58" width="9" height="54" rx="3" fill="var(--primary)"/>
-  <text x="106" y="98" style="font-size:44px;font-weight:800">svg-infographic</text>
-  <text x="106" y="134" class="sub" style="font-size:21px">Describe it — get a clean technical diagram and a share-ready PNG.</text>
+<!-- section: diagram types -->
+<rect x="64" y="180" width="5" height="24" rx="2.5" fill="var(--primary)"/>
+<text x="82" y="199" class="sec">Diagram types it makes</text>
+<g>
+  <rect x="64" y="222" width="304" height="150" rx="16" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
+  <circle cx="120" cy="284" r="30" fill="var(--pf-tint)"/><use href="#ic-network" class="ic" x="102" y="266" width="36" height="36" style="color:var(--primary)"/>
+  <text x="170" y="278" dominant-baseline="central" style="font-size:20px;font-weight:700">Topology</text>
+  <text x="170" y="304" class="sub" style="font-size:14px" dominant-baseline="central">zones · nodes · path</text>
 
-  <!-- diagram types -->
-  <text x="80" y="200" style="font-size:24px;font-weight:700">Diagram types it makes</text>
+  <rect x="388" y="222" width="304" height="150" rx="16" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
+  <circle cx="444" cy="284" r="30" fill="var(--pf-tint)"/><use href="#ic-layers" class="ic" x="426" y="266" width="36" height="36" style="color:var(--primary)"/>
+  <text x="494" y="278" dominant-baseline="central" style="font-size:20px;font-weight:700">Layer / Onion</text>
+  <text x="494" y="304" class="sub" style="font-size:14px" dominant-baseline="central">nested models</text>
 
-  <!-- 2x3 grid -->
-  <g font-size="20" font-weight="700">
-    <!-- row1 -->
-    <rect x="80" y="224" width="290" height="150" rx="16" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-    <circle cx="132" cy="284" r="28" fill="#E3EEF8"/><use href="#ic-network" x="115" y="267" width="34" height="34" style="color:#1F6FB2"/>
-    <text x="176" y="278" dominant-baseline="central">Topology</text>
-    <text x="176" y="304" class="sub" style="font-size:14px;font-weight:400" dominant-baseline="central">zones · nodes · path</text>
+  <rect x="712" y="222" width="304" height="150" rx="16" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
+  <circle cx="768" cy="284" r="30" fill="var(--pf-tint)"/><use href="#ic-flow" class="ic" x="750" y="266" width="36" height="36" style="color:var(--primary)"/>
+  <text x="818" y="278" dominant-baseline="central" style="font-size:20px;font-weight:700">Flow</text>
+  <text x="818" y="304" class="sub" style="font-size:14px" dominant-baseline="central">process · data flow</text>
 
-    <rect x="394" y="224" width="290" height="150" rx="16" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-    <circle cx="446" cy="284" r="28" fill="#E3EEF8"/><use href="#ic-layers" x="429" y="267" width="34" height="34" style="color:#1F6FB2"/>
-    <text x="490" y="278" dominant-baseline="central">Layer / Onion</text>
-    <text x="490" y="304" class="sub" style="font-size:14px;font-weight:400" dominant-baseline="central">nested models</text>
+  <rect x="64" y="388" width="304" height="150" rx="16" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
+  <circle cx="120" cy="450" r="30" fill="var(--pf-tint)"/><use href="#ic-compare" class="ic" x="102" y="432" width="36" height="36" style="color:var(--primary)"/>
+  <text x="170" y="444" dominant-baseline="central" style="font-size:20px;font-weight:700">Before / After</text>
+  <text x="170" y="470" class="sub" style="font-size:14px" dominant-baseline="central">comparison panels</text>
 
-    <rect x="708" y="224" width="290" height="150" rx="16" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-    <circle cx="760" cy="284" r="28" fill="#E3EEF8"/><use href="#ic-flow" x="743" y="267" width="34" height="34" style="color:#1F6FB2"/>
-    <text x="804" y="278" dominant-baseline="central">Flow</text>
-    <text x="804" y="304" class="sub" style="font-size:14px;font-weight:400" dominant-baseline="central">process · data flow</text>
+  <rect x="388" y="388" width="304" height="150" rx="16" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
+  <circle cx="444" cy="450" r="30" fill="var(--pf-tint)"/><use href="#ic-grid" class="ic" x="426" y="432" width="36" height="36" style="color:var(--primary)"/>
+  <text x="494" y="444" dominant-baseline="central" style="font-size:20px;font-weight:700">Cards</text>
+  <text x="494" y="470" class="sub" style="font-size:14px" dominant-baseline="central">icon · title · text</text>
 
-    <!-- row2 -->
-    <rect x="80" y="390" width="290" height="150" rx="16" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-    <circle cx="132" cy="450" r="28" fill="#E3EEF8"/><use href="#ic-compare" x="115" y="433" width="34" height="34" style="color:#1F6FB2"/>
-    <text x="176" y="444" dominant-baseline="central">Before / After</text>
-    <text x="176" y="470" class="sub" style="font-size:14px;font-weight:400" dominant-baseline="central">comparison panels</text>
+  <rect x="712" y="388" width="304" height="150" rx="16" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
+  <circle cx="768" cy="450" r="30" fill="var(--pf-tint)"/><use href="#ic-roadmap" class="ic" x="750" y="432" width="36" height="36" style="color:var(--primary)"/>
+  <text x="818" y="444" dominant-baseline="central" style="font-size:20px;font-weight:700">Roadmap</text>
+  <text x="818" y="470" class="sub" style="font-size:14px" dominant-baseline="central">phases · milestones</text>
+</g>
 
-    <rect x="394" y="390" width="290" height="150" rx="16" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-    <circle cx="446" cy="450" r="28" fill="#E3EEF8"/><use href="#ic-grid" x="429" y="433" width="34" height="34" style="color:#1F6FB2"/>
-    <text x="490" y="444" dominant-baseline="central">Cards</text>
-    <text x="490" y="470" class="sub" style="font-size:14px;font-weight:400" dominant-baseline="central">icon · title · text</text>
+<!-- section: how it works -->
+<rect x="64" y="588" width="5" height="24" rx="2.5" fill="var(--primary)"/>
+<text x="82" y="607" class="sec">How it works</text>
+<g>
+  <rect x="64" y="632" width="222" height="122" rx="16" fill="var(--band)" stroke="var(--hair)" stroke-width="1.4"/>
+  <circle cx="98" cy="670" r="17" fill="var(--primary)"/><text x="98" y="670" text-anchor="middle" dominant-baseline="central" style="font-size:17px;font-weight:700;fill:#FFFFFF">1</text>
+  <text x="126" y="672" style="font-size:19px;font-weight:700">Confirm</text>
+  <text x="88" y="714" class="sub" style="font-size:13px" dominant-baseline="central">intent · ratio · language</text>
 
-    <rect x="708" y="390" width="290" height="150" rx="16" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-    <circle cx="760" cy="450" r="28" fill="#E3EEF8"/><use href="#ic-roadmap" x="743" y="433" width="34" height="34" style="color:#1F6FB2"/>
-    <text x="804" y="444" dominant-baseline="central">Roadmap</text>
-    <text x="804" y="470" class="sub" style="font-size:14px;font-weight:400" dominant-baseline="central">phases · milestones</text>
-  </g>
+  <rect x="310" y="632" width="222" height="122" rx="16" fill="var(--band)" stroke="var(--hair)" stroke-width="1.4"/>
+  <circle cx="344" cy="670" r="17" fill="var(--primary)"/><text x="344" y="670" text-anchor="middle" dominant-baseline="central" style="font-size:17px;font-weight:700;fill:#FFFFFF">2</text>
+  <text x="372" y="672" style="font-size:19px;font-weight:700">Author SVG</text>
+  <text x="334" y="714" class="sub" style="font-size:13px" dominant-baseline="central">tokens · CJK font</text>
 
-  <!-- how it works -->
-  <text x="80" y="608" style="font-size:24px;font-weight:700">How it works</text>
-  <g>
-    <rect x="80" y="632" width="212" height="120" rx="16" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-    <circle cx="112" cy="668" r="17" fill="var(--primary)"/><text x="112" y="668" text-anchor="middle" dominant-baseline="central" style="font-size:18px;font-weight:700;fill:#FFFFFF">1</text>
-    <text x="140" y="674" style="font-size:19px;font-weight:700">Confirm</text>
-    <text x="102" y="712" class="sub" style="font-size:13px" dominant-baseline="central">intent · ratio · language</text>
+  <rect x="556" y="632" width="222" height="122" rx="16" fill="var(--band)" stroke="var(--hair)" stroke-width="1.4"/>
+  <circle cx="590" cy="670" r="17" fill="var(--primary)"/><text x="590" y="670" text-anchor="middle" dominant-baseline="central" style="font-size:17px;font-weight:700;fill:#FFFFFF">3</text>
+  <text x="618" y="672" style="font-size:19px;font-weight:700">Render</text>
+  <text x="580" y="714" class="sub" style="font-size:13px" dominant-baseline="central">headless → 2× PNG</text>
 
-    <rect x="316" y="632" width="212" height="120" rx="16" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-    <circle cx="348" cy="668" r="17" fill="var(--primary)"/><text x="348" y="668" text-anchor="middle" dominant-baseline="central" style="font-size:18px;font-weight:700;fill:#FFFFFF">2</text>
-    <text x="376" y="674" style="font-size:19px;font-weight:700">Author SVG</text>
-    <text x="338" y="712" class="sub" style="font-size:13px" dominant-baseline="central">tokens · CJK font</text>
+  <rect x="802" y="632" width="214" height="122" rx="16" fill="var(--band)" stroke="var(--hair)" stroke-width="1.4"/>
+  <circle cx="836" cy="670" r="17" fill="var(--primary)"/><text x="836" y="670" text-anchor="middle" dominant-baseline="central" style="font-size:17px;font-weight:700;fill:#FFFFFF">4</text>
+  <text x="864" y="672" style="font-size:19px;font-weight:700">Verify</text>
+  <text x="854" y="714" class="sub" style="font-size:13px" dominant-baseline="central">no overflow · glyphs</text>
 
-    <rect x="552" y="632" width="212" height="120" rx="16" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-    <circle cx="584" cy="668" r="17" fill="var(--primary)"/><text x="584" y="668" text-anchor="middle" dominant-baseline="central" style="font-size:18px;font-weight:700;fill:#FFFFFF">3</text>
-    <text x="612" y="674" style="font-size:19px;font-weight:700">Render</text>
-    <text x="574" y="712" class="sub" style="font-size:13px" dominant-baseline="central">headless → 2× PNG</text>
+  <line x1="288" y1="693" x2="308" y2="693" stroke="#8A94A3" stroke-width="1.8" marker-end="url(#a2)"/>
+  <line x1="534" y1="693" x2="554" y2="693" stroke="#8A94A3" stroke-width="1.8" marker-end="url(#a2)"/>
+  <line x1="780" y1="693" x2="800" y2="693" stroke="#8A94A3" stroke-width="1.8" marker-end="url(#a2)"/>
+</g>
 
-    <rect x="788" y="632" width="210" height="120" rx="16" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-    <circle cx="820" cy="668" r="17" fill="var(--primary)"/><text x="820" y="668" text-anchor="middle" dominant-baseline="central" style="font-size:18px;font-weight:700;fill:#FFFFFF">4</text>
-    <text x="848" y="674" style="font-size:19px;font-weight:700">Verify</text>
-    <text x="810" y="712" class="sub" style="font-size:13px" dominant-baseline="central">no overflow · glyphs</text>
+<!-- feature bands -->
+<rect x="64" y="808" width="464" height="130" rx="16" fill="#EAF2FB" stroke="#9DBEDE" stroke-width="1.4"/>
+<text x="96" y="854" style="font-size:21px;font-weight:700;fill:#1B4F7D">First-class Korean / CJK</text>
+<text x="96" y="890" class="sub" style="font-size:15px">Rendered &amp; verified, never tofu — 가나다라 · ABCabc · 0123</text>
 
-    <line x1="294" y1="692" x2="314" y2="692" stroke="#8A94A3" stroke-width="1.5" marker-end="url(#a2)"/>
-    <line x1="530" y1="692" x2="550" y2="692" stroke="#8A94A3" stroke-width="1.5" marker-end="url(#a2)"/>
-    <line x1="766" y1="692" x2="786" y2="692" stroke="#8A94A3" stroke-width="1.5" marker-end="url(#a2)"/>
-  </g>
+<rect x="552" y="808" width="464" height="130" rx="16" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
+<circle cx="602" cy="873" r="28" fill="var(--pf-tint)"/><use href="#ic-globe" class="ic" x="586" y="857" width="32" height="32" style="color:var(--primary)"/>
+<text x="648" y="854" style="font-size:21px;font-weight:700">Cross-platform</text>
+<text x="648" y="890" class="sub" style="font-size:15px">macOS · Windows · Linux · Chrome/Edge/Chromium</text>
 
-  <!-- feature bands -->
-  <rect x="80" y="808" width="444" height="120" rx="16" style="fill:#EAF2FB;stroke:#9DBEDE;stroke-width:1.5"/>
-  <text x="110" y="850" style="font-size:21px;font-weight:700;fill:#1B4F7D">First-class Korean / CJK</text>
-  <text x="110" y="884" class="sub" style="font-size:15px">Rendered &amp; verified, never tofu — 가나다라 · ABCabc · 0123</text>
+<!-- not for -->
+<rect x="64" y="984" width="952" height="52" rx="12" fill="#FBEDE7" stroke="#E4B9A6" stroke-width="1"/>
+<text x="92" y="1010" dominant-baseline="central" style="font-size:15px;font-weight:700;fill:var(--no-ink)">Not for</text>
+<text x="176" y="1010" dominant-baseline="central" class="sub" style="font-size:14.5px">photos · illustration · data-accurate charts · hand-drawn / crayon sketchnote · mascots &amp; characters</text>
 
-  <rect x="556" y="808" width="444" height="120" rx="16" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-  <circle cx="604" cy="868" r="26" fill="#E3EEF8"/><use href="#ic-globe" x="589" y="853" width="30" height="30" style="color:#1F6FB2"/>
-  <text x="644" y="850" style="font-size:21px;font-weight:700">Cross-platform</text>
-  <text x="644" y="884" class="sub" style="font-size:15px">macOS · Windows · Linux · Chrome/Edge/Chromium</text>
-
-  <!-- not for -->
-  <text x="80" y="984" style="font-size:15px;font-weight:700;fill:var(--no-ink)">Not for</text>
-  <text x="164" y="984" class="sub" style="font-size:15px">photos · illustration · data-accurate charts · hand-drawn / crayon sketchnote · mascots &amp; characters</text>
-
-  <!-- footer -->
-  <text x="540" y="1058" text-anchor="middle" class="sub" style="font-size:17px">A portable agent skill · flat, structural technical infographics — SVG source + 2× PNG.</text>
+<!-- footer -->
+<text x="540" y="1082" text-anchor="middle" class="sub" style="font-size:16px">A portable agent skill · flat, structural technical infographics — SVG source + 2× PNG.</text>
 </svg>

@@ -1,87 +1,63 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350" width="1080" height="1350" role="img"
-  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
-  <title>The 4 Layers of AI Engineering</title>
-  <desc>Four nested layers — Prompt inside Context inside Harness inside Loop — each wrapping the one before it, with an icon and one-line description of each engineering layer.</desc>
-  <style>
-    svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#D6E0EC;
-      --l1:#1F6FB2; --l2:#5A8DC4; --l3:#7AA6D2; --l4:#9DBEDE; --card:#F7FAFD; }
-    text{ fill:var(--ink) }
-    .sub{ fill:var(--muted) }
-  </style>
-  <defs>
-    <symbol id="ic-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 9l3 3-3 3"/><path d="M13 15h4"/>
-    </symbol>
-    <symbol id="ic-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 16.5h6M9 9.5h2"/>
-    </symbol>
-    <symbol id="ic-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="3"/>
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-    </symbol>
-    <symbol id="ic-loop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M4.5 12a7.5 7.5 0 0 1 12.8-5.3L20 9"/><path d="M20 3.5V9h-5.5"/><path d="M19.5 12a7.5 7.5 0 0 1-12.8 5.3L4 15"/><path d="M4 20.5V15h5.5"/>
-    </symbol>
-  </defs>
+     shape-rendering="geometricPrecision" text-rendering="optimizeLegibility"
+     style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+<title>The 4 Layers of AI Engineering</title>
+<desc>Four nested layers — Prompt inside Context inside Harness inside Loop — each wrapping the one before it, with an icon and one-line description of each engineering layer.</desc>
+<style>
+  svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#DCE3EC; --band:#F7FAFD;
+    --l1:#1F6FB2; --l2:#5A8DC4; --l3:#7AA6D2; --l4:#9DBEDE; }
+  text{ fill:var(--ink) }
+  .sub{ fill:var(--muted) }
+  .ct{ font-size:25px; font-weight:700 }
+  .cd{ font-size:18px; fill:var(--muted) }
+  .ic{ fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round }
+</style>
+<defs>
+  <symbol id="ic-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 9l3 3-3 3"/><path d="M13 15h4"/></symbol>
+  <symbol id="ic-doc" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 16.5h6M9 9.5h2"/></symbol>
+  <symbol id="ic-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+  <symbol id="ic-loop" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 0 1 12.8-5.3L20 9"/><path d="M20 3.5V9h-5.5"/><path d="M19.5 12a7.5 7.5 0 0 1-12.8 5.3L4 15"/><path d="M4 20.5V15h5.5"/></symbol>
+</defs>
+<rect width="1080" height="1350" fill="var(--bg)"/>
 
-  <rect x="0" y="0" width="1080" height="1350" fill="var(--bg)"/>
+<!-- title -->
+<rect x="80" y="60" width="8" height="54" rx="4" fill="var(--l1)"/>
+<text x="106" y="100" style="font-size:44px;font-weight:800">The 4 Layers of AI Engineering</text>
+<text x="106" y="136" class="sub" style="font-size:20px">Each layer wraps the one before it.</text>
 
-  <!-- title -->
-  <rect x="80" y="60" width="9" height="52" rx="3" fill="var(--l1)"/>
-  <text x="106" y="98" style="font-size:46px;font-weight:800">The 4 Layers of AI Engineering</text>
-  <text x="106" y="134" class="sub" style="font-size:21px">Each layer wraps the one before it.</text>
+<!-- nested onion -->
+<rect x="120" y="184" width="840" height="410" rx="24" fill="#E8F1FB" stroke="#9DBEDE" stroke-width="1.5"/>
+<text x="540" y="216" text-anchor="middle" dominant-baseline="central" style="font-size:25px;font-weight:800;fill:#2C5A86">Loop</text>
+<rect x="212" y="246" width="656" height="288" rx="20" fill="#CFE0F2" stroke="#7AA6D2" stroke-width="1.5"/>
+<text x="540" y="278" text-anchor="middle" dominant-baseline="central" style="font-size:24px;font-weight:800;fill:#274F79">Harness</text>
+<rect x="318" y="302" width="444" height="176" rx="18" fill="#9DC0E4" stroke="#5A8DC4" stroke-width="1.5"/>
+<text x="540" y="334" text-anchor="middle" dominant-baseline="central" style="font-size:23px;font-weight:800;fill:#193A5C">Context</text>
+<rect x="410" y="352" width="260" height="86" rx="16" fill="#1F6FB2" stroke="#175789" stroke-width="1.5"/>
+<text x="540" y="395" text-anchor="middle" dominant-baseline="central" style="font-size:23px;font-weight:800;fill:#FFFFFF">Prompt</text>
 
-  <!-- nested onion -->
-  <rect x="120" y="176" width="840" height="404" rx="22" style="fill:#E8F1FB;stroke:#9DBEDE;stroke-width:1.5"/>
-  <text x="540" y="208" text-anchor="middle" dominant-baseline="central" style="font-size:26px;font-weight:700;fill:#2C5A86">Loop</text>
-  <rect x="212" y="238" width="656" height="284" rx="20" style="fill:#CFE0F2;stroke:#7AA6D2;stroke-width:1.5"/>
-  <text x="540" y="270" text-anchor="middle" dominant-baseline="central" style="font-size:25px;font-weight:700;fill:#274F79">Harness</text>
-  <rect x="318" y="294" width="444" height="172" rx="18" style="fill:#9DC0E4;stroke:#5A8DC4;stroke-width:1.5"/>
-  <text x="540" y="325" text-anchor="middle" dominant-baseline="central" style="font-size:24px;font-weight:700;fill:#193A5C">Context</text>
-  <rect x="410" y="342" width="260" height="82" rx="16" style="fill:#1F6FB2;stroke:#175789;stroke-width:1.5"/>
-  <text x="540" y="391" text-anchor="middle" style="font-size:24px;font-weight:700;fill:#FFFFFF">Prompt</text>
+<!-- 2x2 cards -->
+<rect x="96" y="654" width="426" height="200" rx="18" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
+<circle cx="162" cy="754" r="38" fill="#E3EEF8"/><use href="#ic-terminal" class="ic" x="142" y="734" width="40" height="40" style="color:var(--l1)"/>
+<text x="222" y="712" class="ct">Prompt Engineering</text>
+<text x="222" y="750" class="cd"><tspan x="222" dy="0">The exact words, instructions,</tspan><tspan x="222" dy="26">and constraints you type in.</tspan></text>
 
-  <!-- cards 2x2 -->
-  <!-- card 1: Prompt -->
-  <rect x="110" y="646" width="410" height="196" rx="18" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-  <circle cx="172" cy="744" r="38" fill="#E3EEF8"/>
-  <use href="#ic-terminal" x="152" y="724" width="40" height="40" style="color:#1F6FB2"/>
-  <text x="230" y="704" style="font-size:25px;font-weight:700">Prompt Engineering</text>
-  <text x="230" y="742" class="sub" style="font-size:19px">
-    <tspan x="230" dy="0">The exact words, instructions,</tspan>
-    <tspan x="230" dy="26">and constraints you type in.</tspan>
-  </text>
+<rect x="558" y="654" width="426" height="200" rx="18" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
+<circle cx="624" cy="754" r="38" fill="#E3EEF8"/><use href="#ic-doc" class="ic" x="604" y="734" width="40" height="40" style="color:#3F72A8"/>
+<text x="684" y="712" class="ct">Context Engineering</text>
+<text x="684" y="750" class="cd"><tspan x="684" dy="0">System prompt, reference files,</tspan><tspan x="684" dy="26">and history read beforehand.</tspan></text>
 
-  <!-- card 2: Context -->
-  <rect x="560" y="646" width="410" height="196" rx="18" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-  <circle cx="622" cy="744" r="38" fill="#E3EEF8"/>
-  <use href="#ic-doc" x="602" y="724" width="40" height="40" style="color:#3F72A8"/>
-  <text x="680" y="704" style="font-size:25px;font-weight:700">Context Engineering</text>
-  <text x="680" y="742" class="sub" style="font-size:19px">
-    <tspan x="680" dy="0">System prompt, reference files,</tspan>
-    <tspan x="680" dy="26">and history read beforehand.</tspan>
-  </text>
+<rect x="96" y="878" width="426" height="200" rx="18" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
+<circle cx="162" cy="978" r="38" fill="#EAF1F8"/><use href="#ic-gear" class="ic" x="142" y="958" width="40" height="40" style="color:#4E7DAE"/>
+<text x="222" y="936" class="ct">Harness Engineering</text>
+<text x="222" y="974" class="cd"><tspan x="222" dy="0">Code that routes tools, checks</tspan><tspan x="222" dy="26">output, and retries on its own.</tspan></text>
 
-  <!-- card 3: Harness -->
-  <rect x="110" y="866" width="410" height="196" rx="18" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-  <circle cx="172" cy="964" r="38" fill="#EAF1F8"/>
-  <use href="#ic-gear" x="152" y="944" width="40" height="40" style="color:#4E7DAE"/>
-  <text x="230" y="924" style="font-size:25px;font-weight:700">Harness Engineering</text>
-  <text x="230" y="962" class="sub" style="font-size:19px">
-    <tspan x="230" dy="0">Code that routes tools, checks</tspan>
-    <tspan x="230" dy="26">output, and retries on its own.</tspan>
-  </text>
+<rect x="558" y="878" width="426" height="200" rx="18" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
+<circle cx="624" cy="978" r="38" fill="#EEF3F9"/><use href="#ic-loop" class="ic" x="604" y="958" width="40" height="40" style="color:#5E8AB8"/>
+<text x="684" y="936" class="ct">Loop Engineering</text>
+<text x="684" y="974" class="cd"><tspan x="684" dy="0">A goal and stop condition, so</tspan><tspan x="684" dy="26">it runs and self-corrects.</tspan></text>
 
-  <!-- card 4: Loop -->
-  <rect x="560" y="866" width="410" height="196" rx="18" style="fill:var(--card);stroke:var(--hair);stroke-width:1.5"/>
-  <circle cx="622" cy="964" r="38" fill="#EEF3F9"/>
-  <use href="#ic-loop" x="602" y="944" width="40" height="40" style="color:#5E8AB8"/>
-  <text x="680" y="924" style="font-size:25px;font-weight:700">Loop Engineering</text>
-  <text x="680" y="962" class="sub" style="font-size:19px">
-    <tspan x="680" dy="0">A goal and stop condition, so</tspan>
-    <tspan x="680" dy="26">it runs and self-corrects.</tspan>
-  </text>
-
-  <!-- footer -->
-  <text x="540" y="1150" text-anchor="middle" class="sub" style="font-size:19px">A great prompt without context is a guess · without a harness it drifts · without a loop it waits for you.</text>
+<!-- footer -->
+<rect x="96" y="1140" width="888" height="86" rx="16" fill="var(--band)" stroke="var(--hair)"/>
+<text x="540" y="1172" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:18px">A great prompt without context is a guess · without a harness it drifts</text>
+<text x="540" y="1200" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:18px">· without a loop it waits for you.</text>
 </svg>
