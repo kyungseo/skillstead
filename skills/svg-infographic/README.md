@@ -16,6 +16,12 @@ The skill writes an editable SVG first, then exports a crisp 2x PNG when a Chrom
 
 ## Example Prompts
 
+Start from whatever you have — the skill adapts to the input mode:
+
+- **brief-first** — just a topic or goal; the skill asks a few focused questions, then proposes a structure.
+- **source-first** — a doc, notes, an existing SVG, or a README; the skill summarizes it and agrees the key message before drawing.
+- **research-first** — "draft it from scratch"; the skill states its assumptions first (external lookup may be unavailable depending on your environment).
+
 ```text
 Use svg-infographic to draw this cloud architecture as a clean topology diagram:
 Application Gateway -> APIM -> AKS -> PostgreSQL.
@@ -37,6 +43,10 @@ Use a longer prompt when you want the skill to make layout decisions, choose an 
 Use svg-infographic to create a technical infographic from the content below.
 
 Topic: AI code review loop
+
+Audience: engineers skimming how a PR-review pipeline works
+Key message: an AI reviewer in the loop catches risky changes before human sign-off
+(state a key message so the title can lead with the conclusion, not just a topic)
 
 Goal:
 - Show the flow from a developer opening a PR, to an AI agent reviewing it, to a human reviewer approving it, to changes being patched and verified.
@@ -75,6 +85,8 @@ Output:
 - Use the skill defaults for style, font, and colors, but tell me before drawing that I can change them.
 ```
 
+For more worked prompts, browse the [example gallery](https://github.com/kyungseo/skillstead/tree/main/examples/svg-infographic): **each example folder's README ships the exact prompt (English + Korean) that produced it**, so you can copy a pattern close to what you need.
+
 ## Before Generation
 
 When you run it, the skill shows defaults like the table below before writing files, then tells you what you can change. This makes the result predictable and gives you a chance to adjust the style before files are written.
@@ -88,6 +100,7 @@ When you run it, the skill shows defaults like the table below before writing fi
 | Ratio | chosen for the request, such as wide landscape or 4:5 social | any target size |
 | Language | inferred from the prompt | English, Korean, or bilingual |
 | Output | SVG + 2x PNG, inside the current project | SVG only |
+| Footer | none | an optional source / date / author footer on request (a labeled footer, not a watermark) |
 
 ## Output
 
@@ -95,6 +108,15 @@ The skill proposes an output directory inside your current project before writin
 
 - `*.svg` — primary editable vector asset for docs, HTML, and PPTX workflows
 - `*.png` — 2x preview/export for sharing, thumbnails, and social posts
+
+## Review Before Handoff
+
+The skill checks the output on two axes, not just rendering:
+
+- **Rendering** — no text overflow, correct Korean/CJK glyphs (no tofu), SVG and PNG dimensions match (PNG is 2×), icons render, and the SVG stays editable.
+- **Message** — the archetype fits the content, there is one clear reading order, the title carries the conclusion, text density stays low per box, and the depth and language fit your audience.
+
+For a busy architecture or flow diagram, the skill can normalize node placement into zones to reduce crossings — an optional layout aid, not a required format.
 
 ## Style Defaults
 
@@ -125,7 +147,7 @@ Browse the full gallery:
 
 **https://github.com/kyungseo/skillstead/tree/main/examples/svg-infographic**
 
-It includes English and Korean examples for topology, layer/onion models, before/after comparison, process flow, roadmap, and a self-demo.
+It includes English and Korean examples for topology, layer/onion models, before/after comparison, process flow, roadmap, a decision matrix, CI/CD artifact promotion, an issue-tracker approval flow, and a self-demo.
 
 ## Boundaries
 

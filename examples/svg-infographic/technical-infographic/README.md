@@ -12,8 +12,10 @@ Files: `*.en.svg` / `*.en.png` / `*.ko.svg` / `*.ko.png` — SVG is the editable
 
 ## Provenance
 
-Originally authored synthetic example. Non-client, non-confidential. The "4 Layers of AI Engineering" concept is a public idea, redrawn here as an original layout — not a copy of any specific artwork.
-(오리지널 합성 예제. 특정 고객·기밀과 무관하며, 공개된 개념을 오리지널 레이아웃으로 재작성했다.)
+Sample content is synthetic. Names, identifiers, digests, tools, and environments
+are placeholders; no customer or confidential identifiers are included.
+(샘플 내용은 합성 예제입니다. 이름, 식별자, digest, 도구, 환경은 placeholder이며
+고객·기밀 식별자는 포함하지 않습니다.)
 
 ## Prompt
 

@@ -4,6 +4,17 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## [Unreleased]
+
+### svg-infographic
+
+- **Two new synthetic examples**, English + Korean, source SVG + 2× PNG, each with its prompt and provenance — example count **8 → 10**:
+  - `ci-cd-artifact-promotion` — a build-once / promote-the-same-digest release-candidate model (build → promote → release fix).
+  - `issue-tracker-cicd-approval-flow` — an issue key threading commit → build → test → approval → prod deploy, with a parallel issue-state rail and the approval gate as a state transition.
+- **Gallery preview** refreshed to a curated 3×2 six-example montage with labelled cells.
+- **SKILL.md guidance upgrade (lightweight):** input-mode classification (brief-first / source-first / research-first), archetype selection from the content signal, conclusion-first titles, an optional 3×3 zone layout aid, an expanded rendering + message review checklist, and an optional attribution/footer layer policy. No engine/DSL — the skill stays a lightweight guide.
+- **Render smoke:** the two new examples are verified on macOS; Windows/Linux render paths remain documented and pending.
+
 ## [0.1.0] — 2026-07-08
 
 ### svg-infographic
