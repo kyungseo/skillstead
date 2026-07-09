@@ -19,9 +19,9 @@ redeploy, tag as a record).
 | File | Role |
 | --- | --- |
 | `ci-cd-artifact-promotion.en.svg` | English source (editable) |
-| `ci-cd-artifact-promotion.en.png` | English 2× export (1520×940) |
+| `ci-cd-artifact-promotion.en.png` | English 2× export (1920×1544) |
 | `ci-cd-artifact-promotion.ko.svg` | Korean source (editable) |
-| `ci-cd-artifact-promotion.ko.png` | Korean 2× export (1520×940) |
+| `ci-cd-artifact-promotion.ko.png` | Korean 2× export (1920×1544) |
 
 SVG is the editable source of truth; PNG is the 2× export (exactly twice the SVG
 `viewBox`) for slides, docs, and social.

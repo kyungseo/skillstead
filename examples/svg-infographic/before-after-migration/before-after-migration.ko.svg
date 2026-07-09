@@ -1,101 +1,106 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 720" width="1120" height="720" role="img"
-  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
-  <title>모놀리스에서 마이크로서비스로 — 마이그레이션 before/after</title>
-  <desc>2패널 before/after 비교: 왼쪽은 모놀리식 애플리케이션과 그 제약, 오른쪽은 마이크로서비스 아키텍처와 그 이점.</desc>
-  <style>
-    svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#D6E0EC;
-      --before-fill:#FBF1E3; --before-line:#B77A26; --before-ink:#7A4F12;
-      --after-fill:#E7F5EF; --after-line:#0F7A5F; --after-ink:#0B5E49;
-      --card:#F7FAFD; }
-    text{ fill:var(--ink) }
-    .sub{ fill:var(--muted) }
-  </style>
-  <defs>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M1,1 L8,5 L1,9" fill="none" stroke="#8A94A3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
-    <symbol id="ic-cross" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></symbol>
-    <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4 10-11"/></symbol>
-  </defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 760" width="1120" height="760" role="img"
+     shape-rendering="geometricPrecision" text-rendering="optimizeLegibility"
+     style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+<title>모놀리스 → 마이크로서비스 — 마이그레이션 전 / 후</title>
+<desc>왼쪽은 단점이 있는 모놀리식 애플리케이션, 오른쪽은 이점이 있는 마이크로서비스 아키텍처를 나란히 비교한 전/후 패널.</desc>
+<style>
+  svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#DCE3EC;
+    --before-fill:#FBF1E3; --before-line:#B77A26; --before-ink:#7A4F12; --before-tint:#F3E1C4;
+    --after-fill:#E7F5EF; --after-line:#0F7A5F; --after-ink:#0B5E49; --after-tint:#D0EBDF;
+    --app-fill:#ECEBFB; --app-line:#534AB7; --app-ink:#3C3489;
+    --band:#F7FAFD; }
+  text{ fill:var(--ink) }
+  .sub{ fill:var(--muted) }
+  .lab{ font-size:15px; font-weight:700; fill:#FFFFFF; letter-spacing:.3px }
+  .pt{ font-size:17px }
+  .ic{ fill:none; stroke:currentColor; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round }
+</style>
+<defs>
+  <symbol id="ic-cross" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 13l4 4 10-11"/></symbol>
+  <symbol id="ic-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></symbol>
+</defs>
+<rect width="1120" height="760" fill="var(--bg)"/>
 
-  <rect x="0" y="0" width="1120" height="720" fill="var(--bg)"/>
+<!-- header -->
+<rect x="44" y="40" width="6" height="46" rx="3" fill="var(--after-line)"/>
+<text x="66" y="64" style="font-size:32px;font-weight:800">모놀리스 → 마이크로서비스</text>
+<text x="66" y="94" class="sub" style="font-size:16px">마이그레이션 전 / 후 — 공유 단위 하나가 독립 서비스로 분리된다</text>
 
-  <!-- title -->
-  <rect x="50" y="42" width="9" height="46" rx="3" fill="var(--after-line)"/>
-  <text x="76" y="72" style="font-size:38px;font-weight:800">모놀리스 → 마이크로서비스</text>
-  <text x="76" y="104" class="sub" style="font-size:19px">마이그레이션 Before / After</text>
+<!-- middle transition arrow -->
+<circle cx="560" cy="420" r="22" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.5"/>
+<use href="#ic-arrow" class="ic" x="546" y="406" width="28" height="28" style="color:#8A94A3;stroke-width:2"/>
 
-  <!-- middle arrow -->
-  <line x1="546" y1="410" x2="576" y2="410" stroke="#8A94A3" stroke-width="2" marker-end="url(#arrow)"/>
+<!-- ===== BEFORE band ===== -->
+<rect x="44" y="124" width="496" height="596" rx="18" fill="var(--band)" stroke="var(--before-line)" stroke-width="1.2"/>
+<rect x="68" y="148" width="196" height="34" rx="17" fill="var(--before-line)"/>
+<text x="166" y="166" text-anchor="middle" class="lab" dominant-baseline="central">BEFORE · 모놀리스</text>
 
-  <!-- BEFORE panel -->
-  <rect x="50" y="150" width="490" height="520" rx="18" style="fill:#FFFFFF;stroke:var(--hair);stroke-width:1.5"/>
-  <path d="M68 150 H522 A18 18 0 0 1 540 168 V210 H50 V168 A18 18 0 0 1 68 150 Z" style="fill:var(--before-fill);stroke:var(--before-line);stroke-width:1.5"/>
-  <text x="78" y="180" dominant-baseline="central" style="font-size:15px;font-weight:700;fill:var(--before-line);letter-spacing:1px">이전</text>
-  <text x="510" y="180" text-anchor="end" dominant-baseline="central" style="font-size:22px;font-weight:800;fill:var(--before-ink)">모놀리스</text>
+<!-- monolith visual -->
+<rect x="68" y="202" width="448" height="120" rx="14" fill="#FFFFFF" stroke="var(--before-line)" stroke-width="1.4"/>
+<text x="292" y="230" text-anchor="middle" dominant-baseline="central" style="font-size:16px;font-weight:700;fill:var(--before-ink)">모놀리식 앱</text>
+<rect x="88" y="256" width="130" height="48" rx="9" fill="var(--before-fill)" stroke="var(--before-line)"/>
+<text x="153" y="281" text-anchor="middle" dominant-baseline="central" style="font-size:14px;fill:var(--before-ink)">인증</text>
+<rect x="227" y="256" width="130" height="48" rx="9" fill="var(--before-fill)" stroke="var(--before-line)"/>
+<text x="292" y="281" text-anchor="middle" dominant-baseline="central" style="font-size:14px;fill:var(--before-ink)">주문</text>
+<rect x="366" y="256" width="130" height="48" rx="9" fill="var(--before-fill)" stroke="var(--before-line)"/>
+<text x="431" y="281" text-anchor="middle" dominant-baseline="central" style="font-size:14px;fill:var(--before-ink)">결제</text>
 
-  <!-- monolith visual -->
-  <rect x="96" y="238" width="398" height="118" rx="12" style="fill:var(--before-fill);stroke:var(--before-line);stroke-width:1.5"/>
-  <text x="295" y="266" text-anchor="middle" dominant-baseline="central" style="font-size:17px;font-weight:700;fill:var(--before-ink)">모놀리식 앱</text>
-  <rect x="120" y="288" width="110" height="46" rx="8" style="fill:#FFFFFF;stroke:var(--before-line);stroke-width:1"/>
-  <text x="175" y="311" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:14px">인증</text>
-  <rect x="240" y="288" width="110" height="46" rx="8" style="fill:#FFFFFF;stroke:var(--before-line);stroke-width:1"/>
-  <text x="295" y="311" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:14px">주문</text>
-  <rect x="360" y="288" width="110" height="46" rx="8" style="fill:#FFFFFF;stroke:var(--before-line);stroke-width:1"/>
-  <text x="415" y="311" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:14px">결제</text>
+<!-- before points -->
+<g>
+  <circle cx="92" cy="366" r="16" fill="var(--before-tint)"/><use href="#ic-cross" class="ic" x="82" y="356" width="20" height="20" style="color:var(--before-ink)"/>
+  <text x="124" y="366" dominant-baseline="central" class="pt">단일 배포 단위</text>
+  <circle cx="92" cy="424" r="16" fill="var(--before-tint)"/><use href="#ic-cross" class="ic" x="82" y="414" width="20" height="20" style="color:var(--before-ink)"/>
+  <text x="124" y="424" dominant-baseline="central" class="pt">공유 데이터베이스 하나</text>
+  <circle cx="92" cy="482" r="16" fill="var(--before-tint)"/><use href="#ic-cross" class="ic" x="82" y="472" width="20" height="20" style="color:var(--before-ink)"/>
+  <text x="124" y="482" dominant-baseline="central" class="pt">전체 스케일만 가능</text>
+  <circle cx="92" cy="540" r="16" fill="var(--before-tint)"/><use href="#ic-cross" class="ic" x="82" y="530" width="20" height="20" style="color:var(--before-ink)"/>
+  <text x="124" y="540" dominant-baseline="central" class="pt">하나 장애 → 전체 중단</text>
+  <circle cx="92" cy="598" r="16" fill="var(--before-tint)"/><use href="#ic-cross" class="ic" x="82" y="588" width="20" height="20" style="color:var(--before-ink)"/>
+  <text x="124" y="598" dominant-baseline="central" class="pt">느리고 결합된 릴리스</text>
+</g>
+<rect x="68" y="642" width="448" height="52" rx="12" fill="var(--before-fill)" stroke="var(--before-line)" stroke-width=".75"/>
+<text x="292" y="668" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:600;fill:var(--before-ink)">변경 하나가 앱 전체를 배포한다</text>
 
-  <!-- before points -->
-  <g>
-    <use href="#ic-cross" x="98" y="392" width="22" height="22" style="color:var(--before-line)"/>
-    <text x="130" y="403" dominant-baseline="central" style="font-size:17px">단일 배포 단위</text>
-    <use href="#ic-cross" x="98" y="440" width="22" height="22" style="color:var(--before-line)"/>
-    <text x="130" y="451" dominant-baseline="central" style="font-size:17px">공유 데이터베이스 하나</text>
-    <use href="#ic-cross" x="98" y="488" width="22" height="22" style="color:var(--before-line)"/>
-    <text x="130" y="499" dominant-baseline="central" style="font-size:17px">전체 스케일만 가능</text>
-    <use href="#ic-cross" x="98" y="536" width="22" height="22" style="color:var(--before-line)"/>
-    <text x="130" y="547" dominant-baseline="central" style="font-size:17px">하나 장애 → 전체 중단</text>
-    <use href="#ic-cross" x="98" y="584" width="22" height="22" style="color:var(--before-line)"/>
-    <text x="130" y="595" dominant-baseline="central" style="font-size:17px">느리고 결합된 릴리스</text>
-  </g>
+<!-- ===== AFTER band ===== -->
+<rect x="580" y="124" width="496" height="596" rx="18" fill="var(--band)" stroke="var(--after-line)" stroke-width="1.2"/>
+<rect x="604" y="148" width="248" height="34" rx="17" fill="var(--after-line)"/>
+<text x="728" y="166" text-anchor="middle" class="lab" dominant-baseline="central">AFTER · 마이크로서비스</text>
 
-  <!-- AFTER panel -->
-  <rect x="580" y="150" width="490" height="520" rx="18" style="fill:#FFFFFF;stroke:var(--hair);stroke-width:1.5"/>
-  <path d="M598 150 H1052 A18 18 0 0 1 1070 168 V210 H580 V168 A18 18 0 0 1 598 150 Z" style="fill:var(--after-fill);stroke:var(--after-line);stroke-width:1.5"/>
-  <text x="608" y="180" dominant-baseline="central" style="font-size:15px;font-weight:700;fill:var(--after-line);letter-spacing:1px">이후</text>
-  <text x="1040" y="180" text-anchor="end" dominant-baseline="central" style="font-size:22px;font-weight:800;fill:var(--after-ink)">마이크로서비스</text>
+<!-- microservices visual -->
+<rect x="676" y="202" width="304" height="40" rx="10" fill="var(--app-fill)" stroke="var(--app-line)" stroke-width="1.3"/>
+<text x="828" y="222" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:600;fill:var(--app-ink)">API Gateway</text>
+<line x1="828" y1="242" x2="828" y2="252" stroke="#8A94A3" stroke-width="1.2"/>
+<line x1="672" y1="252" x2="984" y2="252" stroke="#8A94A3" stroke-width="1.2"/>
+<line x1="672" y1="252" x2="672" y2="264" stroke="#8A94A3" stroke-width="1.2"/>
+<line x1="828" y1="252" x2="828" y2="264" stroke="#8A94A3" stroke-width="1.2"/>
+<line x1="984" y1="252" x2="984" y2="264" stroke="#8A94A3" stroke-width="1.2"/>
+<rect x="604" y="264" width="136" height="58" rx="10" fill="#FFFFFF" stroke="var(--after-line)" stroke-width="1.2"/>
+<text x="672" y="283" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:600;fill:var(--after-ink)">인증</text>
+<text x="672" y="304" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:11px">전용 DB</text>
+<rect x="760" y="264" width="136" height="58" rx="10" fill="#FFFFFF" stroke="var(--after-line)" stroke-width="1.2"/>
+<text x="828" y="283" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:600;fill:var(--after-ink)">주문</text>
+<text x="828" y="304" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:11px">전용 DB</text>
+<rect x="916" y="264" width="136" height="58" rx="10" fill="#FFFFFF" stroke="var(--after-line)" stroke-width="1.2"/>
+<text x="984" y="283" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:600;fill:var(--after-ink)">결제</text>
+<text x="984" y="304" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:11px">전용 DB</text>
 
-  <!-- microservices visual -->
-  <rect x="700" y="230" width="250" height="38" rx="9" style="fill:#ECEBFB;stroke:#534AB7;stroke-width:1.5"/>
-  <text x="825" y="249" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:600;fill:#3C3489">API Gateway</text>
-  <g>
-    <rect x="626" y="288" width="140" height="62" rx="9" style="fill:var(--after-fill);stroke:var(--after-line);stroke-width:1.2"/>
-    <text x="696" y="308" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:600;fill:var(--after-ink)">인증</text>
-    <text x="696" y="330" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:11px">전용 DB</text>
-    <rect x="782" y="288" width="140" height="62" rx="9" style="fill:var(--after-fill);stroke:var(--after-line);stroke-width:1.2"/>
-    <text x="852" y="308" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:600;fill:var(--after-ink)">주문</text>
-    <text x="852" y="330" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:11px">전용 DB</text>
-    <rect x="938" y="288" width="116" height="62" rx="9" style="fill:var(--after-fill);stroke:var(--after-line);stroke-width:1.2"/>
-    <text x="996" y="308" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:600;fill:var(--after-ink)">결제</text>
-    <text x="996" y="330" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:11px">전용 DB</text>
-  </g>
-  <line x1="825" y1="268" x2="825" y2="276" stroke="#8A94A3" stroke-width="1.2"/>
-  <line x1="696" y1="276" x2="996" y2="276" stroke="#8A94A3" stroke-width="1.2"/>
-  <line x1="696" y1="276" x2="696" y2="288" stroke="#8A94A3" stroke-width="1.2"/>
-  <line x1="852" y1="276" x2="852" y2="288" stroke="#8A94A3" stroke-width="1.2"/>
-  <line x1="996" y1="276" x2="996" y2="288" stroke="#8A94A3" stroke-width="1.2"/>
+<!-- after points -->
+<g>
+  <circle cx="628" cy="366" r="16" fill="var(--after-tint)"/><use href="#ic-check" class="ic" x="618" y="356" width="20" height="20" style="color:var(--after-line)"/>
+  <text x="660" y="366" dominant-baseline="central" class="pt">독립 배포</text>
+  <circle cx="628" cy="424" r="16" fill="var(--after-tint)"/><use href="#ic-check" class="ic" x="618" y="414" width="20" height="20" style="color:var(--after-line)"/>
+  <text x="660" y="424" dominant-baseline="central" class="pt">서비스별 데이터 격리</text>
+  <circle cx="628" cy="482" r="16" fill="var(--after-tint)"/><use href="#ic-check" class="ic" x="618" y="472" width="20" height="20" style="color:var(--after-line)"/>
+  <text x="660" y="482" dominant-baseline="central" class="pt">서비스별 스케일</text>
+  <circle cx="628" cy="540" r="16" fill="var(--after-tint)"/><use href="#ic-check" class="ic" x="618" y="530" width="20" height="20" style="color:var(--after-line)"/>
+  <text x="660" y="540" dominant-baseline="central" class="pt">장애 격리</text>
+  <circle cx="628" cy="598" r="16" fill="var(--after-tint)"/><use href="#ic-check" class="ic" x="618" y="588" width="20" height="20" style="color:var(--after-line)"/>
+  <text x="660" y="598" dominant-baseline="central" class="pt">빠르고 분리된 릴리스</text>
+</g>
+<rect x="604" y="642" width="448" height="52" rx="12" fill="var(--after-fill)" stroke="var(--after-line)" stroke-width=".75"/>
+<text x="828" y="668" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:600;fill:var(--after-ink)">각 서비스가 독립적으로 배포·스케일된다</text>
 
-  <!-- after points -->
-  <g>
-    <use href="#ic-check" x="608" y="392" width="22" height="22" style="color:var(--after-line)"/>
-    <text x="640" y="403" dominant-baseline="central" style="font-size:17px">독립 배포</text>
-    <use href="#ic-check" x="608" y="440" width="22" height="22" style="color:var(--after-line)"/>
-    <text x="640" y="451" dominant-baseline="central" style="font-size:17px">서비스별 데이터 격리</text>
-    <use href="#ic-check" x="608" y="488" width="22" height="22" style="color:var(--after-line)"/>
-    <text x="640" y="499" dominant-baseline="central" style="font-size:17px">서비스별 스케일</text>
-    <use href="#ic-check" x="608" y="536" width="22" height="22" style="color:var(--after-line)"/>
-    <text x="640" y="547" dominant-baseline="central" style="font-size:17px">장애 격리</text>
-    <use href="#ic-check" x="608" y="584" width="22" height="22" style="color:var(--after-line)"/>
-    <text x="640" y="595" dominant-baseline="central" style="font-size:17px">빠르고 분리된 릴리스</text>
-  </g>
-
-  <!-- legend -->
-  <text x="560" y="700" text-anchor="middle" class="sub" style="font-size:14px">amber = 레거시 제약  ·  green = 마이그레이션 이점</text>
+<!-- legend -->
+<text x="560" y="740" text-anchor="middle" class="sub" style="font-size:13.5px">amber = 레거시 제약  ·  green = 마이그레이션 이점</text>
 </svg>
