@@ -177,6 +177,7 @@ Before handoff, check both the rendering and the message:
 
 - **Rendering:** no text overflow; text vertically centered in its box; correct CJK (Korean) glyph rendering (no tofu); SVG and PNG dimensions match (PNG is 2×); icons render (no broken `<use>`); the SVG stays editable — tokens in one `<style>` block, no flattened or rasterized text.
 - **Message:** the archetype fits the content; there is one clear reading order/flow; the title states a conclusion, not just a topic; text density stays low per box (2–3 lines); any qualitative matrix or labels read unambiguously; content depth and language fit the stated audience.
+- **Containment:** every child (card, icon, arrow, badge, label) sits inside its container/panel bounds **plus inner padding**, unless it is a deliberate outside-the-frame callout. For a row of repeated cards, don't eyeball it — compute the last card's far edge as `start + (n−1)·(cardW+gap) + cardW` and confirm it is `≤ container_edge − padding` (same for a column's bottom edge). If a horizontal row won't fit, shrink `cardW`/`gap`, wrap to a second row, or widen the canvas — then re-check against the **exported PNG**, since an element can spill past a section container without touching any text.
 
 ## 9. Output & handoff
 

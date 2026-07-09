@@ -84,7 +84,7 @@ svg-infographic으로 이 before/after 마이그레이션 계획을 슬라이드
 
 ## 현재 범위
 
-Skillstead는 multi-agent skill catalog를 지향합니다. v0.1.0 release는 Claude Code 설치 경로와 browser 기반 PNG export workflow가 검증된 상태라 Claude Code first로 제공합니다. Codex / Codex CLI와 다른 agent runtime 지원은 수요와 export 경로가 확인되면 다시 검토합니다.
+Skillstead는 multi-agent skill catalog를 지향합니다. Claude Code 설치 경로와 browser 기반 PNG export workflow가 검증된 상태라 Claude Code first로 제공합니다. Codex / Codex CLI와 다른 agent runtime 지원은 수요와 export 경로가 확인되면 다시 검토합니다.
 
 `svg-infographic`은 flat하고 구조적인 시각 자료에 초점을 둡니다. 사진 중심 마케팅 그래픽, 통계 차트, 손그림/크레용 스타일, 마스코트·캐릭터 일러스트는 의도적으로 범위 밖에 둡니다.
 

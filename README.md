@@ -82,7 +82,7 @@ The included examples are synthetic, non-client artifacts. Each ships as SVG + 2
 
 ## Current Scope
 
-Skillstead is intended as a multi-agent skill catalog. The v0.1.0 release is Claude Code first because that install path and the browser-based PNG export workflow are verified there. Codex / Codex CLI and other agent runtimes are deferred until there is confirmed demand and the export path is verified in those environments.
+Skillstead is intended as a multi-agent skill catalog. It is Claude Code first because that install path and the browser-based PNG export workflow are verified there. Codex / Codex CLI and other agent runtimes are deferred until there is confirmed demand and the export path is verified in those environments.
 
 `svg-infographic` is for flat, structural visuals. It intentionally does not target photo-heavy marketing graphics, statistical charts, hand-drawn/crayon styles, or mascot/character illustration.
 

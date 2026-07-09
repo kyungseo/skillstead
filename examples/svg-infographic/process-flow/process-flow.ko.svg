@@ -32,39 +32,39 @@
 <rect x="68" y="152" width="150" height="32" rx="16" fill="var(--primary)"/>
 <text x="143" y="169" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:700;fill:#FFFFFF">RAG 파이프라인</text>
 
-<!-- 5 flow cards -->
+<!-- 5 flow cards · cardW=200, pitch=224, x=72..968 → last right edge 1168 < band right 1196 -->
 <g>
-  <rect x="72" y="204" width="206" height="176" rx="14" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
-  <circle cx="175" cy="254" r="28" fill="var(--pf-tint)"/><use href="#ic-chat" class="ic" x="157" y="236" width="36" height="36" style="color:var(--primary)"/>
-  <text x="175" y="308" text-anchor="middle" dominant-baseline="central" class="ct">사용자 질의</text>
-  <text x="175" y="332" text-anchor="middle" dominant-baseline="central" class="sub cs">질문</text>
+  <rect x="72" y="204" width="200" height="176" rx="14" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
+  <circle cx="172" cy="254" r="28" fill="var(--pf-tint)"/><use href="#ic-chat" class="ic" x="154" y="236" width="36" height="36" style="color:var(--primary)"/>
+  <text x="172" y="308" text-anchor="middle" dominant-baseline="central" class="ct">사용자 질의</text>
+  <text x="172" y="332" text-anchor="middle" dominant-baseline="central" class="sub cs">질문</text>
 
-  <rect x="308" y="204" width="206" height="176" rx="14" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
-  <circle cx="411" cy="254" r="28" fill="var(--pf-tint)"/><use href="#ic-api" class="ic" x="393" y="236" width="36" height="36" style="color:var(--primary)"/>
-  <text x="411" y="308" text-anchor="middle" dominant-baseline="central" class="ct">임베딩</text>
-  <text x="411" y="332" text-anchor="middle" dominant-baseline="central" class="sub cs">텍스트 → 벡터</text>
+  <rect x="296" y="204" width="200" height="176" rx="14" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
+  <circle cx="396" cy="254" r="28" fill="var(--pf-tint)"/><use href="#ic-api" class="ic" x="378" y="236" width="36" height="36" style="color:var(--primary)"/>
+  <text x="396" y="308" text-anchor="middle" dominant-baseline="central" class="ct">임베딩</text>
+  <text x="396" y="332" text-anchor="middle" dominant-baseline="central" class="sub cs">텍스트 → 벡터</text>
 
-  <rect x="544" y="204" width="206" height="176" rx="14" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
-  <circle cx="647" cy="254" r="28" fill="var(--pf-tint)"/><use href="#ic-database" class="ic" x="629" y="236" width="36" height="36" style="color:var(--primary)"/>
-  <text x="647" y="308" text-anchor="middle" dominant-baseline="central" class="ct">벡터 검색</text>
-  <text x="647" y="332" text-anchor="middle" dominant-baseline="central" class="sub cs">top-k 검색</text>
+  <rect x="520" y="204" width="200" height="176" rx="14" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
+  <circle cx="620" cy="254" r="28" fill="var(--pf-tint)"/><use href="#ic-database" class="ic" x="602" y="236" width="36" height="36" style="color:var(--primary)"/>
+  <text x="620" y="308" text-anchor="middle" dominant-baseline="central" class="ct">벡터 검색</text>
+  <text x="620" y="332" text-anchor="middle" dominant-baseline="central" class="sub cs">top-k 검색</text>
 
-  <rect x="780" y="204" width="206" height="176" rx="14" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
-  <circle cx="883" cy="254" r="28" fill="var(--pf-tint)"/><use href="#ic-doc" class="ic" x="865" y="236" width="36" height="36" style="color:var(--primary)"/>
-  <text x="883" y="308" text-anchor="middle" dominant-baseline="central" class="ct">증강</text>
-  <text x="883" y="332" text-anchor="middle" dominant-baseline="central" class="sub cs">질의 + 컨텍스트</text>
+  <rect x="744" y="204" width="200" height="176" rx="14" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
+  <circle cx="844" cy="254" r="28" fill="var(--pf-tint)"/><use href="#ic-doc" class="ic" x="826" y="236" width="36" height="36" style="color:var(--primary)"/>
+  <text x="844" y="308" text-anchor="middle" dominant-baseline="central" class="ct">증강</text>
+  <text x="844" y="332" text-anchor="middle" dominant-baseline="central" class="sub cs">질의 + 컨텍스트</text>
 
-  <rect x="1016" y="204" width="206" height="176" rx="14" fill="var(--ok-fill)" stroke="var(--ok-line)" stroke-width="1.6"/>
-  <circle cx="1119" cy="254" r="28" fill="var(--ok-tint)"/><use href="#ic-spark" class="ic" x="1101" y="236" width="36" height="36" style="color:var(--ok-line)"/>
-  <text x="1119" y="308" text-anchor="middle" dominant-baseline="central" class="ct" style="fill:var(--ok-ink)">생성</text>
-  <text x="1119" y="332" text-anchor="middle" dominant-baseline="central" class="cs" style="fill:var(--ok-ink)">LLM → 답변</text>
+  <rect x="968" y="204" width="200" height="176" rx="14" fill="var(--ok-fill)" stroke="var(--ok-line)" stroke-width="1.6"/>
+  <circle cx="1068" cy="254" r="28" fill="var(--ok-tint)"/><use href="#ic-spark" class="ic" x="1050" y="236" width="36" height="36" style="color:var(--ok-line)"/>
+  <text x="1068" y="308" text-anchor="middle" dominant-baseline="central" class="ct" style="fill:var(--ok-ink)">생성</text>
+  <text x="1068" y="332" text-anchor="middle" dominant-baseline="central" class="cs" style="fill:var(--ok-ink)">LLM → 답변</text>
 </g>
 
-<!-- arrows -->
-<line x1="282" y1="292" x2="304" y2="292" stroke="#8A94A3" stroke-width="2" marker-end="url(#arrow)"/>
-<line x1="518" y1="292" x2="540" y2="292" stroke="#8A94A3" stroke-width="2" marker-end="url(#arrow)"/>
-<line x1="754" y1="292" x2="776" y2="292" stroke="#8A94A3" stroke-width="2" marker-end="url(#arrow)"/>
-<line x1="990" y1="292" x2="1012" y2="292" stroke="#8A94A3" stroke-width="2" marker-end="url(#arrow)"/>
+<!-- arrows (between card edges) -->
+<line x1="274" y1="292" x2="294" y2="292" stroke="#8A94A3" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="498" y1="292" x2="518" y2="292" stroke="#8A94A3" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="722" y1="292" x2="742" y2="292" stroke="#8A94A3" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="946" y1="292" x2="966" y2="292" stroke="#8A94A3" stroke-width="2" marker-end="url(#arrow)"/>
 
 <!-- footer note -->
 <rect x="44" y="446" width="1152" height="58" rx="14" fill="var(--band)" stroke="var(--hair)"/>
