@@ -17,9 +17,9 @@ re-review after a patch.
 | File | Role |
 | --- | --- |
 | `ai-code-review-loop.en.svg` | English source (editable) |
-| `ai-code-review-loop.en.png` | English 2× export (3200×1420) |
+| `ai-code-review-loop.en.png` | English 2× export (3200×1440) |
 | `ai-code-review-loop.ko.svg` | Korean source (editable) |
-| `ai-code-review-loop.ko.png` | Korean 2× export (3200×1420) |
+| `ai-code-review-loop.ko.png` | Korean 2× export (3200×1440) |
 
 SVG is the editable source of truth; PNG is the 2× export (exactly twice the SVG
 `viewBox`) for slides, docs, and social.

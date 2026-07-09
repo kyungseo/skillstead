@@ -19,9 +19,9 @@ flow.
 | File | Role |
 | --- | --- |
 | `issue-tracker-cicd-approval-flow.en.svg` | English source (editable) |
-| `issue-tracker-cicd-approval-flow.en.png` | English 2× export (1520×960) |
+| `issue-tracker-cicd-approval-flow.en.png` | English 2× export (2120×1360) |
 | `issue-tracker-cicd-approval-flow.ko.svg` | Korean source (editable) |
-| `issue-tracker-cicd-approval-flow.ko.png` | Korean 2× export (1520×960) |
+| `issue-tracker-cicd-approval-flow.ko.png` | Korean 2× export (2120×1360) |
 
 SVG is the editable source of truth; PNG is the 2× export (exactly twice the SVG
 `viewBox`) for slides, docs, and social.
