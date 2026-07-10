@@ -1,6 +1,6 @@
-<!-- 한국어: [README.ko.md](./README.ko.md) -->
-
 # Examples — svg-infographic
+
+**English** · [한국어](./README.ko.md)
 
 Real outputs from the [`svg-infographic`](../../skills/svg-infographic) skill. Each example is a flat, structural visual shipped as source SVG + 2× PNG, in English and Korean, with the prompt that generated it.
 

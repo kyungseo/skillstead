@@ -1,6 +1,6 @@
-<!-- 한국어: [README.ko.md](./README.ko.md) -->
-
 # svg-infographic
+
+**English** · [한국어](./README.ko.md)
 
 Create flat, structured technical visuals for agentic coding workflows: architecture diagrams, cloud topologies, process flows, before/after comparisons, roadmaps, and share-ready infographics. The current package is authored for Claude Code.
 

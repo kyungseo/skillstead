@@ -1,6 +1,6 @@
-<!-- English: [README.md](./README.md) -->
-
 # Skillstead
+
+[English](./README.md) · **한국어**
 
 Agentic coding workflow에 붙여 쓰는 실용적이고 portable한 skill catalog입니다.
 
