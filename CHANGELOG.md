@@ -4,6 +4,12 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## [0.1.2] — 2026-07-10
+
+### Repository
+
+- **Visible language toggle on every bilingual README pair.** The root, `skills/svg-infographic`, and `examples/svg-infographic` README pairs now show an inline `English · 한국어` switch directly under the title, replacing the previously invisible HTML-comment cross-links. Readers can discover and switch to the other language straight from the rendered page. Titles and body content are unchanged.
+
 ## [0.1.1] — 2026-07-09
 
 ### svg-infographic
