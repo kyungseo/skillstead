@@ -1,6 +1,6 @@
 # Install
 
-This page documents the supported Claude Code install path for Skillstead v0.2.0. Skillstead is intended as a portable skill catalog over time, but this release ships a Claude Code package.
+This page documents the supported Claude Code install path for Skillstead v0.3.0. Skillstead is intended as a portable skill catalog over time, but this release ships a Claude Code package.
 
 A Claude Code skill is a folder that Claude Code loads. Install = copy the folder into a skills directory; no remote script is executed. Claude Code reads skills from two places, so pick the scope you want:
 
@@ -56,11 +56,11 @@ Then **commit `.claude/skills/svg-infographic/`** to your repo. Everyone who clo
 Add `--branch <tag>` to any clone above, then copy to the global or project location:
 
 ```bash
-git clone --depth 1 --branch v0.2.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch v0.3.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 cp -R /tmp/skillstead/skills/svg-infographic ~/.claude/skills/      # or .claude/skills/ for project scope
 ```
 
-A shallow pinned-tag clone may print `refs/tags/v0.2.0 ... is not a commit`. It is harmless; the checkout still lands on the tagged commit.
+A shallow pinned-tag clone may print `refs/tags/v0.3.0 ... is not a commit`. It is harmless; the checkout still lands on the tagged commit.
 
 ## Manual install
 
@@ -71,7 +71,8 @@ If you already have the files locally, copy the whole skill folder into your ski
 ├── SKILL.md                    # core workflow (entry point)
 ├── references/
 │   ├── archetypes.md           # archetype catalog: skeletons, premium recipe, checks
-│   └── authoring.md            # detailed rules, icon set, manual render fallback
+│   ├── authoring.md            # detailed rules, icon set, manual render fallback
+│   └── sketch.md               # opt-in tidy hand-drawn preset (paper, handwriting, rough)
 └── scripts/
     └── render.sh               # SVG → 2× PNG render + dimension verification
 ```

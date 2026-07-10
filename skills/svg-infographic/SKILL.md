@@ -1,6 +1,6 @@
 ---
 name: svg-infographic
-description: Author technical/structured SVG infographics and diagrams, then render them to crisp PNG with a headless browser. Best for architecture diagrams, topology maps, flows, before/after comparisons, nested/onion layer models, roadmaps, decision matrices, and social-ready technical one-pagers. Prefers clean line icons in soft tinted circles. First-class Korean/CJK text. Not for photo-heavy or illustration-heavy graphics, statistical charts, hand-drawn/crayon sketchnote styles, or mascot/character illustration.
+description: Author technical/structured SVG infographics and diagrams, then render them to crisp PNG with a headless browser. Best for architecture diagrams, topology maps, flows, before/after comparisons, nested/onion layer models, roadmaps, decision matrices, and social-ready technical one-pagers. Prefers clean line icons in soft tinted circles. First-class Korean/CJK text. Includes an opt-in "tidy hand-drawn" sketch preset (paper background, Korean handwriting font, rough strokes, highlighter). Not for photo-heavy or illustration-heavy graphics, statistical charts, or mascot/character illustration.
 ---
 
 # svg-infographic
@@ -9,9 +9,9 @@ Use this skill when the user wants a technical or structured infographic/diagram
 
 Good for: architecture diagrams, cloud/network topology, component/layer diagrams, before/after, process/data flow, nested "onion" models, roadmap/risk maps, decision matrices, social-ready technical one-pagers.
 
-Do **not** use for: photo/illustration-heavy marketing graphics; **data-accurate** statistical charts (bar/line/scatter/heatmap — use a chart tool); hand-drawn/crayon "sketchnote" styles; mascots or character illustration; custom logo design or bespoke icon design.
+Do **not** use for: photo/illustration-heavy marketing graphics; **data-accurate** statistical charts (bar/line/scatter/heatmap — use a chart tool); mascots or character illustration; custom logo design or bespoke icon design.
 
-Nuances: a **simple qualitative** 2×2/3×3 matrix or a status-count badge is fine (it's structure, not a data-accurate chart). Using the built-in line-icon set is expected and encouraged — the non-goal is *designing new brand marks*, not using icons.
+Nuances: a **simple qualitative** 2×2/3×3 matrix or a status-count badge is fine (it's structure, not a data-accurate chart). Using the built-in line-icon set is expected and encouraged — the non-goal is *designing new brand marks*, not using icons. A hand-drawn / sketchnote feel is supported as the **opt-in sketch preset** (`references/sketch.md`) — "tidy hand-drawn": hand-drawn surface, computed layout; mascots and scene illustration stay out of scope.
 
 **Package map** — this skill ships as a directory; load the parts on demand:
 
@@ -19,6 +19,7 @@ Nuances: a **simple qualitative** 2×2/3×3 matrix or a status-count badge is fi
 | --- | --- |
 | `references/archetypes.md` | **Always, before the layout pass** — the chosen archetype's layout skeleton, premium recipe, and per-type checks |
 | `references/authoring.md` | **Always, before writing SVG** — detailed geometry/connector/panel/emphasis/color rules and the full icon set; also the manual render fallback |
+| `references/sketch.md` | Only when the user asks for a hand-drawn / sketchnote / 손글씨 feel — the opt-in sketch preset (paper, handwriting font, rough filters, highlighter) |
 | `scripts/render.sh` | To render SVG → 2× PNG with automatic dimension verification |
 
 ## 0. Preflight — confirm, then offer to change
@@ -114,7 +115,7 @@ Keep wrapper/intermediate files in the session scratchpad, not the repo. The scr
 
 ## 6. Defaults to state (and let the user change)
 
-- Style: muted technical · light background · icons = soft circular bg + line icon
+- Style: muted technical · light background · icons = soft circular bg + line icon. Opt-in alternative: **sketch preset** (tidy hand-drawn — paper, Korean handwriting font, rough strokes; see `references/sketch.md`) when the user asks for that feel
 - Font stack: Pretendard, Apple SD Gothic Neo, Malgun Gothic, Noto Sans KR, sans-serif (covers macOS/Windows/Linux CJK)
 - Changeable: brand color, ratio (docs vs 4:5 social), dark mode (override the same CSS vars under `@media (prefers-color-scheme:dark)`; PNG renders light unless forced), icon style, Korean/English, SVG-only vs SVG+PNG
 - Optional attribution/footer layer: **off by default.** On request, add a small footer strip (source, author, or date) as its own bottom layer — a labeled footer, not a watermark laid over the content.
