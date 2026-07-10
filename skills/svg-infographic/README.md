@@ -120,7 +120,7 @@ When you run it, the skill shows defaults like the table below before writing fi
 
 | Item | Default | You can change |
 | --- | --- | --- |
-| Style | flat / muted technical, light background | dark mode |
+| Style | flat / muted technical, light background | dark mode, or the hand-drawn **sketch preset** on request |
 | Icons | line icons inside soft circular badges | iconless line, solid, mono |
 | Font | Pretendard -> Apple SD Gothic Neo -> Malgun Gothic / Noto Sans KR fallback | a specific font |
 | Color | semantic colors per step, accent for the key card | brand colors |
@@ -168,7 +168,8 @@ Copy this Claude Code package into a skills directory — either **global** (`~/
 ├── SKILL.md                  # core workflow (entry point)
 ├── references/
 │   ├── archetypes.md         # archetype catalog: skeletons, premium recipe, checks
-│   └── authoring.md          # detailed rules, icon set, manual render fallback
+│   ├── authoring.md          # detailed rules, icon set, manual render fallback
+│   └── sketch.md             # opt-in tidy hand-drawn preset (paper, handwriting, rough)
 └── scripts/
     └── render.sh             # SVG → 2× PNG render + dimension verification
 ```
@@ -185,11 +186,10 @@ It includes English and Korean examples for topology, layer/onion models, before
 
 ## Boundaries
 
-Use this skill for flat, structural visuals. It is not designed for:
+Use this skill for flat, structural visuals — or the opt-in **sketch preset** for a "tidy hand-drawn" look (paper background, Korean handwriting font, rough strokes, highlighter; the layout stays computed). It is not designed for:
 
 - photo-heavy or illustration-heavy marketing graphics
 - statistical charts such as bar, line, scatter, or heatmap charts
-- hand-drawn/crayon sketchnote styles
-- mascots, character art, or custom illustration
+- mascots, character art, or scene illustration (also excluded from the sketch preset)
 
 If PNG export is unavailable, the skill still delivers SVG and states the limitation.

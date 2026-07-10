@@ -29,7 +29,7 @@ Claude can make good visuals in chat, but Claude Code works inside a repository,
 | Decision and priority matrices | 2×2 quadrant maps, scope/uncertainty grids, trade-off views |
 | Korean-ready visual assets | CJK-safe SVG for docs, HTML, and slide decks; PNG for previews and social posts |
 
-See the full [example gallery](./examples/svg-infographic) for twelve examples across the supported archetypes — architecture, migration, workflow, swimlane, onion model, decision matrix, CI/CD promotion, approval flow, and more — in English and Korean, with the prompts that produced them. The preview above is a curated six-example montage.
+See the full [example gallery](./examples/svg-infographic) for thirteen examples across the supported archetypes — architecture, migration, workflow, swimlane, onion model, decision matrix, CI/CD promotion, approval flow, a hand-drawn sketch note, and more — in English and Korean, with the prompts that produced them. The preview above is a curated six-example montage.
 
 ## Quick Start
 
@@ -84,7 +84,7 @@ The included examples are synthetic, non-client artifacts. Each ships as SVG + 2
 
 Skillstead is intended as a multi-agent skill catalog. It is Claude Code first because that install path and the browser-based PNG export workflow are verified there. Codex / Codex CLI and other agent runtimes are deferred until there is confirmed demand and the export path is verified in those environments.
 
-`svg-infographic` is for flat, structural visuals. It intentionally does not target photo-heavy marketing graphics, statistical charts, hand-drawn/crayon styles, or mascot/character illustration.
+`svg-infographic` is for flat, structural visuals, plus an opt-in "tidy hand-drawn" sketch preset (hand-drawn surface, computed layout). It intentionally does not target photo-heavy marketing graphics, statistical charts, or mascot/character illustration.
 
 ## License
 

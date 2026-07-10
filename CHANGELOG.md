@@ -4,6 +4,16 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## [0.3.0] — 2026-07-11
+
+### svg-infographic
+
+- **Sketch preset (opt-in) — "tidy hand-drawn."** A new `references/sketch.md` preset: paper background with grain, an OFL Korean handwriting font embedded as a base64 data URI, rough `feTurbulence`/`feDisplacementMap` strokes, underline highlighter, and open-V hand arrowheads — while the layout stays computed (the standard layout pass and pre-render checklist apply unchanged). Deliberately **not** an imitation of image-model sketchnotes: no mascots/character art, no faked organic misalignment; crisp layout with a hand-drawn surface.
+- **Font strategy: subset, don't bundle.** The font is downloaded at render time and subset to the glyphs actually used (`pyftsubset`, when `fonttools` is available) — the example SVG is ~99 KB instead of ~4 MB full-embed. Full embed remains a documented fallback with a size warning; the font file is not vendored into the repo (OFL notice recorded per example).
+- **New example (13th): `incident-response-sketch`** — an incident-response loop (detect → triage → respond → recover → retro, minor-issue branch to the backlog, prevention loop back) in English + Korean with identical geometry, subset-embedded handwriting, and the prompts included.
+- **Boundary update:** hand-drawn/sketchnote styles move from "not for" to **supported as the opt-in sketch preset**; mascots, character art, and scene illustration remain out of scope. Frontmatter description, skill/root/gallery READMEs (EN/KO), and install docs updated accordingly.
+- Sketch-specific rules hardened from dogfooding this release: icon–label group **containment clamp**, annotation clearance vs long loop edges, highlighter as underline (not a block), subset-gotcha (re-subset after any text edit) added to the verify list.
+
 ## [0.2.0] — 2026-07-10
 
 ### svg-infographic

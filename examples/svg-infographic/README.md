@@ -8,7 +8,7 @@ Every example is originally authored, synthetic, non-client, and non-confidentia
 
 ![svg-infographic gallery preview](./gallery-preview.en.png)
 
-_The preview above is a curated six-example montage; all twelve examples are listed below._
+_The preview above is a curated six-example montage; all thirteen examples are listed below._
 
 ## Gallery
 
@@ -121,6 +121,17 @@ dashed cross-lane arrows (alert down, one-click approval up).
 
 → [`agent-waiting-swimlane/`](./agent-waiting-swimlane) · English + 한국어
 
+### 13. Incident response loop — sketch preset
+
+The first **sketch preset** example ("tidy hand-drawn"): paper background,
+subset-embedded Korean handwriting font, rough strokes, underline highlighter —
+with the layout still computed. A detect → triage → respond → recover → retro
+loop with a minor-issue branch to the backlog.
+
+[![Incident response loop, sketch preset](./incident-response-sketch/incident-response-sketch.en.png)](./incident-response-sketch)
+
+→ [`incident-response-sketch/`](./incident-response-sketch) · English + 한국어
+
 ## Quality bar (every example passes)
 
 - [x] SVG and PNG dimensions match (PNG is exactly 2× the SVG viewBox)
@@ -132,14 +143,14 @@ dashed cross-lane arrows (alert down, one-click approval up).
 
 ## Render smoke test (per OS)
 
-The bundled [`scripts/render.sh`](../../skills/svg-infographic/scripts/render.sh) discovers a Chromium-based browser (macOS, Linux, and Windows Git Bash paths) and verifies the exported PNG dimensions; manual per-OS commands, including native PowerShell, are in [`references/authoring.md`](../../skills/svg-infographic/references/authoring.md) §8. So far, PNG export has been smoke-tested on macOS (all twelve examples); Windows/Linux render verification is still pending.
+The bundled [`scripts/render.sh`](../../skills/svg-infographic/scripts/render.sh) discovers a Chromium-based browser (macOS, Linux, and Windows Git Bash paths) and verifies the exported PNG dimensions; manual per-OS commands, including native PowerShell, are in [`references/authoring.md`](../../skills/svg-infographic/references/authoring.md) §8. So far, PNG export has been smoke-tested on macOS (all thirteen examples); Windows/Linux render verification is still pending.
 
 | Environment | Browser | en/ko SVG → 2× PNG | Status |
 | --- | --- | --- | --- |
-| macOS 15 | Chrome (headless) | all 12 examples | ✅ verified — correct 2× dimensions, no tofu |
+| macOS 15 | Chrome (headless) | all 13 examples | ✅ verified — correct 2× dimensions, no tofu |
 | Windows 10/11 | Chrome / Edge | script (Git Bash) + documented manual path | ⏳ expected; render verification pending |
 | Linux / WSL | Chrome / Chromium | script + documented manual path | ⏳ expected; render verification pending (install Noto Sans CJK/KR for Korean) |
 
 ## Scope
 
-Flat, structural technical diagrams only. Hand-drawn / crayon "sketchnote" styles, mascots, and character illustration are **out of scope** — keeping that line is what keeps the output consistent.
+Flat, structural technical diagrams, plus the opt-in **sketch preset** ("tidy hand-drawn" — hand-drawn surface, computed layout). Mascots, character art, and scene illustration remain **out of scope** — keeping that line is what keeps the output consistent.
