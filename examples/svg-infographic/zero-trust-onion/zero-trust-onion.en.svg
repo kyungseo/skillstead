@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" width="1400" height="900" role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>Zero Trust: Every Layer Verifies, Nothing Inherits Trust</title>
+  <desc>Nested onion model of zero-trust access: network edge, identity, device and workload rings around a least-privilege data core. Trust is established per request at each ring; reaching the network grants nothing.</desc>
+  <style>
+    svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#D6E0EC; --primary:#1F6FB2;
+      --r1-fill:#F3F7FB; --r1-line:#B9CCDF; --r1-ink:#4A6787;
+      --r2-fill:#E8F1FB; --r2-line:#1F6FB2; --r2-ink:#124267;
+      --r3-fill:#ECEBFB; --r3-line:#534AB7; --r3-ink:#3C3489;
+      --core-fill:#DFF2E9; --core-line:#0F7A5F; --core-ink:#085041; }
+    .on-accent{ fill:#FFFFFF }
+  </style>
+  <defs>
+    <symbol id="ic-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <filter id="soft" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#0F3D2E" flood-opacity="0.14"/>
+    </filter>
+  </defs>
+
+  <rect width="1400" height="900" fill="var(--bg)"/>
+
+  <!-- header -->
+  <rect x="48" y="52" width="6" height="64" rx="3" fill="var(--primary)"/>
+  <text x="72" y="90" font-size="40" font-weight="800" fill="var(--ink)">Zero Trust: Every Layer Verifies, Nothing Inherits Trust</text>
+  <text x="72" y="126" font-size="17" fill="var(--muted)">Trust is established per request at each ring — reaching the network buys nothing</text>
+
+  <!-- ring 1 · network edge -->
+  <rect x="250" y="185" width="900" height="645" rx="26" fill="var(--r1-fill)" stroke="var(--r1-line)" stroke-width="1"/>
+  <text x="700" y="217" font-size="21" font-weight="700" fill="var(--r1-ink)" text-anchor="middle" dominant-baseline="central">Network edge — reachability grants nothing</text>
+
+  <!-- ring 2 · identity -->
+  <rect x="315" y="250" width="770" height="515" rx="22" fill="var(--r2-fill)" stroke="var(--r2-line)" stroke-width="1"/>
+  <text x="700" y="282" font-size="21" font-weight="700" fill="var(--r2-ink)" text-anchor="middle" dominant-baseline="central">Identity &amp; access — authenticate every request</text>
+
+  <!-- ring 3 · device & workload -->
+  <rect x="380" y="315" width="640" height="385" rx="18" fill="var(--r3-fill)" stroke="var(--r3-line)" stroke-width="1"/>
+  <text x="700" y="347" font-size="21" font-weight="700" fill="var(--r3-ink)" text-anchor="middle" dominant-baseline="central">Device &amp; workload — posture checked continuously</text>
+
+  <!-- core · data -->
+  <rect x="445" y="380" width="510" height="255" rx="16" fill="var(--core-fill)" stroke="var(--core-line)" stroke-width="2" filter="url(#soft)"/>
+  <circle cx="700" cy="473" r="36" fill="#FFFFFF"/>
+  <use href="#ic-shield" x="680" y="453" width="40" height="40" style="color:#0F7A5F"/>
+  <text x="700" y="538" font-size="26" font-weight="800" fill="var(--core-ink)" text-anchor="middle" dominant-baseline="central">Data</text>
+  <text x="700" y="568" font-size="17" fill="var(--core-ink)" text-anchor="middle" dominant-baseline="central">least-privilege by default</text>
+
+  <!-- footer rule of thumb -->
+  <rect x="300" y="850" width="800" height="34" rx="17" fill="#F1F4F8"/>
+  <text x="700" y="867" font-size="15" fill="var(--muted)" text-anchor="middle" dominant-baseline="central">Verify explicitly at every ring · assume breach · grant least privilege</text>
+</svg>

@@ -4,7 +4,7 @@
 
 Create flat, structured technical visuals for agentic coding workflows: architecture diagrams, cloud topologies, process flows, before/after comparisons, roadmaps, and share-ready infographics. The current package is authored for Claude Code.
 
-The skill writes an editable SVG first, then exports a crisp 2x PNG when a Chromium-based browser is available.
+The skill computes the layout first (a required numeric layout pass — grid arithmetic and per-box text budgets before any drawing), writes an editable SVG, self-checks the source against a pre-render checklist, then exports a crisp 2x PNG with a bundled render script that verifies the output dimensions. The goal is a first render that passes review, not a render-and-fix loop.
 
 ## Best For
 
@@ -13,6 +13,33 @@ The skill writes an editable SVG first, then exports a crisp 2x PNG when a Chrom
 - Migration or modernization before/after visuals
 - Process, data, or request-path flows
 - Korean/CJK diagrams that must render correctly
+
+## How It Works
+
+The skill follows a fixed five-step workflow designed so the **first render passes review**:
+
+1. **Preflight** — confirms intent, audience, ratio, and language; shows the defaults you can change; proposes an output directory before writing anything.
+2. **Archetype** — picks the diagram shape from your content (see the table below) and loads that archetype's layout skeleton, premium recipe, and failure checks.
+3. **Layout pass** — fixes the canvas regions, card grid, and per-box text budgets *numerically* before drawing. Copy that won't fit its box is shortened here — not after a broken render.
+4. **Author + self-check** — writes the SVG from the computed numbers, then runs a mechanical pre-render checklist on the source (containment arithmetic, icon/arrow references, contrast classes, EN/KO geometry parity).
+5. **Render + verify** — exports a 2× PNG via the bundled `scripts/render.sh`, which also verifies the PNG dimensions, then reviews the pixels against a quality bar (rendering, containment, message).
+
+You don't need to know any of this to use the skill — but it explains what the skill tells you at each step, and why the output tends to be right the first time.
+
+## Supported Archetypes
+
+| You describe | The skill draws |
+| --- | --- |
+| systems/components and their links | Topology / component diagram |
+| ordered steps or handoffs | Process flow (swimlane variant for parallel tracks) |
+| a simple request path with an approval gate | Approval / sequence-lite |
+| options, trade-offs, qualitative scoring | Decision / risk matrix, or cards |
+| old vs new | Before / after panels |
+| layered capability or containment | Layer stack, or nested "onion" model |
+| time, phases, milestones | Roadmap / timeline |
+| a few headline items or numbers | Icon cards / KPI grid (not a chart) |
+
+Each archetype ships with a layout skeleton, a premium visual recipe, and its own checks in [`references/archetypes.md`](./references/archetypes.md). If your content fits none of them, the skill says so instead of forcing a shape.
 
 ## Example Prompts
 
@@ -111,9 +138,10 @@ The skill proposes an output directory inside your current project before writin
 
 ## Review Before Handoff
 
-The skill checks the output on two axes, not just rendering:
+The skill checks the output at three stages, not just at the end:
 
-- **Rendering** — no text overflow, correct Korean/CJK glyphs (no tofu), SVG and PNG dimensions match (PNG is 2×), icons render, and the SVG stays editable.
+- **Pre-render (source)** — containment arithmetic re-checked, every icon/marker reference resolves, text within its planned budget, contrast classes on accent fills, EN/KO variants share the same geometry formulas.
+- **Rendering (PNG)** — no text overflow, correct Korean/CJK glyphs (no tofu), PNG dimensions verified as exactly 2× (automated by the render script), icons render, and the SVG stays editable.
 - **Message** — the archetype fits the content, there is one clear reading order, the title carries the conclusion, text density stays low per box, and the depth and language fit your audience.
 
 For a busy architecture or flow diagram, the skill can normalize node placement into zones to reduce crossings — an optional layout aid, not a required format.
@@ -133,10 +161,16 @@ Before drawing, the skill tells you these defaults and gives you a chance to cha
 
 ## Install
 
-Copy this Claude Code package into a skills directory — either **global** (`~/.claude/skills/`, available in all your projects) or **project** (`.claude/skills/` in a repo, so your team gets it on clone):
+Copy this Claude Code package into a skills directory — either **global** (`~/.claude/skills/`, available in all your projects) or **project** (`.claude/skills/` in a repo, so your team gets it on clone). The skill is a multi-file package; copy the whole folder:
 
 ```text
-<skills-dir>/svg-infographic/SKILL.md
+<skills-dir>/svg-infographic/
+├── SKILL.md                  # core workflow (entry point)
+├── references/
+│   ├── archetypes.md         # archetype catalog: skeletons, premium recipe, checks
+│   └── authoring.md          # detailed rules, icon set, manual render fallback
+└── scripts/
+    └── render.sh             # SVG → 2× PNG render + dimension verification
 ```
 
 GitHub install commands (global and project scope) for macOS, Linux, and Windows are in [../../docs/INSTALL.md](../../docs/INSTALL.md).

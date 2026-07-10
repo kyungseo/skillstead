@@ -15,7 +15,7 @@ The first release supports Claude Code. The first skill, [`svg-infographic`](./s
 
 Claude can make good visuals in chat, but Claude Code works inside a repository, where a useful diagram needs to become an actual asset. You want an SVG that drops straight into docs and HTML pages and is easy to reuse in PPTX/slide workflows, plus a PNG preview/export when you need a share image.
 
-`svg-infographic` gives the agent a focused workflow for those assets. It keeps the output flat, structured, source-controlled, and checked so Korean/CJK text does not fall apart at render time.
+`svg-infographic` gives the agent a focused workflow for those assets. It computes the layout numerically before drawing, self-checks the SVG source before rendering, and verifies the exported PNG dimensions — so the first render usually passes review. The output stays flat, structured, source-controlled, and Korean/CJK-safe.
 
 ## What You Can Create
 
@@ -29,7 +29,7 @@ Claude can make good visuals in chat, but Claude Code works inside a repository,
 | Decision and priority matrices | 2×2 quadrant maps, scope/uncertainty grids, trade-off views |
 | Korean-ready visual assets | CJK-safe SVG for docs, HTML, and slide decks; PNG for previews and social posts |
 
-See the full [example gallery](./examples/svg-infographic) for ten examples across several archetypes — architecture, migration, workflow, decision matrix, CI/CD promotion, approval flow, and more — in English and Korean, with the prompts that produced them. The preview above is a curated six-example montage.
+See the full [example gallery](./examples/svg-infographic) for twelve examples across the supported archetypes — architecture, migration, workflow, swimlane, onion model, decision matrix, CI/CD promotion, approval flow, and more — in English and Korean, with the prompts that produced them. The preview above is a curated six-example montage.
 
 ## Quick Start
 
@@ -68,7 +68,7 @@ Starting with one practical skill. More skills can be added when they meet the s
 
 | Skill | Supported runtime | Status | What it does |
 | --- | --- | --- | --- |
-| [`svg-infographic`](./skills/svg-infographic) | Claude Code | Beta | Creates flat, structured SVG infographics and exports PNGs. |
+| [`svg-infographic`](./skills/svg-infographic) | Claude Code | Beta | Creates flat, structured SVG infographics with a compute-first layout workflow, then exports dimension-verified 2× PNGs. |
 
 ## Quality Bar
 
