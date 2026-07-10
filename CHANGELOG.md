@@ -4,6 +4,22 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## [0.2.0] — 2026-07-10
+
+### svg-infographic
+
+- **Multi-file package.** The skill grows from a single `SKILL.md` into a package — `SKILL.md` (core workflow) + `references/archetypes.md` (archetype catalog) + `references/authoring.md` (detailed rules, icon set, manual render fallback) + `scripts/render.sh`. Install stays the same folder copy.
+- **Layout pass — compute before you draw (new, required).** Canvas regions, grid arithmetic (last-edge formula applied *before* drawing), and per-box text budgets are fixed numerically before any SVG is written. This targets the render-and-fix loop at its source.
+- **Pre-render checklist (new).** A mechanical source-level self-check before every render: containment arithmetic, `<use>`/`marker` reference resolution, text budgets, on-accent contrast classes, EN/KO geometry parity, root sanity.
+- **Archetype catalog systematized.** Nine archetypes under one schema — choose-when signal, layout skeleton (wireframe), premium recipe, per-type checks: layer stack, nested/onion, topology/component, flow (+ swimlane variant), approval/sequence-lite, before/after, roadmap/timeline, cards/KPI grid, decision/risk matrix. The v0.1.1 premium visual language (band containers, pill section headers, white icon cards, badge system, footer summary cards) is now the documented default recipe.
+- **`scripts/render.sh`.** One command for browser discovery (Chrome/Edge/Chromium — macOS, Linux, and Windows Git Bash paths with `cygpath` URL handling), wrapper generation, 2× headless render, and automatic PNG dimension verification. Manual per-OS commands (incl. native PowerShell) remain documented as fallback; Windows/Linux render verification is still pending.
+- **Authoring rules reorganized by principle** (containment, text, connectors, panels, emphasis/corner decorations, color/contrast, icons) — all v0.1.x failure-prevention rules preserved, now grouped for use while authoring instead of appended as incident notes.
+- **Sketch-style spike (Tier 2 groundwork):** verified in headless Chrome — OFL Korean handwriting font (Nanum Pen Script) embedded as a base64 data URI renders cleanly at 30–60px with mixed EN/KO, and `feTurbulence`/`feDisplacementMap` rough borders + highlighter strips work. A hand-drawn preset remains out of scope for this release (font subsetting required before productizing; full TTF embed is ~4MB of SVG source).
+- **Two new examples — the v0.2.0 dogfood outputs, example count 10 → 12.** Both were generated fresh with the hardened workflow and passed the quality bar on the first render (English + Korean with identical geometry, source SVG + 2× PNG, prompt and provenance included):
+  - `zero-trust-onion` — a nested/onion model of zero-trust access rings around a least-privilege data core.
+  - `agent-waiting-swimlane` — a two-lane swimlane (agent states / user actions) with labelled cross-lane alert and approval arrows.
+- **Docs:** skill README (EN/KO) gains a five-step "How It Works" walkthrough and a "Supported Archetypes" table; the three-stage review (pre-render source check → PNG verify → message) replaces the old two-axis description; install docs show the multi-file package layout; root README and gallery (EN/KO) updated for twelve examples; `docs/INSTALL.md` updated for v0.2.0.
+
 ## [0.1.2] — 2026-07-10
 
 ### Repository

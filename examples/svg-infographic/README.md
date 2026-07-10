@@ -8,7 +8,7 @@ Every example is originally authored, synthetic, non-client, and non-confidentia
 
 ![svg-infographic gallery preview](./gallery-preview.en.png)
 
-_The preview above is a curated six-example montage; all ten examples are listed below._
+_The preview above is a curated six-example montage; all twelve examples are listed below._
 
 ## Gallery
 
@@ -101,6 +101,26 @@ transition.
 
 → [`issue-tracker-cicd-approval-flow/`](./issue-tracker-cicd-approval-flow) · English + 한국어
 
+### 11. Zero trust onion model
+
+Nested/onion archetype: four concentric rings with a uniform computed inset,
+light-to-saturated color progression, ring labels in each ring's top strip, and
+an emphasized least-privilege data core.
+
+[![Zero trust onion model](./zero-trust-onion/zero-trust-onion.en.png)](./zero-trust-onion)
+
+→ [`zero-trust-onion/`](./zero-trust-onion) · English + 한국어
+
+### 12. Agent waiting-alert swimlane
+
+Flow archetype, swimlane variant: agent session states and user actions in two
+lanes with aligned stage columns, an emphasized "waiting" step, and labelled
+dashed cross-lane arrows (alert down, one-click approval up).
+
+[![Agent waiting-alert swimlane](./agent-waiting-swimlane/agent-waiting-swimlane.en.png)](./agent-waiting-swimlane)
+
+→ [`agent-waiting-swimlane/`](./agent-waiting-swimlane) · English + 한국어
+
 ## Quality bar (every example passes)
 
 - [x] SVG and PNG dimensions match (PNG is exactly 2× the SVG viewBox)
@@ -112,13 +132,13 @@ transition.
 
 ## Render smoke test (per OS)
 
-Windows and Linux install paths are documented in [`SKILL.md`](../../skills/svg-infographic/SKILL.md) §6 and are expected to work with Chrome/Edge/Chromium. So far, PNG export has been smoke-tested on macOS (all ten examples); Windows/Linux render verification is still pending.
+The bundled [`scripts/render.sh`](../../skills/svg-infographic/scripts/render.sh) discovers a Chromium-based browser (macOS, Linux, and Windows Git Bash paths) and verifies the exported PNG dimensions; manual per-OS commands, including native PowerShell, are in [`references/authoring.md`](../../skills/svg-infographic/references/authoring.md) §8. So far, PNG export has been smoke-tested on macOS (all twelve examples); Windows/Linux render verification is still pending.
 
 | Environment | Browser | en/ko SVG → 2× PNG | Status |
 | --- | --- | --- | --- |
-| macOS 15 | Chrome (headless) | all 10 examples | ✅ verified — correct 2× dimensions, no tofu |
-| Windows 10/11 | Chrome / Edge | documented path | ⏳ expected; render verification pending |
-| Linux / WSL | Chrome / Chromium | documented path | ⏳ expected; render verification pending (install Noto Sans CJK/KR for Korean) |
+| macOS 15 | Chrome (headless) | all 12 examples | ✅ verified — correct 2× dimensions, no tofu |
+| Windows 10/11 | Chrome / Edge | script (Git Bash) + documented manual path | ⏳ expected; render verification pending |
+| Linux / WSL | Chrome / Chromium | script + documented manual path | ⏳ expected; render verification pending (install Noto Sans CJK/KR for Korean) |
 
 ## Scope
 
