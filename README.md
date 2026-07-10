@@ -1,6 +1,6 @@
-<!-- 한국어: [README.ko.md](./README.ko.md) -->
-
 # Skillstead
+
+**English** · [한국어](./README.ko.md)
 
 Practical, portable skills for agentic coding workflows.
 

@@ -1,6 +1,6 @@
-<!-- English: [README.md](./README.md) -->
-
 # 예제 — svg-infographic
+
+[English](./README.md) · **한국어**
 
 [`svg-infographic`](../../skills/svg-infographic) skill의 실제 산출물입니다. 각 예제는 flat하고 구조적인 시각 자료로, 원본 SVG + 2× PNG를 영문·한글 두 본과 생성 프롬프트와 함께 제공합니다.
 

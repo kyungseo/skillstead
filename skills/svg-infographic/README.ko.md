@@ -1,6 +1,6 @@
-<!-- English: [README.md](./README.md) -->
-
 # svg-infographic
+
+[English](./README.md) · **한국어**
 
 Agentic coding workflow에서 쓰는 flat하고 구조적인 기술 시각 자료를 만듭니다. 아키텍처 다이어그램, 클라우드 토폴로지, 프로세스 플로우, Before / After 비교, 로드맵, 공유용 인포그래픽에 맞춰져 있습니다. 현재 package는 Claude Code용으로 작성되어 있습니다.
 
