@@ -70,7 +70,7 @@ svg-infographic으로 이 before/after 마이그레이션 계획을 슬라이드
 
 | Skill | 지원 runtime | Status | 설명 |
 | --- | --- | --- | --- |
-| [`svg-infographic`](./skills/svg-infographic) | Claude Code | Beta | layout을 먼저 계산하는 compute-first workflow로 flat하고 구조적인 SVG 인포그래픽을 만들고, 치수 검증된 2× PNG로 export합니다. |
+| [`svg-infographic`](./skills/svg-infographic) | Claude Code | Stable | layout을 먼저 계산하는 compute-first workflow로 flat하고 구조적인 SVG 인포그래픽을 만들고, 치수 검증된 2× PNG로 export합니다. |
 
 ## 품질 기준
 

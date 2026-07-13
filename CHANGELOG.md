@@ -8,6 +8,7 @@ Granular, per-change entries begin at the first public release. Earlier developm
 
 ### svg-infographic
 
+- **Maturity: Stable.** The skill catalog status graduates from Beta after fourteen bilingual examples, multiple iterative public releases, compute-first layout and pre-render checks, dimension-verified 2× export, and an opt-in sketch preset. This is a skill-contract maturity label, not a platform-verification claim: macOS rendering is verified; Windows/Linux render verification remains pending.
 - **New example (14th): `agent-system-sketch`.** A tidy hand-drawn component map showing an Orchestrator connected to Context, Memory, Tools, Guardrails, and Evaluation, with a feedback edge from evaluation back to the center. English + Korean use identical geometry, subset-embedded Nanum Pen Script, editable SVG, and 2× PNG.
 - **Gallery preview recuration.** The root preview now uses two large sketch heroes (`incident-response-sketch`, `agent-system-sketch`) above four structurally distinct supporting examples (`zero-trust-onion`, `agent-waiting-swimlane`, `cloud-infra-topology`, `agent-task-matrix`). The previous fixed 3×2 treatment is replaced by an editorial 2-hero + 4-supporting composition in EN/KO.
 
