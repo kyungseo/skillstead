@@ -8,7 +8,7 @@ Every example is originally authored, synthetic, non-client, and non-confidentia
 
 ![svg-infographic gallery preview](./gallery-preview.en.png)
 
-_The preview above is a curated six-example montage; all thirteen examples are listed below._
+_The preview above is a curated six-example montage with two sketch heroes; all fourteen examples are listed below._
 
 ## Gallery
 
@@ -132,6 +132,17 @@ loop with a minor-issue branch to the backlog.
 
 → [`incident-response-sketch/`](./incident-response-sketch) · English + 한국어
 
+### 14. Agent system map — sketch preset
+
+A **sketch preset** component architecture: Context, Memory, and Tools feed a
+central Orchestrator; Guardrails and Evaluation sit below, with evaluation
+feeding corrections back into the loop. It shows that the tidy hand-drawn
+surface works beyond process flows while the topology stays computed.
+
+[![Agent system map, sketch preset](./agent-system-sketch/agent-system-sketch.en.png)](./agent-system-sketch)
+
+→ [`agent-system-sketch/`](./agent-system-sketch) · English + 한국어
+
 ## Quality bar (every example passes)
 
 - [x] SVG and PNG dimensions match (PNG is exactly 2× the SVG viewBox)
@@ -143,11 +154,11 @@ loop with a minor-issue branch to the backlog.
 
 ## Render smoke test (per OS)
 
-The bundled [`scripts/render.sh`](../../skills/svg-infographic/scripts/render.sh) discovers a Chromium-based browser (macOS, Linux, and Windows Git Bash paths) and verifies the exported PNG dimensions; manual per-OS commands, including native PowerShell, are in [`references/authoring.md`](../../skills/svg-infographic/references/authoring.md) §8. So far, PNG export has been smoke-tested on macOS (all thirteen examples); Windows/Linux render verification is still pending.
+The bundled [`scripts/render.sh`](../../skills/svg-infographic/scripts/render.sh) discovers a Chromium-based browser (macOS, Linux, and Windows Git Bash paths) and verifies the exported PNG dimensions; manual per-OS commands, including native PowerShell, are in [`references/authoring.md`](../../skills/svg-infographic/references/authoring.md) §8. So far, PNG export has been smoke-tested on macOS (all fourteen examples); Windows/Linux render verification is still pending.
 
 | Environment | Browser | en/ko SVG → 2× PNG | Status |
 | --- | --- | --- | --- |
-| macOS 15 | Chrome (headless) | all 13 examples | ✅ verified — correct 2× dimensions, no tofu |
+| macOS 15 | Chrome (headless) | all 14 examples | ✅ verified — correct 2× dimensions, no tofu |
 | Windows 10/11 | Chrome / Edge | script (Git Bash) + documented manual path | ⏳ expected; render verification pending |
 | Linux / WSL | Chrome / Chromium | script + documented manual path | ⏳ expected; render verification pending (install Noto Sans CJK/KR for Korean) |
 

@@ -29,7 +29,7 @@ Claude can make good visuals in chat, but Claude Code works inside a repository,
 | Decision and priority matrices | 2×2 quadrant maps, scope/uncertainty grids, trade-off views |
 | Korean-ready visual assets | CJK-safe SVG for docs, HTML, and slide decks; PNG for previews and social posts |
 
-See the full [example gallery](./examples/svg-infographic) for thirteen examples across the supported archetypes — architecture, migration, workflow, swimlane, onion model, decision matrix, CI/CD promotion, approval flow, a hand-drawn sketch note, and more — in English and Korean, with the prompts that produced them. The preview above is a curated six-example montage.
+See the full [example gallery](./examples/svg-infographic) for fourteen examples across the supported archetypes — architecture, migration, workflow, swimlane, onion model, decision matrix, CI/CD promotion, approval flow, two hand-drawn sketch notes, and more — in English and Korean, with the prompts that produced them. The preview above is a curated six-example montage with the two sketch examples as heroes.
 
 ## Quick Start
 
