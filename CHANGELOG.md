@@ -4,6 +4,13 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## [0.3.1] — 2026-07-13
+
+### svg-infographic
+
+- **New example (14th): `agent-system-sketch`.** A tidy hand-drawn component map showing an Orchestrator connected to Context, Memory, Tools, Guardrails, and Evaluation, with a feedback edge from evaluation back to the center. English + Korean use identical geometry, subset-embedded Nanum Pen Script, editable SVG, and 2× PNG.
+- **Gallery preview recuration.** The root preview now uses two large sketch heroes (`incident-response-sketch`, `agent-system-sketch`) above four structurally distinct supporting examples (`zero-trust-onion`, `agent-waiting-swimlane`, `cloud-infra-topology`, `agent-task-matrix`). The previous fixed 3×2 treatment is replaced by an editorial 2-hero + 4-supporting composition in EN/KO.
+
 ## [0.3.0] — 2026-07-11
 
 ### svg-infographic
