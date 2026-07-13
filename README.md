@@ -68,7 +68,7 @@ Starting with one practical skill. More skills can be added when they meet the s
 
 | Skill | Supported runtime | Status | What it does |
 | --- | --- | --- | --- |
-| [`svg-infographic`](./skills/svg-infographic) | Claude Code | Beta | Creates flat, structured SVG infographics with a compute-first layout workflow, then exports dimension-verified 2× PNGs. |
+| [`svg-infographic`](./skills/svg-infographic) | Claude Code | Stable | Creates flat, structured SVG infographics with a compute-first layout workflow, then exports dimension-verified 2× PNGs. |
 
 ## Quality Bar
 
