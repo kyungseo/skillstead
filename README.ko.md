@@ -66,15 +66,16 @@ svg-infographic으로 이 before/after 마이그레이션 계획을 슬라이드
 
 ## Skill 목록
 
-현재는 검증된 첫 skill부터 시작합니다. 같은 수준의 evidence와 example 품질 기준을 만족하는 skill만 추가합니다.
+현재 카탈로그는 skill 2개를 제공합니다. 같은 수준의 evidence와 example 품질 기준을 만족하는 skill만 추가합니다.
 
 | Skill | 지원 runtime | Status | 설명 |
 | --- | --- | --- | --- |
 | [`svg-infographic`](./skills/svg-infographic) | Claude Code | Stable | layout을 먼저 계산하는 compute-first workflow로 flat하고 구조적인 SVG 인포그래픽을 만들고, 치수 검증된 2× PNG로 export합니다. |
+| [`docs-claim-check`](./skills/docs-claim-check) | Claude Code | Beta | 공개 문서의 claim을 사용자가 제공한 evidence와 대조해 atomic claim마다 verified / unsupported / stale-suspected / needs-human label과 input-scope 명시를 산출합니다. advisory 전용 — 계약상 명령을 실행하지 않고 수정문을 생성하지 않습니다. |
 
 ## 품질 기준
 
-포함된 예제는 모두 직접 만든 synthetic, non-client 예제입니다. 각 예제는 SVG + 2× PNG로 제공되고 다음을 확인합니다:
+포함된 예제는 모두 직접 만든 synthetic, non-client 예제입니다. `svg-infographic` 예제는 SVG + 2× PNG로 제공되고 다음을 확인합니다:
 
 - 텍스트 넘침 없음
 - 한국어/CJK 글자 깨짐 없음

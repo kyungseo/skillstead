@@ -1,0 +1,9 @@
+# vitest run --reporter=verbose (CI capture, 2026-05-28, linux runner)
+✓ src/commands/run.test.ts (12 tests)
+✓ src/commands/list.test.ts (6 tests)
+✓ src/core/scheduler.test.ts (9 tests)
+
+Test Files  3 passed (3)
+     Tests  27 passed (27)
+
+# note: commands present in src/commands/: run, list, watch, init

@@ -4,6 +4,23 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## [0.4.0] — 2026-07-14
+
+### docs-claim-check (new skill, Beta)
+
+- **New skill: `docs-claim-check`.** Checks whether the claims in public-facing documentation — READMEs, release notes, install/usage docs — are supported by the evidence the user provides (manifests, logs, tag lists, CI output, user-run command output). Advisory only: its behavioral contract prohibits command execution during an assessment and the generation of fixes or replacement text; it does not substitute for code review. These are procedural guardrails, not technical sandbox enforcement.
+- **Per-claim confidence contract.** Composite statements are split into atomic claims; each claim gets exactly one label — `verified` / `unsupported` (with a reason: `missing-evidence` / `contradicted` / `insufficient-coverage`) / `stale-suspected` / `needs-human` — via a fixed decision tree. `verified` requires the claimed outcome to be directly observed in the evidence, and is always scoped to the reviewed input.
+- **Auditable output format.** Every claim-assessment output begins with an **Input Scope Reviewed** section (documents, reviewed evidence with available version/timestamp context, requested-but-missing evidence, exclusions with reasons, a literal `Commands executed during the assessment: none` line, and claim-coverage counts) and ends with fixed Boundary Notes. This keeps the intended scope of `verified` explicit and auditable.
+- **Contract test material.** `examples/docs-claim-check/` ships a fully synthetic fixture set ("AcmeTask", a fictitious product) covering every label, every `unsupported` reason, composite-claim splitting, and all three boundary refusals, plus a worked example output and an answer key for contract verification.
+- **Beta model validation.** Contract fixtures passed on Claude Code with Fable and Sonnet (2026-07-14). Row decomposition and coverage bookkeeping may vary by model; material claim coverage, label semantics, evidence boundaries, and output-contract compliance are the compatibility criteria.
+- Bilingual skill READMEs (EN/KO), root catalog row, and install docs included.
+
+### Install docs
+
+- The manual-install tree for `svg-infographic` now lists the skill's `README.md`/`README.ko.md` (previously omitted).
+- The Update section documents the `cp -R` merge behavior (files removed upstream may remain) and the clean-update path.
+- Clarified that any skill present in the checked-out ref installs the same way, and that a pinned tag contains only the skills that existed at that tag.
+
 ## [0.3.1] — 2026-07-13
 
 ### svg-infographic
