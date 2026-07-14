@@ -11,6 +11,8 @@ A Claude Code skill is a folder that Claude Code loads. Install = copy the folde
 
 Both use the same **clone + copy** method below (recommended over `curl \| bash` — running a remote script from a public repo is a trust barrier). Restart Claude Code if the skill does not appear, then invoke it by name or ask for a matching task.
 
+The commands below use `svg-infographic` as the example. Any other skill present in the checked-out ref installs the same way — replace the folder name in the copy step. Note that the catalog can differ per ref: a pinned tag contains only the skills that existed at that tag.
+
 ## Global install (all your projects)
 
 **macOS / Linux:**

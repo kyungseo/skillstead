@@ -69,10 +69,11 @@ Starting with one practical skill. More skills can be added when they meet the s
 | Skill | Supported runtime | Status | What it does |
 | --- | --- | --- | --- |
 | [`svg-infographic`](./skills/svg-infographic) | Claude Code | Stable | Creates flat, structured SVG infographics with a compute-first layout workflow, then exports dimension-verified 2× PNGs. |
+| [`docs-claim-check`](./skills/docs-claim-check) | Claude Code | Beta | Checks public-facing documentation claims against user-provided evidence, labeling each atomic claim verified / unsupported / stale-suspected / needs-human with an explicit input-scope statement. Advisory only — by contract it does not run commands or generate fixes. |
 
 ## Quality Bar
 
-The included examples are synthetic, non-client artifacts. Each ships as SVG + 2x PNG and is checked for:
+The included examples are synthetic, non-client artifacts. `svg-infographic` examples each ship as SVG + 2x PNG and are checked for:
 
 - no text overflow
 - correct Korean/CJK rendering
