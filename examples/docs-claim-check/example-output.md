@@ -30,7 +30,7 @@ is not a real product.
 | C2 | "Requires Node.js 18 or newer" (Requirements) | package.json `engines.node: >=18` | verified | — | valid for manifest v2.4.1 only |
 | C3 | "Works on Linux" (Requirements, split) | ci-test-output.txt (linux runner, suite passed) | verified | — | valid for that CI run's scope; not a full functional guarantee |
 | C4 | "Works on Windows" / "Works on macOS" (Requirements, batch — 2 components) | — | unsupported | missing-evidence | request: CI output on Windows and macOS |
-| C5 | "`npm install -g acmetask-fixture` installs it" (Install) | package.json name (match only) | unsupported | missing-evidence | name match does not prove registry publication; request: `npm view acmetask-fixture version` or install output |
+| C5 | "`npm install -g acmetask-fixture` installs it" (Install) | package.json name (partial anchor — name component only) | unsupported | insufficient-coverage | name match supports a necessary component but not the operational outcome; request: `npm view acmetask-fixture version` or install output |
 | C6 | "Installs in under a minute" (Install, split) | — | unsupported | missing-evidence | request: timestamped install log on a stated machine/network |
 | C7 | "Runs fully offline after the first run" (Install, split) | — | unsupported | missing-evidence | request: run log with network disabled after first run |
 | C8 | "Latest release: v2.3.0" (Status) | release-tags.txt: v2.4.0, v2.4.1 exist | stale-suspected | — | true at v2.3.0 (2025-11-20); newer tags exist (capture 2026-06-02) |

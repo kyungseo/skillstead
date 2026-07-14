@@ -52,6 +52,12 @@ may support claims about the **literal contents** of the documented recipe (what
 commands it lists, what method it describes); it cannot, by itself, verify that the
 recipe executes successfully or produces the claimed outcome.
 
+**Scope metadata collection is part of the assessment.** Do not run commands to
+obtain a ref, hash, timestamp, or file history. Use only user-provided or
+explicitly designated metadata; otherwise omit it or mark it unknown. A command run
+for scope metadata counts as a claim-verification command and conflicts with the
+`Commands executed for claim verification: none` declaration.
+
 ## Preflight
 
 1. **Scope**: use the user-specified range if given; otherwise the whole provided
@@ -78,11 +84,17 @@ recipe executes successfully or produces the claimed outcome.
    Exception: a homogeneous enumeration may remain in one batch row only when every
    component shares the same predicate, evidence anchor, label, reason, and
    limitation. Split it as soon as any component can receive a different judgment.
+   Example: split "Latest release: v2.3.0 (November 2025)" into a freshness/version
+   claim and a release-date claim — the two components can receive different labels.
 3. Subjective or aspirational statements ("blazing fast", "best in class") are either
    excluded from assessment or labeled `needs-human` — never `verified`.
 4. Anchor each atomic claim to the evidence item(s) that could settle it. A claim
    with no possible anchor in the provided evidence still gets assessed (see decision
    tree) — with an evidence request.
+5. **Do not narrow or rewrite a source claim** merely to match the available
+   evidence when doing so removes a material predicate or outcome. A literal
+   subclaim may be assessed additionally, but it must not replace the broader
+   operational claim implied by a documented recipe.
 
 ## Label decision tree
 
@@ -121,6 +133,13 @@ completeness and the evidence shows omitted items, the label is
 For a completeness claim, absence is `contradicted` only when the evidence
 establishes both an exhaustive inventory **and** an explicit mapping to the claimed
 units. If the inventory is exhaustive but the coverage mapping is unknown, use
+`unsupported / insufficient-coverage`. Filename correspondence is **not** an
+explicit coverage mapping: a mapping must state the relationship between each
+claimed unit and its test, or the provided test content/report must demonstrate it.
+
+Evidence is a **partial anchor** only when it affirmatively supports a necessary
+component of the original claim; topical relevance alone is insufficient. When a
+necessary component is supported but the asserted outcome remains unverified, use
 `unsupported / insufficient-coverage`.
 
 ## Output contract
