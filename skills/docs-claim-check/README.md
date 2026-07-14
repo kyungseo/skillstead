@@ -35,6 +35,13 @@ reviewed, what was requested but missing, and a claim coverage count — so a
   asks you for the output instead. In a mixed request it declines only the
   out-of-scope part and still assesses the eligible claims
 
+## Beta model validation
+
+Contract fixtures passed on Claude Code with Fable and Sonnet on 2026-07-14. Exact
+row decomposition and coverage bookkeeping may vary by model; material claim
+coverage, confidence-label semantics, evidence boundaries, and output-contract
+compliance are the compatibility criteria.
+
 ## Try it
 
 See [`examples/docs-claim-check`](../../examples/docs-claim-check) for a synthetic
