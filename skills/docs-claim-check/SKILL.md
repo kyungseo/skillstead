@@ -118,6 +118,11 @@ qualifier to the claim or neutralize contradictory evidence. If the claim implie
 completeness and the evidence shows omitted items, the label is
 `unsupported / contradicted` — not `verified` with a limitation.
 
+For a completeness claim, absence is `contradicted` only when the evidence
+establishes both an exhaustive inventory **and** an explicit mapping to the claimed
+units. If the inventory is exhaustive but the coverage mapping is unknown, use
+`unsupported / insufficient-coverage`.
+
 ## Output contract
 
 Produce exactly these three sections:
@@ -155,7 +160,10 @@ Rules:
   claim), and end at the final Boundary Notes bullet — no extra summary after it.
 - Every row has a label; `unsupported` rows also have a reason; `missing-evidence`
   rows carry the exact evidence request in the last column.
-- The coverage counts must add up against the triage result.
+- The coverage counts must add up against the triage result. Coverage counts
+  **atomic components, not table rows**: a homogeneous batch row contributes the
+  number of components it contains, and grouped Excluded entries likewise count
+  each distinct claim.
 
 ## Refusal cases
 
@@ -168,6 +176,11 @@ Decline, citing the boundary, when asked to:
 
 In a mixed request, decline only the out-of-scope part and proceed with the
 eligible claim assessment.
+
+The three-section schema applies to claim-assessment outputs. A refusal-only
+follow-up may be concise, but it must cite the applicable boundary and preserve the
+prior assessment. A mixed request that includes a new or updated assessment uses
+the full schema.
 
 ## Package map
 
