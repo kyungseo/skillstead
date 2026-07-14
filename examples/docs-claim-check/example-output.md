@@ -19,7 +19,7 @@ is not a real product.
   (C5), timestamped install log (C6), network-isolation run log (C7)
 - Excluded: leading synthetic-fixture disclaimer blockquote — meta notice, not a
   product claim
-- Commands executed for claim verification: none
+- Commands executed during the assessment: none
 - Coverage: 14 claims extracted / 13 assessed / 1 excluded
 
 ## Claim Assessments
@@ -42,6 +42,6 @@ is not a real product.
 ## Boundary Notes
 
 - Labels apply only to the documented input scope and reviewed evidence.
-- No command was executed for claim verification.
+- No command was executed during the assessment.
 - No code-quality or security assessment was performed.
 - No patch or replacement text was generated.

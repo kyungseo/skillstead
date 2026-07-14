@@ -54,9 +54,12 @@ recipe executes successfully or produces the claimed outcome.
 
 **Scope metadata collection is part of the assessment.** Do not run commands to
 obtain a ref, hash, timestamp, or file history. Use only user-provided or
-explicitly designated metadata; otherwise omit it or mark it unknown. A command run
-for scope metadata counts as a claim-verification command and conflicts with the
-`Commands executed for claim verification: none` declaration.
+explicitly designated metadata; otherwise omit it or mark it unknown.
+
+**Do not invoke shell/Bash during the assessment at all** — including no-op,
+progress, bookkeeping, `echo`, `pwd`, `ls`, or metadata commands. Use only host
+read/list operations on explicitly designated paths. Setup completed before the
+skill runs (e.g. installing this skill) is not part of the assessment.
 
 ## Preflight
 
@@ -95,6 +98,10 @@ for scope metadata counts as a claim-verification command and conflicts with the
    evidence when doing so removes a material predicate or outcome. A literal
    subclaim may be assessed additionally, but it must not replace the broader
    operational claim implied by a documented recipe.
+   Example: a documented install command implies an operational claim that the
+   command can install the named package. You may additionally assess whether the
+   literal package name matches a manifest, but that subclaim must not replace the
+   installability claim.
 
 ## Label decision tree
 
@@ -142,6 +149,18 @@ component of the original claim; topical relevance alone is insufficient. When a
 necessary component is supported but the asserted outcome remains unverified, use
 `unsupported / insufficient-coverage`.
 
+**First identify the material outcome asserted by the source claim.** Use
+`verified` when the provided evidence directly records that outcome occurring in
+the claimed environment, limited to the observed scope. Use
+`unsupported / insufficient-coverage` when evidence supports only a prerequisite or
+component but does not record the asserted outcome. A limitation may bound the
+observed environment or test surface, but it must not replace the outcome itself.
+
+Example: a passing CI test run on a Linux runner directly observes execution on
+Linux, so "Works on Linux" may be `verified` with a CI-scope limitation. A matching
+`package.json` name does not observe registry publication or installation, so
+"npm install … installs it" remains `unsupported / insufficient-coverage`.
+
 ## Output contract
 
 Produce exactly these three sections:
@@ -153,7 +172,7 @@ Produce exactly these three sections:
 - Evidence reviewed: <each file/log/command output + version/timestamp>
 - Requested but missing: <evidence asked for and not provided, or "none">
 - Excluded: <sections or claim types excluded, or "none">
-- Commands executed for claim verification: none
+- Commands executed during the assessment: none
 - Coverage: <N> claims extracted / <N> assessed / <N> excluded
 
 ## Claim Assessments
@@ -164,16 +183,16 @@ Produce exactly these three sections:
 ## Boundary Notes
 
 - Labels apply only to the documented input scope and reviewed evidence.
-- No command was executed for claim verification.
+- No command was executed during the assessment.
 - No code-quality or security assessment was performed.
 - No patch or replacement text was generated.
 ```
 
 Rules:
 
-- `Commands executed for claim verification: none` is a literal, mandatory line —
-  setup actions outside the assessment (e.g. installing this skill) are not claim
-  verification, but any command whose output would settle a claim must never be run.
+- `Commands executed during the assessment: none` is a literal, mandatory line —
+  setup completed before the skill runs is not part of the assessment, but during
+  the assessment no shell command may be invoked for any purpose.
 - Begin the output directly with `## Input Scope Reviewed` — emit no preamble.
   Render Claim Assessments as the Markdown table shown above (one row per atomic
   claim), and end at the final Boundary Notes bullet — no extra summary after it.
