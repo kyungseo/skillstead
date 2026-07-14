@@ -1,6 +1,6 @@
 # Install
 
-This page documents the supported Claude Code install path for Skillstead v0.3.1. Skillstead is intended as a portable skill catalog over time, but this release ships a Claude Code package.
+This page documents the supported Claude Code install path for Skillstead v0.4.0. Skillstead is intended as a portable skill catalog over time, but this release ships a Claude Code package.
 
 A Claude Code skill is a folder that Claude Code loads. Install = copy the folder into a skills directory; no remote script is executed. Claude Code reads skills from two places, so pick the scope you want:
 
@@ -58,11 +58,11 @@ Then **commit `.claude/skills/svg-infographic/`** to your repo. Everyone who clo
 Add `--branch <tag>` to any clone above, then copy to the global or project location:
 
 ```bash
-git clone --depth 1 --branch v0.3.1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch v0.4.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 cp -R /tmp/skillstead/skills/svg-infographic ~/.claude/skills/      # or .claude/skills/ for project scope
 ```
 
-A shallow pinned-tag clone may print `refs/tags/v0.3.1 ... is not a commit`. It is harmless; the checkout still lands on the tagged commit.
+A shallow pinned-tag clone may print `refs/tags/v0.4.0 ... is not a commit`. It is harmless; the checkout still lands on the tagged commit.
 
 ## Manual install
 
@@ -71,6 +71,8 @@ If you already have the files locally, copy the whole skill folder into your ski
 ```text
 <claude-skills-dir>/svg-infographic/
 ├── SKILL.md                    # core workflow (entry point)
+├── README.md                   # skill overview (English)
+├── README.ko.md                # skill overview (Korean)
 ├── references/
 │   ├── archetypes.md           # archetype catalog: skeletons, premium recipe, checks
 │   ├── authoring.md            # detailed rules, icon set, manual render fallback
@@ -83,7 +85,7 @@ This doc uses a `<claude-skills-dir>` placeholder instead of a machine-specific 
 
 ## Update
 
-Re-run the install (clone + copy) for the same scope — it overwrites in place. To move to a new pinned version, clone that tag and copy again. For a project install, commit the updated folder.
+Re-run the install (clone + copy) for the same scope — it overwrites in place. Note that `cp -R` merges into an existing folder: files removed upstream may remain locally. For a guaranteed clean update, delete the target skill folder first (see Uninstall) and copy again. To move to a new pinned version, clone that tag and copy again. For a project install, commit the updated folder.
 
 ## Uninstall
 
@@ -104,4 +106,4 @@ PNG export uses a headless Chromium-based browser (Chrome / Edge / Chromium). Th
 
 ## Other Agent Runtimes
 
-Codex / Codex CLI and other agent runtime support is deferred for the first release. Revisit once (1) there is confirmed demand and (2) browser-based PNG export is verified in the target environment.
+Codex / Codex CLI and other agent runtime support remains deferred. Revisit once (1) there is confirmed demand and (2) the target skill's verification requirements are met in that environment (for example, browser-based PNG export for `svg-infographic`).

@@ -66,7 +66,7 @@ svg-infographic으로 이 before/after 마이그레이션 계획을 슬라이드
 
 ## Skill 목록
 
-현재는 검증된 첫 skill부터 시작합니다. 같은 수준의 evidence와 example 품질 기준을 만족하는 skill만 추가합니다.
+현재 카탈로그는 skill 2개를 제공합니다. 같은 수준의 evidence와 example 품질 기준을 만족하는 skill만 추가합니다.
 
 | Skill | 지원 runtime | Status | 설명 |
 | --- | --- | --- | --- |

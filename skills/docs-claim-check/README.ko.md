@@ -15,9 +15,9 @@ manifest, log, tag 목록, CI 출력, 직접 실행한 명령의 출력 — 로 
 | `stale-suspected` | 날짜/version/지원 범위의 시간적 불일치 — 과거엔 맞았을 수 있으나 현재성 미지지 |
 | `needs-human` | 주관적 판단, code review, 명령 실행, 외부 확인이 필요 |
 
-모든 출력은 **input scope** — 어떤 문서·evidence를 검토했고, 무엇을 요청했지만 받지 못했고,
-claim coverage가 몇 건인지 — 를 먼저 명시한다. `verified`가 검토 범위 이상을 의미하는 일이
-없도록 하기 위해서다.
+모든 claim-assessment 출력은 **input scope** — 어떤 문서·evidence를 검토했고,
+무엇을 요청했지만 받지 못했으며, claim coverage가 몇 건인지 — 를 먼저 명시한다.
+이를 통해 `verified`의 적용 범위를 명시적이고 감사 가능하게 유지한다.
 
 ## 이런 때 좋다
 

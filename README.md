@@ -64,7 +64,7 @@ The skill produces:
 
 ## Skill Catalog
 
-Starting with one practical skill. More skills can be added when they meet the same evidence and example bar.
+The catalog currently ships two skills. New skills are added when they meet the same evidence and example bar.
 
 | Skill | Supported runtime | Status | What it does |
 | --- | --- | --- | --- |

@@ -16,9 +16,10 @@ fixed decision tree, producing exactly one confidence label per claim:
 | `stale-suspected` | a date/version/support-window mismatch — likely true once, currency not supported |
 | `needs-human` | requires subjective judgment, code review, command execution, or an external authority |
 
-Every run states its **input scope** up front — what documents and evidence were
-reviewed, what was requested but missing, and a claim coverage count — so a
-`verified` can never quietly mean more than it should.
+Every claim-assessment output begins with its **input scope** — what documents
+and evidence were reviewed, what was requested but missing, and the claim
+coverage count. This keeps the intended scope of `verified` explicit and
+auditable.
 
 ## Best for
 
