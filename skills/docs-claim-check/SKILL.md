@@ -67,8 +67,14 @@ recipe executes successfully or produces the claimed outcome.
 
 1. Extract **objective, checkable claims** from the scoped text (versions, platform
    support, dependencies, licenses, install steps, feature presence, release status).
+   Review the scoped document **section by section**: every objective claim must
+   appear as an assessment row or be explicitly recorded under Excluded with a
+   reason. Coverage counts alone do not establish completeness.
 2. **Split composite claims into atomic claims.** "Installs in under a minute and
    runs fully offline" is two claims. Each atomic claim gets exactly **one** label.
+   Before labeling, run an explicit **atomicity pass**: split a row whenever any
+   component could be supported or contradicted independently — enumerated checks,
+   multiple installation scopes or platforms, and behaviors joined by "and"/"or".
 3. Subjective or aspirational statements ("blazing fast", "best in class") are either
    excluded from assessment or labeled `needs-human` — never `verified`.
 4. Anchor each atomic claim to the evidence item(s) that could settle it. A claim
@@ -141,7 +147,9 @@ Rules:
 - `Commands executed for claim verification: none` is a literal, mandatory line —
   setup actions outside the assessment (e.g. installing this skill) are not claim
   verification, but any command whose output would settle a claim must never be run.
-- The output ends at the Boundary Notes block — no extra summary after it.
+- Begin the output directly with `## Input Scope Reviewed` — emit no preamble.
+  Render Claim Assessments as the Markdown table shown above (one row per atomic
+  claim), and end at the final Boundary Notes bullet — no extra summary after it.
 - Every row has a label; `unsupported` rows also have a reason; `missing-evidence`
   rows carry the exact evidence request in the last column.
 - The coverage counts must add up against the triage result.
