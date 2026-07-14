@@ -75,6 +75,9 @@ recipe executes successfully or produces the claimed outcome.
    Before labeling, run an explicit **atomicity pass**: split a row whenever any
    component could be supported or contradicted independently — enumerated checks,
    multiple installation scopes or platforms, and behaviors joined by "and"/"or".
+   Exception: a homogeneous enumeration may remain in one batch row only when every
+   component shares the same predicate, evidence anchor, label, reason, and
+   limitation. Split it as soon as any component can receive a different judgment.
 3. Subjective or aspirational statements ("blazing fast", "best in class") are either
    excluded from assessment or labeled `needs-human` — never `verified`.
 4. Anchor each atomic claim to the evidence item(s) that could settle it. A claim
