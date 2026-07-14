@@ -18,7 +18,7 @@ is not a real product.
 - Requested but missing: Windows/macOS CI output (C3), timestamped install log (C4a),
   network-isolation run log (C4b)
 - Excluded: none
-- Commands executed: none
+- Commands executed for claim verification: none
 - Coverage: 9 claims extracted / 9 assessed / 0 excluded
 
 ## Claim Assessments
@@ -38,6 +38,6 @@ is not a real product.
 ## Boundary Notes
 
 - Labels apply only to the documented input scope and reviewed evidence.
-- No command was executed.
+- No command was executed for claim verification.
 - No code-quality or security assessment was performed.
 - No patch or replacement text was generated.

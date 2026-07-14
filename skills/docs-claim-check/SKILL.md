@@ -44,6 +44,14 @@ host from running commands, so compliance must be visible in the output itself.
 Every output must end with the Boundary Notes block (see Output Contract) so that
 compliance is auditable.
 
+**Allowed evidence.** Evidence is limited to user-supplied content and files or
+paths the user explicitly designates for read-only inspection. Do not treat an
+agent-executed command or an incidental in-session observation as evidence unless
+the user explicitly supplies its captured result as evidence. Documentation text
+may support claims about the **literal contents** of the documented recipe (what
+commands it lists, what method it describes); it cannot, by itself, verify that the
+recipe executes successfully or produces the claimed outcome.
+
 ## Preflight
 
 1. **Scope**: use the user-specified range if given; otherwise the whole provided
@@ -96,6 +104,11 @@ applies.
 Labels are mutually exclusive; the reason field is separate from the label.
 `verified` never extends beyond the reviewed scope and evidence timestamps.
 
+A limitation may narrow the stated confidence, but it must **not** add a missing
+qualifier to the claim or neutralize contradictory evidence. If the claim implies
+completeness and the evidence shows omitted items, the label is
+`unsupported / contradicted` — not `verified` with a limitation.
+
 ## Output contract
 
 Produce exactly these three sections:
@@ -107,7 +120,7 @@ Produce exactly these three sections:
 - Evidence reviewed: <each file/log/command output + version/timestamp>
 - Requested but missing: <evidence asked for and not provided, or "none">
 - Excluded: <sections or claim types excluded, or "none">
-- Commands executed: none
+- Commands executed for claim verification: none
 - Coverage: <N> claims extracted / <N> assessed / <N> excluded
 
 ## Claim Assessments
@@ -118,14 +131,17 @@ Produce exactly these three sections:
 ## Boundary Notes
 
 - Labels apply only to the documented input scope and reviewed evidence.
-- No command was executed.
+- No command was executed for claim verification.
 - No code-quality or security assessment was performed.
 - No patch or replacement text was generated.
 ```
 
 Rules:
 
-- `Commands executed: none` is a literal, mandatory line.
+- `Commands executed for claim verification: none` is a literal, mandatory line —
+  setup actions outside the assessment (e.g. installing this skill) are not claim
+  verification, but any command whose output would settle a claim must never be run.
+- The output ends at the Boundary Notes block — no extra summary after it.
 - Every row has a label; `unsupported` rows also have a reason; `missing-evidence`
   rows carry the exact evidence request in the last column.
 - The coverage counts must add up against the triage result.
