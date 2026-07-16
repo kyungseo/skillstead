@@ -1,109 +1,156 @@
 # Install
 
-This page documents the supported Claude Code install path for Skillstead v0.4.0. Skillstead is intended as a portable skill catalog over time, but this release ships a Claude Code package.
+Skillstead packages each skill as a portable folder. Installation means cloning a reviewed ref and copying one
+complete folder; no remote install script is executed.
 
-A Claude Code skill is a folder that Claude Code loads. Install = copy the folder into a skills directory; no remote script is executed. Claude Code reads skills from two places, so pick the scope you want:
+> **Pre-release note:** The disposable first-public live E2E passed. The pinned `v0.5.0` commands below become
+> valid after that tag is published. Until then, use the latest-development-ref instructions only for isolated
+> evaluation. Runtime support remains `Pending` until the pinned install and final strict claim audit pass.
 
-| Scope | Location | Use it for |
+## Runtime support
+
+Runtime support is verified per skill:
+
+| Skill | Claude Code | Codex | Notes |
+| --- | --- | --- | --- |
+| `svg-infographic` | Supported | Not yet claimed | Browser-based PNG rendering verified on macOS through Claude Code; Windows/Linux paths remain pending |
+| `docs-claim-check` | Supported | Not yet claimed | Behavioral fixtures passed with Claude Code Fable and Sonnet |
+| `github-release-guide` | Pending pinned install | Pending pinned install | Clean material parity and disposable first-public live E2E passed; support remains pending pinned `v0.5.0` install verification and final strict claim audit |
+
+Copy only a skill whose runtime column says Supported for normal use. A Pending skill may be copied into an
+isolated test repository for evaluation without earning a public support claim.
+
+## Runtime paths
+
+| Runtime | Global | Project |
 | --- | --- | --- |
-| **Global** | `~/.claude/skills/<name>/` (Windows: `%USERPROFILE%\.claude\skills\<name>\`) | your personal skills — available in every project on your machine |
-| **Project** | `<repo>/.claude/skills/<name>/` | one repository — commit it so your whole team gets the skill on clone |
+| Claude Code | `~/.claude/skills/<name>/` | `<repo>/.claude/skills/<name>/` |
+| Codex | `~/.agents/skills/<name>/` | `<repo>/.agents/skills/<name>/` |
 
-Both use the same **clone + copy** method below (recommended over `curl \| bash` — running a remote script from a public repo is a trust barrier). Restart Claude Code if the skill does not appear, then invoke it by name or ask for a matching task.
+On Windows, `~` means `%USERPROFILE%`. Restart the runtime if a newly copied skill is not discovered.
 
-The commands below use `svg-infographic` as the example. Any other skill present in the checked-out ref installs the same way — replace the folder name in the copy step. Note that the catalog can differ per ref: a pinned tag contains only the skills that existed at that tag.
+The commands below use `github-release-guide`. Replace the folder name with another supported skill when
+needed.
 
-## Global install (all your projects)
+## Global install
 
-**macOS / Linux:**
+### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch v0.5.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.claude/skills
-cp -R /tmp/skillstead/skills/svg-infographic ~/.claude/skills/
+cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 ```
 
-**Windows (PowerShell):**
+### Codex — macOS/Linux
+
+```bash
+git clone --depth 1 --branch v0.5.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+mkdir -p ~/.agents/skills
+cp -R /tmp/skillstead/skills/github-release-guide ~/.agents/skills/
+```
+
+### Claude Code — Windows PowerShell
 
 ```powershell
-git clone --depth 1 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch v0.5.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
-Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\svg-infographic" "$env:USERPROFILE\.claude\skills\"
+Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.claude\skills\"
 ```
 
-## Project install (one repo, shareable with your team)
-
-Run from your project's root, so the skill lands in that repo's `.claude/skills/`.
-
-**macOS / Linux:**
-
-```bash
-git clone --depth 1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
-mkdir -p .claude/skills
-cp -R /tmp/skillstead/skills/svg-infographic .claude/skills/
-```
-
-**Windows (PowerShell):**
+### Codex — Windows PowerShell
 
 ```powershell
-git clone --depth 1 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
-New-Item -ItemType Directory -Force ".claude\skills" | Out-Null
-Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\svg-infographic" ".claude\skills\"
+git clone --depth 1 --branch v0.5.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.agents\skills" | Out-Null
+Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.agents\skills\"
 ```
 
-Then **commit `.claude/skills/svg-infographic/`** to your repo. Everyone who clones the project gets the skill automatically — no per-person install. (License is Apache-2.0, so vendoring the folder is fine; keep the `LICENSE`/attribution if you redistribute it.)
+## Project install
 
-## Pinned version (reproducible — recommended for teams)
+Run from the target repository root. Commit the copied folder if the team should receive it on clone.
 
-Add `--branch <tag>` to any clone above, then copy to the global or project location:
+### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.4.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
-cp -R /tmp/skillstead/skills/svg-infographic ~/.claude/skills/      # or .claude/skills/ for project scope
+git clone --depth 1 --branch v0.5.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+mkdir -p .claude/skills
+cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 ```
 
-A shallow pinned-tag clone may print `refs/tags/v0.4.0 ... is not a commit`. It is harmless; the checkout still lands on the tagged commit.
+### Codex — macOS/Linux
 
-## Manual install
+```bash
+git clone --depth 1 --branch v0.5.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+mkdir -p .agents/skills
+cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
+```
 
-If you already have the files locally, copy the whole skill folder into your skills directory. The skill is a multi-file package — keep the folder structure intact:
+### Windows PowerShell
+
+Use `.claude\skills` for Claude Code or `.agents\skills` for Codex:
+
+```powershell
+git clone --depth 1 --branch v0.5.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+New-Item -ItemType Directory -Force ".agents\skills" | Out-Null
+Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" ".agents\skills\"
+```
+
+## Latest development ref
+
+Omit `--branch v0.5.0` to copy the current default branch. This is useful for evaluation, not reproducible
+team installation. Pinned tags are recommended for teams and release evidence.
+
+## Manual package shape
+
+Keep the whole folder intact:
 
 ```text
-<claude-skills-dir>/svg-infographic/
-├── SKILL.md                    # core workflow (entry point)
-├── README.md                   # skill overview (English)
-├── README.ko.md                # skill overview (Korean)
-├── references/
-│   ├── archetypes.md           # archetype catalog: skeletons, premium recipe, checks
-│   ├── authoring.md            # detailed rules, icon set, manual render fallback
-│   └── sketch.md               # opt-in tidy hand-drawn preset (paper, handwriting, rough)
-└── scripts/
-    └── render.sh               # SVG → 2× PNG render + dimension verification
+github-release-guide/
+├── README.md
+├── README.ko.md
+├── SKILL.md
+├── agents/
+│   └── openai.yaml
+└── references/
+    ├── assessment.md
+    ├── first-public.md
+    └── version-release.md
 ```
 
-This doc uses a `<claude-skills-dir>` placeholder instead of a machine-specific absolute path.
+The installed README pair explains the workflow in user-facing language. Repository-only fixtures and
+diagrams remain at `examples/github-release-guide/` in the Skillstead repository and are not copied with the
+skill.
 
-## Update
+## Clean update
 
-Re-run the install (clone + copy) for the same scope — it overwrites in place. Note that `cp -R` merges into an existing folder: files removed upstream may remain locally. For a guaranteed clean update, delete the target skill folder first (see Uninstall) and copy again. To move to a new pinned version, clone that tag and copy again. For a project install, commit the updated folder.
+`cp -R` can leave files that were removed upstream. For a guaranteed clean update:
+
+1. Clone the desired tag into a fresh temporary directory.
+2. Delete only the target installed skill folder.
+3. Copy the complete replacement folder.
+4. Restart the runtime if needed and verify discovery.
+5. For a project install, review and commit the replacement.
+
+Do not delete a parent skills directory that may contain unrelated skills.
 
 ## Uninstall
 
-Delete the skill folder from whichever scope you installed:
+Delete only the installed skill folder:
 
 ```bash
-rm -rf ~/.claude/skills/svg-infographic     # global (macOS / Linux)
-rm -rf .claude/skills/svg-infographic       # project (from repo root)
+rm -rf ~/.claude/skills/github-release-guide
+rm -rf ~/.agents/skills/github-release-guide
+rm -rf .claude/skills/github-release-guide
+rm -rf .agents/skills/github-release-guide
 ```
+
 ```powershell
-Remove-Item -Recurse -Force "$env:USERPROFILE\.claude\skills\svg-infographic"   # global (Windows)
-Remove-Item -Recurse -Force ".claude\skills\svg-infographic"                    # project (Windows)
+Remove-Item -Recurse -Force "$env:USERPROFILE\.claude\skills\github-release-guide"
+Remove-Item -Recurse -Force "$env:USERPROFILE\.agents\skills\github-release-guide"
+Remove-Item -Recurse -Force ".claude\skills\github-release-guide"
+Remove-Item -Recurse -Force ".agents\skills\github-release-guide"
 ```
 
-## Rendering prerequisite
-
-PNG export uses a headless Chromium-based browser (Chrome / Edge / Chromium). The bundled `scripts/render.sh` discovers the browser and verifies output dimensions on macOS / Linux; the manual per-OS commands (including Windows PowerShell) are in the skill's `references/authoring.md` §8. Without a browser, the skill delivers the SVG only. On Linux, install Noto Sans CJK/KR if Korean text renders as tofu.
-
-## Other Agent Runtimes
-
-Codex / Codex CLI and other agent runtime support remains deferred. Revisit once (1) there is confirmed demand and (2) the target skill's verification requirements are met in that environment (for example, browser-based PNG export for `svg-infographic`).
+Uninstall changes only local discovery. It does not undo a GitHub release or any repository mutation that
+was previously approved and performed.

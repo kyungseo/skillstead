@@ -2,92 +2,97 @@
 
 [English](./README.md) · **한국어**
 
-Agentic coding workflow에 붙여 쓰는 실용적이고 portable한 skill catalog입니다.
+코딩 에이전트와 함께 쓸 수 있는 세 가지 스킬을 모았습니다. 기술 다이어그램을 만들고, 공개 문서의 주장을
+근거와 대조하고, GitHub 릴리스를 준비할 때 필요한 스킬을 골라 설치할 수 있습니다.
 
 > [!TIP]
-> **Skillstead = skill + homestead.** coding agent가 사용할 실용적인 skill을 하나씩 모아 두는 작은 터전이라는 뜻입니다. 첫 skill은 `svg-infographic`입니다.
+> **Skillstead = skill + homestead.** 코딩 에이전트가 실제 저장소에서 사용할 수 있는 스킬을 모아 두는
+> 작은 도구 모음입니다. 각 스킬이 지원하는 실행 환경은 실제 검증 결과가 있을 때만 표시합니다.
 
-첫 번째 skill은 아주 구체적인 문제를 해결합니다: 텍스트 설명을 깔끔한 기술 다이어그램과 인포그래픽 파일로 바꾸기.
+[![Skillstead catalog impact map 한국어](./examples/catalog-overview.ko.png)](./examples/catalog-overview.ko.svg)
 
-첫 release는 Claude Code 설치 경로부터 지원합니다. [`svg-infographic`](./skills/svg-infographic)은 아키텍처 설명, 마이그레이션 계획, 프로세스 흐름, 의사결정 매트릭스, 기술 개념을 편집 가능한 SVG와 선명한 2x PNG로 만들어 줍니다. 문서, 제안서, 슬라이드, 소셜 포스트에 바로 넣을 수 있는 형태를 목표로 합니다.
+## 필요한 스킬을 선택하세요
 
-[![svg-infographic 예제 갤러리](./examples/svg-infographic/gallery-preview.ko.png)](./examples/svg-infographic/README.ko.md)
+| 우선순위 | 스킬 | 이런 작업에 적합 | 지원 실행 환경 | 성숙도 |
+| --- | --- | --- | --- | --- |
+| 1 | [`svg-infographic`](./skills/svg-infographic) | 아키텍처 설명, 작업 흐름, 비교 자료를 수정 가능한 SVG와 검증된 2× PNG로 제작 | Claude Code | Stable |
+| 2 | [`docs-claim-check`](./skills/docs-claim-check) | 공개 문서의 주장이 제공된 근거로 뒷받침되는지 확인 | Claude Code | Beta |
+| 3 | [`github-release-guide`](./skills/github-release-guide) | 비공개 GitHub 저장소의 첫 공개 전환 또는 공개 후 매 버전 릴리스를 점검하고 단계별로 안내 | Pending: Claude Code + Codex | Beta |
 
-## 왜 만들었나
+원하는 스킬 폴더 전체를 실행 환경의 스킬 디렉터리로 복사하면 됩니다. 개인용·프로젝트용 설치 경로,
+고정 버전 설치, 깨끗한 업데이트 방법, Windows 명령과 실행 환경별 지원 상태는
+[`docs/INSTALL.md`](./docs/INSTALL.md)에서 확인할 수 있습니다.
 
-Claude 앱에서는 시각 자료를 만들기 쉽지만, Claude Code에서는 저장소 안에 실제 제작 파일이 남아야 합니다. 문서와 HTML에 바로 넣을 수 있고, 필요하면 PPTX/슬라이드 workflow에서 재사용하기 쉬운 SVG가 필요합니다. 공유 이미지나 썸네일이 필요할 때를 위한 PNG export도 같이 있으면 좋고요.
+## 1. svg-infographic
 
-`svg-infographic`은 agent가 그런 제작 자산을 안정적으로 만들도록 돕는 workflow입니다. 그리기 전에 layout을 숫자로 계산하고, 렌더 전에 SVG 소스를 자가검증하고, export된 PNG 치수까지 확인하기 때문에 첫 렌더가 대체로 리뷰를 통과합니다. 결과물은 flat하고 구조적이며, repo에 넣어 관리하기 좋고, 한국어/CJK까지 안전합니다.
+기술 다이어그램을 이미지로만 만들면 나중에 문구나 구조를 수정하기 어렵습니다. `svg-infographic`은 먼저
+배치를 계산해 수정 가능한 SVG를 만들고, 원본을 점검한 뒤 크기가 검증된 2× PNG도 함께 내보냅니다.
 
-## 만들 수 있는 것
+아키텍처, 클라우드 구성도, 작업 및 승인 흐름, 변경 전후 비교, 로드맵, 계층 구조, 정성적 비교표,
+한국어 기술 요약 자료를 만들 때 적합합니다.
 
-| 용도 | 예시 |
+- 상세: [`skills/svg-infographic`](./skills/svg-infographic)
+- 결과 예시: [영문·한국어 다이어그램 14개 갤러리](./examples/svg-infographic/README.ko.md)
+- 예시: `svg-infographic으로 이 전환 계획을 수정 가능한 기술 다이어그램으로 만들어 줘.`
+
+## 2. docs-claim-check
+
+릴리스 문서는 근거가 부족하거나 오래됐는데도 확정된 사실처럼 읽힐 수 있습니다. `docs-claim-check`는
+확인 가능한 문장을 주장 단위로 나누고, 제공된 자료의 범위 안에서 검증됨(`verified`), 근거 부족
+(`unsupported`), 오래됐을 가능성 있음(`stale-suspected`), 사람의 확인 필요(`needs-human`) 중 하나로
+판정합니다.
+
+README, 설치 안내, 릴리스 노트, 공지문을 공개하기 전에 사용할 수 있습니다. 문서의 주장을 판정하는
+도구이므로 점검 중 명령을 실행하지 않으며, 수정안 작성이나 코드·보안 검토를 대신하지 않습니다.
+
+- 상세: [`skills/docs-claim-check`](./skills/docs-claim-check)
+- 결과 예시: [가상 AcmeTask 자료와 실제 판정 예시](./examples/docs-claim-check/README.ko.md)
+- 예시: `docs-claim-check로 이 릴리스 노트의 주장을 제공한 태그와 CI 결과에 대조해 줘.`
+
+## 3. github-release-guide
+
+GitHub 릴리스에는 문서 수정뿐 아니라 저장소 공개 전환, 브랜치와 태그, 설정, GitHub Release 공개처럼
+되돌리기 어려운 작업도 포함됩니다. `github-release-guide`는 먼저 저장소를 바꾸지 않고 준비 상태를
+점검합니다. 준비가 끝나면 변경할 내용과 영향을 하나씩 보여주고, 현재 상태를 다시 확인한 뒤 사용자가
+직접 승인한 작업만 실행합니다.
+
+V1은 두 시점에 사용할 수 있습니다. 비공개 github.com 저장소를 처음 공개 상태로 전환할 때 사용하고,
+공개된 뒤에는 새로운 버전을 릴리스할 때마다 다시 사용할 수 있습니다. 저장소 생성, 패키지 저장소 공개,
+바이너리 서명, 클라우드 배포, 보안 감사, 강제 전송, 커밋 기록 다시 쓰기는 수행하지 않습니다.
+
+| 진행 방식과 릴리스 유형 선택 | 변경 작업의 승인 과정 |
 | --- | --- |
-| 아키텍처 / 클라우드 토폴로지 | Azure / AWS 요청 경로, 네트워크 구역, 서비스, 데이터베이스 |
-| 기술 인포그래픽 | 레이어 모델, capability map, 한 장짜리 설명 자료 |
-| Before / After 비교 | 마이그레이션, 현대화, 개선 전후 비교 |
-| 프로세스 / 데이터 플로우 | RAG 파이프라인, 승인 흐름, 시스템 handoff |
-| 로드맵 / 타임라인 | 제품 단계, 마일스톤, 현재 상태 |
-| 의사결정 / 우선순위 매트릭스 | 2×2 quadrant map, 범위·불확실성 그리드, 트레이드오프 뷰 |
-| 한국어 시각 자산 | 문서, HTML, 슬라이드용 CJK-safe SVG와 preview/social용 PNG |
+| [![Assess 또는 Guided 진행 방식과 first-public 또는 version-release 릴리스 유형 선택](./examples/github-release-guide/mode-profile-map/mode-profile-map.ko.png)](./examples/github-release-guide/mode-profile-map/mode-profile-map.ko.svg) | [![저장소 변경 하나를 미리 보여주고 상태를 재확인한 뒤 승인, 실행, 결과 확인으로 진행하는 과정](./examples/github-release-guide/approval-safety-loop/approval-safety-loop.ko.png)](./examples/github-release-guide/approval-safety-loop/approval-safety-loop.ko.svg) |
 
-전체 [예제 갤러리](./examples/svg-infographic/README.ko.md)에서 지원 archetype을 다루는 14개 예제 — architecture, migration, workflow, swimlane, 온니언 모델, decision matrix, CI/CD 승격, 승인 흐름, 손그림 sketch 노트 2종 등 — 를 영문·한글 버전과 생성 프롬프트로 확인할 수 있습니다. 위 preview는 두 sketch 예제를 hero로 둔 대표 6개 montage입니다.
+- 자세한 안내: [`github-release-guide` 한국어 README](./skills/github-release-guide/README.ko.md)
+- 검증 자료와 다이어그램: [가상 시나리오, 정답표, 실행 결과](./examples/github-release-guide/README.ko.md)
+- Assess 예시: `github-release-guide를 Assess 방식으로 사용해서 이 공개 저장소의 이번 버전 릴리스를 점검해 줘.`
+- Guided 예시: `github-release-guide를 Guided 방식으로 사용해서 이 비공개 저장소의 첫 공개를 준비해 줘. 먼저 Assess하고, 준비됐으면 첫 변경만 미리 보여줘. 그 작업을 내가 직접 승인하기 전에는 저장소를 변경하지 마.`
+- 저장소를 공개하기 직전에는 복제된 사본을 완전히 회수할 수 없다는 점과 자동 검사의 한계를 설명하고,
+  공개 전환에 대한 사용자의 직접 승인을 별도로 확인합니다.
 
-## 빠른 시작
+## 공개 스킬의 품질 기준
 
-현재 Claude Code package를 설치합니다:
+모든 공개 스킬은 다음 기준을 만족해야 합니다.
 
-```bash
-git clone --depth 1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
-mkdir -p ~/.claude/skills
-cp -R /tmp/skillstead/skills/svg-infographic ~/.claude/skills/
-```
+- 무엇을 하고 하지 않는지 분명한 동작 범위
+- 실제 고객이나 비공개 자료를 사용하지 않은 가상 검증 자료
+- 검증한 범위를 넘지 않는 실행 환경 지원 및 성숙도 표시
+- 인증 정보, 비공개 출처, 개인 컴퓨터 경로가 포함되지 않은 공개 파일
+- 결과 특성에 맞는 반복 가능한 검증 방법
 
-**프로젝트 단위**로 설치할 수도 있습니다(repo의 `.claude/skills/`에 두면 팀원이 clone만으로 사용). 프로젝트 단위 설치, Windows PowerShell, 버전 고정 설치, 업데이트, 제거 방법은 [`docs/INSTALL.md`](./docs/INSTALL.md)에 있습니다.
+실행 환경 지원 상태는 카탈로그 전체가 아니라 스킬별로 표시합니다. `github-release-guide`는 Claude Code와
+Codex의 핵심 행동 일치 검증과 disposable 저장소의 실제 첫 공개 E2E를 통과했습니다. 다만 `v0.5.0` 고정
+버전 설치 검증과 final strict claim audit가 남아 있어 두 실행 환경 모두 아직 `Pending`으로 표시합니다.
 
-이후 Claude Code agent에게 이렇게 요청합니다:
+## 현재 제한
 
-```text
-svg-infographic으로 Azure 토폴로지를 그려줘: Application Gateway -> APIM -> AKS -> PostgreSQL.
-```
-
-```text
-svg-infographic으로 이 before/after 마이그레이션 계획을 슬라이드용 기술 인포그래픽으로 바꿔줘.
-```
-
-더 좋은 결과를 원하면 대상 독자, 핵심 메시지, 사용처, SVG만 필요한지 SVG + 2× PNG가 필요한지를 함께 적어 주세요.
-
-결과물은 다음 두 파일을 기본으로 합니다:
-
-- `*.svg` — 핵심 산출물: 문서·HTML·PPTX workflow에서 재사용 가능한 편집형 vector asset
-- `*.png` — 공유 이미지, 썸네일, 소셜 포스트용 선명한 2× preview/export
-
-**2× PNG**는 SVG `viewBox`의 두 배 해상도로 렌더링한 PNG입니다. 문서·README·소셜 이미지에 넣었을 때 더 선명하게 보이도록 하는 export입니다.
-
-## Skill 목록
-
-현재 카탈로그는 skill 2개를 제공합니다. 같은 수준의 evidence와 example 품질 기준을 만족하는 skill만 추가합니다.
-
-| Skill | 지원 runtime | Status | 설명 |
-| --- | --- | --- | --- |
-| [`svg-infographic`](./skills/svg-infographic) | Claude Code | Stable | layout을 먼저 계산하는 compute-first workflow로 flat하고 구조적인 SVG 인포그래픽을 만들고, 치수 검증된 2× PNG로 export합니다. |
-| [`docs-claim-check`](./skills/docs-claim-check) | Claude Code | Beta | 공개 문서의 claim을 사용자가 제공한 evidence와 대조해 atomic claim마다 verified / unsupported / stale-suspected / needs-human label과 input-scope 명시를 산출합니다. advisory 전용 — 계약상 명령을 실행하지 않고 수정문을 생성하지 않습니다. |
-
-## 품질 기준
-
-포함된 예제는 모두 직접 만든 synthetic, non-client 예제입니다. `svg-infographic` 예제는 SVG + 2× PNG로 제공되고 다음을 확인합니다:
-
-- 텍스트 넘침 없음
-- 한국어/CJK 글자 깨짐 없음
-- SVG/PNG 크기 일치
-- SVG 접근성 메타데이터 포함
-- host-specific path 또는 client path 없음
-
-## 현재 범위
-
-Skillstead는 multi-agent skill catalog를 지향합니다. Claude Code 설치 경로와 browser 기반 PNG export workflow가 검증된 상태라 Claude Code first로 제공합니다. Codex / Codex CLI와 다른 agent runtime 지원은 수요와 export 경로가 확인되면 다시 검토합니다.
-
-`svg-infographic`은 flat하고 구조적인 시각 자료에 초점을 두고, 요청 시 "정돈된 손그림" sketch 프리셋(표면은 손그림, 배치는 계산)을 제공합니다. 사진 중심 마케팅 그래픽, 통계 차트, 마스코트·캐릭터 일러스트는 의도적으로 범위 밖에 둡니다.
+- `svg-infographic`의 브라우저 렌더링은 macOS에서 검증했습니다. Windows와 Linux 경로는 문서화했지만 아직
+  직접 검증하지 않았습니다.
+- `docs-claim-check`는 제공된 자료 안에서 문서 주장을 판정하며 검증 명령을 직접 실행하지 않습니다.
+- `github-release-guide` v1은 비공개 github.com 저장소의 첫 공개 전환과, 공개 후 반복되는 각 버전 릴리스를
+  다룹니다.
+- 자동 검사 결과가 깨끗하더라도 저장소에 보안 위험이 전혀 없다고 보장할 수는 없습니다.
 
 ## 라이선스
 

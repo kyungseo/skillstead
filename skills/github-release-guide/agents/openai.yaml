@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub Release Guide"
+  short_description: "Assess and guide safer GitHub public releases"
+  default_prompt: "Use $github-release-guide to assess this repository for a safe GitHub release and guide me through approved next steps."

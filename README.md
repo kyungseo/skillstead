@@ -2,90 +2,97 @@
 
 **English** · [한국어](./README.ko.md)
 
-Practical, portable skills for agentic coding workflows.
+Practical, portable skills for agentic coding workflows — create clearer artifacts, check public claims,
+and guide safer GitHub releases.
 
 > [!TIP]
-> **Skillstead = skill + homestead.** The name points to a small, durable place for practical skills that coding agents can use, starting with `svg-infographic`.
+> **Skillstead = skill + homestead.** A small, durable place for skills that coding agents can carry into
+> real repositories. Each public support claim is tied to examples and runtime evidence.
 
-The first release supports Claude Code. The first skill, [`svg-infographic`](./skills/svg-infographic), turns architecture notes, migration plans, process flows, decision matrices, and technical concepts into editable SVGs and crisp 2x PNGs for docs, decks, and social posts.
+[![Skillstead catalog impact map](./examples/catalog-overview.en.png)](./examples/catalog-overview.en.svg)
 
-[![svg-infographic example gallery](./examples/svg-infographic/gallery-preview.en.png)](./examples/svg-infographic)
+## Choose a skill
 
-## Why This Exists
+| Priority | Skill | Best for | Runtime support | Maturity |
+| --- | --- | --- | --- | --- |
+| 1 | [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | Claude Code | Stable |
+| 2 | [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | Claude Code | Beta |
+| 3 | [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | Pending: Claude Code + Codex | Beta |
 
-Claude can make good visuals in chat, but Claude Code works inside a repository, where a useful diagram needs to become an actual asset. You want an SVG that drops straight into docs and HTML pages and is easy to reuse in PPTX/slide workflows, plus a PNG preview/export when you need a share image.
+Install any skill by copying its complete folder into the runtime's skill directory. See
+[`docs/INSTALL.md`](./docs/INSTALL.md) for global/project paths, pinned tags, clean updates, Windows commands,
+and the per-skill runtime matrix.
 
-`svg-infographic` gives the agent a focused workflow for those assets. It computes the layout numerically before drawing, self-checks the SVG source before rendering, and verifies the exported PNG dimensions — so the first render usually passes review. The output stays flat, structured, source-controlled, and Korean/CJK-safe.
+## 1. svg-infographic
 
-## What You Can Create
+Technical diagrams often begin as prose and end as hard-to-edit screenshots. `svg-infographic` computes a
+layout before drawing, authors structured SVG, checks the source, then exports a dimension-verified 2× PNG.
 
-| Use case | Example |
+Use it for architecture and cloud topology, process or approval flows, before/after migrations, roadmaps,
+layer models, qualitative matrices, and Korean/CJK-ready technical one-pagers.
+
+- Detail: [`skills/svg-infographic`](./skills/svg-infographic)
+- Impact visual: [14-example English/Korean gallery](./examples/svg-infographic)
+- Example prompt: `Use svg-infographic to turn this migration plan into an editable technical infographic.`
+
+## 2. docs-claim-check
+
+Release-facing docs can sound certain even when their evidence is partial or stale. `docs-claim-check` splits
+objective statements into atomic claims and labels each one `verified`, `unsupported`, `stale-suspected`, or
+`needs-human` within an explicit reviewed-input scope.
+
+Use it before publishing a README, install guide, release note, or announcement. It is advisory only: the
+contract runs no commands during assessment and does not generate fixes, code review, or security verdicts.
+
+- Detail: [`skills/docs-claim-check`](./skills/docs-claim-check)
+- Impact visual: [synthetic AcmeTask fixture and worked assessment](./examples/docs-claim-check)
+- Example prompt: `Use docs-claim-check to assess these release-note claims against the supplied tag and CI evidence.`
+
+## 3. github-release-guide
+
+GitHub releases combine documentation work with changes to visibility, branches, tags, settings, and GitHub
+Releases that can be difficult to undo. `github-release-guide` first checks readiness without changing the
+repository. It then shows each proposed change, checks the current state again, asks for direct approval, and
+verifies the result before moving on.
+
+V1 can be used at two points: when an existing private github.com repository becomes public for the first time,
+and whenever that public repository publishes a new version afterward. It does not bootstrap repositories,
+publish packages, sign binaries, deploy cloud services, claim a security audit, force-push, or rewrite history.
+
+| Choose the mode and profile | Follow the approval safety loop |
 | --- | --- |
-| Architecture and cloud topology | Azure / AWS style request paths, zones, services, databases |
-| Technical infographics | Layer models, capability maps, one-page explainers |
-| Before / after comparisons | Migration plans, modernization stories, tradeoff panels |
-| Process and data flows | RAG pipelines, approval flows, system handoffs |
-| Roadmaps and timelines | Product phases, milestones, status snapshots |
-| Decision and priority matrices | 2×2 quadrant maps, scope/uncertainty grids, trade-off views |
-| Korean-ready visual assets | CJK-safe SVG for docs, HTML, and slide decks; PNG for previews and social posts |
+| [![Choose Assess or Guided, then choose first-public or version-release](./examples/github-release-guide/mode-profile-map/mode-profile-map.en.png)](./examples/github-release-guide/mode-profile-map/mode-profile-map.en.svg) | [![How one repository change is previewed, rechecked, approved, carried out, and verified](./examples/github-release-guide/approval-safety-loop/approval-safety-loop.en.png)](./examples/github-release-guide/approval-safety-loop/approval-safety-loop.en.svg) |
 
-See the full [example gallery](./examples/svg-infographic) for fourteen examples across the supported archetypes — architecture, migration, workflow, swimlane, onion model, decision matrix, CI/CD promotion, approval flow, two hand-drawn sketch notes, and more — in English and Korean, with the prompts that produced them. The preview above is a curated six-example montage with the two sketch examples as heroes.
+- Friendly guide: [`github-release-guide` README](./skills/github-release-guide/README.md)
+- Validation material and diagrams: [synthetic scenarios, answer key, and worked outputs](./examples/github-release-guide)
+- Assess example: `Use github-release-guide in Assess mode for this public repository's upcoming version release.`
+- Guided example: `Use github-release-guide in Guided mode to prepare this private repository for first publication. Start with Assess, then show only the first proposed change. Do not change the repository until I approve that exact step.`
+- Safety boundary: immediately before a repository becomes public, the guide explains what cannot be undone and
+  asks the user to approve that visibility change separately. The release decision remains with the user.
 
-## Quick Start
+## Quality and evidence bar
 
-Install the current Claude Code package:
+Every public skill must have:
 
-```bash
-git clone --depth 1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
-mkdir -p ~/.claude/skills
-cp -R /tmp/skillstead/skills/svg-infographic ~/.claude/skills/
-```
+- a clear description of what it does and does not do,
+- synthetic, non-client validation material,
+- runtime support and maturity labels limited to what was actually tested,
+- public paths free of credentials, private provenance, and host-specific data,
+- and a repeatable validation path appropriate to its output.
 
-Or install it **per project** (`.claude/skills/` in a repo, so your team gets it on clone). Project-scoped install, Windows PowerShell, pinned versions, update, and uninstall are in [`docs/INSTALL.md`](./docs/INSTALL.md).
+Runtime support is per skill, not catalog-wide. Claude Code support for the first two skills is unchanged.
+`github-release-guide` has passed clean Claude Code/Codex material-parity checks and the disposable
+first-public live E2E. It remains `Pending` until pinned `v0.5.0` install verification and the final strict
+claim audit are complete.
 
-Then ask your Claude Code agent for a visual:
+## Current limitations
 
-```text
-Use svg-infographic to draw an Azure topology: Application Gateway -> APIM -> AKS -> PostgreSQL.
-```
-
-```text
-Use svg-infographic to turn this before/after migration plan into a technical infographic for a slide.
-```
-
-For better results, include the audience, key message, intended use, and whether you want SVG only or SVG + 2× PNG.
-
-The skill produces:
-
-- `*.svg` — the primary deliverable: editable vector content for docs, HTML, and PPTX workflows
-- `*.png` — a crisp 2× preview/export for sharing, thumbnails, and social posts
-
-**2× PNG** means the PNG is rendered at twice the SVG `viewBox` size, so it stays crisp when embedded, previewed, or shared.
-
-## Skill Catalog
-
-The catalog currently ships two skills. New skills are added when they meet the same evidence and example bar.
-
-| Skill | Supported runtime | Status | What it does |
-| --- | --- | --- | --- |
-| [`svg-infographic`](./skills/svg-infographic) | Claude Code | Stable | Creates flat, structured SVG infographics with a compute-first layout workflow, then exports dimension-verified 2× PNGs. |
-| [`docs-claim-check`](./skills/docs-claim-check) | Claude Code | Beta | Checks public-facing documentation claims against user-provided evidence, labeling each atomic claim verified / unsupported / stale-suspected / needs-human with an explicit input-scope statement. Advisory only — by contract it does not run commands or generate fixes. |
-
-## Quality Bar
-
-The included examples are synthetic, non-client artifacts. `svg-infographic` examples each ship as SVG + 2x PNG and are checked for:
-
-- no text overflow
-- correct Korean/CJK rendering
-- matching SVG/PNG dimensions
-- accessible SVG metadata
-- no host-specific or client paths
-
-## Current Scope
-
-Skillstead is intended as a multi-agent skill catalog. It is Claude Code first because that install path and the browser-based PNG export workflow are verified there. Codex / Codex CLI and other agent runtimes are deferred until there is confirmed demand and the export path is verified in those environments.
-
-`svg-infographic` is for flat, structural visuals, plus an opt-in "tidy hand-drawn" sketch preset (hand-drawn surface, computed layout). It intentionally does not target photo-heavy marketing graphics, statistical charts, or mascot/character illustration.
+- `svg-infographic` browser rendering is verified on macOS; Windows/Linux render paths remain documented but
+  unverified.
+- `docs-claim-check` is advisory and evidence-bound; it does not execute verification commands.
+- `github-release-guide` v1 is github.com-only. It covers the one-time private-to-public transition and each
+  version release after the repository is public.
+- A clean release or secret scan is best-effort, not proof that a repository has no security risk.
 
 ## License
 

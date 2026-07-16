@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 700" width="1400" height="700" role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>Skillstead 스킬 세 가지</title>
+  <desc>svg-infographic은 다이어그램을 만들고, docs-claim-check는 문서 주장을 근거와 대조하며, github-release-guide는 사용자가 승인한 GitHub 릴리스 작업을 안내한다.</desc>
+  <style>
+    .bg{fill:#f7f9fc}.card{fill:#fff;stroke:#d9e1ec;stroke-width:2}.eyebrow{font-size:18px;font-weight:700;letter-spacing:1.2px;fill:#596579}.title{font-size:30px;font-weight:750;fill:#1d2735}.body{font-size:20px;fill:#4d596b}.pill{font-size:16px;font-weight:700}.arrow{fill:none;stroke:#8895a7;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.footer{font-size:18px;font-weight:650;fill:#354154}
+  </style>
+  <rect class="bg" width="1400" height="700" rx="28"/>
+  <text x="70" y="72" class="eyebrow">SKILLSTEAD · 세 가지 실용적인 스킬</text>
+  <text x="70" y="116" class="title">다이어그램 제작 · 문서 주장 검증 · GitHub 릴리스 안내</text>
+
+  <g transform="translate(70 165)">
+    <rect class="card" width="400" height="410" rx="24"/>
+    <rect x="28" y="28" width="158" height="34" rx="17" fill="#e7f1ff"/>
+    <text x="107" y="51" text-anchor="middle" class="pill" fill="#2463a6">제작</text>
+    <text x="28" y="108" class="title">svg-infographic</text>
+    <text x="28" y="151" class="body">아키텍처 설명</text>
+    <text x="28" y="182" class="body">프로세스 아이디어</text>
+    <path class="arrow" d="M64 222h238m0 0-18-14m18 14-18 14"/>
+    <rect x="28" y="264" width="344" height="90" rx="18" fill="#edf7f3" stroke="#8fcab4"/>
+    <text x="200" y="303" text-anchor="middle" class="body" fill="#17624f">편집 가능한 SVG</text>
+    <text x="200" y="333" text-anchor="middle" class="body" fill="#17624f">+ 선명한 2× PNG</text>
+    <text x="28" y="388" class="footer">계속 수정할 수 있는 SVG</text>
+  </g>
+
+  <g transform="translate(500 165)">
+    <rect class="card" width="400" height="410" rx="24"/>
+    <rect x="28" y="28" width="158" height="34" rx="17" fill="#f0ebff"/>
+    <text x="107" y="51" text-anchor="middle" class="pill" fill="#6642a6">검증</text>
+    <text x="28" y="108" class="title">docs-claim-check</text>
+    <text x="28" y="151" class="body">공개 문서의 주장</text>
+    <text x="28" y="182" class="body">+ 제공된 근거 자료</text>
+    <path class="arrow" d="M64 222h238m0 0-18-14m18 14-18 14"/>
+    <rect x="28" y="264" width="344" height="90" rx="18" fill="#f5f0ff" stroke="#baa5df"/>
+    <text x="200" y="303" text-anchor="middle" class="body" fill="#5a378d">주장별 판정</text>
+    <text x="200" y="333" text-anchor="middle" class="body" fill="#5a378d">+ 확인한 근거 범위</text>
+    <text x="28" y="388" class="footer">제공된 근거에 따라 판정</text>
+  </g>
+
+  <g transform="translate(930 165)">
+    <rect class="card" width="400" height="410" rx="24"/>
+    <rect x="28" y="28" width="158" height="34" rx="17" fill="#fff0e4"/>
+    <text x="107" y="51" text-anchor="middle" class="pill" fill="#9a571e">릴리스</text>
+    <text x="28" y="108" class="title">github-release-guide</text>
+    <text x="28" y="151" class="body">저장소 상태</text>
+    <text x="28" y="182" class="body">+ 사용자 결정</text>
+    <path class="arrow" d="M64 222h238m0 0-18-14m18 14-18 14"/>
+    <rect x="28" y="264" width="344" height="90" rx="18" fill="#fff5ec" stroke="#e4b88e"/>
+    <text x="200" y="303" text-anchor="middle" class="body" fill="#8b4b18">준비 상태 확인</text>
+    <text x="200" y="333" text-anchor="middle" class="body" fill="#8b4b18">+ 승인된 변경 작업</text>
+    <text x="28" y="388" class="footer">미리보기 · 재확인 · 승인 · 검증</text>
+  </g>
+
+  <text x="700" y="642" text-anchor="middle" class="body">폴더 복사로 설치 · 가상 예제 포함 · 검증 근거에 맞춰 지원 상태 표시</text>
+</svg>

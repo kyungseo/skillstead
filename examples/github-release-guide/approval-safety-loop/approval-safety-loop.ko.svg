@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>변경 작업 하나가 승인되고 실행되는 과정</title>
+  <desc>중요한 변경은 내용을 먼저 보여주고, 현재 상태를 다시 확인하고, 사용자의 직접 승인을 받은 뒤 실행하고 결과를 검증한다. 상태가 달라지면 다시 승인받으며, 오류나 인증 정보 노출이 의심되면 즉시 중단한다.</desc>
+  <style>
+    svg{ --bg:#F7F9FC; --ink:#1C2838; --muted:#607086; --edge:#65758A;
+      --band-fill:#EEF4FA; --band-line:#CFDAE8; --band-pill:#315F92;
+      --blue:#2563A9; --blue-line:#72A4D2; --blue-ink:#1B4E7B; --blue-body:#4D6177;
+      --purple:#6750A4; --purple-line:#7665AA; --purple-ink:#4F3B83; --purple-body:#5D5570;
+      --amber:#AD641E; --amber-line:#D69B51; --amber-ink:#79440F; --amber-body:#6C5843;
+      --teal:#17735C; --teal-line:#4C9D86; --teal-ink:#155C4B; --teal-body:#4E655F;
+      --green:#106853; --green-line:#3D8B79;
+      --drift:#A46027; --drift-fill:#FFF3E7; --drift-line:#D8A168; --drift-ink:#834A18;
+      --call-fill:#FFF4E7; --call-line:#DDA566; --call-head:#75420F; --call-body:#6B5844; }
+    .on-accent{ fill:#FFFFFF }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0 0l12 6-12 6z" fill="#65758A"/></marker>
+    <marker id="arrow-drift" viewBox="0 0 12 12" markerWidth="18" markerHeight="18" markerUnits="userSpaceOnUse" refX="10" refY="6" orient="auto"><path d="M0 0l12 6-12 6z" fill="#A46027"/></marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="var(--bg)"/>
+
+  <!-- header -->
+  <rect x="68" y="58" width="6" height="88" rx="3" fill="var(--amber)"/>
+  <text x="98" y="96" font-size="42" font-weight="760" fill="var(--ink)">변경 작업 하나가 승인되고 실행되는 과정</text>
+  <text x="98" y="137" font-size="21" fill="var(--muted)">중요한 변경은 현재 상태를 다시 확인하고, 사용자가 직접 승인한 뒤 결과까지 검증합니다.</text>
+
+  <!-- loop band -->
+  <rect x="70" y="192" width="1460" height="420" rx="26" fill="var(--band-fill)" stroke="var(--band-line)" stroke-width="2"/>
+  <rect x="98" y="173" width="250" height="46" rx="23" fill="var(--band-pill)"/>
+  <text x="223" y="196" dominant-baseline="central" text-anchor="middle" font-size="19" font-weight="720" class="on-accent">변경 작업 1건</text>
+
+  <!-- forward arrows (card centers y=421) -->
+  <g stroke="var(--edge)" stroke-width="4" fill="none" marker-end="url(#arrow)">
+    <path d="M330 421H374"/><path d="M610 421H654"/><path d="M890 421H934"/><path d="M1170 421H1214"/>
+  </g>
+
+  <!-- step cards (y=330, h=182) -->
+  <g>
+    <rect x="90" y="330" width="240" height="182" rx="20" fill="#FFFFFF" stroke="var(--blue-line)" stroke-width="2"/>
+    <circle cx="132" cy="365" r="22" fill="var(--blue)"/><text x="132" y="366" dominant-baseline="central" text-anchor="middle" font-size="18" font-weight="750" class="on-accent">1</text>
+    <text x="210" y="384" dominant-baseline="central" text-anchor="middle" font-size="27" font-weight="740" fill="var(--blue-ink)">미리보기</text>
+    <text x="210" y="435" dominant-baseline="central" text-anchor="middle" font-size="18" fill="var(--blue-body)">무엇이 바뀌는지</text>
+    <text x="210" y="464" dominant-baseline="central" text-anchor="middle" font-size="18" fill="var(--blue-body)">영향과 실패 대응 안내</text>
+  </g>
+  <g>
+    <rect x="370" y="330" width="240" height="182" rx="20" fill="#FFFFFF" stroke="var(--purple-line)" stroke-width="2"/>
+    <circle cx="412" cy="365" r="22" fill="var(--purple)"/><text x="412" y="366" dominant-baseline="central" text-anchor="middle" font-size="18" font-weight="750" class="on-accent">2</text>
+    <text x="490" y="384" dominant-baseline="central" text-anchor="middle" font-size="27" font-weight="740" fill="var(--purple-ink)">상태 재확인</text>
+    <text x="490" y="435" dominant-baseline="central" text-anchor="middle" font-size="18" fill="var(--purple-body)">공개 상태 · 브랜치 · 태그</text>
+    <text x="490" y="464" dominant-baseline="central" text-anchor="middle" font-size="18" fill="var(--purple-body)">설정이 그대로인지 확인</text>
+  </g>
+  <g>
+    <rect x="650" y="330" width="240" height="182" rx="20" fill="#FFFFFF" stroke="var(--amber-line)" stroke-width="3"/>
+    <circle cx="692" cy="365" r="22" fill="var(--amber)"/><text x="692" y="366" dominant-baseline="central" text-anchor="middle" font-size="18" font-weight="750" class="on-accent">3</text>
+    <text x="770" y="384" dominant-baseline="central" text-anchor="middle" font-size="27" font-weight="740" fill="var(--amber-ink)">사용자 승인</text>
+    <text x="770" y="435" dominant-baseline="central" text-anchor="middle" font-size="18" fill="var(--amber-body)">이 작업과 대상에만</text>
+    <text x="770" y="464" dominant-baseline="central" text-anchor="middle" font-size="18" fill="var(--amber-body)">적용되는 직접 동의</text>
+  </g>
+  <g>
+    <rect x="930" y="330" width="240" height="182" rx="20" fill="#FFFFFF" stroke="var(--teal-line)" stroke-width="2"/>
+    <circle cx="972" cy="365" r="22" fill="var(--teal)"/><text x="972" y="366" dominant-baseline="central" text-anchor="middle" font-size="18" font-weight="750" class="on-accent">4</text>
+    <text x="1050" y="384" dominant-baseline="central" text-anchor="middle" font-size="27" font-weight="740" fill="var(--teal-ink)">변경 실행</text>
+    <text x="1050" y="435" dominant-baseline="central" text-anchor="middle" font-size="18" fill="var(--teal-body)">미리 보여준 작업만</text>
+    <text x="1050" y="464" dominant-baseline="central" text-anchor="middle" font-size="18" fill="var(--teal-body)">그대로 실행</text>
+  </g>
+  <g>
+    <rect x="1210" y="330" width="240" height="182" rx="20" fill="#FFFFFF" stroke="var(--green-line)" stroke-width="2"/>
+    <circle cx="1252" cy="365" r="22" fill="var(--green)"/><text x="1252" y="366" dominant-baseline="central" text-anchor="middle" font-size="18" font-weight="750" class="on-accent">5</text>
+    <text x="1330" y="384" dominant-baseline="central" text-anchor="middle" font-size="27" font-weight="740" fill="var(--teal-ink)">결과 확인</text>
+    <text x="1330" y="435" dominant-baseline="central" text-anchor="middle" font-size="18" fill="var(--teal-body)">실제 상태를 확인한 뒤</text>
+    <text x="1330" y="464" dominant-baseline="central" text-anchor="middle" font-size="18" fill="var(--teal-body)">다음 단계로 이동</text>
+  </g>
+
+  <!-- drift feedback: Recheck top -> Preview top -->
+  <path d="M490 330V292H210V319" fill="none" stroke="var(--drift)" stroke-width="4" stroke-dasharray="7 6" marker-end="url(#arrow-drift)"/>
+  <rect x="238" y="269" width="330" height="46" rx="23" fill="var(--drift-fill)" stroke="var(--drift-line)"/>
+  <text x="403" y="292" dominant-baseline="central" text-anchor="middle" font-size="17" font-weight="700" fill="var(--drift-ink)">상태가 달라지면 &#8594; 다시 미리보기</text>
+
+  <!-- visibility callout -->
+  <rect x="140" y="657" width="1320" height="175" rx="22" fill="var(--call-fill)" stroke="var(--call-line)" stroke-width="2"/>
+  <rect x="172" y="638" width="250" height="44" rx="22" fill="var(--amber)"/>
+  <text x="297" y="660" dominant-baseline="central" text-anchor="middle" font-size="18" font-weight="730" class="on-accent">저장소 공개 직전</text>
+  <text x="190" y="711" font-size="22" font-weight="710" fill="var(--call-head)">한 번 공개된 사본은 완전히 회수할 수 없습니다.</text>
+  <text x="190" y="747" font-size="20" fill="var(--call-body)">자동 검사는 모든 위험을 막는다고 보장할 수 없습니다(best-effort scan).</text>
+  <text x="190" y="779" font-size="20" fill="var(--call-body)">따라서 저장소를 공개하기 직전에 사용자의 직접 승인을 다시 확인합니다.</text>
+  <text x="190" y="811" font-size="20" fill="var(--call-body)">오류나 인증 정보 노출이 의심되면 즉시 중단하고 보안 사고 대응 절차에 따라 처리합니다.</text>
+</svg>

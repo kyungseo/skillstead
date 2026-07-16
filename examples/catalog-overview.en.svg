@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 700" width="1400" height="700" role="img" style="font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+  <title>Skillstead catalog impact map</title>
+  <desc>Three cards show how svg-infographic, docs-claim-check, and github-release-guide turn rough inputs into reusable visual assets, evidence-scoped claim assessments, and approval-gated GitHub releases.</desc>
+  <style>
+    .bg{fill:#f7f9fc}.card{fill:#fff;stroke:#d9e1ec;stroke-width:2}.eyebrow{font-size:18px;font-weight:700;letter-spacing:1.2px;fill:#596579}.title{font-size:30px;font-weight:750;fill:#1d2735}.body{font-size:20px;fill:#4d596b}.pill{font-size:16px;font-weight:700}.arrow{fill:none;stroke:#8895a7;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.footer{font-size:18px;font-weight:650;fill:#354154}
+  </style>
+  <rect class="bg" width="1400" height="700" rx="28"/>
+  <text x="70" y="72" class="eyebrow">SKILLSTEAD · THREE PRACTICAL SKILLS</text>
+  <text x="70" y="116" class="title">Create diagrams · check claims · guide GitHub releases</text>
+
+  <g transform="translate(70 165)">
+    <rect class="card" width="400" height="410" rx="24"/>
+    <rect x="28" y="28" width="158" height="34" rx="17" fill="#e7f1ff"/>
+    <text x="107" y="51" text-anchor="middle" class="pill" fill="#2463a6">CREATE</text>
+    <text x="28" y="108" class="title">svg-infographic</text>
+    <text x="28" y="151" class="body">Architecture notes</text>
+    <text x="28" y="182" class="body">and process ideas</text>
+    <path class="arrow" d="M64 222h238m0 0-18-14m18 14-18 14"/>
+    <rect x="28" y="264" width="344" height="90" rx="18" fill="#edf7f3" stroke="#8fcab4"/>
+    <text x="200" y="303" text-anchor="middle" class="body" fill="#17624f">Editable SVG</text>
+    <text x="200" y="333" text-anchor="middle" class="body" fill="#17624f">+ crisp 2× PNG</text>
+    <text x="28" y="388" class="footer">SVG you can keep editing</text>
+  </g>
+
+  <g transform="translate(500 165)">
+    <rect class="card" width="400" height="410" rx="24"/>
+    <rect x="28" y="28" width="158" height="34" rx="17" fill="#f0ebff"/>
+    <text x="107" y="51" text-anchor="middle" class="pill" fill="#6642a6">CHECK</text>
+    <text x="28" y="108" class="title">docs-claim-check</text>
+    <text x="28" y="151" class="body">Public claims</text>
+    <text x="28" y="182" class="body">+ supplied evidence</text>
+    <path class="arrow" d="M64 222h238m0 0-18-14m18 14-18 14"/>
+    <rect x="28" y="264" width="344" height="90" rx="18" fill="#f5f0ff" stroke="#baa5df"/>
+    <text x="200" y="303" text-anchor="middle" class="body" fill="#5a378d">Atomic labels</text>
+    <text x="200" y="333" text-anchor="middle" class="body" fill="#5a378d">+ explicit evidence scope</text>
+    <text x="28" y="388" class="footer">Labels tied to supplied evidence</text>
+  </g>
+
+  <g transform="translate(930 165)">
+    <rect class="card" width="400" height="410" rx="24"/>
+    <rect x="28" y="28" width="158" height="34" rx="17" fill="#fff0e4"/>
+    <text x="107" y="51" text-anchor="middle" class="pill" fill="#9a571e">RELEASE</text>
+    <text x="28" y="108" class="title">github-release-guide</text>
+    <text x="28" y="151" class="body">Repository state</text>
+    <text x="28" y="182" class="body">+ owner decisions</text>
+    <path class="arrow" d="M64 222h238m0 0-18-14m18 14-18 14"/>
+    <rect x="28" y="264" width="344" height="90" rx="18" fill="#fff5ec" stroke="#e4b88e"/>
+    <text x="200" y="303" text-anchor="middle" class="body" fill="#8b4b18">Readiness evidence</text>
+    <text x="200" y="333" text-anchor="middle" class="body" fill="#8b4b18">+ approved mutations</text>
+    <text x="28" y="388" class="footer">Preview · recheck · approve · verify</text>
+  </g>
+
+  <text x="700" y="642" text-anchor="middle" class="body">Install by folder copy · synthetic examples included · runtime status tied to evidence</text>
+</svg>

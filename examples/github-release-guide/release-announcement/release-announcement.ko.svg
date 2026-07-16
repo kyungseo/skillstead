@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350" width="1080" height="1350" role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>GitHub 공개와 릴리스의 불안을 확인과 승인 절차로 바꿉니다</title>
+  <desc>공개된 정보는 완전히 회수하기 어렵다. github-release-guide는 Assess에서 저장소를 변경하지 않고 위험과 다음 단계를 안내하며, Guided에서는 사용자가 승인한 작업만 실행한다. 공개 전환 직전에는 별도 승인을 확인하고, 실행 뒤에는 실제 결과를 검증한다. 자동 검사는 모든 위험을 찾는다고 보장하지 않으며 최종 판단과 릴리스 권한은 사용자에게 남는다.</desc>
+  <style>
+    svg{ --bg:#F7F9FC; --ink:#1C2838; --muted:#607086; --edge:#8496AB;
+      --warn:#B4621B; --warn-line:#DDA566; --warn-fill:#FBEFE4; --warn-tint:#F9E3CF; --warn-ink:#7A3E0E; --warn-body:#6E543C;
+      --blue:#2563A9; --blue-line:#BFD5EA; --blue-fill:#EAF2FB; --blue-tint:#E3EEF8; --blue-ink:#183F68; --blue-body:#4C6077;
+      --amber:#9A5A16; --amber-tint:#FFF0DC; --amber-ink:#70410F; --amber-body:#655542;
+      --note-fill:#FFF5E9; --note-line:#E3B77E; --note-ink:#764612;
+      --green:#17735C; --green-line:#BFDCCF; --green-fill:#E9F5F0; --green-tint:#DCEFE6; --green-ink:#10523F; --green-body:#47645A; }
+    .on-accent{ fill:#FFFFFF }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto"><path d="M0 0l12 6-12 6z" fill="#8496AB"/></marker>
+    <symbol id="ic-alert" viewBox="0 0 24 24"><path d="M12 4.2L21.2 19.8H2.8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 17.2h.01" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15.5 15.5L21 21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.4 12.3l2.4 2.4 4.8-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+
+  <rect width="1080" height="1350" fill="var(--bg)"/>
+
+  <!-- header -->
+  <rect x="58" y="64" width="6" height="96" rx="3" fill="var(--blue)"/>
+  <text x="88" y="112" font-size="44" font-weight="760" fill="var(--ink)">GitHub 공개와 릴리스의 불안을,</text>
+  <text x="88" y="162" font-size="44" font-weight="760" fill="var(--ink)">확인과 승인 절차로 바꿉니다</text>
+  <text x="88" y="203" font-size="21" fill="var(--muted)">github-release-guide — 첫 공개와 이후 버전 릴리스마다 사용하는 Agent Skill</text>
+
+  <!-- band 1 · 공개 위험 -->
+  <rect x="60" y="248" width="960" height="240" rx="20" fill="var(--warn-fill)" stroke="var(--warn-line)" stroke-width="2"/>
+  <rect x="88" y="229" width="150" height="44" rx="22" fill="var(--warn)"/>
+  <text x="163" y="251" dominant-baseline="central" text-anchor="middle" font-size="19" font-weight="720" class="on-accent">1 &#183; 공개 위험</text>
+  <circle cx="150" cy="382" r="40" fill="var(--warn-tint)"/><use href="#ic-alert" x="128" y="360" width="44" height="44" style="color:var(--warn)"/>
+  <text x="220" y="330" dominant-baseline="central" font-size="25" font-weight="730" fill="var(--warn-ink)">공개 전환 뒤에는 완전한 회수가 어렵습니다</text>
+  <text x="220" y="378" dominant-baseline="central" font-size="19" fill="var(--warn-body)">'Secret을 실수로 커밋하지 않았을까?' 공개된 사본은 완전히 회수할 수 없습니다.</text>
+  <text x="220" y="410" dominant-baseline="central" font-size="19" fill="var(--warn-body)">인증 정보가 노출되면 즉시 중단하고 폐기·교체와 사고 대응이 필요합니다.</text>
+
+  <!-- arrow -->
+  <line x1="540" y1="496" x2="540" y2="528" stroke="var(--edge)" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- band 2 · 점검과 승인 -->
+  <rect x="60" y="540" width="960" height="390" rx="20" fill="var(--blue-fill)" stroke="var(--blue)" stroke-width="2.5"/>
+  <rect x="88" y="521" width="330" height="44" rx="22" fill="var(--blue)"/>
+  <text x="253" y="543" dominant-baseline="central" text-anchor="middle" font-size="19" font-weight="720" class="on-accent">2 &#183; 점검과 승인</text>
+
+  <g>
+    <rect x="92" y="595" width="436" height="180" rx="18" fill="#FFFFFF" stroke="#75A6D1" stroke-width="2"/>
+    <circle cx="148" cy="685" r="34" fill="var(--blue-tint)"/><use href="#ic-search" x="129" y="666" width="38" height="38" style="color:var(--blue)"/>
+    <text x="200" y="645" dominant-baseline="central" font-size="25" font-weight="730" fill="var(--blue-ink)">Assess &#183; 진단</text>
+    <text x="200" y="692" dominant-baseline="central" font-size="19" fill="var(--blue-body)">저장소를 바꾸지 않고 위험과</text>
+    <text x="200" y="722" dominant-baseline="central" font-size="19" fill="var(--blue-body)">확인하지 못한 항목, 다음 단계 안내</text>
+  </g>
+  <g>
+    <rect x="552" y="595" width="436" height="180" rx="18" fill="#FFFFFF" stroke="#D69B51" stroke-width="2"/>
+    <circle cx="608" cy="685" r="34" fill="var(--amber-tint)"/><use href="#ic-shield" x="589" y="666" width="38" height="38" style="color:var(--amber)"/>
+    <text x="660" y="645" dominant-baseline="central" font-size="25" font-weight="730" fill="var(--amber-ink)">Guided &#183; 실행</text>
+    <text x="660" y="692" dominant-baseline="central" font-size="19" fill="var(--amber-body)">변경 내용과 영향을 먼저 보여주고</text>
+    <text x="660" y="722" dominant-baseline="central" font-size="19" fill="var(--amber-body)">사용자가 승인한 작업만 하나씩 실행</text>
+  </g>
+
+  <rect x="92" y="805" width="896" height="92" rx="16" fill="var(--note-fill)" stroke="var(--note-line)" stroke-width="2"/>
+  <text x="540" y="837" dominant-baseline="central" text-anchor="middle" font-size="18" font-weight="650" fill="var(--note-ink)">공개 전환 직전에는 정보가 완전히 회수되지 않을 수 있음을 다시 설명하고</text>
+  <text x="540" y="868" dominant-baseline="central" text-anchor="middle" font-size="18" font-weight="650" fill="var(--note-ink)">공개 상태 변경에 대한 사용자의 승인을 별도로 확인합니다</text>
+
+  <!-- arrow -->
+  <line x1="540" y1="938" x2="540" y2="970" stroke="var(--edge)" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- band 3 · 결과 확인 -->
+  <rect x="60" y="982" width="960" height="250" rx="20" fill="var(--green-fill)" stroke="var(--green-line)" stroke-width="2"/>
+  <rect x="88" y="963" width="170" height="44" rx="22" fill="var(--green)"/>
+  <text x="173" y="985" dominant-baseline="central" text-anchor="middle" font-size="19" font-weight="720" class="on-accent">3 &#183; 결과 확인</text>
+  <circle cx="150" cy="1120" r="40" fill="var(--green-tint)"/><use href="#ic-check" x="128" y="1098" width="44" height="44" style="color:var(--green)"/>
+  <text x="220" y="1058" dominant-baseline="central" font-size="25" font-weight="730" fill="var(--green-ink)">승인한 변경만 실행하고, 실제 결과까지 확인합니다</text>
+  <text x="220" y="1106" dominant-baseline="central" font-size="18" fill="var(--green-body)">오류가 발생하거나 일부만 성공하면 즉시 멈추고 실제 상태를 다시 확인합니다.</text>
+  <text x="220" y="1138" dominant-baseline="central" font-size="18" fill="var(--green-body)">자동 검사만으로 모든 위험을 찾을 수는 없습니다.</text>
+  <text x="220" y="1170" dominant-baseline="central" font-size="18" fill="var(--green-body)">최종 판단과 릴리스 권한은 사용자에게 남습니다.</text>
+
+  <!-- footer -->
+  <text x="540" y="1295" dominant-baseline="central" text-anchor="middle" font-size="16" fill="var(--muted)">Skillstead &#183; github-release-guide v1 &#183; 첫 공개와 이후 버전 릴리스마다</text>
+</svg>
