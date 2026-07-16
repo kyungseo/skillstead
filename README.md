@@ -17,7 +17,7 @@ and guide safer GitHub releases.
 | --- | --- | --- | --- | --- |
 | 1 | [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | Claude Code | Stable |
 | 2 | [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | Claude Code | Beta |
-| 3 | [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | Pending: Claude Code + Codex | Beta |
+| 3 | [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | Supported: Claude Code + Codex | Beta |
 
 Install any skill by copying its complete folder into the runtime's skill directory. See
 [`docs/INSTALL.md`](./docs/INSTALL.md) for global/project paths, pinned tags, clean updates, Windows commands,
@@ -81,9 +81,9 @@ Every public skill must have:
 - and a repeatable validation path appropriate to its output.
 
 Runtime support is per skill, not catalog-wide. Claude Code support for the first two skills is unchanged.
-`github-release-guide` has passed clean Claude Code/Codex material-parity checks and the disposable
-first-public live E2E. It remains `Pending` until pinned `v0.5.0` install verification and the final strict
-claim audit are complete.
+`github-release-guide` has passed clean Claude Code/Codex material-parity checks, the disposable first-public
+live E2E, pinned `v0.5.0` project installation and discovery smoke, and the final strict claim audit. It is
+`Supported` for Claude Code and Codex within that recorded evidence scope.
 
 ## Current limitations
 

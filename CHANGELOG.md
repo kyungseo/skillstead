@@ -28,8 +28,11 @@ Granular, per-change entries begin at the first public release. Earlier developm
   external claim-audit result.
 - **Portable package and fixtures.** Runtime-neutral `SKILL.md`, user-friendly English/Korean READMEs, three
   one-level references, Codex UI metadata, and repository-only synthetic scenarios/answer key/worked outputs.
-  Clean Claude Code/Codex material parity and the disposable live first-public E2E passed; public support remains
-  pending pinned `v0.5.0` install verification and the final strict claim audit.
+  At release publication, clean Claude Code/Codex material parity and the disposable live first-public E2E had
+  passed; public support remained pending pinned `v0.5.0` install verification and the final strict claim audit.
+- **Post-release verification.** The published `v0.5.0` package passed pinned project installation and discovery
+  in both Claude Code and Codex. The final strict claim audit passed; runtime support is now `Supported` within
+  that recorded evidence scope.
 - **Bilingual impact diagrams.** Two editable SVG + dimension-verified 2× PNG pairs explain how to choose a
   mode and release type, and how each change moves through preview, recheck, approval, execution, and verification
   in English and Korean.

@@ -3,9 +3,9 @@
 Skillstead packages each skill as a portable folder. Installation means cloning a reviewed ref and copying one
 complete folder; no remote install script is executed.
 
-> **Pre-release note:** The disposable first-public live E2E passed. The pinned `v0.5.0` commands below become
-> valid after that tag is published. Until then, use the latest-development-ref instructions only for isolated
-> evaluation. Runtime support remains `Pending` until the pinned install and final strict claim audit pass.
+> **Release verification:** `v0.5.0` is published. Its pinned project installation was copied and discovered in
+> both Claude Code and Codex, and the final strict claim audit passed. The runtime support matrix below reflects
+> that observed scope; use the latest-development ref only when you deliberately want an unreleased evaluation.
 
 ## Runtime support
 
@@ -15,7 +15,7 @@ Runtime support is verified per skill:
 | --- | --- | --- | --- |
 | `svg-infographic` | Supported | Not yet claimed | Browser-based PNG rendering verified on macOS through Claude Code; Windows/Linux paths remain pending |
 | `docs-claim-check` | Supported | Not yet claimed | Behavioral fixtures passed with Claude Code Fable and Sonnet |
-| `github-release-guide` | Pending pinned install | Pending pinned install | Clean material parity and disposable first-public live E2E passed; support remains pending pinned `v0.5.0` install verification and final strict claim audit |
+| `github-release-guide` | Supported | Supported | Clean material parity, disposable first-public live E2E, pinned `v0.5.0` project installation/discovery, and final strict claim audit passed |
 
 Copy only a skill whose runtime column says Supported for normal use. A Pending skill may be copied into an
 isolated test repository for evaluation without earning a public support claim.
