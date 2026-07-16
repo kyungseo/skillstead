@@ -10,9 +10,9 @@ undo once other people can clone or copy the repository.
 next. It can then guide the release one approved change at a time. You remain the release authority throughout
 the process.
 
-> **Runtime status:** Claude Code and Codex behavior match on clean synthetic fixtures, and the disposable
-> first-public live E2E passed. Public support remains `Pending` until pinned `v0.5.0` install verification and
-> the final strict claim audit are complete.
+> **Runtime status:** Claude Code and Codex behavior match on clean synthetic fixtures, the disposable
+> first-public live E2E passed, and both runtimes discovered the complete pinned `v0.5.0` project package.
+> The final strict claim audit also passed, so public support is `Supported` within that recorded evidence scope.
 
 ## Choose how you want to proceed
 
