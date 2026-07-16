@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>Choose how to proceed and what to release</title>
+  <desc>Assess checks readiness without changing the repository. Guided shows each proposed change and carries out only what the user directly approves. First-public covers a private GitHub repository's one-time public transition, while version-release is used for every new version released afterward.</desc>
+  <style>
+    svg{ --bg:#F7F9FC; --ink:#1C2838; --muted:#607086; --edge:#8496AB;
+      --blue:#2563A9; --blue-line:#75A6D1; --blue-ink:#183F68; --blue-body:#4C6077; --blue-tint:#E3EEF8;
+      --band1-fill:#EEF5FC; --band1-line:#CADBEB;
+      --amber:#9A5A16; --amber-line:#D69B51; --amber-ink:#70410F; --amber-body:#655542; --amber-tint:#FFF0DC;
+      --purple:#6750A4; --purple-line:#8C79BF; --purple-ink:#49357C; --purple-body:#5D5570; --purple-tint:#EEE9F8;
+      --band2-fill:#F4F1FB; --band2-line:#D8CDEA;
+      --green:#17735C; --green-line:#48A087; --green-ink:#155C4B; --green-body:#4D655F; --green-tint:#E4F4EF;
+      --note-fill:#FFF5E9; --note-line:#E3B77E; --note-ink:#764612; }
+    .on-accent{ fill:#FFFFFF }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="9" markerHeight="9" orient="auto"><path d="M0 0l12 6-12 6z" fill="#8496AB"/></marker>
+    <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15.5 15.5L21 21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="ic-eye" viewBox="0 0 24 24"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.8" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="ic-tag" viewBox="0 0 24 24"><path d="M3 12l9 9 9-9-9-9H3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="8" cy="8" r="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+  </defs>
+
+  <rect width="1600" height="900" fill="var(--bg)"/>
+
+  <!-- header -->
+  <rect x="68" y="58" width="6" height="88" rx="3" fill="var(--blue)"/>
+  <text x="98" y="96" font-size="42" font-weight="760" fill="var(--ink)">Choose how to proceed, then choose the release type</text>
+  <text x="98" y="137" font-size="21" fill="var(--muted)">Assess checks only. Guided carries out only the changes you approve.</text>
+
+  <!-- band 1 · choose mode -->
+  <rect x="70" y="185" width="1460" height="252" rx="24" fill="var(--band1-fill)" stroke="var(--band1-line)" stroke-width="2"/>
+  <rect x="98" y="166" width="220" height="46" rx="23" fill="var(--blue)"/>
+  <text x="208" y="189" dominant-baseline="central" text-anchor="middle" font-size="19" font-weight="720" class="on-accent">1 &#183; CHOOSE MODE</text>
+
+  <g>
+    <rect x="115" y="240" width="640" height="150" rx="20" fill="#FFFFFF" stroke="var(--blue-line)" stroke-width="2"/>
+    <circle cx="185" cy="315" r="38" fill="var(--blue-tint)"/><use href="#ic-search" x="165" y="295" width="40" height="40" style="color:var(--blue)"/>
+    <text x="245" y="286" dominant-baseline="central" font-size="27" font-weight="740" fill="var(--blue-ink)">Assess</text>
+    <text x="245" y="326" dominant-baseline="central" font-size="20" fill="var(--blue-body)">Keep the repository unchanged while checking</text>
+    <text x="245" y="355" dominant-baseline="central" font-size="20" fill="var(--blue-body)">readiness, blockers, and one safest next step</text>
+  </g>
+  <g>
+    <rect x="845" y="240" width="640" height="150" rx="20" fill="#FFFFFF" stroke="var(--amber-line)" stroke-width="3"/>
+    <circle cx="915" cy="315" r="38" fill="var(--amber-tint)"/><use href="#ic-shield" x="895" y="295" width="40" height="40" style="color:var(--amber)"/>
+    <text x="975" y="286" dominant-baseline="central" font-size="27" font-weight="740" fill="var(--amber-ink)">Guided</text>
+    <text x="975" y="326" dominant-baseline="central" font-size="20" fill="var(--amber-body)">See each proposed change first, then carry out</text>
+    <text x="975" y="355" dominant-baseline="central" font-size="20" fill="var(--amber-body)">only the work you directly approve</text>
+  </g>
+
+  <!-- reading-order connector -->
+  <line x1="800" y1="443" x2="800" y2="482" stroke="var(--edge)" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <!-- band 2 · select profile -->
+  <rect x="70" y="492" width="1460" height="252" rx="24" fill="var(--band2-fill)" stroke="var(--band2-line)" stroke-width="2"/>
+  <rect x="98" y="473" width="250" height="46" rx="23" fill="var(--purple)"/>
+  <text x="223" y="496" dominant-baseline="central" text-anchor="middle" font-size="19" font-weight="720" class="on-accent">2 &#183; SELECT PROFILE</text>
+
+  <g>
+    <rect x="115" y="547" width="640" height="150" rx="20" fill="#FFFFFF" stroke="var(--purple-line)" stroke-width="2"/>
+    <circle cx="185" cy="622" r="38" fill="var(--purple-tint)"/><use href="#ic-eye" x="165" y="602" width="40" height="40" style="color:var(--purple)"/>
+    <text x="245" y="593" dominant-baseline="central" font-size="27" font-weight="740" fill="var(--purple-ink)">first-public</text>
+    <text x="245" y="633" dominant-baseline="central" font-size="20" fill="var(--purple-body)">Take an existing private GitHub repository</text>
+    <text x="245" y="662" dominant-baseline="central" font-size="20" fill="var(--purple-body)">&#8594; public for the first time with release evidence</text>
+  </g>
+  <g>
+    <rect x="845" y="547" width="640" height="150" rx="20" fill="#FFFFFF" stroke="var(--green-line)" stroke-width="2"/>
+    <circle cx="915" cy="622" r="38" fill="var(--green-tint)"/><use href="#ic-tag" x="895" y="602" width="40" height="40" style="color:var(--green)"/>
+    <text x="975" y="593" dominant-baseline="central" font-size="27" font-weight="740" fill="var(--green-ink)">version-release</text>
+    <text x="975" y="633" dominant-baseline="central" font-size="20" fill="var(--green-body)">Use for every new version of an</text>
+    <text x="975" y="662" dominant-baseline="central" font-size="20" fill="var(--green-body)">&#8594; already-public GitHub repository</text>
+  </g>
+
+  <!-- gate note -->
+  <rect x="230" y="790" width="1140" height="64" rx="18" fill="var(--note-fill)" stroke="var(--note-line)" stroke-width="2"/>
+  <text x="800" y="822" dominant-baseline="central" text-anchor="middle" font-size="21" font-weight="690" fill="var(--note-ink)">Guided starts only after Assess is Ready and all required release rules are available.</text>
+</svg>

@@ -4,6 +4,43 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## [0.5.0] — 2026-07-16
+
+### github-release-guide (new skill, Beta)
+
+- **New skill: `github-release-guide`.** Provides a read-only `Assess` mode and an approval-gated `Guided`
+  mode for an existing private github.com repository's first public transition and every version release after
+  that repository is public.
+- **Change-by-change approval.** File edits, commit or merge, push, tag creation and push, public visibility,
+  repository settings, GitHub Release publication, and corrective work each require their own preview and
+  approval. The guide checks the current state again immediately before the change; if the state differs, the
+  earlier approval no longer applies.
+- **Safer first publication.** The repository is never made public in the same batch as another change. Because
+  public copies cannot be fully recalled and automated scans cannot guarantee every risk was found, the guide
+  explains those limits and asks for direct approval immediately before changing visibility. It then checks the
+  public clone, installation, links, settings, tags, and GitHub Release result.
+- **Licensing and language decisions.** A missing or undecided LICENSE stops the release. Choosing no license is
+  allowed only after the guide explains the practical consequence and risk in plain language, states that it is
+  not legal advice, and asks for separate approval. Documentation and release-note languages are decided from
+  the user's instruction and repository convention rather than assumed to be the same.
+- **Claims must match evidence.** Public installation, version, compatibility, and runtime claims need direct
+  evidence. A repository that explicitly chooses the stricter internal policy must also supply the required
+  external claim-audit result.
+- **Portable package and fixtures.** Runtime-neutral `SKILL.md`, user-friendly English/Korean READMEs, three
+  one-level references, Codex UI metadata, and repository-only synthetic scenarios/answer key/worked outputs.
+  Clean Claude Code/Codex material parity and the disposable live first-public E2E passed; public support remains
+  pending pinned `v0.5.0` install verification and the final strict claim audit.
+- **Bilingual impact diagrams.** Two editable SVG + dimension-verified 2× PNG pairs explain how to choose a
+  mode and release type, and how each change moves through preview, recheck, approval, execution, and verification
+  in English and Korean.
+
+### Catalog and installation
+
+- Root English/Korean READMEs now lead with a three-skill priority catalog and per-skill problem, value, use
+  case, detail/installation link, impact visual, maturity, and evidence-scoped runtime support.
+- Install documentation now distinguishes Claude Code and Codex global/project projections, uses pinned
+  `v0.5.0` examples, documents clean replacement updates, and lists the installed README pair.
+
 ## [0.4.0] — 2026-07-14
 
 ### docs-claim-check (new skill, Beta)
