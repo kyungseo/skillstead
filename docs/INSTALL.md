@@ -3,11 +3,11 @@
 Skillstead packages each skill as a portable folder. Installation means cloning a reviewed ref and copying one
 complete folder; no remote install script is executed.
 
-> **Release verification:** The commands below are pinned to `v0.6.0`. The pre-release documentation claim
-> audit passed before publication. Pinned installation/discovery is a post-release check; recorded passing
-> evidence currently covers `v0.5.0` on both Claude Code and Codex until the `v0.6.0` result is added. The
-> runtime support matrix below reflects the recorded evidence scope; use the latest-development ref only when
-> you deliberately want an unreleased evaluation.
+> **Release verification:** `v0.6.0` is published. Its pinned installation/discovery check passed on both
+> Claude Code and Codex: the fresh pinned clone matched the released source, and the complete copied package
+> was discovered and loaded in a clean context on each runtime. The pre-release documentation claim audit
+> passed before publication. The runtime support matrix below reflects the recorded evidence scope; use the
+> latest-development ref only when you deliberately want an unreleased evaluation.
 
 ## Runtime support
 
@@ -17,7 +17,7 @@ Runtime support is verified per skill:
 | --- | --- | --- | --- |
 | `svg-infographic` | Supported | Not yet claimed | Browser-based PNG rendering verified on macOS through Claude Code; Windows/Linux paths remain pending |
 | `docs-claim-check` | Supported | Not yet claimed | Behavioral fixtures passed with Claude Code Fable and Sonnet |
-| `github-release-guide` | Supported | Supported | Clean material parity, disposable first-public live E2E, pinned `v0.5.0` project installation/discovery, and final strict claim audit passed |
+| `github-release-guide` | Supported | Supported | Clean material parity (incl. protection fixtures), disposable first-public and Guided tag-ruleset live E2E, pinned `v0.5.0`/`v0.6.0` project installation/discovery, and release claim audits passed |
 
 Copy only a skill whose runtime column says Supported for normal use. A Pending skill may be copied into an
 isolated test repository for evaluation without earning a public support claim.
