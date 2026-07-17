@@ -13,6 +13,11 @@ the process.
 > **Runtime status:** Claude Code and Codex behavior match on clean synthetic fixtures, the disposable
 > first-public live E2E passed, and both runtimes discovered the complete pinned `v0.5.0` project package.
 > The final strict claim audit also passed, so public support is `Supported` within that recorded evidence scope.
+>
+> **Maturity: Stable** — based on Claude Code/Codex material parity including the PT protection fixtures,
+> the disposable first-public live E2E, the Guided tag-ruleset apply-and-verify live E2E (2026-07-17),
+> and pinned project installation/discovery evidence. Runtime support (`Supported`) and product maturity
+> (`Stable`) remain separate labels.
 
 ## Choose how you want to proceed
 
