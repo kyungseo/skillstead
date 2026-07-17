@@ -77,7 +77,7 @@ publish packages, sign binaries, deploy cloud services, claim a security audit, 
 generic checklists and templates for taking a private repository public and verifying it afterward. These are
 reference documents for maintainers — not installable skills, and installing any skill never requires them.
 The `github-release-guide` skill mirrors the playbook's rules inside its own self-contained package. The
-playbook documents are currently written in Korean.
+playbook documents are currently Korean-primary; an English version is pending.
 
 ## Quality and evidence bar
 

@@ -16,4 +16,5 @@ snapshot import), 파일 내용은 source snapshot과 동일합니다(semantic c
 
 이 playbook 문서들은 generic release mechanics의 canonical 기준이며, [`skills/github-release-guide`](../skills/github-release-guide)는
 설치형 self-contained mirror입니다. 두 표면이 서로 다르면 이 playbook이 기준입니다. 문서 본문은
-현재 한국어로 작성되어 있습니다.
+현재 **한국어 기준(Korean-primary)**이며, English 판은 아직 제공되지 않습니다 — 내용 안정화 후
+English primary + Korean mirror 전환이 후속 작업으로 예정되어 있습니다.
