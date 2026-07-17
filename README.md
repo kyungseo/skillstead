@@ -19,7 +19,8 @@ and guide safer GitHub releases.
 | 2 | [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | Claude Code | Beta |
 | 3 | [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | Supported: Claude Code + Codex | Beta |
 
-Install any skill by copying its complete folder into the runtime's skill directory. See
+Each skill is self-contained and can be installed independently. You do not need to install the entire
+catalog—copy only the complete folder for the skill you want to use. See
 [`docs/INSTALL.md`](./docs/INSTALL.md) for global/project paths, pinned tags, clean updates, Windows commands,
 and the per-skill runtime matrix.
 
@@ -69,6 +70,14 @@ publish packages, sign binaries, deploy cloud services, claim a security audit, 
 - Guided example: `Use github-release-guide in Guided mode to prepare this private repository for first publication. Start with Assess, then show only the first proposed change. Do not change the repository until I approve that exact step.`
 - Safety boundary: immediately before a repository becomes public, the guide explains what cannot be undone and
   asks the user to approve that visibility change separately. The release decision remains with the user.
+
+## Playbooks (maintainer reference)
+
+[`playbooks/public-release`](./playbooks/public-release) contains the canonical public-release playbook:
+generic checklists and templates for taking a private repository public and verifying it afterward. These are
+reference documents for maintainers — not installable skills, and installing any skill never requires them.
+The `github-release-guide` skill mirrors the playbook's rules inside its own self-contained package. The
+playbook documents are currently written in Korean.
 
 ## Quality and evidence bar
 

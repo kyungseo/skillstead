@@ -4,6 +4,19 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## [Unreleased]
+
+### Repository
+
+- **Playbooks area (`playbooks/public-release/`).** The canonical public-release playbook — six Korean
+  checklists and templates for taking a private repository public and verifying it afterward — moved here
+  from a standalone private repository as an unmodified snapshot import (no git history). These are
+  maintainer reference documents, not installable skills; the `github-release-guide` skill continues to
+  mirror their rules in its own self-contained package. The documents are now covered by this repository's
+  Apache-2.0 license. Provenance details are recorded in `playbooks/README.md`.
+- **Independent installation.** The root README (EN/KO) now states explicitly that each skill is
+  self-contained and can be installed independently by copying only that skill's complete folder.
+
 ## [0.5.0] — 2026-07-16
 
 ### github-release-guide (new skill, Beta)
