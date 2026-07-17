@@ -13,6 +13,7 @@ private repo를 public repo로 전환할 때 쓰는 개인용 체크리스트다
 | `sensitive-info-sweep.md` | 민감정보 점검 가이드 |
 | `repo-settings-template.md` | GitHub repo settings 기본값 |
 | `post-public-verification.md` | public 전환 직후 검증 |
+| `recurring-release-protection-checkpoint.md` | 공개 후 매 version release 전 protection 재점검 |
 | `social-release-note-template.md` | 공개 후 소셜 공유 문구 준비 템플릿 |
 
 ## 운영 원칙

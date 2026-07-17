@@ -27,14 +27,36 @@ Check the available evidence without mutation:
 5. **Dependencies and security signals:** repository-defined audit/test/build results, GitHub alerts and
    security capabilities. Do not turn these checks into a security-audit claim.
 6. **GitHub settings:** description, topics, default branch, Issues/Discussions/Wiki/Projects, merge method,
-   head-branch deletion, branch protection/rulesets, vulnerability alerts, secret scanning, push protection.
+   head-branch deletion, vulnerability alerts, secret scanning, push protection, and protection state at the
+   property level: which rules apply to the default/release branch (deletion, non-fast-forward, pull request,
+   conditional required checks), how narrow the bypass is, and release-tag ruleset applicability and effective
+   state (recommended baseline: block update and deletion of existing release tags, leave tag creation
+   unrestricted, narrow admin bypass; derive the tag namespace from the repository's actual release
+   convention — ruleset patterns use fnmatch where `*` does not cross `/`).
 7. **Public surface and positioning:** one-sentence description, audience, examples, limitations, links,
    images, install and quick-start claims.
 8. **Release communication:** release type, title, notes, compatibility, known limitations, compare link,
    announcement only when requested.
 
 Treat plan/account limitations and unavailable settings as explicit unknowns or accepted risks with a
-revisit trigger; never hide them as passing checks.
+revisit trigger; never hide them as passing checks. As of 2026-07-17, GitHub Free and Free for
+organizations support rulesets and protected branches on public repositories only; private repositories
+require Pro, Team, or Enterprise. Verify the plan before proposing protection changes on a private
+repository, and re-verify this limit when GitHub plans change.
+
+## Protection settings mutation safety
+
+Rulesets and legacy branch protection can apply to the same repository at the same time. When applying a
+new ruleset or migrating from legacy protection, keep the overlap until the replacement is verified:
+
+1. Activate the new ruleset first.
+2. Verify the effective rules and bypass are equivalent to the protection being replaced.
+3. Removing legacy protection is its own `Repository settings change` approval unit, separate from
+   applying the new ruleset.
+4. Re-verify the effective rules after removal. On failure, keep or restore the legacy protection.
+
+Never remove existing protection before the replacement is verified. A protection gap is never itself
+approval to mutate settings.
 
 ### Sensitive-information lane detail
 

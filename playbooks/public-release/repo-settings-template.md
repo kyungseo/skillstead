@@ -34,16 +34,34 @@
 
 권장 규칙:
 
-| Branch | Rules |
+| Target | Rules |
 | --- | --- |
 | `main` | deletion 차단, non-fast-forward 차단, PR 필수, CI가 있으면 required checks |
 | `develop` | deletion 차단, non-fast-forward 차단, PR 필수 |
+| Release tags | 기존 tag의 update/deletion 차단. creation은 제한하지 않는다(정상 release tag 생성은 허용하고 이미 publish된 anchor만 불변으로 만든다). narrow admin bypass. **applicability**: version tag로 release하는 repo면 적용 대상이다 — tag 없이 release하는 repo만 not-applicable(근거 기록). **severity**: 부재 시 immutable tag에 의존하는 release-critical consumer path(pinned install, tag-pinned clone·dependency·CI)가 있으면 `Blocked`, 그 외에는 `Needs attention` + explicit accepted risk·revisit trigger |
+
+tag pattern은 repo의 실제 release convention에서 도출한다. `v*`는 candidate default일 뿐이며,
+GitHub ruleset의 fnmatch에서 `*`는 `/`를 넘지 않으므로 monorepo의 `pkg-a/v1.2.3` 같은 namespace에는
+별도 pattern이 필요하다. 적용 전에 pattern의 match/overreach를 실제 tag 목록으로 확인한다.
 
 권장 bypass:
 
 - solo maintainer workflow에서 긴급 복구나 release 후 branch sync가 필요하면 owner/admin bypass가 가능해야 한다.
 - bypass는 가능한 좁게 둔다. 기본 권장값은 Admin bypass만 허용하는 것이다.
 - 일반 contributor, GitHub App, broad team bypass는 필요성이 명확할 때만 추가한다.
+- bypass 기록: push 응답의 "Bypassed rule violations" 고지는 즉시 관측 evidence이고, durable audit는
+  rule suites API로 확인한다. 일부 insights 화면 기능은 plan(Team/Enterprise)에 따라 제한될 수 있다.
+
+### Legacy branch protection → rulesets 이전 (optional, overlap-first)
+
+rulesets와 legacy branch protection은 함께 적용될 수 있으므로, 이전은 겹침을 유지한 채 진행한다:
+
+1. 새 ruleset을 먼저 active로 만든다.
+2. effective rules와 bypass가 legacy와 등가인지 검증한다 (`gh api repos/OWNER/REPO/rules/branches/BRANCH`).
+3. legacy protection 제거는 별도 결정·승인 단계로 분리한다.
+4. 제거 후 effective rules를 재검증한다. 실패하면 legacy를 유지하거나 복원한다.
+
+등가성 검증 전에 기존 보호를 먼저 제거하지 않는다.
 
 ## Security
 
@@ -62,7 +80,10 @@ gh api repos/OWNER/REPO/vulnerability-alerts -i
 gh api repos/OWNER/REPO/rulesets
 ```
 
-일부 security/ruleset 기능은 repo가 private이거나 account plan이 지원하지 않으면 사용할 수 없다.
+plan 제약 (2026-07-17 확인 — GitHub 정책 변동 가능, 불가 시 확인 날짜와 함께 기록):
+**GitHub Free와 Free for organizations는 public repo의 rulesets·protected branches를 지원하고,
+private repo에는 Pro/Team/Enterprise가 필요하다.** private repo에서 설정을 시도하기 전에 visibility와
+plan을 먼저 확인한다. 그 외 일부 security 기능도 plan·visibility에 따라 제한될 수 있다.
 적용하지 못한 ruleset/protection은 post-public record에 accepted risk와 revisit trigger로 남긴다.
 
 ## Description And Topics

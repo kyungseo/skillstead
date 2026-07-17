@@ -29,7 +29,8 @@ If any prerequisite is unavailable, perform only the possible partial Assess and
 5. Review repository-defined dependency/test/build evidence and GitHub security alerts. Block unresolved
    critical alerts; record unavailable features and accepted risks explicitly.
 6. Review description, topics, About URL, feature toggles, merge methods, automatic branch deletion,
-   rulesets/protection, bypass, security settings, and profile pinning intent.
+   rulesets/protection at the property level (including release-tag ruleset applicability for the planned
+   release convention), bypass, security settings, and profile pinning intent.
 7. Prepare public positioning, release title/notes, limitations, install/quick-start evidence, and optional
    announcement. Do not publish an announcement unless requested.
 
@@ -57,8 +58,9 @@ Verify directly where capability allows:
 - Public clone from a fresh temporary location
 - Documented install/quick start and repository-defined validation commands
 - README rendering, links, images, examples, LICENSE display, and public-facing limitations
-- Default branch, description/topics, Issues/Discussions, merge policy, rulesets/protection, long-lived branch
-  deletion safety, vulnerability alerts, secret scanning, push protection, and open alerts
+- Default branch, description/topics, Issues/Discussions, merge policy, rulesets/protection, release-tag
+  ruleset state matching the planned release convention (or a recorded not-applicable disposition),
+  long-lived branch deletion safety, vulnerability alerts, secret scanning, push protection, and open alerts
 - Tag target, GitHub Release title/notes, pinned install link, and any compare/detail links
 
 Record settings that are unavailable because of plan, account, permission, or policy, with a reason and

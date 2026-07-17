@@ -21,6 +21,29 @@ source or release path conflicts or is unknown, keep Guided Blocked until the ow
    and release notes with `assessment.md`.
 6. Apply the selected claim-audit and language profiles.
 
+## Release surface protection
+
+Check protection state before the tag sequence, without mutation:
+
+1. Derive the release tag namespace from the repository's actual release convention. `v*` is only a
+   candidate default; ruleset patterns use fnmatch where `*` does not cross `/`, so a monorepo namespace
+   like `pkg-a/v1.2.3` needs its own pattern. Verify match/overreach against the actual tag list.
+2. Classify applicability and severity: when the repository releases by version tag and a release-critical
+   consumer path depends on immutable tags (pinned install, tag-pinned clone, dependency, or CI), a missing
+   release-tag ruleset is `Blocked`. Other protection gaps are `Needs attention` with an explicit accepted
+   risk and a revisit trigger. A repository that releases without tags records `not-applicable` with the
+   reason — a no-risk disposition, not an accepted risk.
+3. Check the effective protection state and plan/permission capability using the settings lane in
+   `assessment.md`.
+4. In Guided, do not stop at reporting the gap. Offer to apply the recommended settings directly and
+   verify the result. On approval, execute each ruleset as its own `Repository settings change` approval
+   unit (preview, recheck, approval, apply, verify). After completion, recheck head, tag, and ruleset
+   state, then resume the tag sequence.
+5. When the user declines or permission is missing, keep the repository unchanged and record the explicit
+   accepted risk with a revisit trigger. A protection gap is never itself mutation approval.
+6. For any legacy-protection migration, follow the protection settings mutation safety rules in
+   `assessment.md`.
+
 ## Release notes
 
 Write for users, not as a commit dump. Include only applicable sections:
