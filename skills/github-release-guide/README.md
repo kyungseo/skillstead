@@ -43,6 +43,12 @@ first version released after the repository becomes public. The guide checks the
 version source, CHANGELOG, release notes, target commit, tag conflict, and direct install or compatibility
 evidence. File changes, commit, push, tag, and GitHub Release publication remain separate approval steps.
 
+Before the tag step it also checks release protection: whether the default branch and release tags are
+protected in a way that matches how the repository actually releases. When protection is missing and users
+depend on pinned tags, the guide does not just report the gap — in Guided mode it offers to apply the
+recommended settings and verify the result, each as its own approved change. Declining keeps the repository
+unchanged and records the accepted risk.
+
 ## What the guide checks before publication
 
 Assess reviews the material it can access and keeps anything unavailable visible as unknown. These checks help

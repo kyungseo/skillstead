@@ -9,6 +9,8 @@ repository visibility를 public으로 바꾼 직후 실행한다.
 - [ ] Description과 topics가 보이고 정확하다.
 - [ ] Issues / Discussions 설정이 의도한 상태다.
 - [ ] Branch protection 또는 ruleset이 active다.
+- [ ] Release tag ruleset이 applicability에 맞게 active이거나, not-applicable 근거가 기록되어 있다
+      (판정 기준: `recurring-release-protection-checkpoint.md`).
 - [ ] Branch protection/ruleset을 아직 두지 않는다면 이유와 재검토 trigger를 accepted risk로 기록했다.
 - [ ] owner/admin bypass가 필요한 workflow라면 실제 bypass 가능 상태다.
 - [ ] 장기 브랜치가 실수로 삭제되지 않도록 보호되어 있다.
