@@ -3,9 +3,11 @@
 Skillstead packages each skill as a portable folder. Installation means cloning a reviewed ref and copying one
 complete folder; no remote install script is executed.
 
-> **Release verification:** `v0.5.0` is published. Its pinned project installation was copied and discovered in
-> both Claude Code and Codex, and the final strict claim audit passed. The runtime support matrix below reflects
-> that observed scope; use the latest-development ref only when you deliberately want an unreleased evaluation.
+> **Release verification:** The commands below are pinned to `v0.6.0`. The pre-release documentation claim
+> audit passed before publication. Pinned installation/discovery is a post-release check; recorded passing
+> evidence currently covers `v0.5.0` on both Claude Code and Codex until the `v0.6.0` result is added. The
+> runtime support matrix below reflects the recorded evidence scope; use the latest-development ref only when
+> you deliberately want an unreleased evaluation.
 
 ## Runtime support
 
@@ -37,7 +39,7 @@ needed.
 ### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.5.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch v0.6.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 ```
@@ -45,7 +47,7 @@ cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 ### Codex — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.5.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch v0.6.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.agents/skills
 cp -R /tmp/skillstead/skills/github-release-guide ~/.agents/skills/
 ```
@@ -53,7 +55,7 @@ cp -R /tmp/skillstead/skills/github-release-guide ~/.agents/skills/
 ### Claude Code — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch v0.5.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch v0.6.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.claude\skills\"
 ```
@@ -61,7 +63,7 @@ Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$e
 ### Codex — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch v0.5.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch v0.6.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.agents\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.agents\skills\"
 ```
@@ -73,7 +75,7 @@ Run from the target repository root. Commit the copied folder if the team should
 ### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.5.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch v0.6.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 ```
@@ -81,7 +83,7 @@ cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 ### Codex — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.5.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch v0.6.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .agents/skills
 cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
 ```
@@ -91,14 +93,14 @@ cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
 Use `.claude\skills` for Claude Code or `.agents\skills` for Codex:
 
 ```powershell
-git clone --depth 1 --branch v0.5.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch v0.6.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force ".agents\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" ".agents\skills\"
 ```
 
 ## Latest development ref
 
-Omit `--branch v0.5.0` to copy the current default branch. This is useful for evaluation, not reproducible
+Omit `--branch v0.6.0` to copy the current default branch. This is useful for evaluation, not reproducible
 team installation. Pinned tags are recommended for teams and release evidence.
 
 ## Manual package shape

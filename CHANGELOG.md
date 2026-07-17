@@ -4,7 +4,7 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
-## [Unreleased]
+## [0.6.0] — 2026-07-17
 
 ### github-release-guide (Beta → Stable)
 
