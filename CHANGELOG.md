@@ -6,7 +6,26 @@ Granular, per-change entries begin at the first public release. Earlier developm
 
 ## [Unreleased]
 
+### github-release-guide (Beta → Stable)
+
+- **Maturity promoted to Stable.** Basis: Claude Code/Codex material parity including the new PT
+  protection fixtures (corrective reruns 0/0/0 and 0/1/0), the disposable first-public live E2E, the
+  Guided tag-ruleset apply-and-verify live E2E (2026-07-17, disposable repository), and pinned project
+  installation/discovery evidence. Runtime support (`Supported`) and maturity (`Stable`) remain
+  separate labels.
+- **Release protection checks.** The version-release profile now checks default-branch and release-tag
+  protection before the tag step (applicability derived from the repository's actual release convention;
+  severity split by release-critical tag-pinned consumer paths). In Guided mode the skill offers to apply
+  the recommended settings and verify the result, each as its own approved repository-settings change;
+  declining records the accepted risk. A shared protection-settings mutation safety rule keeps legacy
+  protection in place until a replacement ruleset is verified.
+
 ### Repository
+
+- **Playbooks protection baseline.** The canonical public-release playbook gained a release tag ruleset
+  baseline (applicability/severity split), a new `recurring-release-protection-checkpoint.md` for every
+  post-public version release, an overlap-first legacy-migration procedure, and a definite GitHub plan
+  availability statement (verified 2026-07-17).
 
 - **Playbooks area (`playbooks/public-release/`).** The canonical public-release playbook — six Korean
   checklists and templates for taking a private repository public and verifying it afterward — moved here
