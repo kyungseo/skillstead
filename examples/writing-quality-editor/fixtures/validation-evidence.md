@@ -1,7 +1,7 @@
 # Scenario Validation Evidence
 
 This ledger separates static contract review from fresh-context runtime behavior. Runtime support remains Pending
-until recorded executions and repository dogfood justify a narrower claim.
+until pinned `v0.7.0` installation/discovery and the post-release claim closeout justify a narrower claim.
 
 ## Static Contract Gate
 
@@ -28,6 +28,7 @@ This gate verifies package consistency, not independent model behavior.
 | Claude Code post-R2 amendment, 2026-07-18 | `claude-fable-5`; reasoning effort unobserved | One fresh subagent per scenario; complete metadata; answer key withheld until all first runs completed; bounded live research for F19/F20 | Pass: F01, F02, F12, F16–F20; corrective reruns 0 |
 | Codex post-R2 amendment, 2026-07-18 | Model and reasoning effort unobserved | One no-history context per scenario; skill package and complete scenario only; answer key withheld; bounded live research for F19/F20 | Pass: F01, F02, F12, F19, F20, F21; corrective reruns 0 |
 | Claude Code F21, 2026-07-18 | `claude-fable-5`; reasoning effort unobserved | One fresh subagent; installed skill folder and complete F21 metadata only; answer key and prior evidence withheld | Pass: F21; corrective reruns 0 |
+| Post-merge clean install/discovery, 2026-07-18 | Claude Code 2.1.214; Codex CLI 0.144.1, `gpt-5.6-sol`, effort `none` | Complete package downloaded from merge commit `7b65d70` into fresh project-local `.claude/skills` and `.agents/skills` paths; no prior session history; read-only discovery prompts | Pass on both runtimes: source and installed packages were byte-identical; each runtime loaded `SKILL.md`, returned `Compose, Assess, Revise, Adapt` in contract order, and identified `Bound The Meaning Before Writing`; zero mutations or corrective reruns. |
 
 ### Claude Code Pre-Fix Leg
 
@@ -191,8 +192,8 @@ Status: Cross-runtime material parity pass; playbook dogfood entry open.
 
 ### Repository Dogfood — Public-Release Playbooks
 
-Status: Behavior and bilingual parity pass; English authority flip awaits the separate owner approval and merge
-anchor required by DR-810.
+Status: Behavior and bilingual parity pass; English authority activated at PR #18 merge commit `7b65d70`, the
+DR-810 anchor.
 
 - The eight Korean-primary source documents were preserved as `.ko.md` mirrors, and eight English candidates now
   occupy the canonical filenames: the playbook catalog index plus seven `public-release` documents.
@@ -209,8 +210,7 @@ anchor required by DR-810.
   package's self-contained installation boundary. Social copy and copy-ready settings templates remain intentional
   human-reference-only differences.
 - Claim audit PC-6 initially lacked the explicit mirror mapping and passed the narrow follow-up after the mapping
-  was recorded. PC-1 remains an expected release gate: public files are candidates until the owner approves the
-  authority flip and the Skillstead PR merge supplies the anchor.
+  was recorded. PC-1 closed when the owner-approved authority flip was activated by PR #18 merge commit `7b65d70`.
 - Claim audit evidence:
   [`../playbook-dogfood-claim-audit-20260718.md`](../playbook-dogfood-claim-audit-20260718.md) and
   [`../playbook-dogfood-claim-audit-follow-up-20260718.md`](../playbook-dogfood-claim-audit-follow-up-20260718.md).
@@ -221,7 +221,7 @@ anchor required by DR-810.
 - The original broad PC-5 parity judgment is superseded for those lines by the corrective assessment:
   [`../playbook-dogfood-claim-audit-parity-correction-20260718.md`](../playbook-dogfood-claim-audit-parity-correction-20260718.md).
   The independent reviewer confirmed DF-1–DF-5 closure with no new regression. The owner approved the authority
-  flip on 2026-07-18; activation and PC-1 closure still await the Skillstead PR merge anchor required by DR-810.
+  flip on 2026-07-18, and PR #18 merge commit `7b65d70` activated it and closed PC-1 under DR-810.
 
 The cross-runtime high-signal set uses F03, F04, F08, F09, F11, F12, F13, F14, and F15. It covers both adaptation
 directions, claim honesty, unresolved ambiguity, natural rewriting without detector gaming, over-editing refusal,

@@ -3,10 +3,11 @@
 Skillstead packages each skill as a portable folder. Installation means cloning a reviewed ref and copying one
 complete folder; no remote install script is executed.
 
-> **Release verification:** `v0.6.0` is published. Its pinned installation/discovery check passed on both
-> Claude Code and Codex: the fresh pinned clone matched the released source, and the complete copied package
-> was discovered and loaded in a clean context on each runtime. The pre-release documentation claim audit
-> passed before publication. The runtime support matrix below reflects the recorded evidence scope; use the
+> **Release verification:** The commands below are pinned to `v0.7.0`. The pre-release documentation claim audit
+> completed with the unpublished tag's operational install claim still open, and the merged
+> `writing-quality-editor` package was discovered from byte-identical clean project installs on Claude Code and
+> Codex. Pinned `v0.7.0` installation/discovery is a post-release check, so that skill's public runtime support
+> remains Pending until the result is recorded. The matrix below reflects the current evidence scope; use the
 > latest-development ref only when you deliberately want an unreleased evaluation.
 
 ## Runtime support
@@ -18,7 +19,7 @@ Runtime support is verified per skill:
 | `svg-infographic` | Supported | Not yet claimed | Browser-based PNG rendering verified on macOS through Claude Code; Windows/Linux paths remain pending |
 | `docs-claim-check` | Supported | Not yet claimed | Behavioral fixtures passed with Claude Code Fable and Sonnet |
 | `github-release-guide` | Supported | Supported | Clean material parity (incl. protection fixtures), disposable first-public and Guided tag-ruleset live E2E, pinned `v0.5.0`/`v0.6.0` project installation/discovery, and release claim audits passed |
-| `writing-quality-editor` | Pending | Pending | Four-mode, 21-scenario cross-runtime behavior and repository dogfood passed; clean installation/discovery and the final public-claim gate remain |
+| `writing-quality-editor` | Pending | Pending | Four-mode, 21-scenario cross-runtime behavior, repository dogfood, and clean merge-commit installation/discovery passed; pinned `v0.7.0` verification and post-release claim closeout remain |
 
 Copy only a skill whose runtime column says Supported for normal use. A Pending skill may be copied into an
 isolated test repository for evaluation without earning a public support claim.
@@ -40,7 +41,7 @@ needed.
 ### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.6.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 ```
@@ -48,7 +49,7 @@ cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 ### Codex — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.6.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.agents/skills
 cp -R /tmp/skillstead/skills/github-release-guide ~/.agents/skills/
 ```
@@ -56,7 +57,7 @@ cp -R /tmp/skillstead/skills/github-release-guide ~/.agents/skills/
 ### Claude Code — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch v0.6.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.claude\skills\"
 ```
@@ -64,7 +65,7 @@ Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$e
 ### Codex — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch v0.6.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.agents\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.agents\skills\"
 ```
@@ -76,7 +77,7 @@ Run from the target repository root. Commit the copied folder if the team should
 ### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.6.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 ```
@@ -84,7 +85,7 @@ cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 ### Codex — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.6.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .agents/skills
 cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
 ```
@@ -94,14 +95,14 @@ cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
 Use `.claude\skills` for Claude Code or `.agents\skills` for Codex:
 
 ```powershell
-git clone --depth 1 --branch v0.6.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force ".agents\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" ".agents\skills\"
 ```
 
 ## Latest development ref
 
-Omit `--branch v0.6.0` to copy the current default branch. This is useful for evaluation, not reproducible
+Omit `--branch v0.7.0` to copy the current default branch. This is useful for evaluation, not reproducible
 team installation. Pinned tags are recommended for teams and release evidence.
 
 ## Manual package shape

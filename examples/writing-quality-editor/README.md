@@ -11,6 +11,7 @@ is invented for this fixture set.
 | `fixtures/scenarios.md` | Twenty-one prompts and source materials covering Compose, Assess, Revise, and Adapt |
 | `fixtures/expected-outcomes.md` | Answer key and invariant checklist; keep away from agents under evaluation |
 | `fixtures/validation-evidence.md` | Static gate, fresh-context execution ledger, stop rule, and claim boundary |
+| `release-claim-audit-v0.7.0-prepublish-20260718.md` | Pre-release assessment of thirteen release-critical public claims and the one pinned-tag item that remains open until publication |
 
 The matrix covers all seven defined document profiles, same-language editing, both EN→KO and KO→EN adaptation,
 meaning drift, over-editing, `needs-human`, protected identifiers, plain-language rewriting, AI-style pattern
