@@ -14,8 +14,8 @@ Files: `*.en.svg` / `*.en.png` / `*.ko.svg` / `*.ko.png` — SVG is the editable
 
 Sample content is synthetic. Names, identifiers, digests, tools, and environments
 are placeholders; no customer or confidential identifiers are included.
-(샘플 내용은 합성 예제입니다. 이름, 식별자, digest, 도구, 환경은 placeholder이며
-고객·기밀 식별자는 포함하지 않습니다.)
+(샘플 내용은 모두 가상입니다. 이름, 식별자, digest, 도구와 환경은 예시용이며,
+고객 정보나 기밀 식별자를 포함하지 않습니다.)
 
 ## Prompt
 
@@ -31,7 +31,8 @@ Highlight the current phase. Phases over exact dates. Export SVG + 2x PNG.
 
 # 예제: 로드맵 / 타임라인
 
-타임라인 위 4단계 제품 로드맵과 "현재" 마커 — `svg-infographic`으로 영문·한글 두 본.
+네 단계로 구성한 제품 로드맵과 "현재" 표시를 타임라인 위에 배치했습니다. `svg-infographic`으로
+영문판과 한국어판을 함께 만들었습니다.
 
 ## 프롬프트
 

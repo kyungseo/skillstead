@@ -67,7 +67,8 @@ For the most predictable selection across hosts, name the skill and state the ou
 to name a mode.
 
 ```text
-Use writing-quality-editor to make this document sound natural without changing its facts, commands, or intent.
+Use writing-quality-editor to make the document below read naturally. Preserve its core facts, conditions,
+requirements, and commands.
 ```
 
 When the installed agent can select skills from intent, ordinary requests work too:

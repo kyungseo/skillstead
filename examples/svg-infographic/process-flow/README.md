@@ -14,8 +14,8 @@ Files: `*.en.svg` / `*.en.png` / `*.ko.svg` / `*.ko.png` — SVG is the editable
 
 Sample content is synthetic. Names, identifiers, digests, tools, and environments
 are placeholders; no customer or confidential identifiers are included.
-(샘플 내용은 합성 예제입니다. 이름, 식별자, digest, 도구, 환경은 placeholder이며
-고객·기밀 식별자는 포함하지 않습니다.)
+(샘플 내용은 모두 가상입니다. 이름, 식별자, digest, 도구와 환경은 예시용이며,
+고객 정보나 기밀 식별자를 포함하지 않습니다.)
 
 ## Prompt
 
@@ -31,7 +31,8 @@ caption. Export SVG + 2x PNG.
 
 # 예제: 프로세스 / 데이터 플로우
 
-좌→우 프로세스 플로우 — RAG(검색 증강 생성) 질의 파이프라인 — 을 `svg-infographic`으로 영문·한글 두 본으로 만들었다.
+RAG(검색 증강 생성) 질의 파이프라인을 왼쪽에서 오른쪽으로 이어지는 흐름도로 표현했습니다.
+`svg-infographic`으로 영문판과 한국어판을 함께 만들었습니다.
 
 ## 프롬프트
 

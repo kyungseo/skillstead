@@ -30,8 +30,8 @@ SVG is the editable source of truth; PNG is the 2× export (exactly twice the SV
 
 Sample content is synthetic. Names, identifiers, digests, tools, and environments
 are placeholders; no customer or confidential identifiers are included.
-(샘플 내용은 합성 예제입니다. 이름, 식별자, digest, 도구, 환경은 placeholder이며
-고객·기밀 식별자는 포함하지 않습니다.)
+(샘플 내용은 모두 가상입니다. 이름, 식별자, digest, 도구와 환경은 예시용이며,
+고객 정보나 기밀 식별자를 포함하지 않습니다.)
 
 ## Prompt (English)
 
@@ -51,11 +51,11 @@ prod deploy. Icon-first cards, semantic colors. Export SVG + 2× PNG.
 
 # 예제: 릴리스 후보 아티팩트 승격
 
-빌드는 한 번만 하고 **동일한 image digest**를 그대로 승격하는 릴리스 모델을 3개 밴드로
-그린 예제다. `svg-infographic`으로 영문·한글 두 본을 만들었다. CI 빌드 1회가 digest로
-식별되는 릴리스 후보 아티팩트를 만들고, 그 동일 digest가 승인 게이트를 거쳐 dev → test →
-prod로 승격된다. test에서 버그가 나면 같은 후보를 재빌드하지 않고 **새 릴리스 후보**를
-만든다. 하단 footer는 운영 규칙(digest로 배포, 재배포로 롤백, 태그는 기록)을 정리한다.
+한 번 빌드한 **동일한 image digest**를 그대로 승격하는 릴리스 모델을 세 영역으로 나눈 예제입니다.
+영문판과 한국어판을 함께 만들었습니다. 한 번의 CI 빌드가 digest로 식별되는 릴리스 후보 아티팩트를
+만들고, 동일한 digest가 승인 게이트를 거쳐 dev → test → prod로 승격됩니다. test에서 버그가 발견되면
+같은 후보를 다시 빌드하지 않고 **새 릴리스 후보**를 만듭니다. 아래쪽에는 digest로 배포하고,
+재배포로 롤백하며, 태그는 기록으로 사용한다는 운영 원칙을 정리했습니다.
 
 ## 프롬프트 (한국어)
 

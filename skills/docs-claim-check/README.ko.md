@@ -2,44 +2,45 @@
 
 [English](./README.md) · **한국어**
 
-공개 문서(README, release note, install/사용 문서)의 claim이 사용자가 제공한 evidence —
-manifest, log, tag 목록, CI 출력, 직접 실행한 명령의 출력 — 로 실제로 뒷받침되는지 검토한다.
+공개 문서(README, 릴리스 노트, 설치·사용 안내)의 주장이 사용자가 제공한 근거로 실제로
+뒷받침되는지 검토합니다. 확인할 수 있는 자료에는 manifest, 로그, 태그 목록, CI 출력,
+사용자가 직접 실행한 명령의 출력 등이 있습니다.
 
-복합 문장을 atomic claim으로 분해하고, 각 claim을 고정된 decision tree에 통과시켜 claim마다
-정확히 하나의 confidence label을 부여한다:
+여러 주장이 섞인 문장은 개별 주장으로 나누고, 각 주장을 정해진 판정 절차에 따라 검토해
+다음 상태 중 하나를 부여합니다.
 
 | Label | 의미 |
 | --- | --- |
-| `verified` | 제공된 현재 evidence가 claim 전체를 직접 지지 — 검토된 범위 안에서만 유효 |
-| `unsupported` | 객관적으로 판정 가능하나 evidence가 없거나(`missing-evidence`), 모순되거나(`contradicted`), 부분적(`insufficient-coverage`) |
-| `stale-suspected` | 날짜/version/지원 범위의 시간적 불일치 — 과거엔 맞았을 수 있으나 현재성 미지지 |
-| `needs-human` | 주관적 판단, code review, 명령 실행, 외부 확인이 필요 |
+| `verified` | 현재 제공된 근거가 주장 전체를 직접 뒷받침함. 검토한 범위 안에서만 유효 |
+| `unsupported` | 객관적으로 확인할 수 있지만 근거가 없거나(`missing-evidence`), 서로 모순되거나(`contradicted`), 일부만 뒷받침됨(`insufficient-coverage`) |
+| `stale-suspected` | 날짜, 버전 또는 지원 기간이 맞지 않아 과거에는 사실이었을 수 있지만 현재 상태는 확인되지 않음 |
+| `needs-human` | 주관적 판단, 코드 검토, 명령 실행 또는 외부 권한자의 확인이 필요 |
 
-모든 claim-assessment 출력은 **input scope** — 어떤 문서·evidence를 검토했고,
-무엇을 요청했지만 받지 못했으며, claim coverage가 몇 건인지 — 를 먼저 명시한다.
-이를 통해 `verified`의 적용 범위를 명시적이고 감사 가능하게 유지한다.
+모든 판정 결과는 **검토 범위**를 먼저 밝힙니다. 어떤 문서와 근거를 검토했는지, 요청했지만
+받지 못한 자료가 무엇인지, 전체 주장 중 몇 건을 다뤘는지를 명시합니다. 따라서 `verified`가
+어디까지 유효한지 확인할 수 있습니다.
 
-## 이런 때 좋다
+## 이런 작업에 적합합니다
 
-- release·공지 전에 README fact-check
-- release note를 tag·manifest·CI 출력과 대조
-- 빠른 개발 후 낡은 version/지원 claim 탐지
-- "이 claim을 검증하려면 무엇이 필요한가" 목록(evidence request) 확보
+- 릴리스나 공지 전에 README의 사실 관계 확인
+- 릴리스 노트를 태그, manifest, CI 출력과 대조
+- 빠르게 개발한 뒤 오래된 버전·지원 범위 설명 찾기
+- "이 주장을 검증하려면 어떤 자료가 필요한가?"에 대한 목록 작성
 
-## 이런 용도가 아니다
+## 이런 작업은 하지 않습니다
 
-- code review·버그 탐지·보안 감사 — code-review 도구를 사용
-- 수정문·patch 생성 — finding만 출력한다
-- 명령 실행이 필요한 작업 — 계약상 명령을 실행하지 않으며 출력 제공을 요청한다.
-  요청이 섞여 있으면 범위 밖 부분만 거절하고 나머지 claim 검토는 진행한다
+- 코드 검토, 버그 탐지, 보안 감사 — 별도의 코드 검토 도구를 사용해야 합니다.
+- 수정안이나 patch 작성 — 이 스킬은 검토 결과만 제공합니다.
+- 명령 실행이 필요한 확인 — 계약상 명령을 직접 실행하지 않고 사용자에게 실행 결과를 요청합니다.
+  여러 작업이 섞인 요청에서는 범위 밖 작업만 거절하고, 확인할 수 있는 주장은 계속 검토합니다.
 
 ## Beta 모델 검증
 
-2026-07-14 기준 Claude Code의 Fable과 Sonnet에서 계약 fixture를 통과했습니다. 모델에 따라
-행 분해와 coverage 장부는 달라질 수 있으며, material claim 포괄 여부·confidence label 의미·
-evidence 경계·output contract 준수를 호환성 기준으로 봅니다.
+2026-07-14 기준 Claude Code의 Fable과 Sonnet에서 계약 검증 자료를 통과했습니다. 모델에 따라
+결과표의 행 구성과 집계 방식은 달라질 수 있습니다. 핵심 주장의 포함 여부, 판정 상태의 의미,
+근거의 경계와 출력 계약 준수 여부를 호환성 기준으로 봅니다.
 
 ## 예제
 
-synthetic fixture 세트와 완결 출력 예시는
-[`examples/docs-claim-check`](../../examples/docs-claim-check) 참조.
+가상 검증 자료와 전체 판정 예시는
+[`examples/docs-claim-check`](../../examples/docs-claim-check)에서 확인할 수 있습니다.

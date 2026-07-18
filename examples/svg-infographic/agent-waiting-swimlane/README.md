@@ -39,8 +39,8 @@ SVG is the editable source of truth; PNG is the 2× export (exactly twice the SV
 
 Sample content is synthetic. Names, identifiers, tools, and environments are
 placeholders; no customer or confidential identifiers are included.
-(샘플 내용은 합성 예제입니다. 이름, 식별자, 도구, 환경은 placeholder이며
-고객·기밀 식별자는 포함하지 않습니다.)
+(샘플 내용은 모두 가상입니다. 이름, 식별자, 도구와 환경은 예시용이며,
+고객 정보나 기밀 식별자를 포함하지 않습니다.)
 
 ## Prompt (English)
 
@@ -60,22 +60,22 @@ dashed = cross-lane alert/approval), and give it a conclusion title like
 
 # 예제: Agent 대기 알림 Swimlane
 
-`svg-infographic`으로 만든 두 lane swimlane flow입니다(영문·한글). 위 lane은
-**agent 세션 상태**(작업 중 → 승인 대기 → 작업 재개 → 완료), 아래 lane은 같은
-시간의 **사용자 행동**을 나란히 추적합니다. 점선 cross-lane 화살표가 대기 알림을
-아래로, 원클릭 승인을 다시 위로 연결해 — 알림이 있으면 workflow가 승인에서
-멈추지 않는다는 결론을 전달합니다.
+`svg-infographic`으로 영문판과 한국어판을 만든 두 줄짜리 swimlane 흐름도입니다. 위쪽은
+**에이전트 세션 상태**(작업 중 → 승인 대기 → 작업 재개 → 완료), 아래쪽은 같은 시간대의
+**사용자 행동**을 보여줍니다. 줄 사이의 점선 화살표는 대기 알림을 사용자에게 보내고 원클릭
+승인을 에이전트에 돌려주는 흐름을 나타냅니다. 알림이 있으면 작업이 승인 대기에서 멈추지 않는다는
+결론을 전달합니다.
 
 ## 이 예제가 보여주는 것
 
-- **Flow archetype의 swimlane 변형** — 두 lane의 **stage column을 동일 x좌표로
-  정렬**(layout pass에서 한 번 계산해 양쪽에 재사용)
-- 왼쪽 gutter의 **lane pill**(saturated 배경 + light on-accent 텍스트)
-- 주 lane에만 붙인 **번호 badge**(순서가 의미 있는 lane)
-- 핵심 긴장 단계(**승인 대기**)를 amber 계열 + stroke + shadow로 강조
-- **선 옆에 라벨을 둔 cross-lane 점선 화살표**(알림은 아래로, 승인은 위로)
-- 상태 전이와 lane 간 알림/승인을 구분하는 **legend**
-- 내장 세트와 같은 24×24 line 문법으로 **조합한 아이콘**(종) 1종
+- **Swimlane으로 변형한 흐름도** — 두 줄의 단계를 같은 가로 위치에 맞췄습니다. 위치는 레이아웃
+  계산 단계에서 한 번 정한 뒤 양쪽에 함께 사용했습니다.
+- 왼쪽의 **구분 라벨**에 진한 배경과 밝은 글자 적용
+- 순서가 중요한 에이전트 줄에만 **단계 번호** 표시
+- 핵심 긴장 지점인 **승인 대기**를 호박색 계열, 테두리와 그림자로 강조
+- 알림은 아래로, 승인은 위로 이어지는 **줄 사이의 점선 화살표**에 설명 라벨 배치
+- 상태 변화와 줄 사이의 알림·승인을 구분하는 **범례**
+- 내장 아이콘과 같은 24×24 선형 규칙으로 조합한 종 아이콘
 
 ## 프롬프트 (한국어)
 

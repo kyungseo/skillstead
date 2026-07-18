@@ -30,8 +30,8 @@ SVG is the editable source of truth; PNG is the 2× export (exactly twice the SV
 
 Sample content is synthetic. Names, identifiers, digests, tools, and environments
 are placeholders; no customer or confidential identifiers are included.
-(샘플 내용은 합성 예제입니다. 이름, 식별자, digest, 도구, 환경은 placeholder이며
-고객·기밀 식별자는 포함하지 않습니다.)
+(샘플 내용은 모두 가상입니다. 이름, 식별자, digest, 도구와 환경은 예시용이며,
+고객 정보나 기밀 식별자를 포함하지 않습니다.)
 
 ## Prompt (English)
 
@@ -54,11 +54,10 @@ pipeline input gate. Icon-first, semantic colors. Export SVG + 2× PNG.
 
 # 예제: 이슈 트래커 ↔ CI/CD 승인 연동 흐름
 
-이슈 키 하나가 개발자의 커밋에서 CI 파이프라인 빌드와 test 환경을 거쳐 **이슈 상태 전이인
-승인 게이트**, 그리고 동일 digest의 prod 배포까지 이어지는 흐름을 좌측 5단계 세로 플로우와
-우측 이슈-상태 rail로 그린 예제다. `svg-infographic`으로 영문·한글 두 본을 만들었다. 오른쪽
-rail은 티켓이 Open → In Progress → In Test → Approved → Deployed로 흐름과 나란히 전이되는
-것을 보여준다.
+이슈 키 하나가 개발자의 커밋에서 CI 파이프라인 빌드와 test 환경, **이슈 상태 전이로 구현한
+승인 게이트**를 거쳐 동일 digest의 prod 배포까지 이어지는 과정을 표현했습니다. 왼쪽에는 다섯 단계의
+세로 흐름을, 오른쪽에는 이슈 상태 변화를 나란히 배치했습니다. 영문판과 한국어판을 함께 만들었으며,
+티켓 상태는 Open → In Progress → In Test → Approved → Deployed 순서로 진행됩니다.
 
 ## 프롬프트 (한국어)
 

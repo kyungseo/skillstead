@@ -28,8 +28,8 @@ SVG is the editable source of truth; PNG is the 2× export (exactly twice the SV
 
 Sample content is synthetic. Names, identifiers, digests, tools, and environments
 are placeholders; no customer or confidential identifiers are included.
-(샘플 내용은 합성 예제입니다. 이름, 식별자, digest, 도구, 환경은 placeholder이며
-고객·기밀 식별자는 포함하지 않습니다.)
+(샘플 내용은 모두 가상입니다. 이름, 식별자, digest, 도구와 환경은 예시용이며,
+고객 정보나 기밀 식별자를 포함하지 않습니다.)
 
 ## Prompt (English)
 
@@ -47,10 +47,9 @@ with solid arrows for the normal path, and add a dashed feedback loop from Patch
 
 # 예제: AI 코드 리뷰 루프
 
-개발자가 PR을 올린 뒤 AI 리뷰 에이전트가 검토하고, 사람이 승인하고, 수정이 다시
-반영되는 흐름을 좌→우 프로세스 플로우로 그린 예제다. `svg-infographic`으로 영문·한글
-두 본을 만들었다. AI 리뷰 단계는 accent 색으로 강조하고, 수정 후 재검토를 나타내는
-점선 피드백 루프를 포함한다.
+개발자가 PR을 올리고 AI 리뷰 에이전트와 사람 검토자를 거쳐 수정 사항을 반영하는 과정을 왼쪽에서
+오른쪽으로 이어지는 흐름도로 표현했습니다. 영문판과 한국어판을 함께 만들었으며, AI 검토 단계는
+강조색으로 표시하고 수정 후 재검토 과정은 점선으로 되돌아오게 했습니다.
 
 ## 프롬프트 (한국어)
 

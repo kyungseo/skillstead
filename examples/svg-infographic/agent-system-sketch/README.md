@@ -12,7 +12,7 @@ to an orchestrator; evaluation feeds corrections back into the loop.
 
 ## What this example shows
 
-- **Sketch preset across a component architecture** — the hand-drawn surface
+- **Sketch preset across a component architecture** — the hand-drawn appearance
   is not limited to process flows; a computed topology stays readable with
   paper grain, rough borders, handwriting, and curved connectors
 - **One clear center of gravity** — the orchestrator is the visual hub, with
@@ -47,8 +47,8 @@ under OFL.
 
 Sample content is synthetic. Names, identifiers, tools, and environments are
 placeholders; no customer or confidential identifiers are included.
-(샘플 내용은 합성 예제입니다. 이름, 식별자, 도구, 환경은 placeholder이며
-고객·기밀 식별자는 포함하지 않습니다.)
+(샘플 내용은 모두 가상입니다. 이름, 식별자, 도구와 환경은 예시용이며,
+고객 정보나 기밀 식별자를 포함하지 않습니다.)
 
 ## Prompt (English)
 
@@ -67,27 +67,26 @@ with identical geometry, subset the font per language, then export 2× PNG.
 
 # 예제: Agent System Map — sketch 프리셋
 
-“Agent는 Prompt가 아니라 System이다”라는 결론을 중심으로 만든 **sketch
-프리셋** component map입니다. Context, Memory, Tool, Guardrail, 평가가
-Orchestrator에 연결되고, 평가 결과는 보정 loop로 되돌아갑니다.
+“Agent는 Prompt가 아니라 System이다”라는 결론을 중심으로 만든 **sketch 프리셋** 구성도입니다.
+Context, Memory, Tool, Guardrail과 평가 기능이 Orchestrator에 연결되고, 평가 결과는 다시
+Orchestrator로 돌아가 다음 작업을 보정합니다.
 
 ## 이 예제가 보여주는 것
 
-- **Component architecture에 적용한 sketch 프리셋** — 손그림 표면이 process
-  flow에만 한정되지 않고, 계산된 topology에서도 종이 질감·rough border·손글씨·
-  곡선 connector를 유지하면서 읽히는지 보여줌
-- **명확한 시각 중심** — Orchestrator를 hub로 두고 5개 지원 capability를 고정
-  grid에 배치, 평가에서 중심으로 돌아오는 점선 feedback edge 구성
-- **동일한 bilingual geometry** — EN/KO의 좌표·routing·card 크기·icon 위치가
-  모두 같고 text와 font subset만 다름
-- **Subset font embed** — OFL 손글씨 폰트를 언어별로 subset해 SVG에 embed
-  (font subset 약 EN 41 KB / KO 76 KB)
+- **구성도에 적용한 sketch 프리셋** — 계산된 토폴로지 위에 종이 질감, 거친 테두리,
+  손글씨와 곡선 연결선을 적용해 프로세스 흐름이 아닌 구성도에서도 읽기 쉽게 표현했습니다.
+- **분명한 시각 중심** — Orchestrator를 중심에 두고 다섯 가지 지원 기능을 고정 격자에 배치했습니다.
+  평가 결과가 중심으로 돌아가는 점선은 보정 흐름을 나타냅니다.
+- **두 언어에서 같은 배치** — 영문판과 한국어판은 좌표, 연결선 경로, 카드 크기와 아이콘 위치가
+  같고 글자와 포함된 폰트만 다릅니다.
+- **필요한 글자만 포함한 폰트** — OFL 손글씨 폰트에서 각 언어에 필요한 글자만 추려 SVG에
+  포함했습니다. 폰트 데이터 크기는 영문판 약 41 KB, 한국어판 약 76 KB입니다.
 
 ## 폰트 라이선스
 
-embed된 손글씨 폰트는 **나눔펜스크립트**(© NAVER Corporation)이며
-[SIL Open Font License 1.1](https://openfontlicense.org/)을 따릅니다. 이 형태의
-embed·재배포는 허용되며, 폰트 자체는 OFL로 유지됩니다.
+포함된 손글씨 폰트는 **나눔펜스크립트**(© NAVER Corporation)이며
+[SIL Open Font License 1.1](https://openfontlicense.org/)을 따릅니다. 이 형태로 포함하고 재배포할 수
+있으며, 폰트 자체의 라이선스는 OFL로 유지됩니다.
 
 ## 프롬프트 (한국어)
 

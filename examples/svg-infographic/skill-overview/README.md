@@ -14,8 +14,8 @@ Files: `*.en.svg` / `*.en.png` / `*.ko.svg` / `*.ko.png` — SVG is the editable
 
 Sample content is synthetic. Names, identifiers, digests, tools, and environments
 are placeholders; no customer or confidential identifiers are included.
-(샘플 내용은 합성 예제입니다. 이름, 식별자, digest, 도구, 환경은 placeholder이며
-고객·기밀 식별자는 포함하지 않습니다.)
+(샘플 내용은 모두 가상입니다. 이름, 식별자, digest, 도구와 환경은 예시용이며,
+고객 정보나 기밀 식별자를 포함하지 않습니다.)
 
 ## Prompt
 
@@ -33,7 +33,8 @@ soft circles. Export SVG + 2x PNG.
 
 # 예제: 스킬 소개
 
-`svg-infographic` 자체를 소개하는 한 장짜리 인포그래픽 — 만들 수 있는 다이어그램 유형과 동작 방식 — 을 **그 스킬로** 만들었다. 영문·한글.
+`svg-infographic`이 만들 수 있는 다이어그램과 동작 방식을 한 장에 소개하는 인포그래픽입니다.
+영문판과 한국어판 모두 **그 스킬 자체로** 만들었습니다.
 
 ## 프롬프트
 
