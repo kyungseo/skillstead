@@ -1,54 +1,113 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 700" width="1400" height="700" role="img" style="font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
-  <title>Skillstead catalog impact map</title>
-  <desc>Three cards show how svg-infographic, docs-claim-check, and github-release-guide turn rough inputs into reusable visual assets, evidence-scoped claim assessments, and approval-gated GitHub releases.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" width="1400" height="900" role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>Use one Skillstead skill or connect them across a release</title>
+  <desc>Project material can flow into writing-quality-editor and svg-infographic independently, then into docs-claim-check and github-release-guide when those checks are useful. Every skill remains independently installable.</desc>
   <style>
-    .bg{fill:#f7f9fc}.card{fill:#fff;stroke:#d9e1ec;stroke-width:2}.eyebrow{font-size:18px;font-weight:700;letter-spacing:1.2px;fill:#596579}.title{font-size:30px;font-weight:750;fill:#1d2735}.body{font-size:20px;fill:#4d596b}.pill{font-size:16px;font-weight:700}.arrow{fill:none;stroke:#8895a7;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.footer{font-size:18px;font-weight:650;fill:#354154}
+    svg{--bg:#F4F7FB;--ink:#172033;--muted:#5C687B;--hair:#D5DEEA;--panel:#FFFFFF;--blue:#2468A8;--blue-soft:#E8F2FC;--teal:#0F766E;--teal-soft:#E7F6F3;--violet:#6650A4;--violet-soft:#F0ECFC;--amber:#A85B16;--amber-soft:#FFF1E4;--slate:#53657B;--slate-soft:#EEF2F6;--ok:#18745B;--ok-soft:#EAF7F1}
+    .ink{fill:var(--ink)}.muted{fill:var(--muted)}.on-accent{fill:#FFFFFF}.hair{stroke:var(--hair)}
+    .stage{fill:var(--panel);stroke-width:1.5}.skill{fill:var(--panel);stroke-width:1.5}
+    .label{font-size:15px;font-weight:800;letter-spacing:.5px}.skill-name{font-size:18px;font-weight:800}.body{font-size:16px}.small{font-size:14px}
   </style>
-  <rect class="bg" width="1400" height="700" rx="28"/>
-  <text x="70" y="72" class="eyebrow">SKILLSTEAD · THREE PRACTICAL SKILLS</text>
-  <text x="70" y="116" class="title">Create diagrams · check claims · guide GitHub releases</text>
+  <defs>
+    <filter id="shadow" x="-15%" y="-20%" width="130%" height="150%"><feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#53657B" flood-opacity=".12"/></filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#8795A8"/></marker>
+    <symbol id="ic-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></symbol>
+    <symbol id="ic-pen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10z"/><path d="M14 7l3 3M8.5 19L5 15.5"/></symbol>
+    <symbol id="ic-layout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M10 10v10"/></symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14v16H5z"/><path d="M8 9l1.5 1.5L12 8M8 15h8"/></symbol>
+    <symbol id="ic-release" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M5 13v7h14v-7"/><path d="M8 20h8"/></symbol>
+  </defs>
 
-  <g transform="translate(70 165)">
-    <rect class="card" width="400" height="410" rx="24"/>
-    <rect x="28" y="28" width="158" height="34" rx="17" fill="#e7f1ff"/>
-    <text x="107" y="51" text-anchor="middle" class="pill" fill="#2463a6">CREATE</text>
-    <text x="28" y="108" class="title">svg-infographic</text>
-    <text x="28" y="151" class="body">Architecture notes</text>
-    <text x="28" y="182" class="body">and process ideas</text>
-    <path class="arrow" d="M64 222h238m0 0-18-14m18 14-18 14"/>
-    <rect x="28" y="264" width="344" height="90" rx="18" fill="#edf7f3" stroke="#8fcab4"/>
-    <text x="200" y="303" text-anchor="middle" class="body" fill="#17624f">Editable SVG</text>
-    <text x="200" y="333" text-anchor="middle" class="body" fill="#17624f">+ crisp 2× PNG</text>
-    <text x="28" y="388" class="footer">SVG you can keep editing</text>
+  <rect width="1400" height="900" rx="28" fill="var(--bg)"/>
+  <rect x="72" y="58" width="6" height="62" rx="3" fill="var(--blue)"/>
+  <text x="98" y="72" class="muted" font-size="16" font-weight="800" letter-spacing="1.5">SKILLSTEAD · PRACTICAL COMPOSITION</text>
+  <text x="98" y="119" class="ink" font-size="42" font-weight="850">Choose one skill—or connect them across a release</text>
+  <text x="98" y="151" class="muted" font-size="17">Independent packages cover writing, visuals, evidence, and approval without becoming hard dependencies.</text>
+
+  <rect x="60" y="180" width="1280" height="450" rx="24" fill="#F9FBFE" stroke="var(--hair)" stroke-width="1.5"/>
+  <rect x="84" y="196" width="184" height="34" rx="17" fill="var(--slate)"/>
+  <text x="176" y="213" class="on-accent label" text-anchor="middle" dominant-baseline="central">OPTIONAL PROJECT PATH</text>
+
+  <path d="M290 390H320V337H358" fill="none" stroke="#8795A8" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M320 390V482H358" fill="none" stroke="#8795A8" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M790 337H842V390" fill="none" stroke="#8795A8" stroke-width="3"/>
+  <path d="M790 482H842V390H868" fill="none" stroke="#8795A8" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M1080 390H1128" fill="none" stroke="#8795A8" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="90" y="245" width="200" height="300" rx="20" class="stage" stroke="var(--slate)"/>
+    <rect x="110" y="265" width="80" height="32" rx="16" fill="var(--slate)"/>
+    <text x="150" y="281" class="on-accent label" text-anchor="middle" dominant-baseline="central">START</text>
+    <circle cx="190" cy="345" r="36" fill="var(--slate-soft)"/>
+    <use href="#ic-doc" x="170" y="325" width="40" height="40" style="color:var(--slate)"/>
+    <text x="190" y="409" class="ink" font-size="21" font-weight="800" text-anchor="middle">Project material</text>
+    <text x="190" y="446" class="muted body" text-anchor="middle"><tspan x="190">Notes · code · facts</tspan><tspan x="190" dy="24">requirements · evidence</tspan></text>
+    <rect x="112" y="493" width="156" height="30" rx="15" fill="var(--slate-soft)"/>
+    <text x="190" y="508" class="muted small" font-weight="700" text-anchor="middle" dominant-baseline="central">Start where you are</text>
   </g>
 
-  <g transform="translate(500 165)">
-    <rect class="card" width="400" height="410" rx="24"/>
-    <rect x="28" y="28" width="158" height="34" rx="17" fill="#f0ebff"/>
-    <text x="107" y="51" text-anchor="middle" class="pill" fill="#6642a6">CHECK</text>
-    <text x="28" y="108" class="title">docs-claim-check</text>
-    <text x="28" y="151" class="body">Public claims</text>
-    <text x="28" y="182" class="body">+ supplied evidence</text>
-    <path class="arrow" d="M64 222h238m0 0-18-14m18 14-18 14"/>
-    <rect x="28" y="264" width="344" height="90" rx="18" fill="#f5f0ff" stroke="#baa5df"/>
-    <text x="200" y="303" text-anchor="middle" class="body" fill="#5a378d">Atomic labels</text>
-    <text x="200" y="333" text-anchor="middle" class="body" fill="#5a378d">+ explicit evidence scope</text>
-    <text x="28" y="388" class="footer">Labels tied to supplied evidence</text>
+  <g>
+    <rect x="340" y="215" width="480" height="360" rx="22" fill="var(--blue-soft)" stroke="#BED5ED" stroke-width="1.5"/>
+    <rect x="365" y="231" width="164" height="34" rx="17" fill="var(--blue)"/>
+    <text x="447" y="248" class="on-accent label" text-anchor="middle" dominant-baseline="central">CREATE &amp; CLARIFY</text>
+
+    <g filter="url(#shadow)">
+      <rect x="370" y="282" width="420" height="110" rx="18" class="skill" stroke="var(--teal)"/>
+      <circle cx="420" cy="337" r="32" fill="var(--teal-soft)"/>
+      <use href="#ic-pen" x="402" y="319" width="36" height="36" style="color:var(--teal)"/>
+      <text x="470" y="322" class="ink skill-name">writing-quality-editor</text>
+      <text x="470" y="352" class="muted body">Write · assess · revise · adapt</text>
+      <text x="470" y="376" fill="var(--teal)" class="small" font-weight="700">Natural prose, meaning preserved</text>
+    </g>
+
+    <g filter="url(#shadow)">
+      <rect x="370" y="427" width="420" height="110" rx="18" class="skill" stroke="var(--blue)"/>
+      <circle cx="420" cy="482" r="32" fill="#E6F1FB"/>
+      <use href="#ic-layout" x="402" y="464" width="36" height="36" style="color:var(--blue)"/>
+      <text x="470" y="467" class="ink skill-name">svg-infographic</text>
+      <text x="470" y="497" class="muted body">Explain structure and flow visually</text>
+      <text x="470" y="521" fill="var(--blue)" class="small" font-weight="700">Editable SVG + verified 2× PNG</text>
+    </g>
   </g>
 
-  <g transform="translate(930 165)">
-    <rect class="card" width="400" height="410" rx="24"/>
-    <rect x="28" y="28" width="158" height="34" rx="17" fill="#fff0e4"/>
-    <text x="107" y="51" text-anchor="middle" class="pill" fill="#9a571e">RELEASE</text>
-    <text x="28" y="108" class="title">github-release-guide</text>
-    <text x="28" y="151" class="body">Repository state</text>
-    <text x="28" y="182" class="body">+ owner decisions</text>
-    <path class="arrow" d="M64 222h238m0 0-18-14m18 14-18 14"/>
-    <rect x="28" y="264" width="344" height="90" rx="18" fill="#fff5ec" stroke="#e4b88e"/>
-    <text x="200" y="303" text-anchor="middle" class="body" fill="#8b4b18">Readiness evidence</text>
-    <text x="200" y="333" text-anchor="middle" class="body" fill="#8b4b18">+ approved mutations</text>
-    <text x="28" y="388" class="footer">Preview · recheck · approve · verify</text>
+  <g filter="url(#shadow)">
+    <rect x="880" y="245" width="200" height="300" rx="20" class="stage" stroke="var(--violet)"/>
+    <rect x="900" y="265" width="82" height="32" rx="16" fill="var(--violet)"/>
+    <text x="941" y="281" class="on-accent label" text-anchor="middle" dominant-baseline="central">CHECK</text>
+    <circle cx="980" cy="345" r="36" fill="var(--violet-soft)"/>
+    <use href="#ic-check" x="960" y="325" width="40" height="40" style="color:var(--violet)"/>
+    <text x="980" y="409" class="ink skill-name" text-anchor="middle">docs-claim-check</text>
+    <text x="980" y="446" class="muted body" text-anchor="middle"><tspan x="980">Compare public claims</tspan><tspan x="980" dy="24">with supplied evidence</tspan></text>
+    <rect x="902" y="493" width="156" height="30" rx="15" fill="var(--violet-soft)"/>
+    <text x="980" y="508" fill="var(--violet)" class="small" font-weight="700" text-anchor="middle" dominant-baseline="central">Evidence-bounded</text>
   </g>
 
-  <text x="700" y="642" text-anchor="middle" class="body">Install by folder copy · synthetic examples included · runtime status tied to evidence</text>
+  <g filter="url(#shadow)">
+    <rect x="1140" y="245" width="200" height="300" rx="20" class="stage" stroke="var(--amber)"/>
+    <rect x="1160" y="265" width="92" height="32" rx="16" fill="var(--amber)"/>
+    <text x="1206" y="281" class="on-accent label" text-anchor="middle" dominant-baseline="central">RELEASE</text>
+    <circle cx="1240" cy="345" r="36" fill="var(--amber-soft)"/>
+    <use href="#ic-release" x="1220" y="325" width="40" height="40" style="color:var(--amber)"/>
+    <text x="1240" y="400" class="ink skill-name" text-anchor="middle"><tspan x="1240">github-release-</tspan><tspan x="1240" dy="23">guide</tspan></text>
+    <text x="1240" y="459" class="muted body" text-anchor="middle"><tspan x="1240">Assess · preview</tspan><tspan x="1240" dy="24">approve · verify</tspan></text>
+    <rect x="1162" y="493" width="156" height="30" rx="15" fill="var(--amber-soft)"/>
+    <text x="1240" y="508" fill="var(--amber)" class="small" font-weight="700" text-anchor="middle" dominant-baseline="central">User remains authority</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="110" y="680" width="360" height="128" rx="18" fill="var(--panel)" stroke="var(--teal)" stroke-width="1.25"/>
+    <circle cx="154" cy="724" r="23" fill="var(--teal-soft)"/><text x="154" y="724" fill="var(--teal)" font-size="20" font-weight="850" text-anchor="middle" dominant-baseline="central">1</text>
+    <text x="190" y="716" class="ink" font-size="19" font-weight="800">Install independently</text>
+    <text x="190" y="746" class="muted body"><tspan x="190">Copy only the complete skill folder</tspan><tspan x="190" dy="23">you need.</tspan></text>
+
+    <rect x="520" y="680" width="360" height="128" rx="18" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.25"/>
+    <circle cx="564" cy="724" r="23" fill="var(--blue-soft)"/><text x="564" y="724" fill="var(--blue)" font-size="20" font-weight="850" text-anchor="middle" dominant-baseline="central">2</text>
+    <text x="600" y="716" class="ink" font-size="19" font-weight="800">Combine when useful</text>
+    <text x="600" y="746" class="muted body"><tspan x="600">The path is a recipe, not a required</tspan><tspan x="600" dy="23">dependency chain.</tspan></text>
+
+    <rect x="930" y="680" width="360" height="128" rx="18" fill="var(--panel)" stroke="var(--violet)" stroke-width="1.25"/>
+    <circle cx="974" cy="724" r="23" fill="var(--violet-soft)"/><text x="974" y="724" fill="var(--violet)" font-size="20" font-weight="850" text-anchor="middle" dominant-baseline="central">3</text>
+    <text x="1010" y="716" class="ink" font-size="19" font-weight="800">Recheck changed artifacts</text>
+    <text x="1010" y="746" class="muted body"><tspan x="1010">Return to an earlier check whenever</tspan><tspan x="1010" dy="23">public content changes.</tspan></text>
+  </g>
+  <text x="700" y="860" class="muted" font-size="14" text-anchor="middle">Current catalog · agent review is planned but not yet available</text>
 </svg>

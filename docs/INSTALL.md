@@ -18,6 +18,7 @@ Runtime support is verified per skill:
 | `svg-infographic` | Supported | Not yet claimed | Browser-based PNG rendering verified on macOS through Claude Code; Windows/Linux paths remain pending |
 | `docs-claim-check` | Supported | Not yet claimed | Behavioral fixtures passed with Claude Code Fable and Sonnet |
 | `github-release-guide` | Supported | Supported | Clean material parity (incl. protection fixtures), disposable first-public and Guided tag-ruleset live E2E, pinned `v0.5.0`/`v0.6.0` project installation/discovery, and release claim audits passed |
+| `writing-quality-editor` | Pending | Pending | Four-mode, 21-scenario cross-runtime behavior and repository dogfood passed; clean installation/discovery and the final public-claim gate remain |
 
 Copy only a skill whose runtime column says Supported for normal use. A Pending skill may be copied into an
 isolated test repository for evaluation without earning a public support claim.
@@ -123,6 +124,10 @@ github-release-guide/
 The installed README pair explains the workflow in user-facing language. Repository-only fixtures and
 diagrams remain at `examples/github-release-guide/` in the Skillstead repository and are not copied with the
 skill.
+
+`writing-quality-editor` follows the same complete-folder rule. Its package contains `SKILL.md`, English/Korean
+READMEs, `agents/openai.yaml`, and three reference files; its repository-only fixtures remain under
+`examples/writing-quality-editor/`.
 
 ## Clean update
 

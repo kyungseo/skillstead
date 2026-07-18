@@ -1,204 +1,213 @@
 # GitHub Public Release Checklist
 
-private repo를 public repo로 전환하기 전에 사용하는 체크리스트다.
+**English** · [한국어](./github-public-release-checklist.ko.md)
 
-## 1. 범위와 소유권
+Use this checklist before taking a private repository public.
 
-- [ ] repository owner와 대상 repo를 확인한다.
-- [ ] default branch를 확인한다.
-- [ ] `develop` 같은 장기 integration branch를 쓰는지 확인한다.
-- [ ] release path를 확인한다. 예: `feature/* -> develop -> main`
-- [ ] public 전환 후 첫 release tag/version을 정한다. 예: `v1.0.0`
-- [ ] README, install docs, package metadata가 특정 tag/version을 가리킨다면 visibility 변경 전에 해당 tag가 존재하는지 확인한다.
-- [ ] visibility, settings, branch protection 변경 승인권자를 확인한다.
-- [ ] 대상 repo에 audit trail용 Work item을 만들거나 기존 Work를 재사용한다.
+## 1. Scope And Ownership
 
-## 2. Pre-public Clean Baseline
+- [ ] Confirm the repository owner and target repository.
+- [ ] Confirm the default branch.
+- [ ] Determine whether the repository uses a long-lived integration branch such as `develop`.
+- [ ] Confirm the release path, for example `feature/* -> develop -> main`.
+- [ ] Choose the first release tag or version after publication, for example `v1.0.0`.
+- [ ] If the README, installation documentation, or package metadata points to a specific tag or version, confirm
+      that the tag exists before changing visibility.
+- [ ] Identify who may approve changes to visibility, settings, and branch protection.
+- [ ] Create a Work item for the audit trail in the target repository, or reuse an existing one.
 
-- [ ] release branch의 working tree가 clean이다.
-- [ ] 대상 repo status dashboard에 Active Work가 없다.
-- [ ] live Work directory에 archive-pending Done Work가 없다.
-- [ ] archived Work 파일은 `status: Archived`를 사용한다.
-- [ ] public-facing status 파일에 내부용 next action이 남아 있지 않다.
-- [ ] backlog 항목은 public 노출에 안전하거나 비밀 정보가 없다.
-- [ ] README가 최신이다.
-- [ ] USER-MANUAL / SYSTEM-MANUAL / examples가 있다면 최신이다.
-- [ ] LICENSE가 있고 의도한 라이선스다.
-- [ ] CONTRIBUTING은 있거나, 아직 생략하기로 의도적으로 판단했다.
+## 2. Pre-Public Clean Baseline
 
-## 3. 민감정보 점검
+- [ ] The release branch working tree is clean.
+- [ ] The target repository's status dashboard has no Active Work.
+- [ ] The live Work directory has no archive-pending Done Work.
+- [ ] Archived Work files use `status: Archived`.
+- [ ] Public-facing status files contain no internal next actions.
+- [ ] Backlog entries are safe for public disclosure and contain no secrets.
+- [ ] The README is current.
+- [ ] USER-MANUAL, SYSTEM-MANUAL, and examples are current when present.
+- [ ] A LICENSE file exists and contains the intended license.
+- [ ] CONTRIBUTING exists, or its omission is an explicit decision.
 
-`sensitive-info-sweep.md`를 함께 실행한다.
+## 3. Sensitive Information
 
-최소 기준:
+Run `sensitive-info-sweep.md` as part of this review.
 
-- [ ] tracked file에 secret, credential, token이 없다.
-- [ ] private endpoint나 내부 account identifier가 의도치 않게 노출되지 않는다.
-- [ ] public-facing docs에 개인 local path가 불필요하게 남아 있지 않다.
-- [ ] generated artifact가 공개 가능하다.
-- [ ] commit history risk를 검토했다.
+Minimum bar:
+
+- [ ] Tracked files contain no secrets, credentials, or tokens.
+- [ ] Private endpoints and internal account identifiers are not exposed unintentionally.
+- [ ] Public documentation contains no unnecessary personal local paths.
+- [ ] Generated artifacts are safe to publish.
+- [ ] Commit-history risk has been reviewed.
 
 ## 4. Dependency And Security Gate
 
-- [ ] package manager audit에 unresolved critical 항목이 없다.
-- [ ] GitHub Dependabot alerts를 검토했다.
-- [ ] lockfile이 최신이다.
-- [ ] runtime baseline 변경이 필요한 security fix는 문서에도 반영했다.
-- [ ] accepted risk가 있으면 대상 repo에 기록했다.
+- [ ] The package-manager audit has no unresolved critical findings.
+- [ ] GitHub Dependabot alerts have been reviewed.
+- [ ] The lockfile is current.
+- [ ] Documentation reflects any runtime baseline change required by a security fix.
+- [ ] Accepted risk is recorded in the target repository.
 
-## 5. GitHub Settings Before Visibility Change
+## 5. GitHub Settings Before The Visibility Change
 
-- [ ] repository description이 정확하다.
-- [ ] topics가 적절하다.
-- [ ] repository description은 내부 용어보다 구체적인 사용자 가치와 산출물을 설명한다.
-- [ ] topics는 language, domain, key technology, user task를 균형 있게 담는다.
-- [ ] About URL은 안정적이고 유용할 때만 설정한다.
-- [ ] default branch가 맞다.
-- [ ] public feedback을 받을 계획이면 Issues를 켠다.
-- [ ] 가벼운 Q&A나 피드백 채널이 필요하면 Discussions를 켠다.
-- [ ] Wiki / Projects / Pages 설정은 의도한 상태다.
-- [ ] merge method가 repo workflow와 맞다.
-- [ ] `delete_branch_on_merge` 설정이 의도한 상태다.
+- [ ] The repository description is accurate.
+- [ ] Topics are appropriate.
+- [ ] The description explains concrete user value and outputs rather than internal terminology.
+- [ ] Topics balance language, domain, key technology, and user task.
+- [ ] The About URL is set only when it is stable and useful.
+- [ ] The default branch is correct.
+- [ ] Issues are enabled when public feedback is planned.
+- [ ] Discussions are enabled when a lightweight question or feedback channel would help.
+- [ ] Wiki, Projects, and Pages are configured as intended.
+- [ ] Merge methods match the repository workflow.
+- [ ] `delete_branch_on_merge` is set intentionally.
 
-중요: `develop` 같은 장기 브랜치가 PR head로 쓰일 수 있으면,
-`delete_branch_on_merge=true`가 release PR merge 후 해당 장기 브랜치를 삭제할 수 있다.
-branch deletion protection이 검증되기 전에는 끄거나, feature branch 삭제만 명시적으로 처리한다.
+Important: if a long-lived branch such as `develop` may be used as a pull-request head,
+`delete_branch_on_merge=true` can delete it after a release pull request is merged. Keep automatic deletion off
+until branch deletion protection is verified, or delete feature branches explicitly instead.
 
 ## 6. Public Positioning
 
-- [ ] 한 문장 project description이 준비됐다.
-- [ ] 3-5개 핵심 keyword/topic이 준비됐다.
-- [ ] README 첫 화면이 같은 메시지를 뒷받침한다.
-- [ ] 필요하다면 public limitations를 솔직하게 설명했다.
-- [ ] 공개 후 공유할 예정이면 social release note draft가 있다.
+- [ ] A one-sentence project description is ready.
+- [ ] Three to five core keywords or topics are ready.
+- [ ] The top of the README supports the same message.
+- [ ] Public limitations are stated honestly when needed.
+- [ ] A social release note draft exists if the repository will be announced.
 
-공유 문구 초안은 `social-release-note-template.md`를 사용한다.
+Use `social-release-note-template.md` for the announcement draft.
 
 ## 7. Visibility Change
 
-- [ ] clean baseline을 마지막으로 다시 확인한다.
-- [ ] public release를 막아야 할 open security alert가 없는지 확인한다.
-- [ ] public README/install docs가 pinned tag를 안내한다면 tag가 이미 push되어 있고 checkout 가능한지 확인한다.
-- [ ] visibility를 public으로 변경한다.
-- [ ] 즉시 `post-public-verification.md`를 실행한다.
+- [ ] Confirm the clean baseline one final time.
+- [ ] Confirm that no open security alert should block publication.
+- [ ] If public README or installation documentation uses a pinned tag, confirm that the tag has been pushed and
+      can be checked out.
+- [ ] Change visibility to public.
+- [ ] Run `post-public-verification.md` immediately.
 
-## 8. Post-public Settings
+## 8. Post-Public Settings
 
-- [ ] branch protection 또는 ruleset이 active다.
-- [ ] main branch deletion이 막혀 있다.
-- [ ] integration branch를 쓴다면 deletion이 막혀 있다.
-- [ ] protected branch에서 non-fast-forward push가 막혀 있다.
-- [ ] protected branch는 PR을 요구한다.
-- [ ] owner/admin bypass가 필요한 workflow라면 Admin bypass가 가능하다.
-- [ ] **release tag ruleset의 applicability를 판정했다**: version tag로 release하는 repo면 적용
-      대상이고, tag 없이 release하는 repo만 not-applicable을 근거와 함께 기록한다. 적용 대상인데
-      ruleset이 없으면 severity를 나눈다 — tag-pinned consumer path(pinned install, tag-pinned
-      clone·dependency·CI)가 있으면 `Blocked`, 그 외에는 `Needs attention`으로 두고 accepted risk와
-      재검토 trigger를 남긴다(`repo-settings-template.md`·이후 릴리스는
-      `recurring-release-protection-checkpoint.md` 참조).
-- [ ] CI가 있다면 required checks가 설정되어 있다.
-- [ ] vulnerability alerts가 enabled다.
-- [ ] secret scanning이 가능하다면 enabled다.
-- [ ] secret scanning push protection이 가능하다면 enabled다.
-- [ ] Dependabot automated security updates는 의도한 상태다.
-- [ ] profile pinned repository로 지정할지 결정했다.
+- [ ] Branch protection or the applicable ruleset is active.
+- [ ] Deletion of the `main` branch is blocked.
+- [ ] Deletion of any integration branch is blocked.
+- [ ] Non-fast-forward pushes to protected branches are blocked.
+- [ ] Protected branches require pull requests.
+- [ ] Required checks are configured when CI exists.
+- [ ] An administrator bypass is available when the workflow needs an owner or administrator bypass.
+- [ ] **Release tag ruleset applicability has been determined.** A repository that releases from version tags is
+      in scope. Only a repository that releases without tags may record the ruleset as not applicable, with
+      evidence. If an applicable ruleset is missing, classify severity: `Blocked` when a release-critical consumer
+      path depends on immutable tags—pinned installation, tag-pinned clone, dependency, or CI—and otherwise
+      `Needs attention`, with accepted risk and a revisit trigger. See `repo-settings-template.md` and, for later
+      releases, `recurring-release-protection-checkpoint.md`.
+- [ ] Vulnerability alerts are enabled.
+- [ ] Secret scanning is enabled when available.
+- [ ] Secret scanning push protection is enabled when available.
+- [ ] Dependabot automated security updates are configured as intended.
+- [ ] A decision has been made about pinning the repository to the maintainer's profile.
 
-Ruleset이나 branch protection을 바로 적용하지 않기로 했다면 pass로 숨기지 말고 accepted risk로 기록한다.
-예: solo maintainer, 초기 main-only repo, CI 없음. 이 경우 다음 release 전 재검토 trigger를 남긴다.
+If rulesets or branch protection will not be applied immediately, do not report a pass. Record accepted risk and
+a trigger to revisit the decision before the next release. Examples include a solo maintainer, an initial
+`main`-only repository, or a repository without CI.
 
-## 9. Post-public Verification
+## 9. Post-Public Verification
 
-- [ ] public clone이 된다.
-- [ ] clean environment에서 install이 된다.
-- [ ] 핵심 validation command가 통과한다.
-- [ ] test command가 통과한다.
-- [ ] README quick start가 정확하다.
-- [ ] public examples가 접근 가능하다.
-- [ ] GitHub security alerts가 clean이거나 의도적으로 기록되어 있다.
+- [ ] A public clone succeeds.
+- [ ] Installation succeeds in a clean environment.
+- [ ] The primary validation command passes.
+- [ ] The test command passes.
+- [ ] The README quick start is accurate.
+- [ ] Public examples are accessible.
+- [ ] GitHub security alerts are clear or intentionally documented.
 
-## 10. Release 준비 — 타이틀과 노트
+## 10. Prepare The Release Title And Notes
 
-GitHub Release를 publish하기 전에 타이틀과 notes를 준비한다.
-모든 커밋 내역을 그대로 붙이지 않는다 — 사용자에게 무엇이 바뀌었고 왜 중요한지를 중심으로 정리한다.
+Prepare the title and notes before publishing a GitHub Release. Do not paste the entire commit history. Explain
+what changed for users and why it matters.
 
-### 타이틀 관례
+### Title Conventions
 
-| 릴리즈 유형 | 권장 형식 | 예시 |
+| Release type | Recommended format | Example |
 | --- | --- | --- |
-| 최초 공개 | `vX.0.0` 또는 `vX.0.0 — <한 줄 요약>` | `v1.0.0 — First Public Release` |
-| Minor (새 기능) | `vX.Y.0` 또는 `vX.Y.0 — <주요 변경 한 줄>` | `v1.2.0 — Blueprint validation 개선` |
-| Patch (버그 수정) | `vX.Y.Z` (간결하게, 내용은 notes에) | `v1.0.1` |
-| Breaking change 포함 | 타이틀에 명시 권장 | `v2.0.0 — Breaking: schema 구조 변경` |
+| First public release | `vX.0.0` or `vX.0.0 — <one-line summary>` | `v1.0.0 — First Public Release` |
+| Minor release | `vX.Y.0` or `vX.Y.0 — <one-line primary change>` | `v1.2.0 — Improved Blueprint Validation` |
+| Patch release | `vX.Y.Z`; keep the title short and put details in the notes | `v1.0.1` |
+| Release with breaking changes | Call out the break in the title | `v2.0.0 — Breaking: Schema Restructure` |
 
-### Notes 작성 원칙
+### Notes Principles
 
-- GitHub의 "Generate release notes" 자동 기능은 시작점으로만 사용한다. 그대로 publish하지 않는다.
-- 커밋 메시지를 그대로 붙여넣지 않는다. 변경이 사용자에게 어떤 의미인지를 중심으로 재서술한다.
-- 기술 용어는 필요할 때만 쓰고, 가능하면 짧은 설명을 함께 제공한다.
-- Breaking change가 있으면 맨 위에 눈에 띄게 표시한다.
-- 완료되지 않은 기능이나 과장된 표현을 넣지 않는다.
+- Use GitHub's **Generate release notes** feature only as a starting point; do not publish the generated text
+  without review.
+- Do not paste commit messages verbatim. Rewrite changes around their effect on users.
+- Use technical terms only when necessary and add a brief explanation when helpful.
+- Put breaking changes at the top where readers will see them.
+- Do not mention unfinished capabilities or use inflated language.
 
-권장 섹션 구성 (해당 항목만 포함):
+Recommended sections—include only the ones that apply:
 
-```
-## Breaking Changes   ← breaking change가 있을 때만, 맨 위에
-무엇이 바뀌었고 어떻게 대응해야 하는지 설명한다.
+```markdown
+## Breaking Changes
+Include this section first when the release breaks compatibility. Explain what changed and what users must do.
 
 ## What's New
-새 기능과 개선사항을 사용자 관점에서 서술한다. 기술 구현 설명보다 "무엇을 할 수 있게 됐는가"를 우선한다.
+Describe features and improvements from the user's perspective. Lead with what users can now do, not the
+implementation details.
 
 ## Bug Fixes
-수정된 문제를 사용자가 체감하는 방식으로 서술한다. patch 릴리즈에서 주로 사용.
+Describe corrected problems in terms users will recognize. This section is especially useful for patch releases.
 
-## Migration Guide   ← breaking change가 있을 때만
-업그레이드 절차와 코드/설정 변경 필요 사항을 단계별로 안내한다.
+## Migration Guide
+Include this section for breaking changes. Give step-by-step upgrade and code or configuration changes.
 
-## Known Issues   ← 있을 때만
-알려진 한계와 다음 릴리즈에서 수정 예정인 사항을 명시한다.
+## Known Issues
+Include this section when relevant. State known limitations and whether a later release is expected to address
+them.
 
 **Full Changelog:** https://github.com/OWNER/REPO/compare/vX.Y.Z...vA.B.C
 ```
 
-### 최초 릴리즈 (v1.0.0) 체크리스트
+### First Release (`v1.0.0`) Checklist
 
-- [ ] 타이틀 형식을 정했다.
-- [ ] 프로젝트가 무엇을 하는지 한두 문장으로 소개했다.
-- [ ] What's New 또는 첫 공개 소개 문구가 있다.
-- [ ] 설치 방법 또는 Quick start 링크가 있다.
-- [ ] Known limitations을 솔직하게 명시했다.
-- [ ] 초기 릴리즈임을 명시하거나 Full changelog 링크를 달았다.
+- [ ] The title format is chosen.
+- [ ] One or two sentences explain what the project does.
+- [ ] The notes contain a What's New section or another clear introduction to the first public release.
+- [ ] Installation instructions or a Quick Start link is included.
+- [ ] Known limitations are stated honestly.
+- [ ] The notes identify this as the initial release or include a Full Changelog link.
 
-### Minor / Patch 릴리즈 체크리스트
+### Minor And Patch Release Checklist
 
-- [ ] 타이틀 형식을 정했다.
-- [ ] Breaking change가 있으면 맨 위에 표시했다.
-- [ ] Breaking change가 있으면 Migration guide가 있다.
-- [ ] 변경 내용이 사용자 impact 기준으로 정리됐다 (커밋 로그 그대로가 아님).
-- [ ] Known issues가 있으면 명시했다.
-- [ ] Full Changelog 링크를 달았다.
-- [ ] 이전 버전과의 비교 링크가 정확하다.
+- [ ] The title format is chosen.
+- [ ] Breaking changes appear at the top.
+- [ ] A migration guide is present when the release breaks compatibility.
+- [ ] Changes are organized by user impact rather than copied from the commit log.
+- [ ] Known issues are stated when relevant.
+- [ ] A Full Changelog link is included.
+- [ ] The comparison link points to the correct previous and current versions.
 
-### 기타 고려사항
+### Other Considerations
 
-- [ ] Pre-release 태그(alpha, beta, rc) 사용 여부를 결정했다. 사용한다면 GitHub에서 "Pre-release"로 마킹한다.
-- [ ] 이 릴리즈를 "Latest"로 표시하는 것이 맞는지 확인했다.
-- [ ] 릴리즈 타이밍이 적절하다. 금요일 오후, 연휴 직전은 피한다.
-- [ ] 시각 자료(screenshot, demo GIF)가 유용하면 첨부한다.
-- [ ] CHANGELOG.md를 유지한다면 이 릴리즈 항목이 추가됐다.
+- [ ] Decide whether to use a pre-release tag such as alpha, beta, or rc. If so, mark the GitHub Release as a
+      **Pre-release**.
+- [ ] Confirm whether this release should be marked **Latest**.
+- [ ] Choose a reasonable release time; avoid Friday afternoon or the start of a holiday.
+- [ ] Attach a screenshot or demo GIF when it would help.
+- [ ] If the project maintains CHANGELOG.md, add the release entry.
 
 ## 11. Public Announcement
 
-- [ ] §10에서 준비한 타이틀과 notes로 GitHub Release를 publish했다.
-- [ ] announcement draft를 검토했다.
-- [ ] 링크가 public repository를 가리킨다.
-- [ ] 시각 자료가 유용한 프로젝트라면 screenshot, gallery, demo asset을 첨부한다.
-- [ ] 주장과 표현은 과장 없이 정확하다.
-- [ ] known limitation이 있다면 솔직하게 표현한다.
-- [ ] 게시 채널과 타이밍을 정했다.
+- [ ] Publish the GitHub Release using the title and notes prepared in §10.
+- [ ] Review the announcement draft.
+- [ ] Confirm that links point to the public repository.
+- [ ] Attach a screenshot, gallery, or demo asset when visuals matter to the project.
+- [ ] Keep claims accurate and free of exaggeration.
+- [ ] State known limitations honestly when relevant.
+- [ ] Choose the publication channel and timing.
 
 ## 12. Rollback And Incident Notes
 
-- [ ] repository를 다시 private으로 돌리는 방법을 알고 있다.
-- [ ] secret이 노출됐다면 rotate 또는 revoke한다. visibility를 다시 private으로 바꾸는 것만으로는 충분하지 않다.
-- [ ] history에 민감정보가 있으면 history rewrite가 필요한지 판단한다.
-- [ ] incident note를 대상 repo 또는 private incident log에 남긴다.
+- [ ] Know how to make the repository private again.
+- [ ] Rotate or revoke any exposed secret. Making the repository private again is not sufficient.
+- [ ] Determine whether sensitive information in history requires a history rewrite.
+- [ ] Record an incident note in the target repository or a private incident log.

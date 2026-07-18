@@ -1,75 +1,79 @@
 # GitHub Repository Settings Template
 
-대상 repo에 맞게 조정해서 사용하는 GitHub settings 기본값이다.
+**English** · [한국어](./repo-settings-template.ko.md)
+
+Use these settings as a baseline, then adapt them to the target repository.
 
 ## Basic
 
-- Visibility: clean baseline 이후에만 public.
+- Visibility: public only after confirming a clean baseline.
 - Default branch: `main`.
-- Description: 짧고 정확하며, 과장 없이 프로젝트가 하는 일을 설명한다.
-- Topics: language, domain, core technology, user task를 균형 있게 담는다.
-- Homepage/About URL: 안정적이고 유용할 때만 설정한다.
-- Issues: 공개 feedback을 받을 계획이면 enabled.
-- Discussions: 가벼운 질문/피드백 채널이 유용하면 enabled.
-- Wiki: 유지할 계획이 없으면 disabled.
-- Projects: 선택.
+- Description: short, accurate, and specific about what the project does; avoid inflated claims.
+- Topics: balance language, domain, core technology, and user task.
+- Homepage/About URL: set only when it is stable and useful.
+- Issues: enable when public feedback is planned.
+- Discussions: enable when a lightweight question or feedback channel would help.
+- Wiki: disable unless it will be maintained.
+- Projects: optional.
 
 ## Pull Requests
 
-- Merge commits: feature history 보존이 중요하면 enabled.
-- Squash merge: 선택.
-- Rebase merge: 선택. 단, workflow에서 비권장하면 끈다.
-- Auto-merge: 선택.
+- Merge commits: enable when preserving feature history matters.
+- Squash merge: optional.
+- Rebase merge: optional; disable when the repository workflow advises against it.
+- Auto-merge: optional.
 - Allow update branch: enabled.
-- Delete head branches automatically: 주의해서 사용.
+- Delete head branches automatically: use with care.
 
-`develop` 같은 장기 브랜치가 PR head로 쓰일 수 있다면, 자동 branch deletion을 켜기 전에
-해당 브랜치의 deletion protection을 먼저 검증한다. 그렇지 않으면 release PR merge 후
-장기 브랜치가 삭제될 수 있다.
+If a long-lived branch such as `develop` may be used as a pull-request head, verify its deletion protection before
+enabling automatic branch deletion. Otherwise, merging a release pull request can delete the long-lived branch.
 
-초기 main-only repo에서는 `delete_branch_on_merge=true`가 합리적일 수 있다. 다만 long-lived branch를
-나중에 추가하면 이 설정과 branch deletion protection을 함께 재검토한다.
+For an initial `main`-only repository, `delete_branch_on_merge=true` may be reasonable. Revisit this setting and
+branch deletion protection together if long-lived branches are added later.
 
-## Branch Protection / Rulesets
+## Branch Protection And Rulesets
 
-권장 규칙:
+Recommended rules:
 
 | Target | Rules |
 | --- | --- |
-| `main` | deletion 차단, non-fast-forward 차단, PR 필수, CI가 있으면 required checks |
-| `develop` | deletion 차단, non-fast-forward 차단, PR 필수 |
-| Release tags | 기존 tag의 update/deletion 차단. creation은 제한하지 않는다(정상 release tag 생성은 허용하고 이미 publish된 anchor만 불변으로 만든다). narrow admin bypass. **applicability**: version tag로 release하는 repo면 적용 대상이다 — tag 없이 release하는 repo만 not-applicable(근거 기록). **severity**: 부재 시 immutable tag에 의존하는 release-critical consumer path(pinned install, tag-pinned clone·dependency·CI)가 있으면 `Blocked`, 그 외에는 `Needs attention` + explicit accepted risk·revisit trigger |
+| `main` | Block deletion and non-fast-forward pushes; require pull requests and, when CI exists, required checks |
+| `develop` | Block deletion and non-fast-forward pushes; require pull requests |
+| Release tags | Block updates and deletion of existing tags. Keep creation unrestricted so normal release tags can be created while published anchors remain immutable. Allow only a narrow administrative bypass. **Applicability:** repositories that release from version tags need this protection; only repositories that release without tags may mark it not applicable, with evidence. **Severity when absent:** `Blocked` if a release-critical consumer depends on immutable tags—pinned installation, tag-pinned clone, dependency, or CI—and otherwise `Needs attention` with explicit accepted risk and a revisit trigger. |
 
-tag pattern은 repo의 실제 release convention에서 도출한다. `v*`는 candidate default일 뿐이며,
-GitHub ruleset의 fnmatch에서 `*`는 `/`를 넘지 않으므로 monorepo의 `pkg-a/v1.2.3` 같은 namespace에는
-별도 pattern이 필요하다. 적용 전에 pattern의 match/overreach를 실제 tag 목록으로 확인한다.
+Derive the tag pattern from the repository's actual release convention. `v*` is only a candidate default. In
+GitHub ruleset `fnmatch`, `*` does not cross `/`, so a monorepo namespace such as `pkg-a/v1.2.3` needs a separate
+pattern. Before applying it, compare the pattern with the real tag list for both missed matches and overreach.
 
-권장 bypass:
+Recommended bypass:
 
-- solo maintainer workflow에서 긴급 복구나 release 후 branch sync가 필요하면 owner/admin bypass가 가능해야 한다.
-- bypass는 가능한 좁게 둔다. 기본 권장값은 Admin bypass만 허용하는 것이다.
-- 일반 contributor, GitHub App, broad team bypass는 필요성이 명확할 때만 추가한다.
-- bypass 기록: push 응답의 "Bypassed rule violations" 고지는 즉시 관측 evidence이고, durable audit는
-  rule suites API로 확인한다. 일부 insights 화면 기능은 plan(Team/Enterprise)에 따라 제한될 수 있다.
+- A solo-maintainer workflow must have an owner or administrator bypass available when emergency recovery or
+  post-release branch synchronization requires it.
+- Keep bypass access as narrow as possible. The default recommendation is an administrator-only bypass.
+- Add ordinary contributors, GitHub Apps, or broad teams only when the need is clear.
+- A push response that says `Bypassed rule violations` is immediate observed evidence. Use the rule suites API for
+  a durable audit record. Some Insights views may be limited by the repository's GitHub plan, including Team or
+  Enterprise availability.
 
-### Legacy branch protection → rulesets 이전 (optional, overlap-first)
+### Migrate Legacy Branch Protection To Rulesets (Optional, Overlap First)
 
-rulesets와 legacy branch protection은 함께 적용될 수 있으므로, 이전은 겹침을 유지한 채 진행한다:
+Rulesets and legacy branch protection can apply at the same time. Preserve that overlap during migration:
 
-1. 새 ruleset을 먼저 active로 만든다.
-2. effective rules와 bypass가 legacy와 등가인지 검증한다 (`gh api repos/OWNER/REPO/rules/branches/BRANCH`).
-3. legacy protection 제거는 별도 결정·승인 단계로 분리한다.
-4. 제거 후 effective rules를 재검증한다. 실패하면 legacy를 유지하거나 복원한다.
+1. Activate the new ruleset first.
+2. Verify that its effective rules and bypass behavior match the legacy protection with
+   `gh api repos/OWNER/REPO/rules/branches/BRANCH`.
+3. Treat removal of legacy protection as a separate decision and approval step.
+4. Verify the effective rules again after removal. If verification fails, keep or restore the legacy protection.
 
-등가성 검증 전에 기존 보호를 먼저 제거하지 않는다.
+Do not remove existing protection before proving equivalence.
 
 ## Security
 
 - Vulnerability alerts: enabled.
-- Dependabot security updates: 프로젝트 선호에 따라 manual 또는 automated.
-- Secret scanning: 가능하면 enabled.
-- Secret scanning push protection: 가능하면 enabled.
-- Private vulnerability reporting: public repo에 유용하면 enabled.
+- Dependabot security updates: manual or automated, according to project preference.
+- Secret scanning: enabled when available.
+- Secret scanning push protection: enabled when available.
+- Private vulnerability reporting: enable when it would help a public repository.
 
 ## Verification Commands
 
@@ -80,31 +84,32 @@ gh api repos/OWNER/REPO/vulnerability-alerts -i
 gh api repos/OWNER/REPO/rulesets
 ```
 
-plan 제약 (2026-07-17 확인 — GitHub 정책 변동 가능, 불가 시 확인 날짜와 함께 기록):
-**GitHub Free와 Free for organizations는 public repo의 rulesets·protected branches를 지원하고,
-private repo에는 Pro/Team/Enterprise가 필요하다.** private repo에서 설정을 시도하기 전에 visibility와
-plan을 먼저 확인한다. 그 외 일부 security 기능도 plan·visibility에 따라 제한될 수 있다.
-적용하지 못한 ruleset/protection은 post-public record에 accepted risk와 revisit trigger로 남긴다.
+Plan constraints, verified 2026-07-17 and subject to GitHub policy changes: **GitHub Free and Free for
+organizations support rulesets and protected branches for public repositories. Private repositories require
+GitHub Pro, Team, or Enterprise.** Check visibility and plan before attempting configuration on a private
+repository. Other security features may also depend on plan and visibility. If a setting is unavailable, record
+the limitation and the date it was checked. Record any ruleset or protection that cannot be applied as accepted
+risk with a revisit trigger in the post-public record.
 
 ## Description And Topics
 
 Description checklist:
 
-- [ ] 구체적인 output 또는 capability를 말한다.
-- [ ] 내부 phase 이름이나 작업명에 의존하지 않는다.
-- [ ] README가 뒷받침하지 못하는 과장을 피한다.
-- [ ] GitHub repository description field에 자연스럽게 들어간다.
+- [ ] State a concrete output or capability.
+- [ ] Do not depend on an internal phase name or Work title.
+- [ ] Avoid claims the README cannot support.
+- [ ] Make the text fit naturally in GitHub's repository description field.
 
 Topic checklist:
 
-- [ ] Language: 예 `typescript`, `python`, `go`.
-- [ ] Domain: 예 `presentation`, `automation`, `developer-tools`.
-- [ ] Technology: 예 `pptx`, `pptxgenjs`, `cli`.
-- [ ] User task: 예 `deck-generation`, `public-release`, `workflow`.
-- [ ] AI/tooling tag는 검색에 도움이 되고 프로젝트와 정확히 맞을 때만 사용한다.
+- [ ] Language, for example `typescript`, `python`, or `go`.
+- [ ] Domain, for example `presentation`, `automation`, or `developer-tools`.
+- [ ] Technology, for example `pptx`, `pptxgenjs`, or `cli`.
+- [ ] User task, for example `deck-generation`, `public-release`, or `workflow`.
+- [ ] Add an AI or tooling tag only when it accurately describes the project and improves discovery.
 
 ## Profile Pinning
 
-- [ ] 공개 직후 profile pinned repository로 지정할지 결정한다.
-- [ ] 대표 repo로 보여줄 만큼 README, examples, release, license가 정리되어 있다.
-- [ ] pinned slot을 차지할 만큼 현재 집중 프로젝트 또는 장기 대표 프로젝트인지 확인한다.
+- [ ] Decide whether to pin the repository to the maintainer's profile after publication.
+- [ ] Confirm that its README, examples, release, and license are ready for it to represent the project.
+- [ ] Confirm that the repository merits a limited pinned slot as a current focus or long-term representative project.
