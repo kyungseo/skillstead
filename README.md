@@ -144,8 +144,8 @@ live E2E, pinned `v0.5.0` project installation and discovery smoke, and the fina
 - `github-release-guide` v1 is github.com-only. It covers the one-time private-to-public transition and each
   version release after the repository is public.
 - `writing-quality-editor` is designed as locale-neutral, but its initial localization fixtures cover only
-  English↔Korean (`ko-KR` for Korean output). Runtime support remains unclaimed until clean installation and
-  discovery evidence and the final public-claim gate are complete.
+  English↔Korean (`ko-KR` for Korean output). Clean merge-commit installation and discovery passed, but runtime
+  support remains unclaimed until pinned `v0.7.0` verification and the post-release public-claim closeout finish.
 - A clean release or secret scan is best-effort, not proof that a repository has no security risk.
 
 ## License

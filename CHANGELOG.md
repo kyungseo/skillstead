@@ -4,7 +4,7 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
-## [Unreleased]
+## [0.7.0] — 2026-07-18
 
 ### writing-quality-editor (new skill, Beta)
 
@@ -34,8 +34,9 @@ Granular, per-change entries begin at the first public release. Earlier developm
 - **Portable package and fixtures.** The self-contained skill includes English/Korean READMEs, UI metadata, a
   profile-aware review rubric, dedicated EN↔KO and research-backed Compose references. Twenty-one scenarios and a
   separate answer key cover seven document profiles, meaning drift, over-editing, `needs-human`, and protected
-  identifiers. Cross-runtime behavior and repository dogfood pass; runtime support remains Pending until clean
-  installation/discovery and the final public-claim gate finish.
+  identifiers. Cross-runtime behavior, repository dogfood, and clean merge-commit installation/discovery pass;
+  runtime support remains Pending until pinned `v0.7.0` installation/discovery and the post-release claim closeout
+  finish.
 - **Fresh-context contract correction.** The first Claude Code behavior leg passed six of eight high-signal
   scenarios and exposed repeatable misses in ambiguous destructive UI and actorless release procedures. The
   strengthened contract passed the post-fix regression set on both runtimes, bounded R2 approved the result, and
@@ -48,6 +49,17 @@ Granular, per-change entries begin at the first public release. Earlier developm
   F12 text. `Revise` now requires a concrete reader problem before any wording, sentence, punctuation, or formatting
   change and returns the source exactly when all candidate changes are Neutral.
 
+### svg-infographic
+
+- **Connector and containment hardening.** Visual bounds now include strokes, shadows, and outlying children;
+  pill and badge widths are derived from label width plus padding; and connector planning budgets the real marker footprint,
+  a readable shaft, and the target gap. Tight corridors may use a compact arrow, a transition glyph, or a layout
+  reflow instead of forcing a clipped standard arrow.
+- **Catalog dogfood.** The English/Korean catalog overview was re-rendered after applying the new rules. Both SVGs
+  parse cleanly, use matching geometry, and export to 2800 × 1800 PNGs without clipped labels, escaped cards, or
+  head-only arrows. The bounded verification is recorded in
+  [`examples/catalog-overview-validation-evidence-20260718.md`](examples/catalog-overview-validation-evidence-20260718.md).
+
 ### Repository
 
 - Root English/Korean READMEs add `writing-quality-editor` to the priority catalog with evidence-bounded Beta
@@ -55,8 +67,8 @@ Granular, per-change entries begin at the first public release. Earlier developm
 - **Public-release playbook bilingualization.** Eight Korean-primary source documents are preserved as `.ko.md`
   mirrors, while natural English candidates use the canonical filenames. Every pair has a visible language
   switch, same-language internal links, matching checklist decisions, and an atomic-parity maintenance rule. The
-  owner approved the English authority flip after independent parity review; it takes effect when the
-  bilingualization pull request merges, using that merge commit as the DR-810 anchor.
+  owner approved the English authority flip after independent parity review. PR #18 merged as `7b65d70`, which is
+  the DR-810 anchor; the English documents are now canonical and the Korean documents are atomic-parity mirrors.
 
 ## [0.6.0] — 2026-07-17
 

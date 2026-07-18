@@ -62,6 +62,7 @@ Pick from the content signal, then **read that archetype's section in `reference
    - 1400–1600 wide: H1 40–44 / section 22 / card title 20–22 / body 16–17 / caption 13–14
    - 680-wide docs: title 22 / box label 14 / caption 11
 6. **Icons.** Derive every icon-circle center from card geometry (e.g. `cy = card_y + card_h/2`), never a hand-tuned per-language offset. EN and KO variants must share the **same formulas**.
+7. **Connector corridors.** Budget connectors like cards: `corridor = target_visual_left − source_visual_right`, and subtract the marker's real footprint (`markerUnits="strokeWidth"` multiplies it by the stroke width — formulas in `authoring.md` §3). If no readable shaft survives, choose a compact arrow, a transition glyph, or a reflow *now*, not after a render.
 
 ## 3. Author the SVG — core rules
 
@@ -85,7 +86,7 @@ Read `references/authoring.md` for the detailed rules and the reusable icon set.
 - **Boxes:** rounded rect `rx="8"` (wide bands `rx="12–22"`), hairline border `stroke-width:1`. Each box = tinted fill + same-family border + same-family text (one semantic color family per box).
 - **Vertical centering:** center text with `dominant-baseline="central"` and `y` at the box's vertical center. Two lines straddle the center: title at `center−11`, sub at `center+10`, both `central`. Never rely on the default alphabetic baseline for box labels — it sits high.
 - **Wrapping:** one planned line = one `<tspan x=.. dy=..>`; keep to the §2 text budget.
-- **Arrows:** define one `<marker>` arrowhead, use `marker-end`. Solid = sync/request, dashed (`stroke-dasharray="5 4"`) = async/batch/private. Leave an 8–12px gap before the target box.
+- **Arrows:** define one `<marker>` arrowhead, use `marker-end`. Solid = sync/request, dashed (`stroke-dasharray="5 4"`) = async/batch/private. Size the marker with `markerUnits="userSpaceOnUse"` and set `refX` so the tip lands on the path endpoint — the default `markerUnits="strokeWidth"` multiplies the head by the stroke width. Leave an 8–12px gap between tip and target box **and** keep a visible shaft behind the head; pick each connector's form (standard / compact / transition glyph / reflow) from the corridor budget (`authoring.md` §3).
 - **On-accent text is light:** any label on a saturated fill uses `class="on-accent"` (white/near-white) — never dark text on a mid/dark accent, and never rely on a blanket `text{fill}` rule to sort it out.
 - **Emphasis toolkit:** stroke + soft shadow + a number/status badge + a corner label + a filled icon badge. **No top accent bar on cards** (corner-smear and badge-collision failure modes — details and narrow exception in `authoring.md`).
 - **Icon-first (default on):** a line icon in a soft tinted circle (`r≈34–38`, tint `#E3EEF8`) per card/node, icon ~40px via `<use>`, recolor with `style="color:#…"`. Number badge **only when sequence or cross-reference matters** — never icon + redundant number.
@@ -94,13 +95,14 @@ Read `references/authoring.md` for the detailed rules and the reusable icon set.
 
 Check the SVG source mechanically; each item is cheaper here than after a PNG:
 
-1. **Containment re-check:** the §2 last-edge/bottom-edge arithmetic still holds for what you actually wrote (cards, arrows, badges, labels — including any element you added while authoring).
-2. **Text budget:** no `<text>`/`<tspan>` line exceeds its planned chars/line; box labels use `dominant-baseline="central"` with computed `y`.
+1. **Containment re-check:** the §2 last-edge/bottom-edge arithmetic still holds for what you actually wrote (cards, arrows, badges, labels — including any element you added while authoring). Judge **visual bounds**, not just the fill rect — half the stroke width, shadow spread, and children drawn outside the base rect count; in a padded panel, an edge that merely touches the parent is a fail, not a pass (formula in `authoring.md` §1).
+2. **Text budget:** no `<text>`/`<tspan>` line exceeds its planned chars/line; box labels use `dominant-baseline="central"` with computed `y`. **Pill/badge fit:** every pill/badge background covers its actual label width plus ≥ 14–16px padding per side, and EN/KO shared geometry fits the wider language's label (formula in `authoring.md` §2).
 3. **References resolve:** every `<use href="#id">` matches a defined `<symbol id>`; every `marker-end` references a defined `<marker>`; no dangling `url(#…)`.
 4. **Contrast classes:** every label on a saturated fill carries `class="on-accent"`; no blanket `text{fill}` rule that overrides on-accent labels via inheritance.
 5. **Corner clearance:** badges / status labels / corner icons in the same card corner region have ≥ 20–24px between bounding boxes.
 6. **EN/KO parity:** if generating both, the two variants share identical geometry formulas — only text (and text budget) differs.
 7. **Root sanity:** `viewBox` matches the intended W×H; `<title>`/`<desc>` present; font stack on the root.
+8. **Connector budget:** every connector's corridor and marker footprint are computed (§2.7); each standard arrow keeps a visible shaft (≥ 12–16px, not hidden under a card/panel by paint order) plus the 8–12px tip gap — a head-only arrow is a fail even when the gap is right; tight corridors carry a deliberate form choice (compact arrow, transition glyph, or reflow — `authoring.md` §3); EN/KO share connector geometry and semantics.
 
 ## 5. Render to PNG (2×)
 
@@ -126,6 +128,7 @@ The pre-render checklist covered the source; now check what only the pixels show
 
 - **Rendering:** no text overflow or clipped glyphs; text vertically centered in its box; correct Korean/CJK rendering (no tofu); PNG is exactly 2× the viewBox (render.sh reports this); icons visible (no blank circles); labels on accent fills read clearly (AA-like separation).
 - **Containment (visual):** every child sits inside its container plus inner padding — scan the PNG for anything touching or crossing a panel edge; an element can spill without touching any text.
+- **Connectors:** every arrow reads as shaft + head — no head-only arrows and no head buried under a panel or card; the head joins its shaft cleanly and neither touches the target border nor floats detached; a transition glyph reads as flow, not as an icon or play button.
 - **Message:** the archetype fits the content; one clear reading order; the title states a conclusion, not just a topic; text density stays low per box; any matrix/labels read unambiguously; depth and language fit the stated audience.
 - The SVG stays editable — tokens in one `<style>` block, no flattened or rasterized text.
 

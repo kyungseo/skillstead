@@ -10,6 +10,7 @@
 | `fixtures/scenarios.md` | Compose, Assess, Revise, Adapt를 다루는 요청과 원문 자료 21개 |
 | `fixtures/expected-outcomes.md` | 정답표와 의미 보존 점검표. 평가 대상 에이전트에게는 제공하지 않음 |
 | `fixtures/validation-evidence.md` | 정적 검사, 새 대화에서의 실행 기록, 중단 기준과 공개 문구의 근거 범위 |
+| `release-claim-audit-v0.7.0-prepublish-20260718.md` | 릴리스 필수 공개 문구 13건의 사전 평가와, 공개 후까지 남는 고정 태그 검증 항목 |
 
 정의된 문서 유형 7종, 같은 언어 안에서의 교정, EN→KO·KO→EN Adapt, 의미 변화, 과도한 수정,
 `needs-human`, 식별자 보호, 쉬운 문장으로 고쳐 쓰기, 탐지기 회피 없이 부자연스러운 반복 패턴 다듬기,
