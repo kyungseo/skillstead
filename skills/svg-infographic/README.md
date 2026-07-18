@@ -19,7 +19,7 @@ The skill computes the layout first (a required numeric layout pass — grid ari
 The skill follows a fixed five-step workflow designed so the **first render passes review**:
 
 1. **Preflight** — confirms intent, audience, ratio, and language; shows the defaults you can change; proposes an output directory before writing anything.
-2. **Archetype** — picks the diagram shape from your content (see the table below) and loads that archetype's layout skeleton, premium recipe, and failure checks.
+2. **Archetype** — picks the diagram shape from your content (see the table below) and loads that archetype's layout skeleton, visual guidance, and failure checks.
 3. **Layout pass** — fixes the canvas regions, card grid, and per-box text budgets *numerically* before drawing. Copy that won't fit its box is shortened here — not after a broken render.
 4. **Author + self-check** — writes the SVG from the computed numbers, then runs a mechanical pre-render checklist on the source (containment arithmetic, icon/arrow references, contrast classes, EN/KO geometry parity).
 5. **Render + verify** — exports a 2× PNG via the bundled `scripts/render.sh`, which also verifies the PNG dimensions, then reviews the pixels against a quality bar (rendering, containment, message).
@@ -39,7 +39,7 @@ You don't need to know any of this to use the skill — but it explains what the
 | time, phases, milestones | Roadmap / timeline |
 | a few headline items or numbers | Icon cards / KPI grid (not a chart) |
 
-Each archetype ships with a layout skeleton, a premium visual recipe, and its own checks in [`references/archetypes.md`](./references/archetypes.md). If your content fits none of them, the skill says so instead of forcing a shape.
+Each archetype ships with a layout skeleton, visual guidance, and its own checks in [`references/archetypes.md`](./references/archetypes.md). If your content fits none of them, the skill says so instead of forcing a shape.
 
 ## Example Prompts
 
@@ -144,7 +144,7 @@ The skill checks the output at three stages, not just at the end:
 - **Rendering (PNG)** — no text overflow, correct Korean/CJK glyphs (no tofu), PNG dimensions verified as exactly 2× (automated by the render script), icons render, and the SVG stays editable.
 - **Message** — the archetype fits the content, there is one clear reading order, the title carries the conclusion, text density stays low per box, and the depth and language fit your audience.
 
-For a busy architecture or flow diagram, the skill can normalize node placement into zones to reduce crossings — an optional layout aid, not a required format.
+For a busy architecture or flow diagram, the skill can group nodes into layout zones to reduce crossings. This is an optional layout aid, not a required format.
 
 ## Style Defaults
 

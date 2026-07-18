@@ -1,12 +1,14 @@
 # Sensitive Information Sweep
 
-repo를 public으로 만들기 전에 민감정보를 점검하는 절차다.
+**English** · [한국어](./sensitive-info-sweep.ko.md)
 
-## 빠른 검색
+Use this procedure to check for sensitive information before making a repository public.
 
-repo 특성에 맞게 검색 패턴을 조정한다. 처음에는 넓게 찾고, match를 직접 확인한다.
+## Quick Search
 
-추천 패턴:
+Adjust the search patterns to the repository. Start broadly, then inspect every match.
+
+Suggested patterns:
 
 ```bash
 rg -n --hidden --glob '!.git' --glob '!node_modules' --glob '!dist' --glob '!build' \
@@ -18,28 +20,28 @@ rg -n --hidden --glob '!.git' --glob '!node_modules' --glob '!dist' --glob '!bui
   '/Users/|/home/|C:\\\\Users|localhost|127\\.0\\.0\\.1|internal|private|corp|staging|prod'
 ```
 
-## 확인할 파일
+## Files To Review
 
 - [ ] `.env*`
-- [ ] config files
+- [ ] Configuration files
 - [ ] CI files
-- [ ] deployment files
-- [ ] docs and examples
-- [ ] generated artifacts
-- [ ] screenshots and exported PDFs
-- [ ] metadata를 포함할 수 있는 binary files
-- [ ] package metadata
+- [ ] Deployment files
+- [ ] Documentation and examples
+- [ ] Generated artifacts
+- [ ] Screenshots and exported PDFs
+- [ ] Binary files that may contain metadata
+- [ ] Package metadata
 
 ## Git History
 
-private 상태에서 작업량이 많았던 repo는 history도 검토한다.
+Review the history of any repository that accumulated substantial work while private.
 
-- [ ] 이전 commit에 secret이 들어간 적이 있는지 확인한다.
-- [ ] 큰 binary artifact에 private metadata가 있는지 확인한다.
-- [ ] history rewrite가 필요한지 판단한다.
-- [ ] credential이 commit된 적이 있다면 나중에 삭제했더라도 rotate한다.
+- [ ] Check whether any earlier commit contained a secret.
+- [ ] Check large binary artifacts for private metadata.
+- [ ] Decide whether a history rewrite is necessary.
+- [ ] Rotate any credential that was committed, even if it was later removed.
 
-도움 되는 명령:
+Useful commands:
 
 ```bash
 git log --all --oneline --decorate
@@ -47,21 +49,20 @@ git log --all --name-only --pretty=format: | sort -u
 git grep -n 'TOKEN\|SECRET\|PASSWORD\|API_KEY' $(git rev-list --all)
 ```
 
-큰 repo에서는 history-wide command를 조심해서 실행한다.
+Use history-wide commands carefully in large repositories.
 
 ## Generated Artifacts
 
-- [ ] PDF에 local username, internal path, hidden comments가 노출되지 않는다.
-- [ ] Office files에 의도치 않은 author/company metadata가 없다.
-- [ ] Screenshot에 local path, terminal, credential, private tab이 보이지 않는다.
-- [ ] Example data는 synthetic이거나 공개 가능하다고 판단했다.
+- [ ] PDFs do not expose a local username, internal path, or hidden comment.
+- [ ] Office files do not contain unintended author or company metadata.
+- [ ] Screenshots do not show a local path, terminal, credential, or private tab.
+- [ ] Example data is synthetic or has been confirmed safe for public use.
 
-## 판단
+## Decision
 
-public 전환 전 아래 중 하나로 결론을 낸다.
+Choose one conclusion before making the repository public:
 
-- [ ] 그대로 공개 가능
-- [ ] 작은 cleanup 후 공개 가능
-- [ ] credential rotation 전까지 block
-- [ ] history rewrite 전까지 block
-
+- [ ] Safe to publish as-is
+- [ ] Safe after a small cleanup
+- [ ] Blocked until credentials are rotated
+- [ ] Blocked until history is rewritten

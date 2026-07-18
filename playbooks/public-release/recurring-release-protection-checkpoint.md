@@ -1,38 +1,43 @@
 # Recurring Release Protection Checkpoint
 
-이미 public인 repo가 새 버전을 release하기 전에 release surface protection을 확인하는 독립
-checkpoint다. 첫 공개 전환 시점(§8)에만 확인하고 끝내면 이후 릴리스가 반복되는 동안 보호 상태가
-다시 확인되지 않는다 — 이 checkpoint는 **매 version release 전에** 재사용한다.
+**English** · [한국어](./recurring-release-protection-checkpoint.ko.md)
 
-## Applicability 판정 (매번 먼저)
+Use this standalone checkpoint to verify release protection before an already-public repository publishes a new
+version. Checking only at the first-public milestone (§8) leaves later releases without a fresh protection review.
+Run this checkpoint **before every version release**.
 
-- [ ] repo의 release convention을 확인한다: version tag로 release하는가? tag namespace는 무엇인가?
-      (monorepo는 `pkg-a/v1.2.3`처럼 `/`를 포함할 수 있다 — ruleset fnmatch에서 `*`는 `/`를 넘지
-      않으므로 별도 pattern이 필요하다.)
-- [ ] immutable tag에 의존하는 release-critical consumer path가 있는지 확인한다 — pinned install,
-      tag-pinned clone, dependency 참조, CI checkout.
-- [ ] tag 없이(branch snapshot 등) release하는 repo라면 tag ruleset은 **not-applicable** — 근거를
-      기록하고 branch 항목만 확인한다. 이는 위험 수용이 아니라 근거 있는 no-risk disposition이다.
+## Determine Applicability First
 
-## 확인 항목
+- [ ] Confirm the repository's release convention: does it release from version tags, and what tag namespace does
+      it use? A monorepo may use a name such as `pkg-a/v1.2.3`. In ruleset `fnmatch`, `*` does not cross `/`, so
+      that namespace needs a separate pattern.
+- [ ] Identify release-critical consumer paths that depend on immutable tags: pinned installation, tag-pinned
+      clones, dependency references, or CI checkout.
+- [ ] If the repository releases without tags—for example, from branch snapshots—record the tag ruleset as
+      **not-applicable** with the supporting reason, then check only the branch items. This is an evidence-based
+      no-risk disposition, not risk acceptance.
 
-- [ ] default branch ruleset/protection이 active다 (deletion 차단, non-fast-forward 차단, PR 필수,
-      CI가 있으면 required checks).
-- [ ] release tag ruleset이 active다 (기존 tag update/deletion 차단, creation 비제한, narrow admin
-      bypass — `repo-settings-template.md` 기준).
-- [ ] ruleset pattern이 실제 release tag namespace와 일치한다 (match/overreach를 tag 목록으로 확인).
-- [ ] plan/permission 제약을 확인했다 (private repo의 rulesets·protected branches는
-      Pro/Team/Enterprise 필요 — 2026-07-17 기준, `repo-settings-template.md` 참조).
+## Checks
 
-## Gap 처분 (severity)
+- [ ] The default branch ruleset or protection is active: deletion and non-fast-forward pushes are blocked, pull
+      requests are required, and required checks are configured when CI exists.
+- [ ] The release tag ruleset is active: updates and deletion of existing tags are blocked, tag creation remains
+      allowed, and the administrative bypass is narrow. Follow `repo-settings-template.md`.
+- [ ] The ruleset pattern matches the actual release tag namespace. Compare it with the tag list for both missed
+      matches and overreach.
+- [ ] Plan and permission constraints are known. As of 2026-07-17, rulesets and protected branches on private
+      repositories require GitHub Pro, Team, or Enterprise. See `repo-settings-template.md`.
 
-- **release-critical consumer path가 있는 repo의 tag ruleset 부재: Blocked** — 릴리스 전에 적용한다.
-- 그 외 gap: **Needs attention** — 명시적 accepted risk와 다음 release 전 재검토 trigger를 남긴다.
-- 적용을 거절했거나 권한이 없는 경우: 무변경 상태를 유지하고 accepted risk·revisit trigger를 기록한다.
-  gap의 존재 자체가 설정 변경의 승인이 되지 않는다.
-- not-applicable 판정: 근거와 함께 no-risk disposition으로 기록한다(accepted risk와 구분).
+## Classify And Handle Gaps By Severity
 
-## 검증 명령
+- **Missing tag ruleset when a release-critical consumer path exists: Blocked.** Apply it before the release.
+- **Any other gap: Needs attention.** Record explicit accepted risk and a trigger to revisit it before the next
+  release.
+- **The change was declined or cannot be made with current permissions:** keep the existing state and record the
+  accepted risk and revisit trigger. The existence of a gap is not approval to change settings.
+- **Not applicable:** record the evidence-based no-risk disposition separately from accepted risk.
+
+## Verification Commands
 
 ```bash
 gh api repos/OWNER/REPO/rulesets

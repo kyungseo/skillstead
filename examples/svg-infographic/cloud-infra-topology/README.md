@@ -14,8 +14,8 @@ Files: `*.en.svg` / `*.en.png` / `*.ko.svg` / `*.ko.png` — SVG is the editable
 
 Sample content is synthetic. Names, identifiers, digests, tools, and environments
 are placeholders; no customer or confidential identifiers are included.
-(샘플 내용은 합성 예제입니다. 이름, 식별자, digest, 도구, 환경은 placeholder이며
-고객·기밀 식별자는 포함하지 않습니다.)
+(샘플 내용은 모두 가상입니다. 이름, 식별자, digest, 도구와 환경은 예시용이며,
+고객 정보나 기밀 식별자를 포함하지 않습니다.)
 
 ## Prompt
 
@@ -35,7 +35,8 @@ Swap Azure for AWS (ALB → API Gateway → EKS → RDS) and the same prompt sha
 
 # 예제: 클라우드 인프라 토폴로지
 
-전형적인 웹 요청 경로를 나타낸 Azure 레퍼런스 토폴로지. `svg-infographic`으로 영문·한글 두 본을 만들었다.
+전형적인 웹 요청 경로를 Azure 구성으로 표현한 참조 토폴로지입니다. `svg-infographic`으로 영문판과
+한국어판을 함께 만들었습니다.
 
 ## 프롬프트
 
@@ -48,4 +49,4 @@ AGW/APIM/AKS/Postgres를 Azure VNet 프레임으로 감싸줘. 요청 경로는 
 링크는 점선 화살표로. muted technical 스타일. SVG + 2x PNG로 export해줘.
 ```
 
-Azure 대신 AWS(ALB → API Gateway → EKS → RDS)로 바꿔도 같은 프롬프트 구조로 동작한다.
+Azure 대신 AWS(ALB → API Gateway → EKS → RDS)를 지정해도 같은 프롬프트 구성을 활용할 수 있습니다.

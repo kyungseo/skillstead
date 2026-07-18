@@ -1,54 +1,113 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 700" width="1400" height="700" role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
-  <title>Skillstead 스킬 세 가지</title>
-  <desc>svg-infographic은 다이어그램을 만들고, docs-claim-check는 문서 주장을 근거와 대조하며, github-release-guide는 사용자가 승인한 GitHub 릴리스 작업을 안내한다.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" width="1400" height="900" role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>Skillstead 스킬 하나만 사용하거나 릴리스 흐름으로 연결하는 방법</title>
+  <desc>프로젝트 자료에서 writing-quality-editor와 svg-infographic을 각각 사용할 수 있고, 필요하면 docs-claim-check와 github-release-guide로 이어집니다. 모든 스킬은 독립적으로 설치할 수 있습니다.</desc>
   <style>
-    .bg{fill:#f7f9fc}.card{fill:#fff;stroke:#d9e1ec;stroke-width:2}.eyebrow{font-size:18px;font-weight:700;letter-spacing:1.2px;fill:#596579}.title{font-size:30px;font-weight:750;fill:#1d2735}.body{font-size:20px;fill:#4d596b}.pill{font-size:16px;font-weight:700}.arrow{fill:none;stroke:#8895a7;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.footer{font-size:18px;font-weight:650;fill:#354154}
+    svg{--bg:#F4F7FB;--ink:#172033;--muted:#5C687B;--hair:#D5DEEA;--panel:#FFFFFF;--blue:#2468A8;--blue-soft:#E8F2FC;--teal:#0F766E;--teal-soft:#E7F6F3;--violet:#6650A4;--violet-soft:#F0ECFC;--amber:#A85B16;--amber-soft:#FFF1E4;--slate:#53657B;--slate-soft:#EEF2F6;--ok:#18745B;--ok-soft:#EAF7F1}
+    .ink{fill:var(--ink)}.muted{fill:var(--muted)}.on-accent{fill:#FFFFFF}.hair{stroke:var(--hair)}
+    .stage{fill:var(--panel);stroke-width:1.5}.skill{fill:var(--panel);stroke-width:1.5}
+    .label{font-size:15px;font-weight:800;letter-spacing:.2px}.skill-name{font-size:18px;font-weight:800}.body{font-size:16px}.small{font-size:14px}
   </style>
-  <rect class="bg" width="1400" height="700" rx="28"/>
-  <text x="70" y="72" class="eyebrow">SKILLSTEAD · 세 가지 실용적인 스킬</text>
-  <text x="70" y="116" class="title">다이어그램 제작 · 문서 주장 검증 · GitHub 릴리스 안내</text>
+  <defs>
+    <filter id="shadow" x="-15%" y="-20%" width="130%" height="150%"><feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#53657B" flood-opacity=".12"/></filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#8795A8"/></marker>
+    <symbol id="ic-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></symbol>
+    <symbol id="ic-pen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10z"/><path d="M14 7l3 3M8.5 19L5 15.5"/></symbol>
+    <symbol id="ic-layout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M10 10v10"/></symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14v16H5z"/><path d="M8 9l1.5 1.5L12 8M8 15h8"/></symbol>
+    <symbol id="ic-release" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M5 13v7h14v-7"/><path d="M8 20h8"/></symbol>
+  </defs>
 
-  <g transform="translate(70 165)">
-    <rect class="card" width="400" height="410" rx="24"/>
-    <rect x="28" y="28" width="158" height="34" rx="17" fill="#e7f1ff"/>
-    <text x="107" y="51" text-anchor="middle" class="pill" fill="#2463a6">제작</text>
-    <text x="28" y="108" class="title">svg-infographic</text>
-    <text x="28" y="151" class="body">아키텍처 설명</text>
-    <text x="28" y="182" class="body">프로세스 아이디어</text>
-    <path class="arrow" d="M64 222h238m0 0-18-14m18 14-18 14"/>
-    <rect x="28" y="264" width="344" height="90" rx="18" fill="#edf7f3" stroke="#8fcab4"/>
-    <text x="200" y="303" text-anchor="middle" class="body" fill="#17624f">편집 가능한 SVG</text>
-    <text x="200" y="333" text-anchor="middle" class="body" fill="#17624f">+ 선명한 2× PNG</text>
-    <text x="28" y="388" class="footer">계속 수정할 수 있는 SVG</text>
+  <rect width="1400" height="900" rx="28" fill="var(--bg)"/>
+  <rect x="72" y="58" width="6" height="62" rx="3" fill="var(--blue)"/>
+  <text x="98" y="72" class="muted" font-size="16" font-weight="800" letter-spacing="1.2">SKILLSTEAD · 스킬 조합 가이드</text>
+  <text x="98" y="119" class="ink" font-size="42" font-weight="850">하나만 써도 되고, 릴리스 흐름으로 연결해도 됩니다</text>
+  <text x="98" y="151" class="muted" font-size="17">글·시각 자료·근거 확인·승인 단계를 다루되, 각 스킬은 서로 의존하지 않는 독립 패키지입니다.</text>
+
+  <rect x="60" y="180" width="1280" height="450" rx="24" fill="#F9FBFE" stroke="var(--hair)" stroke-width="1.5"/>
+  <rect x="84" y="196" width="184" height="34" rx="17" fill="var(--slate)"/>
+  <text x="176" y="213" class="on-accent label" text-anchor="middle" dominant-baseline="central">선택형 프로젝트 흐름</text>
+
+  <path d="M290 390H320V337H358" fill="none" stroke="#8795A8" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M320 390V482H358" fill="none" stroke="#8795A8" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M790 337H842V390" fill="none" stroke="#8795A8" stroke-width="3"/>
+  <path d="M790 482H842V390H868" fill="none" stroke="#8795A8" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M1080 390H1128" fill="none" stroke="#8795A8" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="90" y="245" width="200" height="300" rx="20" class="stage" stroke="var(--slate)"/>
+    <rect x="110" y="265" width="80" height="32" rx="16" fill="var(--slate)"/>
+    <text x="150" y="281" class="on-accent label" text-anchor="middle" dominant-baseline="central">시작</text>
+    <circle cx="190" cy="345" r="36" fill="var(--slate-soft)"/>
+    <use href="#ic-doc" x="170" y="325" width="40" height="40" style="color:var(--slate)"/>
+    <text x="190" y="409" class="ink" font-size="21" font-weight="800" text-anchor="middle">프로젝트 자료</text>
+    <text x="190" y="446" class="muted body" text-anchor="middle"><tspan x="190">메모 · 코드 · 사실</tspan><tspan x="190" dy="24">요구사항 · 근거</tspan></text>
+    <rect x="112" y="493" width="156" height="30" rx="15" fill="var(--slate-soft)"/>
+    <text x="190" y="508" class="muted small" font-weight="700" text-anchor="middle" dominant-baseline="central">현재 자료에서 시작</text>
   </g>
 
-  <g transform="translate(500 165)">
-    <rect class="card" width="400" height="410" rx="24"/>
-    <rect x="28" y="28" width="158" height="34" rx="17" fill="#f0ebff"/>
-    <text x="107" y="51" text-anchor="middle" class="pill" fill="#6642a6">검증</text>
-    <text x="28" y="108" class="title">docs-claim-check</text>
-    <text x="28" y="151" class="body">공개 문서의 주장</text>
-    <text x="28" y="182" class="body">+ 제공된 근거 자료</text>
-    <path class="arrow" d="M64 222h238m0 0-18-14m18 14-18 14"/>
-    <rect x="28" y="264" width="344" height="90" rx="18" fill="#f5f0ff" stroke="#baa5df"/>
-    <text x="200" y="303" text-anchor="middle" class="body" fill="#5a378d">주장별 판정</text>
-    <text x="200" y="333" text-anchor="middle" class="body" fill="#5a378d">+ 확인한 근거 범위</text>
-    <text x="28" y="388" class="footer">제공된 근거에 따라 판정</text>
+  <g>
+    <rect x="340" y="215" width="480" height="360" rx="22" fill="var(--blue-soft)" stroke="#BED5ED" stroke-width="1.5"/>
+    <rect x="365" y="231" width="164" height="34" rx="17" fill="var(--blue)"/>
+    <text x="447" y="248" class="on-accent label" text-anchor="middle" dominant-baseline="central">작성하고 설명하기</text>
+
+    <g filter="url(#shadow)">
+      <rect x="370" y="282" width="420" height="110" rx="18" class="skill" stroke="var(--teal)"/>
+      <circle cx="420" cy="337" r="32" fill="var(--teal-soft)"/>
+      <use href="#ic-pen" x="402" y="319" width="36" height="36" style="color:var(--teal)"/>
+      <text x="470" y="322" class="ink skill-name">writing-quality-editor</text>
+      <text x="470" y="352" class="muted body">작성 · 검토 · 수정 · 언어 재구성</text>
+      <text x="470" y="376" fill="var(--teal)" class="small" font-weight="700">의미를 지키면서 자연스러운 글로</text>
+    </g>
+
+    <g filter="url(#shadow)">
+      <rect x="370" y="427" width="420" height="110" rx="18" class="skill" stroke="var(--blue)"/>
+      <circle cx="420" cy="482" r="32" fill="#E6F1FB"/>
+      <use href="#ic-layout" x="402" y="464" width="36" height="36" style="color:var(--blue)"/>
+      <text x="470" y="467" class="ink skill-name">svg-infographic</text>
+      <text x="470" y="497" class="muted body">구조와 흐름을 시각적으로 설명</text>
+      <text x="470" y="521" fill="var(--blue)" class="small" font-weight="700">수정 가능한 SVG + 검증된 2× PNG</text>
+    </g>
   </g>
 
-  <g transform="translate(930 165)">
-    <rect class="card" width="400" height="410" rx="24"/>
-    <rect x="28" y="28" width="158" height="34" rx="17" fill="#fff0e4"/>
-    <text x="107" y="51" text-anchor="middle" class="pill" fill="#9a571e">릴리스</text>
-    <text x="28" y="108" class="title">github-release-guide</text>
-    <text x="28" y="151" class="body">저장소 상태</text>
-    <text x="28" y="182" class="body">+ 사용자 결정</text>
-    <path class="arrow" d="M64 222h238m0 0-18-14m18 14-18 14"/>
-    <rect x="28" y="264" width="344" height="90" rx="18" fill="#fff5ec" stroke="#e4b88e"/>
-    <text x="200" y="303" text-anchor="middle" class="body" fill="#8b4b18">준비 상태 확인</text>
-    <text x="200" y="333" text-anchor="middle" class="body" fill="#8b4b18">+ 승인된 변경 작업</text>
-    <text x="28" y="388" class="footer">미리보기 · 재확인 · 승인 · 검증</text>
+  <g filter="url(#shadow)">
+    <rect x="880" y="245" width="200" height="300" rx="20" class="stage" stroke="var(--violet)"/>
+    <rect x="900" y="265" width="82" height="32" rx="16" fill="var(--violet)"/>
+    <text x="941" y="281" class="on-accent label" text-anchor="middle" dominant-baseline="central">확인</text>
+    <circle cx="980" cy="345" r="36" fill="var(--violet-soft)"/>
+    <use href="#ic-check" x="960" y="325" width="40" height="40" style="color:var(--violet)"/>
+    <text x="980" y="409" class="ink skill-name" text-anchor="middle">docs-claim-check</text>
+    <text x="980" y="446" class="muted body" text-anchor="middle"><tspan x="980">공개할 주장을</tspan><tspan x="980" dy="24">제공된 근거와 대조</tspan></text>
+    <rect x="902" y="493" width="156" height="30" rx="15" fill="var(--violet-soft)"/>
+    <text x="980" y="508" fill="var(--violet)" class="small" font-weight="700" text-anchor="middle" dominant-baseline="central">확인한 근거 안에서 판정</text>
   </g>
 
-  <text x="700" y="642" text-anchor="middle" class="body">폴더 복사로 설치 · 가상 예제 포함 · 검증 근거에 맞춰 지원 상태 표시</text>
+  <g filter="url(#shadow)">
+    <rect x="1140" y="245" width="200" height="300" rx="20" class="stage" stroke="var(--amber)"/>
+    <rect x="1160" y="265" width="92" height="32" rx="16" fill="var(--amber)"/>
+    <text x="1206" y="281" class="on-accent label" text-anchor="middle" dominant-baseline="central">릴리스</text>
+    <circle cx="1240" cy="345" r="36" fill="var(--amber-soft)"/>
+    <use href="#ic-release" x="1220" y="325" width="40" height="40" style="color:var(--amber)"/>
+    <text x="1240" y="400" class="ink skill-name" text-anchor="middle"><tspan x="1240">github-release-</tspan><tspan x="1240" dy="23">guide</tspan></text>
+    <text x="1240" y="459" class="muted body" text-anchor="middle"><tspan x="1240">점검 · 사전 확인</tspan><tspan x="1240" dy="24">승인 · 결과 검증</tspan></text>
+    <rect x="1162" y="493" width="156" height="30" rx="15" fill="var(--amber-soft)"/>
+    <text x="1240" y="508" fill="var(--amber)" class="small" font-weight="700" text-anchor="middle" dominant-baseline="central">최종 결정은 사용자에게</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="110" y="680" width="360" height="128" rx="18" fill="var(--panel)" stroke="var(--teal)" stroke-width="1.25"/>
+    <circle cx="154" cy="724" r="23" fill="var(--teal-soft)"/><text x="154" y="724" fill="var(--teal)" font-size="20" font-weight="850" text-anchor="middle" dominant-baseline="central">1</text>
+    <text x="190" y="716" class="ink" font-size="19" font-weight="800">필요한 스킬만 설치</text>
+    <text x="190" y="746" class="muted body"><tspan x="190">사용할 스킬의 전체 폴더만</tspan><tspan x="190" dy="23">복사하면 됩니다.</tspan></text>
+
+    <rect x="520" y="680" width="360" height="128" rx="18" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.25"/>
+    <circle cx="564" cy="724" r="23" fill="var(--blue-soft)"/><text x="564" y="724" fill="var(--blue)" font-size="20" font-weight="850" text-anchor="middle" dominant-baseline="central">2</text>
+    <text x="600" y="716" class="ink" font-size="19" font-weight="800">필요할 때 조합</text>
+    <text x="600" y="746" class="muted body"><tspan x="600">이 흐름은 활용 예시이며 필수</tspan><tspan x="600" dy="23">의존 관계가 아닙니다.</tspan></text>
+
+    <rect x="930" y="680" width="360" height="128" rx="18" fill="var(--panel)" stroke="var(--violet)" stroke-width="1.25"/>
+    <circle cx="974" cy="724" r="23" fill="var(--violet-soft)"/><text x="974" y="724" fill="var(--violet)" font-size="20" font-weight="850" text-anchor="middle" dominant-baseline="central">3</text>
+    <text x="1010" y="716" class="ink" font-size="19" font-weight="800">바뀐 산출물은 다시 확인</text>
+    <text x="1010" y="746" class="muted body"><tspan x="1010">공개할 내용이 달라지면 앞 단계의</tspan><tspan x="1010" dy="23">점검으로 돌아갑니다.</tspan></text>
+  </g>
+  <text x="700" y="860" class="muted" font-size="14" text-anchor="middle">현재 catalog · agent review는 계획 중이며 아직 사용할 수 없습니다</text>
 </svg>

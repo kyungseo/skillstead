@@ -14,8 +14,8 @@ Files: `*.en.svg` / `*.en.png` / `*.ko.svg` / `*.ko.png` — SVG is the editable
 
 Sample content is synthetic. Names, identifiers, digests, tools, and environments
 are placeholders; no customer or confidential identifiers are included.
-(샘플 내용은 합성 예제입니다. 이름, 식별자, digest, 도구, 환경은 placeholder이며
-고객·기밀 식별자는 포함하지 않습니다.)
+(샘플 내용은 모두 가상입니다. 이름, 식별자, digest, 도구와 환경은 예시용이며,
+고객 정보나 기밀 식별자를 포함하지 않습니다.)
 
 ## Prompt
 
@@ -33,7 +33,8 @@ colors: amber = legacy constraint, green = migration benefit. Export SVG + 2x PN
 
 # 예제: Before / After 마이그레이션
 
-모놀리스 vs 마이크로서비스를 비교하는 2패널 before/after — `svg-infographic`으로 영문·한글 두 본. 아키텍처 다이어그램을 넘어선 활용을 보여준다.
+모놀리스와 마이크로서비스 구조를 두 패널에서 비교한 예제입니다. `svg-infographic`으로 영문판과
+한국어판을 만들었으며, 단일 구성도뿐 아니라 변경 전후 비교에도 활용할 수 있음을 보여줍니다.
 
 ## 프롬프트
 

@@ -37,8 +37,8 @@ SVG is the editable source of truth; PNG is the 2× export (exactly twice the SV
 
 Sample content is synthetic. Names, identifiers, digests, tools, and environments
 are placeholders; no customer or confidential identifiers are included.
-(샘플 내용은 합성 예제입니다. 이름, 식별자, digest, 도구, 환경은 placeholder이며
-고객·기밀 식별자는 포함하지 않습니다.)
+(샘플 내용은 모두 가상입니다. 이름, 식별자, digest, 도구와 환경은 예시용이며,
+고객 정보나 기밀 식별자를 포함하지 않습니다.)
 
 ## Prompt (English)
 
@@ -59,19 +59,19 @@ review depth; scope decides planning depth." Export SVG + 2× PNG.
 
 # 예제: AI Agent 작업 유형 선택 매트릭스
 
-작업을 AI agent에 어떻게 맡길지 두 축 — **작업 범위**(좁음 ↔ 넓음)와 **불확실성**
-(낮음 ↔ 높음) — 으로 나눈 2×2 decision matrix를 `svg-infographic`으로 영문·한글
-두 본으로 만들었다. 각 사분면에 추천 실행 방식을 함께 담고, `Design Review`(넓은
-범위 · 높은 불확실성) 사분면을 가장 강하게 강조한다.
+AI 에이전트에게 작업을 어떻게 맡길지 **작업 범위**(좁음 ↔ 넓음)와 **불확실성**
+(낮음 ↔ 높음)을 기준으로 나눈 2×2 의사결정 매트릭스입니다. 영문판과 한국어판을 함께 만들었으며,
+각 사분면에 권장 실행 방식을 담았습니다. 그중 넓은 범위와 높은 불확실성이 만나는 `Design Review`를
+가장 강하게 강조했습니다.
 
 ## 이 예제가 보여주는 것
 
-- 사분면 카드가 **충분한 gutter**로 분리된 **2×2 decision matrix**
+- 사분면 카드 사이에 **충분한 간격**을 둔 **2×2 의사결정 매트릭스**
 - **축 라벨 + 방향 화살표**(작업 범위 →, 불확실성 ↑), 낮음/높음·좁음/넓음 끝단 표시
-- 사분면마다 **number badge + line icon**, 코너에서 서로 겹치지 않게 배치
-- **강조 사분면**(`Design Review`): 굵은 stroke·shadow·채워진 icon·`MOST CAUTION` 태그
-- **추천 pill** — accent 사분면은 saturated 배경 위 light text, 나머지는 옅은 tint 위 dark text
-- 각 카드 안의 **밀도 높지만 읽히는** 기술 텍스트(제목·부제·예시·추천)
+- 사분면마다 **번호 배지와 선형 아이콘**을 모서리에서 겹치지 않게 배치
+- **강조 사분면**(`Design Review`)에 굵은 테두리, 그림자, 채운 아이콘과 `MOST CAUTION` 태그 적용
+- **권장 방식 라벨**은 강조 사분면에서 진한 배경과 밝은 글자, 나머지에서는 옅은 배경과 어두운 글자 사용
+- 각 카드 안에 제목, 부제, 예시와 권장 방식을 **밀도는 높지만 읽을 수 있게** 배치
 
 ## 프롬프트 (한국어)
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Writing Quality Editor"
+  short_description: "Create, polish, and adapt natural user-facing writing"
+  default_prompt: "Use $writing-quality-editor to compose, assess, revise, or adapt this user-facing writing while preserving supplied facts, evidence boundaries, meaning, and voice."

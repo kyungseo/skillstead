@@ -4,11 +4,11 @@
 
 Real outputs from the [`svg-infographic`](../../skills/svg-infographic) skill. Each example is a flat, structural visual shipped as source SVG + 2× PNG, in English and Korean, with the prompt that generated it.
 
-Every example is originally authored, synthetic, non-client, and non-confidential. Together they cover several archetypes the skill advertises.
+Every example was created for this repository using synthetic, non-client, non-confidential content. Together they cover several archetypes the skill supports.
 
 ![svg-infographic gallery preview](./gallery-preview.en.png)
 
-_The preview above is a curated six-example montage with two sketch heroes; all fourteen examples are listed below._
+_The preview above highlights six examples, including two made with the sketch preset. All fourteen examples are listed below._
 
 ## Gallery
 
@@ -164,4 +164,6 @@ The bundled [`scripts/render.sh`](../../skills/svg-infographic/scripts/render.sh
 
 ## Scope
 
-Flat, structural technical diagrams, plus the opt-in **sketch preset** ("tidy hand-drawn" — hand-drawn surface, computed layout). Mascots, character art, and scene illustration remain **out of scope** — keeping that line is what keeps the output consistent.
+Flat, structural technical diagrams, plus the opt-in **sketch preset** ("tidy hand-drawn" — hand-drawn
+appearance, computed layout). Mascots, character art, and scene illustration remain **out of scope**; keeping
+that boundary is what makes the output consistent.

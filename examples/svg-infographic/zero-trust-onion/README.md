@@ -37,8 +37,8 @@ SVG is the editable source of truth; PNG is the 2× export (exactly twice the SV
 
 Sample content is synthetic. Names, identifiers, tools, and environments are
 placeholders; no customer or confidential identifiers are included.
-(샘플 내용은 합성 예제입니다. 이름, 식별자, 도구, 환경은 placeholder이며
-고객·기밀 식별자는 포함하지 않습니다.)
+(샘플 내용은 모두 가상입니다. 이름, 식별자, 도구와 환경은 예시용이며,
+고객 정보나 기밀 식별자를 포함하지 않습니다.)
 
 ## Prompt (English)
 
@@ -58,18 +58,18 @@ breach · least privilege. Wide 1400×900 canvas. Export SVG + 2× PNG.
 
 # 예제: Zero Trust 온니언 모델
 
-zero-trust 접근 구조를 nested "onion" 모델로 표현한 예제입니다(영문·한글).
-네트워크 경계 → Identity & Access → 디바이스 & 워크로드 → 최소 권한 **데이터
-코어**의 동심 링 4개로, 신뢰가 바깥 계층에서 상속되지 않고 각 링에서 요청마다
-다시 세워진다는 결론을 시각화합니다.
+Zero Trust 접근 구조를 중첩된 "온니언" 모델로 표현한 영문·한국어 예제입니다. 네트워크 경계 →
+Identity & Access → 디바이스와 워크로드 → 최소 권한 **데이터 코어**를 네 개의 동심 링으로
+배치했습니다. 신뢰는 바깥 계층에서 상속되지 않으며, 각 계층에서 요청마다 다시 확인해야 한다는
+결론을 보여줍니다.
 
 ## 이 예제가 보여주는 것
 
-- **Nested / onion archetype** — layout pass에서 **균일 inset**으로 계산된 동심 링
-- 각 링의 **보이는 상단 strip** 중앙에, 그 링의 ink 색으로 배치한 링 라벨
-- 강조 코어를 향한 **밝음(외곽) → 진함(코어)** 색 진행
-- **코어 카드 강조**(stroke + soft shadow + 흰 아이콘 원 + shield 아이콘)
-- 다이어그램 아래 차분한 **rule-of-thumb footer strip**
+- **중첩·온니언 유형** — 균일한 안쪽 간격을 계산해 배치한 동심 링
+- 각 링에서 보이는 위쪽 영역 가운데에 해당 링의 색으로 배치한 라벨
+- 강조한 코어를 향해 **밝음(바깥) → 진함(안쪽)**으로 변하는 색
+- 테두리, 부드러운 그림자, 흰색 아이콘 원과 방패 아이콘으로 강조한 **코어 카드**
+- 다이어그램 아래에 배치한 차분한 **핵심 원칙 영역**
 - 주제 라벨이 아닌 **결론형 제목**("신뢰는 상속되지 않는다")
 
 ## 프롬프트 (한국어)

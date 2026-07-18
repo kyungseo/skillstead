@@ -4,6 +4,60 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## [Unreleased]
+
+### writing-quality-editor (new skill, Beta)
+
+- **Natural, preservation-first writing.** Adds new-document `Compose`, read-only `Assess`, same-language `Revise`,
+  and cross-language `Adapt` modes for README files, onboarding, release notes, manuals, app UI, error messages,
+  gallery copy, and similar user-facing prose. The contract protects facts, intent, author voice, conditions,
+  numbers, identifiers, limitations, risks, approvals, and next actions.
+- **Intent-based mode selection.** Users can ask naturally to write, review, fix, supplement, improve, translate,
+  or make text sound natural without naming the skill or a mode. Selection follows the requested outcome and
+  mutation boundary rather than a fixed synonym list; a bare review request defaults to read-only `Assess`.
+- **Host workflow precedence.** Repository workflows retain ownership of artifact classification, path, indexing,
+  lifecycle, and approval. The writing skill may improve prose inside that contract but cannot treat a document
+  label such as `brief` as permission to bypass the host workflow; F21 covers this boundary.
+- **First-pass composition.** `Compose` writes directly from a supplied brief and evidence packet so users do not
+  need a separate draft-then-polish cycle. It may create structure and prose, but not product facts, capabilities,
+  evidence, compatibility, metrics, procedures, or experience that the user did not supply. A familiar artifact
+  format is not permission to add an unsupplied next action.
+- **Research-backed composition.** When the user supplies no materials, `Compose` may gather traceable public
+  evidence first. A dedicated procedure requires opened primary sources, evidence cutoff dates, direct citations,
+  scope preservation, and separation of measured facts, source claims, disagreement, and synthesis.
+- **English↔Korean adaptation beyond literal translation.** `Adapt` may change sentence boundaries, information
+  order, idioms, and explanation density so the result reads naturally in the target language, while a parity
+  audit blocks invented claims and hidden ambiguity. Locale-neutral design is separated from the initial
+  localization profile under behavioral validation: English↔Korean (`ko-KR` for Korean output).
+- **No detector gaming.** AI-detector optimization, provenance concealment, fake experience, random synonyms,
+  and unnecessary rewriting of already-natural text are explicit non-goals.
+- **Portable package and fixtures.** The self-contained skill includes English/Korean READMEs, UI metadata, a
+  profile-aware review rubric, dedicated EN↔KO and research-backed Compose references. Twenty-one scenarios and a
+  separate answer key cover seven document profiles, meaning drift, over-editing, `needs-human`, and protected
+  identifiers. Cross-runtime behavior and repository dogfood pass; runtime support remains Pending until clean
+  installation/discovery and the final public-claim gate finish.
+- **Fresh-context contract correction.** The first Claude Code behavior leg passed six of eight high-signal
+  scenarios and exposed repeatable misses in ambiguous destructive UI and actorless release procedures. The
+  strengthened contract passed the post-fix regression set on both runtimes, bounded R2 approved the result, and
+  the later Compose, intent-inference, and host-workflow amendments passed their fresh-context gates without a
+  formal R3.
+- **User-supplied enrichment boundary.** Facts and examples supplied or explicitly approved by the user may be
+  integrated within the requested scope; the skill still must not infer adjacent claims. F15 checks both
+  over-refusal and invention while preserving the supplied limit, local-storage fact, and authentication condition.
+- **No-edit gate correction.** The first Codex behavior leg reproduced preference-driven churn on already-natural
+  F12 text. `Revise` now requires a concrete reader problem before any wording, sentence, punctuation, or formatting
+  change and returns the source exactly when all candidate changes are Neutral.
+
+### Repository
+
+- Root English/Korean READMEs add `writing-quality-editor` to the priority catalog with evidence-bounded Beta
+  and runtime labels. The catalog impact map now represents all four skills.
+- **Public-release playbook bilingualization.** Eight Korean-primary source documents are preserved as `.ko.md`
+  mirrors, while natural English candidates use the canonical filenames. Every pair has a visible language
+  switch, same-language internal links, matching checklist decisions, and an atomic-parity maintenance rule. The
+  owner approved the English authority flip after independent parity review; it takes effect when the
+  bilingualization pull request merges, using that merge commit as the DR-810 anchor.
+
 ## [0.6.0] — 2026-07-17
 
 ### github-release-guide (Beta → Stable)
