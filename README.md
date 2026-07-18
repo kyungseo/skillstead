@@ -28,10 +28,6 @@ Each skill installs and works independently. When a project needs a wider path, 
 evidence-bounded public claims, and `github-release-guide` for approval-gated release decisions. This is not a
 required pipeline: start with the skill you need, skip the others, and recheck an earlier artifact when it changes.
 
-> [!NOTE]
-> **Planned: agent review.** A future agent-review capability is being explored for structured feedback between
-> coding agents. It is not implemented, installable, or included in the current runtime and maturity claims.
-
 ## Choose a skill
 
 | Skill | Best for | Runtime support | Maturity |
@@ -147,9 +143,10 @@ evidence scope; maturity remains Beta.
 - `docs-claim-check` is advisory and evidence-bound; it does not execute verification commands.
 - `github-release-guide` v1 is github.com-only. It covers the one-time private-to-public transition and each
   version release after the repository is public.
+- For `github-release-guide`, a clean assessment only means that no issue was found within the inspected scope;
+  it does not prove that the repository being assessed has no secrets, private information, or security risks.
 - `writing-quality-editor` is designed as locale-neutral, but its initial localization fixtures cover only
   English↔Korean (`ko-KR` for Korean output). Other locale pairs are not yet claimed as behaviorally validated.
-- A clean release or secret scan is best-effort, not proof that a repository has no security risk.
 
 ## License
 
