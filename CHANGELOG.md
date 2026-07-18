@@ -35,8 +35,10 @@ Granular, per-change entries begin at the first public release. Earlier developm
   profile-aware review rubric, dedicated EN↔KO and research-backed Compose references. Twenty-one scenarios and a
   separate answer key cover seven document profiles, meaning drift, over-editing, `needs-human`, and protected
   identifiers. Cross-runtime behavior, repository dogfood, and clean merge-commit installation/discovery pass;
-  runtime support remains Pending until pinned `v0.7.0` installation/discovery and the post-release claim closeout
-  finish.
+  runtime support remained Pending until pinned `v0.7.0` installation/discovery and the post-release claim closeout.
+- **Post-release verification.** The published `v0.7.0` package passed fresh project installation, package-equality,
+  and skill-discovery checks on Claude Code and Codex. The final claim closeout passed; runtime support is now
+  `Supported` for both runtimes within the recorded evidence scope.
 - **Fresh-context contract correction.** The first Claude Code behavior leg passed six of eight high-signal
   scenarios and exposed repeatable misses in ambiguous destructive UI and actorless release procedures. The
   strengthened contract passed the post-fix regression set on both runtimes, bounded R2 approved the result, and

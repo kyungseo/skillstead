@@ -39,7 +39,7 @@ required pipeline: start with the skill you need, skip the others, and recheck a
 | [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | Claude Code | Stable |
 | [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | Supported: Claude Code + Codex | Stable |
-| [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | Validation pending | Beta |
+| [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | Supported: Claude Code + Codex | Beta |
 
 Each skill is self-contained and can be installed independently. You do not need to install the entire
 catalog—copy only the complete folder for the skill you want to use. See
@@ -136,6 +136,10 @@ Runtime support is per skill, not catalog-wide. Claude Code support for the firs
 live E2E, pinned `v0.5.0` project installation and discovery smoke, and the final strict claim audit. It is
 `Supported` for Claude Code and Codex within that recorded evidence scope.
 
+`writing-quality-editor` has passed its four-mode behavior set, repository dogfood, and fresh installation and
+skill discovery from the published `v0.7.0` tag. It is `Supported` for Claude Code and Codex within that recorded
+evidence scope; maturity remains Beta.
+
 ## Current limitations
 
 - `svg-infographic` browser rendering is verified on macOS; Windows/Linux render paths remain documented but
@@ -144,8 +148,7 @@ live E2E, pinned `v0.5.0` project installation and discovery smoke, and the fina
 - `github-release-guide` v1 is github.com-only. It covers the one-time private-to-public transition and each
   version release after the repository is public.
 - `writing-quality-editor` is designed as locale-neutral, but its initial localization fixtures cover only
-  English↔Korean (`ko-KR` for Korean output). Clean merge-commit installation and discovery passed, but runtime
-  support remains unclaimed until pinned `v0.7.0` verification and the post-release public-claim closeout finish.
+  English↔Korean (`ko-KR` for Korean output). Other locale pairs are not yet claimed as behaviorally validated.
 - A clean release or secret scan is best-effort, not proof that a repository has no security risk.
 
 ## License
