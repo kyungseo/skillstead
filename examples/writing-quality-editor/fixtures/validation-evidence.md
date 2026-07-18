@@ -1,7 +1,8 @@
 # Scenario Validation Evidence
 
-This ledger separates static contract review from fresh-context runtime behavior. Runtime support remains Pending
-until pinned `v0.7.0` installation/discovery and the post-release claim closeout justify a narrower claim.
+This ledger separates static contract review from fresh-context runtime behavior. Runtime support is `Supported`
+for Claude Code and Codex within the recorded evidence scope after pinned `v0.7.0` installation/discovery and the
+post-release claim closeout passed.
 
 ## Static Contract Gate
 
@@ -29,6 +30,7 @@ This gate verifies package consistency, not independent model behavior.
 | Codex post-R2 amendment, 2026-07-18 | Model and reasoning effort unobserved | One no-history context per scenario; skill package and complete scenario only; answer key withheld; bounded live research for F19/F20 | Pass: F01, F02, F12, F19, F20, F21; corrective reruns 0 |
 | Claude Code F21, 2026-07-18 | `claude-fable-5`; reasoning effort unobserved | One fresh subagent; installed skill folder and complete F21 metadata only; answer key and prior evidence withheld | Pass: F21; corrective reruns 0 |
 | Post-merge clean install/discovery, 2026-07-18 | Claude Code 2.1.214; Codex CLI 0.144.1, `gpt-5.6-sol`, effort `none` | Complete package downloaded from merge commit `7b65d70` into fresh project-local `.claude/skills` and `.agents/skills` paths; no prior session history; read-only discovery prompts | Pass on both runtimes: source and installed packages were byte-identical; each runtime loaded `SKILL.md`, returned `Compose, Assess, Revise, Adapt` in contract order, and identified `Bound The Meaning Before Writing`; zero mutations or corrective reruns. |
+| Post-release pinned install/discovery, 2026-07-18 | Claude Code 2.1.214; Codex CLI 0.144.1, `gpt-5.6-sol`, effort `none` | Fresh shallow clone of published tag `v0.7.0` at `1f9fcfb`; complete package copied into isolated project-local `.claude/skills` and `.agents/skills` paths; package equality checked before and after read-only runs | Pass on both runtimes: Claude Code loaded the skill and returned the four modes plus the exact contract heading on its first run. Codex's two implicit-name prompts loaded the skill and returned the modes but paraphrased the requested heading; an explicit `$writing-quality-editor` fresh invocation returned the exact heading with no file mutation. |
 
 ### Claude Code Pre-Fix Leg
 

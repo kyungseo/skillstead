@@ -3,12 +3,11 @@
 Skillstead packages each skill as a portable folder. Installation means cloning a reviewed ref and copying one
 complete folder; no remote install script is executed.
 
-> **Release verification:** The commands below are pinned to `v0.7.0`. The pre-release documentation claim audit
-> completed with the unpublished tag's operational install claim still open, and the merged
-> `writing-quality-editor` package was discovered from byte-identical clean project installs on Claude Code and
-> Codex. Pinned `v0.7.0` installation/discovery is a post-release check, so that skill's public runtime support
-> remains Pending until the result is recorded. The matrix below reflects the current evidence scope; use the
-> latest-development ref only when you deliberately want an unreleased evaluation.
+> **Release verification:** The commands below are pinned to `v0.7.0`. After publication, the complete
+> `writing-quality-editor` package was cloned from that tag, copied into fresh Claude Code and Codex project paths,
+> compared byte-for-byte with the tagged source, and discovered by both runtimes. The post-release claim closeout
+> passed. The matrix below reflects that recorded evidence scope; use the latest-development ref only when you
+> deliberately want an unreleased evaluation.
 
 ## Runtime support
 
@@ -19,7 +18,7 @@ Runtime support is verified per skill:
 | `svg-infographic` | Supported | Not yet claimed | Browser-based PNG rendering verified on macOS through Claude Code; Windows/Linux paths remain pending |
 | `docs-claim-check` | Supported | Not yet claimed | Behavioral fixtures passed with Claude Code Fable and Sonnet |
 | `github-release-guide` | Supported | Supported | Clean material parity (incl. protection fixtures), disposable first-public and Guided tag-ruleset live E2E, pinned `v0.5.0`/`v0.6.0` project installation/discovery, and release claim audits passed |
-| `writing-quality-editor` | Pending | Pending | Four-mode, 21-scenario cross-runtime behavior, repository dogfood, and clean merge-commit installation/discovery passed; pinned `v0.7.0` verification and post-release claim closeout remain |
+| `writing-quality-editor` | Supported | Supported | Four-mode, 21-scenario cross-runtime behavior, repository dogfood, and pinned `v0.7.0` project installation, package-equality, discovery, and final claim closeout passed |
 
 Copy only a skill whose runtime column says Supported for normal use. A Pending skill may be copied into an
 isolated test repository for evaluation without earning a public support claim.

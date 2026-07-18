@@ -40,7 +40,7 @@
 | [`svg-infographic`](./skills/svg-infographic) | 아키텍처 설명, 작업 흐름, 비교 자료를 수정 가능한 SVG와 검증된 2× PNG로 제작 | Claude Code | Stable |
 | [`docs-claim-check`](./skills/docs-claim-check) | 공개 문서의 주장이 제공된 근거로 뒷받침되는지 확인 | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide) | 비공개 GitHub 저장소의 첫 공개 전환 또는 공개 후 매 버전 릴리스를 점검하고 단계별로 안내 | Supported: Claude Code + Codex | Stable |
-| [`writing-quality-editor`](./skills/writing-quality-editor) | 사용자 문서를 처음부터 작성하거나 자연스럽게 다듬고, 사실·의도·목소리·운영 제약을 보존하면서 영어↔한국어 내용을 재구성 | 검증 대기 | Beta |
+| [`writing-quality-editor`](./skills/writing-quality-editor) | 사용자 문서를 처음부터 작성하거나 자연스럽게 다듬고, 사실·의도·목소리·운영 제약을 보존하면서 영어↔한국어 내용을 재구성 | Supported: Claude Code + Codex | Beta |
 
 각 스킬은 필요한 파일을 모두 갖춘 독립 패키지입니다. 전체 목록을 설치할 필요 없이, 사용할 스킬의
 폴더만 통째로 복사하면 됩니다. 개인용·프로젝트용 설치 경로, 고정 버전 설치, 깨끗한 업데이트 방법,
@@ -139,6 +139,10 @@ Codex의 핵심 행동 일치 검증, disposable 저장소의 실제 첫 공개 
 발견 확인과 최종 공개 문구 검증을 모두 통과했습니다. 기록된 검증 범위에서 두 실행 환경을 모두
 `Supported`로 표시합니다.
 
+`writing-quality-editor`는 네 가지 mode의 동작 검증, 저장소 문서에 대한 실제 적용, 공개된 `v0.7.0`
+고정 버전의 새 프로젝트 설치와 스킬 발견 확인을 통과했습니다. 기록된 검증 범위에서 Claude Code와
+Codex를 `Supported`로 표시하며, 성숙도는 Beta로 유지합니다.
+
 ## 현재 제한
 
 - `svg-infographic`의 브라우저 렌더링은 macOS에서 검증했습니다. Windows와 Linux 경로는 문서화했지만 아직
@@ -147,9 +151,8 @@ Codex의 핵심 행동 일치 검증, disposable 저장소의 실제 첫 공개 
 - `github-release-guide` v1은 비공개 github.com 저장소의 첫 공개 전환과, 공개 후 반복되는 각 버전 릴리스를
   다룹니다.
 - `writing-quality-editor`는 특정 언어에 고정되지 않도록 설계했지만, 초기 현지화 검증 자료는
-  영어↔한국어(한국어 결과는 `ko-KR`)만 다룹니다. 병합 커밋을 기준으로 한 깨끗한 설치·발견 검증은
-  통과했지만, `v0.7.0` 고정 버전 검증과 릴리스 후 최종 공개 문구 점검이 끝날 때까지 실행 환경 지원 상태는
-  표시하지 않습니다.
+  영어↔한국어(한국어 결과는 `ko-KR`)만 다룹니다. 다른 언어 조합까지 실제 동작을 검증했다고 주장하지
+  않습니다.
 - 자동 검사 결과가 깨끗하더라도 저장소에 보안 위험이 전혀 없다고 보장할 수는 없습니다.
 
 ## 라이선스
