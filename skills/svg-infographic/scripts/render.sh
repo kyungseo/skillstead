@@ -39,7 +39,7 @@ if [ ! -f "$LINT" ]; then
 fi
 if ! command -v node >/dev/null 2>&1; then
   echo "lint gate unavailable: Node.js 18+ is required for the pre-render source lint (check-svg.mjs) and was not found on PATH." >&2
-  echo "Install Node 18+ (macOS: brew install node · Windows: winget install OpenJS.NodeJS.LTS · Linux: distro package), then re-run." >&2
+  echo "Approve the skill's package-manager install prompt, or use its manual source-check + Chromium render fallback." >&2
   exit 6
 fi
 NODE_VERSION="$(node --version 2>/dev/null || echo v0)"
@@ -47,7 +47,7 @@ NODE_MAJOR="${NODE_VERSION#v}"; NODE_MAJOR="${NODE_MAJOR%%.*}"
 case "$NODE_MAJOR" in (*[!0-9]*|'') NODE_MAJOR=0 ;; esac
 if [ "$NODE_MAJOR" -lt 18 ]; then
   echo "lint gate unavailable: Node $NODE_VERSION found, but the source lint requires Node 18+ (node:test, ESM stdlib)." >&2
-  echo "Upgrade Node to 18 or newer, then re-run; the lint gate is mandatory and is not skipped silently." >&2
+  echo "Approve the skill's package-manager upgrade prompt, or use its manual source-check + Chromium render fallback." >&2
   exit 6
 fi
 node "$LINT" "$SVG" || {

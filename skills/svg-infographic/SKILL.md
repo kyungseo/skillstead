@@ -21,11 +21,35 @@ Nuances: a **simple qualitative** 2×2/3×3 matrix or a status-count badge is fi
 | `references/authoring.md` | **Always, before writing SVG** — detailed geometry/connector/panel/emphasis/color rules and the full icon set; also the manual render fallback |
 | `references/sketch.md` | Only when the user asks for a hand-drawn / sketchnote / 손글씨 feel — the opt-in sketch preset (paper, handwriting font, rough filters, highlighter) |
 | `scripts/render.sh` | To render SVG → 2× PNG with automatic dimension verification (runs the source lint first) |
-| `scripts/check-svg.mjs` | Source lint gate (Node 18+, stdlib only) — render.sh runs it automatically; run it directly while iterating on the SVG source |
+| `scripts/check-svg.mjs` | Source lint gate (Node 18+, standard library only; no npm install) — render.sh runs it automatically; run it directly while iterating on the SVG source |
 
 ## 0. Preflight — confirm, then offer to change
 
 Before drawing, confirm visual intent, audience, output ratio, and language. Then state the defaults (§6) and note the user can change any of them. Propose an output directory **inside the current project** and confirm before writing files.
+
+Before promising automated lint or using the bundled `render.sh`, check whether `node --version` reports Node.js
+18 or newer.
+Node is not required to install or discover this skill, or to author an editable SVG. It is required for the
+bundled source lint and therefore for a machine-linted handoff.
+
+If Node 18+ is missing:
+
+1. Detect the operating system and an available trusted package manager. Confirm that its candidate package
+   provides Node 18+ before showing the exact install command and asking in the conversation language:
+   **"Would you like me to install Node.js 18+ and continue with automated validation?"**
+2. Install only after the user explicitly approves that system change. Use the detected package manager; do not
+   substitute a remote `curl | sh` installer. If the command needs elevated privileges, surface that approval
+   rather than hiding it.
+3. Verify `node --version` after installation, then resume the source lint and render workflow. If installation
+   fails or still provides an older version, report that result and do not retry through a different source
+   without another approval.
+4. If the user declines, or no safe package-manager route is available, keep the pre-v0.7.1 quality floor:
+   complete every item in the manual source checklist, do not invoke `render.sh`, and use the Node-free Chromium
+   path in `references/authoring.md` §8 to render a 2× PNG. Verify its dimensions and complete the §7 visual QA.
+   State: **"Automated source lint was not run because Node.js 18+ was unavailable. The manual source checklist
+   and PNG render/visual QA passed."** Never label this fallback as machine-linted.
+5. Only if a Chromium-based browser is also unavailable, deliver an SVG-only draft and state that neither
+   automated source lint nor PNG visual verification ran.
 
 **Classify the input mode first** (it sets how much to ask before drawing):
 
@@ -94,7 +118,10 @@ Read `references/authoring.md` for the detailed rules and the reusable icon set.
 
 ## 4. Pre-render checklist (source-level — run before every render)
 
-**Run the lint gate first** — it machine-checks the deterministic subset of this list (ids/references, root viewBox, marker units and footprint, high-confidence Latin/CJK text overflow) with file/line, measured values, and a suggested fix per finding:
+**Run the lint gate first for a verified handoff** — it machine-checks the deterministic subset of this list
+(ids/references, root viewBox, marker units and footprint, high-confidence Latin/CJK text overflow) with file/line,
+measured values, and a suggested fix per finding. If Node 18+ is unavailable, follow the §0 approval/fallback
+branch; the manual fallback does not count as a machine-linted handoff.
 
 ```bash
 node scripts/check-svg.mjs diagram.svg     # render.sh runs this again as a hard gate
@@ -113,7 +140,10 @@ Hard errors must be fixed before rendering (`render.sh` refuses at exit 5). Warn
 
 ## 5. Render to PNG (2×)
 
-Use the bundled script — it runs the §4 source lint as a hard gate (Node 18+ required; exit 5 = lint errors, exit 6 = Node/lint missing — install Node rather than bypassing the gate), discovers a Chromium-based browser (Chrome/Edge/Chromium), builds the wrapper, renders at 2×, and **verifies the PNG dimensions automatically**:
+Use the bundled script — it runs the §4 source lint as a hard gate (Node 18+ required; exit 5 = lint errors,
+exit 6 = Node/lint missing — return to the §0 approval/fallback branch rather than bypassing the gate), discovers
+a Chromium-based browser (Chrome/Edge/Chromium), builds the wrapper, renders at 2×, and **verifies the PNG
+dimensions automatically**:
 
 ```bash
 bash scripts/render.sh diagram.svg            # → diagram.png (2×)

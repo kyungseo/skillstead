@@ -145,6 +145,7 @@ surface works beyond process flows while the topology stays computed.
 
 ## Quality bar (every example passes)
 
+- [x] Source lint reports zero hard errors across all 28 SVGs; transform-related warnings were reviewed in the 2× PNGs
 - [x] SVG and PNG dimensions match (PNG is exactly 2× the SVG viewBox)
 - [x] No text overflow; text vertically centered in its box
 - [x] No tofu — Korean/CJK glyphs render correctly
@@ -154,7 +155,13 @@ surface works beyond process flows while the topology stays computed.
 
 ## Render smoke test (per OS)
 
-The bundled [`scripts/render.sh`](../../skills/svg-infographic/scripts/render.sh) discovers a Chromium-based browser (macOS, Linux, and Windows Git Bash paths) and verifies the exported PNG dimensions; manual per-OS commands, including native PowerShell, are in [`references/authoring.md`](../../skills/svg-infographic/references/authoring.md) §8. So far, PNG export has been smoke-tested on macOS (all fourteen examples); Windows/Linux render verification is still pending.
+The bundled [`scripts/render.sh`](../../skills/svg-infographic/scripts/render.sh) requires Node.js 18+ for its
+source-lint gate, discovers a Chromium-based browser (macOS, Linux, and Windows Git Bash paths), and verifies the
+exported PNG dimensions. Manual per-OS commands, including native PowerShell, are in
+[`references/authoring.md`](../../skills/svg-infographic/references/authoring.md) §8. So far, PNG export has been
+smoke-tested on macOS (all fourteen examples); Windows/Linux render verification is still pending. Installing and
+discovering the skill does not require Node. When it is absent, the agent asks before installing it; if the user
+declines, it retains the full manual source check and direct Chromium 2× render/visual-QA path.
 
 | Environment | Browser | en/ko SVG → 2× PNG | Status |
 | --- | --- | --- | --- |

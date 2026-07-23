@@ -91,7 +91,10 @@ Need an icon that isn't in the set? Compose it from the same 24×24 line grammar
 
 ## 8. Render — manual fallback
 
-Use `scripts/render.sh` when possible; it automates everything below plus the dimension check. Manual path:
+Use `scripts/render.sh` when possible; it automates everything below plus the dimension check. This manual path
+also preserves the pre-v0.7.1 quality floor when Node 18+ is unavailable and the user declines installation.
+Complete every SKILL.md §4 source-check item before rendering; this path replaces the automated lint, not the
+manual checks or PNG review.
 
 Any Chromium-based browser works — Chrome, Microsoft Edge, or Chromium — with the **same headless flags on every OS**. Discover the binary first (use the first that resolves):
 
@@ -126,6 +129,17 @@ $url = "file:///" + ((Resolve-Path .\wrapper.html).Path -replace '\\','/')
   --force-device-scale-factor=2 --window-size=W,H `
   --screenshot="diagram.png" $url
 ```
+
+Verify that the PNG is exactly `2W × 2H`. Use an available platform-native reader rather than installing another
+tool only for this check:
+
+- **macOS:** `sips -g pixelWidth -g pixelHeight diagram.png`
+- **Linux:** use `python3` to read the PNG IHDR when available; otherwise inspect the dimensions reported by the
+  installed image/file utility and record when exact verification is unavailable.
+- **Windows PowerShell:** load the image with `System.Drawing.Image`, read `Width` and `Height`, then dispose it.
+
+After the dimension check, perform SKILL.md §7 visual QA. Report automated source lint as not run, while reporting
+the manual source checklist and PNG checks separately.
 
 Notes:
 
