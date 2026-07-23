@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300" width="600" height="300" role="img">
+  <title>valid fixture</title>
+  <style>
+    svg{ --ink:#1F2733; }
+    .card{ fill:#F7FAFD; stroke:#D6E0EC; }
+    .label{ font-size:16px; fill:var(--ink); }
+    .edge{ stroke:#44546a; stroke-width:2.5; fill:none; marker-end:url(#ah); }
+  </style>
+  <defs>
+    <marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="8" markerHeight="8"
+      markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M2 2 L10 6 L2 10" fill="none" stroke="#44546a" stroke-width="2" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <rect class="card" x="40" y="60" width="200" height="90" rx="10"/>
+  <text class="label" x="60" y="105" dominant-baseline="central">Short label</text>
+  <rect class="card" x="360" y="60" width="200" height="90" rx="10"/>
+  <path class="edge" d="M240 105 Q300 90 350 104"/>
+</svg>

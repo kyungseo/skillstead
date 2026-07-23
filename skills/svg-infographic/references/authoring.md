@@ -22,6 +22,20 @@ Detailed geometry, connector, panel, emphasis, color, and icon rules, plus the m
 - **Routing:** prefer straight orthogonal (horizontal/vertical) connectors; avoid crossings — route around, or move the node. Leave an **8–12px gap** between the arrowhead and the target box. Place edge labels *beside* the line, never on top of it.
 - **Corridor budget — plan connectors numerically like cards.** For a horizontal connector, `corridor = target_visual_left − source_visual_right` (visual edges include stroke and shadow, §1). Compute the marker's real length before drawing: with the default `markerUnits="strokeWidth"`, `head_advance = markerWidth × stroke_width × (refX / viewBox_width)` — a "small" `markerWidth="8"` becomes a ~24px head on a 3px line; with `markerUnits="userSpaceOnUse"` the footprint is fixed in user units, so **prefer it** and set `refX` to the viewBox far edge so the tip lands exactly on the path endpoint. A standard arrow passes only when all of these hold: tip-to-target gap 8–12px; a *visible* shaft of ≥ 12–16px behind the head after subtracting source/target clearance, the head itself, and any segment hidden under a card or panel by paint order; the head does not take up most of the visible run; nothing intrudes into a card's stroke or shadow. "The target gap is right but the shaft is ≈ 0" is a **fail**, not a pass. Don't shrink a marker below directional legibility in the 2× PNG, and check the shaft–head joint there. The same formulas apply to vertical runs on the y-axis.
 - **Adaptive connector vocabulary — pick the form from meaning plus corridor; don't force one form everywhere.** *Standard arrow*: the line itself carries the relation (dependency, request, data flow) and the corridor affords the full budget above. *Compact arrow*: a relation line is still needed and the corridor is short, but a readable shaft survives the budget. *Standalone chevron / right-facing triangle*: a plain "next stage" transition between adjacent stages where the line adds no meaning — a deliberate choice, never a fallback for a clipped shaft; center it in the corridor with clear space on both sides, and echo the marker's shape so it reads as flow, not as an icon or play button. *Reflow*: branch, merge, async, feedback, and labeled edges keep their rails — when the final segment cannot meet the shaft minimum, recompute the route or card positions instead of disguising the edge as a glyph. EN/KO variants share connector geometry and transition semantics.
+- **Curved connectors (flat preset recipe).** A gentle curve often reads more naturally than an orthogonal elbow, especially between boxes at different heights. The geometry is preset-independent — the sketch preset's curves follow the same rules, minus the rough filter:
+  - **Entry/exit perpendicular to the box edge.** The path must leave the source edge and approach the target edge at ≈90° to that edge; a curve that grazes a border at a shallow angle reads as clutter. Keep the 8–12px tip gap and the ≥ 12–16px visible shaft exactly as for straight arrows.
+  - **Single bend by default.** One quadratic (`Q`) or one cubic (`C`) with both control points on the *same side* of the chord — monotone curvature, no inflection. For `M x1 y1 Q cx cy x2 y2`, a good default control point is the chord midpoint offset perpendicular by 10–20% of the chord length. An S-curve (two bends) is allowed only when it routes around a real obstacle **and** still reads cleanly in the 2× PNG — never as a default shape.
+  - **Open-V stroked head is the default arrowhead** — it reads lighter than a filled triangle at every size and joins a curve cleanly:
+
+    ```xml
+    <marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="8" markerHeight="8"
+      markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M2 2 L10 6 L2 10" fill="none" stroke="#44546a" stroke-width="2" stroke-linecap="round"/>
+    </marker>
+    ```
+
+    Size the head at ≈3× the shaft's stroke width (e.g. 8px head on a 2.5px shaft). A filled triangle is not forbidden, but use it as a deliberate choice with the same explicit user-space footprint — never as an unsized default.
+  - **`markerUnits="userSpaceOnUse"` is mandatory on every referenced marker** — the lint gate (`scripts/check-svg.mjs`, run automatically by `render.sh`) hard-errors otherwise, because the default `strokeWidth` units silently multiply the head by the stroke width (a "10" head on a 3px line renders 30px). Declare a reviewed exception with `data-lint-allow="marker-footprint"` only when an oversized head is a deliberate design decision.
 - **Fan-out** (one source → many targets): one vertical stem from the source, one horizontal bus, then a centered vertical branch to each target. No orphan stubs, and no line that nearly overlaps a box edge.
 - **Zone aid for busy diagrams:** if nodes collide, assign each to a **3×3 zone** (top-left … center … bottom-right), route edges only between zones, and wrap co-located nodes in one group frame. A quick sketching aid to cut crossings — not a required schema; simple diagrams don't need it.
 - **Semantics:** one `<marker>` arrowhead definition reused via `marker-end`. Solid = sync/request/normal; dashed `stroke-dasharray="5 4"` = async/batch/private/feedback. Legend whenever both appear.
@@ -77,7 +91,10 @@ Need an icon that isn't in the set? Compose it from the same 24×24 line grammar
 
 ## 8. Render — manual fallback
 
-Use `scripts/render.sh` when possible; it automates everything below plus the dimension check. Manual path:
+Use `scripts/render.sh` when possible; it automates everything below plus the dimension check. This manual path
+also preserves the pre-v0.7.1 quality floor when Node 18+ is unavailable and the user declines installation.
+Complete every SKILL.md §4 source-check item before rendering; this path replaces the automated lint, not the
+manual checks or PNG review.
 
 Any Chromium-based browser works — Chrome, Microsoft Edge, or Chromium — with the **same headless flags on every OS**. Discover the binary first (use the first that resolves):
 
@@ -112,6 +129,17 @@ $url = "file:///" + ((Resolve-Path .\wrapper.html).Path -replace '\\','/')
   --force-device-scale-factor=2 --window-size=W,H `
   --screenshot="diagram.png" $url
 ```
+
+Verify that the PNG is exactly `2W × 2H`. Use an available platform-native reader rather than installing another
+tool only for this check:
+
+- **macOS:** `sips -g pixelWidth -g pixelHeight diagram.png`
+- **Linux:** use `python3` to read the PNG IHDR when available; otherwise inspect the dimensions reported by the
+  installed image/file utility and record when exact verification is unavailable.
+- **Windows PowerShell:** load the image with `System.Drawing.Image`, read `Width` and `Height`, then dispose it.
+
+After the dimension check, perform SKILL.md §7 visual QA. Report automated source lint as not run, while reporting
+the manual source checklist and PNG checks separately.
 
 Notes:
 

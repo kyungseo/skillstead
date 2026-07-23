@@ -4,6 +4,31 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## [0.7.1] — 2026-07-23
+
+### svg-infographic
+
+- **Source lint before rendering.** A checker built on the Node.js standard library, with no npm dependencies,
+  now reports dangling SVG references, invalid root/viewBox values, missing explicit marker units, extreme
+  arrowhead footprints, obvious bounds violations, and high-confidence Latin/Korean text overflow with file
+  locations, measured values, and suggested fixes. Ambiguous transform, font, and near-threshold cases remain
+  visible as warnings instead of false passes.
+- **Fail-closed render gate.** `scripts/render.sh` runs the source lint before opening a browser. Hard errors stop
+  with exit 5; a missing or pre-18 Node.js runtime stops with an actionable exit 6. Node.js 18+ is now a
+  prerequisite for the automated lint-and-render workflow, not for skill installation, SVG authoring, or manual
+  PNG verification. When it is missing, the skill asks before installing it through the detected package manager.
+  Users who decline retain the full manual source checklist and direct Chromium 2× render/visual-QA path; only
+  automated source lint is omitted.
+- **Connector guidance.** The flat preset now includes a gentle single-bend `Q`/`C` curve recipe, perpendicular
+  box entry/exit guidance, and an open-V stroked arrowhead as the default. New diagrams aim for a visible head
+  near three times the shaft width; intentional legacy footprints require an explicit exception.
+- **Gallery regression.** All 28 English/Korean gallery SVGs pass with zero hard lint errors. Existing marker
+  visuals are preserved through explicit user-space sizing and reviewed legacy exceptions. The CI/CD artifact
+  promotion approval pill was widened in both languages and its 2× PNGs were regenerated.
+- **Support boundary unchanged.** Public Codex support for `svg-infographic` remains unclaimed until the separate
+  pinned-package and fresh-runtime validation gates pass. Windows and Linux browser rendering also remain
+  unverified.
+
 ## [0.7.0] — 2026-07-18
 
 ### writing-quality-editor (new skill, Beta)

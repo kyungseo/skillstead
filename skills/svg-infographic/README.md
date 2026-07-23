@@ -4,7 +4,10 @@
 
 Create flat, structured technical visuals for agentic coding workflows: architecture diagrams, cloud topologies, process flows, before/after comparisons, roadmaps, and share-ready infographics. The current package is authored for Claude Code.
 
-The skill computes the layout first (a required numeric layout pass — grid arithmetic and per-box text budgets before any drawing), writes an editable SVG, self-checks the source against a pre-render checklist, then exports a crisp 2x PNG with a bundled render script that verifies the output dimensions. The goal is a first render that passes review, not a render-and-fix loop.
+The skill computes the layout first (a required numeric layout pass — grid arithmetic and per-box text budgets
+before any drawing), writes an editable SVG, runs a source lint that catches high-confidence failures, then exports
+a crisp 2x PNG with a bundled render script that verifies the output dimensions. The goal is a first render that
+passes review, not a render-and-fix loop.
 
 ## Best For
 
@@ -18,11 +21,16 @@ The skill computes the layout first (a required numeric layout pass — grid ari
 
 The skill follows a fixed five-step workflow designed so the **first render passes review**:
 
-1. **Preflight** — confirms intent, audience, ratio, and language; shows the defaults you can change; proposes an output directory before writing anything.
+1. **Preflight** — confirms intent, audience, ratio, and language; shows the defaults you can change; checks the
+   tools needed for the requested output; and proposes an output directory before writing anything.
 2. **Archetype** — picks the diagram shape from your content (see the table below) and loads that archetype's layout skeleton, visual guidance, and failure checks.
 3. **Layout pass** — fixes the canvas regions, card grid, and per-box text budgets *numerically* before drawing. Copy that won't fit its box is shortened here — not after a broken render.
-4. **Author + self-check** — writes the SVG from the computed numbers, then runs a mechanical pre-render checklist on the source (containment arithmetic, icon/arrow references, contrast classes, EN/KO geometry parity).
-5. **Render + verify** — exports a 2× PNG via the bundled `scripts/render.sh`, which also verifies the PNG dimensions, then reviews the pixels against a quality bar (rendering, containment, message).
+4. **Author + source lint** — writes the SVG from the computed numbers, runs `scripts/check-svg.mjs` to catch
+   broken references, implicit or extreme marker sizing, and high-confidence text overflow, then reviews any
+   heuristic warnings instead of treating them as a pass.
+5. **Render + verify** — exports a 2× PNG via the bundled `scripts/render.sh`. The script runs the lint again before
+   opening a browser and verifies the PNG dimensions; the skill then reviews the pixels against a quality bar
+   (rendering, containment, message).
 
 You don't need to know any of this to use the skill — but it explains what the skill tells you at each step, and why the output tends to be right the first time.
 
@@ -140,7 +148,8 @@ The skill proposes an output directory inside your current project before writin
 
 The skill checks the output at three stages, not just at the end:
 
-- **Pre-render (source)** — containment arithmetic re-checked, every icon/marker reference resolves, text within its planned budget, contrast classes on accent fills, EN/KO variants share the same geometry formulas.
+- **Pre-render (source)** — the source lint reports hard failures with a location and suggested fix; remaining
+  containment arithmetic, contrast classes, EN/KO geometry parity, and heuristic warnings are reviewed explicitly.
 - **Rendering (PNG)** — no text overflow, correct Korean/CJK glyphs (no tofu), PNG dimensions verified as exactly 2× (automated by the render script), icons render, and the SVG stays editable.
 - **Message** — the archetype fits the content, there is one clear reading order, the title carries the conclusion, text density stays low per box, and the depth and language fit your audience.
 
@@ -159,6 +168,27 @@ By default, the output uses:
 
 Before drawing, the skill tells you these defaults and gives you a chance to change ratio, language, brand color, theme, or output format.
 
+## Requirements and the no-Node path
+
+Installing or discovering the skill does not require Node.js, and the skill can author an editable SVG without
+it. The complete automated lint-and-render workflow requires:
+
+- Node.js 18 or newer for `scripts/check-svg.mjs`
+- Bash for the bundled `scripts/render.sh` (Git Bash on Windows)
+- Chrome, Edge, or Chromium for PNG export
+
+The checker uses only the Node.js standard library, so there is no `npm install` step or third-party npm package.
+During preflight, the agent checks the installed Node version. If Node 18+ is missing, it shows the exact command
+for the detected package manager and asks whether it should install Node and continue the automated checks. It
+does not change the system without approval and does not use a remote `curl | sh` installer.
+
+If you decline the install, the skill keeps the earlier quality floor: it completes the full manual source
+checklist, renders a 2× PNG directly with Chrome, Edge, or Chromium, verifies its dimensions, and performs the
+same visual QA. The handoff states that automated source lint did not run, while distinguishing the manual source
+check and PNG verification that did pass; if no platform dimension reader is available, it reports that exact
+check separately. Only when a Chromium-based browser is also unavailable does the fallback stop at an SVG-only
+draft with both limitations stated.
+
 ## Install
 
 Copy this Claude Code package into a skills directory — either **global** (`~/.claude/skills/`, available in all your projects) or **project** (`.claude/skills/` in a repo, so your team gets it on clone). The skill is a multi-file package; copy the whole folder:
@@ -171,7 +201,10 @@ Copy this Claude Code package into a skills directory — either **global** (`~/
 │   ├── authoring.md          # detailed rules, icon set, manual render fallback
 │   └── sketch.md             # opt-in tidy hand-drawn preset (paper, handwriting, rough)
 └── scripts/
-    └── render.sh             # SVG → 2× PNG render + dimension verification
+    ├── check-svg.mjs         # source lint gate (Node.js 18+, standard library only)
+    ├── check-svg.test.mjs    # fixture regression tests
+    ├── fixtures/             # valid, error, and warning cases
+    └── render.sh             # lint → SVG-to-PNG render → 2× dimension verification
 ```
 
 GitHub install commands (global and project scope) for macOS, Linux, and Windows are in [../../docs/INSTALL.md](../../docs/INSTALL.md).

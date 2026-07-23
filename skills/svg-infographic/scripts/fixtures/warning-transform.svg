@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" width="600" height="200">
+  <style>.label{ font-size:16px; }</style>
+  <rect x="40" y="40" width="200" height="100" fill="#F7FAFD"/>
+  <g transform="rotate(3 140 90)">
+    <text class="label" x="60" y="90" dominant-baseline="central">Rotated label is only warned</text>
+  </g>
+</svg>

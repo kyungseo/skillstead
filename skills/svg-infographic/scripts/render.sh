@@ -7,6 +7,7 @@
 #
 # Defaults: output = input path with .png extension, scale = 2.
 # Exit codes: 0 ok · 1 usage/input error · 2 no browser · 3 render failed · 4 dimension mismatch
+#             5 source lint hard errors · 6 lint gate unavailable (no Node / missing check-svg.mjs)
 set -euo pipefail
 
 usage() { sed -n '2,8p' "$0" | sed 's/^# \{0,1\}//'; }
@@ -25,6 +26,34 @@ done
 [ -n "$SVG" ] || { usage >&2; exit 1; }
 [ -f "$SVG" ] || { echo "input SVG not found: $SVG" >&2; exit 1; }
 [ -n "$OUT" ] || OUT="${SVG%.svg}.png"
+
+# --- 0. source lint gate (mandatory; fails before any browser work) ---------
+# check-svg.mjs enforces the SKILL.md §3/§4 source rules (markerUnits, text
+# containment, dangling refs). Hard errors stop the render; warnings pass
+# through for the §7 PNG check. The gate is never skipped silently.
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+LINT="$SCRIPT_DIR/check-svg.mjs"
+if [ ! -f "$LINT" ]; then
+  echo "lint gate unavailable: $LINT not found — the skill package is incomplete; re-install the complete svg-infographic folder." >&2
+  exit 6
+fi
+if ! command -v node >/dev/null 2>&1; then
+  echo "lint gate unavailable: Node.js 18+ is required for the pre-render source lint (check-svg.mjs) and was not found on PATH." >&2
+  echo "Approve the skill's package-manager install prompt, or use its manual source-check + Chromium render fallback." >&2
+  exit 6
+fi
+NODE_VERSION="$(node --version 2>/dev/null || echo v0)"
+NODE_MAJOR="${NODE_VERSION#v}"; NODE_MAJOR="${NODE_MAJOR%%.*}"
+case "$NODE_MAJOR" in (*[!0-9]*|'') NODE_MAJOR=0 ;; esac
+if [ "$NODE_MAJOR" -lt 18 ]; then
+  echo "lint gate unavailable: Node $NODE_VERSION found, but the source lint requires Node 18+ (node:test, ESM stdlib)." >&2
+  echo "Approve the skill's package-manager upgrade prompt, or use its manual source-check + Chromium render fallback." >&2
+  exit 6
+fi
+node "$LINT" "$SVG" || {
+  echo "source lint failed: fix the hard errors above (SKILL.md §4), then re-run render.sh." >&2
+  exit 5
+}
 
 # --- 1. viewBox → W H -------------------------------------------------------
 read -r W H < <(awk 'match($0, /viewBox="[ ]*[0-9.]+[ ]+[0-9.]+[ ]+[0-9.]+[ ]+[0-9.]+[ ]*"/) {

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" width="600" height="200">
+  <style>.label{ font-size:18px; }</style>
+  <rect x="40" y="60" width="180" height="80" fill="#F7FAFD" stroke="#D6E0EC"/>
+  <text class="label" x="56" y="100" dominant-baseline="central">Revalidate reconcile and summarize everything</text>
+</svg>
