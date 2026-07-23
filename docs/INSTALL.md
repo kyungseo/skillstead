@@ -1,36 +1,93 @@
 # Install
 
-Skillstead packages each skill as a portable folder. Installation means cloning a reviewed ref and copying one
-complete folder; no remote install script is executed.
+**English** · [한국어](./INSTALL.ko.md)
 
-> **Release verification:** The commands below are pinned to `v0.7.0`. After publication, the complete
-> `writing-quality-editor` package was cloned from that tag, copied into fresh Claude Code and Codex project paths,
-> compared byte-for-byte with the tagged source, and discovered by both runtimes. The post-release claim closeout
-> passed. The matrix below reflects that recorded evidence scope; use the latest-development ref only when you
-> deliberately want an unreleased evaluation.
+Each Skillstead skill is a self-contained folder with the instructions and
+supporting files it needs. To install one, clone a verified release tag such as
+`v0.7.0`, then copy that skill’s complete folder into the location used by
+Claude Code or Codex. No remote install script is executed.
 
-## Runtime support
+> **What was verified:** The commands below use the fixed release tag `v0.7.0`.
+> After that release was published, the complete `writing-quality-editor`
+> folder was cloned from the tag and copied into new Claude Code and Codex
+> projects. Both runtimes discovered the Skill, and the copied files matched
+> the tagged source byte for byte. The support table below claims only what
+> those checks and the recorded behavior tests demonstrated. Use the current
+> default branch only when you intentionally want to evaluate unreleased work.
 
-Runtime support is verified per skill:
+## Runtime Support
+
+Here, a runtime is the agent host that loads and follows a Skill: Claude Code or
+Codex. Support is verified separately for every Skill and runtime.
 
 | Skill | Claude Code | Codex | Notes |
 | --- | --- | --- | --- |
-| `svg-infographic` | Supported | Not yet claimed | Browser-based PNG rendering verified on macOS through Claude Code; Windows/Linux paths remain pending |
-| `docs-claim-check` | Supported | Not yet claimed | Behavioral fixtures passed with Claude Code Fable and Sonnet |
-| `github-release-guide` | Supported | Supported | Clean material parity (incl. protection fixtures), disposable first-public and Guided tag-ruleset live E2E, pinned `v0.5.0`/`v0.6.0` project installation/discovery, and release claim audits passed |
-| `writing-quality-editor` | Supported | Supported | Four-mode, 21-scenario cross-runtime behavior, repository dogfood, and pinned `v0.7.0` project installation, package-equality, discovery, and final claim closeout passed |
+| `acrelay` | Pending | Pending | Unpublished Alpha preview. Its files and compatibility messages were checked offline; installation, recognition by each runtime, and a complete first review through closeout still need direct evidence. Requires exact acRelay `v0.1.0-alpha.1`. |
+| `svg-infographic` | Supported | Not yet claimed | PNG export through a browser was tested on macOS with Claude Code. Windows and Linux export paths have not yet been verified. |
+| `docs-claim-check` | Supported | Not yet claimed | Its behavior fixtures passed with Claude Code Fable and Sonnet. |
+| `github-release-guide` | Supported | Supported | Both runtimes matched on the required behavior, including protection fixtures. Disposable first-public and Guided tag-ruleset live tests, pinned `v0.5.0`/`v0.6.0` installation and discovery, and release claim audits passed. |
+| `writing-quality-editor` | Supported | Supported | Both runtimes passed its four modes and 21 scenarios. Repository dogfood, pinned `v0.7.0` installation, file equality, discovery, and final claim closeout also passed. |
 
-Copy only a skill whose runtime column says Supported for normal use. A Pending skill may be copied into an
-isolated test repository for evaluation without earning a public support claim.
+For normal use, choose a Skill only when your runtime column says `Supported`.
+`Pending` means you may evaluate it in an isolated test repository, but
+Skillstead does not yet claim that runtime as supported.
 
-## Runtime paths
+## Install The acRelay Alpha Preview
+
+The acRelay Skill is different from the other packages in this catalog: it is
+a natural-language wrapper around the separately released
+[acRelay engine](https://github.com/kyungseo/acrelay). Install the engine first,
+then copy the complete Skill folder.
+
+The current prebuilt engine is for macOS Apple Silicon (`darwin/arm64`). The
+command works only after the exact tag and release assets are public:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/kyungseo/acrelay/v0.1.0-alpha.1/scripts/install.sh | bash
+```
+
+The installer is pinned to the exact engine release and checksum-verifies its
+binary archive. For the review-first installer and pinned `go install` path,
+see the
+[engine installation guide](https://github.com/kyungseo/acrelay/blob/v0.1.0-alpha.1/docs/OPERATIONS.md).
+Linux and Windows core runtime lanes are verified, while platform-specific
+Claude Code/Codex review validation and any resulting patches remain the next
+support-expansion step.
+
+This preview is not included in `v0.7.0`. To evaluate the unreleased default
+branch with Claude Code:
+
+```bash
+git clone --depth 1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+mkdir -p ~/.claude/skills
+cp -R /tmp/skillstead/skills/acrelay ~/.claude/skills/
+```
+
+For Codex:
+
+```bash
+git clone --depth 1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+mkdir -p ~/.agents/skills
+cp -R /tmp/skillstead/skills/acrelay ~/.agents/skills/
+```
+
+Use a project path (`.claude/skills` or `.agents/skills`) instead when the
+Skill should travel with one repository. Restart the runtime if it does not
+recognize the newly copied Skill. The Skill never installs or upgrades the
+engine and never falls back to calling a reviewer directly.
+
+See the [acRelay Skill guide](../skills/acrelay/README.md) for the before/after
+workflow, round limits, examples, and single-agent usage boundary.
+
+## Where To Copy The Folder
 
 | Runtime | Global | Project |
 | --- | --- | --- |
 | Claude Code | `~/.claude/skills/<name>/` | `<repo>/.claude/skills/<name>/` |
 | Codex | `~/.agents/skills/<name>/` | `<repo>/.agents/skills/<name>/` |
 
-On Windows, `~` means `%USERPROFILE%`. Restart the runtime if a newly copied skill is not discovered.
+On Windows, `~` means `%USERPROFILE%`. If a newly copied Skill does not appear,
+restart Claude Code or Codex and check again.
 
 The commands below use `github-release-guide`. Replace the folder name with another supported skill when
 needed.
@@ -99,12 +156,12 @@ New-Item -ItemType Directory -Force ".agents\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" ".agents\skills\"
 ```
 
-## Latest development ref
+## Use The Current Unreleased Version
 
 Omit `--branch v0.7.0` to copy the current default branch. This is useful for evaluation, not reproducible
 team installation. Pinned tags are recommended for teams and release evidence.
 
-## Manual package shape
+## Files That Must Stay Together
 
 Keep the whole folder intact:
 
@@ -121,22 +178,31 @@ github-release-guide/
     └── version-release.md
 ```
 
-The installed README pair explains the workflow in user-facing language. Repository-only fixtures and
-diagrams remain at `examples/github-release-guide/` in the Skillstead repository and are not copied with the
-skill.
+The two installed README files explain the workflow in English and Korean.
+Test fixtures and diagrams under `examples/github-release-guide/` are used to
+develop and verify the Skill; they are not part of the installed folder.
 
 `writing-quality-editor` follows the same complete-folder rule. Its package contains `SKILL.md`, English/Korean
 READMEs, `agents/openai.yaml`, and three reference files; its repository-only fixtures remain under
 `examples/writing-quality-editor/`.
 
+The unpublished `acrelay` preview contains `SKILL.md`, English and Korean
+READMEs, and `agents/openai.yaml`. It is not part of the published `v0.7.0`
+tag. Do not present it as supported until its separate validation is complete.
+It requires the separately installed acRelay command at exact version
+`v0.1.0-alpha.1`; the Skill never installs or updates that command. Follow the
+dedicated preview instructions above rather than adapting the
+`github-release-guide` example by guesswork.
+
 ## Clean update
 
-`cp -R` can leave files that were removed upstream. For a guaranteed clean update:
+`cp -R` copies over existing files but does not remove files that disappeared
+from a newer release. To avoid leaving obsolete files behind:
 
-1. Clone the desired tag into a fresh temporary directory.
+1. Clone the desired release tag into a new temporary directory.
 2. Delete only the target installed skill folder.
 3. Copy the complete replacement folder.
-4. Restart the runtime if needed and verify discovery.
+4. Restart Claude Code or Codex if needed and confirm that it finds the Skill.
 5. For a project install, review and commit the replacement.
 
 Do not delete a parent skills directory that may contain unrelated skills.
@@ -159,5 +225,6 @@ Remove-Item -Recurse -Force ".claude\skills\github-release-guide"
 Remove-Item -Recurse -Force ".agents\skills\github-release-guide"
 ```
 
-Uninstall changes only local discovery. It does not undo a GitHub release or any repository mutation that
-was previously approved and performed.
+Uninstalling removes the Skill from local discovery only. It does not undo a
+GitHub release or any repository change that was previously approved and
+performed.

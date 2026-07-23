@@ -2,14 +2,47 @@
 
 **English** · [한국어](./README.ko.md)
 
-Practical, portable skills for agentic coding workflows — create clearer artifacts, check public claims,
-guide safer GitHub releases, and turn rough or translated text into natural, precise writing.
+Practical, portable skills for agentic coding workflows — run governed reviews, create clearer artifacts,
+check public claims, guide safer GitHub releases, and turn rough or translated text into natural, precise writing.
 
 > [!TIP]
 > **Skillstead = skill + homestead.** A small, durable place for skills that coding agents can carry into
 > real repositories. Each public support claim is tied to examples and runtime evidence.
 
 ## Highlights
+
+### Start a one-shot red team with acRelay
+
+When an agent finishes a plan, document, or implementation, acRelay can ask a
+separate Claude Code or Codex CLI to challenge it before the owner decides.
+The Skill makes that workflow available as a natural-language request; the
+standalone acRelay engine enforces the round limit, records evidence and
+responses, recovers interrupted runs, and keeps Close under human control.
+Simple to invoke; rigorous underneath.
+
+```mermaid
+flowchart LR
+    O["Owner<br/>starts and decides"] --> D["Driver agent<br/>does the work"]
+    D --> S["acRelay Skill<br/>natural-language guide"]
+    S --> E["acrelay binary<br/>review control"]
+    E --> R["Claude Code or Codex CLI<br/>separate reviewer"]
+    R --> E
+    E --> P["Private review record<br/>evidence and decisions"]
+    E --> D
+    P --> O
+    D --> O
+```
+
+Without acRelay, three review rounds can require six manual copy-and-paste
+handoffs: a request out and a result back for every round. With acRelay, one
+private record keeps the reviewed revision, findings, driver responses, and
+owner decisions together. One objective allows 1–5 formal rounds (default 3),
+so the review cannot turn into an unbounded token-consuming argument.
+
+acRelay is the Skillstead collaboration flagship preview. It is still marked
+`Validation pending` until installation, Skill recognition, and a complete
+review-through-closeout are verified in both runtimes.
+[See how the Skill and engine fit together.](./skills/acrelay/README.md)
 
 ### Explore the SVG gallery
 
@@ -32,6 +65,7 @@ required pipeline: start with the skill you need, skip the others, and recheck a
 
 | Skill | Best for | Runtime support | Maturity |
 | --- | --- | --- | --- |
+| [`acrelay`](./skills/acrelay) | Starting Skillstead's flagship evidence-backed red-team workflow through the separately installed acRelay engine | Validation pending | Alpha preview |
 | [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | Claude Code | Stable |
 | [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | Supported: Claude Code + Codex | Stable |
@@ -43,6 +77,43 @@ catalog—copy only the complete folder for the skill you want to use. See
 and the per-skill runtime matrix.
 
 ## Skill details
+
+### acrelay
+
+`acrelay` is a thin Skill around the standalone
+[acRelay engine](https://github.com/kyungseo/acrelay). The engine ships as one
+executable with no acRelay-owned daemon, server, or database. The Skill gives
+that engine a natural-language front door: it checks the installed command,
+asks what to review and which reviewer to use, confirms what may leave the
+machine, and then follows the engine’s recorded workflow.
+
+The binary—not the Skill—records findings and driver responses, limits one
+objective to 1–5 formal rounds (default 3), recovers interrupted runs,
+summarizes closeout readiness, cleans selected session data, and closes the
+review only when the owner explicitly asks.
+
+If the command is missing or has the wrong version, the Skill stops and
+explains what is needed. It never bypasses acRelay by calling the reviewer
+directly.
+
+This Skill is still being validated and is not yet published as a supported
+package. Its files and missing/wrong-version messages can be reviewed now.
+Claude Code and Codex have not yet completed the required installation,
+recognition of the Skill, and complete first review through closeout.
+
+- Friendly guide: [`acrelay` README](./skills/acrelay/README.md)
+- Installation: [`docs/INSTALL.md`](./docs/INSTALL.md#install-the-acrelay-alpha-preview)
+- Engine documentation: [acRelay](https://github.com/kyungseo/acrelay)
+- Plan: `Use acRelay to have Claude red-team this plan. Use at most three rounds and show me the owner decisions at the end.`
+- One file: `Use acRelay to have Codex review this file. Keep the official review record private and stop before Close.`
+- Implementation: `Use acRelay to review these checked-out implementation files against the approved plan.`
+- Same-vendor separate session: `I am working in Claude Code. Use a separate Claude Code CLI reviewer through acRelay and record that the contexts may still share blind spots.`
+
+A user who works mainly with one coding agent can therefore run a red team
+through a separate CLI reviewer, including a same-vendor session where
+supported. This is not host-native subagent support: direct ingestion of a
+host-created subagent result remains unsupported and fails closed until a
+stable host interface and typed result contract are available.
 
 ### svg-infographic
 
@@ -127,7 +198,8 @@ Every public skill must have:
 - public paths free of credentials, private provenance, and host-specific data,
 - and a repeatable validation path appropriate to its output.
 
-Runtime support is per skill, not catalog-wide. Claude Code support for the first two skills is unchanged.
+Runtime support is per skill, not catalog-wide. Claude Code support for
+`svg-infographic` and `docs-claim-check` is unchanged.
 `github-release-guide` has passed clean Claude Code/Codex material-parity checks, the disposable first-public
 live E2E, pinned `v0.5.0` project installation and discovery smoke, and the final strict claim audit. It is
 `Supported` for Claude Code and Codex within that recorded evidence scope.
@@ -138,6 +210,12 @@ evidence scope; maturity remains Beta.
 
 ## Current limitations
 
+- `acrelay` remains an unpublished Alpha preview. Installation, Skill
+  recognition, and complete-review-through-closeout checks are still pending
+  in Claude Code and Codex. The Skill works only with exact acRelay version
+  `v0.1.0-alpha.1`. Its current prebuilt engine is for macOS Apple Silicon;
+  Linux and Windows core lanes are verified, with platform-specific reviewer
+  validation and resulting patches planned as the next support step.
 - `svg-infographic` browser rendering is verified on macOS; Windows/Linux render paths remain documented but
   unverified.
 - `docs-claim-check` is advisory and evidence-bound; it does not execute verification commands.

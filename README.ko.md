@@ -2,14 +2,46 @@
 
 [English](./README.md) · **한국어**
 
-코딩 에이전트와 함께 쓸 수 있는 실용적인 스킬을 모았습니다. 기술 다이어그램 제작, 공개 문서의 주장
-검증, GitHub 릴리스 준비, 자연스럽고 정확한 글쓰기에 필요한 스킬을 골라 설치할 수 있습니다.
+코딩 에이전트와 함께 쓸 수 있는 실용적인 스킬을 모았습니다. Governed review, 기술 다이어그램 제작,
+공개 문서의 주장 검증, GitHub 릴리스 준비, 자연스럽고 정확한 글쓰기에 필요한 스킬을 골라 설치할 수 있습니다.
 
 > [!TIP]
 > **Skillstead = skill + homestead.** 코딩 에이전트가 실제 저장소에서 사용할 수 있는 스킬을 모아 두는
 > 작은 도구 모음입니다. 각 스킬이 지원하는 실행 환경은 실제 검증 결과가 있을 때만 표시합니다.
 
 ## 하이라이트
+
+### acRelay로 one-shot red-team 시작
+
+Agent가 계획, 문서 또는 구현을 마치면 owner가 결정하기 전에 별도의 Claude Code
+또는 Codex CLI가 반대 관점에서 검토하게 할 수 있습니다. Skill은 이 workflow를
+자연어 요청으로 시작하게 하고, 독립된 acRelay engine은 회차 제한, evidence와
+응답 기록, 중단된 실행 복구와 사람 owner의 Close 권한을 지킵니다.
+사용은 단순하지만 그 아래의 계약은 정교합니다.
+
+```mermaid
+flowchart LR
+    O["Owner<br/>시작하고 최종 결정"] --> D["Driver agent<br/>작업 수행"]
+    D --> S["acRelay Skill<br/>자연어 안내"]
+    S --> E["acrelay binary<br/>review 통제"]
+    E --> R["Claude Code 또는 Codex CLI<br/>별도 reviewer"]
+    R --> E
+    E --> P["비공개 review 기록<br/>evidence와 결정"]
+    E --> D
+    P --> O
+    D --> O
+```
+
+acRelay가 없으면 3회 review 동안 요청을 보내고 결과를 돌려받느라 최대 6번을
+수동으로 복사·붙여넣어야 합니다. acRelay를 사용하면 검토한 revision, finding,
+driver 응답과 owner 결정을 하나의 비공개 기록에 함께 남길 수 있습니다. Objective
+하나의 formal round는 1–5회(기본 3회)라서 review가 끝없는 token 소모 논쟁으로
+이어지지 않습니다.
+
+acRelay는 Skillstead의 collaboration flagship preview입니다. 두 runtime에서
+설치, Skill 인식과 review 시작부터 종료 준비 확인까지 완주하기 전에는
+`검증 대기`로 표시합니다.
+[Skill과 engine이 어떻게 연결되는지 확인하세요.](./skills/acrelay/README.ko.md)
 
 ### SVG 갤러리
 
@@ -33,6 +65,7 @@
 
 | 스킬 | 이런 작업에 적합 | 지원 실행 환경 | 성숙도 |
 | --- | --- | --- | --- |
+| [`acrelay`](./skills/acrelay) | 별도로 설치한 acRelay engine으로 Skillstead의 flagship red-team workflow 시작 | 검증 대기 | Alpha preview |
 | [`svg-infographic`](./skills/svg-infographic) | 아키텍처 설명, 작업 흐름, 비교 자료를 수정 가능한 SVG와 검증된 2× PNG로 제작 | Claude Code | Stable |
 | [`docs-claim-check`](./skills/docs-claim-check) | 공개 문서의 주장이 제공된 근거로 뒷받침되는지 확인 | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide) | 비공개 GitHub 저장소의 첫 공개 전환 또는 공개 후 매 버전 릴리스를 점검하고 단계별로 안내 | Supported: Claude Code + Codex | Stable |
@@ -40,10 +73,45 @@
 
 각 스킬은 필요한 파일을 모두 갖춘 독립 패키지입니다. 전체 목록을 설치할 필요 없이, 사용할 스킬의
 폴더만 통째로 복사하면 됩니다. 개인용·프로젝트용 설치 경로, 고정 버전 설치, 깨끗한 업데이트 방법,
-Windows 명령과 실행 환경별 지원 상태는 [`docs/INSTALL.md`](./docs/INSTALL.md)에서
+Windows 명령과 실행 환경별 지원 상태는 [`docs/INSTALL.ko.md`](./docs/INSTALL.ko.md)에서
 확인할 수 있습니다.
 
 ## 스킬별 상세 안내
+
+### acrelay
+
+`acrelay`는 독립된
+[acRelay engine](https://github.com/kyungseo/acrelay)을 감싼 얇은 Skill입니다.
+Engine은 acRelay 전용 daemon, server 또는 database 없이 실행 파일 하나로
+배포됩니다. Skill은 이 engine을 자연어로 사용하게 합니다. 설치된 command를
+확인하고, 무엇을 어떤 reviewer에게 맡길지 묻고, 외부로 보낼 수 있는 정보를
+확인한 뒤 engine이 기록하는 workflow를 따릅니다.
+
+Finding과 driver 응답 기록, objective별 1–5회(기본 3회) 제한, 중단된 실행 복구,
+종료 준비 요약, 선택한 session data 정리와 owner의 명시적인 review 종료는 Skill이
+아니라 binary가 담당합니다.
+
+Command가 없거나 version이 맞지 않으면 필요한 조치를 설명하고 중단합니다.
+acRelay를 우회해 reviewer를 직접 호출하지 않습니다.
+
+이 Skill은 아직 검증 중이며 지원 package로 공개하지 않았습니다. 필요한 파일이
+모두 들어 있는지와 command가 없거나 version이 다를 때의 안내는 지금 확인할 수
+있습니다. Claude Code와 Codex에서 설치하고 스킬이 인식되는지 확인한 뒤 첫 review를 시작해 종료
+준비 확인까지 완주하는 검증은 아직 남아 있습니다.
+
+- 자세한 안내: [`acrelay` 한국어 README](./skills/acrelay/README.ko.md)
+- 설치: [`docs/INSTALL.ko.md`](./docs/INSTALL.ko.md#acrelay-alpha-preview-설치)
+- Engine 문서: [acRelay](https://github.com/kyungseo/acrelay)
+- 계획: `acRelay로 Claude가 이 계획을 red-team하게 해줘. 최대 3회차 안에서 진행하고 마지막에 owner가 결정할 내용만 보여줘.`
+- 파일 하나: `acRelay로 Codex가 이 파일을 review하게 해줘. 공식 review 기록은 비공개로 보관하고 Close 전에는 멈춰줘.`
+- 구현 결과: `acRelay로 현재 checkout한 구현 파일들을 승인된 계획에 맞춰 review해줘.`
+- 같은 vendor의 별도 session: `지금 Claude Code에서 작업 중이야. acRelay로 별도의 Claude Code CLI reviewer를 사용하고 두 context에 같은 맹점이 있을 수 있다는 점도 기록해줘.`
+
+따라서 주로 agent 하나만 사용하는 사람도 별도의 CLI reviewer를 통해 red-team을
+가동할 수 있습니다. 지원하는 경우 같은 vendor의 별도 session도 사용할 수
+있습니다. 다만 이는 host-native subagent 지원이 아닙니다. Host가 만든 subagent
+결과를 직접 받아들이는 기능은 안정적인 host interface와 결과 형식이 마련될
+때까지 지원하지 않으며 다른 경로로 조용히 우회하지 않습니다.
 
 ### svg-infographic
 
@@ -141,6 +209,12 @@ Codex를 `Supported`로 표시하며, 성숙도는 Beta로 유지합니다.
 
 ## 현재 제한
 
+- `acrelay`는 아직 공개하지 않은 Alpha preview입니다. Claude Code와 Codex에서
+  설치하고 스킬이 인식되는지 확인한 뒤 첫 review를 시작해 종료 준비 확인까지 완주하는 검증이
+  남아 있습니다. Exact acRelay `v0.1.0-alpha.1`에서만 동작합니다. 현재 미리
+  build한 engine은 macOS Apple Silicon용이며, Linux와 Windows core lane은
+  검증했습니다. Platform별 reviewer 검증과 필요한 patch는 다음 지원 확대
+  단계로 계획하고 있습니다.
 - `svg-infographic`의 브라우저 렌더링은 macOS에서 검증했습니다. Windows와 Linux 경로는 문서화했지만 아직
   직접 검증하지 않았습니다.
 - `docs-claim-check`는 제공된 자료 안에서 문서 주장을 판정하며 검증 명령을 직접 실행하지 않습니다.

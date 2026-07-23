@@ -1,0 +1,4 @@
+interface:
+  display_name: "acRelay"
+  short_description: "Start a bounded red-team review with acRelay"
+  default_prompt: "Use $acrelay to start or continue a bounded red-team review through the installed acRelay command. Keep the review record private, record every finding and driver response, and leave approval and Close decisions with the owner."

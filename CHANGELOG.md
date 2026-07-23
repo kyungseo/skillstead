@@ -4,6 +4,30 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## [Unreleased]
+
+### acrelay (unpublished Alpha preview)
+
+- Adds a natural-language guide for the separately installed acRelay command.
+  It requires exact version `v0.1.0-alpha.1`, keeps the official Markdown review
+  history private, leaves approval and Close with the owner, and delegates
+  review state, evidence, reviewer execution, recovery, cleanup, and closeout
+  to the command.
+- The root catalog and install guide mark Claude Code and Codex support as
+  `Pending`. The package files and compatibility messages can be checked
+  offline, but each runtime still needs installation, Skill recognition, and a
+  complete first review through closeout.
+- The package is intentionally unpublished. This entry does not claim that it
+  is included in `v0.7.0` or supported by either runtime.
+- Highlights acRelay as Skillstead's flagship collaboration preview and adds a
+  dedicated engine-plus-Skill installation path, manual-relay before/after
+  explanation, bounded-round guidance, and examples for plans, files,
+  checked-out implementations, cross/same-vendor review, and owner closeout.
+- Clarifies that Linux and Windows core runtime lanes are verified while live
+  reviewer support awaits platform-specific validation and any resulting
+  patches. Host-native subagent result ingestion remains unsupported rather
+  than silently falling back to another review path.
+
 ## [0.7.0] — 2026-07-18
 
 ### writing-quality-editor (new skill, Beta)
