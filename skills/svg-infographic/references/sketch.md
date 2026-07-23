@@ -45,14 +45,15 @@ Roles still encode meaning (ok = green, warning = yellow/orange, danger = red). 
 - `rbox` for boxes/pills (group several rects under one `<g filter>`), `rline` for arrows, leaders, and icons.
 - **Filter regions need margin** (`x/y` negative, `width/height` >100%) or the displaced stroke clips at the bounding box.
 - Paper: solid `--paper` rect + a second full-canvas rect with `filter="url(#paper)"` at low opacity.
-- Strokes: `stroke-width 2.5` boxes and connectors; hand arrowhead = **open V marker** (stroked, not filled):
+- Strokes: `stroke-width 2.5` boxes and connectors; hand arrowhead = **open V marker** (stroked, not filled), with the mandatory explicit user-space footprint (≈9 units per 1px of shaft — here 22.5 for the 2.5px stroke; the lint gate rejects `markerUnits`-less markers):
 
 ```xml
-<marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+<marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="22.5" markerHeight="22.5"
+  markerUnits="userSpaceOnUse" orient="auto-start-reverse">
   <path d="M2 2 L10 6 L2 10" fill="none" stroke="#4A4438" stroke-width="2" stroke-linecap="round"/></marker>
 ```
 
-- Connectors may use gentle curves (`C`/`Q` paths) — hand-drawn lines aren't strictly orthogonal — but still route around boxes and keep the 8–12px arrowhead gap.
+- Connectors may use gentle curves (`C`/`Q` paths) — hand-drawn lines aren't strictly orthogonal — but the curve **geometry** follows the flat recipe in `authoring.md` §3 (perpendicular entry/exit, single bend by default, 8–12px arrowhead gap, visible shaft); the sketch preset only adds the rough texture on top.
 
 ## 3. Handwriting font (embed, don't assume)
 

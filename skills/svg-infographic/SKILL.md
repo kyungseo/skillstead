@@ -20,7 +20,8 @@ Nuances: a **simple qualitative** 2×2/3×3 matrix or a status-count badge is fi
 | `references/archetypes.md` | **Always, before the layout pass** — the chosen archetype's layout skeleton, premium recipe, and per-type checks |
 | `references/authoring.md` | **Always, before writing SVG** — detailed geometry/connector/panel/emphasis/color rules and the full icon set; also the manual render fallback |
 | `references/sketch.md` | Only when the user asks for a hand-drawn / sketchnote / 손글씨 feel — the opt-in sketch preset (paper, handwriting font, rough filters, highlighter) |
-| `scripts/render.sh` | To render SVG → 2× PNG with automatic dimension verification |
+| `scripts/render.sh` | To render SVG → 2× PNG with automatic dimension verification (runs the source lint first) |
+| `scripts/check-svg.mjs` | Source lint gate (Node 18+, stdlib only) — render.sh runs it automatically; run it directly while iterating on the SVG source |
 
 ## 0. Preflight — confirm, then offer to change
 
@@ -86,14 +87,20 @@ Read `references/authoring.md` for the detailed rules and the reusable icon set.
 - **Boxes:** rounded rect `rx="8"` (wide bands `rx="12–22"`), hairline border `stroke-width:1`. Each box = tinted fill + same-family border + same-family text (one semantic color family per box).
 - **Vertical centering:** center text with `dominant-baseline="central"` and `y` at the box's vertical center. Two lines straddle the center: title at `center−11`, sub at `center+10`, both `central`. Never rely on the default alphabetic baseline for box labels — it sits high.
 - **Wrapping:** one planned line = one `<tspan x=.. dy=..>`; keep to the §2 text budget.
-- **Arrows:** define one `<marker>` arrowhead, use `marker-end`. Solid = sync/request, dashed (`stroke-dasharray="5 4"`) = async/batch/private. Size the marker with `markerUnits="userSpaceOnUse"` and set `refX` so the tip lands on the path endpoint — the default `markerUnits="strokeWidth"` multiplies the head by the stroke width. Leave an 8–12px gap between tip and target box **and** keep a visible shaft behind the head; pick each connector's form (standard / compact / transition glyph / reflow) from the corridor budget (`authoring.md` §3).
+- **Arrows:** define one `<marker>` arrowhead, use `marker-end`. Solid = sync/request, dashed (`stroke-dasharray="5 4"`) = async/batch/private. The default head is an **open-V stroked marker at ≈3× the shaft width** (recipe in `authoring.md` §3) — filled triangles only as a deliberate, explicitly sized choice. `markerUnits="userSpaceOnUse"` is **mandatory** on every referenced marker and the lint gate enforces it — the default `markerUnits="strokeWidth"` multiplies the head by the stroke width. Set `refX` so the tip lands on the path endpoint; leave an 8–12px gap between tip and target box **and** keep a visible shaft behind the head; pick each connector's form (standard / compact / curved / transition glyph / reflow) from the corridor budget, and prefer the gentle single-bend curve recipe when boxes sit at different heights (`authoring.md` §3).
 - **On-accent text is light:** any label on a saturated fill uses `class="on-accent"` (white/near-white) — never dark text on a mid/dark accent, and never rely on a blanket `text{fill}` rule to sort it out.
 - **Emphasis toolkit:** stroke + soft shadow + a number/status badge + a corner label + a filled icon badge. **No top accent bar on cards** (corner-smear and badge-collision failure modes — details and narrow exception in `authoring.md`).
 - **Icon-first (default on):** a line icon in a soft tinted circle (`r≈34–38`, tint `#E3EEF8`) per card/node, icon ~40px via `<use>`, recolor with `style="color:#…"`. Number badge **only when sequence or cross-reference matters** — never icon + redundant number.
 
 ## 4. Pre-render checklist (source-level — run before every render)
 
-Check the SVG source mechanically; each item is cheaper here than after a PNG:
+**Run the lint gate first** — it machine-checks the deterministic subset of this list (ids/references, root viewBox, marker units and footprint, high-confidence Latin/CJK text overflow) with file/line, measured values, and a suggested fix per finding:
+
+```bash
+node scripts/check-svg.mjs diagram.svg     # render.sh runs this again as a hard gate
+```
+
+Hard errors must be fixed before rendering (`render.sh` refuses at exit 5). Warnings are low-confidence estimates — disposition each one deliberately (fix it, or verify it in the §7 PNG pass); never treat a warning as a pass. Then walk the rest of the checklist — layout arithmetic and design judgement stay yours:
 
 1. **Containment re-check:** the §2 last-edge/bottom-edge arithmetic still holds for what you actually wrote (cards, arrows, badges, labels — including any element you added while authoring). Judge **visual bounds**, not just the fill rect — half the stroke width, shadow spread, and children drawn outside the base rect count; in a padded panel, an edge that merely touches the parent is a fail, not a pass (formula in `authoring.md` §1).
 2. **Text budget:** no `<text>`/`<tspan>` line exceeds its planned chars/line; box labels use `dominant-baseline="central"` with computed `y`. **Pill/badge fit:** every pill/badge background covers its actual label width plus ≥ 14–16px padding per side, and EN/KO shared geometry fits the wider language's label (formula in `authoring.md` §2).
@@ -106,7 +113,7 @@ Check the SVG source mechanically; each item is cheaper here than after a PNG:
 
 ## 5. Render to PNG (2×)
 
-Use the bundled script — it discovers a Chromium-based browser (Chrome/Edge/Chromium), builds the wrapper, renders at 2×, and **verifies the PNG dimensions automatically**:
+Use the bundled script — it runs the §4 source lint as a hard gate (Node 18+ required; exit 5 = lint errors, exit 6 = Node/lint missing — install Node rather than bypassing the gate), discovers a Chromium-based browser (Chrome/Edge/Chromium), builds the wrapper, renders at 2×, and **verifies the PNG dimensions automatically**:
 
 ```bash
 bash scripts/render.sh diagram.svg            # → diagram.png (2×)
@@ -128,7 +135,7 @@ The pre-render checklist covered the source; now check what only the pixels show
 
 - **Rendering:** no text overflow or clipped glyphs; text vertically centered in its box; correct Korean/CJK rendering (no tofu); PNG is exactly 2× the viewBox (render.sh reports this); icons visible (no blank circles); labels on accent fills read clearly (AA-like separation).
 - **Containment (visual):** every child sits inside its container plus inner padding — scan the PNG for anything touching or crossing a panel edge; an element can spill without touching any text.
-- **Connectors:** every arrow reads as shaft + head — no head-only arrows and no head buried under a panel or card; the head joins its shaft cleanly and neither touches the target border nor floats detached; a transition glyph reads as flow, not as an icon or play button.
+- **Connectors:** every arrow reads as shaft + head — no head-only arrows and no head buried under a panel or card; the head joins its shaft cleanly and neither touches the target border nor floats detached; **head/shaft proportion reads natural — a *visible* head ≈4× its shaft width or more is a fail for newly authored diagrams** (aim ≈3×; shrink the head or use the open-V recipe — the lint warns from ≈4.5× of the marker viewport, a conservative upper bound on the visible head). Pre-contract legacy examples keep their approved visuals under an explicit `data-lint-allow="marker-footprint"` exception — never add that attribute to silence a new diagram. A curve keeps one readable bend (an accidental S-shape is a fail); a transition glyph reads as flow, not as an icon or play button.
 - **Message:** the archetype fits the content; one clear reading order; the title states a conclusion, not just a topic; text density stays low per box; any matrix/labels read unambiguously; depth and language fit the stated audience.
 - The SVG stays editable — tokens in one `<style>` block, no flattened or rasterized text.
 
