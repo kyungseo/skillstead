@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 260" width="500" height="260">
+  <style>
+    .thick{ stroke:#44546a; stroke-width:4; fill:none; marker-end:url(#ah); }
+    .thin{ stroke:#7b879b; stroke-width:2; fill:none; marker-end:url(#ah); }
+  </style>
+  <defs>
+    <marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="15" markerHeight="15"
+      markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M2 2 L10 6 L2 10" fill="none" stroke="#44546a" stroke-width="2" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <rect x="30" y="40" width="140" height="70" fill="#eee"/>
+  <rect x="330" y="40" width="140" height="70" fill="#eee"/>
+  <path class="thick" d="M170 75 L320 75"/>
+  <rect x="30" y="150" width="140" height="70" fill="#eee"/>
+  <rect x="330" y="150" width="140" height="70" fill="#eee"/>
+  <path class="thin" d="M170 185 L320 185"/>
+</svg>

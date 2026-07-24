@@ -5,6 +5,7 @@
     .card{ fill:#F7FAFD; stroke:#D6E0EC; }
     .label{ font-size:16px; fill:var(--ink); }
     .edge{ stroke:#44546a; stroke-width:2.5; fill:none; marker-end:url(#ah); }
+  .ghost{ marker-end:url(#ah); stroke-width:9; }
   </style>
   <defs>
     <marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="11.25" markerHeight="11.25"

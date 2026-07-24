@@ -7,7 +7,7 @@
     .edge{ stroke:#44546a; stroke-width:2.5; fill:none; marker-end:url(#ah); }
   </style>
   <defs>
-    <marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="11.25" markerHeight="11.25"
+    <marker id="ah" viewBox="0 0 40 40" refX="10" refY="6" markerWidth="40" markerHeight="40"
       markerUnits="userSpaceOnUse" orient="auto-start-reverse">
       <path d="M2 2 L10 6 L2 10" fill="none" stroke="#44546a" stroke-width="2" stroke-linecap="round"/>
     </marker>

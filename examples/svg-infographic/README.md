@@ -143,9 +143,17 @@ surface works beyond process flows while the topology stays computed.
 
 → [`agent-system-sketch/`](./agent-system-sketch) · English + 한국어
 
+## v0.8.0 release graphic
+
+[![Skillstead v0.8.0 runtime support: Claude Code and Codex on verified macOS and Windows environments](./release-announcement/skillstead-v080-runtime-support.ko.png)](./release-announcement/skillstead-v080-runtime-support.ko.svg)
+
+The editable SVG and 2× PNG summarize the evidence-bounded runtime support added in v0.8.0. The Windows card
+refers specifically to the recorded Windows 11 ARM64 VM Codex App run, not every Windows environment.
+
 ## Quality bar (every example passes)
 
-- [x] Source lint reports zero hard errors across all 28 SVGs; transform-related warnings were reviewed in the 2× PNGs
+- [x] Source lint reports zero hard errors across the 28 bilingual gallery SVGs; transform-related warnings were reviewed in the 2× PNGs
+- [x] The v0.8.0 release graphic reports zero source-lint errors and warnings
 - [x] SVG and PNG dimensions match (PNG is exactly 2× the SVG viewBox)
 - [x] No text overflow; text vertically centered in its box
 - [x] No tofu — Korean/CJK glyphs render correctly
@@ -153,21 +161,25 @@ surface works beyond process flows while the topology stays computed.
 - [x] No host-specific or client paths in the source
 - [x] Icons render (no broken `<use>` references); paired boxes have visible gutters
 
-## Render smoke test (per OS)
+## Runtime and rendering evidence
 
-The bundled [`scripts/render.sh`](../../skills/svg-infographic/scripts/render.sh) requires Node.js 18+ for its
-source-lint gate, discovers a Chromium-based browser (macOS, Linux, and Windows Git Bash paths), and verifies the
-exported PNG dimensions. Manual per-OS commands, including native PowerShell, are in
-[`references/authoring.md`](../../skills/svg-infographic/references/authoring.md) §8. So far, PNG export has been
-smoke-tested on macOS (all fourteen examples); Windows/Linux render verification is still pending. Installing and
-discovering the skill does not require Node. When it is absent, the agent asks before installing it; if the user
-declines, it retains the full manual source check and direct Chromium 2× render/visual-QA path.
+The canonical [`scripts/render.mjs`](../../skills/svg-infographic/scripts/render.mjs) requires Node.js 18+, runs
+source lint before rendering, discovers a Chromium-based browser, and verifies the exported PNG dimensions. It
+runs directly from Bash, PowerShell, or CMD; Git Bash is not required. The optional
+[`scripts/render.sh`](../../skills/svg-infographic/scripts/render.sh) wrapper delegates to the same renderer.
+
+Installing and discovering the skill does not require Node. If Node 18+ is unavailable, the agent asks before
+installing it. A declined install keeps the full manual source check and direct Chromium 2× render/visual-QA path
+documented in [`references/authoring.md`](../../skills/svg-infographic/references/authoring.md) §8.
 
 | Environment | Browser | en/ko SVG → 2× PNG | Status |
 | --- | --- | --- | --- |
-| macOS 15 | Chrome (headless) | all 14 examples | ✅ verified — correct 2× dimensions, no tofu |
-| Windows 10/11 | Chrome / Edge | script (Git Bash) + documented manual path | ⏳ expected; render verification pending |
-| Linux / WSL | Chrome / Chromium | script + documented manual path | ⏳ expected; render verification pending (install Noto Sans CJK/KR for Korean) |
+| macOS | Chrome (headless) | all 14 paired examples + fresh Claude Code/Codex briefs | ✅ verified — exact 2×, no tofu, material parity |
+| Windows 11 ARM64 VM | Chrome | fresh Codex App actual bilingual fixture | ✅ verified — install, discovery, correction, exact 2× render |
+| Linux / WSL | Chrome / Chromium | documented canonical and manual paths | ⏳ render verification pending (install Noto Sans CJK/KR for Korean) |
+
+The Windows result applies to the recorded VM configuration and does not claim every Windows machine or
+filesystem. Linux rendering remains documented but unverified.
 
 ## Scope
 
