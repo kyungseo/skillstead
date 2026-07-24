@@ -7,9 +7,8 @@ Skillstead의 각 스킬은 필요한 안내와 지원 파일을 모두 담은 �
 폴더 전체를 Claude Code 또는 Codex가 읽는 위치에 복사합니다. 원격 설치
 스크립트는 실행하지 않습니다.
 
-> **Release 고정:** 아래 명령은 공개된 `v0.8.0` tag를 사용합니다. Release
-> closeout에서 익명 고정 tag clone, package 일치, source-lint test와 정확한
-> 2× Chromium smoke render를 확인했습니다.
+> **Release 고정:** 아래 명령은 공개된 정확한 `v0.8.0` tag를 설치합니다.
+> Default branch는 preview라고 명시한 package에만 사용하세요.
 
 `svg-infographic`을 설치하거나 Agent가 발견하는 데는 Node.js가 필요하지 않습니다.
 자동 source lint와 포함된 render workflow에만 Node.js 18 이상이 필요합니다.
@@ -24,25 +23,32 @@ PNG·visual QA 경로를 유지하며, 자동 lint만 사용할 수 없습니다
 
 | 스킬 | Claude Code | Codex | 참고 |
 | --- | --- | --- | --- |
-| `acrelay` | 검증 대기 | 검증 대기 | 아직 공개하지 않은 Alpha preview입니다. 필요한 파일과 compatibility 안내는 offline으로 확인했지만, 설치, runtime의 스킬 인식과 첫 review부터 종료 준비 확인까지의 완주 근거가 더 필요합니다. Exact acRelay `v0.1.0-alpha.1`이 필요합니다. |
+| `acrelay` | 검증 대기 | 검증 대기 | Public Validation Preview입니다. 아직 Experimental이고 더 넓은 검증은 pending입니다. 작성자가 두 reviewer 경로에서 실제 review를 완료했으며, `Supported` 표시 전에는 초대된 비작성자 검증이 더 필요합니다. Exact acRelay `v0.1.0-alpha.1`이 필요합니다. |
 | `svg-infographic` | 지원 | 지원 | Claude Code와 macOS Codex CLI의 고정 요구사항 검증을 통과했고, Windows 11 ARM64 VM의 새 Codex App 작업도 통과했습니다. 이 결과를 모든 Windows 장치나 파일 시스템에 일반화하지 않으며 Linux 렌더링은 아직 검증하지 않았습니다. |
 | `docs-claim-check` | 지원 | 아직 지원을 주장하지 않음 | Claude Code Fable과 Sonnet으로 동작 fixture를 통과했습니다. |
 | `github-release-guide` | 지원 | 지원 | Protection fixture를 포함해 두 runtime의 필수 동작이 일치했습니다. Disposable first-public 및 Guided tag-ruleset live test, `v0.5.0`/`v0.6.0` 고정 설치·스킬 인식과 release claim audit도 통과했습니다. |
 | `writing-quality-editor` | 지원 | 지원 | 두 runtime에서 네 가지 mode와 21개 scenario를 통과했습니다. Repository dogfood, `v0.7.0` 고정 설치, 파일 일치, 스킬 인식과 최종 공개 문구 검증도 통과했습니다. |
 
-일반적인 용도라면 사용하는 runtime 열이 `지원`인 스킬만 선택하세요. `검증
-대기`는 격리된 테스트 repository에서 평가할 수는 있지만, Skillstead가 해당
-runtime을 아직 지원한다고 보지는 않는다는 뜻입니다.
+일반적인 용도라면 사용하는 runtime 열이 `지원`인 스킬을 선택하세요. `검증
+대기` package도 안내 문서가 preview를 명시하고 사용자가 제한을 받아들이면
+평가할 수 있습니다. `검증 대기`는 package가 없다는 뜻이 아니라 Skillstead가
+아직 일반적인 runtime 지원을 주장하지 않는다는 뜻입니다.
 
-## acRelay Alpha preview 설치
+## acRelay Public Validation Preview 설치
 
 acRelay Skill은 이 catalog의 다른 package와 구성이 조금 다릅니다. 별도로
-release하는 [acRelay engine](https://github.com/kyungseo/acrelay)을 자연어로
-사용하게 하는 wrapper이므로 engine을 먼저 설치하고 Skill 폴더 전체를
-복사합니다.
+release하는 [acRelay engine](https://github.com/kyungseo/acrelay)과 함께
+사용합니다. Skill은 자연어 요청을 acRelay 단계로 옮기고, engine은 파일을
+확인해 reviewer를 시작하고 review를 기록합니다. Skill만으로는 review를 실행할
+수 없으므로 engine을 먼저 설치한 뒤 Skill 폴더 전체를 복사합니다.
 
-현재 미리 build한 engine은 macOS Apple Silicon(`darwin/arm64`)용입니다. 아래
-명령은 exact tag와 release asset이 공개된 뒤에만 동작합니다.
+계속하기 전에 Claude Code CLI 또는 Codex CLI가 설치·로그인되어 정상 실행되는지
+확인하세요. Codex App은 acRelay review의 driver가 될 수 있지만 reviewer는 이
+CLI 중 하나에서 실행됩니다.
+
+현재 미리 build한 engine은 macOS Apple Silicon(`darwin/arm64`)용입니다. Exact
+`v0.1.0-alpha.1` preview를 설치합니다. macOS에서 Terminal을 열고 `uname -m`을
+실행한 뒤 결과가 `arm64`일 때만 아래 installer를 사용하세요.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/kyungseo/acrelay/v0.1.0-alpha.1/scripts/install.sh | bash
@@ -55,8 +61,8 @@ Installer는 exact engine release에 고정돼 있고 binary archive를 checksum
 Code·Codex review 검증과 그 결과에 따른 patch는 다음 지원 확대 단계로 남아
 있습니다.
 
-이 preview는 `v0.8.0`에 포함되지 않습니다. 아직 공개하지 않은 default branch를
-Claude Code에서 평가하려면 다음 명령을 사용합니다.
+이 Experimental preview는 `v0.8.0`에 포함되지 않습니다. Claude Code에서는
+default branch에서 다음과 같이 설치합니다.
 
 ```bash
 git clone --depth 1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
@@ -76,7 +82,7 @@ cp -R /tmp/skillstead/skills/acrelay ~/.agents/skills/
 복사하세요. 새 Skill이 보이지 않으면 runtime을 재시작합니다. Skill은 engine을
 설치하거나 update하지 않으며 reviewer를 직접 호출하는 경로로 우회하지 않습니다.
 
-Before/after workflow, 회차 제한, 여러 요청 예시와 single-agent 사용 경계는
+Before/after workflow, 회차 제한, 여러 요청 예시와 driver/reviewer 조합은
 [acRelay Skill 안내](../skills/acrelay/README.ko.md)를 참고하세요.
 
 ## 폴더를 복사할 위치
@@ -188,7 +194,7 @@ github-release-guide/
 README, `agents/openai.yaml`과 reference 파일 3개가 들어 있습니다. 저장소 전용 fixture는
 `examples/writing-quality-editor/`에 남습니다.
 
-아직 공개하지 않은 `acrelay` preview에는 `SKILL.md`, 영문·한국어 README와
+`acrelay` Public Validation Preview에는 `SKILL.md`, 영문·한국어 README와
 `agents/openai.yaml`이 들어 있습니다. 공개된 `v0.8.0` tag에는 포함되지
 않습니다. 별도 검증이 끝나기 전에는 지원되는 package로 소개하면 안 됩니다.
 이 스킬에는 별도로 설치한 exact acRelay `v0.1.0-alpha.1`이 필요하며, 스킬

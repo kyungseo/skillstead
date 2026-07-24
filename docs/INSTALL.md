@@ -7,8 +7,9 @@ supporting files it needs. To install one, clone a verified release tag such as
 `v0.8.0`, then copy that skill’s complete folder into the location used by
 Claude Code or Codex. No remote install script is executed.
 
-> **Release pin:** The commands below target the published `v0.8.0` tag. Its release closeout verified an
-> anonymous pinned-tag clone, package equality, source-lint tests, and an exact 2× Chromium smoke render.
+> **Release pin:** The commands below install the exact published `v0.8.0`
+> tag. Use the default branch only for a package explicitly labeled as a
+> preview.
 
 Copying or discovering `svg-infographic` does not install or require Node.js. Node.js 18+ is needed only for its
 automated source-lint and bundled render workflow. If it is missing, the skill asks before using the detected
@@ -22,25 +23,33 @@ Codex. Support is verified separately for every Skill and runtime.
 
 | Skill | Claude Code | Codex | Notes |
 | --- | --- | --- | --- |
-| `acrelay` | Pending | Pending | Unpublished Alpha preview. Its files and compatibility messages were checked offline; installation, recognition by each runtime, and a complete first review through closeout still need direct evidence. Requires exact acRelay `v0.1.0-alpha.1`. |
+| `acrelay` | Pending | Pending | Public Validation Preview: Experimental, with broader validation pending. The author completed live reviews through both reviewer paths; validation by an invited non-author is still required before a `Supported` claim. Requires exact acRelay `v0.1.0-alpha.1`. |
 | `svg-infographic` | Supported | Supported | Frozen fresh-context briefs passed on Claude Code and macOS Codex CLI; a fresh Codex App task also passed in a Windows 11 ARM64 VM. This is not a claim for every Windows machine/filesystem; Linux rendering remains unverified |
 | `docs-claim-check` | Supported | Not yet claimed | Behavioral fixtures passed with Claude Code Fable and Sonnet |
 | `github-release-guide` | Supported | Supported | Clean material parity (incl. protection fixtures), disposable first-public and Guided tag-ruleset live E2E, pinned `v0.5.0`/`v0.6.0` project installation/discovery, and release claim audits passed |
 | `writing-quality-editor` | Supported | Supported | Four-mode, 21-scenario cross-runtime behavior, repository dogfood, and pinned `v0.7.0` project installation, package-equality, discovery, and final claim closeout passed |
 
-For normal use, choose a Skill only when your runtime column says `Supported`.
-`Pending` means you may evaluate it in an isolated test repository, but
-Skillstead does not yet claim that runtime as supported.
+For routine use, choose a Skill whose runtime column says `Supported`. A
+`Pending` package is available to evaluate when its guide explicitly offers a
+preview and you accept the stated limits. `Pending` does not mean the package
+is missing; it means Skillstead does not yet claim general runtime support.
 
-## Install The acRelay Alpha Preview
+## Install The acRelay Public Validation Preview
 
 The acRelay Skill is different from the other packages in this catalog: it is
 a natural-language wrapper around the separately released
-[acRelay engine](https://github.com/kyungseo/acrelay). Install the engine first,
-then copy the complete Skill folder.
+[acRelay engine](https://github.com/kyungseo/acrelay). The Skill translates
+your request into acRelay steps; the engine checks the files, starts the
+reviewer, and records the review. The Skill cannot run a review by itself, so
+install the engine first and then copy the complete Skill folder.
 
-The current prebuilt engine is for macOS Apple Silicon (`darwin/arm64`). The
-command works only after the exact tag and release assets are public:
+Before continuing, have Claude Code CLI or Codex CLI installed, signed in, and
+working. Codex App can drive an acRelay review, but a reviewer still runs
+through one of those CLIs.
+
+The current prebuilt engine is for macOS Apple Silicon (`darwin/arm64`).
+On macOS, open Terminal and run `uname -m`. Use this installer only if the
+result is `arm64`. Then install the exact `v0.1.0-alpha.1` preview:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/kyungseo/acrelay/v0.1.0-alpha.1/scripts/install.sh | bash
@@ -54,8 +63,8 @@ Linux and Windows core runtime lanes are verified, while platform-specific
 Claude Code/Codex review validation and any resulting patches remain the next
 support-expansion step.
 
-This preview is not included in `v0.8.0`. To evaluate the unreleased default
-branch with Claude Code:
+This Experimental preview is not included in `v0.8.0`. Install it from the
+default branch for Claude Code:
 
 ```bash
 git clone --depth 1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
@@ -77,7 +86,7 @@ recognize the newly copied Skill. The Skill never installs or upgrades the
 engine and never falls back to calling a reviewer directly.
 
 See the [acRelay Skill guide](../skills/acrelay/README.md) for the before/after
-workflow, round limits, examples, and single-agent usage boundary.
+workflow, round limits, examples, and driver/reviewer combinations.
 
 ## Where To Copy The Folder
 
@@ -186,9 +195,10 @@ develop and verify the Skill; they are not part of the installed folder.
 READMEs, `agents/openai.yaml`, and three reference files; its repository-only fixtures remain under
 `examples/writing-quality-editor/`.
 
-The unpublished `acrelay` preview contains `SKILL.md`, English and Korean
-READMEs, and `agents/openai.yaml`. It is not part of the published `v0.8.0`
-tag. Do not present it as supported until its separate validation is complete.
+The Public Validation Preview of `acrelay` contains `SKILL.md`, English and
+Korean READMEs, and `agents/openai.yaml`. It is not part of the published
+`v0.8.0` tag. Do not present it as supported until its separate validation is
+complete.
 It requires the separately installed acRelay command at exact version
 `v0.1.0-alpha.1`; the Skill never installs or updates that command. Follow the
 dedicated preview instructions above rather than adapting the

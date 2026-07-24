@@ -2,17 +2,22 @@
 
 **English** · [한국어](./README.ko.md)
 
-This Skill makes the standalone
-[acRelay engine](https://github.com/kyungseo/acrelay) easier to use. The engine
-is one executable with no acRelay-owned daemon, server, or database. The Skill
-does not reimplement that engine; it turns a natural-language request into the
-engine’s review workflow.
+Reviewing a plan or implementation with another coding agent can improve its
+direction, reveal defects that the driver missed, and make the final result
+more complete. This Skill makes those reviews easy to start in natural
+language.
 
-Ask for a red-team review of a plan, document, one file, selected implementation
-files, or a declared directory tree. acRelay starts a separate Claude Code or
-Codex CLI reviewer, keeps the reviewed revision and findings in a private
-record, requires a driver response to every finding, and leaves approval and
-Close with a human owner.
+This Skill is a natural-language guide for the standalone
+[acRelay engine](https://github.com/kyungseo/acrelay): one executable with no
+acRelay-owned daemon, server, or database. Install the engine, install this
+Skill, and ask for a review of a plan, document, file, selected implementation
+files, or a declared directory tree. The Skill does not reimplement or bypass
+the engine.
+
+The two parts have different jobs. The Skill translates your natural-language
+request into acRelay steps. The engine checks the files, starts a separate
+Claude Code or Codex CLI reviewer, and records the result. The Skill cannot run
+a review by itself, so you install both.
 
 ## What It Replaces
 
@@ -23,27 +28,42 @@ copy-and-paste handoffs.
 | Before | With the acRelay Skill |
 | --- | --- |
 | Move each request and result between agents | Start in natural language; the Skill calls the engine |
-| Remember the reviewed revision and open findings | Keep the revision, findings, and responses in one private record |
+| Remember the reviewed revision and open findings | Keep the revision, findings, and responses in one record on your computer |
 | Let the conversation drift until someone agrees | Use 1–5 formal rounds (default 3), then return the decision to the owner |
 
-One-shot means one deliberately started, bounded review objective—not one
-prompt or one reviewer turn. acRelay runs only when invoked and never continues
-as a background service.
+Each invocation starts one bounded review objective, which may use 1–5 formal
+rounds (default 3). acRelay runs only when invoked and never continues as a
+background service.
 
 ## Publication Status
 
-This Skill is a flagship Alpha preview and has not yet been published as
-supported for Claude Code or Codex. Its files, compatibility messages, and
-offline request routing can be checked now. Installation, recognition by each
-runtime, and a complete first review through closeout still need direct
-evidence.
+This Skill is part of the **Public Validation Preview**. It is
+**Experimental**, broader validation is still **pending**, and neither Claude
+Code nor Codex is presented as generally `Supported`. The author completed
+live reviews through both reviewer paths; validation by an invited non-author
+remains a later promotion gate. The package is available from Skillstead's
+default branch but is not included in the `v0.8.0` tag.
+
+`Pending` does not mean the package is missing. It means this documented
+preview is available to evaluate, but Skillstead does not yet claim general
+runtime support.
+
+## Before You Start
+
+You should already be using Codex App, Codex CLI, or Claude Code. A review
+runs through Claude Code CLI or Codex CLI, so at least one of those reviewer
+CLIs must already be installed, signed in, and working. Codex App can drive the
+work, but the reviewer still runs through a CLI.
+
+Here, **App** means the desktop interface and **CLI** means a command that runs
+in Terminal. The Skill and engine do not install or sign in to reviewer tools.
 
 ## Install The Engine
 
-The Skill needs the exact `v0.1.0-alpha.1` engine on `PATH`. The current
-prebuilt binary is for macOS Apple Silicon (`darwin/arm64`).
-The command below works only after the exact tag and release assets are public;
-if they are unavailable, stop rather than substituting `latest`.
+The exact `v0.1.0-alpha.1` `acrelay` command must be available from Terminal
+(on `PATH`). The current prebuilt binary is for macOS Apple Silicon
+(`darwin/arm64`). In Terminal, run `uname -m` and continue with this installer
+only when the result is `arm64`. The installer never substitutes `latest`.
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/kyungseo/acrelay/v0.1.0-alpha.1/scripts/install.sh | bash
@@ -57,13 +77,14 @@ it, or want the pinned `go install` alternative, follow the
 Linux and Windows core runtime lanes are already verified. Platform-specific
 Claude Code and Codex review validation is planned as the next support step,
 with patches released after the evidence is reviewed. Until then the engine
-stops before reviewer dispatch on an unverified platform tuple.
+stops before sending files from an unverified operating-system and
+reviewer-version combination.
 
 ## Install The Skill Preview
 
-The preview is not included in the published `v0.7.0` Skillstead tag. Use the
-default branch only when intentionally evaluating unreleased work. Copy the
-complete `skills/acrelay` folder; do not copy `SKILL.md` by itself.
+The preview is not included in the published `v0.8.0` Skillstead tag. Install
+it from the default branch and copy the complete `skills/acrelay` folder; do
+not copy `SKILL.md` by itself.
 
 ### Claude Code
 
@@ -94,19 +115,22 @@ by calling the reviewer directly.
 ### Challenge a plan
 
 ```text
-Use acRelay to have Claude red-team this plan. Keep the review record private, use at most three formal rounds, and show me the decisions that still belong to the owner.
+Use acRelay to have Claude challenge this plan. Summarize the decisions I need to make at the end.
 ```
+
+If you do not specify a limit, acRelay allows up to three review rounds. You
+may request any limit from one to five.
 
 ### Review one file
 
 ```text
-Use acRelay to have Codex review this file. Record what it examined and every finding, but do not close the review.
+Use acRelay to have Codex review this file. Summarize the evidence it checked and the problems it found.
 ```
 
 ### Review an implementation
 
 ```text
-Use acRelay to review these checked-out implementation files against the approved plan. Ask the driver to respond to every finding before showing the closeout summary.
+Use acRelay to check whether the current implementation matches the approved plan and summarize any gaps.
 ```
 
 acRelay v0.1.0-alpha.1 accepts a file, explicit files, or a declared subtree.
@@ -114,44 +138,40 @@ It does not yet accept a PR URL, staged patch, commit range, or branch
 comparison as a first-class selector. Check out the intended revision and name
 the files or subtree instead.
 
-### Use one agent ecosystem
+### Use only Claude Code or only Codex
 
 ```text
-I am working in Claude Code. Use acRelay with a separate Claude Code CLI reviewer. Record that this is a same-vendor review and that the two contexts may share blind spots.
+I am working in Claude Code. Use a separate Claude Code CLI reviewer to review this work.
 ```
 
-A single-agent user can run a red team through a separate CLI reviewer,
-including a supported same-vendor session. This is not host-native subagent
-support. Direct ingestion of a host-created subagent result remains
-unsupported and fails closed until a stable host interface and typed result
-contract are available.
+A separate CLI session of the same tool can act as reviewer. This is useful
+when you use only Claude Code or only Codex, although the driver and reviewer
+may share blind spots. This preview reviews through a CLI session; it does not
+take a result from the driver tool's built-in subagent directly.
 
-### Current agent paths
+### Choose a driver and reviewer
 
-The practical Alpha path is:
+| How you work | Driver | Reviewer |
+| --- | --- | --- |
+| Drive from Codex App | Codex App | Claude Code CLI or Codex CLI |
+| Drive from Claude Code | Claude Code CLI | Codex CLI or a separate Claude Code CLI session |
+| Use only Claude Code | Claude Code CLI | A separate Claude Code CLI session |
+| Use only Codex | Codex CLI | A separate Codex CLI session |
 
-```text
-Codex App, Claude Code CLI, or Codex CLI as driver
-  → acRelay Skill
-  → installed acrelay binary
-  → Claude Code CLI or Codex CLI as reviewer
-```
-
-- Claude Code CLI and Codex CLI can fill the driver or reviewer role on a
-  verified engine platform tuple.
-- Codex App can be the driver and invoke the local Skill/binary; it is not a
-  reviewer adapter.
+- Claude Code CLI and Codex CLI can be the driver or reviewer in the
+  combinations listed for this preview.
+- Codex App can be the driver, but the reviewer must be a CLI.
 - Claude App has no direct acRelay path.
-- Antigravity is a future driver candidate, but neither its driver path nor a
-  reviewer adapter is supported today.
+- Antigravity is not part of this preview.
 
-The engine does not infer that any two agents are independent. It records the
-declared and observed relationship and shows the corresponding caution.
+A reviewer from another tool can challenge assumptions that the driver may
+not notice. A same-tool reviewer is still useful, but acRelay records that the
+two contexts may share blind spots.
 
-### Inspect without closing
+### Check the current status
 
 ```text
-Continue this acRelay review with the existing reviewer. Show me the closeout summary, but leave the final decision and Close to the owner.
+Summarize the current state of this acRelay review and the decisions I need to make.
 ```
 
 ## What The Skill Asks Before Review

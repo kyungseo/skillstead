@@ -6,7 +6,7 @@ Granular, per-change entries begin at the first public release. Earlier developm
 
 ## [Unreleased]
 
-### acrelay (unpublished Alpha preview)
+### acrelay (Public Validation Preview)
 
 - Adds a natural-language guide for the separately installed acRelay command.
   It requires exact version `v0.1.0-alpha.1`, keeps the official Markdown review
@@ -14,11 +14,12 @@ Granular, per-change entries begin at the first public release. Earlier developm
   review state, evidence, reviewer execution, recovery, cleanup, and closeout
   to the command.
 - The root catalog and install guide mark Claude Code and Codex support as
-  `Pending`. The package files and compatibility messages can be checked
-  offline, but each runtime still needs installation, Skill recognition, and a
-  complete first review through closeout.
-- The package is intentionally unpublished. This entry does not claim that it
-  is included in `v0.7.0` or supported by either runtime.
+  `Pending`. The author completed live reviews through both reviewer paths;
+  validation by an invited non-author is still required before either runtime
+  is marked `Supported`.
+- The package is available from the default branch as an Experimental,
+  Validation-pending preview. It is not included in `v0.8.0` and this entry
+  does not claim either runtime as supported.
 - Highlights acRelay as Skillstead's flagship collaboration preview and adds a
   dedicated engine-plus-Skill installation path, manual-relay before/after
   explanation, bounded-round guidance, and examples for plans, files,

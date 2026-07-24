@@ -11,14 +11,13 @@ check public claims, guide safer GitHub releases, and turn rough or translated t
 
 ## Highlights
 
-### Start a one-shot red team with acRelay
+### Strengthen work with another agent's review
 
-When an agent finishes a plan, document, or implementation, acRelay can ask a
-separate Claude Code or Codex CLI to challenge it before the owner decides.
-The Skill makes that workflow available as a natural-language request; the
-standalone acRelay engine enforces the round limit, records evidence and
-responses, recovers interrupted runs, and keeps Close under human control.
-Simple to invoke; rigorous underneath.
+Reviewing a plan or implementation with another coding agent can sharpen the
+direction, uncover hidden defects, and improve the finished work. The acRelay
+Skill lets you start that review in natural language whenever it is useful.
+The standalone engine calls a separate Claude Code or Codex CLI, records the
+review and responses, and leaves the final decision with a person.
 
 ```mermaid
 flowchart LR
@@ -27,7 +26,7 @@ flowchart LR
     S --> E["acrelay binary<br/>review control"]
     E --> R["Claude Code or Codex CLI<br/>separate reviewer"]
     R --> E
-    E --> P["Private review record<br/>evidence and decisions"]
+    E --> P["Review record on your computer<br/>evidence and decisions"]
     E --> D
     P --> O
     D --> O
@@ -35,13 +34,14 @@ flowchart LR
 
 Without acRelay, three review rounds can require six manual copy-and-paste
 handoffs: a request out and a result back for every round. With acRelay, one
-private record keeps the reviewed revision, findings, driver responses, and
-owner decisions together. One objective allows 1–5 formal rounds (default 3),
-so the review cannot turn into an unbounded token-consuming argument.
+record on your computer keeps the reviewed revision, findings, driver
+responses, and owner decisions together. One objective allows 1–5 formal
+rounds (default 3), so the review cannot turn into open-ended back-and-forth
+that keeps consuming tokens.
 
-acRelay is the Skillstead collaboration flagship preview. It is still marked
-`Validation pending` until installation, Skill recognition, and a complete
-review-through-closeout are verified in both runtimes.
+acRelay is Skillstead's featured collaboration Skill and part of a **Public
+Validation Preview**. It is **Experimental**, broader validation is still
+**pending**, and neither runtime is presented as generally `Supported`.
 [See how the Skill and engine fit together.](./skills/acrelay/README.md)
 
 ### Explore the SVG gallery
@@ -65,7 +65,7 @@ required pipeline: start with the skill you need, skip the others, and recheck a
 
 | Skill | Best for | Runtime support | Maturity |
 | --- | --- | --- | --- |
-| [`acrelay`](./skills/acrelay) | Starting Skillstead's flagship evidence-backed red-team workflow through the separately installed acRelay engine | Validation pending | Alpha preview |
+| [`acrelay`](./skills/acrelay) | Reviewing plans and implementations through the separately installed acRelay engine | Validation pending | Experimental preview |
 | [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | Supported: Claude Code + Codex | Stable |
 | [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | Supported: Claude Code + Codex | Stable |
@@ -80,40 +80,40 @@ and the per-skill runtime matrix.
 
 ### acrelay
 
-`acrelay` is a thin Skill around the standalone
-[acRelay engine](https://github.com/kyungseo/acrelay). The engine ships as one
-executable with no acRelay-owned daemon, server, or database. The Skill gives
-that engine a natural-language front door: it checks the installed command,
-asks what to review and which reviewer to use, confirms what may leave the
-machine, and then follows the engine’s recorded workflow.
-
-The binary—not the Skill—records findings and driver responses, limits one
-objective to 1–5 formal rounds (default 3), recovers interrupted runs,
-summarizes closeout readiness, cleans selected session data, and closes the
-review only when the owner explicitly asks.
+`acrelay` uses the standalone
+[acRelay engine](https://github.com/kyungseo/acrelay) instead of reimplementing
+it. The engine ships as one executable with no acRelay-owned daemon, server, or
+database. The Skill translates a natural-language request into acRelay steps;
+the engine checks the files, starts the reviewer, and records the review. The
+Skill cannot run a review by itself, so you install both.
 
 If the command is missing or has the wrong version, the Skill stops and
 explains what is needed. It never bypasses acRelay by calling the reviewer
 directly.
 
-This Skill is still being validated and is not yet published as a supported
-package. Its files and missing/wrong-version messages can be reviewed now.
-Claude Code and Codex have not yet completed the required installation,
-recognition of the Skill, and complete first review through closeout.
+This Skill is available from the default branch as a Public Validation Preview.
+It is Experimental, validation is pending, and it is not included in the
+`v0.8.0` tag. The author completed live reviews through both reviewer paths;
+validation by an invited non-author is still required before any general
+`Supported` claim.
+
+To try it, you need a signed-in, working Claude Code CLI or Codex CLI reviewer.
+Codex App can drive the work, but the reviewer still runs through one of those
+CLIs.
 
 - Friendly guide: [`acrelay` README](./skills/acrelay/README.md)
-- Installation: [`docs/INSTALL.md`](./docs/INSTALL.md#install-the-acrelay-alpha-preview)
+- Installation: [`docs/INSTALL.md`](./docs/INSTALL.md#install-the-acrelay-public-validation-preview)
 - Engine documentation: [acRelay](https://github.com/kyungseo/acrelay)
-- Plan: `Use acRelay to have Claude red-team this plan. Use at most three rounds and show me the owner decisions at the end.`
-- One file: `Use acRelay to have Codex review this file. Keep the official review record private and stop before Close.`
-- Implementation: `Use acRelay to review these checked-out implementation files against the approved plan.`
-- Same-vendor separate session: `I am working in Claude Code. Use a separate Claude Code CLI reviewer through acRelay and record that the contexts may still share blind spots.`
+- Plan: `Use acRelay to have Claude challenge this plan. Summarize the decisions I need to make at the end.`
+- One file: `Use acRelay to have Codex review this file. Summarize the evidence it checked and the problems it found.`
+- Implementation: `Use acRelay to check whether the current implementation matches the approved plan and summarize any gaps.`
+- Same-tool separate session: `I am working in Claude Code. Use a separate Claude Code CLI reviewer to review this work.`
 
-A user who works mainly with one coding agent can therefore run a red team
-through a separate CLI reviewer, including a same-vendor session where
-supported. This is not host-native subagent support: direct ingestion of a
-host-created subagent result remains unsupported and fails closed until a
-stable host interface and typed result contract are available.
+If you use Codex and Claude Code together, either CLI can review work driven
+from Codex App or Claude Code CLI. If you use only Codex or only Claude Code,
+a separate CLI session of the same tool can still act as reviewer, although
+the two contexts may share blind spots. If you do not specify a limit, acRelay
+allows up to three review rounds; you may request any limit from one to five.
 
 ### svg-infographic
 
@@ -216,9 +216,10 @@ evidence scope; maturity remains Beta.
 
 ## Current limitations
 
-- `acrelay` remains an unpublished Alpha preview. Installation, Skill
-  recognition, and complete-review-through-closeout checks are still pending
-  in Claude Code and Codex. The Skill works only with exact acRelay version
+- `acrelay` is a Public Validation Preview on the default branch: Experimental,
+  validation pending, and not generally `Supported`. The author completed live
+  reviews through both reviewer paths; validation by an invited non-author
+  remains pending. The Skill works only with exact acRelay version
   `v0.1.0-alpha.1`. Its current prebuilt engine is for macOS Apple Silicon;
   Linux and Windows core lanes are verified, with platform-specific reviewer
   validation and resulting patches planned as the next support step.

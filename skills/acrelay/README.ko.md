@@ -2,16 +2,19 @@
 
 [English](./README.md) · **한국어**
 
-이 Skill은 독립된
-[acRelay engine](https://github.com/kyungseo/acrelay)을 쉽게 사용하도록 돕습니다.
-Engine은 acRelay 전용 daemon, server 또는 database 없이 실행 파일 하나로
-배포됩니다. Skill이 engine을 다시 구현하는 것이 아니라 자연어 요청을 engine의
-review workflow로 연결합니다.
+계획이나 구현 결과를 다른 coding agent와 함께 검토하면 방향을 더 정교하게
+다듬고, driver가 놓친 결함을 찾고, 결과물의 완성도를 높일 수 있습니다. 이 Skill은
+이런 review를 자연어로 쉽게 시작하도록 돕습니다.
 
-계획, 문서, 파일 하나, 선택한 구현 파일 또는 지정한 directory tree를 red-team
-review해 달라고 요청할 수 있습니다. acRelay는 별도의 Claude Code 또는 Codex CLI
-reviewer를 시작하고, 검토한 revision과 finding을 비공개 기록에 남기며, 모든
-finding에 driver 응답을 요구하고, 승인과 Close는 사람 owner에게 맡깁니다.
+독립된 [acRelay engine](https://github.com/kyungseo/acrelay)을 자연어로
+사용하도록 안내하는 Skill입니다. Engine은 acRelay 전용 daemon, server 또는
+database 없이 실행 파일 하나로 배포됩니다. Engine과 이 Skill을 설치한 뒤 계획,
+문서, 파일 하나, 선택한 구현 파일 또는 지정한 directory tree를 review해 달라고
+요청하면 됩니다. Skill은 engine을 다시 구현하거나 우회하지 않습니다.
+
+두 구성요소의 역할은 다릅니다. Skill은 자연어 요청을 acRelay 단계로 옮깁니다.
+Engine은 파일을 확인하고 별도의 Claude Code 또는 Codex CLI reviewer를 시작해
+결과를 기록합니다. Skill만으로는 review를 실행할 수 없으므로 둘 다 설치합니다.
 
 ## 어떤 수작업을 줄이는가
 
@@ -21,27 +24,42 @@ finding에 driver 응답을 요구하고, 승인과 Close는 사람 owner에게 
 | 사용 전 | acRelay Skill 사용 |
 | --- | --- |
 | Agent 사이에서 매 요청과 결과를 전달 | 자연어로 시작하면 Skill이 engine 호출 |
-| 검토한 revision과 남은 finding을 직접 기억 | Revision, finding과 응답을 비공개 기록 하나에 보관 |
+| 검토한 revision과 남은 finding을 직접 기억 | Revision, finding과 응답을 사용자 컴퓨터의 기록 하나에 보관 |
 | 누군가 동의할 때까지 대화가 이어짐 | 1–5회(기본 3회) 안에서 검토하고 owner에게 결정 반환 |
 
-One-shot은 범위가 정해진 review objective를 필요할 때 한 번 시작한다는 뜻입니다.
-Prompt나 reviewer 회차가 한 번이라는 뜻은 아닙니다. acRelay는 호출할 때만
-실행하며 백그라운드 service로 계속 동작하지 않습니다.
+한 번 호출하면 범위가 정해진 review objective 하나를 시작하며, formal round는
+1–5회(기본 3회) 진행할 수 있습니다. acRelay는 호출할 때만 실행하며 백그라운드
+service로 계속 동작하지 않습니다.
 
 ## 공개 상태
 
-이 Skill은 flagship Alpha preview이며 아직 Claude Code나 Codex에서 지원되는
-package로 공개하지 않았습니다. 필요한 파일, compatibility 안내와 offline 요청
-routing은 지금 확인할 수 있습니다. 각 runtime에서 설치하고 Skill이 인식되는지
-확인한 뒤 첫 review부터 종료 준비 확인까지 완주하는 검증은 아직 남아 있습니다.
+이 Skill은 **Public Validation Preview**에 포함됩니다. 아직 **Experimental**
+단계이고 더 넓은 검증은 **Validation pending**이며, Claude Code나 Codex에
+일반적인 `Supported` 상태를 표시하지 않습니다. 작성자가 두 reviewer 경로에서
+실제 review를 완료했지만, 초대된 비작성자 검증은 이후 support 승격 gate로 남아
+있습니다. Package는 Skillstead default branch에서 제공하며 `v0.8.0` tag에는
+포함되지 않습니다.
+
+`검증 대기`는 package가 없다는 뜻이 아닙니다. 문서화된 preview를 평가할 수는
+있지만 Skillstead가 아직 일반적인 runtime 지원을 주장하지 않는다는 뜻입니다.
+
+## 시작 전 준비
+
+Codex App, Codex CLI 또는 Claude Code를 이미 사용하고 있어야 합니다. Review는
+Claude Code CLI나 Codex CLI를 통해 실행하므로 둘 중 하나는 미리 설치하고
+로그인해 정상 실행되는 상태여야 합니다. Codex App은 driver가 될 수 있지만
+reviewer는 CLI에서 실행됩니다.
+
+여기서 **App**은 데스크톱 화면, **CLI**는 Terminal에서 실행하는 command를
+뜻합니다. Skill과 engine은 reviewer 도구를 대신 설치하거나 로그인하지 않습니다.
 
 ## Engine 설치
 
-Skill을 사용하려면 `PATH`에서 exact `v0.1.0-alpha.1` engine을 실행할 수 있어야
-합니다. 현재 미리 build해 제공하는 binary는 macOS Apple
-Silicon(`darwin/arm64`)용입니다.
-아래 명령은 exact tag와 release asset이 공개된 뒤에만 동작합니다. 아직
-열리지 않았다면 `latest`로 바꾸지 말고 중단하세요.
+Terminal에서 exact `v0.1.0-alpha.1` `acrelay` command를 바로 실행할 수 있어야
+합니다(`PATH`에 있어야 합니다). 현재 미리 build해 제공하는 binary는 macOS Apple
+Silicon(`darwin/arm64`)용입니다. Terminal에서 `uname -m`을 실행하고 결과가
+`arm64`일 때만 이 installer를 사용하세요. Installer는 `latest`로 바꾸지
+않습니다.
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/kyungseo/acrelay/v0.1.0-alpha.1/scripts/install.sh | bash
@@ -54,14 +72,13 @@ Installer는 release에 고정돼 있으며 binary archive를 공개 checksum과
 
 Linux와 Windows core runtime lane은 이미 검증했습니다. Platform별 Claude
 Code·Codex review는 다음 지원 확대 단계에서 검증하고, 필요한 patch는 근거 검토
-후 release할 예정입니다. 그전까지 engine은 검증하지 않은 platform 조합에서
-reviewer dispatch 전에 중단합니다.
+후 release할 예정입니다. 그전까지 engine은 검증하지 않은 운영체제와 reviewer
+version 조합에서 파일을 보내기 전에 중단합니다.
 
 ## Skill preview 설치
 
-Preview는 공개된 Skillstead `v0.7.0` tag에 포함되지 않습니다. 아직 공개하지 않은
-변경을 의도적으로 평가할 때만 default branch를 사용하세요. `SKILL.md`만 복사하지
-말고 `skills/acrelay` 폴더 전체를 복사합니다.
+Preview는 공개된 Skillstead `v0.8.0` tag에 포함되지 않습니다. Default branch에서
+설치하고, `SKILL.md`만 복사하지 말고 `skills/acrelay` 폴더 전체를 복사합니다.
 
 ### Claude Code
 
@@ -92,19 +109,22 @@ version이 다르면 이유를 설명하고 중단하며, acRelay를 우회해 r
 ### 계획에 반대 의견 받기
 
 ```text
-acRelay로 Claude가 이 계획을 red-team하게 해줘. Review 기록은 비공개로 보관하고, 최대 3회차 안에서 진행한 뒤 owner가 결정할 내용만 보여줘.
+acRelay로 Claude에게 이 계획을 비판적으로 검토해 달라고 해줘. 마지막에 내가 결정해야 할 내용만 정리해줘.
 ```
+
+별도로 지정하지 않으면 최대 3회차로 진행합니다. 필요하면 1~5회 안에서 원하는
+제한을 요청할 수 있습니다.
 
 ### 파일 하나 review
 
 ```text
-acRelay로 Codex가 이 파일을 review하게 해줘. 무엇을 확인했고 어떤 finding을 냈는지 기록하되 review는 종료하지 마.
+acRelay로 Codex에게 이 파일을 검토하게 해줘. 확인한 근거와 발견한 문제를 정리해줘.
 ```
 
 ### 구현 결과 review
 
 ```text
-acRelay로 현재 checkout한 구현 파일들을 승인된 계획에 맞춰 review해줘. 종료 준비 요약을 보여주기 전에 모든 finding에 driver가 응답하게 해줘.
+acRelay로 현재 구현 결과가 승인된 계획과 맞는지 검토하고, 어긋난 점을 정리해줘.
 ```
 
 acRelay v0.1.0-alpha.1은 파일 하나, 명시한 여러 파일 또는 지정한 subtree를
@@ -112,44 +132,40 @@ acRelay v0.1.0-alpha.1은 파일 하나, 명시한 여러 파일 또는 지정�
 선택하는 기능은 아직 없습니다. 원하는 revision을 checkout한 뒤 파일이나 subtree를
 지정하세요.
 
-### Agent 생태계 하나만 사용할 때
+### Claude Code나 Codex 중 하나만 사용할 때
 
 ```text
-지금 Claude Code에서 작업 중이야. acRelay로 별도의 Claude Code CLI reviewer를 사용하고, same-vendor review라 두 context에 같은 맹점이 있을 수 있다는 점도 기록해줘.
+지금 Claude Code에서 작업 중이야. 별도의 Claude Code CLI를 reviewer로 사용해서 이 작업을 검토해줘.
 ```
 
-주로 agent 하나만 사용하는 사람도 별도의 CLI reviewer로 red-team을 가동할 수
-있고, 지원하는 경우 같은 vendor의 별도 session도 사용할 수 있습니다. 다만 이는
-host-native subagent 지원이 아닙니다. Host가 만든 subagent 결과를 직접 받아들이는
-기능은 안정적인 host interface와 결과 형식이 마련될 때까지 지원하지 않으며
-fail-closed합니다.
+같은 도구의 별도 CLI session을 reviewer로 둘 수 있습니다. Claude Code나 Codex
+중 하나만 쓸 때 유용하지만, driver와 reviewer가 같은 맹점을 공유할 수 있습니다.
+이 preview는 CLI session을 통해 review하며, driver 도구의 내장 subagent 결과를
+직접 받지는 않습니다.
 
-### 현재 사용할 수 있는 agent 경로
+### Driver와 reviewer 선택
 
-Alpha에서 가장 자연스러운 경로는 다음과 같습니다.
+| 사용 방식 | Driver | Reviewer |
+| --- | --- | --- |
+| Codex App에서 작업 | Codex App | Claude Code CLI 또는 Codex CLI |
+| Claude Code에서 작업 | Claude Code CLI | Codex CLI 또는 별도의 Claude Code CLI session |
+| Claude Code만 사용 | Claude Code CLI | 별도의 Claude Code CLI session |
+| Codex만 사용 | Codex CLI | 별도의 Codex CLI session |
 
-```text
-Codex App, Claude Code CLI 또는 Codex CLI가 driver
-  → acRelay Skill
-  → 설치된 acrelay binary
-  → Claude Code CLI 또는 Codex CLI가 reviewer
-```
-
-- Claude Code CLI와 Codex CLI는 검증된 engine platform 조합에서 driver 또는
-  reviewer 역할을 맡을 수 있습니다.
-- Codex App은 driver로서 로컬 Skill과 binary를 호출할 수 있지만 reviewer
-  adapter는 아닙니다.
+- Claude Code CLI와 Codex CLI는 이 preview에 적힌 조합에서 driver 또는
+  reviewer가 될 수 있습니다.
+- Codex App은 driver가 될 수 있지만 reviewer는 CLI여야 합니다.
 - Claude App에는 acRelay를 직접 사용하는 경로가 없습니다.
-- Antigravity는 향후 driver 후보이지만 현재 driver 경로와 reviewer adapter
-  모두 지원하지 않습니다.
+- Antigravity는 이번 preview에 포함되지 않습니다.
 
-Engine은 두 agent가 독립적이라고 추정하지 않습니다. 선언하거나 관측한 관계를
-그대로 기록하고 해당 caution을 보여줍니다.
+다른 도구의 reviewer는 driver가 놓친 가정을 다른 관점에서 검토할 수 있습니다.
+같은 도구의 별도 session도 유용하지만, acRelay는 두 context가 같은 맹점을
+공유할 수 있다는 caution을 기록합니다.
 
-### 종료하지 않고 결과 확인
+### 현재 상태 확인
 
 ```text
-기존 reviewer로 이 acRelay review를 이어가고 종료 준비 요약을 보여줘. 최종 결정과 Close는 owner에게 남겨줘.
+진행 중인 acRelay review의 현재 상태와 내가 결정할 내용을 요약해줘.
 ```
 
 ## Review 전에 확인하는 내용
