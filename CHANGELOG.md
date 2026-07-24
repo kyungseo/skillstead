@@ -28,6 +28,52 @@ Granular, per-change entries begin at the first public release. Earlier developm
   patches. Host-native subagent result ingestion remains unsupported rather
   than silently falling back to another review path.
 
+## [0.8.0] — 2026-07-24
+
+### svg-infographic
+
+- **Claude Code and Codex support.** The skill is now `Supported` on both runtimes within the recorded evidence
+  scope. The same three frozen briefs passed in fresh Claude Code and macOS Codex CLI contexts, and a fresh Codex
+  App task corrected and rendered the actual bilingual fixture in a Windows 11 ARM64 VM. The Windows
+  result applies to that VM configuration rather than every Windows machine or filesystem; Linux rendering
+  remains unverified.
+- **Cross-shell canonical renderer.** `scripts/render.mjs` now provides the lint-first Chromium pipeline directly
+  from Bash, PowerShell, or CMD with no npm dependency. It discovers documented Chrome and Edge locations,
+  isolates each render in its own browser profile, verifies a complete PNG and exact output dimensions, and
+  cleans up renderer-owned state. `render.sh` remains as a thin Bash wrapper.
+- **Visible connector and filter checks.** Source lint evaluates visible arrowhead size against every resolved
+  shaft width, reports unverified marker geometry instead of silently passing it, and detects provable filter
+  regions that can collapse painted connectors. Unsupported filter dimensions remain warnings for 2× visual
+  review rather than speculative hard errors.
+- **Fresh-context and gallery validation.** Claude Code and Codex produced materially equivalent results for the
+  frozen topology, approval-flow, and sketch briefs. The 28 existing gallery PNGs remained byte-identical in the
+  recorded regression rerender.
+
+## [0.7.1] — 2026-07-23
+
+### svg-infographic
+
+- **Source lint before rendering.** A checker built on the Node.js standard library, with no npm dependencies,
+  now reports dangling SVG references, invalid root/viewBox values, missing explicit marker units, extreme
+  arrowhead footprints, obvious bounds violations, and high-confidence Latin/Korean text overflow with file
+  locations, measured values, and suggested fixes. Ambiguous transform, font, and near-threshold cases remain
+  visible as warnings instead of false passes.
+- **Fail-closed render gate.** `scripts/render.sh` runs the source lint before opening a browser. Hard errors stop
+  with exit 5; a missing or pre-18 Node.js runtime stops with an actionable exit 6. Node.js 18+ is now a
+  prerequisite for the automated lint-and-render workflow, not for skill installation, SVG authoring, or manual
+  PNG verification. When it is missing, the skill asks before installing it through the detected package manager.
+  Users who decline retain the full manual source checklist and direct Chromium 2× render/visual-QA path; only
+  automated source lint is omitted.
+- **Connector guidance.** The flat preset now includes a gentle single-bend `Q`/`C` curve recipe, perpendicular
+  box entry/exit guidance, and an open-V stroked arrowhead as the default. New diagrams aim for a visible head
+  near three times the shaft width; intentional legacy footprints require an explicit exception.
+- **Gallery regression.** All 28 English/Korean gallery SVGs pass with zero hard lint errors. Existing marker
+  visuals are preserved through explicit user-space sizing and reviewed legacy exceptions. The CI/CD artifact
+  promotion approval pill was widened in both languages and its 2× PNGs were regenerated.
+- **Support boundary unchanged.** Public Codex support for `svg-infographic` remains unclaimed until the separate
+  pinned-package and fresh-runtime validation gates pass. Windows and Linux browser rendering also remain
+  unverified.
+
 ## [0.7.0] — 2026-07-18
 
 ### writing-quality-editor (new skill, Beta)

@@ -3,16 +3,19 @@
 [English](./INSTALL.md) · **한국어**
 
 Skillstead의 각 스킬은 필요한 안내와 지원 파일을 모두 담은 독립된 폴더입니다.
-설치하려면 `v0.7.0`처럼 검증이 끝난 release tag를 clone한 뒤, 사용할 스킬의
+설치하려면 `v0.8.0`처럼 검증이 끝난 release tag를 clone한 뒤, 사용할 스킬의
 폴더 전체를 Claude Code 또는 Codex가 읽는 위치에 복사합니다. 원격 설치
 스크립트는 실행하지 않습니다.
 
-> **실제로 검증한 범위:** 아래 명령은 release tag `v0.7.0`을 사용합니다.
-> Release를 공개한 뒤 해당 tag에서 `writing-quality-editor` 폴더 전체를 clone해
-> 새 Claude Code 및 Codex 프로젝트에 복사했습니다. 두 runtime 모두 스킬을
-> 발견했고, 복사한 파일도 tag의 원본과 byte 단위로 일치했습니다. 아래 지원 표는
-> 이 검사와 기록된 동작 테스트로 확인한 범위만 반영합니다. 아직 공개하지 않은
-> 변경을 의도적으로 평가할 때만 현재 default branch를 사용하세요.
+> **Release 고정:** 아래 명령은 공개된 `v0.8.0` tag를 사용합니다. Release
+> closeout에서 익명 고정 tag clone, package 일치, source-lint test와 정확한
+> 2× Chromium smoke render를 확인했습니다.
+
+`svg-infographic`을 설치하거나 Agent가 발견하는 데는 Node.js가 필요하지 않습니다.
+자동 source lint와 포함된 render workflow에만 Node.js 18 이상이 필요합니다.
+Node가 없으면 Agent가 발견한 package manager로 설치하기 전에 먼저 승인을
+요청합니다. 사용자가 거절해도 기존 수동 source 점검과 Node 없는 Chromium
+PNG·visual QA 경로를 유지하며, 자동 lint만 사용할 수 없습니다.
 
 ## Runtime 지원
 
@@ -22,7 +25,7 @@ Skillstead의 각 스킬은 필요한 안내와 지원 파일을 모두 담은 �
 | 스킬 | Claude Code | Codex | 참고 |
 | --- | --- | --- | --- |
 | `acrelay` | 검증 대기 | 검증 대기 | 아직 공개하지 않은 Alpha preview입니다. 필요한 파일과 compatibility 안내는 offline으로 확인했지만, 설치, runtime의 스킬 인식과 첫 review부터 종료 준비 확인까지의 완주 근거가 더 필요합니다. Exact acRelay `v0.1.0-alpha.1`이 필요합니다. |
-| `svg-infographic` | 지원 | 아직 지원을 주장하지 않음 | macOS의 Claude Code에서 browser를 사용한 PNG export를 검증했습니다. Windows와 Linux export 경로는 아직 검증하지 않았습니다. |
+| `svg-infographic` | 지원 | 지원 | Claude Code와 macOS Codex CLI의 고정 요구사항 검증을 통과했고, Windows 11 ARM64 VM의 새 Codex App 작업도 통과했습니다. 이 결과를 모든 Windows 장치나 파일 시스템에 일반화하지 않으며 Linux 렌더링은 아직 검증하지 않았습니다. |
 | `docs-claim-check` | 지원 | 아직 지원을 주장하지 않음 | Claude Code Fable과 Sonnet으로 동작 fixture를 통과했습니다. |
 | `github-release-guide` | 지원 | 지원 | Protection fixture를 포함해 두 runtime의 필수 동작이 일치했습니다. Disposable first-public 및 Guided tag-ruleset live test, `v0.5.0`/`v0.6.0` 고정 설치·스킬 인식과 release claim audit도 통과했습니다. |
 | `writing-quality-editor` | 지원 | 지원 | 두 runtime에서 네 가지 mode와 21개 scenario를 통과했습니다. Repository dogfood, `v0.7.0` 고정 설치, 파일 일치, 스킬 인식과 최종 공개 문구 검증도 통과했습니다. |
@@ -52,7 +55,7 @@ Installer는 exact engine release에 고정돼 있고 binary archive를 checksum
 Code·Codex review 검증과 그 결과에 따른 patch는 다음 지원 확대 단계로 남아
 있습니다.
 
-이 preview는 `v0.7.0`에 포함되지 않습니다. 아직 공개하지 않은 default branch를
+이 preview는 `v0.8.0`에 포함되지 않습니다. 아직 공개하지 않은 default branch를
 Claude Code에서 평가하려면 다음 명령을 사용합니다.
 
 ```bash
@@ -94,7 +97,7 @@ Claude Code 또는 Codex를 재시작한 뒤 다시 확인하세요.
 ### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 ```
@@ -102,7 +105,7 @@ cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 ### Codex — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.agents/skills
 cp -R /tmp/skillstead/skills/github-release-guide ~/.agents/skills/
 ```
@@ -110,7 +113,7 @@ cp -R /tmp/skillstead/skills/github-release-guide ~/.agents/skills/
 ### Claude Code — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.claude\skills\"
 ```
@@ -118,7 +121,7 @@ Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$e
 ### Codex — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.agents\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.agents\skills\"
 ```
@@ -131,7 +134,7 @@ commit합니다.
 ### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 ```
@@ -139,7 +142,7 @@ cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 ### Codex — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .agents/skills
 cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
 ```
@@ -149,14 +152,14 @@ cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
 Claude Code는 `.claude\skills`, Codex는 `.agents\skills`를 사용합니다.
 
 ```powershell
-git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force ".agents\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" ".agents\skills\"
 ```
 
 ## 아직 공개하지 않은 최신 변경 사용
 
-현재 default branch를 복사하려면 `--branch v0.7.0`을 생략합니다. 이 방식은
+현재 default branch를 복사하려면 `--branch v0.8.0`을 생략합니다. 이 방식은
 공개 전 변경을 평가할 때는 유용하지만, 팀에서 같은 version을 재현하는 설치에는
 적합하지 않습니다. 팀 설치와 release 검증에는 고정된 tag를 권장합니다.
 
@@ -186,7 +189,7 @@ README, `agents/openai.yaml`과 reference 파일 3개가 들어 있습니다. �
 `examples/writing-quality-editor/`에 남습니다.
 
 아직 공개하지 않은 `acrelay` preview에는 `SKILL.md`, 영문·한국어 README와
-`agents/openai.yaml`이 들어 있습니다. 공개된 `v0.7.0` tag에는 포함되지
+`agents/openai.yaml`이 들어 있습니다. 공개된 `v0.8.0` tag에는 포함되지
 않습니다. 별도 검증이 끝나기 전에는 지원되는 package로 소개하면 안 됩니다.
 이 스킬에는 별도로 설치한 exact acRelay `v0.1.0-alpha.1`이 필요하며, 스킬
 자체는 command를 설치하거나 업데이트하지 않습니다. `github-release-guide`

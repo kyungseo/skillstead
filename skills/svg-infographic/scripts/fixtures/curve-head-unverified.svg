@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 200" width="500" height="200">
+  <style>.edge{ stroke:#44546a; stroke-width:2.5; fill:none; marker-end:url(#curvy); }</style>
+  <defs>
+    <marker id="curvy" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="11.25" markerHeight="11.25"
+      markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M2 2 Q10 6 2 10" fill="none" stroke="#44546a" stroke-width="2" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <rect x="30" y="60" width="140" height="70" fill="#eee"/>
+  <rect x="330" y="60" width="140" height="70" fill="#eee"/>
+  <path class="edge" d="M170 95 L320 95"/>
+</svg>

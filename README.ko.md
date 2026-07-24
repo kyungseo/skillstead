@@ -66,7 +66,7 @@ acRelay는 Skillstead의 collaboration flagship preview입니다. 두 runtime에
 | 스킬 | 이런 작업에 적합 | 지원 실행 환경 | 성숙도 |
 | --- | --- | --- | --- |
 | [`acrelay`](./skills/acrelay) | 별도로 설치한 acRelay engine으로 Skillstead의 flagship red-team workflow 시작 | 검증 대기 | Alpha preview |
-| [`svg-infographic`](./skills/svg-infographic) | 아키텍처 설명, 작업 흐름, 비교 자료를 수정 가능한 SVG와 검증된 2× PNG로 제작 | Claude Code | Stable |
+| [`svg-infographic`](./skills/svg-infographic) | 아키텍처 설명, 작업 흐름, 비교 자료를 수정 가능한 SVG와 검증된 2× PNG로 제작 | Supported: Claude Code + Codex | Stable |
 | [`docs-claim-check`](./skills/docs-claim-check) | 공개 문서의 주장이 제공된 근거로 뒷받침되는지 확인 | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide) | 비공개 GitHub 저장소의 첫 공개 전환 또는 공개 후 매 버전 릴리스를 점검하고 단계별로 안내 | Supported: Claude Code + Codex | Stable |
 | [`writing-quality-editor`](./skills/writing-quality-editor) | 사용자 문서를 처음부터 작성하거나 자연스럽게 다듬고, 사실·의도·목소리·운영 제약을 보존하면서 영어↔한국어 내용을 재구성 | Supported: Claude Code + Codex | Beta |
@@ -198,10 +198,18 @@ V1은 두 시점에 사용할 수 있습니다. 비공개 github.com 저장소�
 - 인증 정보, 비공개 출처, 개인 컴퓨터 경로가 포함되지 않은 공개 파일
 - 결과 특성에 맞는 반복 가능한 검증 방법
 
-실행 환경 지원 상태는 카탈로그 전체가 아니라 스킬별로 표시합니다. `github-release-guide`는 Claude Code와
-Codex의 핵심 행동 일치 검증, disposable 저장소의 실제 첫 공개 E2E, `v0.5.0` 고정 버전의 프로젝트 설치와
-발견 확인과 최종 공개 문구 검증을 모두 통과했습니다. 기록된 검증 범위에서 두 실행 환경을 모두
-`Supported`로 표시합니다.
+실행 환경 지원 상태는 카탈로그 전체가 아니라 스킬별로 표시합니다.
+
+`svg-infographic`은 Claude Code와 Codex의 완전히 새로운 작업에서 같은 고정 요구사항 3종을 수행해
+결과의 핵심 내용과 품질 기준이 일치하는지 확인했습니다. 프로젝트 단위 설치와 발견, 렌더링 전 source
+lint, 정확한 2× 브라우저 출력, 한국어/CJK 글자, 영역 포함 관계, 연결선 표현과 샌드박스 경계에서
+브라우저 실행이 막힐 때의 fail-closed 복구까지 검증했습니다. Codex 검증에는 macOS Codex CLI와
+Windows 11 ARM64 VM에서 시작한 새 Codex App 작업이 포함됩니다. 이 기록된 범위에서 Claude Code와
+Codex를 `Supported`로 표시합니다.
+
+`github-release-guide`는 Claude Code와 Codex의 핵심 행동 일치 검증, disposable 저장소의 실제 첫 공개
+E2E, `v0.5.0` 고정 버전의 프로젝트 설치와 발견 확인과 최종 공개 문구 검증을 모두 통과했습니다.
+기록된 검증 범위에서 두 실행 환경을 모두 `Supported`로 표시합니다.
 
 `writing-quality-editor`는 네 가지 mode의 동작 검증, 저장소 문서에 대한 실제 적용, 공개된 `v0.7.0`
 고정 버전의 새 프로젝트 설치와 스킬 발견 확인을 통과했습니다. 기록된 검증 범위에서 Claude Code와
@@ -215,8 +223,9 @@ Codex를 `Supported`로 표시하며, 성숙도는 Beta로 유지합니다.
   build한 engine은 macOS Apple Silicon용이며, Linux와 Windows core lane은
   검증했습니다. Platform별 reviewer 검증과 필요한 patch는 다음 지원 확대
   단계로 계획하고 있습니다.
-- `svg-infographic`의 브라우저 렌더링은 macOS에서 검증했습니다. Windows와 Linux 경로는 문서화했지만 아직
-  직접 검증하지 않았습니다.
+- `svg-infographic`의 브라우저 렌더링은 macOS와 Windows 11 ARM64 VM에서 검증했습니다. 이 결과를
+  모든 Windows 장치나 파일 시스템에 일반화하지 않으며, Linux 렌더링 경로는 문서화했지만 아직 직접
+  검증하지 않았습니다.
 - `docs-claim-check`는 제공된 자료 안에서 문서 주장을 판정하며 검증 명령을 직접 실행하지 않습니다.
 - `github-release-guide` v1은 비공개 github.com 저장소의 첫 공개 전환과, 공개 후 반복되는 각 버전 릴리스를
   다룹니다.

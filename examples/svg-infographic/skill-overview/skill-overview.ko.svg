@@ -12,7 +12,7 @@
   .ic{ fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round }
 </style>
 <defs>
-  <marker id="a2" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8A94A3"/></marker>
+  <marker id="a2" viewBox="0 0 9 9" data-lint-allow="marker-footprint" markerUnits="userSpaceOnUse" markerWidth="16.2" markerHeight="16.2" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8A94A3"/></marker>
   <symbol id="ic-network" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></symbol>
   <symbol id="ic-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 16l9 5 9-5"/></symbol>
   <symbol id="ic-flow" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2.4"/><circle cx="19" cy="12" r="2.4"/><path d="M7.4 12h6.2M14 8.5l3.5 3.5-3.5 3.5"/></symbol>

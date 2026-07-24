@@ -4,16 +4,16 @@
 
 Each Skillstead skill is a self-contained folder with the instructions and
 supporting files it needs. To install one, clone a verified release tag such as
-`v0.7.0`, then copy that skill’s complete folder into the location used by
+`v0.8.0`, then copy that skill’s complete folder into the location used by
 Claude Code or Codex. No remote install script is executed.
 
-> **What was verified:** The commands below use the fixed release tag `v0.7.0`.
-> After that release was published, the complete `writing-quality-editor`
-> folder was cloned from the tag and copied into new Claude Code and Codex
-> projects. Both runtimes discovered the Skill, and the copied files matched
-> the tagged source byte for byte. The support table below claims only what
-> those checks and the recorded behavior tests demonstrated. Use the current
-> default branch only when you intentionally want to evaluate unreleased work.
+> **Release pin:** The commands below target the published `v0.8.0` tag. Its release closeout verified an
+> anonymous pinned-tag clone, package equality, source-lint tests, and an exact 2× Chromium smoke render.
+
+Copying or discovering `svg-infographic` does not install or require Node.js. Node.js 18+ is needed only for its
+automated source-lint and bundled render workflow. If it is missing, the skill asks before using the detected
+package manager to install it. If the user declines, the skill preserves its earlier manual source-check and
+Node-free Chromium PNG/visual-QA path; only the automated lint is unavailable.
 
 ## Runtime Support
 
@@ -23,10 +23,10 @@ Codex. Support is verified separately for every Skill and runtime.
 | Skill | Claude Code | Codex | Notes |
 | --- | --- | --- | --- |
 | `acrelay` | Pending | Pending | Unpublished Alpha preview. Its files and compatibility messages were checked offline; installation, recognition by each runtime, and a complete first review through closeout still need direct evidence. Requires exact acRelay `v0.1.0-alpha.1`. |
-| `svg-infographic` | Supported | Not yet claimed | PNG export through a browser was tested on macOS with Claude Code. Windows and Linux export paths have not yet been verified. |
-| `docs-claim-check` | Supported | Not yet claimed | Its behavior fixtures passed with Claude Code Fable and Sonnet. |
-| `github-release-guide` | Supported | Supported | Both runtimes matched on the required behavior, including protection fixtures. Disposable first-public and Guided tag-ruleset live tests, pinned `v0.5.0`/`v0.6.0` installation and discovery, and release claim audits passed. |
-| `writing-quality-editor` | Supported | Supported | Both runtimes passed its four modes and 21 scenarios. Repository dogfood, pinned `v0.7.0` installation, file equality, discovery, and final claim closeout also passed. |
+| `svg-infographic` | Supported | Supported | Frozen fresh-context briefs passed on Claude Code and macOS Codex CLI; a fresh Codex App task also passed in a Windows 11 ARM64 VM. This is not a claim for every Windows machine/filesystem; Linux rendering remains unverified |
+| `docs-claim-check` | Supported | Not yet claimed | Behavioral fixtures passed with Claude Code Fable and Sonnet |
+| `github-release-guide` | Supported | Supported | Clean material parity (incl. protection fixtures), disposable first-public and Guided tag-ruleset live E2E, pinned `v0.5.0`/`v0.6.0` project installation/discovery, and release claim audits passed |
+| `writing-quality-editor` | Supported | Supported | Four-mode, 21-scenario cross-runtime behavior, repository dogfood, and pinned `v0.7.0` project installation, package-equality, discovery, and final claim closeout passed |
 
 For normal use, choose a Skill only when your runtime column says `Supported`.
 `Pending` means you may evaluate it in an isolated test repository, but
@@ -54,7 +54,7 @@ Linux and Windows core runtime lanes are verified, while platform-specific
 Claude Code/Codex review validation and any resulting patches remain the next
 support-expansion step.
 
-This preview is not included in `v0.7.0`. To evaluate the unreleased default
+This preview is not included in `v0.8.0`. To evaluate the unreleased default
 branch with Claude Code:
 
 ```bash
@@ -97,7 +97,7 @@ needed.
 ### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 ```
@@ -105,7 +105,7 @@ cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 ### Codex — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.agents/skills
 cp -R /tmp/skillstead/skills/github-release-guide ~/.agents/skills/
 ```
@@ -113,7 +113,7 @@ cp -R /tmp/skillstead/skills/github-release-guide ~/.agents/skills/
 ### Claude Code — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.claude\skills\"
 ```
@@ -121,7 +121,7 @@ Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$e
 ### Codex — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.agents\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.agents\skills\"
 ```
@@ -133,7 +133,7 @@ Run from the target repository root. Commit the copied folder if the team should
 ### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 ```
@@ -141,7 +141,7 @@ cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 ### Codex — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .agents/skills
 cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
 ```
@@ -151,14 +151,14 @@ cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
 Use `.claude\skills` for Claude Code or `.agents\skills` for Codex:
 
 ```powershell
-git clone --depth 1 --branch v0.7.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force ".agents\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" ".agents\skills\"
 ```
 
 ## Use The Current Unreleased Version
 
-Omit `--branch v0.7.0` to copy the current default branch. This is useful for evaluation, not reproducible
+Omit `--branch v0.8.0` to copy the current default branch. This is useful for evaluation, not reproducible
 team installation. Pinned tags are recommended for teams and release evidence.
 
 ## Files That Must Stay Together
@@ -187,7 +187,7 @@ READMEs, `agents/openai.yaml`, and three reference files; its repository-only fi
 `examples/writing-quality-editor/`.
 
 The unpublished `acrelay` preview contains `SKILL.md`, English and Korean
-READMEs, and `agents/openai.yaml`. It is not part of the published `v0.7.0`
+READMEs, and `agents/openai.yaml`. It is not part of the published `v0.8.0`
 tag. Do not present it as supported until its separate validation is complete.
 It requires the separately installed acRelay command at exact version
 `v0.1.0-alpha.1`; the Skill never installs or updates that command. Follow the

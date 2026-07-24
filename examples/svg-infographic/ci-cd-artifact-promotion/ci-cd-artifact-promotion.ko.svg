@@ -20,8 +20,8 @@
   .lab{ font-size:13.5px; font-weight:700; fill:#FFFFFF }
 </style>
 <defs>
-  <marker id="ar" markerWidth="9" markerHeight="9" refX="6.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="var(--primary)"/></marker>
-  <marker id="arc" markerWidth="9" markerHeight="9" refX="6.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="var(--cand-line)"/></marker>
+  <marker id="ar" viewBox="0 0 9 9" data-lint-allow="marker-footprint" markerUnits="userSpaceOnUse" markerWidth="19.8" markerHeight="19.8" refX="6.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="var(--primary)"/></marker>
+  <marker id="arc" viewBox="0 0 9 9" data-lint-allow="marker-footprint" markerUnits="userSpaceOnUse" markerWidth="21.6" markerHeight="21.6" refX="6.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="var(--cand-line)"/></marker>
   <symbol id="ic-branch" viewBox="0 0 24 24"><circle cx="6.5" cy="6" r="2.5"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="8" r="2.5"/><path d="M6.5 8.5v7M17.5 10.5c0 4.5-5 3-7 5"/></symbol>
   <symbol id="ic-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1"/></symbol>
   <symbol id="ic-package" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
@@ -70,9 +70,9 @@
 <text x="186" y="302" text-anchor="middle" class="lab" dominant-baseline="central">② PROMOTE — 동일 digest 승격</text>
 
 <!-- approval gate pill over test→prod -->
-<rect x="574" y="330" width="108" height="26" rx="13" fill="var(--cand-fill)" stroke="var(--cand-line)" stroke-width="1"/>
-<use href="#ic-check" class="ic" x="584" y="336" width="14" height="14" style="color:var(--cand-line)"/>
-<text x="644" y="343" text-anchor="middle" class="cs" style="fill:var(--cand-ink);font-weight:700" dominant-baseline="central">승인 게이트</text>
+<rect x="566" y="330" width="124" height="26" rx="13" fill="var(--cand-fill)" stroke="var(--cand-line)" stroke-width="1"/>
+<use href="#ic-check" class="ic" x="576" y="336" width="14" height="14" style="color:var(--cand-line)"/>
+<text x="634" y="343" text-anchor="middle" class="cs" style="fill:var(--cand-ink);font-weight:700" dominant-baseline="central">승인 게이트</text>
 <line x1="628" y1="356" x2="628" y2="392" stroke="var(--cand-line)" stroke-width="1.4" stroke-dasharray="3 3"/>
 
 <!-- b2 card: dev -->

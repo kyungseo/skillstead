@@ -21,7 +21,7 @@
     <filter id="paper"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="2" result="n"/>
       <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.30 0 0 0 0 0.27 0 0 0 0 0.22 0 0 0 0.035 0"/>
       <feComposite in2="SourceGraphic" operator="over"/></filter>
-    <marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+    <marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" data-lint-allow="marker-footprint" markerUnits="userSpaceOnUse" markerWidth="22.5" markerHeight="22.5" orient="auto-start-reverse">
       <path d="M2 2 L10 6 L2 10" fill="none" stroke="#4A4438" stroke-width="2" stroke-linecap="round"/></marker>
     <symbol id="ic-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4a5.5 5.5 0 0 1 5.5 5.5c0 3 .8 4.6 1.7 5.7H4.8c.9-1.1 1.7-2.7 1.7-5.7A5.5 5.5 0 0 1 12 4z"/><path d="M10 18.5a2 2 0 0 0 4 0"/></symbol>
     <symbol id="ic-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="3.5" width="16" height="17" rx="3"/><path d="M8.5 9h7M8.5 12.5h7M8.5 16h4"/></symbol>

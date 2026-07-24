@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 200" width="500" height="200">
+  <style>.edge{ stroke:#44546a; stroke-width:3; fill:none; marker-end:url(#arrow); }</style>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0 0 L10 5 L0 10" fill="#44546a"/>
+    </marker>
+  </defs>
+  <rect x="30" y="60" width="140" height="70" fill="#eee"/>
+  <rect x="330" y="60" width="140" height="70" fill="#eee"/>
+  <path class="edge" d="M170 95 L320 95"/>
+</svg>

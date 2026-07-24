@@ -137,8 +137,18 @@ Open → In Progress → In Test → Approved → Deployed 상태 변화를 나�
 
 → [`agent-system-sketch/`](./agent-system-sketch) · English + 한국어
 
+## v0.8.0 릴리스 이미지
+
+[![Skillstead v0.8.0 실행 환경 지원: 검증된 macOS와 Windows 환경의 Claude Code와 Codex](./release-announcement/skillstead-v080-runtime-support.ko.png)](./release-announcement/skillstead-v080-runtime-support.ko.svg)
+
+편집 가능한 SVG와 2× PNG에 v0.8.0에서 추가된 실행 환경 지원과 그 검증 범위를 정리했습니다.
+Windows 카드는 모든 Windows 환경이 아니라 Windows 11 ARM64 VM에서 수행한 Codex App 검증을
+뜻합니다.
+
 ## 품질 기준 (모든 예제 통과)
 
+- [x] 영문·한국어 갤러리 SVG 28개에서 source lint hard error 0건, transform 관련 warning은 2× PNG에서 직접 확인
+- [x] v0.8.0 릴리스 이미지는 source lint error와 warning 모두 0건
 - [x] SVG와 PNG 크기 일치 (PNG는 SVG viewBox의 정확히 2×)
 - [x] 텍스트 넘침 없음, 박스 안 세로 중앙 정렬
 - [x] 한국어/CJK 글자가 네모 상자로 깨지지 않고 정상적으로 표시됨
@@ -146,18 +156,27 @@ Open → In Progress → In Test → Approved → Deployed 상태 변화를 나�
 - [x] 원본에 특정 컴퓨터나 고객의 경로가 없음
 - [x] 아이콘이 정상적으로 표시되고 깨진 `<use>` 참조가 없으며, 나란한 박스 사이에 충분한 간격이 있음
 
-## 운영체제별 렌더링 간이 검증
+## 실행 환경 및 렌더링 검증
 
-포함된 [`scripts/render.sh`](../../skills/svg-infographic/scripts/render.sh)는 macOS, Linux와 Windows Git Bash에서
-Chromium 계열 브라우저를 찾아 PNG를 만들고 크기를 검증합니다. PowerShell을 포함한 운영체제별 수동 명령은
-[`references/authoring.md`](../../skills/svg-infographic/references/authoring.md) §8에 있습니다. 현재 14개 예제의
-PNG 출력은 macOS에서만 간이 검증을 마쳤고, Windows와 Linux 검증은 아직 진행하지 않았습니다.
+표준 렌더러 [`scripts/render.mjs`](../../skills/svg-infographic/scripts/render.mjs)는 Node.js 18 이상에서
+렌더링 전에 source lint를 실행하고, Chromium 계열 브라우저를 찾아 PNG를 만든 뒤 출력 크기를
+검증합니다. Bash, PowerShell과 CMD에서 바로 실행할 수 있으므로 Git Bash가 필수는 아닙니다. 선택형
+[`scripts/render.sh`](../../skills/svg-infographic/scripts/render.sh)는 같은 렌더러를 호출하는
+wrapper입니다.
+
+스킬을 설치하거나 Agent가 발견하는 데는 Node가 필요하지 않습니다. Node 18 이상이 없으면 설치 전에
+먼저 승인을 요청합니다. 사용자가 설치하지 않기로 해도
+[`references/authoring.md`](../../skills/svg-infographic/references/authoring.md) §8의 전체 수동 원본
+점검과 Chromium 직접 2× 렌더링·화면 검증 경로를 유지합니다.
 
 | 환경 | 브라우저 | en/ko SVG → 2× PNG | 상태 |
 | --- | --- | --- | --- |
-| macOS 15 | Chrome (headless) | 14개 예제 전부 | ✅ 검증 — 정확한 2× 크기, tofu 없음 |
-| Windows 10/11 | Chrome / Edge | script(Git Bash) + 문서화된 수동 경로 | ⏳ 예상, 렌더 검증 대기 |
-| Linux / WSL | Chrome / Chromium | script + 문서화된 수동 경로 | ⏳ 예상, 렌더 검증 대기(한국어는 Noto Sans CJK/KR 설치) |
+| macOS | Chrome (headless) | 영문·한국어 예제 14쌍 + 새 Claude Code/Codex 고정 요구사항 | ✅ 검증 — 정확한 2×, tofu 없음, 핵심 결과 일치 |
+| Windows 11 ARM64 VM | Chrome | 새 Codex App 실제 영문·한국어 fixture | ✅ 검증 — 설치, 발견, 보정, 정확한 2× 렌더링 |
+| Linux / WSL | Chrome / Chromium | 문서화된 표준·수동 경로 | ⏳ 렌더링 검증 대기(한국어는 Noto Sans CJK/KR 설치) |
+
+Windows 결과는 기록된 VM 구성에 해당하며 모든 Windows 장치나 파일 시스템을 뜻하지 않습니다.
+Linux 렌더링 경로는 문서화했지만 아직 직접 검증하지 않았습니다.
 
 ## 범위
 

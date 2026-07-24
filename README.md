@@ -66,7 +66,7 @@ required pipeline: start with the skill you need, skip the others, and recheck a
 | Skill | Best for | Runtime support | Maturity |
 | --- | --- | --- | --- |
 | [`acrelay`](./skills/acrelay) | Starting Skillstead's flagship evidence-backed red-team workflow through the separately installed acRelay engine | Validation pending | Alpha preview |
-| [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | Claude Code | Stable |
+| [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | Supported: Claude Code + Codex | Stable |
 | [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | Supported: Claude Code + Codex | Stable |
 | [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | Supported: Claude Code + Codex | Beta |
@@ -198,8 +198,14 @@ Every public skill must have:
 - public paths free of credentials, private provenance, and host-specific data,
 - and a repeatable validation path appropriate to its output.
 
-Runtime support is per skill, not catalog-wide. Claude Code support for
-`svg-infographic` and `docs-claim-check` is unchanged.
+Runtime support is per skill, not catalog-wide.
+
+`svg-infographic` has passed the same three frozen, fresh-context briefs on Claude Code and Codex. The checks
+covered project-local discovery, source lint before rendering, exact 2× browser export, Korean/CJK text,
+containment, connector semantics, and fail-closed recovery when browser launch crossed a sandbox boundary.
+Codex evidence includes macOS Codex CLI and a fresh Codex App task in a Windows 11 ARM64 VM. It is
+`Supported` for Claude Code and Codex within that recorded evidence scope.
+
 `github-release-guide` has passed clean Claude Code/Codex material-parity checks, the disposable first-public
 live E2E, pinned `v0.5.0` project installation and discovery smoke, and the final strict claim audit. It is
 `Supported` for Claude Code and Codex within that recorded evidence scope.
@@ -216,8 +222,8 @@ evidence scope; maturity remains Beta.
   `v0.1.0-alpha.1`. Its current prebuilt engine is for macOS Apple Silicon;
   Linux and Windows core lanes are verified, with platform-specific reviewer
   validation and resulting patches planned as the next support step.
-- `svg-infographic` browser rendering is verified on macOS; Windows/Linux render paths remain documented but
-  unverified.
+- `svg-infographic` browser rendering is verified on macOS and in the recorded Windows 11 ARM64 VM.
+  This does not claim every Windows machine or filesystem; Linux rendering remains documented but unverified.
 - `docs-claim-check` is advisory and evidence-bound; it does not execute verification commands.
 - `github-release-guide` v1 is github.com-only. It covers the one-time private-to-public transition and each
   version release after the repository is public.
