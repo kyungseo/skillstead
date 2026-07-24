@@ -44,11 +44,12 @@ Roles still encode meaning (ok = green, warning = yellow/orange, danger = red). 
 
 - `rbox` for boxes/pills (group several rects under one `<g filter>`), `rline` for arrows, leaders, and icons.
 - **Filter regions need margin** (`x/y` negative, `width/height` >100%) or the displaced stroke clips at the bounding box.
+- **Never apply a percentage/objectBoundingBox filter to connector geometry that can have zero width or height.** A group of collinear horizontal (or vertical) connectors has a zero-height (zero-width) object bounding box, the percentage region collapses to nothing, and Chrome drops every stroke in the filter — the diagram ships without its connectors. Approved alternatives only: leave those strokes unfiltered, or give the filter `filterUnits="userSpaceOnUse"` with an explicit non-zero region covering the strokes. Grouping the strokes with two-dimensional geometry also works, but never rely on it by accident — the lint gate hard-errors on the provable degenerate cases (`E-FILTERBOUNDS`).
 - Paper: solid `--paper` rect + a second full-canvas rect with `filter="url(#paper)"` at low opacity.
-- Strokes: `stroke-width 2.5` boxes and connectors; hand arrowhead = **open V marker** (stroked, not filled), with the mandatory explicit user-space footprint (≈9 units per 1px of shaft — here 22.5 for the 2.5px stroke; the lint gate rejects `markerUnits`-less markers):
+- Strokes: `stroke-width 2.5` boxes and connectors; hand arrowhead = **open V marker** (stroked, not filled), sized by the same *visible-geometry* contract as the flat preset (`visible ≈ markerWidth × 8/12`, aim visible ≈3× the shaft → **`markerWidth ≈ 4.5 × shaft`**, here 11.25 for the 2.5px stroke; the lint gate rejects `markerUnits`-less markers and warns outside the ≈2.5–4× visible band):
 
 ```xml
-<marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="22.5" markerHeight="22.5"
+<marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="11.25" markerHeight="11.25"
   markerUnits="userSpaceOnUse" orient="auto-start-reverse">
   <path d="M2 2 L10 6 L2 10" fill="none" stroke="#4A4438" stroke-width="2" stroke-linecap="round"/></marker>
 ```

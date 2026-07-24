@@ -28,13 +28,22 @@ Detailed geometry, connector, panel, emphasis, color, and icon rules, plus the m
   - **Open-V stroked head is the default arrowhead** — it reads lighter than a filled triangle at every size and joins a curve cleanly:
 
     ```xml
-    <marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="8" markerHeight="8"
+    <marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="11.25" markerHeight="11.25"
       markerUnits="userSpaceOnUse" orient="auto-start-reverse">
       <path d="M2 2 L10 6 L2 10" fill="none" stroke="#44546a" stroke-width="2" stroke-linecap="round"/>
     </marker>
     ```
 
-    Size the head at ≈3× the shaft's stroke width (e.g. 8px head on a 2.5px shaft). A filled triangle is not forbidden, but use it as a deliberate choice with the same explicit user-space footprint — never as an unsized default.
+  - **Size the head by its *visible* geometry, not the marker viewport.** The V glyph `M2 2 L10 6 L2 10` spans 8 of the 12 viewBox units, so `visible_head ≈ markerWidth × 8/12`. The contract is **visible ≈3× the shaft** (visual fail at ≈4× or more; below ≈2.5× a major-flow head reads weak at fit-to-page scale). For the canonical open-V that means **`markerWidth ≈ 4.5 × shaft`**:
+
+    | shaft (px) | markerWidth | visible head |
+    | --- | --- | --- |
+    | 2.0 | 9 | ≈6.0 (3×) |
+    | 2.5 | 11.25 | ≈7.5 (3×) |
+    | 3.0 | 13.5 | ≈9.0 (3×) |
+
+    The lint computes the visible ratio from the marker's actual glyph extent and warns outside ≈2.5–4×. A filled triangle is not forbidden, but apply the same visible-extent arithmetic to its own glyph span — never an unsized default.
+  - **Shaft weight is part of fit-to-page readability.** A ≈3× head on a hairline shaft still disappears when the page is zoomed to fit: major stage connectors need ≈2.5–3px shafts on 1400–1600-wide canvases (secondary edges ≈2–2.5px). Fix a weak connector by adjusting shaft weight and corridor use together — never by enlarging only the head.
   - **`markerUnits="userSpaceOnUse"` is mandatory on every referenced marker** — the lint gate (`scripts/check-svg.mjs`, run automatically by `render.sh`) hard-errors otherwise, because the default `strokeWidth` units silently multiply the head by the stroke width (a "10" head on a 3px line renders 30px). Declare a reviewed exception with `data-lint-allow="marker-footprint"` only when an oversized head is a deliberate design decision.
 - **Fan-out** (one source → many targets): one vertical stem from the source, one horizontal bus, then a centered vertical branch to each target. No orphan stubs, and no line that nearly overlaps a box edge.
 - **Zone aid for busy diagrams:** if nodes collide, assign each to a **3×3 zone** (top-left … center … bottom-right), route edges only between zones, and wrap co-located nodes in one group frame. A quick sketching aid to cut crossings — not a required schema; simple diagrams don't need it.
@@ -100,7 +109,13 @@ Any Chromium-based browser works — Chrome, Microsoft Edge, or Chromium — wit
 
 - **macOS** — test each path, use the first executable: `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`, `.../Microsoft Edge.app/Contents/MacOS/Microsoft Edge`, `/Applications/Chromium.app/Contents/MacOS/Chromium`.
 - **Linux** — `command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser`.
-- **Windows (PowerShell)** — `Get-Command chrome, msedge -ErrorAction SilentlyContinue`; else test `C:\Program Files\Google\Chrome\Application\chrome.exe` and `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`.
+- **Windows (PowerShell)** — `Get-Command chrome, msedge -ErrorAction SilentlyContinue`; else `Test-Path` these known locations **in order** (the same four render.sh probes) and use the first hit:
+  1. `C:\Program Files\Google\Chrome\Application\chrome.exe`
+  2. `C:\Program Files (x86)\Google\Chrome\Application\chrome.exe`
+  3. `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`
+  4. `C:\Program Files\Microsoft\Edge\Application\msedge.exe`
+
+  Only after all four fail may you report "no Chromium-based browser". To use the bundled `render.sh` instead of this manual path, remember Git Bash may be installed without being on PATH — test `C:\Program Files\Git\bin\bash.exe` before concluding bash is unavailable.
 
 Wrapper HTML (W/H = SVG viewBox), placed next to the .svg in the session scratchpad (not in the repo):
 

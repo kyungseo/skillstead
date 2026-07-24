@@ -164,14 +164,20 @@ function parseInlineStyle(styleAttr) {
 }
 
 function declsFor(el, rules) {
-  // Specificity-lite: tag rules, then class rules, then the inline style attr.
-  // (Explicit presentation attributes are resolved by the callers on top.)
+  // Specificity-lite: tag rules, then class rules, then id rules, then the
+  // inline style attr (C4-R2: id selectors are part of the supported subset).
   const merged = Object.create(null);
   const classes = (el.attrs.class ?? "").split(/\s+/).filter(Boolean);
   for (const r of rules) if (r.selector === el.tag || r.selector === "svg") Object.assign(merged, r.decls);
   for (const r of rules) {
     const m = r.selector.match(/^([A-Za-z]*)\.([\w-]+)$/);
     if (m && classes.includes(m[2]) && (m[1] === "" || m[1] === el.tag)) Object.assign(merged, r.decls);
+  }
+  if (el.attrs.id) {
+    for (const r of rules) {
+      const m = r.selector.match(/^([A-Za-z]*)#([\w:.-]+)$/);
+      if (m && m[2] === el.attrs.id && (m[1] === "" || m[1] === el.tag)) Object.assign(merged, r.decls);
+    }
   }
   Object.assign(merged, parseInlineStyle(el.attrs.style));
   return merged;
@@ -336,23 +342,20 @@ export function lintSvg(source, filename = "input.svg") {
     if (!markerRefs.has(id)) markerRefs.set(id, new Set());
     markerRefs.get(id).add(strokeWidth ?? "unknown");
   };
+  // R5 (R4-CX-F1): marker use is collected per RENDERED ELEMENT with fully
+  // resolved declarations — presentation attribute, matching CSS rules (also
+  // when marker-* and stroke-width live in separate rules), inline style, and
+  // inherited group values all flow through the same inheritedProp path. A
+  // CSS rule no element uses is not a marker use (its dangling references are
+  // still caught by the E-REF scan above).
   for (const el of walk(svgRoot)) {
+    if (el.tag === "style" || hasAncestor(el, ["defs", "symbol", "marker", "clipPath", "mask", "pattern"])) continue;
     for (const attr of ["marker-end", "marker-start", "marker-mid"]) {
-      const v = el.attrs[attr];
+      const v = inheritedProp(el, attr, rules); // marker-* inherits like stroke-width
       if (!v) continue;
       const m = v.match(/url\(\s*['"]?#([\w:.-]+)['"]?\s*\)/);
       if (!m) continue;
       const sw = px(inheritedProp(el, "stroke-width", rules));
-      noteMarkerRef(m[1], sw);
-    }
-  }
-  for (const r of rules) {
-    for (const attr of ["marker-end", "marker-start", "marker-mid"]) {
-      const v = r.decls[attr];
-      if (!v) continue;
-      const m = v.match(/url\(\s*['"]?#([\w:.-]+)['"]?\s*\)/);
-      if (!m) continue;
-      const sw = px(r.decls["stroke-width"]);
       noteMarkerRef(m[1], sw);
     }
   }
@@ -361,8 +364,17 @@ export function lintSvg(source, filename = "input.svg") {
     const marker = ids.get(id);
     if (!marker || marker.tag !== "marker") continue; // dangling handled above
     const units = marker.attrs.markerUnits;
-    const mw = px(marker.attrs.markerWidth) ?? 3;
-    const knownWidths = [...widths].filter((w) => typeof w === "number");
+    // R4-P2: the SVG default of 3 applies only when the attribute is ABSENT.
+    // An explicit value px() cannot parse (e.g. "1e2") must never be replaced
+    // by the default — it downgrades the marker to unproven instead.
+    const mwParsed = px(marker.attrs.markerWidth);
+    const mhParsed = px(marker.attrs.markerHeight);
+    const dimUnparsable =
+      (marker.attrs.markerWidth !== undefined && mwParsed === undefined) ||
+      (marker.attrs.markerHeight !== undefined && mhParsed === undefined);
+    const mw = mwParsed ?? 3;
+    const knownWidths = [...new Set([...widths].filter((w) => typeof w === "number"))];
+    const hasUnknownRef = widths.has("unknown");
     const maxStroke = knownWidths.length ? Math.max(...knownWidths) : undefined;
     if (units !== "userSpaceOnUse") {
       const eff = maxStroke !== undefined ? ` (effective head ≈ ${round1(mw * maxStroke)}px at stroke-width ${maxStroke})` : "";
@@ -377,18 +389,126 @@ export function lintSvg(source, filename = "input.svg") {
       );
       continue;
     }
-    // Explicit user-space footprint: surface the owner-fixed visual contract
-    // (aim ≈3×, visual fail at ≈4× the shaft — SKILL.md §7). The marker
-    // viewport is an upper bound on the visible head (the glyph may not fill
-    // its viewBox), so the ratio check is a conservative WARNING, not an
-    // error; extremes stay hard errors. Reviewed legacy exceptions declare
-    // data-lint-allow="marker-footprint".
+    // Visible-geometry contract (C4 correction): what the eye sees is the
+    // glyph extent inside the marker viewport, not the viewport itself. For
+    // the canonical open-V (`M2 2 L10 6 L2 10` in viewBox 0 0 12 12) the
+    // visible head is markerWidth × 8/12. Aim visible ≈3× the shaft; a newly
+    // authored diagram fails visual QA at visible ≈4× or more, and an
+    // undersized head (< ≈2.5×) reads weak at fit-to-page scale. Reviewed
+    // legacy exceptions declare data-lint-allow="marker-footprint".
     if (ancestorAllows(marker, "marker-footprint")) continue;
-    const ratio = maxStroke ? mw / maxStroke : undefined;
-    if (mw > 36 || (ratio !== undefined && ratio > 12)) {
-      add(errors, marker.line, "E-HEADSIZE", `arrowhead #${id} footprint ${round1(mw)}px${ratio ? ` (${round1(ratio)}× its ${maxStroke}px shaft)` : ""} is far beyond the connector contract`, 'shrink the head toward ≈3× the shaft width, or declare data-lint-allow="marker-footprint" with a reviewed reason (authoring.md §3)');
-    } else if ((ratio !== undefined && ratio > 4.5) || mw >= 28) {
-      add(warnings, marker.line, "W-HEADSIZE", `arrowhead #${id} viewport ${round1(mw)}px${ratio ? ` is ${round1(ratio)}× its ${maxStroke}px shaft` : " is large"} — above the ≈3× aim / ≈4× visual-fail contract (SKILL.md §7)`, 'shrink toward ≈3× the shaft, or add data-lint-allow="marker-footprint" with a reviewed reason if the size is deliberate (authoring.md §3)');
+    let proof = markerGlyphExtent(marker);
+    if (proof.proven && dimUnparsable) {
+      proof = { proven: false, reason: "explicit markerWidth/markerHeight is not a plain decimal number" };
+    }
+    const viewportRatio = maxStroke ? mw / maxStroke : undefined;
+    const sizingRule = `for the canonical open-V, viewport ≈ 4.5 × shaft gives a ≈3× visible head (authoring.md §3)`;
+    if (proof.proven && knownWidths.length) {
+      // R4-P1: a marker reused at several stroke widths is judged per DISTINCT
+      // width and the single worst finding survives — the thickest shaft must
+      // never mask a thin-shaft violation.
+      const visible = mw * (proof.extent / proof.viewBoxW);
+      let worst = null; // severity: 3 error ≥4.75 · 2 warn ≥4.0 · 1 warn <2.5 · 0 clean
+      for (const sw of knownWidths) {
+        const ratio = visible / sw;
+        const severity = ratio >= 4.75 ? 3 : ratio >= 4.0 ? 2 : ratio < 2.5 ? 1 : 0;
+        if (!worst || severity > worst.severity) worst = { severity, sw, ratio };
+      }
+      const others = knownWidths.filter((w) => w !== worst.sw);
+      const widthNote = others.length ? `; also referenced at ${others.join("px, ")}px` : "";
+      const measured = `visible head ≈ ${round1(visible)}px (${round1(worst.ratio)}× its ${worst.sw}px shaft; glyph spans ${round1(proof.extent)}/${round1(proof.viewBoxW)} of the viewport)${widthNote}`;
+      if (worst.severity === 3) {
+        add(errors, marker.line, "E-HEADSIZE", `arrowhead #${id}: ${measured} — at or beyond the ≈4× visual-fail contract`, `resize the marker viewport (or split per-width markers) — ${sizingRule}; data-lint-allow="marker-footprint" only with a reviewed reason`);
+      } else if (worst.severity === 2) {
+        add(warnings, marker.line, "W-HEADSIZE", `arrowhead #${id}: ${measured} — at the ≈4× visual-fail line (SKILL.md §7)`, `resize toward ≈3× visible — ${sizingRule}`);
+      } else if (worst.severity === 1) {
+        add(warnings, marker.line, "W-HEADSIZE", `arrowhead #${id}: ${measured} — below the ≈3× aim; a major-flow head this small can disappear at fit-to-page scale`, `enlarge the marker viewport toward 4.5 × shaft, and check shaft weight for the fit-to-page pass (SKILL.md §7)`);
+      }
+    } else if (!proof.proven) {
+      // R3-P1: an unproven visible size is NEVER a hard error and never a
+      // silent pass; the viewport measurement keeps extreme cases visible.
+      const extreme = mw > 36 || (viewportRatio !== undefined && viewportRatio > 12)
+        ? " — the viewport is extreme, so verify this one first"
+        : "";
+      const shaftNote = knownWidths.length ? ` on ${knownWidths.join("px/")}px shaft(s)` : "";
+      add(warnings, marker.line, "W-HEADSIZE", `arrowhead #${id} visible size is unverified from source (${proof.reason}); viewport ${round1(mw)}px${shaftNote}${extreme}`, "confirm the ≈3× visible proportion in the 2× PNG at fit-to-page scale, or rewrite the glyph in the provable subset (absolute M/L/H/V, plain decimal coordinates, no child transforms, uniform scaling — authoring.md §3)");
+    }
+    // R4-P1: references whose stroke width cannot be resolved are surfaced
+    // separately — a proven-clean marker can still be mis-sized on an edge
+    // the linter could not measure.
+    if (hasUnknownRef) {
+      add(warnings, marker.line, "W-HEADSIZE", `arrowhead #${id} is referenced by edge(s) whose stroke-width could not be resolved — the visible ratio is unverified for those edges`, "resolve the stroke width to a plain value (attribute, class, or inline style), or confirm those edges' head proportion in the 2× PNG (SKILL.md §7)");
+    }
+  }
+
+  // --- degenerate connector-filter bounds (C4 filter-bounds correction) ----
+  // A percentage/objectBoundingBox filter region collapses when the filtered
+  // geometry has zero width or height (e.g. a group of collinear horizontal
+  // connectors), and Chrome then drops the strokes entirely. The check is
+  // deliberately narrow: it fires only when every painted child is provably
+  // an axis-aligned straight stroke and the union bbox is degenerate on an
+  // axis. Anything unparsable (curves, rects, text, transforms) exits the
+  // check silently — visual QA owns those.
+  // C4-R3-P1: a userSpaceOnUse region collapses whenever an explicit width or
+  // height is not strictly positive — 0, 0%, and negatives all drop the
+  // strokes in Chrome. Returns the parsed numeric value when it is provably
+  // non-positive, else null (unparsable/omitted → not our call).
+  const nonPositiveDim = (v) => {
+    if (v === undefined) return null;
+    const m = String(v).trim().match(/^(-?[\d.]+)\s*(px|%)?$/);
+    if (!m) return null;
+    const n = parseFloat(m[1]);
+    return Number.isFinite(n) && n <= 0 ? `${m[1]}${m[2] ?? ""}` : null;
+  };
+  for (const el of walk(svgRoot)) {
+    if (hasAncestor(el, ["defs", "symbol", "marker", "clipPath", "mask", "pattern"])) continue;
+    // C4-R2-P1: CSS wins over the presentation attribute; a class/inline
+    // `filter` overriding a safe attr must be the value we resolve. filter:none
+    // means no filter. id selectors are covered by declsFor.
+    const resolvedFilter = declsFor(el, rules).filter ?? el.attrs.filter;
+    if (!resolvedFilter || /^\s*none\s*$/i.test(resolvedFilter)) continue;
+    const filterRef = resolvedFilter.match(/url\(\s*['"]?#([\w:.-]+)['"]?\s*\)/);
+    if (!filterRef) continue;
+    const filterEl = ids.get(filterRef[1]);
+    if (!filterEl || filterEl.tag !== "filter") continue; // dangling handled by E-REF
+    if (ancestorAllows(el, "filter-bounds")) continue;
+    const units = (filterEl.attrs.filterUnits ?? "").trim();
+    if (units === "userSpaceOnUse") {
+      // C4-R3-P1: a user-space region is safe UNLESS an explicit width/height
+      // is non-positive (0, 0%, negative) — those collapse the region. A
+      // positive percentage still resolves against the viewport (non-zero).
+      const badW = nonPositiveDim(filterEl.attrs.width);
+      const badH = nonPositiveDim(filterEl.attrs.height);
+      if (badW !== null || badH !== null) {
+        const which = badW !== null ? "width" : "height";
+        const val = badW !== null ? badW : badH;
+        add(errors, el.line, "E-FILTERBOUNDS", `filtered ${el.tag} references #${filterRef[1]} whose userSpaceOnUse filter region has non-positive ${which}="${val}" — Chrome renders nothing through a collapsed filter region`, 'give the filter a strictly positive user-space width/height covering the strokes, or remove the filter (references/sketch.md section 2)');
+      } else {
+        // C4-R4: an explicit width/height the lint cannot parse (e.g.
+        // calc(0px)) may still collapse the region and silently drop the
+        // strokes. We do not build a calc() evaluator — surface it as an
+        // unverified warning instead of a silent pass. This closes the filter
+        // lint scope: further dimension forms are a PNG-verification concern.
+        const unverified = ["width", "height"].filter(
+          (dim) => filterEl.attrs[dim] !== undefined && !/^\s*-?[\d.]+\s*(px|%)?\s*$/.test(filterEl.attrs[dim]),
+        );
+        if (unverified.length) {
+          const parts = unverified.map((dim) => `${dim}="${filterEl.attrs[dim]}"`).join(", ");
+          add(warnings, el.line, "W-FILTERBOUNDS", `filtered ${el.tag} references #${filterRef[1]} whose userSpaceOnUse filter region has an unsupported ${parts} — the lint cannot prove it is non-zero, and a collapsed region would silently drop these strokes`, "use a plain positive user-space length/percentage for the filter width/height, or verify the strokes render in the 2× PNG (references/sketch.md section 2)");
+        }
+      }
+      continue;
+    }
+    // objectBoundingBox (default or explicit): a percentage region collapses
+    // when the painted connector geometry is degenerate on an axis.
+    const box = provableStrokeBBox(el, rules);
+    if (!box) continue; // not provable — no false certainty
+    const EPS = 0.01;
+    const flatY = box.maxY - box.minY <= EPS;
+    const flatX = box.maxX - box.minX <= EPS;
+    if (flatY || flatX) {
+      const axis = flatY ? "zero height (collinear horizontal strokes)" : "zero width (collinear vertical strokes)";
+      add(errors, el.line, "E-FILTERBOUNDS", `filtered ${el.tag} references #${filterRef[1]} (objectBoundingBox percentage region) but its painted connector geometry has ${axis} — Chrome collapses the filter region and drops these strokes entirely`, 'remove the filter from these strokes, give the filter filterUnits="userSpaceOnUse" with an explicit non-zero region, or group the strokes with two-dimensional geometry (references/sketch.md section 2)');
     }
   }
 
@@ -498,6 +618,159 @@ export function lintSvg(source, filename = "input.svg") {
   return { errors, warnings };
 }
 
+// Horizontal glyph extent of a marker's drawable children — but ONLY when it
+// is exactly provable from source (R2-P1: no rendered-extent guessing).
+// Provable subset:
+//   - path with absolute straight commands only (M/L/H/V/Z) — coordinate
+//     extent equals rendered extent; curves/arcs (Q/C/T/S/A) are excluded
+//     because control points bound but do not equal the rendered curve;
+//   - polygon/polyline points, line x1/x2, rect x+width;
+//   - no transform on the marker or any descendant;
+//   - provable x-scaling: no viewBox (1:1), preserveAspectRatio="none"
+//     (x-scale = markerWidth/vbW exactly), or default uniform scaling where
+//     the x-axis is the limiting axis (markerWidth/vbW ≤ markerHeight/vbH).
+// Returns { proven, extent, viewBoxW, reason }; reason is set when unproven.
+function markerGlyphExtent(marker) {
+  let minX;
+  let maxX;
+  const note = (x) => {
+    if (Number.isNaN(x)) return;
+    minX = minX === undefined ? x : Math.min(minX, x);
+    maxX = maxX === undefined ? x : Math.max(maxX, x);
+  };
+  const unproven = (reason) => ({ proven: false, reason });
+
+  for (const child of walk(marker)) {
+    if (child.attrs.transform !== undefined) return unproven("child transform present");
+    if (child.tag === "path") {
+      const d = child.attrs.d ?? "";
+      if (/[mlhvqcsta]/.test(d)) return unproven("relative path commands in glyph"); // lowercase commands
+      if (/[QCTSA]/.test(d)) return unproven("curve/arc commands in glyph path");
+      // R3-P1: the simple number scanner would split exponent notation
+      // ("1e3") into wrong coordinates — downgrade instead of mis-proving.
+      if (/[eE]/.test(d)) return unproven("exponent notation in glyph coordinates");
+      const segments = d.match(/[MLHVZ][^MLHVZ]*/gi) ?? [];
+      for (const seg of segments) {
+        const cmd = seg[0].toUpperCase();
+        const nums = (seg.slice(1).match(/-?[\d.]+/g) ?? []).map(Number);
+        if (cmd === "Z" || cmd === "V") continue;
+        if (cmd === "H") { nums.forEach(note); continue; }
+        for (let i = 0; i < nums.length; i += 2) note(nums[i]); // M/L (x y) pairs
+      }
+    } else if (child.tag === "polygon" || child.tag === "polyline") {
+      const points = child.attrs.points ?? "";
+      if (/[eE]/.test(points)) return unproven("exponent notation in glyph coordinates");
+      const nums = (points.match(/-?[\d.]+/g) ?? []).map(Number);
+      for (let i = 0; i < nums.length; i += 2) note(nums[i]);
+    } else if (child.tag === "line") {
+      note(px(child.attrs.x1) ?? NaN);
+      note(px(child.attrs.x2) ?? NaN);
+    } else if (child.tag === "rect") {
+      const x = px(child.attrs.x) ?? 0;
+      const w = px(child.attrs.width);
+      if (w === undefined) return unproven("rect without explicit width");
+      note(x); note(x + w);
+    } else if (child.tag !== "g") {
+      return unproven(`unsupported child element <${child.tag}>`);
+    }
+  }
+  if (minX === undefined) return unproven("no drawable glyph found");
+
+  const mw = px(marker.attrs.markerWidth) ?? 3;
+  const mh = px(marker.attrs.markerHeight) ?? 3;
+  const vb = marker.attrs.viewBox;
+  if (!vb) return { proven: true, extent: maxX - minX, viewBoxW: mw, reason: "" }; // 1:1 content units
+  const parts = vb.trim().split(/[\s,]+/).map(Number);
+  if (parts.length !== 4 || parts.some(Number.isNaN) || parts[2] <= 0 || parts[3] <= 0) {
+    return unproven("invalid marker viewBox");
+  }
+  const [, , vbW, vbH] = parts;
+  const par = marker.attrs.preserveAspectRatio?.trim();
+  // R3-P1: only two scaling modes are exactly provable for the x-axis —
+  // "none" (x-scale = markerWidth/vbW by definition) and the ABSENT default
+  // (uniform meet) when the x-axis is the limiting axis. Any other explicit
+  // preserveAspectRatio (slice, alignment variants, explicit meet) is
+  // downgraded instead of being pushed through the default-meet arithmetic.
+  const xLimiting = mw / vbW <= mh / vbH + 1e-9;
+  if (par !== undefined && par !== "none") return unproven(`explicit preserveAspectRatio "${par}"`);
+  if (par === undefined && !xLimiting) return unproven("non-uniform viewBox scaling (y-axis limits the default uniform scale)");
+  return { proven: true, extent: maxX - minX, viewBoxW: vbW, reason: "" };
+}
+
+// Whether a geometry child is a painted connector — i.e. it draws a visible
+// stroke a collapsed filter could drop. Returns "painted" | "unpainted" |
+// "unknown". C4-R3-P2: stroke-width:0 is unpainted; an unresolved stroke width
+// is "unknown" (the caller must not assume painted). Only a resolved color
+// stroke with a positive (or default) width is "painted".
+function strokePaintState(el, rules) {
+  const stroke = inheritedProp(el, "stroke", rules);
+  if (stroke === undefined || stroke.trim().toLowerCase() === "none") return "unpainted";
+  const swRaw = inheritedProp(el, "stroke-width", rules);
+  if (swRaw === undefined) return "painted"; // SVG default stroke-width is 1
+  const sw = px(swRaw);
+  if (sw === undefined) return "unknown"; // e.g. var(--w) / calc() — cannot prove
+  return sw > 0 ? "painted" : "unpainted";
+}
+
+// Union bbox of a filtered element's PAINTED straight strokes, computed ONLY
+// when every painted child is a provably axis-parseable straight stroke: path
+// with absolute M/L/H/V/Z and plain decimal coordinates, line, or
+// polyline/polygon points. Unpainted children (stroke none/unset) are ignored.
+// Any painted child outside the parseable subset (curves, rects, text, use,
+// transforms, exponents) returns null — the caller then stays silent.
+function provableStrokeBBox(root, rules) {
+  let minX; let maxX; let minY; let maxY;
+  let sawStroke = false;
+  const note = (x, y) => {
+    if (Number.isNaN(x) || Number.isNaN(y)) return;
+    minX = minX === undefined ? x : Math.min(minX, x);
+    maxX = maxX === undefined ? x : Math.max(maxX, x);
+    minY = minY === undefined ? y : Math.min(minY, y);
+    maxY = maxY === undefined ? y : Math.max(maxY, y);
+  };
+  const elements = [root, ...walk(root)];
+  for (const child of elements) {
+    if (child.attrs?.transform !== undefined) return null;
+    if (child.tag === "g") continue;
+    const GEOMETRY = ["path", "line", "polyline", "polygon"];
+    if (!GEOMETRY.includes(child.tag)) {
+      return null; // rect/text/use/anything else → not provable
+    }
+    const paint = strokePaintState(child, rules);
+    if (paint === "unpainted") continue; // draws nothing → cannot be dropped
+    if (paint === "unknown") return null; // cannot prove painted → no false certainty
+    if (child.tag === "path") {
+      const d = child.attrs.d ?? "";
+      if (/[mlhvqcsta]/.test(d) || /[QCTSA]/.test(d) || /[eE]/.test(d)) return null;
+      const segments = d.match(/[MLHVZ][^MLHVZ]*/gi) ?? [];
+      let curX; let curY;
+      for (const seg of segments) {
+        const cmd = seg[0].toUpperCase();
+        const nums = (seg.slice(1).match(/-?[\d.]+/g) ?? []).map(Number);
+        if (cmd === "Z") continue;
+        if (cmd === "H") { for (const x of nums) { curX = x; note(curX, curY ?? NaN); } continue; }
+        if (cmd === "V") { for (const y of nums) { curY = y; note(curX ?? NaN, curY); } continue; }
+        for (let i = 0; i + 1 < nums.length; i += 2) { curX = nums[i]; curY = nums[i + 1]; note(curX, curY); }
+      }
+      sawStroke = true;
+    } else if (child.tag === "line") {
+      const x1 = px(child.attrs.x1); const y1 = px(child.attrs.y1);
+      const x2 = px(child.attrs.x2); const y2 = px(child.attrs.y2);
+      if ([x1, y1, x2, y2].some((v) => v === undefined)) return null;
+      note(x1, y1); note(x2, y2);
+      sawStroke = true;
+    } else {
+      const points = child.attrs.points ?? "";
+      if (/[eE]/.test(points)) return null;
+      const nums = (points.match(/-?[\d.]+/g) ?? []).map(Number);
+      for (let i = 0; i + 1 < nums.length; i += 2) note(nums[i], nums[i + 1]);
+      sawStroke = true;
+    }
+  }
+  if (!sawStroke || minX === undefined) return null;
+  return { minX, maxX, minY, maxY };
+}
+
 function smallestContaining(rects, x, y) {
   let best = null;
   for (const r of rects) {
@@ -548,7 +821,10 @@ export function runCli(argv) {
     errorCount += errors.length;
     warningCount += warnings.length;
   }
-  console.error(`check-svg: ${errorCount} error(s), ${warningCount} warning(s) across ${files.length} file(s)`);
+  // Success summary goes to stdout so a clean run writes nothing to stderr
+  // (PowerShell 5.1 raises NativeCommandError noise on any stderr output);
+  // real findings above stay on stderr.
+  console.log(`check-svg: ${errorCount} error(s), ${warningCount} warning(s) across ${files.length} file(s)`);
   return errorCount > 0 ? 1 : 0;
 }
 

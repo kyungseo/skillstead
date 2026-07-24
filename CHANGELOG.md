@@ -4,6 +4,27 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## [0.8.0] — 2026-07-24
+
+### svg-infographic
+
+- **Claude Code and Codex support.** The skill is now `Supported` on both runtimes within the recorded evidence
+  scope. The same three frozen briefs passed in fresh Claude Code and macOS Codex CLI contexts, and a fresh Codex
+  App task corrected and rendered the actual bilingual fixture in a Windows 11 ARM64 VM. The Windows
+  result applies to that VM configuration rather than every Windows machine or filesystem; Linux rendering
+  remains unverified.
+- **Cross-shell canonical renderer.** `scripts/render.mjs` now provides the lint-first Chromium pipeline directly
+  from Bash, PowerShell, or CMD with no npm dependency. It discovers documented Chrome and Edge locations,
+  isolates each render in its own browser profile, verifies a complete PNG and exact output dimensions, and
+  cleans up renderer-owned state. `render.sh` remains as a thin Bash wrapper.
+- **Visible connector and filter checks.** Source lint evaluates visible arrowhead size against every resolved
+  shaft width, reports unverified marker geometry instead of silently passing it, and detects provable filter
+  regions that can collapse painted connectors. Unsupported filter dimensions remain warnings for 2× visual
+  review rather than speculative hard errors.
+- **Fresh-context and gallery validation.** Claude Code and Codex produced materially equivalent results for the
+  frozen topology, approval-flow, and sketch briefs. The 28 existing gallery PNGs remained byte-identical in the
+  recorded regression rerender.
+
 ## [0.7.1] — 2026-07-23
 
 ### svg-infographic

@@ -2,12 +2,20 @@
 
 **English** · [한국어](./README.ko.md)
 
-Create flat, structured technical visuals for agentic coding workflows: architecture diagrams, cloud topologies, process flows, before/after comparisons, roadmaps, and share-ready infographics. The current package is authored for Claude Code.
+Create flat, structured technical visuals for agentic coding workflows: architecture diagrams, cloud topologies,
+process flows, before/after comparisons, roadmaps, and share-ready infographics. The package supports Claude Code
+and Codex.
 
 The skill computes the layout first (a required numeric layout pass — grid arithmetic and per-box text budgets
 before any drawing), writes an editable SVG, runs a source lint that catches high-confidence failures, then exports
 a crisp 2x PNG with a bundled render script that verifies the output dimensions. The goal is a first render that
 passes review, not a render-and-fix loop.
+
+## Runtime Support
+
+**Supported: Claude Code + Codex.** Evidence covers the same frozen, fresh-context briefs on macOS and a fresh
+Codex App task in a Windows 11 ARM64 VM. The Windows result applies to that recorded VM configuration,
+not every Windows machine or filesystem. Linux browser rendering remains documented but unverified.
 
 ## Best For
 
@@ -173,9 +181,11 @@ Before drawing, the skill tells you these defaults and gives you a chance to cha
 Installing or discovering the skill does not require Node.js, and the skill can author an editable SVG without
 it. The complete automated lint-and-render workflow requires:
 
-- Node.js 18 or newer for `scripts/check-svg.mjs`
-- Bash for the bundled `scripts/render.sh` (Git Bash on Windows)
+- Node.js 18 or newer for `scripts/check-svg.mjs` and the canonical `scripts/render.mjs`
 - Chrome, Edge, or Chromium for PNG export
+
+The optional `scripts/render.sh` wrapper requires Bash (Git Bash on Windows), but native Windows PowerShell and
+CMD can run `node scripts/render.mjs` directly.
 
 The checker uses only the Node.js standard library, so there is no `npm install` step or third-party npm package.
 During preflight, the agent checks the installed Node version. If Node 18+ is missing, it shows the exact command
@@ -191,7 +201,9 @@ draft with both limitations stated.
 
 ## Install
 
-Copy this Claude Code package into a skills directory — either **global** (`~/.claude/skills/`, available in all your projects) or **project** (`.claude/skills/` in a repo, so your team gets it on clone). The skill is a multi-file package; copy the whole folder:
+Copy the complete package into a Claude Code or Codex skills directory. Claude Code uses `~/.claude/skills/`
+globally or `.claude/skills/` in a project; Codex uses `~/.agents/skills/` globally or `.agents/skills/` in a
+project. The skill is a multi-file package, so copy the whole folder:
 
 ```text
 <skills-dir>/svg-infographic/
@@ -204,7 +216,9 @@ Copy this Claude Code package into a skills directory — either **global** (`~/
     ├── check-svg.mjs         # source lint gate (Node.js 18+, standard library only)
     ├── check-svg.test.mjs    # fixture regression tests
     ├── fixtures/             # valid, error, and warning cases
-    └── render.sh             # lint → SVG-to-PNG render → 2× dimension verification
+    ├── render.mjs            # canonical cross-shell lint → browser render → 2× verification
+    ├── render.test.mjs       # renderer discovery and lifecycle regression tests
+    └── render.sh             # thin Bash wrapper for render.mjs
 ```
 
 GitHub install commands (global and project scope) for macOS, Linux, and Windows are in [../../docs/INSTALL.md](../../docs/INSTALL.md).

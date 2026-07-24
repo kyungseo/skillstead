@@ -20,8 +20,9 @@ Nuances: a **simple qualitative** 2×2/3×3 matrix or a status-count badge is fi
 | `references/archetypes.md` | **Always, before the layout pass** — the chosen archetype's layout skeleton, premium recipe, and per-type checks |
 | `references/authoring.md` | **Always, before writing SVG** — detailed geometry/connector/panel/emphasis/color rules and the full icon set; also the manual render fallback |
 | `references/sketch.md` | Only when the user asks for a hand-drawn / sketchnote / 손글씨 feel — the opt-in sketch preset (paper, handwriting font, rough filters, highlighter) |
-| `scripts/render.sh` | To render SVG → 2× PNG with automatic dimension verification (runs the source lint first) |
-| `scripts/check-svg.mjs` | Source lint gate (Node 18+, standard library only; no npm install) — render.sh runs it automatically; run it directly while iterating on the SVG source |
+| `scripts/render.mjs` | **Canonical renderer** (Node 18+, stdlib only) — lint gate → browser discovery → 2× render → exact IHDR verification in one entrypoint; works from any shell incl. Windows CMD/PowerShell without Git Bash |
+| `scripts/render.sh` | Thin POSIX/Git-Bash wrapper that delegates to `render.mjs` (adds only the no-Node diagnostics) |
+| `scripts/check-svg.mjs` | Source lint gate (Node 18+, standard library only; no npm install) — the renderer runs it automatically; run it directly while iterating on the SVG source |
 
 ## 0. Preflight — confirm, then offer to change
 
@@ -111,7 +112,7 @@ Read `references/authoring.md` for the detailed rules and the reusable icon set.
 - **Boxes:** rounded rect `rx="8"` (wide bands `rx="12–22"`), hairline border `stroke-width:1`. Each box = tinted fill + same-family border + same-family text (one semantic color family per box).
 - **Vertical centering:** center text with `dominant-baseline="central"` and `y` at the box's vertical center. Two lines straddle the center: title at `center−11`, sub at `center+10`, both `central`. Never rely on the default alphabetic baseline for box labels — it sits high.
 - **Wrapping:** one planned line = one `<tspan x=.. dy=..>`; keep to the §2 text budget.
-- **Arrows:** define one `<marker>` arrowhead, use `marker-end`. Solid = sync/request, dashed (`stroke-dasharray="5 4"`) = async/batch/private. The default head is an **open-V stroked marker at ≈3× the shaft width** (recipe in `authoring.md` §3) — filled triangles only as a deliberate, explicitly sized choice. `markerUnits="userSpaceOnUse"` is **mandatory** on every referenced marker and the lint gate enforces it — the default `markerUnits="strokeWidth"` multiplies the head by the stroke width. Set `refX` so the tip lands on the path endpoint; leave an 8–12px gap between tip and target box **and** keep a visible shaft behind the head; pick each connector's form (standard / compact / curved / transition glyph / reflow) from the corridor budget, and prefer the gentle single-bend curve recipe when boxes sit at different heights (`authoring.md` §3).
+- **Arrows:** define one `<marker>` arrowhead, use `marker-end`. Solid = sync/request, dashed (`stroke-dasharray="5 4"`) = async/batch/private. The default head is an **open-V stroked marker sized by visible geometry: `visible ≈ markerWidth × 8/12`, aim visible ≈3× the shaft → `markerWidth ≈ 4.5 × shaft`** (sizing table in `authoring.md` §3) — filled triangles only as a deliberate choice with the same visible-extent arithmetic. `markerUnits="userSpaceOnUse"` is **mandatory** on every referenced marker and the lint gate enforces it — the default `markerUnits="strokeWidth"` multiplies the head by the stroke width. Set `refX` so the tip lands on the path endpoint; leave an 8–12px gap between tip and target box **and** keep a visible shaft behind the head; pick each connector's form (standard / compact / curved / transition glyph / reflow) from the corridor budget, and prefer the gentle single-bend curve recipe when boxes sit at different heights (`authoring.md` §3).
 - **On-accent text is light:** any label on a saturated fill uses `class="on-accent"` (white/near-white) — never dark text on a mid/dark accent, and never rely on a blanket `text{fill}` rule to sort it out.
 - **Emphasis toolkit:** stroke + soft shadow + a number/status badge + a corner label + a filled icon badge. **No top accent bar on cards** (corner-smear and badge-collision failure modes — details and narrow exception in `authoring.md`).
 - **Icon-first (default on):** a line icon in a soft tinted circle (`r≈34–38`, tint `#E3EEF8`) per card/node, icon ~40px via `<use>`, recolor with `style="color:#…"`. Number badge **only when sequence or cross-reference matters** — never icon + redundant number.
@@ -140,17 +141,43 @@ Hard errors must be fixed before rendering (`render.sh` refuses at exit 5). Warn
 
 ## 5. Render to PNG (2×)
 
-Use the bundled script — it runs the §4 source lint as a hard gate (Node 18+ required; exit 5 = lint errors,
-exit 6 = Node/lint missing — return to the §0 approval/fallback branch rather than bypassing the gate), discovers
-a Chromium-based browser (Chrome/Edge/Chromium), builds the wrapper, renders at 2×, and **verifies the PNG
-dimensions automatically**:
+The **canonical renderer is `render.mjs`** (Node 18+ stdlib): it runs the §4 source lint as a hard gate (exit 5 =
+lint errors), discovers a Chromium-based browser (PATH plus the documented known paths), **discloses the exact
+executable/version**, renders at 2×, and verifies the PNG IHDR dimensions exactly. It needs no shell beyond Node —
+on Windows run it directly from CMD or PowerShell, verbatim, with no PowerShell scripting and no Git Bash. Use the
+path of the skills root this package is actually installed under.
+
+Claude Code install (`.claude\skills`):
+
+```
+node .claude\skills\svg-infographic\scripts\render.mjs out\diagram.svg
+```
+
+Codex install (`.agents\skills`):
+
+```
+node .agents\skills\svg-infographic\scripts\render.mjs out\diagram.svg
+```
+
+On POSIX/Git-Bash environments the familiar wrapper delegates to the same core (exit 6 = Node 18+ missing —
+return to the §0 approval/fallback branch rather than bypassing the gate):
 
 ```bash
 bash scripts/render.sh diagram.svg            # → diagram.png (2×)
 bash scripts/render.sh diagram.svg out.png --transparent
 ```
 
-Keep wrapper/intermediate files in the session scratchpad, not the repo. The script covers macOS, Linux, and Windows Git Bash (the shell Claude Code uses on Windows); if it can't find a browser — or you're in native PowerShell — use the manual fallback in `references/authoring.md` §8. If no Chromium-based browser is available at all, deliver the SVG only and state the limitation.
+`SVG_INFOGRAPHIC_BROWSER=<executable>` overrides discovery for owner-approved retries — it must still point at a
+Chromium-based browser.
+
+Keep wrapper/intermediate files in the session scratchpad, not the repo. In native PowerShell/CMD the canonical path is still `node scripts/render.mjs` (above) — the manual fallback in `references/authoring.md` §8 exists only for the §0 no-Node branch. If no Chromium-based browser is available at all, deliver the SVG only and state the limitation.
+
+**The documented Chromium path is the canonical renderer.** Non-negotiables:
+
+- Record the exact browser executable/version (render.mjs prints a `renderer:` line — include it in the handoff) and the render command.
+- On Windows the canonical `node render.mjs` path needs neither PowerShell scripting nor Git Bash and probes the four Program Files known paths itself; do not conclude "no browser" from a shell probe alone — run the canonical entrypoint, and only its exit-2 candidate report counts as a discovery failure.
+- If the browser launch is denied by a sandbox boundary, render.mjs stops and prints the **exact same render command** — hand it to the owner for approved outside-sandbox execution; do not silently switch renderer.
+- Never substitute ImageMagick, resvg, an app visualization helper, or any other renderer and label the result as a Chromium render; never post-process PNG pixels. If the canonical render remains unavailable, stop with the editable SVG and an explicit unverified-PNG/SVG-only limitation.
 
 ## 6. Defaults to state (and let the user change)
 
@@ -165,9 +192,11 @@ The pre-render checklist covered the source; now check what only the pixels show
 
 - **Rendering:** no text overflow or clipped glyphs; text vertically centered in its box; correct Korean/CJK rendering (no tofu); PNG is exactly 2× the viewBox (render.sh reports this); icons visible (no blank circles); labels on accent fills read clearly (AA-like separation).
 - **Containment (visual):** every child sits inside its container plus inner padding — scan the PNG for anything touching or crossing a panel edge; an element can spill without touching any text.
-- **Connectors:** every arrow reads as shaft + head — no head-only arrows and no head buried under a panel or card; the head joins its shaft cleanly and neither touches the target border nor floats detached; **head/shaft proportion reads natural — a *visible* head ≈4× its shaft width or more is a fail for newly authored diagrams** (aim ≈3×; shrink the head or use the open-V recipe — the lint warns from ≈4.5× of the marker viewport, a conservative upper bound on the visible head). Pre-contract legacy examples keep their approved visuals under an explicit `data-lint-allow="marker-footprint"` exception — never add that attribute to silence a new diagram. A curve keeps one readable bend (an accidental S-shape is a fail); a transition glyph reads as flow, not as an icon or play button.
+- **Connectors:** every arrow reads as shaft + head — no head-only arrows and no head buried under a panel or card; the head joins its shaft cleanly and neither touches the target border nor floats detached; **head/shaft proportion reads natural — a *visible* head ≈4× its shaft width or more is a fail for newly authored diagrams, and a visible head below ≈2.5× reads weak** (aim ≈3×; the lint computes the visible ratio from the marker's glyph extent — `authoring.md` §3). Pre-contract legacy examples keep their approved visuals under an explicit `data-lint-allow="marker-footprint"` exception — never add that attribute to silence a new diagram. A curve keeps one readable bend (an accidental S-shape is a fail); a transition glyph reads as flow, not as an icon or play button.
+- **Two-pass inspection (required):** first view the PNG at **fit-to-page** scale — every major stage connector must be immediately recognizable as an arrow (not a hairline or a tiny decorative glyph), and the reading order must survive the zoom-out; then inspect **close-up** for connector/text detail. A lint warning that maps to a hard visual rule (head proportion, containment) is never accepted just because the artifact is otherwise attractive.
+- **Explicit fail examples** (each has shipped as a defect at least once): an edge label crossed by its own path or ambiguous about which route it labels; icon/text overlap or a feedback loop crowded against cards; a major-flow connector that disappears at fit-to-page scale; a rendered EN/KO pair whose CJK glyphs break or whose connectors differ between languages.
 - **Message:** the archetype fits the content; one clear reading order; the title states a conclusion, not just a topic; text density stays low per box; any matrix/labels read unambiguously; depth and language fit the stated audience.
-- The SVG stays editable — tokens in one `<style>` block, no flattened or rasterized text.
+- The SVG stays editable — tokens in one `<style>` block, no flattened or rasterized text. **The source SVG is authoritative: never patch or redraw a connector only in the PNG.**
 
 If a check fails: fix the SVG source, re-run §4, re-render. Track which §4 item would have caught it — if none, the checklist is missing a rule.
 

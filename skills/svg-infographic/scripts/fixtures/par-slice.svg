@@ -8,7 +8,7 @@
   </style>
   <defs>
     <marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="11.25" markerHeight="11.25"
-      markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      markerUnits="userSpaceOnUse" preserveAspectRatio="xMidYMid slice" orient="auto-start-reverse">
       <path d="M2 2 L10 6 L2 10" fill="none" stroke="#44546a" stroke-width="2" stroke-linecap="round"/>
     </marker>
   </defs>
