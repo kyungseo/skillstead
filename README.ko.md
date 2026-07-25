@@ -2,47 +2,14 @@
 
 [English](./README.md) · **한국어**
 
-코딩 에이전트와 함께 쓸 수 있는 실용적인 스킬을 모았습니다. Governed review, 기술 다이어그램 제작,
-공개 문서의 주장 검증, GitHub 릴리스 준비, 자연스럽고 정확한 글쓰기에 필요한 스킬을 골라 설치할 수 있습니다.
+코딩 에이전트와 함께 쓸 수 있는 실용적인 스킬을 모았습니다. 기술 다이어그램 제작, 공개 문서의
+주장 검증, GitHub 릴리스 준비, 자연스럽고 정확한 글쓰기에 필요한 스킬을 골라 설치할 수 있습니다.
 
 > [!TIP]
 > **Skillstead = skill + homestead.** 코딩 에이전트가 실제 저장소에서 사용할 수 있는 스킬을 모아 두는
 > 작은 도구 모음입니다. 각 스킬이 지원하는 실행 환경은 실제 검증 결과가 있을 때만 표시합니다.
 
 ## 하이라이트
-
-### 다른 agent의 review로 결과물 보강
-
-계획이나 구현 결과를 다른 coding agent와 함께 검토하면 방향을 더 정교하게
-다듬고, 숨은 결함을 찾고, 결과물의 완성도를 높일 수 있습니다. acRelay Skill은
-필요한 순간에 이런 review를 자연어로 시작하게 합니다. 독립된 engine은 별도의
-Claude Code 또는 Codex CLI를 호출하고 review와 응답을 기록하며, 최종 결정은
-사람에게 남깁니다.
-
-```mermaid
-flowchart LR
-    O["Owner<br/>시작하고 최종 결정"] --> D["Driver agent<br/>작업 수행"]
-    D --> S["acRelay Skill<br/>자연어 안내"]
-    S --> E["acrelay binary<br/>review 통제"]
-    E --> R["Claude Code 또는 Codex CLI<br/>별도 reviewer"]
-    R --> E
-    E --> P["사용자 컴퓨터의 review 기록<br/>evidence와 결정"]
-    E --> D
-    P --> O
-    D --> O
-```
-
-acRelay가 없으면 3회 review 동안 요청을 보내고 결과를 돌려받느라 최대 6번을
-수동으로 복사·붙여넣어야 합니다. acRelay를 사용하면 검토한 revision, finding,
-driver 응답과 owner 결정을 사용자 컴퓨터의 기록 하나에 함께 남길 수 있습니다.
-Objective 하나의 formal round는 1–5회(기본 3회)라서 token을 계속 쓰는 끝없는
-논쟁으로 이어지지 않습니다.
-
-acRelay는 Skillstead의 대표 collaboration Skill이며 **Public Validation
-Preview**로 제공합니다. 아직 **Experimental** 단계이고 더 넓은 검증은
-**Validation pending**이며, 어느 runtime에도 일반적인 `Supported` 상태를
-표시하지 않습니다.
-[Skill과 engine이 어떻게 연결되는지 확인하세요.](./skills/acrelay/README.ko.md)
 
 ### SVG 갤러리
 
@@ -66,7 +33,6 @@ Preview**로 제공합니다. 아직 **Experimental** 단계이고 더 넓은 �
 
 | 스킬 | 이런 작업에 적합 | 지원 실행 환경 | 성숙도 |
 | --- | --- | --- | --- |
-| [`acrelay`](./skills/acrelay) | 별도로 설치한 acRelay engine으로 계획과 구현 결과 review | 검증 대기 | Experimental preview |
 | [`svg-infographic`](./skills/svg-infographic) | 아키텍처 설명, 작업 흐름, 비교 자료를 수정 가능한 SVG와 검증된 2× PNG로 제작 | Supported: Claude Code + Codex | Stable |
 | [`docs-claim-check`](./skills/docs-claim-check) | 공개 문서의 주장이 제공된 근거로 뒷받침되는지 확인 | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide) | 비공개 GitHub 저장소의 첫 공개 전환 또는 공개 후 매 버전 릴리스를 점검하고 단계별로 안내 | Supported: Claude Code + Codex | Stable |
@@ -78,41 +44,6 @@ Windows 명령과 실행 환경별 지원 상태는 [`docs/INSTALL.ko.md`](./doc
 확인할 수 있습니다.
 
 ## 스킬별 상세 안내
-
-### acrelay
-
-`acrelay`는 독립된
-[acRelay engine](https://github.com/kyungseo/acrelay)을 다시 구현하지 않고
-자연어로 사용하도록 안내하는 Skill입니다. Engine은 acRelay 전용 daemon, server
-또는 database 없이 실행 파일 하나로 배포됩니다. Skill은 자연어 요청을 acRelay
-단계로 옮기고, engine은 파일을 확인해 reviewer를 시작하고 review를 기록합니다.
-Skill만으로는 review를 실행할 수 없으므로 둘 다 설치합니다.
-
-Command가 없거나 version이 맞지 않으면 필요한 조치를 설명하고 중단합니다.
-acRelay를 우회해 reviewer를 직접 호출하지 않습니다.
-
-이 Skill은 default branch에서 Public Validation Preview로 제공합니다. 아직
-Experimental이고 Validation pending이며, `v0.8.0` tag에는 포함되지 않습니다.
-작성자가 두 reviewer 경로에서 실제 review를 완료했지만, 초대된 비작성자 검증
-전에는 일반적인 `Supported` 상태를 주장하지 않습니다.
-
-사용하려면 로그인되어 정상 실행되는 Claude Code CLI 또는 Codex CLI reviewer가
-필요합니다. Codex App은 driver가 될 수 있지만 reviewer는 이 CLI 중 하나에서
-실행됩니다.
-
-- 자세한 안내: [`acrelay` 한국어 README](./skills/acrelay/README.ko.md)
-- 설치: [`docs/INSTALL.ko.md`](./docs/INSTALL.ko.md#acrelay-public-validation-preview-설치)
-- Engine 문서: [acRelay](https://github.com/kyungseo/acrelay)
-- 계획: `acRelay로 Claude에게 이 계획을 비판적으로 검토해 달라고 해줘. 마지막에 내가 결정해야 할 내용만 정리해줘.`
-- 파일 하나: `acRelay로 Codex에게 이 파일을 검토하게 해줘. 확인한 근거와 발견한 문제를 정리해줘.`
-- 구현 결과: `acRelay로 현재 구현 결과가 승인된 계획과 맞는지 검토하고, 어긋난 점을 정리해줘.`
-- 같은 도구의 별도 session: `지금 Claude Code에서 작업 중이야. 별도의 Claude Code CLI를 reviewer로 사용해서 이 작업을 검토해줘.`
-
-Codex와 Claude Code를 함께 쓴다면 Codex App이나 Claude Code CLI에서 작업하면서
-두 CLI 중 하나를 reviewer로 쓸 수 있습니다. Codex나 Claude Code 중 하나만
-쓰더라도 같은 도구의 별도 CLI session을 reviewer로 둘 수 있지만, 두 context가
-같은 맹점을 공유할 수 있습니다. 별도로 제한하지 않으면 최대 3회차로 진행하며,
-필요하면 1~5회 안에서 원하는 제한을 요청할 수 있습니다.
 
 ### svg-infographic
 
@@ -218,14 +149,6 @@ Codex를 `Supported`로 표시하며, 성숙도는 Beta로 유지합니다.
 
 ## 현재 제한
 
-- `acrelay`는 default branch에서 제공하는 Public Validation Preview입니다.
-  아직 Experimental이고 Validation pending이며, 일반적인 `Supported` 상태를
-  주장하지 않습니다. 작성자가 두 reviewer 경로에서 실제 review를 완료했으며,
-  초대된 비작성자 검증은 남아 있습니다. Exact acRelay
-  `v0.1.0-alpha.2`에서만 동작합니다. 현재 미리 build한 engine은 macOS Apple
-  Silicon용입니다. 다음 platform 지원 대상은 Windows이며, core lane은 검증했고
-  platform별 reviewer 검증은 아직 남아 있습니다. Linux는 core CI를 유지하지만
-  현재 artifact와 live-review 지원 계획이 없습니다.
 - `svg-infographic`의 브라우저 렌더링은 macOS와 Windows 11 ARM64 VM에서 검증했습니다. 이 결과를
   모든 Windows 장치나 파일 시스템에 일반화하지 않으며, Linux 렌더링 경로는 문서화했지만 아직 직접
   검증하지 않았습니다.

@@ -2,47 +2,14 @@
 
 **English** · [한국어](./README.ko.md)
 
-Practical, portable skills for agentic coding workflows — run governed reviews, create clearer artifacts,
-check public claims, guide safer GitHub releases, and turn rough or translated text into natural, precise writing.
+Practical, portable skills for agentic coding workflows — create clearer artifacts, check public claims,
+guide safer GitHub releases, and turn rough or translated text into natural, precise writing.
 
 > [!TIP]
 > **Skillstead = skill + homestead.** A small, durable place for skills that coding agents can carry into
 > real repositories. Each public support claim is tied to examples and runtime evidence.
 
 ## Highlights
-
-### Strengthen work with another agent's review
-
-Reviewing a plan or implementation with another coding agent can sharpen the
-direction, uncover hidden defects, and improve the finished work. The acRelay
-Skill lets you start that review in natural language whenever it is useful.
-The standalone engine calls a separate Claude Code or Codex CLI, records the
-review and responses, and leaves the final decision with a person.
-
-```mermaid
-flowchart LR
-    O["Owner<br/>starts and decides"] --> D["Driver agent<br/>does the work"]
-    D --> S["acRelay Skill<br/>natural-language guide"]
-    S --> E["acrelay binary<br/>review control"]
-    E --> R["Claude Code or Codex CLI<br/>separate reviewer"]
-    R --> E
-    E --> P["Review record on your computer<br/>evidence and decisions"]
-    E --> D
-    P --> O
-    D --> O
-```
-
-Without acRelay, three review rounds can require six manual copy-and-paste
-handoffs: a request out and a result back for every round. With acRelay, one
-record on your computer keeps the reviewed revision, findings, driver
-responses, and owner decisions together. One objective allows 1–5 formal
-rounds (default 3), so the review cannot turn into open-ended back-and-forth
-that keeps consuming tokens.
-
-acRelay is Skillstead's featured collaboration Skill and part of a **Public
-Validation Preview**. It is **Experimental**, broader validation is still
-**pending**, and neither runtime is presented as generally `Supported`.
-[See how the Skill and engine fit together.](./skills/acrelay/README.md)
 
 ### Explore the SVG gallery
 
@@ -65,7 +32,6 @@ required pipeline: start with the skill you need, skip the others, and recheck a
 
 | Skill | Best for | Runtime support | Maturity |
 | --- | --- | --- | --- |
-| [`acrelay`](./skills/acrelay) | Reviewing plans and implementations through the separately installed acRelay engine | Validation pending | Experimental preview |
 | [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | Supported: Claude Code + Codex | Stable |
 | [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | Supported: Claude Code + Codex | Stable |
@@ -77,43 +43,6 @@ catalog—copy only the complete folder for the skill you want to use. See
 and the per-skill runtime matrix.
 
 ## Skill details
-
-### acrelay
-
-`acrelay` uses the standalone
-[acRelay engine](https://github.com/kyungseo/acrelay) instead of reimplementing
-it. The engine ships as one executable with no acRelay-owned daemon, server, or
-database. The Skill translates a natural-language request into acRelay steps;
-the engine checks the files, starts the reviewer, and records the review. The
-Skill cannot run a review by itself, so you install both.
-
-If the command is missing or has the wrong version, the Skill stops and
-explains what is needed. It never bypasses acRelay by calling the reviewer
-directly.
-
-This Skill is available from the default branch as a Public Validation Preview.
-It is Experimental, validation is pending, and it is not included in the
-`v0.8.0` tag. The author completed live reviews through both reviewer paths;
-validation by an invited non-author is still required before any general
-`Supported` claim.
-
-To try it, you need a signed-in, working Claude Code CLI or Codex CLI reviewer.
-Codex App can drive the work, but the reviewer still runs through one of those
-CLIs.
-
-- Friendly guide: [`acrelay` README](./skills/acrelay/README.md)
-- Installation: [`docs/INSTALL.md`](./docs/INSTALL.md#install-the-acrelay-public-validation-preview)
-- Engine documentation: [acRelay](https://github.com/kyungseo/acrelay)
-- Plan: `Use acRelay to have Claude challenge this plan. Summarize the decisions I need to make at the end.`
-- One file: `Use acRelay to have Codex review this file. Summarize the evidence it checked and the problems it found.`
-- Implementation: `Use acRelay to check whether the current implementation matches the approved plan and summarize any gaps.`
-- Same-tool separate session: `I am working in Claude Code. Use a separate Claude Code CLI reviewer to review this work.`
-
-If you use Codex and Claude Code together, either CLI can review work driven
-from Codex App or Claude Code CLI. If you use only Codex or only Claude Code,
-a separate CLI session of the same tool can still act as reviewer, although
-the two contexts may share blind spots. If you do not specify a limit, acRelay
-allows up to three review rounds; you may request any limit from one to five.
 
 ### svg-infographic
 
@@ -216,14 +145,6 @@ evidence scope; maturity remains Beta.
 
 ## Current limitations
 
-- `acrelay` is a Public Validation Preview on the default branch: Experimental,
-  validation pending, and not generally `Supported`. The author completed live
-  reviews through both reviewer paths; validation by an invited non-author
-  remains pending. The Skill works only with exact acRelay version
-  `v0.1.0-alpha.2`. Its current prebuilt engine is for macOS Apple Silicon;
-  Windows is the next platform-support target, with its core lane verified and
-  platform-specific reviewer validation still pending. Linux retains core CI
-  coverage but has no current artifact or live-review support plan.
 - `svg-infographic` browser rendering is verified on macOS and in the recorded Windows 11 ARM64 VM.
   This does not claim every Windows machine or filesystem; Linux rendering remains documented but unverified.
 - `docs-claim-check` is advisory and evidence-bound; it does not execute verification commands.

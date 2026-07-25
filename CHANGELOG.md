@@ -6,31 +6,6 @@ Granular, per-change entries begin at the first public release. Earlier developm
 
 ## [Unreleased]
 
-### acrelay (Public Validation Preview)
-
-- Adds a natural-language guide for the separately installed acRelay command.
-  It requires exact version `v0.1.0-alpha.2`, keeps the official Markdown review
-  history private, leaves approval and Close with the owner, and delegates
-  review state, evidence, reviewer execution, recovery, cleanup, and closeout
-  to the command.
-- The root catalog and install guide mark Claude Code and Codex support as
-  `Pending`. The author completed live reviews through both reviewer paths;
-  validation by an invited non-author is still required before either runtime
-  is marked `Supported`.
-- The package is available from the default branch as an Experimental,
-  Validation-pending preview. It is not included in `v0.8.0` and this entry
-  does not claim either runtime as supported.
-- Highlights acRelay as Skillstead's flagship collaboration preview and adds a
-  dedicated engine-plus-Skill installation path, manual-relay before/after
-  explanation, bounded-round guidance, and examples for plans, files,
-  checked-out implementations, cross/same-vendor review, and owner closeout.
-- Sets Windows as the next platform-support target: its core runtime lane is
-  verified, while live reviewer support awaits platform-specific validation
-  and any resulting patches. Linux retains core CI coverage but has no current
-  artifact or live-review support plan. Host-native subagent result ingestion
-  remains unsupported rather than silently falling back to another review
-  path.
-
 ## [0.8.0] — 2026-07-24
 
 ### svg-infographic
