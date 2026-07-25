@@ -222,9 +222,10 @@ Codex를 `Supported`로 표시하며, 성숙도는 Beta로 유지합니다.
   아직 Experimental이고 Validation pending이며, 일반적인 `Supported` 상태를
   주장하지 않습니다. 작성자가 두 reviewer 경로에서 실제 review를 완료했으며,
   초대된 비작성자 검증은 남아 있습니다. Exact acRelay
-  `v0.1.0-alpha.1`에서만 동작합니다. 현재 미리 build한 engine은 macOS Apple
-  Silicon용이며, Linux와 Windows core lane은 검증했습니다. Platform별 reviewer
-  검증과 필요한 patch는 다음 지원 확대 단계로 계획하고 있습니다.
+  `v0.1.0-alpha.2`에서만 동작합니다. 현재 미리 build한 engine은 macOS Apple
+  Silicon용입니다. 다음 platform 지원 대상은 Windows이며, core lane은 검증했고
+  platform별 reviewer 검증은 아직 남아 있습니다. Linux는 core CI를 유지하지만
+  현재 artifact와 live-review 지원 계획이 없습니다.
 - `svg-infographic`의 브라우저 렌더링은 macOS와 Windows 11 ARM64 VM에서 검증했습니다. 이 결과를
   모든 Windows 장치나 파일 시스템에 일반화하지 않으며, Linux 렌더링 경로는 문서화했지만 아직 직접
   검증하지 않았습니다.

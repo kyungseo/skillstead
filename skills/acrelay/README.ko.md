@@ -6,15 +6,27 @@
 다듬고, driver가 놓친 결함을 찾고, 결과물의 완성도를 높일 수 있습니다. 이 Skill은
 이런 review를 자연어로 쉽게 시작하도록 돕습니다.
 
-독립된 [acRelay engine](https://github.com/kyungseo/acrelay)을 자연어로
-사용하도록 안내하는 Skill입니다. Engine은 acRelay 전용 daemon, server 또는
-database 없이 실행 파일 하나로 배포됩니다. Engine과 이 Skill을 설치한 뒤 계획,
-문서, 파일 하나, 선택한 구현 파일 또는 지정한 directory tree를 review해 달라고
-요청하면 됩니다. Skill은 engine을 다시 구현하거나 우회하지 않습니다.
+이 문서에서는 지금 작업을 진행하는 agent를 **driver**, 별도로 검토하는 CLI를
+**reviewer**, 최종 결정을 내리는 사용자를 **owner**라고 부릅니다.
 
-두 구성요소의 역할은 다릅니다. Skill은 자연어 요청을 acRelay 단계로 옮깁니다.
-Engine은 파일을 확인하고 별도의 Claude Code 또는 Codex CLI reviewer를 시작해
-결과를 기록합니다. Skill만으로는 review를 실행할 수 없으므로 둘 다 설치합니다.
+독립된 [acRelay engine](https://github.com/kyungseo/acrelay)을 자연어로
+사용하도록 안내하는 Skill입니다. Engine은 실행 파일 하나로 배포되며, 별도의
+acRelay 전용 daemon, server 또는 database를 사용하지 않습니다. Engine과 이
+Skill을 설치한 뒤 계획, 문서, 파일 하나, 선택한 구현 파일 또는 지정한 directory
+tree를 review해 달라고 요청하면 됩니다. Skill은 별도 기능을 만들거나 Engine을
+우회하지 않고, 지정된 Engine의 기능을 그대로 사용합니다.
+
+두 구성요소가 맡는 일은 다릅니다.
+
+- **Skill:** 자연어 요청을 acRelay에게 전달합니다.
+- **Engine:** 파일을 확인하고 별도의 Claude Code 또는 Codex CLI reviewer를
+  시작해 결과를 기록합니다.
+
+> [!IMPORTANT]
+> Skill과 engine을 모두 설치해야 합니다. Skill만으로는 review를 실행할 수
+> 없습니다.
+
+[![사용자가 Codex에게 Claude를 제한된 acRelay review에 참여시키도록 요청하고, Claude는 회차 뒤 종료되며, 사용자가 변경 여부를 결정하는 흐름](./assets/acrelay-review-flow.ko@2x.png)](./assets/acrelay-review-flow.ko.svg)
 
 ## 어떤 수작업을 줄이는가
 
@@ -27,7 +39,7 @@ Engine은 파일을 확인하고 별도의 Claude Code 또는 Codex CLI reviewer
 | 검토한 revision과 남은 finding을 직접 기억 | Revision, finding과 응답을 사용자 컴퓨터의 기록 하나에 보관 |
 | 누군가 동의할 때까지 대화가 이어짐 | 1–5회(기본 3회) 안에서 검토하고 owner에게 결정 반환 |
 
-한 번 호출하면 범위가 정해진 review objective 하나를 시작하며, formal round는
+한 번 호출하면 범위가 정해진 review objective 하나를 시작하며, review 회차는
 1–5회(기본 3회) 진행할 수 있습니다. acRelay는 호출할 때만 실행하며 백그라운드
 service로 계속 동작하지 않습니다.
 
@@ -36,9 +48,9 @@ service로 계속 동작하지 않습니다.
 이 Skill은 **Public Validation Preview**에 포함됩니다. 아직 **Experimental**
 단계이고 더 넓은 검증은 **Validation pending**이며, Claude Code나 Codex에
 일반적인 `Supported` 상태를 표시하지 않습니다. 작성자가 두 reviewer 경로에서
-실제 review를 완료했지만, 초대된 비작성자 검증은 이후 support 승격 gate로 남아
-있습니다. Package는 Skillstead default branch에서 제공하며 `v0.8.0` tag에는
-포함되지 않습니다.
+실제 review를 완료했지만, Skillstead가 일반적인 `Supported` 상태로 표시하기
+전에 초대된 비작성자 검증이 더 필요합니다. Package는 Skillstead default
+branch에서 제공하며 `v0.8.0` tag에는 포함되지 않습니다.
 
 `검증 대기`는 package가 없다는 뜻이 아닙니다. 문서화된 preview를 평가할 수는
 있지만 Skillstead가 아직 일반적인 runtime 지원을 주장하지 않는다는 뜻입니다.
@@ -55,25 +67,26 @@ reviewer는 CLI에서 실행됩니다.
 
 ## Engine 설치
 
-Terminal에서 exact `v0.1.0-alpha.1` `acrelay` command를 바로 실행할 수 있어야
+Terminal에서 exact `v0.1.0-alpha.2` `acrelay` command를 바로 실행할 수 있어야
 합니다(`PATH`에 있어야 합니다). 현재 미리 build해 제공하는 binary는 macOS Apple
 Silicon(`darwin/arm64`)용입니다. Terminal에서 `uname -m`을 실행하고 결과가
 `arm64`일 때만 이 installer를 사용하세요. Installer는 `latest`로 바꾸지
 않습니다.
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/kyungseo/acrelay/v0.1.0-alpha.1/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/kyungseo/acrelay/v0.1.0-alpha.2/scripts/install.sh | bash
 ```
 
 Installer는 release에 고정돼 있으며 binary archive를 공개 checksum과 대조합니다.
 실행 전에 installer 내용을 확인하거나 고정 version의 `go install`을 사용하려면
-[acRelay 설치 안내](https://github.com/kyungseo/acrelay/blob/v0.1.0-alpha.1/docs/OPERATIONS.ko.md)를
+[acRelay 설치 안내](https://github.com/kyungseo/acrelay/blob/v0.1.0-alpha.2/docs/OPERATIONS.ko.md)를
 따르세요.
 
-Linux와 Windows core runtime lane은 이미 검증했습니다. Platform별 Claude
-Code·Codex review는 다음 지원 확대 단계에서 검증하고, 필요한 patch는 근거 검토
-후 release할 예정입니다. 그전까지 engine은 검증하지 않은 운영체제와 reviewer
-version 조합에서 파일을 보내기 전에 중단합니다.
+다음 platform 지원 대상은 Windows입니다. Windows core runtime lane은 이미
+검증했으며, 다음 단계에서 Claude Code·Codex review를 검증하고 필요한 patch를
+반영합니다. Linux core runtime CI는 source test matrix에 유지하지만, 이번
+preview에는 Linux artifact와 live-review 지원이 없습니다. 조합을 검증하기
+전까지 engine은 파일을 보내기 전에 중단합니다.
 
 ## Skill preview 설치
 
@@ -127,7 +140,7 @@ acRelay로 Codex에게 이 파일을 검토하게 해줘. 확인한 근거와 �
 acRelay로 현재 구현 결과가 승인된 계획과 맞는지 검토하고, 어긋난 점을 정리해줘.
 ```
 
-acRelay v0.1.0-alpha.1은 파일 하나, 명시한 여러 파일 또는 지정한 subtree를
+acRelay v0.1.0-alpha.2는 파일 하나, 명시한 여러 파일 또는 지정한 subtree를
 받습니다. PR URL, staged patch, commit range 또는 branch comparison을 직접
 선택하는 기능은 아직 없습니다. 원하는 revision을 checkout한 뒤 파일이나 subtree를
 지정하세요.

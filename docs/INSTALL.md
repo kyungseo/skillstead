@@ -23,7 +23,7 @@ Codex. Support is verified separately for every Skill and runtime.
 
 | Skill | Claude Code | Codex | Notes |
 | --- | --- | --- | --- |
-| `acrelay` | Pending | Pending | Public Validation Preview: Experimental, with broader validation pending. The author completed live reviews through both reviewer paths; validation by an invited non-author is still required before a `Supported` claim. Requires exact acRelay `v0.1.0-alpha.1`. |
+| `acrelay` | Pending | Pending | Public Validation Preview: Experimental, with broader validation pending. The author completed live reviews through both reviewer paths; validation by an invited non-author is still required before a `Supported` claim. Requires exact acRelay `v0.1.0-alpha.2`. |
 | `svg-infographic` | Supported | Supported | Frozen fresh-context briefs passed on Claude Code and macOS Codex CLI; a fresh Codex App task also passed in a Windows 11 ARM64 VM. This is not a claim for every Windows machine/filesystem; Linux rendering remains unverified |
 | `docs-claim-check` | Supported | Not yet claimed | Behavioral fixtures passed with Claude Code Fable and Sonnet |
 | `github-release-guide` | Supported | Supported | Clean material parity (incl. protection fixtures), disposable first-public and Guided tag-ruleset live E2E, pinned `v0.5.0`/`v0.6.0` project installation/discovery, and release claim audits passed |
@@ -49,19 +49,20 @@ through one of those CLIs.
 
 The current prebuilt engine is for macOS Apple Silicon (`darwin/arm64`).
 On macOS, open Terminal and run `uname -m`. Use this installer only if the
-result is `arm64`. Then install the exact `v0.1.0-alpha.1` preview:
+result is `arm64`. Then install the exact `v0.1.0-alpha.2` preview:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/kyungseo/acrelay/v0.1.0-alpha.1/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/kyungseo/acrelay/v0.1.0-alpha.2/scripts/install.sh | bash
 ```
 
 The installer is pinned to the exact engine release and checksum-verifies its
 binary archive. For the review-first installer and pinned `go install` path,
 see the
-[engine installation guide](https://github.com/kyungseo/acrelay/blob/v0.1.0-alpha.1/docs/OPERATIONS.md).
-Linux and Windows core runtime lanes are verified, while platform-specific
-Claude Code/Codex review validation and any resulting patches remain the next
-support-expansion step.
+[engine installation guide](https://github.com/kyungseo/acrelay/blob/v0.1.0-alpha.2/docs/OPERATIONS.md).
+Windows is the next platform-support target. Its core runtime lane is verified,
+while platform-specific Claude Code/Codex review validation and any resulting
+patches remain pending. Linux retains core CI coverage but has no current
+artifact or live-review support plan.
 
 This Experimental preview is not included in `v0.8.0`. Install it from the
 default branch for Claude Code:
@@ -200,7 +201,7 @@ Korean READMEs, and `agents/openai.yaml`. It is not part of the published
 `v0.8.0` tag. Do not present it as supported until its separate validation is
 complete.
 It requires the separately installed acRelay command at exact version
-`v0.1.0-alpha.1`; the Skill never installs or updates that command. Follow the
+`v0.1.0-alpha.2`; the Skill never installs or updates that command. Follow the
 dedicated preview instructions above rather than adapting the
 `github-release-guide` example by guesswork.
 

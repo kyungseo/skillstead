@@ -23,7 +23,7 @@ PNG·visual QA 경로를 유지하며, 자동 lint만 사용할 수 없습니다
 
 | 스킬 | Claude Code | Codex | 참고 |
 | --- | --- | --- | --- |
-| `acrelay` | 검증 대기 | 검증 대기 | Public Validation Preview입니다. 아직 Experimental이고 더 넓은 검증은 pending입니다. 작성자가 두 reviewer 경로에서 실제 review를 완료했으며, `Supported` 표시 전에는 초대된 비작성자 검증이 더 필요합니다. Exact acRelay `v0.1.0-alpha.1`이 필요합니다. |
+| `acrelay` | 검증 대기 | 검증 대기 | Public Validation Preview입니다. 아직 Experimental이고 더 넓은 검증은 pending입니다. 작성자가 두 reviewer 경로에서 실제 review를 완료했으며, `Supported` 표시 전에는 초대된 비작성자 검증이 더 필요합니다. Exact acRelay `v0.1.0-alpha.2`가 필요합니다. |
 | `svg-infographic` | 지원 | 지원 | Claude Code와 macOS Codex CLI의 고정 요구사항 검증을 통과했고, Windows 11 ARM64 VM의 새 Codex App 작업도 통과했습니다. 이 결과를 모든 Windows 장치나 파일 시스템에 일반화하지 않으며 Linux 렌더링은 아직 검증하지 않았습니다. |
 | `docs-claim-check` | 지원 | 아직 지원을 주장하지 않음 | Claude Code Fable과 Sonnet으로 동작 fixture를 통과했습니다. |
 | `github-release-guide` | 지원 | 지원 | Protection fixture를 포함해 두 runtime의 필수 동작이 일치했습니다. Disposable first-public 및 Guided tag-ruleset live test, `v0.5.0`/`v0.6.0` 고정 설치·스킬 인식과 release claim audit도 통과했습니다. |
@@ -47,19 +47,20 @@ release하는 [acRelay engine](https://github.com/kyungseo/acrelay)과 함께
 CLI 중 하나에서 실행됩니다.
 
 현재 미리 build한 engine은 macOS Apple Silicon(`darwin/arm64`)용입니다. Exact
-`v0.1.0-alpha.1` preview를 설치합니다. macOS에서 Terminal을 열고 `uname -m`을
+`v0.1.0-alpha.2` preview를 설치합니다. macOS에서 Terminal을 열고 `uname -m`을
 실행한 뒤 결과가 `arm64`일 때만 아래 installer를 사용하세요.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/kyungseo/acrelay/v0.1.0-alpha.1/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/kyungseo/acrelay/v0.1.0-alpha.2/scripts/install.sh | bash
 ```
 
 Installer는 exact engine release에 고정돼 있고 binary archive를 checksum으로
 검증합니다. Installer 내용을 먼저 확인하는 경로와 고정 version의 `go install`은
-[engine 설치 안내](https://github.com/kyungseo/acrelay/blob/v0.1.0-alpha.1/docs/OPERATIONS.ko.md)를
-참고하세요. Linux와 Windows core runtime lane은 검증했으며, platform별 Claude
-Code·Codex review 검증과 그 결과에 따른 patch는 다음 지원 확대 단계로 남아
-있습니다.
+[engine 설치 안내](https://github.com/kyungseo/acrelay/blob/v0.1.0-alpha.2/docs/OPERATIONS.ko.md)를
+참고하세요. 다음 platform 지원 대상은 Windows입니다. Windows core runtime
+lane은 검증했으며, platform별 Claude Code·Codex review 검증과 그 결과에 따른
+patch는 아직 남아 있습니다. Linux는 core CI를 유지하지만 현재 artifact와
+live-review 지원 계획이 없습니다.
 
 이 Experimental preview는 `v0.8.0`에 포함되지 않습니다. Claude Code에서는
 default branch에서 다음과 같이 설치합니다.
@@ -197,7 +198,7 @@ README, `agents/openai.yaml`과 reference 파일 3개가 들어 있습니다. �
 `acrelay` Public Validation Preview에는 `SKILL.md`, 영문·한국어 README와
 `agents/openai.yaml`이 들어 있습니다. 공개된 `v0.8.0` tag에는 포함되지
 않습니다. 별도 검증이 끝나기 전에는 지원되는 package로 소개하면 안 됩니다.
-이 스킬에는 별도로 설치한 exact acRelay `v0.1.0-alpha.1`이 필요하며, 스킬
+이 스킬에는 별도로 설치한 exact acRelay `v0.1.0-alpha.2`가 필요하며, 스킬
 자체는 command를 설치하거나 업데이트하지 않습니다. `github-release-guide`
 예시를 추측으로 바꾸지 말고 위의 preview 전용 설치 절차를 따르세요.
 

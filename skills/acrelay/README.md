@@ -7,17 +7,29 @@ direction, reveal defects that the driver missed, and make the final result
 more complete. This Skill makes those reviews easy to start in natural
 language.
 
-This Skill is a natural-language guide for the standalone
-[acRelay engine](https://github.com/kyungseo/acrelay): one executable with no
-acRelay-owned daemon, server, or database. Install the engine, install this
-Skill, and ask for a review of a plan, document, file, selected implementation
-files, or a declared directory tree. The Skill does not reimplement or bypass
-the engine.
+In this guide, the agent doing the work is the **driver**, the separate CLI
+that challenges the work is the **reviewer**, and the person who makes the
+final decision is the **owner**.
 
-The two parts have different jobs. The Skill translates your natural-language
-request into acRelay steps. The engine checks the files, starts a separate
-Claude Code or Codex CLI reviewer, and records the result. The Skill cannot run
-a review by itself, so you install both.
+This Skill is a natural-language guide for the standalone
+[acRelay engine](https://github.com/kyungseo/acrelay). The engine is distributed
+as one executable and does not use a dedicated daemon, server, or database.
+Install the engine, install this Skill, and ask for a review of a plan,
+document, file, selected implementation files, or a declared directory tree.
+The Skill uses the engine's provided capabilities as-is; it does not
+reimplement or bypass the engine.
+
+The two parts have different jobs:
+
+- **Skill:** passes your natural-language request to acRelay.
+- **Engine:** checks the files, starts a separate Claude Code or Codex CLI
+  reviewer, and records the result.
+
+> [!IMPORTANT]
+> Install both the Skill and the engine. The Skill cannot run a review by
+> itself.
+
+[![A user asks Codex to bring Claude into a bounded acRelay review; Claude exits after the round, and the user decides what changes](./assets/acrelay-review-flow@2x.png)](./assets/acrelay-review-flow.svg)
 
 ## What It Replaces
 
@@ -29,9 +41,9 @@ copy-and-paste handoffs.
 | --- | --- |
 | Move each request and result between agents | Start in natural language; the Skill calls the engine |
 | Remember the reviewed revision and open findings | Keep the revision, findings, and responses in one record on your computer |
-| Let the conversation drift until someone agrees | Use 1–5 formal rounds (default 3), then return the decision to the owner |
+| Let the conversation drift until someone agrees | Use 1–5 review rounds (default 3), then return the decision to the owner |
 
-Each invocation starts one bounded review objective, which may use 1–5 formal
+Each invocation starts one bounded review objective, which may use 1–5 review
 rounds (default 3). acRelay runs only when invoked and never continues as a
 background service.
 
@@ -40,9 +52,10 @@ background service.
 This Skill is part of the **Public Validation Preview**. It is
 **Experimental**, broader validation is still **pending**, and neither Claude
 Code nor Codex is presented as generally `Supported`. The author completed
-live reviews through both reviewer paths; validation by an invited non-author
-remains a later promotion gate. The package is available from Skillstead's
-default branch but is not included in the `v0.8.0` tag.
+live reviews through both reviewer paths, but an invited non-author still needs
+to validate the experience before Skillstead presents it as generally
+`Supported`. The package is available from Skillstead's default branch but is
+not included in the `v0.8.0` tag.
 
 `Pending` does not mean the package is missing. It means this documented
 preview is available to evaluate, but Skillstead does not yet claim general
@@ -60,25 +73,26 @@ in Terminal. The Skill and engine do not install or sign in to reviewer tools.
 
 ## Install The Engine
 
-The exact `v0.1.0-alpha.1` `acrelay` command must be available from Terminal
+The exact `v0.1.0-alpha.2` `acrelay` command must be available from Terminal
 (on `PATH`). The current prebuilt binary is for macOS Apple Silicon
 (`darwin/arm64`). In Terminal, run `uname -m` and continue with this installer
 only when the result is `arm64`. The installer never substitutes `latest`.
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/kyungseo/acrelay/v0.1.0-alpha.1/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/kyungseo/acrelay/v0.1.0-alpha.2/scripts/install.sh | bash
 ```
 
 The installer is pinned to the release and checks the binary archive against
 its published checksum. If you prefer to inspect the installer before running
 it, or want the pinned `go install` alternative, follow the
-[acRelay installation guide](https://github.com/kyungseo/acrelay/blob/v0.1.0-alpha.1/docs/OPERATIONS.md).
+[acRelay installation guide](https://github.com/kyungseo/acrelay/blob/v0.1.0-alpha.2/docs/OPERATIONS.md).
 
-Linux and Windows core runtime lanes are already verified. Platform-specific
-Claude Code and Codex review validation is planned as the next support step,
-with patches released after the evidence is reviewed. Until then the engine
-stops before sending files from an unverified operating-system and
-reviewer-version combination.
+Windows is the next platform-support target. Its core runtime lane is already
+verified; platform-specific Claude Code and Codex review validation comes next,
+followed by any patches that evidence requires. Linux core runtime CI remains
+in the source test matrix, but this preview provides no Linux artifact or
+live-review support. Until a combination is verified, the engine stops before
+sending files.
 
 ## Install The Skill Preview
 
@@ -133,7 +147,7 @@ Use acRelay to have Codex review this file. Summarize the evidence it checked an
 Use acRelay to check whether the current implementation matches the approved plan and summarize any gaps.
 ```
 
-acRelay v0.1.0-alpha.1 accepts a file, explicit files, or a declared subtree.
+acRelay v0.1.0-alpha.2 accepts a file, explicit files, or a declared subtree.
 It does not yet accept a PR URL, staged patch, commit range, or branch
 comparison as a first-class selector. Check out the intended revision and name
 the files or subtree instead.

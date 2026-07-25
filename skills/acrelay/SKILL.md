@@ -2,7 +2,7 @@
 name: acrelay
 description: >
   Start, continue, inspect, or close a tracked code or artifact review through
-  an installed acRelay v0.1.0-alpha.1 command, using Claude Code or Codex as the
+  an installed acRelay v0.1.0-alpha.2 command, using Claude Code or Codex as the
   reviewer. Keep the review record private, leave approvals and Close with the
   owner, and stop when the command is missing or incompatible.
 ---
@@ -38,19 +38,19 @@ them as unexplained protocol vocabulary:
 This package is compatible only with:
 
 ```text
-acRelay v0.1.0-alpha.1
+acRelay v0.1.0-alpha.2
 ```
 
 Before any `init`, `review`, `confirm`, mutation, or Close:
 
 1. Resolve `acrelay` from `PATH`.
 2. Run `acrelay version --short`.
-3. Continue only when the exact output is `v0.1.0-alpha.1`.
+3. Continue only when the exact output is `v0.1.0-alpha.2`.
 
 If the command is missing, show the user the public installation guide:
 
 ```text
-https://github.com/kyungseo/acrelay/blob/v0.1.0-alpha.1/docs/OPERATIONS.md
+https://github.com/kyungseo/acrelay/blob/v0.1.0-alpha.2/docs/OPERATIONS.md
 ```
 
 Do not install or update the binary automatically. If the version is different
@@ -80,7 +80,7 @@ Explain that vendor egress may include subject content, absolute and resolved
 paths, and metadata. Local canonical storage does not mean local model
 inference.
 
-If the user asks for a host-native subagent, explain that v0.1.0-alpha.1 cannot
+If the user asks for a host-native subagent, explain that v0.1.0-alpha.2 cannot
 ingest a host-created subagent result. Offer a separate external Claude Code or
 Codex CLI reviewer only when its platform tuple is supported and the user
 accepts that topology. Never describe the external CLI session as a subagent.

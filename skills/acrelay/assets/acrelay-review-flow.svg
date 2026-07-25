@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 720" width="1400" height="720" role="img"
+  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>Ask once, bring a second agent into the review</title>
+  <desc>A user asks Codex to have Claude review a plan. Codex drives bounded review rounds through acRelay, reports the findings to the user, and the user decides what enters the updated plan. The reviewer CLI exits after each round.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="13.5" markerHeight="13.5"
+      markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M2 2 L10 6 L2 10" fill="none" stroke="#46566B" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <symbol id="ic-person" viewBox="0 0 24 24">
+      <circle cx="12" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+      <path d="M5.5 20c.7-4.2 3-6.3 6.5-6.3s5.8 2.1 6.5 6.3" fill="none" stroke="currentColor"
+        stroke-width="1.8" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="ic-terminal" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="16" rx="2.5" fill="none" stroke="currentColor"
+        stroke-width="1.8"/>
+      <path d="M7 9l3 3-3 3M13 15h4" fill="none" stroke="currentColor" stroke-width="1.8"
+        stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ic-review" viewBox="0 0 24 24">
+      <path d="M6 3h8l4 4v14H6zM14 3v4h4" fill="none" stroke="currentColor" stroke-width="1.8"
+        stroke-linejoin="round"/>
+      <path d="M9 13l2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.8"
+        stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ic-plan" viewBox="0 0 24 24">
+      <rect x="4" y="3" width="16" height="18" rx="2.5" fill="none" stroke="currentColor"
+        stroke-width="1.8"/>
+      <path d="M8 8h8M8 12h8M8 16h5" fill="none" stroke="currentColor" stroke-width="1.8"
+        stroke-linecap="round"/>
+    </symbol>
+  </defs>
+  <style>
+    .bg{fill:#F8FAFD}.ink{fill:#1D2A3A}.muted{fill:#637083}.hair{stroke:#D6E0EC}
+    .panel{fill:#F1F6FC;stroke:#B8CEE7;stroke-width:1.5}.card{fill:#FFFFFF;stroke-width:1.5}
+    .blue{stroke:#4B88C7}.violet{stroke:#7B68C5}.amber{stroke:#D9A24C}.green{stroke:#4B9A7B}
+    .blue-fill{fill:#E7F1FB}.violet-fill{fill:#EEEAFB}.amber-fill{fill:#FFF3DF}.green-fill{fill:#E8F6F0}
+    .edge{fill:none;stroke:#46566B;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .feedback{fill:none;stroke:#6D7E93;stroke-width:2.5;stroke-dasharray:7 6;stroke-linecap:round;
+      stroke-linejoin:round;marker-end:url(#arrow)}
+    .pill{fill:#2E6FAE}.pill-text{fill:#FFFFFF;font-size:16px;font-weight:700;letter-spacing:.5px}
+    .step{font-size:15px;font-weight:700;letter-spacing:1px}.title{font-size:25px;font-weight:750}
+    .body{font-size:17px}.caption{font-size:14px}.quote{font-size:19px;font-weight:650}
+  </style>
+
+  <rect class="bg" width="1400" height="720"/>
+  <rect x="54" y="53" width="6" height="72" rx="3" fill="#2E6FAE"/>
+  <text x="78" y="75" class="ink" font-size="40" font-weight="780">Ask once. Bring a second agent into the review.</text>
+  <text x="78" y="115" class="muted" font-size="19">Codex drives · acRelay relays · Claude reviews · you decide</text>
+
+  <rect x="52" y="160" width="1296" height="472" rx="24" class="panel"/>
+
+  <rect x="78" y="190" width="278" height="342" rx="18" class="card blue"/>
+  <rect x="98" y="210" width="96" height="32" rx="16" class="blue-fill"/>
+  <text x="146" y="226" text-anchor="middle" dominant-baseline="central" class="step" fill="#245C93">1 · ASK</text>
+  <circle cx="130" cy="289" r="33" class="blue-fill"/>
+  <use href="#ic-person" x="110" y="269" width="40" height="40" style="color:#2E6FAE"/>
+  <text x="178" y="279" class="ink title">You</text>
+  <text x="178" y="311" class="muted body">Codex + Claude user</text>
+  <rect x="100" y="347" width="234" height="133" rx="14" fill="#F7FAFD" stroke="#D6E0EC"/>
+  <text x="117" y="378" class="ink quote">
+    <tspan x="117" dy="0">“Use acRelay to have</tspan>
+    <tspan x="117" dy="28">Claude red-team</tspan>
+    <tspan x="117" dy="28">this plan.”</tspan>
+  </text>
+  <text x="100" y="507" class="muted caption">Natural-language request</text>
+
+  <rect x="386" y="190" width="620" height="342" rx="18" fill="#F7F5FD" stroke="#C9C0EB" stroke-width="1.5"/>
+  <rect x="408" y="210" width="180" height="32" rx="16" fill="#6252B5"/>
+  <text x="498" y="226" text-anchor="middle" dominant-baseline="central" class="pill-text">2 · REVIEW ROUND</text>
+
+  <rect x="416" y="278" width="218" height="142" rx="16" class="card blue"/>
+  <circle cx="462" cy="326" r="29" class="blue-fill"/>
+  <use href="#ic-terminal" x="444" y="308" width="36" height="36" style="color:#2E6FAE"/>
+  <text x="500" y="312" class="ink title">Codex</text>
+  <text x="500" y="342" class="muted body">Driver</text>
+  <text x="438" y="386" class="muted body">Prepares the review</text>
+  <text x="438" y="410" class="muted body">Responds to findings</text>
+
+  <rect x="756" y="278" width="218" height="142" rx="16" class="card violet"/>
+  <circle cx="802" cy="326" r="29" class="violet-fill"/>
+  <use href="#ic-review" x="784" y="308" width="36" height="36" style="color:#6252B5"/>
+  <text x="830" y="312" class="ink" font-size="22" font-weight="750">Claude Code</text>
+  <text x="830" y="342" class="muted body">Reviewer</text>
+  <text x="778" y="386" class="muted body">Challenges assumptions</text>
+  <text x="778" y="410" class="muted body">Returns findings</text>
+
+  <path d="M634 342 H746" class="edge"/>
+  <rect x="636" y="315" width="108" height="54" rx="27" fill="#FFFFFF" stroke="#2E6FAE" stroke-width="2"/>
+  <text x="690" y="336" text-anchor="middle" dominant-baseline="central" fill="#245C93" font-size="16" font-weight="760">acRelay</text>
+  <text x="690" y="355" text-anchor="middle" dominant-baseline="central" class="muted caption">relay + log</text>
+
+  <path d="M756 430 C728 486 662 486 634 430" class="feedback"/>
+  <text x="695" y="486" text-anchor="middle" class="muted caption">findings · response · next round</text>
+
+  <rect x="742" y="204" width="244" height="56" rx="14" fill="#FFFFFF" stroke="#B9AEE4" stroke-width="1.5"/>
+  <path d="M814 260 l12 13 9-13" fill="#FFFFFF" stroke="#B9AEE4" stroke-width="1.5" stroke-linejoin="round"/>
+  <text x="864" y="224" text-anchor="middle" class="ink" font-size="16" font-weight="700">“Round complete.</text>
+  <text x="864" y="247" text-anchor="middle" class="ink" font-size="16" font-weight="700">Call me again if needed.”</text>
+  <text x="695" y="514" text-anchor="middle" class="muted caption">Reviewer CLI exits after the round · no acRelay daemon remains</text>
+
+  <rect x="1040" y="190" width="280" height="342" rx="18" fill="#FFF9EF" stroke="#E8C889" stroke-width="1.5"/>
+  <rect x="1062" y="210" width="120" height="32" rx="16" fill="#C58625"/>
+  <text x="1122" y="226" text-anchor="middle" dominant-baseline="central" class="pill-text">3 · DECIDE</text>
+  <rect x="1068" y="270" width="224" height="116" rx="16" class="card amber"/>
+  <circle cx="1112" cy="320" r="29" class="amber-fill"/>
+  <use href="#ic-person" x="1094" y="302" width="36" height="36" style="color:#B1761D"/>
+  <text x="1144" y="305" class="ink" font-size="23" font-weight="750">You decide</text>
+  <text x="1144" y="337" class="muted" font-size="15">Review the findings</text>
+  <text x="1140" y="362" class="muted" font-size="14">Approve the next step</text>
+
+  <path d="M1180 386 V410" class="edge"/>
+  <rect x="1068" y="420" width="224" height="86" rx="16" class="card green"/>
+  <circle cx="1112" cy="463" r="27" class="green-fill"/>
+  <use href="#ic-plan" x="1095" y="446" width="34" height="34" style="color:#28785B"/>
+  <text x="1144" y="451" class="ink" font-size="20" font-weight="750">Updated plan</text>
+  <text x="1140" y="480" class="muted" font-size="14">with review decisions</text>
+
+  <path d="M356 346 H406" class="edge"/>
+  <path d="M1006 346 H1030" class="edge"/>
+  <text x="1018" y="329" text-anchor="middle" class="muted caption">report</text>
+
+  <rect x="78" y="558" width="1242" height="46" rx="14" fill="#FFFFFF" stroke="#D6E0EC"/>
+  <text x="699" y="581" text-anchor="middle" dominant-baseline="central" class="ink" font-size="17" font-weight="650">
+    No manual copy-and-paste between agents · bounded rounds · the owner keeps the final say
+  </text>
+</svg>

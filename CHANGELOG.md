@@ -9,7 +9,7 @@ Granular, per-change entries begin at the first public release. Earlier developm
 ### acrelay (Public Validation Preview)
 
 - Adds a natural-language guide for the separately installed acRelay command.
-  It requires exact version `v0.1.0-alpha.1`, keeps the official Markdown review
+  It requires exact version `v0.1.0-alpha.2`, keeps the official Markdown review
   history private, leaves approval and Close with the owner, and delegates
   review state, evidence, reviewer execution, recovery, cleanup, and closeout
   to the command.
@@ -24,10 +24,12 @@ Granular, per-change entries begin at the first public release. Earlier developm
   dedicated engine-plus-Skill installation path, manual-relay before/after
   explanation, bounded-round guidance, and examples for plans, files,
   checked-out implementations, cross/same-vendor review, and owner closeout.
-- Clarifies that Linux and Windows core runtime lanes are verified while live
-  reviewer support awaits platform-specific validation and any resulting
-  patches. Host-native subagent result ingestion remains unsupported rather
-  than silently falling back to another review path.
+- Sets Windows as the next platform-support target: its core runtime lane is
+  verified, while live reviewer support awaits platform-specific validation
+  and any resulting patches. Linux retains core CI coverage but has no current
+  artifact or live-review support plan. Host-native subagent result ingestion
+  remains unsupported rather than silently falling back to another review
+  path.
 
 ## [0.8.0] — 2026-07-24
 

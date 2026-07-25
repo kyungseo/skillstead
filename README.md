@@ -220,9 +220,10 @@ evidence scope; maturity remains Beta.
   validation pending, and not generally `Supported`. The author completed live
   reviews through both reviewer paths; validation by an invited non-author
   remains pending. The Skill works only with exact acRelay version
-  `v0.1.0-alpha.1`. Its current prebuilt engine is for macOS Apple Silicon;
-  Linux and Windows core lanes are verified, with platform-specific reviewer
-  validation and resulting patches planned as the next support step.
+  `v0.1.0-alpha.2`. Its current prebuilt engine is for macOS Apple Silicon;
+  Windows is the next platform-support target, with its core lane verified and
+  platform-specific reviewer validation still pending. Linux retains core CI
+  coverage but has no current artifact or live-review support plan.
 - `svg-infographic` browser rendering is verified on macOS and in the recorded Windows 11 ARM64 VM.
   This does not claim every Windows machine or filesystem; Linux rendering remains documented but unverified.
 - `docs-claim-check` is advisory and evidence-bound; it does not execute verification commands.
