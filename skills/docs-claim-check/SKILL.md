@@ -12,6 +12,9 @@ description: >
   generation, or pure command-execution tasks. When such requests are mixed with an
   eligible claim-check, still use this skill for the claim-check portion and decline
   only the out-of-scope part — by contract it does not execute commands or edit files.
+license: LICENSE.txt
+metadata:
+  version: 0.8.0
 ---
 
 # docs-claim-check
@@ -225,4 +228,5 @@ the full schema.
 | Path | Purpose |
 | --- | --- |
 | `SKILL.md` | This contract — always sufficient to run the skill |
-| `../../examples/docs-claim-check/` | Repository-only validation material (synthetic fixtures, worked example, answer key) — not present when only the skill folder is installed |
+| `CHANGELOG.md` | This skill's version history |
+| `LICENSE.txt` | Apache-2.0 licence text, bundled so it travels with the package |

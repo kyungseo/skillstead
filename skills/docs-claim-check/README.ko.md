@@ -43,4 +43,4 @@
 ## 예제
 
 가상 검증 자료와 전체 판정 예시는
-[`examples/docs-claim-check`](../../examples/docs-claim-check)에서 확인할 수 있습니다.
+[`examples/docs-claim-check`](https://github.com/kyungseo/skillstead/tree/main/examples/docs-claim-check)에서 확인할 수 있습니다.

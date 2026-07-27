@@ -108,6 +108,6 @@ writing-quality-editor를 Assess mode로 사용해 이 릴리스 노트를 검�
 
 `skills/writing-quality-editor/` 폴더 전체를 설치하면 독립적으로 사용할 수 있습니다. 저장소에서만
 사용하는 가상 검증 자료와 정답표는
-[`examples/writing-quality-editor`](../../examples/writing-quality-editor)에 있습니다.
+[`examples/writing-quality-editor`](https://github.com/kyungseo/skillstead/tree/main/examples/writing-quality-editor)에 있습니다.
 
-전체 스킬 설치 방법은 [`docs/INSTALL.md`](../../docs/INSTALL.md)에서 확인할 수 있습니다.
+전체 스킬 설치 방법은 [`docs/INSTALL.md`](https://github.com/kyungseo/skillstead/blob/main/docs/INSTALL.md)에서 확인할 수 있습니다.

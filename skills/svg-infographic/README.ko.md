@@ -237,7 +237,7 @@ Claude Code 또는 Codex의 skills 디렉터리에 패키지를 복사합니다.
 ```
 
 macOS, Linux와 Windows에서 전역 또는 프로젝트 경로에 설치하는 명령은
-[../../docs/INSTALL.md](../../docs/INSTALL.md)를 참고하세요.
+[`docs/INSTALL.md`](https://github.com/kyungseo/skillstead/blob/main/docs/INSTALL.md)를 참고하세요.
 
 ## 예제
 
