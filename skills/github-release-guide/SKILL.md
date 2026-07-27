@@ -1,6 +1,9 @@
 ---
 name: github-release-guide
 description: Assess and guide safer github.com repository releases. Use when an existing private GitHub repository becomes public for the first time, or whenever an already-public GitHub repository publishes a new version, and the user needs readiness checks, release-surface decisions, explicit mutation approvals, release notes, settings checks, or post-release verification. Supports read-only Assess and approval-gated Guided modes. Do not use for repository bootstrap, package registries, signing, cloud deployment, security audits, GitHub Enterprise, other providers, force-push, or history rewrite.
+license: LICENSE.txt
+metadata:
+  version: 0.8.0
 ---
 
 # github-release-guide

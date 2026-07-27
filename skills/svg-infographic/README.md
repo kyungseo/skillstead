@@ -221,7 +221,7 @@ project. The skill is a multi-file package, so copy the whole folder:
     └── render.sh             # thin Bash wrapper for render.mjs
 ```
 
-GitHub install commands (global and project scope) for macOS, Linux, and Windows are in [../../docs/INSTALL.md](../../docs/INSTALL.md).
+GitHub install commands (global and project scope) for macOS, Linux, and Windows are in [`docs/INSTALL.md`](https://github.com/kyungseo/skillstead/blob/main/docs/INSTALL.md).
 
 ## Examples
 

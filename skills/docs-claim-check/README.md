@@ -45,5 +45,5 @@ compliance are the compatibility criteria.
 
 ## Try it
 
-See [`examples/docs-claim-check`](../../examples/docs-claim-check) for a synthetic
+See [`examples/docs-claim-check`](https://github.com/kyungseo/skillstead/tree/main/examples/docs-claim-check) for a synthetic
 fixture set and a complete worked output.
