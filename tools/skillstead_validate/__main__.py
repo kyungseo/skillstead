@@ -5,9 +5,10 @@ Usage:
     python3 -m skillstead_validate preflight --plan PLAN.json [--repo-root PATH]
     python3 -m skillstead_validate apply-tags --plan PLAN.json [--repo-root PATH]
     python3 -m skillstead_validate tags [--main-ref REF] [--repo-root PATH]
+    python3 -m skillstead_validate cutover (--releases-file F --latest-file F | --live --repo-slug OWNER/REPO) [...]
 
-Exit status: 0 when no findings, 1 when findings exist, 2 on usage error.
-The cutover evaluator is added by a later checkpoint of FEAT-20260728-001.
+Exit status: 0 when no findings (cutover: non-red verdict), 1 otherwise,
+2 on usage error.
 """
 
 from __future__ import annotations
@@ -16,10 +17,14 @@ import argparse
 import sys
 from pathlib import Path
 
+import json
+
+from .cutover import run_cutover
 from .package_check import run_repo_validation
 from .release_gate import apply_tags, preflight
 from .release_plan import PlanError, parse_plan
 from .tag_check import run_tag_checks
+from .transport import TransportError, fetch_latest, fetch_releases
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -34,7 +39,36 @@ def main(argv: list[str] | None = None) -> int:
     tags = sub.add_parser("tags", help="continuous tag checks (M3)")
     tags.add_argument("--main-ref", default="main")
     tags.add_argument("--repo-root", type=Path, default=Path.cwd())
+    cut = sub.add_parser("cutover", help="cutover verdict evaluator (M4)")
+    cut.add_argument("--repo-root", type=Path, default=Path.cwd())
+    cut.add_argument("--main-ref", default="main")
+    cut.add_argument("--releases-file", type=Path)
+    cut.add_argument("--latest-file", type=Path)
+    cut.add_argument("--live", action="store_true")
+    cut.add_argument("--repo-slug")
     args = parser.parse_args(argv)
+
+    if args.mode == "cutover":
+        try:
+            if args.live:
+                if not args.repo_slug:
+                    print("cutover --live requires --repo-slug", file=sys.stderr)
+                    return 2
+                releases = fetch_releases(args.repo_slug)
+                latest = fetch_latest(args.repo_slug)
+            elif args.releases_file and args.latest_file:
+                releases = json.loads(args.releases_file.read_text(encoding="utf-8"))
+                latest_raw = json.loads(args.latest_file.read_text(encoding="utf-8"))
+                latest = latest_raw.get("tag_name") if isinstance(latest_raw, dict) else None
+            else:
+                print("cutover requires --live or both --releases-file/--latest-file", file=sys.stderr)
+                return 2
+        except (TransportError, OSError, json.JSONDecodeError) as e:
+            print(f"red CV-DOMAIN candidate=- predicate=transport — {e}", file=sys.stderr)
+            return 1
+        verdict = run_cutover(args.repo_root.resolve(), args.main_ref, releases, latest)
+        print(f"skillstead_validate cutover: {verdict}")
+        return 1 if verdict.verdict == "red" else 0
 
     if args.mode == "tags":
         findings = run_tag_checks(args.repo_root.resolve(), args.main_ref)

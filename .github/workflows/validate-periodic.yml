@@ -30,5 +30,10 @@ jobs:
       - name: Continuous tag checks (M3)
         run: PYTHONPATH=tools python3 -m skillstead_validate tags --main-ref origin/main --repo-root .
 
+      - name: Cutover verdict (M4)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: PYTHONPATH=tools python3 -m skillstead_validate cutover --live --repo-slug "$GITHUB_REPOSITORY" --main-ref origin/main --repo-root .
+
       - name: Spec reference validator (pinned skills-ref)
         run: python3 tools/run_skills_ref.py
