@@ -16,12 +16,23 @@ verdict, never a silent pass.
 | Mode | What | When it runs | Command |
 | --- | --- | --- | --- |
 | M1 | Repository validation — package structure, `metadata.version` ↔ CHANGELOG (I-1), catalog `Version` columns (I-7), package completeness (I-9), licence copy byte-equality | every PR, push to `main`, daily schedule | `PYTHONPATH=tools python3 -m skillstead_validate repo` |
-| M2 | Release preflight and tag creation — payload-diff release gate (I-3/I-4), bump-step check (I-6), inventory guard (I-10), major-bump guard, new-skill initial release, tag uniqueness | invoked for a proposed release; dry-runnable | `… preflight --plan PLAN.json` / `… apply-tags --plan PLAN.json` |
+| M2 | Release preflight and tag creation — payload-diff release gate (I-3/I-4), bump-step check (I-6), inventory guard (I-10), major-bump guard, new-skill initial release, tag uniqueness | invoked for a proposed release; dry-runnable | `… preflight --plan PLAN.json` / `… apply-tags --plan PLAN.json` (publishes to the remote with `git push --atomic`; a push failure rolls local refs back) |
 | M3 | Continuous tag checks — I-2, I-5, I-8 and the durable expected-target relation for every namespaced tag, on every run (tags are mutable; creation-time checks alone guarantee nothing) | every PR, push, tag create/delete, daily schedule | `… tags --main-ref origin/main` |
 | M4 | Cutover verdict — the ordered evaluator over the cutover record, INSTALL pins, baseline refs, and GitHub Releases | CI runs + before/after every release operation | `… cutover --live --repo-slug OWNER/REPO` |
 | M5 | Canonical release wrapper — **the only supported path for GitHub Release operations** | manual, or the `release` workflow | `… release --request REQUEST.json --repo-slug OWNER/REPO [--dry-run]` |
 
-Exit status is `0` when green (M4: any non-red verdict) and `1` otherwise.
+Exit status: `0` when green (M4: any non-red verdict), `1` on findings, a
+red verdict, or a rejected/failed request, and `2` on a usage error
+(unknown mode or missing required arguments).
+
+Request boolean constraints per action (the request must equal the intended
+final state):
+
+| action | draft | prerelease | latest_intent | owner_authorization |
+| --- | --- | --- | --- | --- |
+| create-draft | must be `true` | must be `false` | any | not required |
+| publish | must be `false` | must be `false` | must be `true` | not required |
+| edit-metadata | must be `false` | must be `false` | `true` when correcting Latest | required |
 
 **Ordering:** `M2 preflight green → M2 apply-tags → M3 → M5`. Tag mutation
 happens only through `apply-tags`, which re-runs the preflight first. The

@@ -9,7 +9,7 @@ docs/VALIDATION.md):
 * upstream license: Apache-2.0; upstream describes itself as a
   demonstration-only reference implementation, so it is used strictly as a
   supplementary check
-* scope measured: frontmatter required fields and name↔folder agreement only —
+* checked scope: frontmatter required fields and name↔folder agreement only —
   everything beyond that is covered by ``skillstead_validate``
 
 Fail-closed: any procurement or execution failure exits non-zero.

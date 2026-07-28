@@ -1,4 +1,4 @@
-"""M2 release preflight and apply-tags (DR-819 E4·E5·E14; DR-818 §D2·§D3).
+"""M2 release preflight and apply-tags (the payload-diff release gate).
 
 Preflight judges a proposed release plan against the observed repository
 without mutating anything. ``apply_tags`` is the only supported tag-mutation
@@ -45,7 +45,7 @@ def namespace_tags(repo: Path, skill: str) -> dict[str, str]:
 
 def previous_release(repo: Path, skill: str) -> tuple[str, str] | None:
     """(version, tag name) of the previous release — highest version lineage
-    (DR-818 §D3-3), not creation time."""
+    (version lineage, not creation time — see docs/VERSIONING.md)."""
     tags = namespace_tags(repo, skill)
     if not tags:
         return None
@@ -207,7 +207,7 @@ def preflight(repo: Path, plan: ReleasePlan, main_ref: str = "main") -> list[Fin
                 if not _ADJUSTMENT_LINE.search(section):
                     findings.append(Finding("I-6", e.skill, f"step {step} != path default {default} and CHANGELOG entry has no standalone non-empty '{ADJUSTMENT_MARKER}' reason line"))
         else:
-            # New-skill initial release (DR-818 §D3-3 ⓐ~ⓔ).
+            # New-skill initial release (all artifacts land in one commit).
             if e.proposed_version != "0.1.0":
                 findings.append(Finding("D3-3", e.skill, f"initial release must be 0.1.0, got {e.proposed_version}"))
             license_ok = False
@@ -286,17 +286,27 @@ def preflight(repo: Path, plan: ReleasePlan, main_ref: str = "main") -> list[Fin
     return findings
 
 
-def apply_tags(repo: Path, plan: ReleasePlan, main_ref: str = "main") -> list[str]:
-    """The only supported tag-mutation path: re-verify, then create the
-    planned tags at the target commit in a single ref transaction (a partial
-    failure must not leave a subset of the tags behind). Raises on any
-    preflight finding. The remote boundary uses ``git push --atomic`` and is
-    wired by the release wrapper."""
+def apply_tags(repo: Path, plan: ReleasePlan, main_ref: str = "main",
+               remote: str = "origin") -> list[str]:
+    """The only supported tag-mutation path: re-verify, create the planned
+    tags locally in a single ref transaction, then PUBLISH them to the
+    remote with ``git push --atomic`` (R1-F1 — a local-only ref is not a
+    release, and the wrapper's ``--verify-tag`` checks the remote). A push
+    failure rolls the local refs back so the attempt leaves no half-state
+    and a retry is not blocked. Raises on any preflight finding or
+    publication failure (fail-closed)."""
     findings = preflight(repo, plan, main_ref)
     if findings:
         raise RuntimeError("apply-tags refused; preflight findings:\n" + "\n".join(map(str, findings)))
     target = peeled(repo, plan.target_commit)
     names = [f"{e.skill}/v{e.proposed_version}" for e in plan.releases]
-    stdin = "".join(f"create refs/tags/{name} {target}\n" for name in names)
-    git(repo, "update-ref", "--stdin", input_text=stdin)
+    refs = [f"refs/tags/{name}" for name in names]
+    git(repo, "update-ref", "--stdin",
+        input_text="".join(f"create {ref} {target}\n" for ref in refs))
+    try:
+        git(repo, "push", "--atomic", remote, *refs)
+    except GitError as e:
+        git(repo, "update-ref", "--stdin",
+            input_text="".join(f"delete {ref} {target}\n" for ref in refs))
+        raise RuntimeError(f"apply-tags: atomic publication to {remote!r} failed; local refs rolled back (fail-closed): {e}") from None
     return names

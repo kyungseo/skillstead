@@ -1,4 +1,4 @@
-"""M5 canonical release wrapper (DR-819 D8-2 — the only supported path for
+"""M5 canonical release wrapper (the only supported path for
 GitHub Release operations).
 
 Roles, fixed by the DR: run the ordered evaluator; check the requested

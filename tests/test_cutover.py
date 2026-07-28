@@ -1,4 +1,4 @@
-"""M4 cutover evaluator fixtures (DR-819 D8-1 · D8-2)."""
+"""M4 cutover evaluator fixtures (record schema and ordered-evaluator contract)."""
 
 from __future__ import annotations
 

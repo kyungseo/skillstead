@@ -1,4 +1,4 @@
-"""Cutover-record canonical constants (DR-819 D8-1).
+"""Cutover-record canonical constants (fixed by the versioning decision record).
 
 These values are fixed by the decision record, not configuration. The full
 S1~S10 schema validation belongs to the cutover evaluator; the subset checked

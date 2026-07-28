@@ -1,4 +1,4 @@
-"""M3 continuous tag checks (DR-819 E6 first half; DR-818 §D3-2, DR-819 D6).
+"""M3 continuous tag checks (tag invariants and the durable expected-target relation).
 
 Runs on every CI execution, not once at tag creation — tags are mutable, so
 creation-time checks guarantee nothing durable. Checks:
@@ -199,7 +199,7 @@ def run_tag_checks(repo: Path, main_ref: str = "main") -> list[Finding]:
                 findings.append(Finding("I-3-c", name, f"target {target[:12]} != expected {expected[:12]} (repoint suspected)"))
 
     # I-5: existence only — target correctness is I-3-ⓒ's job, and merging
-    # the two would leak the baseline exception into I-5 (DR-819 D6 requires
+    # the two would leak the baseline exception into I-5 (the contract requires
     # the separation). Two derivations of the expected set:
     #
     # 1. Existing-tag anchored (works pre-record): at every observed release

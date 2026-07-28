@@ -14,12 +14,21 @@
 | Mode | 내용 | 실행 시점 | 명령 |
 | --- | --- | --- | --- |
 | M1 | 저장소 검증 — package 구조, `metadata.version` ↔ CHANGELOG(I-1), 카탈로그 `Version` 열(I-7), package 완전성(I-9), 라이선스 사본 바이트 일치 | 모든 PR, `main` push, 매일 schedule | `PYTHONPATH=tools python3 -m skillstead_validate repo` |
-| M2 | 릴리스 preflight와 tag 생성 — payload diff 릴리스 게이트(I-3/I-4), bump 단계 검사(I-6), inventory 보호(I-10), major bump 보호, 신규 skill 최초 릴리스, tag 고유성 | 릴리스 제안 시. dry-run 가능 | `… preflight --plan PLAN.json` / `… apply-tags --plan PLAN.json` |
+| M2 | 릴리스 preflight와 tag 생성 — payload diff 릴리스 게이트(I-3/I-4), bump 단계 검사(I-6), inventory 보호(I-10), major bump 보호, 신규 skill 최초 릴리스, tag 고유성 | 릴리스 제안 시. dry-run 가능 | `… preflight --plan PLAN.json` / `… apply-tags --plan PLAN.json` (`git push --atomic`으로 remote에 발행. push 실패 시 local ref rollback) |
 | M3 | tag 지속 검사 — 모든 namespaced tag의 I-2·I-5·I-8과 durable expected-target 관계를 매 실행 검사 (tag는 변경 가능하므로 생성 시점 검사만으로는 아무것도 담보되지 않음) | 모든 PR, push, tag 생성/삭제, 매일 schedule | `… tags --main-ref origin/main` |
 | M4 | cutover verdict — cutover record·INSTALL pin·baseline ref·GitHub Releases에 대한 ordered evaluator | CI 상시 + 모든 릴리스 작업 전후 | `… cutover --live --repo-slug OWNER/REPO` |
 | M5 | canonical release wrapper — **GitHub Release 작업의 유일한 지원 경로** | 수동 또는 `release` workflow | `… release --request REQUEST.json --repo-slug OWNER/REPO [--dry-run]` |
 
-종료 코드는 green이면 `0`(M4는 red가 아닌 모든 verdict), 아니면 `1`입니다.
+종료 코드: green이면 `0`(M4는 red가 아닌 모든 verdict), finding·red verdict·request 거부/실패는
+`1`, usage 오류(알 수 없는 mode·필수 인자 누락)는 `2`입니다.
+
+action별 request boolean 제약(request는 의도한 최종 상태와 같아야 합니다):
+
+| action | draft | prerelease | latest_intent | owner_authorization |
+| --- | --- | --- | --- | --- |
+| create-draft | `true` 필수 | `false` 필수 | 자유 | 불필요 |
+| publish | `false` 필수 | `false` 필수 | `true` 필수 | 불필요 |
+| edit-metadata | `false` 필수 | `false` 필수 | Latest 정정 시 `true` | 필수 |
 
 **순서:** `M2 preflight green → M2 apply-tags → M3 → M5`. tag 변경은 preflight를 재실행하는
 `apply-tags`를 통해서만 일어납니다. wrapper는 tag를 만들지 않습니다(모든 create에

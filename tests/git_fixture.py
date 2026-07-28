@@ -38,6 +38,16 @@ def build_released_repo(root: Path, skills: dict[str, str] | None = None) -> Pat
     return root
 
 
+def add_bare_remote(repo: Path) -> Path:
+    """Attach a bare 'origin' so atomic tag publication has a target."""
+    bare = repo.parent / (repo.name + "-origin.git")
+    subprocess.run(["git", "init", "-q", "--bare", str(bare)],
+                   capture_output=True, text=True, check=True)
+    _git(repo, "remote", "add", "origin", str(bare))
+    _git(repo, "push", "-q", "origin", "main")
+    return bare
+
+
 def build_unreleased_repo(root: Path, skills: dict[str, str] | None = None) -> Path:
     """Valid repo committed on main with NO namespaced tags (pre-cutover)."""
     build_valid_repo(root, skills or dict(SKILLS))

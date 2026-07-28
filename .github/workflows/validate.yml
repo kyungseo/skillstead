@@ -2,7 +2,7 @@
 # workflow (validate-periodic.yml) so that disabling either one — including
 # GitHub's automatic 60-day-inactivity disable of scheduled workflows — never
 # silences the other. Continuous tag checks (M3) and the cutover evaluator
-# (M4) are added by later checkpoints of FEAT-20260728-001.
+# (M4) are added by later stages of the validator work.
 name: validate
 
 on:

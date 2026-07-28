@@ -1,4 +1,4 @@
-"""INSTALL pin inventory (DR-819 D8-2).
+"""INSTALL pin inventory (see docs/VALIDATION.md).
 
 Parsing boundary fixed by the DR: only ``bash``/``powershell`` fenced blocks
 are examined; each candidate block must pair exactly one ``git clone`` with

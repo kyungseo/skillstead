@@ -1,4 +1,4 @@
-"""Bump-step mechanics (DR-818 §D2-1 rules 2–4, 6; §D2-2 boundary).
+"""Bump-step mechanics (path-default rules; see docs/VERSIONING.md).
 
 The machine computes the path-default step and validates the proposed
 version delta. Rule 1 (observable-behavior judgment) belongs to a human; an

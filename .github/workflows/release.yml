@@ -34,12 +34,26 @@ jobs:
           ref: main
           fetch-depth: 0
 
+      # The dispatch input is UNTRUSTED text: interpolating it into the run
+      # script would let quotes/metacharacters escape the argument and run
+      # arbitrary commands under the write token (R1-F2). It is passed via
+      # env, validated as a plain repo-relative path, and must be a file
+      # tracked in the trusted main checkout.
+      - name: Validate request path
+        env:
+          REQUEST_PATH: ${{ inputs.request_path }}
+        run: |
+          case "$REQUEST_PATH" in
+            (*[!A-Za-z0-9._/-]*|/*|*..*|"") echo "request_path rejected"; exit 1;;
+          esac
+          git ls-files --error-unmatch -- "$REQUEST_PATH"
+
       - name: Canonical release wrapper (M5)
         env:
           GH_TOKEN: ${{ github.token }}
-        run: >
-          PYTHONPATH=tools python3 -m skillstead_validate release
-          --request "${{ inputs.request_path }}"
-          --repo-slug "$GITHUB_REPOSITORY"
-          --main-ref origin/main --repo-root .
-          ${{ inputs.dry_run && '--dry-run' || '' }}
+          REQUEST_PATH: ${{ inputs.request_path }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -- --request "$REQUEST_PATH" --repo-slug "$GITHUB_REPOSITORY" --main-ref origin/main --repo-root .
+          if [ "$DRY_RUN" = "true" ]; then set -- "$@" --dry-run; fi
+          PYTHONPATH=tools python3 -m skillstead_validate release "$@"

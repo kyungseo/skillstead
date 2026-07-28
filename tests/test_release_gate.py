@@ -10,8 +10,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from git_fixture import (_git, build_released_repo, build_unreleased_repo,  # noqa: E402
-                         commit_all, entry, plan_json)
+from git_fixture import (_git, add_bare_remote, build_released_repo,  # noqa: E402
+                         build_unreleased_repo, commit_all, entry, plan_json)
 from skillstead_validate.release_gate import apply_tags, preflight  # noqa: E402
 from skillstead_validate.release_plan import PlanError, parse_plan  # noqa: E402
 
@@ -131,13 +131,30 @@ class ReleaseGateFixtures(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             apply_tags(self.repo, plan)
 
-    def test_apply_tags_creates_planned_tags(self) -> None:
+    def test_apply_tags_publishes_to_remote(self) -> None:
+        bare = add_bare_remote(self.repo)
         (self.repo / "skills/alpha-skill/SKILL.md").write_text(
             (self.repo / "skills/alpha-skill/SKILL.md").read_text(encoding="utf-8")
             + "\nNew body paragraph.\n", encoding="utf-8")
         _bump_alpha(self.repo, "1.3.0")
         commit_all(self.repo, "release alpha 1.3.0")
         plan = parse_plan(plan_json("HEAD", [entry("alpha-skill", "alpha-skill/v1.2.3", "1.3.0")]))
+        self.assertEqual(apply_tags(self.repo, plan), ["alpha-skill/v1.3.0"])
+        remote_tags = _git(self.repo, "ls-remote", "--tags", str(bare))
+        self.assertIn("refs/tags/alpha-skill/v1.3.0", remote_tags)
+
+    # R1-F1: 발행 실패 시 local ref rollback — 재시도가 막히지 않는다
+    def test_apply_tags_rolls_back_on_push_failure(self) -> None:
+        (self.repo / "skills/alpha-skill/SKILL.md").write_text(
+            (self.repo / "skills/alpha-skill/SKILL.md").read_text(encoding="utf-8")
+            + "\nNew body paragraph.\n", encoding="utf-8")
+        _bump_alpha(self.repo, "1.3.0")
+        commit_all(self.repo, "release alpha 1.3.0")
+        plan = parse_plan(plan_json("HEAD", [entry("alpha-skill", "alpha-skill/v1.2.3", "1.3.0")]))
+        with self.assertRaises(RuntimeError):  # no origin remote yet
+            apply_tags(self.repo, plan)
+        self.assertNotIn("alpha-skill/v1.3.0", _git(self.repo, "tag", "--list"))
+        add_bare_remote(self.repo)
         self.assertEqual(apply_tags(self.repo, plan), ["alpha-skill/v1.3.0"])
 
 
@@ -212,6 +229,7 @@ class MR1Fixtures(unittest.TestCase):
                 f.write_text(f.read_text(encoding="utf-8").replace(f"`{prev}`", f"`{version}`"),
                              encoding="utf-8")
         commit_all(self.repo, "dual release")
+        add_bare_remote(self.repo)
         plan = parse_plan(plan_json("HEAD", [
             entry("alpha-skill", "alpha-skill/v1.2.3", "1.3.0"),
             entry("beta-skill", "beta-skill/v0.4.0", "0.5.0")]))

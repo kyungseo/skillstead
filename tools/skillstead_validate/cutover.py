@@ -1,4 +1,4 @@
-"""M4 cutover verdict — ordered evaluator (DR-819 D8-1 · D8-2, U13-b).
+"""M4 cutover verdict — ordered evaluator over the cutover record.
 
 Structure fixed by the DR: Step 0 builds an immutable observation snapshot;
 a single sequential evaluator consumes Steps 1→6B; every step assumes only
@@ -23,7 +23,7 @@ from . import install_pins, record_schema
 from .gitio import GitError, file_at, git, peeled
 from .tag_check import run_tag_checks
 
-# P3 exact marker — fixed by DR-819 D8-2 (English canonical, byte-exact).
+# P3 exact marker — fixed by the versioning decision record (English canonical, byte-exact).
 P3_MARKER = ("> **Latest** refers to the most recently published individual "
              "skill release, not a catalog version.")
 
@@ -236,7 +236,7 @@ def _check_attempts(obs: Observation, candidate: str) -> Verdict | None:
         # not provable from any current git observation (deleted tags leave
         # no trace). Owner decision 2026-07-28 (MR2-F3): retries fail closed
         # and are released only through the cutover ⓪ owner procedure
-        # (U13-c, owned by C5), which verifies ref absence directly.
+        # (owned by the cutover execution work), which verifies ref absence directly.
         return _red("CV-ATTEMPT", candidate, "T3-unprovable",
                     f"attempt increase at {commit[:12]} cannot be machine-verified (previous attempt's ref absence is unobservable); owner gate required — see cutover step ⓪")
     return None

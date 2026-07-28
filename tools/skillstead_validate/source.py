@@ -34,9 +34,20 @@ class WorktreeSource(Source):
     def __init__(self, root: Path) -> None:
         self.root = root
 
+    def _resolve(self, rel: str) -> Path | None:
+        """Reject any path with a symlink component (fail-closed): a
+        symlinked licence or package directory would satisfy the checks
+        while escaping the self-contained-package contract (R1-F3)."""
+        path = self.root
+        for part in Path(rel).parts:
+            path = path / part
+            if path.is_symlink():
+                return None
+        return path if path.is_file() else None
+
     def read_text(self, rel: str) -> str | None:
-        path = self.root / rel
-        if not path.is_file():
+        path = self._resolve(rel)
+        if path is None:
             return None
         try:
             return path.read_text(encoding="utf-8")
@@ -44,8 +55,8 @@ class WorktreeSource(Source):
             return None
 
     def blob_id(self, rel: str) -> str | None:
-        path = self.root / rel
-        if not path.is_file():
+        path = self._resolve(rel)
+        if path is None:
             return None
         return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -61,10 +72,24 @@ class CommitSource(Source):
         self.repo = repo
         self.commit = commit
 
+    def _is_symlink(self, rel: str) -> bool:
+        """Symlinks live in git trees as mode-120000 blobs whose content is
+        the link target — reading one would validate the target string, not
+        a file. Reject them like the worktree source does (R1-F3)."""
+        try:
+            out = git(self.repo, "ls-tree", self.commit, "--", rel)
+        except GitError:
+            return False
+        return out.startswith("120000 ")
+
     def read_text(self, rel: str) -> str | None:
+        if self._is_symlink(rel):
+            return None
         return file_at(self.repo, self.commit, rel)
 
     def blob_id(self, rel: str) -> str | None:
+        if self._is_symlink(rel):
+            return None
         try:
             return git(self.repo, "rev-parse", f"{self.commit}:{rel}").strip()
         except GitError:

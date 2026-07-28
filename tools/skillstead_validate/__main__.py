@@ -37,6 +37,8 @@ def main(argv: list[str] | None = None) -> int:
         p = sub.add_parser(name, help=f"release gate {name} (M2)")
         p.add_argument("--plan", type=Path, required=True)
         p.add_argument("--repo-root", type=Path, default=Path.cwd())
+        p.add_argument("--main-ref", default="main")
+        p.add_argument("--remote", default="origin")
     tags = sub.add_parser("tags", help="continuous tag checks (M3)")
     tags.add_argument("--main-ref", default="main")
     tags.add_argument("--repo-root", type=Path, default=Path.cwd())
@@ -118,20 +120,26 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     root = args.repo_root.resolve()
     if args.mode == "preflight":
-        findings = preflight(root, plan)
+        findings = preflight(root, plan, args.main_ref)
         for f in findings:
             print(f, file=sys.stderr)
         print(f"skillstead_validate preflight: {len(findings)} finding(s)")
         return 1 if findings else 0
     if args.mode == "apply-tags":
         try:
-            created = apply_tags(root, plan)
+            created = apply_tags(root, plan, args.main_ref, args.remote)
         except RuntimeError as e:
             print(str(e), file=sys.stderr)
             return 1
         for name in created:
-            print(f"created {name}")
-        return 0
+            print(f"published {name}")
+        # Post-publication M3 pass: the refs now exist, so the continuous
+        # tag checks must be green before the release proceeds to M5.
+        post = run_tag_checks(root, args.main_ref)
+        for f in post:
+            print(f, file=sys.stderr)
+        print(f"post-publication tag checks: {len(post)} finding(s)")
+        return 1 if post else 0
     return 2
 
 

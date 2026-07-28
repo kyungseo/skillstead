@@ -204,7 +204,7 @@ class BaselineRecordBranch(unittest.TestCase):
 
 
 class CanonicalConstantsGuard(unittest.TestCase):
-    """record_schema 상수가 DR-819 D8-1의 고정값과 일치하는지 고정한다."""
+    """record_schema 상수가 versioning decision record의 고정값과 일치하는지 고정한다."""
 
     def test_d8_1_values(self) -> None:
         self.assertEqual(record_schema.SCHEMA, "skillstead/cutover-record@1")

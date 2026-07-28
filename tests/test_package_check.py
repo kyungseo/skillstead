@@ -1,8 +1,8 @@
 """M1 package-structure fixtures.
 
-Negative fixtures ①~④ are the four package-structure defects the pinned spec
-validator was measured to miss (FEAT-20260728-001 contract), plus fail-closed
-parse coverage. The positive fixture guards against false alarms.
+Negative fixtures ①~④ are the package-structure defects the C3 fixture
+contract requires this validator to catch, plus fail-closed parse coverage.
+The positive fixture guards against false alarms.
 """
 
 from __future__ import annotations
@@ -70,6 +70,22 @@ class PackageCheckFixtures(unittest.TestCase):
     # I-9 gate failure: SKILL.md 자체 부재
     def test_skill_md_missing(self) -> None:
         (self.repo / "skills/alpha-skill/SKILL.md").unlink()
+        self.assertIn("I-9", self.checks())
+
+    # R1-F3: package 밖을 가리키는 symlink는 자기완결 계약 우회다
+    def test_symlinked_license_rejected(self) -> None:
+        import os
+        target = self.repo / "skills/alpha-skill/LICENSE.txt"
+        target.unlink()
+        os.symlink("../../LICENSE", target)
+        self.assertIn("I-9", self.checks())
+
+    def test_symlinked_package_dir_rejected(self) -> None:
+        import os, shutil
+        pkg = self.repo / "skills/alpha-skill"
+        moved = self.repo / "alpha-elsewhere"
+        shutil.move(str(pkg), str(moved))
+        os.symlink("../alpha-elsewhere", pkg)
         self.assertIn("I-9", self.checks())
 
     # fail-closed: 파싱 불가는 통과가 아니라 finding이다

@@ -1,4 +1,4 @@
-"""Canonical payload normalization (DR-818 §D3-1).
+"""Canonical payload normalization (see docs/VERSIONING.md).
 
 Payload of ``skills/<name>/**`` excludes exactly two bookkeeping artifacts:
 the ``metadata.version`` scalar inside ``SKILL.md`` (replaced by a fixed
