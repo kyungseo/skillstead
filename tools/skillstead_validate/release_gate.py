@@ -20,15 +20,17 @@ from .frontmatter import FrontmatterError, parse_skill_frontmatter
 from .gitio import (GitError, dirs_at, file_at, first_parent_positions, git,
                     peeled, tag_names)
 from .normalize import changed_payload_paths, payload_changed
+from .package_check import run_repo_validation_at
 from .release_plan import ReleasePlan
 
 _SEMVER = re.compile(SEMVER_RE)
 _TAG_RE = re.compile(r"^([a-z0-9][a-z0-9-]*)/v(\d+\.\d+\.\d+)$")
 
 # D2-2: a human adjustment away from the path-default step must record its
-# reason. This line marker inside the release's CHANGELOG entry is the
-# machine-readable form (documented in docs/VERSIONING.md by this Work).
+# reason. The reason must be a standalone, non-empty marker line inside the
+# release's CHANGELOG entry (documented in docs/VERSIONING.md by this Work).
 ADJUSTMENT_MARKER = "Bump-Adjustment:"
+_ADJUSTMENT_LINE = re.compile(r"^Bump-Adjustment:[ \t]+\S.*$", re.MULTILINE)
 
 
 def namespace_tags(repo: Path, skill: str) -> dict[str, str]:
@@ -83,12 +85,23 @@ def _entry_section(changelog_text: str, version: str) -> str | None:
     return "\n".join(lines[start:end])
 
 
-def preflight(repo: Path, plan: ReleasePlan) -> list[Finding]:
+def preflight(repo: Path, plan: ReleasePlan, main_ref: str = "main") -> list[Finding]:
     findings: list[Finding] = []
     try:
         target = peeled(repo, plan.target_commit)
     except GitError as e:
         return [Finding("GIT", plan.target_commit, f"target unresolvable (fail-closed): {e}")]
+
+    # The tag target must be a main first-parent commit (I-8 pre-mutation).
+    try:
+        positions = first_parent_positions(repo, main_ref)
+    except GitError as e:
+        return [Finding("GIT", main_ref, f"main history unobservable (fail-closed): {e}")]
+    if target not in positions:
+        return [Finding("I-8", plan.target_commit, f"target {target[:12]} is not on {main_ref} first-parent history")]
+    ordered = sorted(positions, key=positions.__getitem__)
+    idx = positions[target]
+    target_parent = ordered[idx + 1] if idx + 1 < len(ordered) else None
 
     try:
         inventory = dirs_at(repo, target, "skills")
@@ -106,10 +119,14 @@ def preflight(repo: Path, plan: ReleasePlan) -> list[Finding]:
         if e.skill not in inventory:
             findings.append(Finding("I-9", e.skill, "package absent at target commit"))
             continue
-        # Tag uniqueness: same-precedence tag must not already exist.
-        existing = namespace_tags(repo, e.skill)
-        if e.proposed_version in existing:
-            findings.append(Finding("D3-3", e.skill, f"tag with version {e.proposed_version} already exists ({existing[e.proposed_version]})"))
+        # Tag uniqueness: no existing tag may share the SemVer precedence —
+        # including grammar-violating aliases like `v1.3.0+build` (build
+        # metadata does not change precedence).
+        for name in tag_names(repo, f"{e.skill}/v*"):
+            rest = name[len(e.skill) + 2:]
+            if rest == e.proposed_version or rest.startswith(e.proposed_version + "+") \
+                    or rest.startswith(e.proposed_version + "-"):
+                findings.append(Finding("D3-3", e.skill, f"tag {name!r} shares the precedence of {e.proposed_version}"))
         prev = previous_release(repo, e.skill)
         if e.previous_ref is None:
             if prev is not None:
@@ -121,6 +138,11 @@ def preflight(repo: Path, plan: ReleasePlan) -> list[Finding]:
                 findings.append(Finding("D3-3", e.skill, f"previous_ref {e.previous_ref!r} is not the previous release {prev[1]!r}"))
     if findings:
         return findings
+
+    # Release-gate axis of I-1·I-7·I-9: the target commit must satisfy the
+    # full package + catalog validation (MR1-F1 — a deleted licence copy or a
+    # stale KO Version cell is a release defect, not only a CI-axis one).
+    findings.extend(run_repo_validation_at(repo, target))
 
     # Changed-set equality (I-3 missing / I-4 extra) over previously released skills.
     changed: set[str] = set()
@@ -182,8 +204,8 @@ def preflight(repo: Path, plan: ReleasePlan) -> list[Finding]:
             default = default_step(paths)
             if step != default:
                 section = _entry_section(changelog, e.proposed_version) or ""
-                if ADJUSTMENT_MARKER not in section:
-                    findings.append(Finding("I-6", e.skill, f"step {step} != path default {default} and CHANGELOG entry has no '{ADJUSTMENT_MARKER}' reason line"))
+                if not _ADJUSTMENT_LINE.search(section):
+                    findings.append(Finding("I-6", e.skill, f"step {step} != path default {default} and CHANGELOG entry has no standalone non-empty '{ADJUSTMENT_MARKER}' reason line"))
         else:
             # New-skill initial release (DR-818 §D3-3 ⓐ~ⓔ).
             if e.proposed_version != "0.1.0":
@@ -210,12 +232,35 @@ def preflight(repo: Path, plan: ReleasePlan) -> list[Finding]:
                     continue
                 if table.get(e.skill) != e.proposed_version:
                     findings.append(Finding("I-7", e.skill, f"{fname} catalog row missing or version != {e.proposed_version} (initial release must add it in the same commit)"))
+            # §D3-3 ⓒ~ⓔ land in ONE commit: neither the package nor a catalog
+            # row may predate the target commit (MR1-F3).
+            if target_parent is not None:
+                try:
+                    parent_dirs = dirs_at(repo, target_parent, "skills")
+                except GitError as err:
+                    findings.append(Finding("GIT", e.skill, f"parent inventory unobservable (fail-closed): {err}"))
+                    parent_dirs = set()
+                if e.skill in parent_dirs:
+                    findings.append(Finding("D3-3", e.skill, "package existed before the target commit — initial release must introduce ⓒ~ⓔ in one commit"))
+                for fname, header in (("README.md", EN_HEADER), ("README.ko.md", KO_HEADER)):
+                    parent_text = file_at(repo, target_parent, fname)
+                    if parent_text is None:
+                        continue
+                    try:
+                        parent_table = catalog_versions(parent_text, header)
+                    except CatalogError:
+                        continue
+                    if e.skill in parent_table:
+                        findings.append(Finding("D3-3", e.skill, f"{fname} catalog row existed before the target commit"))
 
     # I-10: inventory reduction requires an approved retirement marker; no
     # marker format exists until the playbook defines one — fail-closed.
+    # With no namespaced release at all AND an empty plan there is nothing to
+    # gate: pre-cutover no-op preflight is green (MR1-F8).
     baseline_commit = _latest_release_commit(repo, target)
     if baseline_commit is None:
-        findings.append(Finding("I-10", "skills/", "no prior namespaced release observable from target (fail-closed)"))
+        if plan.releases:
+            findings.append(Finding("I-10", "skills/", "no prior namespaced release observable from target (fail-closed)"))
     else:
         try:
             before = dirs_at(repo, baseline_commit, "skills")
@@ -230,16 +275,17 @@ def preflight(repo: Path, plan: ReleasePlan) -> list[Finding]:
     return findings
 
 
-def apply_tags(repo: Path, plan: ReleasePlan) -> list[str]:
+def apply_tags(repo: Path, plan: ReleasePlan, main_ref: str = "main") -> list[str]:
     """The only supported tag-mutation path: re-verify, then create the
-    planned tags at the target commit. Raises on any preflight finding."""
-    findings = preflight(repo, plan)
+    planned tags at the target commit in a single ref transaction (a partial
+    failure must not leave a subset of the tags behind). Raises on any
+    preflight finding. The remote boundary uses ``git push --atomic`` and is
+    wired by the release wrapper."""
+    findings = preflight(repo, plan, main_ref)
     if findings:
         raise RuntimeError("apply-tags refused; preflight findings:\n" + "\n".join(map(str, findings)))
     target = peeled(repo, plan.target_commit)
-    created: list[str] = []
-    for e in plan.releases:
-        name = f"{e.skill}/v{e.proposed_version}"
-        git(repo, "tag", name, target)
-        created.append(name)
-    return created
+    names = [f"{e.skill}/v{e.proposed_version}" for e in plan.releases]
+    stdin = "".join(f"create refs/tags/{name} {target}\n" for name in names)
+    git(repo, "update-ref", "--stdin", input_text=stdin)
+    return names

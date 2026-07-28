@@ -9,12 +9,15 @@ on:
   pull_request:
   push:
     branches: [main]
+  create:
+  delete:
 
 permissions:
   contents: read
 
 jobs:
   validate:
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       # Full hydration is contractual: first-parent history, all tags, and
@@ -34,3 +37,19 @@ jobs:
 
       - name: Spec reference validator (pinned skills-ref)
         run: python3 tools/run_skills_ref.py
+
+  # Tag creation or deletion re-runs the continuous tag checks immediately
+  # (a deleted tag leaves no ref to check out, so main is checked out
+  # explicitly). Branch create/delete events also land here; the extra run
+  # is harmless.
+  tag-event:
+    if: github.event_name == 'create' || github.event_name == 'delete'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Continuous tag checks (M3)
+        run: PYTHONPATH=tools python3 -m skillstead_validate tags --main-ref origin/main --repo-root .

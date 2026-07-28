@@ -10,11 +10,11 @@ class GitError(RuntimeError):
     """A git query failed; callers must treat the observation as unavailable."""
 
 
-def git(repo: Path, *args: str) -> str:
+def git(repo: Path, *args: str, input_text: str | None = None) -> str:
     try:
         proc = subprocess.run(
             ["git", "-C", str(repo), *args],
-            capture_output=True, text=True, check=True)
+            capture_output=True, text=True, check=True, input=input_text)
     except FileNotFoundError as e:
         raise GitError("git executable not found") from e
     except subprocess.CalledProcessError as e:

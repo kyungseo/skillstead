@@ -10,7 +10,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from git_fixture import build_released_repo, commit_all, entry, plan_json  # noqa: E402
+from git_fixture import (_git, build_released_repo, build_unreleased_repo,  # noqa: E402
+                         commit_all, entry, plan_json)
 from skillstead_validate.release_gate import apply_tags, preflight  # noqa: E402
 from skillstead_validate.release_plan import PlanError, parse_plan  # noqa: E402
 
@@ -138,6 +139,141 @@ class ReleaseGateFixtures(unittest.TestCase):
         commit_all(self.repo, "release alpha 1.3.0")
         plan = parse_plan(plan_json("HEAD", [entry("alpha-skill", "alpha-skill/v1.2.3", "1.3.0")]))
         self.assertEqual(apply_tags(self.repo, plan), ["alpha-skill/v1.3.0"])
+
+
+class MR1Fixtures(unittest.TestCase):
+    """중간 리뷰 ①의 probe 재현 fixture — 회귀 고정."""
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.repo = build_released_repo(Path(self._tmp.name) / "repo")
+        self.addCleanup(self._tmp.cleanup)
+
+    def _release_body_change(self, version: str = "1.3.0") -> None:
+        (self.repo / "skills/alpha-skill/SKILL.md").write_text(
+            (self.repo / "skills/alpha-skill/SKILL.md").read_text(encoding="utf-8")
+            + "\nNew body paragraph.\n", encoding="utf-8")
+        _bump_alpha(self.repo, version)
+
+    def _preflight(self, entries: list[dict]) -> set[str]:
+        plan = parse_plan(plan_json("HEAD", entries))
+        return {f.check for f in preflight(self.repo, plan)}
+
+    # MR1-F1: 기존 skill release에서 license 삭제 → I-9
+    def test_f1_license_deletion_caught_at_target(self) -> None:
+        self._release_body_change()
+        (self.repo / "skills/alpha-skill/LICENSE.txt").unlink()
+        commit_all(self.repo, "release without licence copy")
+        self.assertIn("I-9", self._preflight([entry("alpha-skill", "alpha-skill/v1.2.3", "1.3.0")]))
+
+    # MR1-F1: KO catalog stale → I-7
+    def test_f1_stale_ko_catalog_caught_at_target(self) -> None:
+        self._release_body_change()
+        ko = self.repo / "README.ko.md"
+        ko.write_text(ko.read_text(encoding="utf-8").replace("`1.3.0`", "`1.2.3`"),
+                      encoding="utf-8")
+        commit_all(self.repo, "release with stale KO version cell")
+        self.assertIn("I-7", self._preflight([entry("alpha-skill", "alpha-skill/v1.2.3", "1.3.0")]))
+
+    # MR1-F2: off-main target은 mutation 전에 거부된다
+    def test_f2_off_main_target_rejected(self) -> None:
+        _git(self.repo, "checkout", "-q", "-b", "side")
+        self._release_body_change()
+        commit_all(self.repo, "release on side branch")
+        plan = parse_plan(plan_json("HEAD", [entry("alpha-skill", "alpha-skill/v1.2.3", "1.3.0")]))
+        checks = {f.check for f in preflight(self.repo, plan, main_ref="main")}
+        _git(self.repo, "checkout", "-q", "main")
+        self.assertIn("I-8", checks)
+
+    # MR1-F2: 동일 SemVer precedence alias(+build) 검출
+    def test_f2_precedence_alias_rejected(self) -> None:
+        head = _git(self.repo, "rev-parse", "HEAD").strip()
+        _git(self.repo, "tag", "alpha-skill/v1.3.0+build", head)
+        self._release_body_change()
+        commit_all(self.repo, "release 1.3.0")
+        self.assertIn("D3-3", self._preflight([entry("alpha-skill", "alpha-skill/v1.2.3", "1.3.0")]))
+
+    # MR1-F2: 다중 tag는 단일 transaction으로 생성된다 (positive)
+    def test_f2_multi_tag_transaction(self) -> None:
+        for skill, prev, version in (("alpha-skill", "1.2.3", "1.3.0"),
+                                     ("beta-skill", "0.4.0", "0.5.0")):
+            skill_md = self.repo / f"skills/{skill}/SKILL.md"
+            skill_md.write_text(
+                skill_md.read_text(encoding="utf-8").replace(
+                    f"  version: {prev}", f"  version: {version}") + "\nBody.\n",
+                encoding="utf-8")
+            changelog = self.repo / f"skills/{skill}/CHANGELOG.md"
+            changelog.write_text(
+                changelog.read_text(encoding="utf-8").replace(
+                    f"## [{prev}]", f"## [{version}] — 2026-07-28\n\nEntry.\n\n## [{prev}]", 1),
+                encoding="utf-8")
+            for fname in ("README.md", "README.ko.md"):
+                f = self.repo / fname
+                f.write_text(f.read_text(encoding="utf-8").replace(f"`{prev}`", f"`{version}`"),
+                             encoding="utf-8")
+        commit_all(self.repo, "dual release")
+        plan = parse_plan(plan_json("HEAD", [
+            entry("alpha-skill", "alpha-skill/v1.2.3", "1.3.0"),
+            entry("beta-skill", "beta-skill/v0.4.0", "0.5.0")]))
+        self.assertEqual(apply_tags(self.repo, plan),
+                         ["alpha-skill/v1.3.0", "beta-skill/v0.5.0"])
+
+    # MR1-F3: package가 이전 commit에 먼저 들어온 신규 skill → D3-3
+    def test_f3_new_skill_split_across_commits_rejected(self) -> None:
+        pkg = self.repo / "skills/gamma-skill"
+        pkg.mkdir(parents=True)
+        (pkg / "SKILL.md").write_text(
+            "---\nname: gamma-skill\nlicense: LICENSE.txt\nmetadata:\n  version: 0.1.0\n---\n",
+            encoding="utf-8")
+        (pkg / "CHANGELOG.md").write_text(
+            "# Changelog — gamma-skill\n\n## [0.1.0] — 2026-07-28\n\nInitial.\n", encoding="utf-8")
+        (pkg / "LICENSE.txt").write_text(
+            (self.repo / "LICENSE").read_text(encoding="utf-8"), encoding="utf-8")
+        commit_all(self.repo, "add gamma package only")
+        for fname in ("README.md", "README.ko.md"):
+            f = self.repo / fname
+            f.write_text(f.read_text(encoding="utf-8").replace(
+                "| --- | --- | --- | --- | --- |",
+                "| --- | --- | --- | --- | --- |\n| [`gamma-skill`](./skills/gamma-skill) | Fixture | `0.1.0` | Claude Code | Beta |",
+                1), encoding="utf-8")
+        commit_all(self.repo, "add gamma catalog rows later")
+        self.assertIn("D3-3", self._preflight([entry("gamma-skill", None, "0.1.0")]))
+
+    # MR1-F4: 빈 marker는 사유가 아니다
+    def test_f4_empty_adjustment_marker_rejected(self) -> None:
+        (self.repo / "skills/alpha-skill/SKILL.md").write_text(
+            (self.repo / "skills/alpha-skill/SKILL.md").read_text(encoding="utf-8")
+            + "\nTypo fix.\n", encoding="utf-8")
+        _bump_alpha(self.repo, "1.2.4")
+        changelog = self.repo / "skills/alpha-skill/CHANGELOG.md"
+        changelog.write_text(
+            changelog.read_text(encoding="utf-8").replace(
+                "Fixture entry.", "Bump-Adjustment:\n\nFixture entry."),
+            encoding="utf-8")
+        commit_all(self.repo, "patch bump with empty marker")
+        self.assertIn("I-6", self._preflight([entry("alpha-skill", "alpha-skill/v1.2.3", "1.2.4")]))
+
+    # MR1-F4: 다른 entry의 marker는 이 release의 사유가 아니다
+    def test_f4_marker_in_other_entry_rejected(self) -> None:
+        (self.repo / "skills/alpha-skill/SKILL.md").write_text(
+            (self.repo / "skills/alpha-skill/SKILL.md").read_text(encoding="utf-8")
+            + "\nTypo fix.\n", encoding="utf-8")
+        _bump_alpha(self.repo, "1.2.4")
+        changelog = self.repo / "skills/alpha-skill/CHANGELOG.md"
+        changelog.write_text(
+            changelog.read_text(encoding="utf-8").replace(
+                "## [1.2.3] — 2026-07-24",
+                "## [1.2.3] — 2026-07-24\n\nBump-Adjustment: reason recorded on the wrong entry."),
+            encoding="utf-8")
+        commit_all(self.repo, "marker on previous entry")
+        self.assertIn("I-6", self._preflight([entry("alpha-skill", "alpha-skill/v1.2.3", "1.2.4")]))
+
+    # MR1-F8: pre-cutover + 빈 plan = 진짜 no-op green
+    def test_f8_pre_cutover_empty_plan_is_green(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = build_unreleased_repo(Path(tmp) / "repo")
+            plan = parse_plan(plan_json("HEAD", []))
+            self.assertEqual(preflight(repo, plan), [])
 
 
 class GitFailClosed(unittest.TestCase):

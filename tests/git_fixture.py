@@ -38,6 +38,14 @@ def build_released_repo(root: Path, skills: dict[str, str] | None = None) -> Pat
     return root
 
 
+def build_unreleased_repo(root: Path, skills: dict[str, str] | None = None) -> Path:
+    """Valid repo committed on main with NO namespaced tags (pre-cutover)."""
+    build_valid_repo(root, skills or dict(SKILLS))
+    _git_init(root)
+    commit_all(root, "initial state, no releases")
+    return root
+
+
 def _git_init(repo: Path) -> None:
     subprocess.run(["git", "init", "-q", "-b", "main", str(repo)],
                    capture_output=True, text=True, check=True)
