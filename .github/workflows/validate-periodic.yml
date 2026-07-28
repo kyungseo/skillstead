@@ -27,5 +27,8 @@ jobs:
       - name: Repo validation (M1)
         run: PYTHONPATH=tools python3 -m skillstead_validate repo --repo-root .
 
+      - name: Continuous tag checks (M3)
+        run: PYTHONPATH=tools python3 -m skillstead_validate tags --main-ref origin/main --repo-root .
+
       - name: Spec reference validator (pinned skills-ref)
         run: python3 tools/run_skills_ref.py

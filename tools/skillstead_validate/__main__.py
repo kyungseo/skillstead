@@ -4,10 +4,10 @@ Usage:
     python3 -m skillstead_validate repo [--repo-root PATH]
     python3 -m skillstead_validate preflight --plan PLAN.json [--repo-root PATH]
     python3 -m skillstead_validate apply-tags --plan PLAN.json [--repo-root PATH]
+    python3 -m skillstead_validate tags [--main-ref REF] [--repo-root PATH]
 
 Exit status: 0 when no findings, 1 when findings exist, 2 on usage error.
-Continuous tag checks and the cutover evaluator are added by later
-checkpoints of FEAT-20260728-001.
+The cutover evaluator is added by a later checkpoint of FEAT-20260728-001.
 """
 
 from __future__ import annotations
@@ -19,6 +19,7 @@ from pathlib import Path
 from .package_check import run_repo_validation
 from .release_gate import apply_tags, preflight
 from .release_plan import PlanError, parse_plan
+from .tag_check import run_tag_checks
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -30,7 +31,17 @@ def main(argv: list[str] | None = None) -> int:
         p = sub.add_parser(name, help=f"release gate {name} (M2)")
         p.add_argument("--plan", type=Path, required=True)
         p.add_argument("--repo-root", type=Path, default=Path.cwd())
+    tags = sub.add_parser("tags", help="continuous tag checks (M3)")
+    tags.add_argument("--main-ref", default="main")
+    tags.add_argument("--repo-root", type=Path, default=Path.cwd())
     args = parser.parse_args(argv)
+
+    if args.mode == "tags":
+        findings = run_tag_checks(args.repo_root.resolve(), args.main_ref)
+        for f in findings:
+            print(f, file=sys.stderr)
+        print(f"skillstead_validate tags: {len(findings)} finding(s)")
+        return 1 if findings else 0
 
     if args.mode == "repo":
         findings = run_repo_validation(args.repo_root.resolve())
