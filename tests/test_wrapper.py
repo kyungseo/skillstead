@@ -19,7 +19,8 @@ from skillstead_validate import install_pins, record_schema  # noqa: E402
 from skillstead_validate.cutover import P3_MARKER  # noqa: E402
 from skillstead_validate.wrapper import (RequestError, parse_request,  # noqa: E402
                                          run_wrapper)
-from test_cutover import FIX_PIN, FIX_TAGS, SKILLS, make_install, make_release  # noqa: E402
+from test_cutover import (FIX_PIN, FIX_TAGS, SKILLS, make_install,  # noqa: E402
+                           make_release, write_install_pair)
 
 
 def request_json(**overrides) -> str:
@@ -66,7 +67,7 @@ class WrapperFixture(unittest.TestCase):
         self._tmp = tempfile.TemporaryDirectory()
         self.repo = build_unreleased_repo(Path(self._tmp.name) / "repo", dict(SKILLS))
         (self.repo / "docs").mkdir(exist_ok=True)
-        (self.repo / "docs/INSTALL.md").write_text(make_install("v0.8.0"), encoding="utf-8")
+        write_install_pair(self.repo, make_install("v0.8.0"))
         self.base_sha = commit_all(self.repo, "legacy install")
         stack = ExitStack()
         stack.enter_context(patch.object(record_schema, "BASELINE_FINALIZATION_SHA", self.base_sha))
@@ -76,7 +77,7 @@ class WrapperFixture(unittest.TestCase):
         self.addCleanup(stack.close)
         self.addCleanup(self._tmp.cleanup)
         # cutover commit + all baseline tags -> tags-ok
-        (self.repo / "docs/INSTALL.md").write_text(make_install(FIX_PIN), encoding="utf-8")
+        write_install_pair(self.repo, make_install(FIX_PIN))
         (self.repo / ".skillstead").mkdir()
         (self.repo / ".skillstead/cutover-record.json").write_text(json.dumps({
             "schema": record_schema.SCHEMA, "attempt": 1, "phase": "prepared",

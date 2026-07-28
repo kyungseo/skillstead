@@ -1,0 +1,13 @@
+{
+  "schema": "skillstead/cutover-record@1",
+  "attempt": 1,
+  "phase": "prepared",
+  "baseline_finalization_sha": "3f92c4b3209c26d0b65129965d3cac63b8a1e9dd",
+  "latest_ref": "refs/tags/writing-quality-editor/v0.8.0",
+  "baseline_tags": [
+    "refs/tags/docs-claim-check/v0.8.0",
+    "refs/tags/github-release-guide/v0.8.0",
+    "refs/tags/svg-infographic/v0.8.0",
+    "refs/tags/writing-quality-editor/v0.8.0"
+  ]
+}

@@ -46,6 +46,9 @@ Windows 명령과 실행 환경별 지원 상태는 [`docs/INSTALL.ko.md`](./doc
 위 표의 `버전`은 카탈로그 전체가 아니라 스킬별 버전입니다. 의미와 변경 방식은
 [`docs/VERSIONING.ko.md`](./docs/VERSIONING.ko.md)에서 확인할 수 있습니다.
 
+GitHub의 **Latest** 배지는 가장 최근에 발행된 개별 스킬 릴리스를 가리킵니다. 카탈로그 버전을 뜻하지
+않습니다.
+
 ## 스킬별 상세 안내
 
 ### svg-infographic

@@ -85,6 +85,100 @@ def _entry_section(changelog_text: str, version: str) -> str | None:
     return "\n".join(lines[start:end])
 
 
+def _baseline_record_at(repo: Path, target: str,
+                        plan: ReleasePlan) -> dict | None:
+    """Return the record only when this is the exact baseline plan."""
+    text = file_at(repo, target, record_schema.RECORD_PATH)
+    if text is None:
+        return None
+    record = record_schema.parse(text)
+    if isinstance(record, str) or record["phase"] != "prepared":
+        return None
+    if [entry.proposed_ref for entry in plan.releases] != record["baseline_tags"]:
+        return None
+    return record
+
+
+def _baseline_findings(repo: Path, plan: ReleasePlan, target: str,
+                       inventory: set[str], ordered: list[str],
+                       target_idx: int, record: dict) -> list[Finding]:
+    """One-time M2 baseline branch, bound to the exact cutover record."""
+    findings: list[Finding] = []
+    expected_refs = list(record["baseline_tags"])
+    actual_refs = [entry.proposed_ref for entry in plan.releases]
+    if actual_refs != expected_refs:
+        findings.append(Finding(
+            "D3-3", "baseline plan",
+            "release entries must equal cutover-record baseline_tags in canonical order"))
+
+    for entry, expected_ref in zip(plan.releases, expected_refs):
+        expected_skill = expected_ref.removeprefix("refs/tags/").rsplit("/v", 1)[0]
+        if (entry.skill != expected_skill or entry.previous_ref is not None
+                or entry.proposed_version != "0.8.0"
+                or entry.proposed_ref != expected_ref):
+            findings.append(Finding(
+                "D3-3", entry.skill,
+                "baseline entry must use the canonical skill/ref, previous_ref null, and version 0.8.0"))
+
+    # The target is the first commit on main's first-parent history where the
+    # current attempt N appears. A later commit carrying the same record is not
+    # eligible for the exception.
+    intro = None
+    previous_attempt = None
+    previous_record = None
+    attempt_sequence: list[int] = []
+    for commit in reversed(ordered[target_idx:]):
+        text = file_at(repo, commit, record_schema.RECORD_PATH)
+        parsed = record_schema.parse(text) if text is not None else None
+        if isinstance(parsed, str):
+            findings.append(Finding(
+                "D3-3", "baseline history",
+                f"record at {commit[:12]} is unreadable: {parsed}"))
+            continue
+        attempt = parsed.get("attempt") if isinstance(parsed, dict) else None
+        if attempt is not None and attempt != previous_attempt:
+            attempt_sequence.append(attempt)
+        if attempt == record["attempt"] and previous_attempt != attempt and intro is None:
+            intro = commit
+            if attempt > 1 and not (
+                    isinstance(previous_record, dict)
+                    and previous_record.get("phase") == "aborted"):
+                findings.append(Finding(
+                    "D3-3", "baseline attempt",
+                    f"attempt {attempt} must follow an aborted predecessor"))
+        previous_attempt = attempt
+        previous_record = parsed
+    if attempt_sequence and (
+            attempt_sequence[0] != 1
+            or any(current != previous + 1
+                   for previous, current in zip(
+                       attempt_sequence, attempt_sequence[1:]))):
+        findings.append(Finding(
+            "D3-3", "baseline attempt",
+            f"attempt sequence must start at 1 and increase by one: {attempt_sequence}"))
+    if intro != target:
+        findings.append(Finding(
+            "D3-3", "baseline target",
+            f"target must introduce attempt {record['attempt']} on main first-parent history"))
+
+    # I-10 remains active in the baseline branch: the frozen baseline
+    # inventory may not shrink before the cutover target.
+    try:
+        baseline_inventory = dirs_at(
+            repo, record["baseline_finalization_sha"], "skills")
+    except GitError as error:
+        findings.append(Finding(
+            "GIT", "skills/",
+            f"I-10 baseline inventory unobservable (fail-closed): {error}"))
+    else:
+        removed = baseline_inventory - inventory
+        if removed:
+            findings.append(Finding(
+                "I-10", ",".join(sorted(removed)),
+                "inventory decreased from baseline_finalization_sha"))
+    return findings
+
+
 def preflight(repo: Path, plan: ReleasePlan, main_ref: str = "main") -> list[Finding]:
     findings: list[Finding] = []
     try:
@@ -107,6 +201,7 @@ def preflight(repo: Path, plan: ReleasePlan, main_ref: str = "main") -> list[Fin
         inventory = dirs_at(repo, target, "skills")
     except GitError as e:
         return [Finding("GIT", "skills/", f"inventory unobservable (fail-closed): {e}")]
+    baseline_record = _baseline_record_at(repo, target, plan)
 
     # Per-entry structural checks.
     for e in plan.releases:
@@ -136,13 +231,22 @@ def preflight(repo: Path, plan: ReleasePlan, main_ref: str = "main") -> list[Fin
                 findings.append(Finding("D3-3", e.skill, f"previous_ref {e.previous_ref!r} but namespace is empty"))
             elif e.previous_ref not in (prev[1], f"refs/tags/{prev[1]}"):
                 findings.append(Finding("D3-3", e.skill, f"previous_ref {e.previous_ref!r} is not the previous release {prev[1]!r}"))
-    if findings:
+    if findings and baseline_record is None:
         return findings
 
     # Release-gate axis of I-1·I-7·I-9: the target commit must satisfy the
     # full package + catalog validation (MR1-F1 — a deleted licence copy or a
     # stale KO Version cell is a release defect, not only a CI-axis one).
     findings.extend(run_repo_validation_at(repo, target))
+
+    # Canonical cutover records activate a one-time baseline branch. It keeps
+    # the shared structure/package/tag checks above, replaces the ordinary
+    # new-skill and payload-diff rules, and retains I-10 with the frozen
+    # baseline inventory as its independent source.
+    if baseline_record is not None:
+        findings.extend(_baseline_findings(
+            repo, plan, target, inventory, ordered, idx, baseline_record))
+        return findings
 
     # Changed-set equality (I-3 missing / I-4 extra) over previously released skills.
     changed: set[str] = set()

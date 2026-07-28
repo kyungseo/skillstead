@@ -16,7 +16,7 @@ verdict, never a silent pass.
 | Mode | What | When it runs | Command |
 | --- | --- | --- | --- |
 | M1 | Repository validation — package structure, `metadata.version` ↔ CHANGELOG (I-1), catalog `Version` columns (I-7), package completeness (I-9), licence copy byte-equality | every PR, push to `main`, daily schedule | `PYTHONPATH=tools python3 -m skillstead_validate repo` |
-| M2 | Release preflight and tag creation — payload-diff release gate (I-3/I-4), bump-step check (I-6), inventory guard (I-10), major-bump guard, new-skill initial release, tag uniqueness | invoked for a proposed release; dry-runnable | `… preflight --plan PLAN.json` / `… apply-tags --plan PLAN.json` (publishes to the remote with `git push --atomic`; a push failure rolls local refs back) |
+| M2 | Release preflight and tag creation — ordinary payload-diff gate plus the exact-record baseline branch, bump-step check (I-6), inventory guard (I-10), major-bump guard, new-skill initial release, tag uniqueness | invoked for a proposed release; dry-runnable | `… preflight --plan PLAN.json` / `… apply-tags --plan PLAN.json` (publishes to the remote with `git push --atomic`; a push failure rolls local refs back) |
 | M3 | Continuous tag checks — I-2, I-5, I-8 and the durable expected-target relation for every namespaced tag, on every run (tags are mutable; creation-time checks alone guarantee nothing) | every PR, push, tag create/delete, daily schedule | `… tags --main-ref origin/main` |
 | M4 | Cutover verdict — the ordered evaluator over the cutover record, INSTALL pins, baseline refs, and GitHub Releases | CI runs + before/after every release operation | `… cutover --live --repo-slug OWNER/REPO` |
 | M5 | Canonical release wrapper — **the only supported path for GitHub Release operations** | manual, or the `release` workflow | `… release --request REQUEST.json --repo-slug OWNER/REPO [--dry-run]` |
@@ -86,6 +86,17 @@ skill's initial release must introduce the package and both catalog rows in
 the target commit itself; no existing tag may share the proposed version's
 SemVer precedence (including `+build` aliases).
 
+The one-time baseline branch activates only when the target carries the
+canonical prepared cutover record. The plan must equal the record's four
+`baseline_tags` entries in order; every entry must use `previous_ref: null`
+and version `0.8.0`; and the target must be the first `main` first-parent
+commit that introduced the current attempt. T1 and T2 still require attempt
+`1` first and increments of exactly one. The ordinary I-3/I-4/I-6 and
+new-skill `0.1.0`/same-commit rules do not apply to this baseline, but
+package/catalog checks, tag grammar and uniqueness, `main` ancestry, exact
+four-ref atomicity, and I-10 remain active. Baseline I-10 compares the target
+inventory with `baseline_finalization_sha:skills`; any decrease is a finding.
+
 **Bump-Adjustment marker.** When the proposed step differs from the
 path-default step, the release's CHANGELOG entry must contain a standalone,
 non-empty reason line:
@@ -123,11 +134,20 @@ this repository's history and tag-object SHAs would split them.
 ## Cutover verdict (M4)
 
 The evaluator re-derives the cutover state from observation on every run;
-no verdict is ever stored. Inputs: the INSTALL pin inventory, the cutover
-record at `.skillstead/cutover-record.json`, the four baseline refs, the
-GitHub Releases list (every page; a pagination shortfall or an untypeable
-release object is `CV-DOMAIN`), the repository Latest, and `main`
-first-parent history.
+no verdict is ever stored. Inputs: the combined `docs/INSTALL.md` and
+`docs/INSTALL.ko.md` pin inventory, the cutover record at
+`.skillstead/cutover-record.json`, the four baseline refs, the GitHub Releases
+list (every page; a pagination shortfall or an untypeable release object is
+`CV-DOMAIN`), the repository Latest, and `main` first-parent history.
+
+The two INSTALL files are one normative observation surface. Their ordered
+`(ref, copy_skill)` sequences and individual pin classes must be identical;
+otherwise the combined class is `PIN-OTHER`. `Q-SAME` requires the record and
+both files' actual `PIN-LEGACY → PIN-BASELINE` transitions in the same commit.
+The public-breakage clock uses this combined history and starts at the most
+recent departure from combined `PIN-LEGACY`. Older commits from before the
+Korean mirror existed classify as `PIN-OTHER`, but they do not backdate the
+clock past the later, observable cutover departure.
 
 Verdicts: `not-started` · `pending-tags` · `tags-ok` · `complete` ·
 `aborted` · `red` (with an error code). Failures carry
@@ -140,8 +160,8 @@ Verdicts: `not-started` · `pending-tags` · `tags-ok` · `complete` ·
 | CV-ATTEMPT | attempt sequence invalid; **any attempt increase is `T3-unprovable`** — a prior attempt's ref absence cannot be machine-verified, so retries require the owner gate in cutover step ⓪ | owner procedure |
 | CV-ABORT-TAGS / CV-ABORT-PIN | aborted record with refs present / non-legacy pins | owner judgment / revert pins |
 | CV-PARTIAL-TAGS | 1–3 of the four baseline refs exist | complete the set — owner judgment first if an atomic failure left residue |
-| CV-PIN | pin inventory does not match the phase | fix `docs/INSTALL.md` pins |
-| CV-SAME / CV-BASE / CV-TREE | cutover commit did not switch the pins in the same commit / baseline SHA unreachable / `skills/` tree drifted | recreate the cutover commit (only while refs are 0) |
+| CV-PIN | combined EN/KO pin inventory does not match the phase | fix both INSTALL files in one commit |
+| CV-SAME / CV-BASE / CV-TREE | cutover commit did not switch both INSTALL inventories with the record / baseline SHA unreachable / `skills/` tree drifted | recreate the cutover commit (only while refs are 0) |
 | CV-CLOCK | the public-breakage window (pins switched, tags not yet created) exceeded 1 hour | finish tag creation or revert |
 | CV-TARGET / CV-FROZEN | baseline tag repointed / record touched (including deleted-and-restored) after refs exist | owner decision — tags are never deleted |
 | CV-RELEASE | a published release violates P1 (no prereleases), P2 (title contains `<skill> X.Y.Z`), or P3 (exact Latest marker as the first body line), or a successor tag fails the tag gate | owner-approved metadata correction via the wrapper |
@@ -155,6 +175,30 @@ P3's exact marker (fixed, English, byte-compared after trimming):
 ```text
 > **Latest** refers to the most recently published individual skill release, not a catalog version.
 ```
+
+### Abort, retry, and forward recovery
+
+Before any baseline ref exists, an attempt may be aborted with one commit
+that restores both INSTALL files to `PIN-LEGACY` and changes the record to
+`phase: aborted`; `skills/**` remains unchanged. A retry uses a new cutover
+commit and `attempt: N+1`. The tools enforce T1, T2, the aborted predecessor,
+and the restored combined legacy pins. They cannot prove that a previous
+attempt never created a now-deleted ref, so M4 remains fail-closed with
+`CV-ATTEMPT` / `T3-unprovable` until the owner directly verifies and records
+ref absence at cutover step ⓪. This procedural approval is not reported as a
+machine proof.
+
+After any baseline ref exists, the record, tags, and targets are immutable.
+Recovery is forward-only: do not delete or retarget a tag and do not rewrite
+the record. If `CV-PREMATURE` occurs:
+
+1. Stop publishing additional releases.
+2. Check the premature Release and tag with the ordinary gate and P1–P3.
+3. If valid, obtain owner accept-forward approval; do not roll it back.
+4. If only metadata is wrong, correct it through the wrapper after owner approval.
+5. If the immutable target itself is wrong, stop and escalate to a separate remediation.
+6. Without deleting or retargeting existing objects, publish every missing baseline Release.
+7. Set **Latest** to the actual newest public Release and rerun M3, M4, and the wrapper postcondition.
 
 ## Release wrapper (M5)
 

@@ -10,18 +10,17 @@ others — the only shared surface a release touches is that skill's row in the 
 
 ## Transition status
 
-**This repository is preparing the move to per-skill versioning. It is not operating it yet.**
+**Per-skill versioning is now the active release model.**
 
 | | State |
 | --- | --- |
-| `metadata.version` in each `SKILL.md`, per-skill `CHANGELOG.md`, README `Version` column | **Prepared.** These baseline artifacts exist and are the ones described below |
-| Install pin | **Catalog tag `v0.8.0` is still the valid pin.** Keep using it |
-| `<name>/vX.Y.Z` tags and per-skill releases | **Not yet in operation.** None have been published |
-| Bump rules | **Not yet in force.** See [What a version change means](#what-a-version-change-means) |
+| `metadata.version` in each `SKILL.md`, per-skill `CHANGELOG.md`, README `Version` column | **Active.** These surfaces carry each skill's version |
+| Install pin | **Namespaced.** Use the selected skill's `<name>/vX.Y.Z` tag |
+| `<name>/vX.Y.Z` tags and per-skill releases | **Active.** The four `0.8.0` baseline releases establish the starting point |
+| Bump rules | **In force.** See [What a version change means](#what-a-version-change-means) |
 
-The switch happens at a single cutover commit, at which point the namespaced tags are created and the
-rules below start applying. Until then this document describes the target state and the artifacts that
-have been staged for it. Sections that only take effect after cutover say so explicitly.
+The one-time cutover preserved the package bytes and catalog `Version` values while establishing four
+namespaced baseline tags. Later releases change and publish only the affected skill.
 
 ## Where the version lives
 
@@ -30,7 +29,7 @@ have been staged for it. Sections that only take effect after cutover say so exp
 | `skills/<name>/SKILL.md` → `metadata.version` | The declared version of the installed package |
 | `skills/<name>/CHANGELOG.md` | That skill's own history |
 | Root `README.md` / `README.ko.md` catalog table, `Version` column | The published current version of each skill |
-| Git tag `<name>/vX.Y.Z` | *(after cutover)* The exact commit a version was released from |
+| Git tag `<name>/vX.Y.Z` | The exact commit a version was released from |
 
 The catalog table is the source of truth for "what is the current version of this skill". A release
 updates the package and that table together, so the two never drift apart.
@@ -54,9 +53,8 @@ readability.
 - Entries run newest first.
 
 **One exception.** The `0.8.0` baseline entry in each skill carries the release date of catalog `v0.8.0`,
-the version it continues from, because no per-skill release has happened yet. Every entry after it is a
-real per-skill release and carries its own date. Checks read the version, not the date, so this does not
-affect them.
+the history it continues from. Every entry after it carries its own per-skill release date. Checks read
+the version, not the date, so this does not affect them.
 
 ### Unreleased work
 
@@ -74,10 +72,9 @@ either the release forgot to update one of the two files, or someone edited one 
 
 ## What a version change means
 
-**These rules apply to changes made after cutover.** The baseline preparation described under
-[Transition status](#transition-status) is not itself a version bump — it is the act of establishing the
-starting point. Between the completion of that baseline and the cutover commit, `skills/**` is frozen,
-so no bump can arise in that window either.
+**These rules apply to changes made after the baseline.** The cutover described under
+[Transition status](#transition-status) was not itself a version bump; it established the starting point
+without changing `skills/**`.
 
 A release is justified by a change to the package's **payload** — everything under `skills/<name>/`
 except the `metadata.version` value itself and this changelog. Those two are the bookkeeping a release
@@ -102,7 +99,7 @@ All four skills start at `0.8.0`. That number is a transition point, not a claim
 skill has changed. Before it, one shared catalog version covered every skill at once; the number was
 carried over so the two histories line up rather than restarting from zero.
 
-*(After cutover)* A skill added later starts at `0.1.0` instead, because that is a genuine first release.
+A skill added later starts at `0.1.0` instead, because that is a genuine first release.
 
 Catalog tags `v0.1.0` through `v0.8.0` and their releases remain published and installable. They are not
 moved, deleted, or reused.

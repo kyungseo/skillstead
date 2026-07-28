@@ -32,6 +32,11 @@ def make_install(ref: str, skill: str = "alpha-skill", count: int = 7) -> str:
     return "# Install\n\n" + "\n".join(f"## Way {i}\n\n{block}" for i in range(count))
 
 
+def write_install_pair(repo: Path, text: str) -> None:
+    for name in ("INSTALL.md", "INSTALL.ko.md"):
+        (repo / "docs" / name).write_text(text, encoding="utf-8")
+
+
 def make_release(tag: str, published: str, *, prerelease: bool = False,
                  title: str | None = None, body: str | None = None) -> dict:
     skill, version = tag.split("/v")
@@ -49,7 +54,7 @@ class CutoverFixture(unittest.TestCase):
         self._tmp = tempfile.TemporaryDirectory()
         self.repo = build_unreleased_repo(Path(self._tmp.name) / "repo", dict(SKILLS))
         (self.repo / "docs").mkdir(exist_ok=True)
-        (self.repo / "docs/INSTALL.md").write_text(make_install("v0.8.0"), encoding="utf-8")
+        write_install_pair(self.repo, make_install("v0.8.0"))
         self.base_sha = commit_all(self.repo, "legacy install")
         stack = ExitStack()
         stack.enter_context(patch.object(record_schema, "BASELINE_FINALIZATION_SHA", self.base_sha))
@@ -68,7 +73,7 @@ class CutoverFixture(unittest.TestCase):
         return rec
 
     def cutover_commit(self, record: dict | str | None = None, pin: str = FIX_PIN) -> str:
-        (self.repo / "docs/INSTALL.md").write_text(make_install(pin), encoding="utf-8")
+        write_install_pair(self.repo, make_install(pin))
         rec_dir = self.repo / ".skillstead"
         rec_dir.mkdir(exist_ok=True)
         record = self.record() if record is None else record
@@ -93,7 +98,7 @@ class CutoverFixture(unittest.TestCase):
         self.assertEqual(self.verdict().verdict, "not-started")
 
     def test_cv_orphan(self) -> None:
-        (self.repo / "docs/INSTALL.md").write_text(make_install(FIX_PIN), encoding="utf-8")
+        write_install_pair(self.repo, make_install(FIX_PIN))
         commit_all(self.repo, "pins switched without record")
         v = self.verdict()
         self.assertEqual((v.verdict, v.code), ("red", "CV-ORPHAN"))
@@ -124,6 +129,28 @@ class CutoverFixture(unittest.TestCase):
         self.cutover_commit()
         self.assertEqual(self.verdict().verdict, "pending-tags")
 
+    def test_ko_only_stale_pin_is_cv_pin(self) -> None:
+        (self.repo / "docs/INSTALL.md").write_text(
+            make_install(FIX_PIN), encoding="utf-8")
+        rec_dir = self.repo / ".skillstead"
+        rec_dir.mkdir(exist_ok=True)
+        (rec_dir / "cutover-record.json").write_text(
+            json.dumps(self.record()), encoding="utf-8")
+        commit_all(self.repo, "EN switched while KO stayed legacy")
+        verdict = self.verdict()
+        self.assertEqual((verdict.verdict, verdict.code), ("red", "CV-PIN"))
+
+    def test_missing_ko_install_is_cv_pin(self) -> None:
+        write_install_pair(self.repo, make_install(FIX_PIN))
+        (self.repo / "docs/INSTALL.ko.md").unlink()
+        rec_dir = self.repo / ".skillstead"
+        rec_dir.mkdir(exist_ok=True)
+        (rec_dir / "cutover-record.json").write_text(
+            json.dumps(self.record()), encoding="utf-8")
+        commit_all(self.repo, "cutover without KO INSTALL")
+        verdict = self.verdict()
+        self.assertEqual((verdict.verdict, verdict.code), ("red", "CV-PIN"))
+
     def test_cv_clock(self) -> None:
         sha = self.cutover_commit()
         v = self.verdict(now=self.now_at(sha, 4000))
@@ -135,7 +162,7 @@ class CutoverFixture(unittest.TestCase):
         self.assertEqual((v.verdict, v.code), ("red", "CV-PIN"))
 
     def test_cv_same(self) -> None:
-        (self.repo / "docs/INSTALL.md").write_text(make_install(FIX_PIN), encoding="utf-8")
+        write_install_pair(self.repo, make_install(FIX_PIN))
         commit_all(self.repo, "pins only")
         rec_dir = self.repo / ".skillstead"
         rec_dir.mkdir(exist_ok=True)
@@ -164,7 +191,7 @@ class CutoverFixture(unittest.TestCase):
     def test_aborted_green_and_retry_fails_closed(self) -> None:
         self.cutover_commit()
         # revert: pins back to legacy + phase aborted, one commit
-        (self.repo / "docs/INSTALL.md").write_text(make_install("v0.8.0"), encoding="utf-8")
+        write_install_pair(self.repo, make_install("v0.8.0"))
         (self.repo / ".skillstead/cutover-record.json").write_text(
             json.dumps(self.record(phase="aborted")), encoding="utf-8")
         commit_all(self.repo, "abort attempt 1")
@@ -181,7 +208,7 @@ class CutoverFixture(unittest.TestCase):
         self.create_tags(sha)
         (self.repo / ".skillstead/cutover-record.json").write_text(
             json.dumps(self.record(phase="aborted")), encoding="utf-8")
-        (self.repo / "docs/INSTALL.md").write_text(make_install("v0.8.0"), encoding="utf-8")
+        write_install_pair(self.repo, make_install("v0.8.0"))
         commit_all(self.repo, "abort after tags")
         v = self.verdict()
         self.assertEqual((v.verdict, v.code), ("red", "CV-ABORT-TAGS"))
@@ -261,16 +288,51 @@ class CutoverFixture(unittest.TestCase):
         bad = self.verdict(releases=releases, latest=FIX_TAGS[0].removeprefix("refs/tags/"))
         self.assertEqual((bad.verdict, bad.code), ("red", "CV-LATEST-STEADY"))
 
+    def test_dual_namespaced_pin_is_green_after_cutover(self) -> None:
+        self._to_tags_ok()
+        write_install_pair(
+            self.repo, make_install("beta-skill/v0.4.0", skill="beta-skill"))
+        commit_all(self.repo, "advance both install mirrors together")
+        releases = [
+            make_release(
+                tag.removeprefix("refs/tags/"),
+                f"2026-07-28T00:0{i}:00Z")
+            for i, tag in enumerate(FIX_TAGS)
+        ]
+        verdict = self.verdict(
+            releases=releases,
+            latest=FIX_TAGS[-1].removeprefix("refs/tags/"))
+        self.assertEqual(verdict.verdict, "complete")
+
+    def test_dual_namespaced_version_drift_is_cv_pin(self) -> None:
+        sha = self._to_tags_ok()
+        _git(self.repo, "tag", "alpha-skill/v1.2.4", sha)
+        (self.repo / "docs/INSTALL.md").write_text(
+            make_install("alpha-skill/v1.2.3"), encoding="utf-8")
+        (self.repo / "docs/INSTALL.ko.md").write_text(
+            make_install("alpha-skill/v1.2.4"), encoding="utf-8")
+        commit_all(self.repo, "drift EN and KO namespaced versions")
+        releases = [
+            make_release(
+                tag.removeprefix("refs/tags/"),
+                f"2026-07-28T00:0{i}:00Z")
+            for i, tag in enumerate(FIX_TAGS)
+        ]
+        verdict = self.verdict(
+            releases=releases,
+            latest=FIX_TAGS[-1].removeprefix("refs/tags/"))
+        self.assertEqual((verdict.verdict, verdict.code), ("red", "CV-PIN"))
+
     # MR2-F1: 형식적 INSTALL 변경으로는 Q-SAME이 성립하지 않는다 —
     # 실제 PIN-LEGACY → PIN-BASELINE 전환이어야 한다
     def test_f1_cosmetic_install_edit_is_not_a_pin_switch(self) -> None:
-        (self.repo / "docs/INSTALL.md").write_text(
-            make_install("v0.8.0") + "\n<!-- cosmetic -->\n", encoding="utf-8")
+        write_install_pair(
+            self.repo, make_install("v0.8.0") + "\n<!-- cosmetic -->\n")
         rec_dir = self.repo / ".skillstead"
         rec_dir.mkdir(exist_ok=True)
         (rec_dir / "cutover-record.json").write_text(json.dumps(self.record()), encoding="utf-8")
         commit_all(self.repo, "record + cosmetic INSTALL edit")
-        (self.repo / "docs/INSTALL.md").write_text(make_install(FIX_PIN), encoding="utf-8")
+        write_install_pair(self.repo, make_install(FIX_PIN))
         commit_all(self.repo, "actual pin switch, one commit too late")
         v = self.verdict()
         self.assertEqual((v.verdict, v.code), ("red", "CV-SAME"))
@@ -312,7 +374,7 @@ class CutoverFixture(unittest.TestCase):
     # -- multi-fault precedence (R0-F3) ---------------------------------
     def test_precedence_partial_tags_beats_identity(self) -> None:
         # Q-SAME broken (split commits) AND partial tags: Step 3 must win.
-        (self.repo / "docs/INSTALL.md").write_text(make_install(FIX_PIN), encoding="utf-8")
+        write_install_pair(self.repo, make_install(FIX_PIN))
         commit_all(self.repo, "pins only")
         rec_dir = self.repo / ".skillstead"
         rec_dir.mkdir(exist_ok=True)
@@ -326,7 +388,7 @@ class CutoverFixture(unittest.TestCase):
         # Invalid baseline release (Step 4 CV-RELEASE) AND legacy pins
         # (Step 6A CV-PIN): Step 4 must win.
         sha = self._to_tags_ok()
-        (self.repo / "docs/INSTALL.md").write_text(make_install("v0.8.0"), encoding="utf-8")
+        write_install_pair(self.repo, make_install("v0.8.0"))
         commit_all(self.repo, "pins back to legacy (defect)")
         releases = [make_release(FIX_TAGS[0].removeprefix("refs/tags/"), "2026-07-28T00:00:00Z",
                                  body="not the marker\n")]
@@ -348,12 +410,19 @@ class RealRepoNotStarted(unittest.TestCase):
 
 
 class InstallPinParsing(unittest.TestCase):
-    def test_real_install_is_pin_legacy(self) -> None:
+    def test_real_install_pair_is_pin_baseline_and_equal(self) -> None:
         repo = Path(__file__).resolve().parent.parent
-        inv = install_pins.parse_pins((repo / "docs/INSTALL.md").read_text(encoding="utf-8"))
-        self.assertEqual(len(inv.pins), 7)
-        self.assertFalse(inv.ambiguous)
-        self.assertEqual(install_pins.classify(inv, lambda _t: False), "PIN-LEGACY")
+        inventories = [
+            install_pins.parse_pins(
+                (repo / path).read_text(encoding="utf-8"))
+            for path in ("docs/INSTALL.md", "docs/INSTALL.ko.md")
+        ]
+        self.assertEqual(inventories[0].pins, inventories[1].pins)
+        self.assertEqual(len(inventories[0].pins), 7)
+        self.assertFalse(any(inv.ambiguous for inv in inventories))
+        self.assertEqual(
+            install_pins.classify(inventories[0], lambda _t: False),
+            "PIN-BASELINE")
 
     def test_ambiguous_block_is_other(self) -> None:
         text = ("```bash\n"

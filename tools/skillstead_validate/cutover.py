@@ -13,7 +13,6 @@ fail closed here as ``CV-OBSERVE``.
 
 from __future__ import annotations
 
-import json
 import re
 import time
 from dataclasses import dataclass, field
@@ -27,9 +26,8 @@ from .tag_check import run_tag_checks
 P3_MARKER = ("> **Latest** refers to the most recently published individual "
              "skill release, not a catalog version.")
 
-INSTALL_PATH = "docs/INSTALL.md"
+INSTALL_PATHS = ("docs/INSTALL.md", "docs/INSTALL.ko.md")
 _NAMESPACED_TAG = re.compile(r"^([a-z0-9][a-z0-9-]*)/v(\d+)\.(\d+)\.(\d+)$")
-_SHA40 = re.compile(r"^[0-9a-f]{40}$")
 
 
 class DomainError(ValueError):
@@ -76,53 +74,25 @@ class Observation:
     # (commit, parsed-record dict | error string) oldest→newest, record commits only
 
 
-def _parse_record(text: str) -> dict | str:
-    """Canonical S2~S10 field validation; returns dict or an error string
-    naming the first violated rule."""
-    class Dup(ValueError):
-        pass
+def _combined_pin_class(repo: Path, commit: str, ref_exists_on_main) -> str:
+    """Classify the EN/KO INSTALL pair as one fail-closed pin surface.
 
-    def no_dup(pairs):
-        d = {}
-        for k, v in pairs:
-            if k in d:
-                raise Dup(k)
-            d[k] = v
-        return d
-
-    try:
-        raw = json.loads(text, object_pairs_hook=no_dup)
-    except Dup as e:
-        return f"S3: duplicate key {e}"
-    except json.JSONDecodeError as e:
-        return f"S2: invalid JSON ({e.msg})"
-    if not isinstance(raw, dict):
-        return "S2: not an object"
-    expected_keys = {"schema", "attempt", "phase", "baseline_finalization_sha",
-                     "latest_ref", "baseline_tags"}
-    if set(raw) != expected_keys:
-        return f"S2: keys must be exactly {sorted(expected_keys)}"
-    if raw["schema"] != record_schema.SCHEMA:
-        return "S4: schema mismatch"
-    if not isinstance(raw["attempt"], int) or isinstance(raw["attempt"], bool) or raw["attempt"] < 1:
-        return "S5: attempt must be an integer >= 1"
-    for key in ("schema", "phase", "baseline_finalization_sha", "latest_ref"):
-        if not isinstance(raw[key], str):
-            return f"S5: {key} must be a string"
-    if not isinstance(raw["baseline_tags"], list) or not all(isinstance(t, str) for t in raw["baseline_tags"]):
-        return "S5: baseline_tags must be a string array"
-    if raw["phase"] not in record_schema.PHASES:
-        return "S6: phase must be prepared|aborted"
-    sha = raw["baseline_finalization_sha"]
-    if sha != record_schema.BASELINE_FINALIZATION_SHA or not _SHA40.match(sha):
-        return "S7: baseline_finalization_sha mismatch"
-    if raw["baseline_tags"] != list(record_schema.BASELINE_TAGS):
-        return "S8: baseline_tags must equal the canonical refs in order"
-    if not all(t.startswith("refs/tags/") for t in raw["baseline_tags"]):
-        return "S9: baseline_tags must be full refs"
-    if raw["latest_ref"] != record_schema.LATEST_REF or raw["latest_ref"] != raw["baseline_tags"][-1]:
-        return "S10: latest_ref mismatch"
-    return raw
+    The ordered ``(ref, copy_skill)`` sequences and their individual classes
+    must be identical. Missing files, ambiguity, sequence drift, or class
+    drift all collapse to PIN-OTHER.
+    """
+    inventories = []
+    classes = []
+    for path in INSTALL_PATHS:
+        text = file_at(repo, commit, path)
+        if text is None:
+            return "PIN-OTHER"
+        inventory = install_pins.parse_pins(text)
+        inventories.append(inventory)
+        classes.append(install_pins.classify(inventory, ref_exists_on_main))
+    if inventories[0].pins != inventories[1].pins or classes[0] != classes[1]:
+        return "PIN-OTHER"
+    return classes[0]
 
 
 def build_observation(repo: Path, main_ref: str, releases_raw: list[dict],
@@ -138,11 +108,7 @@ def build_observation(repo: Path, main_ref: str, releases_raw: list[dict],
         except GitError:
             return False
 
-    install_text = file_at(repo, main_tip, INSTALL_PATH)
-    if install_text is None:
-        pin_class = "PIN-OTHER"
-    else:
-        pin_class = install_pins.classify(install_pins.parse_pins(install_text), ref_on_main)
+    pin_class = _combined_pin_class(repo, main_tip, ref_on_main)
 
     record_text = file_at(repo, main_tip, record_schema.RECORD_PATH)
 
@@ -180,7 +146,7 @@ def build_observation(repo: Path, main_ref: str, releases_raw: list[dict],
     for commit in reversed(commits):  # oldest first
         text = file_at(repo, commit, record_schema.RECORD_PATH)
         if text is not None:
-            history_records.append((commit, _parse_record(text)))
+            history_records.append((commit, record_schema.parse(text)))
 
     return Observation(
         repo=repo, main_ref=main_ref, main_tip=main_tip, commits=commits,
@@ -228,9 +194,7 @@ def _check_attempts(obs: Observation, candidate: str) -> Verdict | None:
         idx = obs.commits.index(commit)
         parent = obs.commits[idx + 1] if idx + 1 < len(obs.commits) else None
         if parent is not None:
-            parent_install = file_at(obs.repo, parent, INSTALL_PATH) or ""
-            inv = install_pins.parse_pins(parent_install)
-            if install_pins.classify(inv, lambda _t: False) != "PIN-LEGACY":
+            if _combined_pin_class(obs.repo, parent, lambda _t: False) != "PIN-LEGACY":
                 return _red("CV-ATTEMPT", candidate, "T3", f"attempt increased at {commit[:12]} while parent pins were not PIN-LEGACY")
         # T3's third condition — the previous attempt created NO refs — is
         # not provable from any current git observation (deleted tags leave
@@ -265,14 +229,13 @@ def _prepared_identity(obs: Observation, record: dict, candidate: str) -> Verdic
         changed = git(obs.repo, "diff", "--name-only", parent, expected).splitlines()
     except GitError as e:
         return _red("CV-OBSERVE", candidate, "Q-SAME", f"diff unobservable (fail-closed): {e}")
-    if record_schema.RECORD_PATH not in changed or INSTALL_PATH not in changed:
+    if record_schema.RECORD_PATH not in changed or not all(path in changed for path in INSTALL_PATHS):
         return _red("CV-SAME", candidate, "Q-SAME", "record transition and pin switch are not in the same commit")
     # Q-SAME requires the ACTUAL pin switch, not any INSTALL edit (MR2-F1):
     # the cutover commit must take the inventory from PIN-LEGACY to exactly
     # PIN-BASELINE.
     def _class_at(commit: str) -> str:
-        text = file_at(obs.repo, commit, INSTALL_PATH) or ""
-        return install_pins.classify(install_pins.parse_pins(text), lambda _t: False)
+        return _combined_pin_class(obs.repo, commit, lambda _t: False)
     if _class_at(parent) != "PIN-LEGACY" or _class_at(expected) != "PIN-BASELINE":
         return _red("CV-SAME", candidate, "Q-SAME",
                     f"cutover commit does not switch pins PIN-LEGACY -> PIN-BASELINE (parent={_class_at(parent)}, target={_class_at(expected)})")
@@ -296,16 +259,14 @@ def _clock(obs: Observation, candidate: str) -> Verdict | None:
     first-parent commit that left PIN-LEGACY. pending-tags only, cap 1h."""
     onset_sha = None
     for i, commit in enumerate(obs.commits):
-        text = file_at(obs.repo, commit, INSTALL_PATH) or ""
-        cls = install_pins.classify(install_pins.parse_pins(text), lambda _t: True)
+        cls = _combined_pin_class(obs.repo, commit, lambda _t: True)
         if cls == "PIN-LEGACY":
             continue
         parent = obs.commits[i + 1] if i + 1 < len(obs.commits) else None
         if parent is None:
             onset_sha = commit
             break
-        parent_text = file_at(obs.repo, parent, INSTALL_PATH) or ""
-        parent_cls = install_pins.classify(install_pins.parse_pins(parent_text), lambda _t: True)
+        parent_cls = _combined_pin_class(obs.repo, parent, lambda _t: True)
         if parent_cls == "PIN-LEGACY":
             onset_sha = commit
             break
@@ -352,7 +313,7 @@ def evaluate(obs: Observation) -> Verdict:
                     f"no record but pins={obs.pin_class}, baseline refs={ref_count}, releases={len(obs.domain)}")
 
     # Step 2 — schema validation (record exists).
-    record = _parse_record(obs.record_text)
+    record = record_schema.parse(obs.record_text)
     if isinstance(record, str):
         return _red("CV-SCHEMA", None, record.split(":", 1)[0], record)
 

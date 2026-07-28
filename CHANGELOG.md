@@ -4,6 +4,22 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## 2026-07-28
+
+### Repository
+
+- **Per-skill release cutover.** Added the immutable cutover record and four local baseline Release notes for
+  `docs-claim-check/v0.8.0`, `github-release-guide/v0.8.0`, `svg-infographic/v0.8.0`, and
+  `writing-quality-editor/v0.8.0`. The cutover preserves `skills/**` and the catalog `Version` values.
+- **Namespaced installation pin.** Updated both INSTALL manuals and all seven clone examples from catalog
+  `v0.8.0` to `github-release-guide/v0.8.0`.
+- **Fail-closed cutover validation.** M2 now has an exact-record-only baseline branch, while M4 treats the English
+  and Korean INSTALL pin inventories as one ordered surface. Added fixtures for record/plan near misses, retry
+  attempts, inventory reduction, language-only stale pins, missing mirrors, and namespaced version drift.
+- **Current public documentation.** Updated the root catalog explanation and English/Korean VERSIONING and
+  VALIDATION manuals for active per-skill releases, dual-INSTALL authority, abort/retry controls, and forward-only
+  recovery.
+
 ## [0.8.0] — 2026-07-24
 
 ### svg-infographic
