@@ -63,12 +63,20 @@ validated.
 
 ## Example Prompts
 
-For the most predictable selection across hosts, name the skill and state the outcome naturally. You do not need
-to name a mode.
+To make it clear that you want this skill across hosts, name `writing-quality-editor` and describe the result
+you want. You usually do not need to name a mode.
+
+On the runtimes tested so far, you can also call it `WQE` in ordinary language. This shorthand is not a
+guaranteed `$WQE` or `/WQE` command, and selection can vary by runtime, model, and context. Use
+`writing-quality-editor` when you want to make the choice explicit.
 
 ```text
 Use writing-quality-editor to make the document below read naturally. Preserve its core facts, conditions,
 requirements, and commands.
+```
+
+```text
+Use WQE to review this onboarding guide. Identify meaning or clarity problems, but do not revise the text yet.
 ```
 
 When the installed agent can select skills from intent, ordinary requests work too:
@@ -102,6 +110,10 @@ Use writing-quality-editor in Assess mode. Review this release note, but do not 
 In a repository with a workflow that owns brief classification, file location, indexing, or approval, use that
 workflow first. `writing-quality-editor` can then improve the prose inside the established artifact contract; it
 does not replace repository workflow or approval rules.
+
+Examples where `WQE` is only quoted, another skill is involved, or a repository workflow takes priority are
+recorded in the repository-only
+[`intent and invocation contract`](../../examples/intent-invocation-contract).
 
 ## Package And Evidence
 

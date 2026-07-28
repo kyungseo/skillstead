@@ -45,5 +45,27 @@ compliance are the compatibility criteria.
 
 ## Try it
 
+To make it clear that you want this skill, name `docs-claim-check` directly. You can also ask in ordinary
+language. Either way, include the document or claim text you want checked and the evidence you already have.
+
+```text
+Use docs-claim-check to assess these release-note claims against the supplied tag list and CI output.
+```
+
+```text
+Check whether the claims in this README are supported by the files and command output below. Report findings
+only; do not run commands or rewrite the document.
+```
+
+If you have not supplied the target text, the skill asks for it without searching the repository or running a
+command. If the target is present but some evidence is missing, it tells you exactly what evidence is needed.
+
+If a request also asks for rewriting, `docs-claim-check` handles the claim judgment first. It reports findings
+but does not write replacement text; rewriting remains a separate step.
+
+See the repository-only
+[`intent and invocation contract`](../../examples/intent-invocation-contract) for examples of how the skills
+handle mixed or ambiguous requests.
+
 See [`examples/docs-claim-check`](https://github.com/kyungseo/skillstead/tree/main/examples/docs-claim-check) for a synthetic
 fixture set and a complete worked output.

@@ -5,9 +5,41 @@
 Skillstead는 각 skill을 portable folder로 패키징합니다. 설치할 때는 검토된 ref를 clone한 뒤 완전한
 folder 하나를 복사하며, 원격 install script는 실행하지 않습니다.
 
-> **Release pin:** 아래 명령은 `github-release-guide/v0.8.0`을 대상으로 합니다. release candidate는 공개 전에 Claude Code와
+> **Release pin:** 아래 명령은 `github-release-guide/v0.8.1`을 대상으로 합니다. release candidate는 공개 전에 Claude Code와
 > Codex에서 새 project 설치, discovery, source lint, 정확한 2× Chromium render 검사를 통과했습니다.
 > tag 발행 후 release closeout에서도 anonymous pinned-tag clone과 package equality를 확인합니다.
+
+## AI에게 맡기기
+
+어떤 명령과 폴더를 골라야 할지 막막하다면, 아래 prompt의 빈칸을 바꿔 Claude Code나 Codex에 붙여
+넣으세요.
+
+```text
+Skillstead의 <skill>을 <Claude Code 또는 Codex>용으로 <project 또는 global> 범위에 설치해 줘.
+docs/INSTALL.md의 pinned-tag 방식을 따르고 skill folder 전체를 복사해 줘. 원격 install script는
+실행하지 마. System 변경, 파괴적 정리 또는 credential 작업이 필요하면 정확한 작업을 먼저 보여 주고
+내 승인을 받아 줘.
+```
+
+Agent는 아래에 안내된 고정 버전과 전체 폴더 복사 방식을 따르고, 변경 전에 승인을 받습니다. 이
+prompt는 repository나 system 변경을 미리 승인하지 않으며, Skillstead를 원격 installer로 바꾸지도
+않습니다.
+
+## TL;DR — macOS/Linux에서 Claude Code 프로젝트에 설치
+
+가장 흔한 프로젝트 설치라면 repository root에서 아래 명령을 실행하세요.
+
+```bash
+git clone --depth 1 --branch github-release-guide/v0.8.1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+mkdir -p .claude/skills
+cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
+```
+
+아래에서 runtime·scope·운영체제별 전체 명령을 확인할 수 있습니다.
+
+git 대신 파일을 내려받고 싶을 수 있지만 skill별 zip 파일은 아직 제공하지 않습니다. 현재 release
+검사는 zip 파일의 identity와 checksum을 검증하지 않으므로, 검토된 pinned tag를 clone하는 방법을
+재현 가능한 설치 경로로 유지합니다.
 
 `svg-infographic`을 복사하거나 discovery해도 Node.js가 설치되지 않으며, 필요하지도 않습니다. Node.js 18+는
 자동화된 source lint와 bundled render workflow에만 필요합니다. Node.js가 없으면 skill이 감지한 package
@@ -46,7 +78,7 @@ Windows에서 `~`는 `%USERPROFILE%`을 뜻합니다. 새로 복사한 skill이 
 ### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.8.1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 ```
@@ -54,7 +86,7 @@ cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 ### Codex — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.8.1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.agents/skills
 cp -R /tmp/skillstead/skills/github-release-guide ~/.agents/skills/
 ```
@@ -62,7 +94,7 @@ cp -R /tmp/skillstead/skills/github-release-guide ~/.agents/skills/
 ### Claude Code — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch github-release-guide/v0.8.1 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.claude\skills\"
 ```
@@ -70,7 +102,7 @@ Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$e
 ### Codex — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch github-release-guide/v0.8.1 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.agents\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.agents\skills\"
 ```
@@ -83,7 +115,7 @@ commit하세요.
 ### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.8.1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 ```
@@ -91,7 +123,7 @@ cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 ### Codex — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.8.1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .agents/skills
 cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
 ```
@@ -101,14 +133,14 @@ cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
 Claude Code는 `.claude\skills`, Codex는 `.agents\skills`를 사용합니다.
 
 ```powershell
-git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch github-release-guide/v0.8.1 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force ".agents\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" ".agents\skills\"
 ```
 
 ## 최신 Development Ref
 
-현재 default branch를 복사하려면 `--branch github-release-guide/v0.8.0`을 빼세요. 평가할 때는 유용하지만 재현 가능한 team
+현재 default branch를 복사하려면 `--branch github-release-guide/v0.8.1`을 빼세요. 평가할 때는 유용하지만 재현 가능한 team
 설치 방식은 아닙니다. Team 설치와 release evidence에는 고정된 tag를 권장합니다.
 
 ## Manual Package 구조

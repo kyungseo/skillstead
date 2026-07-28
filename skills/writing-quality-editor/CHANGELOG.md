@@ -11,6 +11,13 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [0.9.0] — 2026-07-28
+
+- Added `WQE` as a natural-language discovery alias in the common description and user examples. The canonical
+  skill name remains the most predictable selector; the alias is not a `$WQE` or `/WQE` command.
+- Added positive, ambiguous, incidental-token, and host-workflow precedence scenarios to the repository-only
+  invocation contract.
+
 ## [0.8.0] — 2026-07-24
 
 **Per-skill versioning baseline.** This is not a functional release, and no feature of this skill changed

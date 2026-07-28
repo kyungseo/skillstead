@@ -8,6 +8,13 @@ Granular, per-change entries begin at the first public release. Earlier developm
 
 ### Repository
 
+- **Intent and invocation contract.** Added canonical-name, intent-only, ambiguity, collision, and host-workflow
+  precedence examples for all four skills. `docs-claim-check` now asks for missing target text before any tool
+  use. `WQE` is now a natural-language convenience alias while the canonical `writing-quality-editor` name
+  remains the most predictable selector.
+- **Approachable pinned installation.** Added an agent-assisted installation prompt and a Claude Code project
+  TL;DR to both INSTALL manuals. The detailed runtime matrix remains available, remote install scripts remain
+  prohibited, and all eight clone examples now pin `github-release-guide/v0.8.1`.
 - **Per-skill release cutover.** Added the immutable cutover record and four local baseline Release notes for
   `docs-claim-check/v0.8.0`, `github-release-guide/v0.8.0`, `svg-infographic/v0.8.0`, and
   `writing-quality-editor/v0.8.0`. The cutover preserves `skills/**` and the catalog `Version` values.

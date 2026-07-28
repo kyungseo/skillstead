@@ -65,6 +65,14 @@ Start from whatever you have — the skill adapts to the input mode:
 - **source-first** — a doc, notes, an existing SVG, or a README; the skill summarizes it and agrees the key message before drawing.
 - **research-first** — "draft it from scratch"; the skill states its assumptions first (external lookup may be unavailable depending on your environment).
 
+To make it clear that you want this skill, name `svg-infographic` directly. You can also describe the artifact
+you want in ordinary language:
+
+```text
+Turn this migration plan into an editable technical SVG and a verified 2× PNG. Show the proposed output path
+and visual defaults before creating files.
+```
+
 ```text
 Use svg-infographic to draw this cloud architecture as a clean topology diagram:
 Application Gateway -> APIM -> AKS -> PostgreSQL.
@@ -77,6 +85,10 @@ Use svg-infographic to turn this monolith-to-microservices plan into a before/af
 ```text
 Use svg-infographic to make a Korean 4:5 social infographic explaining these four layers.
 ```
+
+See the repository-only
+[`intent and invocation contract`](../../examples/intent-invocation-contract) for examples of how the skills
+handle mixed or ambiguous requests.
 
 ## Detailed Example
 

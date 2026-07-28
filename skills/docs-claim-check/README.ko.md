@@ -42,5 +42,27 @@
 
 ## 예제
 
+이 스킬을 쓰고 싶다는 점을 분명히 하려면 `docs-claim-check` 이름을 직접 말하세요. 평소 말하듯
+요청해도 되지만, 확인할 문서나 주장과 이미 가지고 있는 근거를 함께 제공해야 합니다.
+
+```text
+docs-claim-check로 이 릴리스 노트의 주장을 제공한 태그 목록과 CI 출력에 대조해 줘.
+```
+
+```text
+이 README의 주장이 아래 파일과 명령 출력으로 뒷받침되는지 확인해 줘. 결과만 알려 주고, 명령을
+실행하거나 문서를 다시 쓰지는 마.
+```
+
+확인할 문구가 없다면 repository를 검색하거나 명령을 실행하지 않고 먼저 문구를 요청합니다. 문구는
+있지만 근거가 부족하다면 어떤 근거가 더 필요한지 정확히 알려 줍니다.
+
+주장 판정과 문장 수정을 함께 요청했다면 `docs-claim-check`가 먼저 판정을 담당합니다. 이 스킬은
+수정 문구를 만들지 않으며, 문장 수정은 별도 단계로 남습니다.
+
+여러 skill이 섞이거나 요청이 모호할 때 어떻게 처리하는지는 repository 전용
+[`intent와 invocation 계약`](../../examples/intent-invocation-contract/README.ko.md)의 예시에서
+확인할 수 있습니다.
+
 가상 검증 자료와 전체 판정 예시는
 [`examples/docs-claim-check`](https://github.com/kyungseo/skillstead/tree/main/examples/docs-claim-check)에서 확인할 수 있습니다.
