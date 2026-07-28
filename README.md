@@ -45,6 +45,9 @@ and the per-skill runtime matrix.
 The `Version` column above is per skill, not a catalog version. See
 [`docs/VERSIONING.md`](./docs/VERSIONING.md) for what it means and how it changes.
 
+GitHub's **Latest** badge identifies the most recently published individual skill release. It does not represent
+a catalog version.
+
 ## Skill details
 
 ### svg-infographic

@@ -5,7 +5,7 @@
 Skillstead packages each skill as a portable folder. Installation means cloning a reviewed ref and copying one
 complete folder; no remote install script is executed.
 
-> **Release pin:** The commands below target `v0.8.0`. The release candidate passed fresh project installation,
+> **Release pin:** The commands below target `github-release-guide/v0.8.0`. The release candidate passed fresh project installation,
 > discovery, source-lint, and exact 2× Chromium-render checks on Claude Code and Codex before publication.
 > After the tag is published, release closeout still verifies an anonymous pinned-tag clone and package equality.
 
@@ -45,7 +45,7 @@ needed.
 ### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 ```
@@ -53,7 +53,7 @@ cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 ### Codex — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.agents/skills
 cp -R /tmp/skillstead/skills/github-release-guide ~/.agents/skills/
 ```
@@ -61,7 +61,7 @@ cp -R /tmp/skillstead/skills/github-release-guide ~/.agents/skills/
 ### Claude Code — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.claude\skills\"
 ```
@@ -69,7 +69,7 @@ Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$e
 ### Codex — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.agents\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.agents\skills\"
 ```
@@ -81,7 +81,7 @@ Run from the target repository root. Commit the copied folder if the team should
 ### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 ```
@@ -89,7 +89,7 @@ cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 ### Codex — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .agents/skills
 cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
 ```
@@ -99,14 +99,14 @@ cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
 Use `.claude\skills` for Claude Code or `.agents\skills` for Codex:
 
 ```powershell
-git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force ".agents\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" ".agents\skills\"
 ```
 
 ## Latest development ref
 
-Omit `--branch v0.8.0` to copy the current default branch. This is useful for evaluation, not reproducible
+Omit `--branch github-release-guide/v0.8.0` to copy the current default branch. This is useful for evaluation, not reproducible
 team installation. Pinned tags are recommended for teams and release evidence.
 
 ## Manual package shape

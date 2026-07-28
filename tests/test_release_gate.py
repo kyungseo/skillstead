@@ -2,16 +2,20 @@
 
 from __future__ import annotations
 
+import json
 import sys
 import tempfile
 import unittest
+from contextlib import ExitStack
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from git_fixture import (_git, add_bare_remote, build_released_repo,  # noqa: E402
                          build_unreleased_repo, commit_all, entry, plan_json)
+from skillstead_validate import record_schema  # noqa: E402
 from skillstead_validate.release_gate import apply_tags, preflight  # noqa: E402
 from skillstead_validate.release_plan import PlanError, parse_plan  # noqa: E402
 
@@ -168,6 +172,160 @@ class ReleaseGateFixtures(unittest.TestCase):
         self.assertNotIn("alpha-skill/v1.3.0", _git(self.repo, "tag", "--list"))
         add_bare_remote(self.repo)
         self.assertEqual(apply_tags(self.repo, plan), ["alpha-skill/v1.3.0"])
+
+
+class BaselineReleaseFixtures(unittest.TestCase):
+    """The M2 exception is bound to one canonical four-skill cutover plan."""
+
+    SKILLS = {
+        "docs-claim-check": "0.8.0",
+        "github-release-guide": "0.8.0",
+        "svg-infographic": "0.8.0",
+        "writing-quality-editor": "0.8.0",
+    }
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.repo = build_unreleased_repo(
+            Path(self._tmp.name) / "repo", dict(self.SKILLS))
+        self.baseline_sha = _git(self.repo, "rev-parse", "HEAD").strip()
+        stack = ExitStack()
+        stack.enter_context(patch.object(
+            record_schema, "BASELINE_FINALIZATION_SHA", self.baseline_sha))
+        self.addCleanup(stack.close)
+        self.addCleanup(self._tmp.cleanup)
+        self._write_record()
+        self.cutover_sha = commit_all(self.repo, "introduce baseline attempt 1")
+
+    def _record(self, **overrides) -> dict:
+        value = {
+            "schema": record_schema.SCHEMA,
+            "attempt": 1,
+            "phase": "prepared",
+            "baseline_finalization_sha": self.baseline_sha,
+            "latest_ref": record_schema.LATEST_REF,
+            "baseline_tags": list(record_schema.BASELINE_TAGS),
+        }
+        value.update(overrides)
+        return value
+
+    def _write_record(self, **overrides) -> None:
+        path = self.repo / record_schema.RECORD_PATH
+        path.parent.mkdir(exist_ok=True)
+        path.write_text(json.dumps(self._record(**overrides)), encoding="utf-8")
+
+    def _entries(self) -> list[dict]:
+        return [
+            entry(
+                ref.removeprefix("refs/tags/").rsplit("/v", 1)[0],
+                None,
+                "0.8.0")
+            for ref in record_schema.BASELINE_TAGS
+        ]
+
+    def _findings(self, entries: list[dict] | None = None,
+                  target: str = "HEAD"):
+        plan = parse_plan(plan_json(
+            target, self._entries() if entries is None else entries))
+        return preflight(self.repo, plan)
+
+    def test_exact_baseline_plan_is_green(self) -> None:
+        self.assertEqual(self._findings(), [])
+
+    def test_baseline_apply_tags_is_atomic_and_published(self) -> None:
+        add_bare_remote(self.repo)
+        plan = parse_plan(plan_json("HEAD", self._entries()))
+        self.assertEqual(
+            apply_tags(self.repo, plan),
+            [ref.removeprefix("refs/tags/")
+             for ref in record_schema.BASELINE_TAGS])
+        for ref in record_schema.BASELINE_TAGS:
+            self.assertEqual(
+                _git(self.repo, "ls-remote", "origin", ref).split()[0],
+                self.cutover_sha)
+
+    def test_missing_record_does_not_activate_exception(self) -> None:
+        (self.repo / record_schema.RECORD_PATH).unlink()
+        commit_all(self.repo, "remove record")
+        self.assertTrue(self._findings())
+
+    def test_partial_extra_and_wrong_order_are_red(self) -> None:
+        cases = {
+            "partial": self._entries()[:-1],
+            "extra": self._entries() + [entry("extra-skill", None, "0.8.0")],
+            "wrong-order": list(reversed(self._entries())),
+        }
+        for label, entries in cases.items():
+            with self.subTest(label):
+                self.assertTrue(self._findings(entries))
+
+    def test_wrong_target_and_version_are_red(self) -> None:
+        (self.repo / "later.txt").write_text("later\n", encoding="utf-8")
+        commit_all(self.repo, "later commit carrying the same record")
+        self.assertTrue(self._findings())
+        wrong = self._entries()
+        wrong[0] = entry(wrong[0]["skill"], None, "0.8.1")
+        self.assertTrue(self._findings(wrong, target=self.cutover_sha))
+
+    def test_attempt_two_structure_is_green(self) -> None:
+        self._write_record(phase="aborted")
+        commit_all(self.repo, "abort attempt 1")
+        self._write_record(attempt=2)
+        commit_all(self.repo, "introduce attempt 2")
+        self.assertEqual(self._findings(), [])
+
+    def test_attempt_skip_is_red(self) -> None:
+        self._write_record(phase="aborted")
+        commit_all(self.repo, "abort attempt 1")
+        self._write_record(attempt=3)
+        commit_all(self.repo, "skip attempt 2")
+        self.assertTrue(self._findings())
+
+    def test_baseline_inventory_reduction_is_i10(self) -> None:
+        import shutil
+        shutil.rmtree(self.repo / "skills/docs-claim-check")
+        commit_all(self.repo, "remove baseline package")
+        checks = {finding.check for finding in self._findings()}
+        self.assertIn("I-10", checks)
+
+    def test_post_cutover_ordinary_release_reaches_ordinary_gate(self) -> None:
+        for ref in record_schema.BASELINE_TAGS:
+            _git(
+                self.repo, "tag",
+                ref.removeprefix("refs/tags/"),
+                self.cutover_sha)
+
+        skill = "docs-claim-check"
+        skill_md = self.repo / f"skills/{skill}/SKILL.md"
+        skill_md.write_text(
+            skill_md.read_text(encoding="utf-8").replace(
+                "  version: 0.8.0", "  version: 0.8.1"),
+            encoding="utf-8")
+        (self.repo / f"skills/{skill}/README.md").write_text(
+            "Post-cutover payload correction.\n", encoding="utf-8")
+        changelog = self.repo / f"skills/{skill}/CHANGELOG.md"
+        changelog.write_text(
+            changelog.read_text(encoding="utf-8").replace(
+                "## [0.8.0]",
+                "## [0.8.1] — 2026-07-28\n\n"
+                "Post-cutover patch.\n\n"
+                "## [0.8.0]",
+                1),
+            encoding="utf-8")
+        for name in ("README.md", "README.ko.md"):
+            path = self.repo / name
+            lines = path.read_text(encoding="utf-8").splitlines()
+            path.write_text(
+                "\n".join(
+                    line.replace("`0.8.0`", "`0.8.1`")
+                    if skill in line else line
+                    for line in lines) + "\n",
+                encoding="utf-8")
+        commit_all(self.repo, "ordinary release after cutover")
+
+        plan = parse_plan(plan_json("HEAD", [
+            entry(skill, f"{skill}/v0.8.0", "0.8.1")]))
+        self.assertEqual(preflight(self.repo, plan), [])
 
 
 class MR1Fixtures(unittest.TestCase):

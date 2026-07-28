@@ -5,7 +5,7 @@
 Skillstead는 각 skill을 portable folder로 패키징합니다. 설치할 때는 검토된 ref를 clone한 뒤 완전한
 folder 하나를 복사하며, 원격 install script는 실행하지 않습니다.
 
-> **Release pin:** 아래 명령은 `v0.8.0`을 대상으로 합니다. release candidate는 공개 전에 Claude Code와
+> **Release pin:** 아래 명령은 `github-release-guide/v0.8.0`을 대상으로 합니다. release candidate는 공개 전에 Claude Code와
 > Codex에서 새 project 설치, discovery, source lint, 정확한 2× Chromium render 검사를 통과했습니다.
 > tag 발행 후 release closeout에서도 anonymous pinned-tag clone과 package equality를 확인합니다.
 
@@ -46,7 +46,7 @@ Windows에서 `~`는 `%USERPROFILE%`을 뜻합니다. 새로 복사한 skill이 
 ### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 ```
@@ -54,7 +54,7 @@ cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 ### Codex — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.agents/skills
 cp -R /tmp/skillstead/skills/github-release-guide ~/.agents/skills/
 ```
@@ -62,7 +62,7 @@ cp -R /tmp/skillstead/skills/github-release-guide ~/.agents/skills/
 ### Claude Code — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.claude\skills\"
 ```
@@ -70,7 +70,7 @@ Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$e
 ### Codex — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.agents\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.agents\skills\"
 ```
@@ -83,7 +83,7 @@ commit하세요.
 ### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 ```
@@ -91,7 +91,7 @@ cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 ### Codex — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .agents/skills
 cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
 ```
@@ -101,14 +101,14 @@ cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
 Claude Code는 `.claude\skills`, Codex는 `.agents\skills`를 사용합니다.
 
 ```powershell
-git clone --depth 1 --branch v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch github-release-guide/v0.8.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force ".agents\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" ".agents\skills\"
 ```
 
 ## 최신 Development Ref
 
-현재 default branch를 복사하려면 `--branch v0.8.0`을 빼세요. 평가할 때는 유용하지만 재현 가능한 team
+현재 default branch를 복사하려면 `--branch github-release-guide/v0.8.0`을 빼세요. 평가할 때는 유용하지만 재현 가능한 team
 설치 방식은 아닙니다. Team 설치와 release evidence에는 고정된 tag를 권장합니다.
 
 ## Manual Package 구조
