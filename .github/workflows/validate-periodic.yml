@@ -1,0 +1,39 @@
+# Periodic fallback validation. Catches state changes that fire no usable
+# event (e.g. a tag repointed or deleted outside a push). Kept in its own
+# workflow file so schedule disablement — including GitHub's automatic
+# 60-day-inactivity disable — cannot take the event-driven checks down with
+# it. Manual dispatch is the documented re-check and re-enable path.
+name: validate-periodic
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Validator self-tests (fixtures)
+        run: python3 -m unittest discover -s tests
+
+      - name: Repo validation (M1)
+        run: PYTHONPATH=tools python3 -m skillstead_validate repo --repo-root .
+
+      - name: Continuous tag checks (M3)
+        run: PYTHONPATH=tools python3 -m skillstead_validate tags --main-ref origin/main --repo-root .
+
+      - name: Cutover verdict (M4)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: PYTHONPATH=tools python3 -m skillstead_validate cutover --live --repo-slug "$GITHUB_REPOSITORY" --main-ref origin/main --repo-root .
+
+      - name: Spec reference validator (pinned skills-ref)
+        run: python3 tools/run_skills_ref.py

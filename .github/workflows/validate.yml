@@ -1,0 +1,65 @@
+# Event-driven validation (M1). Deliberately separate from the periodic
+# workflow (validate-periodic.yml) so that disabling either one — including
+# GitHub's automatic 60-day-inactivity disable of scheduled workflows — never
+# silences the other. Continuous tag checks (M3) and the cutover evaluator
+# (M4) are added by later stages of the validator work.
+name: validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  create:
+  delete:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      # Full hydration is contractual: first-parent history, all tags, and
+      # origin/main must be observable for the tag and cutover checks.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Validator self-tests (fixtures)
+        run: python3 -m unittest discover -s tests
+
+      - name: Repo validation (M1)
+        run: PYTHONPATH=tools python3 -m skillstead_validate repo --repo-root .
+
+      - name: Continuous tag checks (M3)
+        run: PYTHONPATH=tools python3 -m skillstead_validate tags --main-ref origin/main --repo-root .
+
+      - name: Cutover verdict (M4)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: PYTHONPATH=tools python3 -m skillstead_validate cutover --live --repo-slug "$GITHUB_REPOSITORY" --main-ref origin/main --repo-root .
+
+      - name: Spec reference validator (pinned skills-ref)
+        run: python3 tools/run_skills_ref.py
+
+  # Tag creation or deletion re-runs the continuous tag checks immediately
+  # (a deleted tag leaves no ref to check out, so main is checked out
+  # explicitly). Branch create/delete events also land here; the extra run
+  # is harmless.
+  tag-event:
+    if: github.event_name == 'create' || github.event_name == 'delete'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Continuous tag checks (M3)
+        run: PYTHONPATH=tools python3 -m skillstead_validate tags --main-ref origin/main --repo-root .
+
+      - name: Cutover verdict (M4)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: PYTHONPATH=tools python3 -m skillstead_validate cutover --live --repo-slug "$GITHUB_REPOSITORY" --main-ref origin/main --repo-root .

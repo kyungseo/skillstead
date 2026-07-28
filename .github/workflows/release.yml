@@ -1,0 +1,59 @@
+# Manual release entry — the canonical wrapper (M5) is the only supported
+# path for GitHub Release operations. Isolated from the validation workflows
+# so that neither disables the other. The request file is authored and
+# committed beforehand; dry-run is the default so a plain dispatch never
+# mutates anything.
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      request_path:
+        description: "Path to the ReleaseOperationRequest JSON file"
+        required: true
+        default: ".skillstead/release-request.json"
+      dry_run:
+        description: "Stop after the allowed-matrix and pre-publish checks"
+        type: boolean
+        required: true
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      # Pinned to main (MR2R-F9): workflow_dispatch lets the caller pick any
+      # branch, and an unpinned checkout would run a feature branch's
+      # modified wrapper — and its request file — under the write token.
+      # Both the wrapper and the request must come from the trusted ref.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      # The dispatch input is UNTRUSTED text: interpolating it into the run
+      # script would let quotes/metacharacters escape the argument and run
+      # arbitrary commands under the write token (R1-F2). It is passed via
+      # env, validated as a plain repo-relative path, and must be a file
+      # tracked in the trusted main checkout.
+      - name: Validate request path
+        env:
+          REQUEST_PATH: ${{ inputs.request_path }}
+        run: |
+          case "$REQUEST_PATH" in
+            (*[!A-Za-z0-9._/-]*|/*|*..*|"") echo "request_path rejected"; exit 1;;
+          esac
+          git ls-files --error-unmatch -- "$REQUEST_PATH"
+
+      - name: Canonical release wrapper (M5)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUEST_PATH: ${{ inputs.request_path }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -- --request "$REQUEST_PATH" --repo-slug "$GITHUB_REPOSITORY" --main-ref origin/main --repo-root .
+          if [ "$DRY_RUN" = "true" ]; then set -- "$@" --dry-run; fi
+          PYTHONPATH=tools python3 -m skillstead_validate release "$@"
