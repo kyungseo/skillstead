@@ -143,6 +143,18 @@ class ReleaseGateFixtures(unittest.TestCase):
         remote_tags = _git(self.repo, "ls-remote", "--tags", str(bare))
         self.assertIn("refs/tags/alpha-skill/v1.3.0", remote_tags)
 
+    # R1R-F1: 빈 plan은 엄격한 no-op — branch도 tag도 원격으로 밀지 않는다
+    def test_empty_plan_apply_is_strict_noop(self) -> None:
+        bare = add_bare_remote(self.repo)
+        (self.repo / "AHEAD.md").write_text("local-only commit\n", encoding="utf-8")
+        commit_all(self.repo, "local main ahead of remote")
+        before_branches = _git(self.repo, "ls-remote", "--heads", str(bare))
+        before_tags = _git(self.repo, "ls-remote", "--tags", str(bare))
+        plan = parse_plan(plan_json("HEAD", []))
+        self.assertEqual(apply_tags(self.repo, plan), [])
+        self.assertEqual(_git(self.repo, "ls-remote", "--heads", str(bare)), before_branches)
+        self.assertEqual(_git(self.repo, "ls-remote", "--tags", str(bare)), before_tags)
+
     # R1-F1: 발행 실패 시 local ref rollback — 재시도가 막히지 않는다
     def test_apply_tags_rolls_back_on_push_failure(self) -> None:
         (self.repo / "skills/alpha-skill/SKILL.md").write_text(

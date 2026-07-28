@@ -30,8 +30,8 @@ final state):
 
 | action | draft | prerelease | latest_intent | owner_authorization |
 | --- | --- | --- | --- | --- |
-| create-draft | must be `true` | must be `false` | any | not required |
-| publish | must be `false` | must be `false` | must be `true` | not required |
+| create-draft | must be `true` | must be `false` | any | required when `recovery_mode != none` |
+| publish | must be `false` | must be `false` | must be `true` | required when `recovery_mode != none` |
 | edit-metadata | must be `false` | must be `false` | `true` when correcting Latest | required |
 
 **Ordering:** `M2 preflight green → M2 apply-tags → M3 → M5`. Tag mutation

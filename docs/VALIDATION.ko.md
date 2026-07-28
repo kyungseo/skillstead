@@ -26,8 +26,8 @@ action별 request boolean 제약(request는 의도한 최종 상태와 같아야
 
 | action | draft | prerelease | latest_intent | owner_authorization |
 | --- | --- | --- | --- | --- |
-| create-draft | `true` 필수 | `false` 필수 | 자유 | 불필요 |
-| publish | `false` 필수 | `false` 필수 | `true` 필수 | 불필요 |
+| create-draft | `true` 필수 | `false` 필수 | 자유 | `recovery_mode != none`이면 필수 |
+| publish | `false` 필수 | `false` 필수 | `true` 필수 | `recovery_mode != none`이면 필수 |
 | edit-metadata | `false` 필수 | `false` 필수 | Latest 정정 시 `true` | 필수 |
 
 **순서:** `M2 preflight green → M2 apply-tags → M3 → M5`. tag 변경은 preflight를 재실행하는

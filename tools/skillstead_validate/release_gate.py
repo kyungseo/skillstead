@@ -298,9 +298,14 @@ def apply_tags(repo: Path, plan: ReleasePlan, main_ref: str = "main",
     findings = preflight(repo, plan, main_ref)
     if findings:
         raise RuntimeError("apply-tags refused; preflight findings:\n" + "\n".join(map(str, findings)))
-    target = peeled(repo, plan.target_commit)
     names = [f"{e.skill}/v{e.proposed_version}" for e in plan.releases]
     refs = [f"refs/tags/{name}" for name in names]
+    if not refs:
+        # A refspec-less `git push` falls back to the default push behavior
+        # and would move the CURRENT BRANCH on the remote — an empty plan
+        # must be a strict no-op (R1R-F1).
+        return []
+    target = peeled(repo, plan.target_commit)
     git(repo, "update-ref", "--stdin",
         input_text="".join(f"create {ref} {target}\n" for ref in refs))
     try:
