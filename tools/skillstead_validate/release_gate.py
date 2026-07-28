@@ -11,7 +11,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from . import SEMVER_RE
+from . import SEMVER_RE, record_schema
 from .bump import default_step, step_of
 from .changelog import ChangelogError, topmost_released_version
 from .catalog import EN_HEADER, KO_HEADER, CatalogError, catalog_versions
@@ -248,19 +248,30 @@ def preflight(repo: Path, plan: ReleasePlan, main_ref: str = "main") -> list[Fin
                         continue
                     try:
                         parent_table = catalog_versions(parent_text, header)
-                    except CatalogError:
+                    except CatalogError as err:
+                        # Unobservable parent state cannot prove the
+                        # same-commit condition (fail-closed — MR1R-F3).
+                        findings.append(Finding("D3-3", e.skill, f"parent {fname} catalog unreadable, same-commit introduction unprovable (fail-closed): {err}"))
                         continue
                     if e.skill in parent_table:
                         findings.append(Finding("D3-3", e.skill, f"{fname} catalog row existed before the target commit"))
 
     # I-10: inventory reduction requires an approved retirement marker; no
     # marker format exists until the playbook defines one — fail-closed.
-    # With no namespaced release at all AND an empty plan there is nothing to
-    # gate: pre-cutover no-op preflight is green (MR1-F8).
+    # No-op green must be activation-aware (MR1R-F8): "no namespaced release"
+    # is only pre-cutover when there is also no cutover-record trace in
+    # first-parent history — otherwise a full tag deletion would masquerade
+    # as the pre-cutover state and silence I-10.
     baseline_commit = _latest_release_commit(repo, target)
     if baseline_commit is None:
-        if plan.releases:
-            findings.append(Finding("I-10", "skills/", "no prior namespaced release observable from target (fail-closed)"))
+        try:
+            record_trace = git(repo, "log", "--first-parent", "--format=%H",
+                               target, "--", record_schema.RECORD_PATH).strip()
+        except GitError as e:
+            findings.append(Finding("GIT", record_schema.RECORD_PATH, f"record history unobservable (fail-closed): {e}"))
+            record_trace = "unobservable"
+        if plan.releases or record_trace:
+            findings.append(Finding("I-10", "skills/", "no prior namespaced release observable from target, but the state is not provably pre-cutover (fail-closed)"))
     else:
         try:
             before = dirs_at(repo, baseline_commit, "skills")

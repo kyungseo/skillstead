@@ -275,6 +275,52 @@ class MR1Fixtures(unittest.TestCase):
             plan = parse_plan(plan_json("HEAD", []))
             self.assertEqual(preflight(repo, plan), [])
 
+    # MR1R-F3: parent catalog가 손상돼 같은 commit 도입을 증명할 수 없으면
+    # fail-closed다 — silent skip으로 green이 되면 안 된다
+    def test_f3_unreadable_parent_catalog_fails_closed(self) -> None:
+        for fname in ("README.md", "README.ko.md"):
+            f = self.repo / fname
+            f.write_text(f.read_text(encoding="utf-8").replace("| Skill |", "| Broken |")
+                         .replace("| 스킬 |", "| 깨짐 |"), encoding="utf-8")
+        commit_all(self.repo, "corrupt catalog headers")
+        pkg = self.repo / "skills/gamma-skill"
+        pkg.mkdir(parents=True)
+        (pkg / "SKILL.md").write_text(
+            "---\nname: gamma-skill\nlicense: LICENSE.txt\nmetadata:\n  version: 0.1.0\n---\n",
+            encoding="utf-8")
+        (pkg / "CHANGELOG.md").write_text(
+            "# Changelog — gamma-skill\n\n## [0.1.0] — 2026-07-28\n\nInitial.\n", encoding="utf-8")
+        (pkg / "LICENSE.txt").write_text(
+            (self.repo / "LICENSE").read_text(encoding="utf-8"), encoding="utf-8")
+        for fname in ("README.md", "README.ko.md"):
+            f = self.repo / fname
+            f.write_text(f.read_text(encoding="utf-8").replace("| Broken |", "| Skill |")
+                         .replace("| 깨짐 |", "| 스킬 |")
+                         .replace("| --- | --- | --- | --- | --- |",
+                                  "| --- | --- | --- | --- | --- |\n| [`gamma-skill`](./skills/gamma-skill) | Fixture | `0.1.0` | Claude Code | Beta |",
+                                  1), encoding="utf-8")
+        commit_all(self.repo, "repair headers + add gamma in one commit")
+        self.assertIn("D3-3", self._preflight([entry("gamma-skill", None, "0.1.0")]))
+
+    # MR1R-F8: record 흔적이 있으면 tag 전량 삭제 상태를 pre-cutover로
+    # 오인하지 않는다 — I-10 fail-closed
+    def test_f8_full_deletion_with_record_trace_not_mistaken_for_pre_cutover(self) -> None:
+        import shutil
+        record_dir = self.repo / ".skillstead"
+        record_dir.mkdir()
+        (record_dir / "cutover-record.json").write_text("{}", encoding="utf-8")
+        commit_all(self.repo, "record trace")
+        for tag in ("alpha-skill/v1.2.3", "beta-skill/v0.4.0"):
+            _git(self.repo, "tag", "-d", tag)
+        shutil.rmtree(self.repo / "skills/beta-skill")
+        for fname in ("README.md", "README.ko.md"):
+            f = self.repo / fname
+            f.write_text(
+                "\n".join(l for l in f.read_text(encoding="utf-8").splitlines()
+                          if "beta-skill" not in l) + "\n", encoding="utf-8")
+        commit_all(self.repo, "remove beta after deleting all tags")
+        self.assertIn("I-10", self._preflight([]))
+
 
 class GitFailClosed(unittest.TestCase):
     # 경계 (b): git/history 조회 실패는 통과가 아니라 finding이다
