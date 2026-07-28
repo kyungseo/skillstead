@@ -153,9 +153,12 @@ def build_observation(repo: Path, main_ref: str, releases_raw: list[dict],
         except GitError:
             continue
 
-    # Domain normalization is exact and fail-closed (MR2-F5): a release
-    # object whose draft/prerelease/tag_name/published_at cannot be typed is
-    # not "probably published" — it is an incomplete observation.
+    # Domain normalization is exact and fail-closed (MR2-F5 · MR2R-F5): the
+    # input must be an array, and a release object whose draft/prerelease/
+    # tag_name/published_at cannot be typed is not "probably published" —
+    # it is an incomplete observation.
+    if not isinstance(releases_raw, list):
+        raise DomainError("releases input is not an array")
     domain = []
     for r in releases_raw:
         if not isinstance(r, dict):
@@ -165,7 +168,10 @@ def build_observation(repo: Path, main_ref: str, releases_raw: list[dict],
         tag = r.get("tag_name")
         if not isinstance(tag, str):
             raise DomainError("release object has no string tag_name")
-        if not (r.get("published_at") is None or isinstance(r.get("published_at"), str)):
+        if r["draft"] is False:
+            if not isinstance(r.get("published_at"), str) or not r["published_at"]:
+                raise DomainError(f"release {tag!r}: a published release must carry a non-empty published_at")
+        elif not (r.get("published_at") is None or isinstance(r.get("published_at"), str)):
             raise DomainError(f"release {tag!r}: published_at must be a string or null")
         if r["draft"] is False and _NAMESPACED_TAG.match(tag):
             domain.append(r)

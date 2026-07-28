@@ -243,6 +243,31 @@ class WrapperFixture(unittest.TestCase):
         self.assertFalse(wrong_target.executed)
         self.assertIn("offending", wrong_target.error)
 
+    # MR2R-F5: missing 판정은 draft is False만 발행본으로 센다
+    def test_f5r_missing_counts_only_published(self) -> None:
+        from skillstead_validate.wrapper import _missing_baseline_tags
+        no_draft_field = {"tag_name": FIX_TAGS[0].removeprefix("refs/tags/")}
+        missing = _missing_baseline_tags([no_draft_field])
+        self.assertIn(FIX_TAGS[0].removeprefix("refs/tags/"), missing)
+
+    # MR2R-F6: edit-metadata는 draft=false만 — request가 최종 상태와 같아야 한다
+    def test_f6r_edit_metadata_rejects_draft_true(self) -> None:
+        self.store.append(make_release(FIX_TAGS[0].removeprefix("refs/tags/"),
+                                       "2026-07-28T00:00:00Z", body="wrong\n"))
+        result = self.invoke(request_json(action="edit-metadata", draft=True,
+                                          recovery_mode="metadata-correction",
+                                          owner_authorization="owner-2026-07-28"))
+        self.assertFalse(result.executed)
+        self.assertIn("draft=false", result.error)
+
+    # MR2R-F7: request tag와 무관한 finding도 fail-closed로 mutation을 막는다
+    def test_f7r_any_gate_finding_blocks_mutation(self) -> None:
+        _git(self.repo, "tag", "alpha-skill/v1.9.9-rc1", self.cut_sha)  # 문법 위반 tag
+        result = self.invoke(request_json())
+        self.assertFalse(result.executed)
+        self.assertIn("not green", result.error)
+        self.assertEqual(self.commands, [])
+
     def test_dry_run_makes_no_call(self) -> None:
         result = self.invoke(request_json(), dry_run=True)
         self.assertFalse(result.executed)

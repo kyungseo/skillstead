@@ -25,8 +25,13 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
+      # Pinned to main (MR2R-F9): workflow_dispatch lets the caller pick any
+      # branch, and an unpinned checkout would run a feature branch's
+      # modified wrapper — and its request file — under the write token.
+      # Both the wrapper and the request must come from the trusted ref.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          ref: main
           fetch-depth: 0
 
       - name: Canonical release wrapper (M5)

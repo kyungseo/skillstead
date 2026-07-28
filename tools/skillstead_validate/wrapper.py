@@ -106,7 +106,7 @@ def _missing_baseline_tags(releases_raw: list[dict]) -> set[str]:
     are excluded from the verdict domain, and publishing an existing draft
     for a missing baseline ref is exactly the allowed operation."""
     present = {r.get("tag_name") for r in releases_raw
-               if isinstance(r, dict) and r.get("draft") is not True}
+               if isinstance(r, dict) and r.get("draft") is False}
     return {ref.removeprefix("refs/tags/") for ref in record_schema.BASELINE_TAGS
             if ref.removeprefix("refs/tags/") not in present}
 
@@ -198,6 +198,8 @@ def _precheck(repo: Path, req: ReleaseOperationRequest) -> str | None:
         return "prerelease releases are rejected (P1)"
     if req.action == "create-draft" and not req.draft:
         return "create-draft requires draft=true"
+    if req.action == "edit-metadata" and req.draft:
+        return "edit-metadata requires draft=false — the request must equal the intended final state (MR2R-F6)"
     if req.action == "publish":
         if req.draft:
             return "publish requires draft=false"
@@ -242,9 +244,10 @@ def run_wrapper(repo: Path, req: ReleaseOperationRequest, fetch,
         _emit_summary(result)
         return result
 
-    # The target of a create/publish must pass the pure normal tag gate
-    # right before the mutation (MR2-F7) — a complete verdict describes the
-    # repository, not this tag.
+    # The whole tag surface must pass the pure normal tag gate right before
+    # a create/publish (MR2-F7 · MR2R-F7) — the gate reports observation
+    # failures and repo-wide defects as findings, not exceptions, so ANY
+    # finding is fail-closed, not only ones naming the request tag.
     if req.action in ("create-draft", "publish"):
         try:
             gate_findings = run_tag_checks(repo, main_ref)
@@ -252,11 +255,10 @@ def run_wrapper(repo: Path, req: ReleaseOperationRequest, fetch,
             result.error = f"tag gate unobservable (fail-closed): {e}"
             _emit_summary(result)
             return result
-        for f in gate_findings:
-            if f.subject in (req.tag, f"refs/tags/{req.tag}"):
-                result.error = f"target tag fails the normal tag gate: {f}"
-                _emit_summary(result)
-                return result
+        if gate_findings:
+            result.error = f"normal tag gate is not green (fail-closed): {gate_findings[0]}"
+            _emit_summary(result)
+            return result
 
     if dry_run:
         _emit_summary(result)

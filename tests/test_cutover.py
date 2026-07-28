@@ -296,6 +296,19 @@ class CutoverFixture(unittest.TestCase):
         v = self.verdict(releases=[r])
         self.assertEqual((v.verdict, v.code), ("red", "CV-DOMAIN"))
 
+    # MR2R-F5: top-level 비배열 입력과 published_at 없는 published Release
+    def test_f5r_non_array_input_is_cv_domain(self) -> None:
+        sha = self._to_tags_ok()
+        v = run_cutover(self.repo, "main", {}, None, now=self.now_at(sha))
+        self.assertEqual((v.verdict, v.code), ("red", "CV-DOMAIN"))
+
+    def test_f5r_published_without_timestamp_is_cv_domain(self) -> None:
+        self._to_tags_ok()
+        r = make_release(FIX_TAGS[0].removeprefix("refs/tags/"), "x")
+        r["published_at"] = None
+        v = self.verdict(releases=[r])
+        self.assertEqual((v.verdict, v.code), ("red", "CV-DOMAIN"))
+
     # -- multi-fault precedence (R0-F3) ---------------------------------
     def test_precedence_partial_tags_beats_identity(self) -> None:
         # Q-SAME broken (split commits) AND partial tags: Step 3 must win.
