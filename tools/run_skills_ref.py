@@ -6,8 +6,9 @@ docs/VALIDATION.md):
 
 * source: https://github.com/agentskills/agentskills — ``skills-ref/`` subdirectory
 * pin: exact commit SHA below; upgrades are deliberate, reviewed pin changes
-* upstream license: MIT; upstream describes itself as a demonstration-only
-  reference implementation, so it is used strictly as a supplementary check
+* upstream license: Apache-2.0; upstream describes itself as a
+  demonstration-only reference implementation, so it is used strictly as a
+  supplementary check
 * scope measured: frontmatter required fields and name↔folder agreement only —
   everything beyond that is covered by ``skillstead_validate``
 

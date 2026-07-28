@@ -124,6 +124,24 @@ class TagCheckFixtures(unittest.TestCase):
         self.assertIn("D3-3", self.checks())
 
 
+class DetachedHeadHydration(unittest.TestCase):
+    """R0-F5: 검사들은 checkout 상태(detached HEAD 포함)와 무관하게 명시된
+    main ref 기준으로 동작해야 한다 — CI가 PR merge ref나 tag event에서
+    실행되기 때문이다."""
+
+    def test_checks_are_checkout_independent(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = build_released_repo(Path(tmp) / "repo")
+            _release_alpha(repo, "1.3.0", "1.2.3")
+            baseline = run_tag_checks(repo, "main")
+            head = _git(repo, "rev-parse", "HEAD~1").strip()
+            _git(repo, "checkout", "-q", "--detach", head)
+            try:
+                self.assertEqual(run_tag_checks(repo, "main"), baseline)
+            finally:
+                _git(repo, "checkout", "-q", "main")
+
+
 class BaselineRecordBranch(unittest.TestCase):
     """I-3-ⓒ baseline 분기 — 예외는 version 문자열이 아니라 record의
     exact ref membership으로만 성립하며, record 자체는 canonical 값과
