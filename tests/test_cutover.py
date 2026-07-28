@@ -336,8 +336,14 @@ class CutoverFixture(unittest.TestCase):
 
 class RealRepoNotStarted(unittest.TestCase):
     def test_real_repo_is_not_started(self) -> None:
+        # CI checks out a PR merge ref without a local `main` branch, so the
+        # remote-tracking ref is the portable main reference.
+        import subprocess
         repo = Path(__file__).resolve().parent.parent
-        v = run_cutover(repo, "main", [], None)
+        has_origin = subprocess.run(
+            ["git", "-C", str(repo), "rev-parse", "--verify", "origin/main"],
+            capture_output=True).returncode == 0
+        v = run_cutover(repo, "origin/main" if has_origin else "main", [], None)
         self.assertEqual(v.verdict, "not-started", v)
 
 
