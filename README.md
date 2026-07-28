@@ -32,10 +32,10 @@ required pipeline: start with the skill you need, skip the others, and recheck a
 
 | Skill | Best for | Version | Runtime support | Maturity |
 | --- | --- | --- | --- | --- |
-| [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | `0.8.0` | Supported: Claude Code + Codex | Stable |
-| [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | `0.8.0` | Claude Code | Beta |
-| [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | `0.8.0` | Supported: Claude Code + Codex | Stable |
-| [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | `0.8.0` | Supported: Claude Code + Codex | Beta |
+| [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | `0.8.1` | Supported: Claude Code + Codex | Stable |
+| [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | `0.9.0` | Claude Code | Beta |
+| [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | `0.8.1` | Supported: Claude Code + Codex | Stable |
+| [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | `0.9.0` | Supported: Claude Code + Codex | Beta |
 
 Each skill is self-contained and can be installed independently. You do not need to install the entire
 catalog—copy only the complete folder for the skill you want to use. See
@@ -44,6 +44,10 @@ and the per-skill runtime matrix.
 
 The `Version` column above is per skill, not a catalog version. See
 [`docs/VERSIONING.md`](./docs/VERSIONING.md) for what it means and how it changes.
+
+For more examples—including natural requests, the `WQE` shorthand, and requests that involve more than one
+skill—see the repository-only
+[`intent and invocation contract`](./examples/intent-invocation-contract).
 
 GitHub's **Latest** badge identifies the most recently published individual skill release. It does not represent
 a catalog version.
@@ -60,7 +64,8 @@ layer models, qualitative matrices, and Korean/CJK-ready technical one-pagers.
 
 - Friendly guide: [`svg-infographic` README](./skills/svg-infographic/README.md)
 - Examples: [14-example English/Korean gallery](./examples/svg-infographic)
-- Example prompt: `Use svg-infographic to turn this migration plan into an editable technical infographic.`
+- Name the skill: `Use svg-infographic to turn this migration plan into an editable technical infographic.`
+- Or ask naturally: `Turn this migration plan into an editable technical SVG and verified 2× PNG. Show the output path before creating files.`
 
 ### docs-claim-check
 
@@ -73,7 +78,8 @@ contract runs no commands during assessment and does not generate fixes, code re
 
 - Friendly guide: [`docs-claim-check` README](./skills/docs-claim-check/README.md)
 - Validation material: [synthetic AcmeTask fixture and worked assessment](./examples/docs-claim-check)
-- Example prompt: `Use docs-claim-check to assess these release-note claims against the supplied tag and CI evidence.`
+- Name the skill: `Use docs-claim-check to assess these release-note claims against the supplied tag and CI evidence.`
+- Or ask naturally: `Check whether these README claims are supported by the evidence below. Report findings only; do not rewrite the document.`
 
 ### github-release-guide
 
@@ -92,6 +98,7 @@ publish packages, sign binaries, deploy cloud services, claim a security audit, 
 
 - Friendly guide: [`github-release-guide` README](./skills/github-release-guide/README.md)
 - Validation material and diagrams: [synthetic scenarios, answer key, and worked outputs](./examples/github-release-guide)
+- Natural readiness check: `Check whether this public GitHub repository is ready for its next version release. Inspect only and do not change it.`
 - Assess example: `Use github-release-guide in Assess mode for this public repository's upcoming version release.`
 - Guided example: `Use github-release-guide in Guided mode to prepare this private repository for first publication. Start with Assess, then show only the first proposed change. Do not change the repository until I approve that exact step.`
 - Safety boundary: immediately before a repository becomes public, the guide explains what cannot be undone and
@@ -110,9 +117,10 @@ does not invent claims or hide ambiguity. AI-detector gaming and provenance conc
 
 - Friendly guide: [`writing-quality-editor` README](./skills/writing-quality-editor/README.md)
 - Validation material: [21 scenarios and a separate answer key](./examples/writing-quality-editor)
-- Recommended prompt example: `Use writing-quality-editor to make the document below read naturally. Preserve its core facts, conditions, and requirements.`
-- Intent-focused prompt examples: `Review this README. Do not revise the prose yet.` · `Write a new README using only information supported by the material below.` · `Rewrite this English release note so it reads naturally to Korean readers. Preserve its meaning and conditions.`
-- Optional mode-control example: `Use writing-quality-editor in Assess mode to review this release note. Do not draft revisions.`
+- Name the skill: `Use writing-quality-editor to make the document below read naturally. Preserve its core facts, conditions, and requirements.`
+- Use the shorthand: `Use WQE to review this onboarding guide. Identify problems, but do not revise it yet.`
+- Or ask naturally: `Review this README. Do not revise the prose yet.` · `Write a new README using only information supported by the material below.` · `Rewrite this English release note so it reads naturally to Korean readers. Preserve its meaning and conditions.`
+- Specify a mode only when needed: `Use writing-quality-editor in Assess mode to review this release note. Do not draft revisions.`
 
 ## Playbooks (maintainer reference)
 

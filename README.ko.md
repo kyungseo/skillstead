@@ -33,10 +33,10 @@
 
 | 스킬 | 이런 작업에 적합 | 버전 | 지원 실행 환경 | 성숙도 |
 | --- | --- | --- | --- | --- |
-| [`svg-infographic`](./skills/svg-infographic) | 아키텍처 설명, 작업 흐름, 비교 자료를 수정 가능한 SVG와 검증된 2× PNG로 제작 | `0.8.0` | Supported: Claude Code + Codex | Stable |
-| [`docs-claim-check`](./skills/docs-claim-check) | 공개 문서의 주장이 제공된 근거로 뒷받침되는지 확인 | `0.8.0` | Claude Code | Beta |
-| [`github-release-guide`](./skills/github-release-guide) | 비공개 GitHub 저장소의 첫 공개 전환 또는 공개 후 매 버전 릴리스를 점검하고 단계별로 안내 | `0.8.0` | Supported: Claude Code + Codex | Stable |
-| [`writing-quality-editor`](./skills/writing-quality-editor) | 사용자 문서를 처음부터 작성하거나 자연스럽게 다듬고, 사실·의도·목소리·운영 제약을 보존하면서 영어↔한국어 내용을 재구성 | `0.8.0` | Supported: Claude Code + Codex | Beta |
+| [`svg-infographic`](./skills/svg-infographic) | 아키텍처 설명, 작업 흐름, 비교 자료를 수정 가능한 SVG와 검증된 2× PNG로 제작 | `0.8.1` | Supported: Claude Code + Codex | Stable |
+| [`docs-claim-check`](./skills/docs-claim-check) | 공개 문서의 주장이 제공된 근거로 뒷받침되는지 확인 | `0.9.0` | Claude Code | Beta |
+| [`github-release-guide`](./skills/github-release-guide) | 비공개 GitHub 저장소의 첫 공개 전환 또는 공개 후 매 버전 릴리스를 점검하고 단계별로 안내 | `0.8.1` | Supported: Claude Code + Codex | Stable |
+| [`writing-quality-editor`](./skills/writing-quality-editor) | 사용자 문서를 처음부터 작성하거나 자연스럽게 다듬고, 사실·의도·목소리·운영 제약을 보존하면서 영어↔한국어 내용을 재구성 | `0.9.0` | Supported: Claude Code + Codex | Beta |
 
 각 스킬은 필요한 파일을 모두 갖춘 독립 패키지입니다. 전체 목록을 설치할 필요 없이, 사용할 스킬의
 폴더만 통째로 복사하면 됩니다. 개인용·프로젝트용 설치 경로, 고정 버전 설치, 깨끗한 업데이트 방법,
@@ -45,6 +45,9 @@ Windows 명령과 실행 환경별 지원 상태는 [`docs/INSTALL.ko.md`](./doc
 
 위 표의 `버전`은 카탈로그 전체가 아니라 스킬별 버전입니다. 의미와 변경 방식은
 [`docs/VERSIONING.ko.md`](./docs/VERSIONING.ko.md)에서 확인할 수 있습니다.
+
+자연스러운 요청, `WQE` 줄임말, 여러 skill이 함께 필요한 요청의 예시는 repository 전용
+[`intent와 invocation 계약`](./examples/intent-invocation-contract/README.ko.md)에서 확인할 수 있습니다.
 
 GitHub의 **Latest** 배지는 가장 최근에 발행된 개별 스킬 릴리스를 가리킵니다. 카탈로그 버전을 뜻하지
 않습니다.
@@ -61,7 +64,8 @@ GitHub의 **Latest** 배지는 가장 최근에 발행된 개별 스킬 릴리�
 
 - 자세한 안내: [`svg-infographic` 한국어 README](./skills/svg-infographic/README.ko.md)
 - 결과 예시: [영문·한국어 다이어그램 14개 갤러리](./examples/svg-infographic/README.ko.md)
-- 예시: `svg-infographic으로 이 전환 계획을 수정 가능한 기술 다이어그램으로 만들어 줘.`
+- 스킬 이름을 쓰는 예시: `svg-infographic으로 이 전환 계획을 수정 가능한 기술 다이어그램으로 만들어 줘.`
+- 자연스럽게 요청하는 예시: `이 전환 계획을 수정 가능한 기술 SVG와 검증된 2× PNG로 만들어 줘. 파일을 만들기 전에 출력 경로를 보여 줘.`
 
 ### docs-claim-check
 
@@ -75,7 +79,8 @@ README, 설치 안내, 릴리스 노트, 공지문을 공개하기 전에 사용
 
 - 자세한 안내: [`docs-claim-check` 한국어 README](./skills/docs-claim-check/README.ko.md)
 - 검증 자료: [가상 AcmeTask 자료와 실제 판정 예시](./examples/docs-claim-check/README.ko.md)
-- 예시: `docs-claim-check로 이 릴리스 노트의 주장을 제공한 태그와 CI 결과에 대조해 줘.`
+- 스킬 이름을 쓰는 예시: `docs-claim-check로 이 릴리스 노트의 주장을 제공한 태그와 CI 결과에 대조해 줘.`
+- 자연스럽게 요청하는 예시: `이 README의 주장이 아래 근거로 뒷받침되는지 확인해 줘. 결과만 알려 주고 문서는 다시 쓰지 마.`
 
 ### github-release-guide
 
@@ -94,6 +99,7 @@ V1은 두 시점에 사용할 수 있습니다. 비공개 github.com 저장소�
 
 - 자세한 안내: [`github-release-guide` 한국어 README](./skills/github-release-guide/README.ko.md)
 - 검증 자료와 다이어그램: [가상 시나리오, 정답표, 실행 결과](./examples/github-release-guide/README.ko.md)
+- 자연스럽게 준비 상태를 묻는 예시: `이 공개 GitHub 저장소가 다음 버전을 릴리스할 준비가 됐는지 확인해 줘. 점검만 하고 저장소는 변경하지 마.`
 - Assess 예시: `github-release-guide를 Assess 방식으로 사용해서 이 공개 저장소의 이번 버전 릴리스를 점검해 줘.`
 - Guided 예시: `github-release-guide를 Guided 방식으로 사용해서 이 비공개 저장소의 첫 공개를 준비해 줘. 먼저 Assess하고, 준비됐으면 첫 변경만 미리 보여줘. 그 작업을 내가 직접 승인하기 전에는 저장소를 변경하지 마.`
 - 저장소를 공개하기 직전에는 복제된 사본을 완전히 회수할 수 없다는 점과 자동 검사의 한계를 설명하고,
@@ -113,9 +119,10 @@ V1은 두 시점에 사용할 수 있습니다. 비공개 github.com 저장소�
 
 - 자세한 안내: [`writing-quality-editor` 한국어 README](./skills/writing-quality-editor/README.ko.md)
 - 검증 자료: [검증 시나리오 21개와 별도 정답표](./examples/writing-quality-editor/README.ko.md)
-- 권장 프롬프트 예시: `writing-quality-editor를 사용해 아래 문서를 자연스럽게 다듬어 줘. 원문의 핵심 사실, 조건과 요구 사항은 그대로 유지해 줘.`
-- Intent 중심 프롬프트 예시: `이 README를 검토해 줘. 아직 문장은 수정하지 마.` · `아래 자료에서 확인할 수 있는 내용만 바탕으로 새 README를 작성해 줘.` · `이 영어 릴리스 노트를 한국어 독자가 자연스럽게 읽을 수 있도록 다시 써 줘. 의미와 조건은 바꾸지 마.`
-- 선택적 mode 지정 프롬프트 예시: `writing-quality-editor를 Assess mode로 사용해 이 릴리스 노트를 검토해 줘. 수정안은 작성하지 마.`
+- 스킬 이름을 쓰는 예시: `writing-quality-editor를 사용해 아래 문서를 자연스럽게 다듬어 줘. 원문의 핵심 사실, 조건과 요구 사항은 그대로 유지해 줘.`
+- 줄임말을 쓰는 예시: `WQE로 이 온보딩 안내서를 검토해 줘. 문제를 찾되 아직 문장은 수정하지 마.`
+- 자연스럽게 요청하는 예시: `이 README를 검토해 줘. 아직 문장은 수정하지 마.` · `아래 자료에서 확인할 수 있는 내용만 바탕으로 새 README를 작성해 줘.` · `이 영어 릴리스 노트를 한국어 독자가 자연스럽게 읽을 수 있도록 다시 써 줘. 의미와 조건은 바꾸지 마.`
+- 필요할 때만 mode를 지정하는 예시: `writing-quality-editor를 Assess mode로 사용해 이 릴리스 노트를 검토해 줘. 수정안은 작성하지 마.`
 
 ## Playbooks (maintainer 참고 자료)
 

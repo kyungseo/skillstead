@@ -11,6 +11,15 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [0.9.0] — 2026-07-28
+
+- Added a pre-tool missing-target branch that asks for the document or claim text without listing, searching,
+  reading repository files, or executing a command.
+- Preserved the existing missing-evidence path when the target text is already supplied.
+- Added canonical-name and natural request examples, including the read-only boundary for ambiguous or mixed
+  claim-check requests.
+- Added repository-only invocation fixtures that keep claim judgment separate from prose revision.
+
 ## [0.8.0] — 2026-07-24
 
 **Per-skill versioning baseline.** This is not a functional release, and no feature of this skill changed

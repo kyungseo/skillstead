@@ -3,7 +3,7 @@ name: svg-infographic
 description: Author technical/structured SVG infographics and diagrams, then render them to crisp PNG with a headless browser. Best for architecture diagrams, topology maps, flows, before/after comparisons, nested/onion layer models, roadmaps, decision matrices, and social-ready technical one-pagers. Prefers clean line icons in soft tinted circles. First-class Korean/CJK text. Includes an opt-in "tidy hand-drawn" sketch preset (paper background, Korean handwriting font, rough strokes, highlighter). Not for photo-heavy or illustration-heavy graphics, statistical charts, or mascot/character illustration.
 license: LICENSE.txt
 metadata:
-  version: 0.8.0
+  version: 0.8.1
 ---
 
 # svg-infographic

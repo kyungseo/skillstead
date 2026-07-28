@@ -323,6 +323,45 @@ class CutoverFixture(unittest.TestCase):
             latest=FIX_TAGS[-1].removeprefix("refs/tags/"))
         self.assertEqual((verdict.verdict, verdict.code), ("red", "CV-PIN"))
 
+    def test_dual_namespaced_count_drift_is_cv_pin(self) -> None:
+        self._to_tags_ok()
+        (self.repo / "docs/INSTALL.md").write_text(
+            make_install(FIX_PIN, count=8), encoding="utf-8")
+        (self.repo / "docs/INSTALL.ko.md").write_text(
+            make_install(FIX_PIN, count=7), encoding="utf-8")
+        commit_all(self.repo, "drift EN and KO namespaced pair counts")
+        releases = [
+            make_release(
+                tag.removeprefix("refs/tags/"),
+                f"2026-07-28T00:0{i}:00Z")
+            for i, tag in enumerate(FIX_TAGS)
+        ]
+        verdict = self.verdict(
+            releases=releases,
+            latest=FIX_TAGS[-1].removeprefix("refs/tags/"))
+        self.assertEqual((verdict.verdict, verdict.code), ("red", "CV-PIN"))
+
+    def test_dual_namespaced_order_drift_is_cv_pin(self) -> None:
+        self._to_tags_ok()
+        alpha = make_install(FIX_PIN, count=1)
+        beta = make_install(
+            "beta-skill/v0.4.0", skill="beta-skill", count=1)
+        (self.repo / "docs/INSTALL.md").write_text(
+            alpha + beta, encoding="utf-8")
+        (self.repo / "docs/INSTALL.ko.md").write_text(
+            beta + alpha, encoding="utf-8")
+        commit_all(self.repo, "drift EN and KO namespaced pair order")
+        releases = [
+            make_release(
+                tag.removeprefix("refs/tags/"),
+                f"2026-07-28T00:0{i}:00Z")
+            for i, tag in enumerate(FIX_TAGS)
+        ]
+        verdict = self.verdict(
+            releases=releases,
+            latest=FIX_TAGS[-1].removeprefix("refs/tags/"))
+        self.assertEqual((verdict.verdict, verdict.code), ("red", "CV-PIN"))
+
     # MR2-F1: 형식적 INSTALL 변경으로는 Q-SAME이 성립하지 않는다 —
     # 실제 PIN-LEGACY → PIN-BASELINE 전환이어야 한다
     def test_f1_cosmetic_install_edit_is_not_a_pin_switch(self) -> None:
@@ -396,27 +435,14 @@ class CutoverFixture(unittest.TestCase):
         self.assertEqual((v.verdict, v.code), ("red", "CV-RELEASE"))
 
 
-class RealRepoBaselineSurface(unittest.TestCase):
-    EXPECTED_VERDICT = "tags-ok"
+class RealRepoInstallSurface(unittest.TestCase):
+    EXPECTED_PAIR_COUNT = 8
 
-    def test_real_repo_baseline_surface(self) -> None:
-        # CI checks out a PR merge ref without a local `main` branch, so the
-        # remote-tracking ref is the portable main reference. The empty
-        # Release domain isolates the baseline refs while INSTALL pins remain
-        # at the baseline version; the live workflow validates public Releases.
-        # The first ordinary release that updates INSTALL pins must update this
-        # fixture in the same PR as the validator/release surface.
-        import subprocess
-        repo = Path(__file__).resolve().parent.parent
-        has_origin = subprocess.run(
-            ["git", "-C", str(repo), "rev-parse", "--verify", "origin/main"],
-            capture_output=True).returncode == 0
-        v = run_cutover(repo, "origin/main" if has_origin else "main", [], None)
-        self.assertEqual(v.verdict, self.EXPECTED_VERDICT, v)
-
-
-class InstallPinParsing(unittest.TestCase):
-    def test_real_install_pair_is_pin_baseline_and_equal(self) -> None:
+    def test_real_install_pair_is_namespaced_equal_and_unambiguous(self) -> None:
+        # This is an intentional documentation-shape tripwire. Any PR that
+        # adds or removes a clone+copy example must update the expected count
+        # in the same PR. Actual ref existence and Release currentness belong
+        # to the hosted/live M4 check, not this pre-tag PR fixture.
         repo = Path(__file__).resolve().parent.parent
         inventories = [
             install_pins.parse_pins(
@@ -424,12 +450,19 @@ class InstallPinParsing(unittest.TestCase):
             for path in ("docs/INSTALL.md", "docs/INSTALL.ko.md")
         ]
         self.assertEqual(inventories[0].pins, inventories[1].pins)
-        self.assertEqual(len(inventories[0].pins), 7)
-        self.assertFalse(any(inv.ambiguous for inv in inventories))
         self.assertEqual(
-            install_pins.classify(inventories[0], lambda _t: False),
-            "PIN-BASELINE")
+            len(inventories[0].pins), self.EXPECTED_PAIR_COUNT)
+        self.assertFalse(any(inv.ambiguous for inv in inventories))
+        self.assertTrue(all(
+            pin == install_pins.Pin(
+                "github-release-guide/v0.8.1", "github-release-guide")
+            for pin in inventories[0].pins))
+        self.assertEqual(
+            install_pins.classify(inventories[0], lambda _t: True),
+            "PIN-NAMESPACED")
 
+
+class InstallPinParsing(unittest.TestCase):
     def test_ambiguous_block_is_other(self) -> None:
         text = ("```bash\n"
                 "git clone --branch v1 https://x /tmp/a\n"
@@ -439,6 +472,16 @@ class InstallPinParsing(unittest.TestCase):
         inv = install_pins.parse_pins(text)
         self.assertTrue(inv.ambiguous)
         self.assertEqual(install_pins.classify(inv, lambda _t: True), "PIN-OTHER")
+
+    def test_clone_without_copy_is_other(self) -> None:
+        text = ("```bash\n"
+                "git clone --branch alpha-skill/v1.0.0 "
+                "https://example.invalid/r.git /tmp/x\n"
+                "```\n")
+        inv = install_pins.parse_pins(text)
+        self.assertTrue(inv.ambiguous)
+        self.assertEqual(
+            install_pins.classify(inv, lambda _t: True), "PIN-OTHER")
 
     def test_namespace_copy_mismatch_is_other(self) -> None:
         text = make_install("alpha-skill/v1.0.0", skill="beta-skill", count=2)

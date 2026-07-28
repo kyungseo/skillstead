@@ -14,7 +14,7 @@ description: >
   only the out-of-scope part — by contract it does not execute commands or edit files.
 license: LICENSE.txt
 metadata:
-  version: 0.8.0
+  version: 0.9.0
 ---
 
 # docs-claim-check
@@ -25,6 +25,16 @@ explicit statement of what was (and was not) reviewed.
 
 This skill renders a judgment backed by evidence. It is not a checklist, not a linter,
 and not a substitute for code review.
+
+## Before any tool use
+
+First confirm that the target documentation or claim text is supplied in the
+conversation. If it is absent, ask the user to provide it. Do not list, search, or
+read repository files and do not execute a command to locate the target or evidence.
+
+If the target is present but evidence is incomplete, continue with the existing
+evidence-request procedure below. Ask only for the missing evidence; do not ask the
+user to provide the target again.
 
 ## Boundaries (read first)
 

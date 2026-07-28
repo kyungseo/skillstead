@@ -71,6 +71,14 @@ Codex에서 사용할 수 있습니다.
 - **research-first** — "초안부터 구성해 줘"라고 요청하면 먼저 가정을 밝힙니다. 외부 검색 가능 여부는
   실행 환경에 따라 다릅니다.
 
+이 스킬을 쓰고 싶다는 점을 분명히 하려면 `svg-infographic` 이름을 직접 말하세요. 이름 없이도 원하는
+산출물을 자연스럽게 설명할 수 있습니다.
+
+```text
+이 전환 계획을 수정 가능한 기술 SVG와 검증된 2× PNG로 만들어 줘. 파일을 만들기 전에 출력 경로와
+시각 기본값을 먼저 보여 줘.
+```
+
 ```text
 svg-infographic으로 이 클라우드 아키텍처를 깔끔한 토폴로지 다이어그램으로 그려줘:
 Application Gateway -> APIM -> AKS -> PostgreSQL.
@@ -83,6 +91,10 @@ svg-infographic으로 이 모놀리스-마이크로서비스 전환 계획을 Be
 ```text
 svg-infographic으로 이 4가지 레이어를 설명하는 한국어 4:5 소셜 인포그래픽을 만들어줘.
 ```
+
+여러 skill이 섞이거나 요청이 모호할 때 어떻게 처리하는지는 repository 전용
+[`intent와 invocation 계약`](../../examples/intent-invocation-contract/README.ko.md)의 예시에서
+확인할 수 있습니다.
 
 ## 상세 프롬프트 예시
 

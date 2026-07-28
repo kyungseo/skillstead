@@ -102,6 +102,17 @@ Never provide a password, access token, or other credential value to the skill.
 
 ## Example prompts
 
+To make it clear that you want this skill, name `github-release-guide` directly. You can also ask about release
+readiness in ordinary language:
+
+```text
+Check whether this public GitHub repository is ready for its next version release. Inspect only, explain any
+blockers, and do not change the repository.
+```
+
+Natural-language intent selects a workflow, not mutation authority. A request to “prepare the release” still
+requires a read-only assessment first and separate approval for every file, setting, tag, or Release change.
+
 ### Assess
 
 ```text
@@ -122,6 +133,10 @@ repository or its visibility until I approve that exact step.
 
 Asking for `Guided` mode does not approve the whole release. The guide begins with Assess and asks again before
 each later change.
+
+See the repository-only
+[`intent and invocation contract`](../../examples/intent-invocation-contract) for examples of how the skills
+handle mixed or ambiguous requests.
 
 ## Scope limits
 

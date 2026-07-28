@@ -11,6 +11,12 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [0.8.1] — 2026-07-28
+
+- Added canonical-name and intent-only release examples that distinguish read-only readiness assessment from
+  approval-gated repository mutations.
+- Added repository-only collision fixtures for release requests that also involve public-claim or prose work.
+
 ## [0.8.0] — 2026-07-24
 
 **Per-skill versioning baseline.** This is not a functional release, and no feature of this skill changed
