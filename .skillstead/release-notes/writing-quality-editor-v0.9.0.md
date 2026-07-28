@@ -9,3 +9,7 @@ guaranteed `$WQE` or `/WQE` command, and selection can vary by runtime, model, a
 Repository-only examples check successful shorthand use, quoted `WQE` text that should not trigger editing,
 mixed-skill requests, and repositories whose own workflow takes priority. The four writing modes and
 evidence-bounded localization scope remain unchanged.
+
+The attached source archives are a snapshot of the whole repository at this commit. This release versions only
+the `writing-quality-editor` skill — to install, copy the `skills/writing-quality-editor/` folder as described in
+`docs/INSTALL.md`.

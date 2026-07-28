@@ -9,3 +9,7 @@ is missing, it keeps the existing focused evidence-request path.
 It also adds canonical-name and natural request examples plus repository-only fixtures for missing-target,
 partial-evidence, ambiguous, and cross-skill requests. The skill remains advisory-only, and its runtime support
 claim does not expand.
+
+The attached source archives are a snapshot of the whole repository at this commit. This release versions only
+the `docs-claim-check` skill — to install, copy the `skills/docs-claim-check/` folder as described in
+`docs/INSTALL.md`.
