@@ -25,6 +25,7 @@ from .release_gate import apply_tags, preflight
 from .release_plan import PlanError, parse_plan
 from .tag_check import run_tag_checks
 from .transport import TransportError, fetch_latest, fetch_releases
+from .wrapper import RequestError, parse_request, run_wrapper
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -46,7 +47,33 @@ def main(argv: list[str] | None = None) -> int:
     cut.add_argument("--latest-file", type=Path)
     cut.add_argument("--live", action="store_true")
     cut.add_argument("--repo-slug")
+    rel = sub.add_parser("release", help="canonical release wrapper (M5) — the only supported Release path")
+    rel.add_argument("--request", type=Path, required=True)
+    rel.add_argument("--repo-root", type=Path, default=Path.cwd())
+    rel.add_argument("--main-ref", default="main")
+    rel.add_argument("--repo-slug", required=True)
+    rel.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
+
+    if args.mode == "release":
+        try:
+            request = parse_request(args.request.read_text(encoding="utf-8"))
+        except (OSError, RequestError) as e:
+            print(f"request rejected (fail-closed): {e}", file=sys.stderr)
+            return 1
+
+        def fetch():
+            return fetch_releases(args.repo_slug), fetch_latest(args.repo_slug)
+        try:
+            result = run_wrapper(args.repo_root.resolve(), request, fetch,
+                                 main_ref=args.main_ref, repo_slug=args.repo_slug,
+                                 dry_run=args.dry_run)
+        except TransportError as e:
+            print(f"red CV-DOMAIN candidate=- predicate=transport — {e}", file=sys.stderr)
+            return 1
+        if result.error:
+            return 1
+        return 0
 
     if args.mode == "cutover":
         try:
