@@ -161,7 +161,7 @@ class CutoverFixture(unittest.TestCase):
         v = self.verdict()
         self.assertEqual((v.verdict, v.code, v.predicate), ("red", "CV-ATTEMPT", "T3"))
 
-    def test_aborted_green_and_retry(self) -> None:
+    def test_aborted_green_and_retry_fails_closed(self) -> None:
         self.cutover_commit()
         # revert: pins back to legacy + phase aborted, one commit
         (self.repo / "docs/INSTALL.md").write_text(make_install("v0.8.0"), encoding="utf-8")
@@ -169,9 +169,12 @@ class CutoverFixture(unittest.TestCase):
             json.dumps(self.record(phase="aborted")), encoding="utf-8")
         commit_all(self.repo, "abort attempt 1")
         self.assertEqual(self.verdict().verdict, "aborted")
-        # legitimate retry: attempt 2 after aborted predecessor
+        # MR2-F3 owner 결정: 직전 attempt의 ref 부재는 기계 증명이 불가하므로
+        # 정상 형태의 retry도 fail-closed — 해소는 cutover ⓪ owner gate(C5)
         self.cutover_commit(record=self.record(attempt=2))
-        self.assertEqual(self.verdict().verdict, "pending-tags")
+        v = self.verdict()
+        self.assertEqual((v.verdict, v.code, v.predicate),
+                         ("red", "CV-ATTEMPT", "T3-unprovable"))
 
     def test_cv_abort_tags(self) -> None:
         sha = self.cutover_commit()
@@ -258,6 +261,41 @@ class CutoverFixture(unittest.TestCase):
         bad = self.verdict(releases=releases, latest=FIX_TAGS[0].removeprefix("refs/tags/"))
         self.assertEqual((bad.verdict, bad.code), ("red", "CV-LATEST-STEADY"))
 
+    # MR2-F1: 형식적 INSTALL 변경으로는 Q-SAME이 성립하지 않는다 —
+    # 실제 PIN-LEGACY → PIN-BASELINE 전환이어야 한다
+    def test_f1_cosmetic_install_edit_is_not_a_pin_switch(self) -> None:
+        (self.repo / "docs/INSTALL.md").write_text(
+            make_install("v0.8.0") + "\n<!-- cosmetic -->\n", encoding="utf-8")
+        rec_dir = self.repo / ".skillstead"
+        rec_dir.mkdir(exist_ok=True)
+        (rec_dir / "cutover-record.json").write_text(json.dumps(self.record()), encoding="utf-8")
+        commit_all(self.repo, "record + cosmetic INSTALL edit")
+        (self.repo / "docs/INSTALL.md").write_text(make_install(FIX_PIN), encoding="utf-8")
+        commit_all(self.repo, "actual pin switch, one commit too late")
+        v = self.verdict()
+        self.assertEqual((v.verdict, v.code), ("red", "CV-SAME"))
+
+    # MR2-F2: frozen 구간 내 record 삭제·복원은 freeze 위반이다
+    def test_f2_record_delete_and_restore_is_frozen_violation(self) -> None:
+        sha = self.cutover_commit()
+        self.create_tags(sha)
+        original = (self.repo / ".skillstead/cutover-record.json").read_text(encoding="utf-8")
+        (self.repo / ".skillstead/cutover-record.json").unlink()
+        commit_all(self.repo, "delete record")
+        (self.repo / ".skillstead").mkdir(exist_ok=True)
+        (self.repo / ".skillstead/cutover-record.json").write_text(original, encoding="utf-8")
+        commit_all(self.repo, "restore record verbatim")
+        v = self.verdict()
+        self.assertEqual((v.verdict, v.code), ("red", "CV-FROZEN"))
+
+    # MR2-F5: draft 필드가 없는 release 객체는 관측 불능 — CV-DOMAIN
+    def test_f5_missing_draft_field_is_cv_domain(self) -> None:
+        self._to_tags_ok()
+        r = make_release(FIX_TAGS[0].removeprefix("refs/tags/"), "2026-07-28T00:00:00Z")
+        del r["draft"]
+        v = self.verdict(releases=[r])
+        self.assertEqual((v.verdict, v.code), ("red", "CV-DOMAIN"))
+
     # -- multi-fault precedence (R0-F3) ---------------------------------
     def test_precedence_partial_tags_beats_identity(self) -> None:
         # Q-SAME broken (split commits) AND partial tags: Step 3 must win.
@@ -312,6 +350,32 @@ class InstallPinParsing(unittest.TestCase):
         text = make_install("alpha-skill/v1.0.0", skill="beta-skill", count=2)
         inv = install_pins.parse_pins(text)
         self.assertEqual(install_pins.classify(inv, lambda _t: True), "PIN-OTHER")
+
+    # MR2-F4: --branch 없는 clone block은 침묵이 아니라 모호성이다
+    def test_f4_clone_without_branch_is_ambiguous(self) -> None:
+        extra = ("```bash\n"
+                 "git clone https://example.invalid/r.git /tmp/x\n"
+                 "cp -R /tmp/x/skills/alpha-skill dest/\n"
+                 "```\n")
+        inv = install_pins.parse_pins(make_install("v0.8.0") + extra)
+        self.assertTrue(inv.ambiguous)
+        self.assertEqual(install_pins.classify(inv, lambda _t: True), "PIN-OTHER")
+
+    def test_f4_duplicate_copy_lines_are_ambiguous(self) -> None:
+        block = ("```bash\n"
+                 "git clone --branch v1 https://example.invalid/r.git /tmp/x\n"
+                 "cp -R /tmp/x/skills/alpha-skill a/\n"
+                 "cp -R /tmp/x/skills/alpha-skill b/\n"
+                 "```\n")
+        inv = install_pins.parse_pins(block)
+        self.assertTrue(inv.ambiguous)
+
+    def test_f4_unclosed_candidate_fence_is_ambiguous(self) -> None:
+        text = ("```bash\n"
+                "git clone --branch v1 https://example.invalid/r.git /tmp/x\n"
+                "cp -R /tmp/x/skills/alpha-skill dest/\n")
+        inv = install_pins.parse_pins(text)
+        self.assertTrue(inv.ambiguous)
 
     def test_valid_namespaced(self) -> None:
         text = make_install("alpha-skill/v1.0.0", skill="alpha-skill", count=2)

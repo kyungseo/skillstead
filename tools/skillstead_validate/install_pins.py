@@ -34,28 +34,44 @@ class PinInventory:
 
 
 def parse_pins(install_text: str) -> PinInventory:
+    """Candidate block = a fenced bash/powershell block containing a
+    ``git clone`` line (with or without ``--branch`` — an unsupported clone
+    is ambiguity, not silence). Copy-only blocks (e.g. uninstall paths that
+    mention ``skills/<name>``) carry no pin and are not candidates. Any
+    candidate that fails the exact one-supported-clone + one-copy-line
+    pairing, and any unclosed candidate fence, marks the inventory
+    ambiguous (→ PIN-OTHER)."""
     pins: list[Pin] = []
     ambiguous = False
     block: list[str] | None = None
+
+    def process(lines: list[str]) -> None:
+        nonlocal ambiguous
+        clone_lines = [l for l in lines if "git clone" in l]
+        if not clone_lines:
+            return
+        supported = [l for l in clone_lines if _CLONE_BRANCH.search(l)]
+        copy_lines = [m for l in lines if l not in clone_lines
+                      for m in [_COPY_SKILL.search(l)] if m]
+        if len(clone_lines) != 1 or len(supported) != 1 or len(copy_lines) != 1:
+            ambiguous = True
+            return
+        m = _CLONE_BRANCH.search(supported[0])
+        assert m is not None
+        pins.append(Pin(ref=m.group(1), copy_skill=copy_lines[0].group(1)))
+
     for line in install_text.splitlines():
         if block is None:
             if _FENCE.match(line):
                 block = []
             continue
         if line.strip() == "```":
-            clones = [l for l in block if _CLONE_BRANCH.search(l)]
-            if clones:
-                copy_skills = {m.group(1) for l in block if not _CLONE_BRANCH.search(l)
-                               for m in [_COPY_SKILL.search(l)] if m}
-                if len(clones) != 1 or len(copy_skills) != 1:
-                    ambiguous = True
-                else:
-                    m = _CLONE_BRANCH.search(clones[0])
-                    assert m is not None
-                    pins.append(Pin(ref=m.group(1), copy_skill=next(iter(copy_skills))))
+            process(block)
             block = None
             continue
         block.append(line)
+    if block is not None and any("git clone" in l for l in block):
+        ambiguous = True  # unclosed candidate fence
     return PinInventory(pins=tuple(pins), ambiguous=ambiguous)
 
 

@@ -32,6 +32,10 @@ _NAMESPACED_TAG = re.compile(r"^([a-z0-9][a-z0-9-]*)/v(\d+)\.(\d+)\.(\d+)$")
 _SHA40 = re.compile(r"^[0-9a-f]{40}$")
 
 
+class DomainError(ValueError):
+    """Release observation cannot be normalized — maps to CV-DOMAIN."""
+
+
 @dataclass(frozen=True)
 class Verdict:
     verdict: str                 # not-started|aborted|pending-tags|tags-ok|complete|red
@@ -149,12 +153,21 @@ def build_observation(repo: Path, main_ref: str, releases_raw: list[dict],
         except GitError:
             continue
 
+    # Domain normalization is exact and fail-closed (MR2-F5): a release
+    # object whose draft/prerelease/tag_name/published_at cannot be typed is
+    # not "probably published" — it is an incomplete observation.
     domain = []
     for r in releases_raw:
-        if not isinstance(r, dict) or r.get("draft") is True:
-            continue
+        if not isinstance(r, dict):
+            raise DomainError("release object is not a JSON object")
+        if not isinstance(r.get("draft"), bool) or not isinstance(r.get("prerelease"), bool):
+            raise DomainError(f"release {r.get('tag_name')!r}: draft/prerelease must be booleans")
         tag = r.get("tag_name")
-        if isinstance(tag, str) and _NAMESPACED_TAG.match(tag):
+        if not isinstance(tag, str):
+            raise DomainError("release object has no string tag_name")
+        if not (r.get("published_at") is None or isinstance(r.get("published_at"), str)):
+            raise DomainError(f"release {tag!r}: published_at must be a string or null")
+        if r["draft"] is False and _NAMESPACED_TAG.match(tag):
             domain.append(r)
 
     history_records: list[tuple[str, dict | str]] = []
@@ -213,6 +226,13 @@ def _check_attempts(obs: Observation, candidate: str) -> Verdict | None:
             inv = install_pins.parse_pins(parent_install)
             if install_pins.classify(inv, lambda _t: False) != "PIN-LEGACY":
                 return _red("CV-ATTEMPT", candidate, "T3", f"attempt increased at {commit[:12]} while parent pins were not PIN-LEGACY")
+        # T3's third condition — the previous attempt created NO refs — is
+        # not provable from any current git observation (deleted tags leave
+        # no trace). Owner decision 2026-07-28 (MR2-F3): retries fail closed
+        # and are released only through the cutover ⓪ owner procedure
+        # (U13-c, owned by C5), which verifies ref absence directly.
+        return _red("CV-ATTEMPT", candidate, "T3-unprovable",
+                    f"attempt increase at {commit[:12]} cannot be machine-verified (previous attempt's ref absence is unobservable); owner gate required — see cutover step ⓪")
     return None
 
 
@@ -241,6 +261,15 @@ def _prepared_identity(obs: Observation, record: dict, candidate: str) -> Verdic
         return _red("CV-OBSERVE", candidate, "Q-SAME", f"diff unobservable (fail-closed): {e}")
     if record_schema.RECORD_PATH not in changed or INSTALL_PATH not in changed:
         return _red("CV-SAME", candidate, "Q-SAME", "record transition and pin switch are not in the same commit")
+    # Q-SAME requires the ACTUAL pin switch, not any INSTALL edit (MR2-F1):
+    # the cutover commit must take the inventory from PIN-LEGACY to exactly
+    # PIN-BASELINE.
+    def _class_at(commit: str) -> str:
+        text = file_at(obs.repo, commit, INSTALL_PATH) or ""
+        return install_pins.classify(install_pins.parse_pins(text), lambda _t: False)
+    if _class_at(parent) != "PIN-LEGACY" or _class_at(expected) != "PIN-BASELINE":
+        return _red("CV-SAME", candidate, "Q-SAME",
+                    f"cutover commit does not switch pins PIN-LEGACY -> PIN-BASELINE (parent={_class_at(parent)}, target={_class_at(expected)})")
     try:
         git(obs.repo, "cat-file", "-e", f"{record_schema.BASELINE_FINALIZATION_SHA}^{{commit}}")
         git(obs.repo, "merge-base", "--is-ancestor", record_schema.BASELINE_FINALIZATION_SHA, obs.main_tip)
@@ -360,10 +389,17 @@ def evaluate(obs: Observation) -> Verdict:
     for ref, target in obs.baseline_targets.items():
         if target != expected:
             return _red("CV-TARGET", candidate, "baseline-target", f"{ref} -> {target[:12]} != expected {expected[:12]}")
-    tip_record = obs.record_text
-    intro_record = file_at(obs.repo, expected, record_schema.RECORD_PATH)
-    if tip_record != intro_record:
-        return _red("CV-FROZEN", candidate, "record-freeze", "record changed after baseline refs came into existence")
+    # Freeze spans the whole attempt (MR2-F2): with refs in existence, the
+    # record must exist unchanged at EVERY first-parent commit from its
+    # introduction to the tip — a delete-and-restore inside the span is a
+    # freeze violation, not a wash.
+    intro_idx = obs.commits.index(expected)
+    for commit in obs.commits[:intro_idx + 1]:
+        span_record = file_at(obs.repo, commit, record_schema.RECORD_PATH)
+        if span_record is None:
+            return _red("CV-FROZEN", candidate, "record-freeze", f"record absent at {commit[:12]} inside the frozen span")
+        if span_record != obs.record_text:
+            return _red("CV-FROZEN", candidate, "record-freeze", f"record differs at {commit[:12]} inside the frozen span")
     baseline_releases = [r for r in obs.domain if f"refs/tags/{r.get('tag_name')}" in baseline_refs]
     successors = [r for r in obs.domain if f"refs/tags/{r.get('tag_name')}" not in baseline_refs]
     for r in obs.domain:
@@ -409,6 +445,8 @@ def run_cutover(repo: Path, main_ref: str, releases_raw: list[dict],
                 latest_tag: str | None, now: int | None = None) -> Verdict:
     try:
         obs = build_observation(repo, main_ref, releases_raw, latest_tag, now)
+    except DomainError as e:
+        return _red("CV-DOMAIN", None, "normalization", f"release domain unnormalizable (fail-closed): {e}")
     except GitError as e:
         return _red("CV-OBSERVE", None, "step-0", f"observation failed (fail-closed): {e}")
     return evaluate(obs)

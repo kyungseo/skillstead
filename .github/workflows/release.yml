@@ -1,0 +1,40 @@
+# Manual release entry — the canonical wrapper (M5) is the only supported
+# path for GitHub Release operations. Isolated from the validation workflows
+# so that neither disables the other. The request file is authored and
+# committed beforehand; dry-run is the default so a plain dispatch never
+# mutates anything.
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      request_path:
+        description: "Path to the ReleaseOperationRequest JSON file"
+        required: true
+        default: ".skillstead/release-request.json"
+      dry_run:
+        description: "Stop after the allowed-matrix and pre-publish checks"
+        type: boolean
+        required: true
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Canonical release wrapper (M5)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          PYTHONPATH=tools python3 -m skillstead_validate release
+          --request "${{ inputs.request_path }}"
+          --repo-slug "$GITHUB_REPOSITORY"
+          --main-ref origin/main --repo-root .
+          ${{ inputs.dry_run && '--dry-run' || '' }}

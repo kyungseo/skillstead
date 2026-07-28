@@ -111,7 +111,8 @@ class WrapperFixture(unittest.TestCase):
                 if r["tag_name"] == tag:
                     r["draft"] = False
                     r["published_at"] = "2026-07-28T03:00:00Z"
-                    r["body"] = P3_MARKER + "\n\nNotes.\n"
+                    r["name"] = cmd[cmd.index("--title") + 1]
+                    r["body"] = cmd[cmd.index("--notes") + 1]
             self.latest = tag
 
     def invoke(self, req_text: str, **kwargs):
@@ -199,6 +200,48 @@ class WrapperFixture(unittest.TestCase):
                              execute=bad_execute)
         self.assertTrue(result.executed)
         self.assertIn("postcondition", result.error)
+
+    # MR2-F6: 검증한 request가 명령에 그대로 실린다
+    def test_f6_commands_carry_verified_metadata(self) -> None:
+        publish = self.invoke(request_json())
+        self.assertIn("--verify-tag", publish.commands[0])
+        draft = self.invoke(request_json(action="create-draft", draft=True,
+                                         tag=FIX_TAGS[1].removeprefix("refs/tags/"),
+                                         title="beta-skill 0.4.0"))
+        self.assertIn("--verify-tag", draft.commands[0])
+        from_draft = self.invoke(request_json(tag=FIX_TAGS[1].removeprefix("refs/tags/"),
+                                              title="beta-skill 0.4.0"))
+        cmd = from_draft.commands[0]
+        self.assertIn("--draft=false", cmd)
+        self.assertIn("--prerelease=false", cmd)
+        self.assertIn("--notes", cmd)
+
+    # MR2-F7: complete여도 대상 tag가 normal gate를 통과해야 mutation한다
+    def test_f7_complete_rechecks_target_tag(self) -> None:
+        for i, ref in enumerate(FIX_TAGS):
+            self.store.append(make_release(ref.removeprefix("refs/tags/"),
+                                           f"2026-07-28T00:0{i}:00Z"))
+        self.latest = FIX_TAGS[-1].removeprefix("refs/tags/")
+        _git(self.repo, "tag", "alpha-skill/v9.9.9", self.cut_sha)  # ghost: 선언 version과 불일치
+        result = self.invoke(request_json(tag="alpha-skill/v9.9.9",
+                                          title="alpha-skill 9.9.9"))
+        self.assertFalse(result.executed)
+        self.assertIn("normal tag gate", result.error)
+        self.assertEqual(self.commands, [])
+
+    # MR2-F8: CV-RELEASE 정정은 offending Release에만 결속된다
+    def test_f8_correction_bound_to_offending_release(self) -> None:
+        self.store.append(make_release(FIX_TAGS[0].removeprefix("refs/tags/"),
+                                       "2026-07-28T00:00:00Z", body="wrong\n"))
+        self.store.append(make_release(FIX_TAGS[1].removeprefix("refs/tags/"),
+                                       "2026-07-28T00:01:00Z"))
+        wrong_target = self.invoke(request_json(action="edit-metadata",
+                                                tag=FIX_TAGS[1].removeprefix("refs/tags/"),
+                                                title="beta-skill 0.4.0",
+                                                recovery_mode="metadata-correction",
+                                                owner_authorization="owner-2026-07-28"))
+        self.assertFalse(wrong_target.executed)
+        self.assertIn("offending", wrong_target.error)
 
     def test_dry_run_makes_no_call(self) -> None:
         result = self.invoke(request_json(), dry_run=True)

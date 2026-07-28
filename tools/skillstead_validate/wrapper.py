@@ -25,8 +25,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from . import record_schema
-from .cutover import P3_MARKER, Verdict, run_cutover
+from .cutover import P3_MARKER, Verdict, _release_p123, run_cutover
 from .gitio import GitError, git
+from .tag_check import run_tag_checks
 
 ACTIONS = ("create-draft", "publish", "edit-metadata")
 RECOVERY_MODES = ("none", "premature-accept-forward", "metadata-correction")
@@ -133,18 +134,44 @@ def _allowed(verdict: Verdict, req: ReleaseOperationRequest,
         if req.action not in ("create-draft", "publish"):
             return "metadata corrections require a red/CV-* recovery context"
         return None
-    # verdict == red
-    if verdict.code in ("CV-RELEASE", "CV-LATEST-INITIAL", "CV-LATEST-STEADY"):
-        if req.action == "edit-metadata" and req.recovery_mode == "metadata-correction":
-            return None
-        return f"{verdict.code} allows owner-approved metadata correction only"
+    # verdict == red — recovery binds to the OBSERVED defect (MR2-F8): the
+    # request tag must be the offending object (or the Latest candidate),
+    # never an arbitrary release.
+    domain = [r for r in releases_raw
+              if isinstance(r, dict) and r.get("draft") is False
+              and isinstance(r.get("tag_name"), str) and _NAMESPACED_TAG.match(r["tag_name"])]
+    stamps = [(r.get("published_at") or "") for r in domain]
+    argmax = {r["tag_name"] for r in domain if (r.get("published_at") or "") == max(stamps)} if domain else set()
+    if verdict.code == "CV-RELEASE":
+        if req.action != "edit-metadata" or req.recovery_mode != "metadata-correction":
+            return "CV-RELEASE allows owner-approved metadata correction only"
+        offending = {r["tag_name"] for r in domain if _release_p123(r)}
+        if req.tag not in offending:
+            return f"CV-RELEASE correction must target an offending release, not {req.tag!r}"
+        return None
+    if verdict.code in ("CV-LATEST-INITIAL", "CV-LATEST-STEADY"):
+        if req.action != "edit-metadata" or req.recovery_mode != "metadata-correction":
+            return f"{verdict.code} allows owner-approved metadata correction only"
+        if not req.latest_intent:
+            return f"{verdict.code} correction is a Latest correction — latest_intent must be true"
+        if verdict.code == "CV-LATEST-INITIAL":
+            expected = record_schema.LATEST_REF.removeprefix("refs/tags/")
+            if req.tag != expected:
+                return f"CV-LATEST-INITIAL correction must target {expected!r}"
+        elif req.tag not in argmax:
+            return f"CV-LATEST-STEADY correction must target an argmax(published_at) candidate"
+        return None
     if verdict.code == "CV-PREMATURE":
         if req.recovery_mode != "premature-accept-forward":
             return "CV-PREMATURE requires recovery_mode=premature-accept-forward"
         if req.action in ("create-draft", "publish") and req.tag in missing:
             return None
         if req.action == "edit-metadata":
-            return None  # Latest correction
+            if not req.latest_intent:
+                return "CV-PREMATURE Latest correction requires latest_intent=true"
+            if req.tag not in argmax:
+                return "CV-PREMATURE Latest correction must target an argmax(published_at) candidate"
+            return None
         return "CV-PREMATURE allows missing baseline Releases and Latest correction only"
     return f"no release operation is allowed in red/{verdict.code}"
 
@@ -158,15 +185,17 @@ def _precheck(repo: Path, req: ReleaseOperationRequest) -> str | None:
     m = _NAMESPACED_TAG.match(req.tag)
     if not m:
         return f"tag {req.tag!r} violates the namespaced grammar"
-    if req.action in ("create-draft", "publish"):
-        expected_title = f"{m.group(1)} {m.group(2)}.{m.group(3)}.{m.group(4)}"
-        if expected_title not in req.title:
-            return f"title must contain {expected_title!r} (P2)"
-        first = next((l.strip().strip("\r") for l in req.body.splitlines() if l.strip()), "")
-        if first != P3_MARKER:
-            return "body's first non-empty line must be the exact Latest marker (P3)"
-        if req.prerelease:
-            return "prerelease releases are rejected (P1)"
+    # P1~P3 hold for the INTENDED FINAL metadata of every action, including
+    # metadata corrections (MR2-F6): a correction that produces an invalid
+    # title/marker/prerelease state is not a correction.
+    expected_title = f"{m.group(1)} {m.group(2)}.{m.group(3)}.{m.group(4)}"
+    if expected_title not in req.title:
+        return f"title must contain {expected_title!r} (P2)"
+    first = next((l.strip().strip("\r") for l in req.body.splitlines() if l.strip()), "")
+    if first != P3_MARKER:
+        return "body's first non-empty line must be the exact Latest marker (P3)"
+    if req.prerelease:
+        return "prerelease releases are rejected (P1)"
     if req.action == "create-draft" and not req.draft:
         return "create-draft requires draft=true"
     if req.action == "publish":
@@ -213,6 +242,22 @@ def run_wrapper(repo: Path, req: ReleaseOperationRequest, fetch,
         _emit_summary(result)
         return result
 
+    # The target of a create/publish must pass the pure normal tag gate
+    # right before the mutation (MR2-F7) — a complete verdict describes the
+    # repository, not this tag.
+    if req.action in ("create-draft", "publish"):
+        try:
+            gate_findings = run_tag_checks(repo, main_ref)
+        except GitError as e:
+            result.error = f"tag gate unobservable (fail-closed): {e}"
+            _emit_summary(result)
+            return result
+        for f in gate_findings:
+            if f.subject in (req.tag, f"refs/tags/{req.tag}"):
+                result.error = f"target tag fails the normal tag gate: {f}"
+                _emit_summary(result)
+                return result
+
     if dry_run:
         _emit_summary(result)
         return result
@@ -220,18 +265,23 @@ def run_wrapper(repo: Path, req: ReleaseOperationRequest, fetch,
     slug = ["--repo", repo_slug] if repo_slug else []
     existing_draft = any(isinstance(r, dict) and r.get("tag_name") == req.tag
                          and r.get("draft") is True for r in releases_raw)
+    # Every command applies the VERIFIED request metadata exactly (MR2-F6):
+    # --verify-tag stops gh from implicitly creating a missing remote tag,
+    # and a draft publish re-applies title/notes/prerelease rather than
+    # trusting whatever the draft happened to contain.
     if req.action == "create-draft":
-        cmd = ["gh", "release", "create", req.tag, *slug, "--draft",
+        cmd = ["gh", "release", "create", req.tag, *slug, "--verify-tag", "--draft",
                "--title", req.title, "--notes", req.body]
     elif req.action == "publish":
         if existing_draft:
             cmd = ["gh", "release", "edit", req.tag, *slug, "--draft=false",
-                   "--title", req.title, "--latest"]
+                   "--prerelease=false", "--title", req.title, "--notes", req.body,
+                   "--latest"]
         else:
-            cmd = ["gh", "release", "create", req.tag, *slug,
+            cmd = ["gh", "release", "create", req.tag, *slug, "--verify-tag",
                    "--title", req.title, "--notes", req.body, "--latest"]
     else:  # edit-metadata
-        cmd = ["gh", "release", "edit", req.tag, *slug,
+        cmd = ["gh", "release", "edit", req.tag, *slug, "--prerelease=false",
                "--title", req.title, "--notes", req.body]
         if req.latest_intent:
             cmd.append("--latest")
