@@ -1,5 +1,7 @@
 # Install
 
+*English (canonical) · [한국어](./INSTALL.ko.md)*
+
 Skillstead packages each skill as a portable folder. Installation means cloning a reviewed ref and copying one
 complete folder; no remote install script is executed.
 
@@ -113,6 +115,8 @@ Keep the whole folder intact:
 
 ```text
 github-release-guide/
+├── CHANGELOG.md
+├── LICENSE.txt
 ├── README.md
 ├── README.ko.md
 ├── SKILL.md
@@ -128,9 +132,9 @@ The installed README pair explains the workflow in user-facing language. Reposit
 diagrams remain at `examples/github-release-guide/` in the Skillstead repository and are not copied with the
 skill.
 
-`writing-quality-editor` follows the same complete-folder rule. Its package contains `SKILL.md`, English/Korean
-READMEs, `agents/openai.yaml`, and three reference files; its repository-only fixtures remain under
-`examples/writing-quality-editor/`.
+`writing-quality-editor` follows the same complete-folder rule. Its package contains `CHANGELOG.md`,
+`LICENSE.txt`, `SKILL.md`, English/Korean READMEs, `agents/openai.yaml`, and three reference files; its
+repository-only fixtures remain under `examples/writing-quality-editor/`.
 
 ## Clean update
 
