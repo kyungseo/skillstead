@@ -9,7 +9,7 @@ post-release claim closeout passed.
 | Check | Result |
 | --- | --- |
 | Official skill validator | Pass: `Skill is valid!` |
-| Scenario and answer-key parity | Pass: 21 scenarios / 21 answer-key rows |
+| Scenario and answer-key parity | Pass: 27 scenarios / 27 answer-key rows |
 | Intent-inference coverage | Pass: F01 unnamed ambiguous review, F02 named skill without mode, F12 unnamed revision |
 | KO→EN coverage | Pass: F04, F13, F14 |
 | Premature `validated` claim and stale 12-count scan | Pass: 0 matches |
