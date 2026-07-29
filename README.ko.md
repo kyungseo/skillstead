@@ -133,6 +133,11 @@ V1은 두 시점에 사용할 수 있습니다. 비공개 github.com 저장소�
 최종 기준으로 관리하며, `.ko.md` 파일은 같은 내용을 담는 한국어 문서입니다. 의미가 달라지는 수정은
 두 언어 문서에 같은 pull request로 반영합니다.
 
+[`playbooks/skill-development`](./playbooks/skill-development/README.ko.md)는 스킬을 설계하고 검증하며
+독립적으로 검토하고 릴리스·은퇴시키는 저장소 표준입니다. Package template은 예약 identity인
+`sample-skill`을 바꾸기 전에는 설치할 수 없도록 설계했습니다. Release gate가 집행하는 retirement와
+major transition 추적 증거 규격은 [`docs/VALIDATION.ko.md`](./docs/VALIDATION.ko.md)에 있습니다.
+
 ## 공개 스킬의 품질 기준
 
 모든 공개 스킬은 다음 기준을 만족해야 합니다.

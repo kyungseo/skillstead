@@ -38,6 +38,141 @@ def _bump_alpha(repo: Path, version: str, *, adjustment: bool = False) -> None:
         f.write_text(f.read_text(encoding="utf-8").replace("`1.2.3`", f"`{version}`"), encoding="utf-8")
 
 
+def _write_major_record(
+        repo: Path, *, previous_ref: str = "alpha-skill/v1.2.3",
+        proposed_version: str = "2.0.0",
+        reason: str = "The breaking transition is intentional.") -> None:
+    path = repo / ".skillstead/major-approvals" / (
+        f"alpha-skill-v{proposed_version}.json")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({
+        "schema_version": 1,
+        "skill": "alpha-skill",
+        "previous_ref": previous_ref,
+        "proposed_version": proposed_version,
+        "authorization_id": "owner-20260729-0123456789abcdef",
+        "approved_at": "2026-07-29",
+        "reason": reason,
+    }), encoding="utf-8")
+
+
+def _retire_beta(
+        repo: Path, *, last_release_ref: str | None = "beta-skill/v0.4.0",
+        include_record: bool = True) -> None:
+    import shutil
+    shutil.rmtree(repo / "skills/beta-skill")
+    for fname, heading, header in (
+            ("README.md", "## Retired skills",
+             "| Skill | Last release | Evidence |"),
+            ("README.ko.md", "## 은퇴한 스킬",
+             "| 스킬 | 마지막 릴리스 | 증거 |")):
+        file = repo / fname
+        text = "\n".join(
+            line for line in file.read_text(encoding="utf-8").splitlines()
+            if "beta-skill" not in line) + "\n"
+        if include_record:
+            release = last_release_ref or "unreleased"
+            text += (
+                f"\n{heading}\n\n"
+                f"{header}\n"
+                "| --- | --- | --- |\n"
+                f"| `beta-skill` | `{release}` | "
+                "[record](./.skillstead/retirements/beta-skill.json) |\n")
+        file.write_text(text, encoding="utf-8")
+    docs = repo / "docs"
+    docs.mkdir(exist_ok=True)
+    for fname in ("INSTALL.md", "INSTALL.ko.md"):
+        (docs / fname).write_text(
+            "# Install\n\nNo active pin for the retired fixture.\n",
+            encoding="utf-8")
+    if include_record:
+        record = repo / ".skillstead/retirements/beta-skill.json"
+        record.parent.mkdir(parents=True, exist_ok=True)
+        record.write_text(json.dumps({
+            "schema_version": 1,
+            "skill": "beta-skill",
+            "last_release_ref": last_release_ref,
+            "authorization_id": "owner-20260729-fedcba9876543210",
+            "approved_at": "2026-07-29",
+            "reason": "The maintained replacement covers the supported use case.",
+            "replacement": None,
+        }), encoding="utf-8")
+
+
+def _add_unreleased_gamma(repo: Path) -> None:
+    pkg = repo / "skills/gamma-skill"
+    pkg.mkdir(parents=True)
+    (pkg / "SKILL.md").write_text(
+        "---\n"
+        "name: gamma-skill\n"
+        "license: LICENSE.txt\n"
+        "metadata:\n"
+        "  version: 0.1.0\n"
+        "---\n"
+        "\n# gamma-skill\n",
+        encoding="utf-8")
+    (pkg / "CHANGELOG.md").write_text(
+        "# Changelog — gamma-skill\n\n"
+        "## [0.1.0] — 2026-07-29\n\n"
+        "Unreleased fixture package.\n",
+        encoding="utf-8")
+    (pkg / "LICENSE.txt").write_text(
+        (repo / "LICENSE").read_text(encoding="utf-8"),
+        encoding="utf-8")
+    for fname in ("README.md", "README.ko.md"):
+        file = repo / fname
+        file.write_text(
+            file.read_text(encoding="utf-8").replace(
+                "| --- | --- | --- | --- | --- |",
+                "| --- | --- | --- | --- | --- |\n"
+                "| [`gamma-skill`](./skills/gamma-skill) | "
+                "Fixture | `0.1.0` | Claude Code | Beta |",
+                1),
+            encoding="utf-8")
+    commit_all(repo, "add unreleased gamma-skill")
+
+
+def _remove_unreleased_gamma(
+        repo: Path, *, include_record: bool) -> None:
+    import shutil
+    shutil.rmtree(repo / "skills/gamma-skill")
+    for fname, heading, header in (
+            ("README.md", "## Retired skills",
+             "| Skill | Last release | Evidence |"),
+            ("README.ko.md", "## 은퇴한 스킬",
+             "| 스킬 | 마지막 릴리스 | 증거 |")):
+        file = repo / fname
+        text = "\n".join(
+            line for line in file.read_text(encoding="utf-8").splitlines()
+            if "gamma-skill" not in line) + "\n"
+        if include_record:
+            text += (
+                f"\n{heading}\n\n"
+                f"{header}\n"
+                "| --- | --- | --- |\n"
+                "| `gamma-skill` | `unreleased` | "
+                "[record](./.skillstead/retirements/gamma-skill.json) |\n")
+        file.write_text(text, encoding="utf-8")
+    if include_record:
+        docs = repo / "docs"
+        docs.mkdir(exist_ok=True)
+        for fname in ("INSTALL.md", "INSTALL.ko.md"):
+            (docs / fname).write_text(
+                "# Install\n\nNo active pin for the retired fixture.\n",
+                encoding="utf-8")
+        record = repo / ".skillstead/retirements/gamma-skill.json"
+        record.parent.mkdir(parents=True, exist_ok=True)
+        record.write_text(json.dumps({
+            "schema_version": 1,
+            "skill": "gamma-skill",
+            "last_release_ref": None,
+            "authorization_id": "owner-20260729-0011223344556677",
+            "approved_at": "2026-07-29",
+            "reason": "The unreleased package is no longer maintained.",
+            "replacement": None,
+        }), encoding="utf-8")
+
+
 class ReleaseGateFixtures(unittest.TestCase):
     def setUp(self) -> None:
         self._tmp = tempfile.TemporaryDirectory()
@@ -100,14 +235,105 @@ class ReleaseGateFixtures(unittest.TestCase):
         commit_all(self.repo, "patch bump with recorded reason")
         self.assertEqual(self._preflight([entry("alpha-skill", "alpha-skill/v1.2.3", "1.2.4")]), set())
 
-    # E14: major bump는 승인 증거 형식 확정 전 무조건 거부
-    def test_e14_major_bump_fail_closed(self) -> None:
+    def test_major_bump_without_approval_record_fails_closed(self) -> None:
         (self.repo / "skills/alpha-skill/SKILL.md").write_text(
             (self.repo / "skills/alpha-skill/SKILL.md").read_text(encoding="utf-8")
             + "\nBreaking.\n", encoding="utf-8")
         _bump_alpha(self.repo, "2.0.0")
         commit_all(self.repo, "major bump")
-        self.assertIn("E14", self._preflight([entry("alpha-skill", "alpha-skill/v1.2.3", "2.0.0")]))
+        self.assertIn("MAJOR-APPROVAL", self._preflight([
+            entry("alpha-skill", "alpha-skill/v1.2.3", "2.0.0")]))
+
+    def test_major_bump_with_transition_record_is_green(self) -> None:
+        (self.repo / "skills/alpha-skill/SKILL.md").write_text(
+            (self.repo / "skills/alpha-skill/SKILL.md").read_text(
+                encoding="utf-8") + "\nBreaking.\n",
+            encoding="utf-8")
+        _bump_alpha(self.repo, "2.0.0")
+        _write_major_record(self.repo)
+        commit_all(self.repo, "major bump with transition approval")
+        self.assertEqual(self._preflight([
+            entry("alpha-skill", "alpha-skill/v1.2.3", "2.0.0")]), set())
+
+    def test_major_record_wrong_ref_and_private_reason_rejected(self) -> None:
+        (self.repo / "skills/alpha-skill/SKILL.md").write_text(
+            (self.repo / "skills/alpha-skill/SKILL.md").read_text(
+                encoding="utf-8") + "\nBreaking.\n",
+            encoding="utf-8")
+        _bump_alpha(self.repo, "2.0.0")
+        _write_major_record(
+            self.repo, previous_ref="alpha-skill/v1.1.0",
+            reason="Approved in PRIVATE-REF-123.")
+        commit_all(self.repo, "major bump with invalid record")
+        self.assertIn("MAJOR-APPROVAL", self._preflight([
+            entry("alpha-skill", "alpha-skill/v1.2.3", "2.0.0")]))
+
+    def test_intervening_release_invalidates_major_record(self) -> None:
+        _git(self.repo, "tag", "alpha-skill/v1.3.0", "HEAD")
+        (self.repo / "skills/alpha-skill/SKILL.md").write_text(
+            (self.repo / "skills/alpha-skill/SKILL.md").read_text(
+                encoding="utf-8") + "\nBreaking.\n",
+            encoding="utf-8")
+        _bump_alpha(self.repo, "2.0.0")
+        _write_major_record(self.repo)  # stale previous_ref 1.2.3
+        commit_all(self.repo, "major bump after intervening release")
+        self.assertIn("MAJOR-APPROVAL", self._preflight([
+            entry("alpha-skill", "alpha-skill/v1.3.0", "2.0.0")]))
+
+    def test_retirement_record_closes_inventory_reduction(self) -> None:
+        _retire_beta(self.repo)
+        commit_all(self.repo, "retire beta-skill")
+        self.assertEqual(self._preflight([]), set())
+
+    def test_retirement_requires_full_predicate(self) -> None:
+        _retire_beta(self.repo)
+        install = self.repo / "docs/INSTALL.md"
+        install.write_text(
+            "```bash\n"
+            "git clone --branch beta-skill/v0.4.0 repo\n"
+            "cp -R repo/skills/beta-skill target\n"
+            "```\n", encoding="utf-8")
+        commit_all(self.repo, "retire beta but retain install pin")
+        self.assertIn("RETIREMENT", self._preflight([]))
+
+    def test_retirement_row_outside_named_table_is_rejected(self) -> None:
+        _retire_beta(self.repo)
+        readme = self.repo / "README.ko.md"
+        readme.write_text(
+            readme.read_text(encoding="utf-8").replace(
+                "## 은퇴한 스킬", "## Historical notes"),
+            encoding="utf-8")
+        commit_all(self.repo, "move retirement row outside named table")
+        self.assertIn("RETIREMENT", self._preflight([]))
+
+    def test_unreleased_skill_can_retire_with_null_and_zero_tags(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = build_unreleased_repo(Path(tmp) / "repo")
+            _retire_beta(repo, last_release_ref=None)
+            commit_all(repo, "retire unreleased beta-skill")
+            plan = parse_plan(plan_json("HEAD", []))
+            self.assertEqual(preflight(repo, plan), [])
+
+    def test_unreleased_skill_cannot_claim_release_ref(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = build_unreleased_repo(Path(tmp) / "repo")
+            _retire_beta(repo, last_release_ref="beta-skill/v0.4.0")
+            commit_all(repo, "retire unreleased beta with false ref")
+            plan = parse_plan(plan_json("HEAD", []))
+            self.assertIn(
+                "RETIREMENT", {finding.check for finding in preflight(repo, plan)})
+
+    def test_post_release_unreleased_removal_requires_record(self) -> None:
+        _add_unreleased_gamma(self.repo)
+        _remove_unreleased_gamma(self.repo, include_record=False)
+        commit_all(self.repo, "remove unreleased gamma without record")
+        self.assertIn("I-10", self._preflight([]))
+
+    def test_post_release_unreleased_retirement_with_null_is_green(self) -> None:
+        _add_unreleased_gamma(self.repo)
+        _remove_unreleased_gamma(self.repo, include_record=True)
+        commit_all(self.repo, "retire unreleased gamma with record")
+        self.assertEqual(self._preflight([]), set())
 
     # §D3-3 tag 고유성: 동일 precedence tag 재사용 거부
     def test_tag_uniqueness(self) -> None:

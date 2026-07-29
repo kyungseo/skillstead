@@ -13,9 +13,9 @@
 
 | Mode | 내용 | 실행 시점 | 명령 |
 | --- | --- | --- | --- |
-| M1 | 저장소 검증 — package 구조, `metadata.version` ↔ CHANGELOG(I-1), 카탈로그 `Version` 열(I-7), package 완전성(I-9), 라이선스 사본 바이트 일치 | 모든 PR, `main` push, 매일 schedule | `PYTHONPATH=tools python3 -m skillstead_validate repo` |
-| M2 | 릴리스 preflight와 tag 생성 — 통상 payload diff gate와 exact-record baseline 분기, bump 단계 검사(I-6), inventory 보호(I-10), major bump 보호, 신규 skill 최초 릴리스, tag 고유성 | 릴리스 제안 시. dry-run 가능 | `… preflight --plan PLAN.json` / `… apply-tags --plan PLAN.json` (`git push --atomic`으로 remote에 발행. push 실패 시 local ref rollback) |
-| M3 | tag 지속 검사 — 모든 namespaced tag의 I-2·I-5·I-8과 durable expected-target 관계를 매 실행 검사 (tag는 변경 가능하므로 생성 시점 검사만으로는 아무것도 담보되지 않음) | 모든 PR, push, tag 생성/삭제, 매일 schedule | `… tags --main-ref origin/main` |
+| M1 | 저장소 검증 — package 구조, `metadata.version` ↔ CHANGELOG(I-1), 카탈로그 `Version` 열(I-7), package 완전성(I-9), 라이선스 사본 바이트 일치, active identity 예약어 | 모든 PR, `main` push, 매일 schedule | `PYTHONPATH=tools python3 -m skillstead_validate repo` |
+| M2 | 릴리스 preflight와 tag 생성 — 통상 payload diff gate와 exact-record baseline 분기, bump 단계 검사(I-6), inventory·retirement 보호(I-10), major transition 승인, 신규 skill 최초 릴리스, tag 고유성 | 릴리스 제안 시. dry-run 가능 | `… preflight --plan PLAN.json` / `… apply-tags --plan PLAN.json` (`git push --atomic`으로 remote에 발행. push 실패 시 local ref rollback) |
+| M3 | tag·retirement history 지속 검사 — 모든 namespaced tag의 I-2·I-5·I-8, durable expected-target 관계, retirement record 지속성과 identity 재활성화를 매 실행 검사 | 모든 PR, push, tag 생성/삭제, 매일 schedule | `… tags --main-ref origin/main` |
 | M4 | cutover verdict — cutover record·INSTALL pin·baseline ref·GitHub Releases에 대한 ordered evaluator | CI 상시 + 모든 릴리스 작업 전후 | `… cutover --live --repo-slug OWNER/REPO` |
 | M5 | canonical release wrapper — **GitHub Release 작업의 유일한 지원 경로** | 수동 또는 `release` workflow | `… release --request REQUEST.json --repo-slug OWNER/REPO [--dry-run]` |
 
@@ -70,11 +70,11 @@ I-4 finding입니다. payload는 정확히 두 개의 bookkeeping 산출물(`met
 `CHANGELOG.md`)을 제외합니다(`VERSIONING.ko.md` 참조).
 
 추가 검사: target commit은 전체 M1 검증을 통과하고 `main` first-parent history에 있어야 합니다.
-bump 단계는 경로 기본값과 일치해야 하고, major bump는 owner 승인 증거 형식이 확정되기 전까지
-무조건 거부되며, 승인된 retirement marker 없는 inventory 감소도 marker 형식 확정 전까지 무조건
-거부됩니다. 신규 skill의 최초 릴리스는 package와 양쪽 카탈로그 행을 target commit에서 함께
-도입해야 하고, 기존 tag와 SemVer precedence가 같은 버전(`+build` alias 포함)은 만들 수
-없습니다.
+bump 단계는 major transition 분기가 적용되는 경우를 제외하면 경로 기본값과 일치해야 합니다.
+한 단계 major transition에는 아래의 정확한 추적 승인 record가 필요하고, inventory 감소에는 아래의
+정확한 retirement record와 전체 제거 predicate가 필요합니다. 신규 skill의 최초 릴리스는 package와
+양쪽 카탈로그 행을 target commit에서 함께 도입해야 하고, 기존 tag와 SemVer precedence가 같은
+버전(`+build` alias 포함)은 만들 수 없습니다.
 
 일회성 baseline 분기는 target에 canonical prepared cutover record가 있을 때만 활성화됩니다. Plan은
 record의 `baseline_tags` 네 항목과 순서까지 같아야 하고, 모든 항목은 `previous_ref: null`과 버전
@@ -84,6 +84,103 @@ commit이어야 합니다. T1과 T2도 유지되어 최초 attempt는 `1`, 이�
 하지만 package·catalog 검사, tag 문법과 고유성, `main` ancestry, 네 ref의 exact atomicity, I-10은
 그대로 적용합니다. Baseline I-10은 target inventory를 `baseline_finalization_sha:skills`와 비교하며,
 감소가 하나라도 있으면 finding입니다.
+
+## 추적 transition 증거
+
+두 증거 유형은 모두 strict JSON object입니다. 알 수 없거나 중복된 key, 잘못된 type,
+path/content identity 불일치, 잘못된 날짜와 관측 불가 상태는 fail-closed입니다.
+`authorization_id`는 `owner-YYYYMMDD-<16 lowercase hex>` 형식이어야 하고 그 날짜는
+`approved_at`과 같아야 합니다. 이 식별자는 저장소 안에서 사용하는 allowlist handle이지 승인자를
+암호학적으로 증명하지 않습니다. Identity 권한은 owner가 통제하는 review와 merge 경계에 남습니다.
+
+자유 서술인 `reason`은 비어 있지 않은 중립 설명이어야 합니다. 비공개 tracker 식별자, local
+absolute path, 저장소·외부 URL을 포함할 수 없습니다. Validator는 이 한정된 hygiene pattern을
+검사합니다. 그 밖의 민감하거나 식별 가능한 내용은 owner가 정확한 record와 diff를 검토하는 것이
+최종 기준입니다.
+
+### Retirement record
+
+경로: `.skillstead/retirements/<skill>.json`
+
+```json
+{
+  "schema_version": 1,
+  "skill": "<skill>",
+  "last_release_ref": "<skill>/vX.Y.Z 또는 null",
+  "authorization_id": "owner-YYYYMMDD-<16 lowercase hex>",
+  "approved_at": "YYYY-MM-DD",
+  "reason": "<중립적이고 공개 가능한 설명>",
+  "replacement": null
+}
+```
+
+Package, 양쪽 active catalog row, 양쪽 INSTALL pin은 같은 target tree에서 모두 사라져야 합니다.
+`README.md`에는 `## Retired skills`, `README.ko.md`에는 `## 은퇴한 스킬` table과 각 언어의
+3열 header가 있어야 합니다. 두 table에는 다음 material row를 정확히 추가해야 합니다.
+
+```text
+| `<skill>` | `<last_release_ref 또는 unreleased>` | [record](./.skillstead/retirements/<skill>.json) |
+```
+
+`last_release_ref`는 관측 가능한 최신 namespaced release와 같아야 합니다. 그런 release가 하나도
+없을 때만 `null`이어야 하므로, release가 있는데 `null`인 경우와 release가 없는데 string인 경우를
+모두 fail-closed합니다.
+
+M2는 target inventory를 관측 가능한 최신 release commit과 target의 immediate parent inventory
+합집합에 비교합니다. Parent 비교는 최신 release 뒤 도입됐지만 아직 release되지 않은 package를 이
+target에서 제거하는 경우를 포함하며, 이때 `last_release_ref: null`을 사용해야 합니다.
+
+Record는 package, 양쪽 active catalog row, 양쪽 INSTALL pin을 제거하고 두 retired-table row를
+추가하는 동일한 `main` first-parent commit에서 처음 나타나야 합니다. Record만 먼저 merge하면 안
+됩니다. Split merge는 active package와 retirement record가 공존한 이력을 영구히 남기므로 이후
+모든 M3가 red를 유지합니다. Record 삭제나 재작성으로는 이 history를 복구할 수 없습니다.
+
+그 뒤 M3가 전체 `main` first-parent history를 읽습니다. 유효한 retirement record가 한 번
+나타나면 고정 path와 semantic value가 계속 존재해야 합니다. 삭제, rename, mutation,
+delete-and-restore, retired identity 재활성화는 finding입니다. M3는 지속적인 release-operation
+gate이므로 required check가 없는 환경에서 위반이 이미 merge되면 merge 후 red가 됩니다. 이 문서는
+validator가 모든 merge를 막는다고 주장하지 않습니다. False positive나 contract 결함의 복구에는
+owner 승인 contract amendment가 필요합니다. Record 직접 수정이나 history 편집은 지원하지 않습니다.
+
+V1은 공개 전 identity 변경만 지원합니다. 공개 후 이름 변경은 in-place rename이 아닙니다. 기존
+identity는 retirement로 처리하고 새 identity는 별도 승인된 skill로 도입합니다.
+
+### Major transition 승인 record
+
+경로: `.skillstead/major-approvals/<skill>-v<proposed_version>.json`
+
+```json
+{
+  "schema_version": 1,
+  "skill": "<skill>",
+  "previous_ref": "<skill>/vX.Y.Z",
+  "proposed_version": "X.Y.Z",
+  "authorization_id": "owner-YYYYMMDD-<16 lowercase hex>",
+  "approved_at": "YYYY-MM-DD",
+  "reason": "<중립적이고 공개 가능한 설명>"
+}
+```
+
+이 record는 제안이 한 단계 major transition일 때만 적용됩니다. Path, `skill`, `previous_ref`,
+`proposed_version`이 해당 transition에 결속합니다. Payload는 여전히 정확한 pull request review와
+merge로 승인하며, 이 record가 임의 payload를 승인하지는 않습니다. 그 사이 다른 release가 생기면
+관측되는 최신 `previous_ref`가 바뀌므로 record는 fail-closed로 무효가 됩니다.
+
+V1에서 major-approval record에는 retirement record와 달리 first-parent 지속성 권한을 부여하지
+않습니다. Immutable version tag target이 승인된 transition 증거를 보존하고, tag precedence가
+version 재사용을 막으며, M3가 tag 삭제와 retarget을 차단합니다. 이 lifecycle 비대칭은 의도한
+것입니다. Retirement record는 현재 inventory의 부재를 계속 승인하지만 major-approval record는
+완료된 transition 하나만 승인합니다.
+
+### Template identity와 validator 회전
+
+`templates/skill-package/`는 disposable scaffold입니다. `sample-skill`은 예약 identity이므로 active
+`skills/` 아래에 있으면 M1이 거부합니다. Materialized package를 검증하기 전에 모든 identity
+surface를 바꾸십시오. Template 안에는 두 번째 package validator가 없습니다.
+
+INSTALL pin, lifecycle-state syntax 또는 다른 production validator contract를 회전하는 변경은 같은
+pull request에서 production validator와 관련 real-repository fixture를 함께 갱신해야 합니다.
+그러면 문서, 실행 gate, consumer 형태 example이 한 revision에 유지됩니다.
 
 **Bump-Adjustment marker.** 제안된 단계가 경로 기본값과 다르면 해당 릴리스의 CHANGELOG entry에
 독립된, 비어 있지 않은 사유 줄이 있어야 합니다:

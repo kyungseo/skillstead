@@ -131,6 +131,12 @@ The `github-release-guide` skill mirrors the playbook's rules inside its own sel
 canonical, and each document has a Korean mirror with the `.ko.md` suffix. Update both languages in the same pull
 request whenever the meaning changes.
 
+[`playbooks/skill-development`](./playbooks/skill-development/README.md) defines the repository standard for
+designing, validating, independently reviewing, releasing, and retiring a skill. Its package template is
+deliberately non-installable until the reserved `sample-skill` identity is replaced. The tracked retirement and
+major-transition evidence enforced by the release gates is specified in
+[`docs/VALIDATION.md`](./docs/VALIDATION.md).
+
 ## Quality and evidence bar
 
 Every public skill must have:

@@ -85,6 +85,9 @@ heading입니다. `[Unreleased]` heading은 버전으로 보지 않고 건너뜁
 | 그 밖의 변경 | patch |
 | `1.0.0` 이상으로의 승격 | major — owner의 명시적 승인이 필요합니다 |
 
+실행 가능한 major transition 증거와 binding contract는
+[`VALIDATION.ko.md`](./VALIDATION.ko.md#major-transition-승인-record)에 정의합니다.
+
 변경의 성격이 모호하면 파일 위치로 판단합니다. `SKILL.md` 본문, `references/`, `scripts/`(fixture 제외),
 `agents/`는 기본이 minor이고, `README*.md`, `LICENSE*`, `assets/`, fixture는 기본이 patch입니다. 릴리스에서
 기본값을 어느 방향으로든 조정할 수 있지만, 그 사유를 CHANGELOG 항목에 적어야 합니다.
