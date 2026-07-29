@@ -220,6 +220,10 @@ project. The skill is a multi-file package, so copy the whole folder:
 ```text
 <skills-dir>/svg-infographic/
 ├── SKILL.md                  # core workflow (entry point)
+├── README.md                 # this guide
+├── README.ko.md              # Korean guide
+├── CHANGELOG.md              # per-skill release history
+├── LICENSE.txt               # Apache-2.0 full text (travels with the package)
 ├── references/
 │   ├── archetypes.md         # archetype catalog: skeletons, premium recipe, checks
 │   ├── authoring.md          # detailed rules, icon set, manual render fallback

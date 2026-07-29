@@ -1,6 +1,6 @@
 # 검증·릴리스 도구 체계
 
-[English](./VALIDATION.md)
+*[English (canonical)](./VALIDATION.md) · 한국어*
 
 이 문서는 `tools/skillstead_validate/`의 검증 도구 체계와 그것이 지키는 릴리스 경로를 설명합니다.
 버전 규칙 자체는 [`VERSIONING.ko.md`](./VERSIONING.ko.md)에 있고, 이 문서는 그 규칙을 어떻게 검사하고

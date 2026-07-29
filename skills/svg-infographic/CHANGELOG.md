@@ -11,6 +11,12 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [0.8.2] — 2026-07-29
+
+- Corrected the package tree in `README.md` and `README.ko.md` to list every file the complete-folder
+  install copies, including `README.md`, `README.ko.md`, `CHANGELOG.md`, and `LICENSE.txt`.
+- Pointed the Korean README at the Korean install guide (`docs/INSTALL.ko.md`) instead of the English one.
+
 ## [0.8.1] — 2026-07-28
 
 - Added canonical-name and intent-only prompt examples while preserving output-path confirmation and render

@@ -235,6 +235,10 @@ Claude Code 또는 Codex의 skills 디렉터리에 패키지를 복사합니다.
 ```text
 <skills-dir>/svg-infographic/
 ├── SKILL.md                  # 핵심 작업 절차(진입점)
+├── README.md                 # 영어 안내 문서
+├── README.ko.md              # 이 문서
+├── CHANGELOG.md              # 이 스킬의 릴리스 이력
+├── LICENSE.txt               # Apache-2.0 전문(패키지와 함께 이동)
 ├── references/
 │   ├── archetypes.md         # 다이어그램 유형별 골격, 시각 표현 지침, 점검 항목
 │   ├── authoring.md          # 상세 규칙, 아이콘 모음, 수동 렌더링 대안
@@ -249,7 +253,7 @@ Claude Code 또는 Codex의 skills 디렉터리에 패키지를 복사합니다.
 ```
 
 macOS, Linux와 Windows에서 전역 또는 프로젝트 경로에 설치하는 명령은
-[`docs/INSTALL.md`](https://github.com/kyungseo/skillstead/blob/main/docs/INSTALL.md)를 참고하세요.
+[`docs/INSTALL.ko.md`](https://github.com/kyungseo/skillstead/blob/main/docs/INSTALL.ko.md)를 참고하세요.
 
 ## 예제
 
