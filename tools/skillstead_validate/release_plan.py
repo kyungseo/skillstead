@@ -73,6 +73,12 @@ def parse_plan(text: str) -> ReleasePlan:
         for key in ("proposed_version", "proposed_ref"):
             if not isinstance(item[key], str) or not item[key]:
                 raise PlanError(f"{key} must be a non-empty string")
+        expected_ref = f"refs/tags/{item['skill']}/v{item['proposed_version']}"
+        if item["proposed_ref"] != expected_ref:
+            raise PlanError(
+                f"proposed_ref must be the fully-qualified tag ref {expected_ref!r}, "
+                f"got {item['proposed_ref']!r} — write the ref exactly as "
+                f"refs/tags/<skill>/v<proposed_version>")
         if item["skill"] in seen:
             raise PlanError(f"duplicate release entry for skill {item['skill']!r}")
         seen.add(item["skill"])
