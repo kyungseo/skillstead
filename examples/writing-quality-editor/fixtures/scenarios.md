@@ -388,3 +388,106 @@ Confirm the new key id appears in `keyring.json` and that the build pipeline pic
 ceremony with the release owner. Take a backup of `keyring.json` before running it. On a host where the release
 owner has not enrolled, the command fails partway and leaves `keyring.json` in a mixed state.
 ```
+
+## F27 — Reads-Better Enforcement (Frozen Candidates)
+
+Unlike F01 to F26, this fixture does not ask for a revision. It supplies three **frozen candidate
+revisions** of one source and tests whether the judging procedure enforces the `reads better` requirement in
+`expected-outcomes.md`.
+
+All three candidates preserve the source's meaning. The question is whether the procedure still fails the
+ones that are worse to read.
+
+- Mode: `Revise` (judging only — do not produce a fourth revision)
+- Profile: Release/migration note
+- Audience: users of an image-processing library upgrading from 2.4 or earlier to 2.5
+- Request that produced the candidates: `tighten this and make it easier to follow`
+
+### Source
+
+```text
+Through version 2.4 we stripped the embedded colour profile whenever an image was resized, and the reason
+was that the resampler worked in a fixed sRGB space, so a profile that no longer described the pixels ended
+up generating more support tickets than it ever solved, which was a reasonable trade for photographs but a
+poor one for scanned artwork, where the profile is often the only surviving record of what the scanner
+actually saw, and losing it silently turned a colour-managed file into a guess.
+
+From version 2.5 the resampler converts into the working space instead of assuming it, which means the
+profile can survive the round trip, and so resizing preserves the profile by default now. If you were
+relying on the old behaviour to normalise mixed uploads, the thing to do is set `strip_profile=True` on the
+resize call rather than post-processing the output afterwards, because a second conversion introduces
+rounding that the first conversion has already paid for.
+
+There is still one case where the profile gets dropped, which is images whose profile fails validation —
+those are converted to sRGB and flagged instead of being passed through unvalidated, because the maintainers
+decided that a wrong profile is worse than no profile at all.
+```
+
+### Candidate 1
+
+```text
+This note documents our handling of embedded colour profiles. Through version 2.4 we stripped the embedded
+colour profile whenever an image was resized. It is relevant to note that the resampler worked in a fixed
+sRGB space, and that a profile which no longer described the pixels generated more support tickets than it
+ever solved; this was the reason for the behaviour. It is also relevant to note that this was a reasonable
+trade for photographs and a poor one for scanned artwork, where the profile is often the only surviving
+record of what the scanner actually saw, and where losing it silently turned a colour-managed file into a
+guess.
+
+This note further documents the change introduced at version 2.5. It is relevant to note that from version
+2.5 the resampler converts into the working space instead of assuming it, and that this means the profile
+can survive the round trip. It is also relevant to note that resizing preserves the profile by default now.
+If you were relying on the old behaviour to normalise mixed uploads, it is relevant to note that you should
+set `strip_profile=True` on the resize call rather than post-processing the output afterwards, since a
+second conversion introduces rounding that the first conversion has already paid for.
+
+This note additionally documents a remaining exception. It is relevant to note that there is still one case
+where the profile gets dropped, which is images whose profile fails validation. It is also relevant to note
+that those are converted to sRGB and flagged instead of being passed through unvalidated, because the
+maintainers decided that a wrong profile is worse than no profile at all.
+```
+
+### Candidate 2
+
+```text
+Through version 2.4 our colour-management posture involved a removal step: we stripped the embedded colour
+profile whenever an image was resized. The rationale for that posture was a property of the processing
+layer — the resampler worked in a fixed sRGB space — with the downstream consequence that a profile which no
+longer described the pixels generated more support tickets than it ever solved. From a content-category
+perspective this represented a reasonable trade for photographs and a poor one for scanned artwork, a
+category in which the profile is often the only surviving record of what the scanner actually saw, such that
+losing it silently turned a colour-managed file into a guess.
+
+From version 2.5 the processing layer adopts a different approach: the resampler converts into the working
+space instead of assuming it. The implication at the pipeline level is that the profile can survive the
+round trip, and the resulting position is that resizing preserves the profile by default now. In terms of
+the migration path, if you were relying on the old behaviour to normalise mixed uploads, the appropriate
+configuration action is to set `strip_profile=True` on the resize call rather than post-processing the
+output afterwards, the underlying consideration being that a second conversion introduces rounding that the
+first conversion has already paid for.
+
+At the exception level there is still one case where the profile gets dropped, namely images whose profile
+fails validation. The handling applied in that scenario is that those are converted to sRGB and flagged
+instead of being passed through unvalidated, reflecting a decision on the part of the maintainers that a
+wrong profile is worse than no profile at all.
+```
+
+### Candidate 3
+
+```text
+Through version 2.4 we stripped the embedded colour profile whenever an image was resized. The resampler
+worked in a fixed sRGB space, and a profile that no longer described the pixels generated more support
+tickets than it ever solved — that was the reason. For photographs it was a reasonable trade. For scanned
+artwork it was a poor one: there the profile is often the only surviving record of what the scanner actually
+saw, and losing it silently turned a colour-managed file into a guess.
+
+From version 2.5 the resampler converts into the working space instead of assuming it, which means the
+profile can survive the round trip. So resizing preserves the profile by default now. If you were relying on
+the old behaviour to normalise mixed uploads, set `strip_profile=True` on the resize call rather than
+post-processing the output afterwards — a second conversion introduces rounding that the first conversion
+has already paid for.
+
+There is still one case where the profile gets dropped: images whose profile fails validation. Those are
+converted to sRGB and flagged instead of being passed through unvalidated, because the maintainers decided
+that a wrong profile is worse than no profile at all.
+```

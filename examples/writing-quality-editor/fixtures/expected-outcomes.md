@@ -92,6 +92,58 @@ and what conditions or risks remain. Compare those answers against the required 
 cannot answer means the writing did not improve, and an answer missing a required proposition means something was
 lost.
 
+## Enforcing "Reads Better" (F27)
+
+F22 to F26 test that an intended change happened. F27 tests the other direction: it supplies three frozen
+candidates that all keep the meaning, and asks whether the procedure still fails the ones that are worse to
+read. Judge them, do not rewrite them.
+
+### Expected verdicts
+
+| Candidate | Verdict | Why |
+| --- | --- | --- |
+| 1 | fail | Ritual framing repeated on nearly every sentence flattens instruction and background into the same weight |
+| 2 | fail | Nominalised frames absorb the clause structure, so the one instruction becomes a definition rather than a command |
+| 3 | pass | Condition, action, and reason arrive in the order the reader needs them, and no sentence is empty |
+
+Ranking, once each candidate has its own verdict: 3, then 1, then 2.
+
+### How to judge
+
+Judge each candidate **on its own** first. Only after every candidate has an independent pass or fail may
+you rank them. All three can pass; all three can fail.
+
+1. **Quote the places that force a re-read**, and say what each one costs the reader. "Hard to follow" with
+   no quotation is not a finding.
+2. **Name the kind of document it reads as.** A migration note that reads as meeting minutes or as an
+   internal architecture memo has failed its profile even when every fact survives.
+3. **Record a pass or a fail per candidate**, with the evidence above, before any comparison.
+
+### Diagnostics, not gates
+
+Two more observations help explain a verdict but never decide one.
+
+- **How many empty frames there are.** Counting is useful for showing a reader what went wrong. It is not a
+  threshold: two judges counted the same candidate at 12 and at 16 and still reached the same verdict and
+  the same ranking. Do not set a passing number, and do not rank by count.
+- **Whether a frame can be lifted off.** A repeated prefix can be deleted and leave a working sentence
+  behind; a nominalised frame that owns the predicate has to be rewritten. This explains why candidate 2
+  ranks below candidate 1 even though both fail, and why the count alone would order them the other way.
+
+### What is out of scope here
+
+Candidate 2 implies a layered structure the source does not support, which could lead a reader to mistake it
+for the product's real architecture. That is a profile failure, not a meaning failure: no candidate states a
+component, interface, or behaviour the source does not state, and the concrete sentences that follow still
+describe the same resampler behaviour.
+
+### Locale boundary
+
+Repetition counts, English nominalisation, and detachable prefixes are surface signals of **this English
+fixture**. In another locale, do not look for the same expressions. Judge empty framing and unnecessary
+abstraction that blur the requested document profile, and their effect on the reader, against the grammar
+and conventions of that language. Counts and thresholds are never shared across locales.
+
 ## Coverage
 
 | Dimension | Fixtures |
@@ -123,3 +175,4 @@ lost.
 | Error message | F06 |
 | Gallery copy | F11 |
 | Brief/technical comparison | F19, F20 |
+| Reads-better enforcement (frozen candidates) | F27 |
