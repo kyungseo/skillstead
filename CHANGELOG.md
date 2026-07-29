@@ -14,6 +14,14 @@ Granular, per-change entries begin at the first public release. Earlier developm
 - **Lifecycle evidence and validation.** Added strict retirement and major-version approval records, fail-closed
   current-tree and first-parent history checks, reserved-identity protection, and positive and negative fixtures
   for lifecycle boundary failures.
+- **Bilingual documentation currentness.** Aligned the `VALIDATION` language switcher with the `VERSIONING` and
+  `INSTALL` form, corrected the `svg-infographic` package tree to match the folder an install actually copies,
+  and pointed the Korean skill READMEs at the Korean install guide.
+
+### Skills
+
+- `svg-infographic` `0.8.2` — package tree correction and Korean install link.
+- `writing-quality-editor` `0.9.1` — Korean install link.
 
 ## 2026-07-28
 

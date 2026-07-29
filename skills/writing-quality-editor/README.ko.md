@@ -122,4 +122,4 @@ repository 전용
 사용하는 가상 검증 자료와 정답표는
 [`examples/writing-quality-editor`](https://github.com/kyungseo/skillstead/tree/main/examples/writing-quality-editor)에 있습니다.
 
-전체 스킬 설치 방법은 [`docs/INSTALL.md`](https://github.com/kyungseo/skillstead/blob/main/docs/INSTALL.md)에서 확인할 수 있습니다.
+전체 스킬 설치 방법은 [`docs/INSTALL.ko.md`](https://github.com/kyungseo/skillstead/blob/main/docs/INSTALL.ko.md)에서 확인할 수 있습니다.

@@ -32,10 +32,10 @@ required pipeline: start with the skill you need, skip the others, and recheck a
 
 | Skill | Best for | Version | Runtime support | Maturity |
 | --- | --- | --- | --- | --- |
-| [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | `0.8.1` | Supported: Claude Code + Codex | Stable |
+| [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | `0.8.2` | Supported: Claude Code + Codex | Stable |
 | [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | `0.9.0` | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | `0.8.1` | Supported: Claude Code + Codex | Stable |
-| [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | `0.9.0` | Supported: Claude Code + Codex | Beta |
+| [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | `0.9.1` | Supported: Claude Code + Codex | Beta |
 
 Each skill is self-contained and can be installed independently. You do not need to install the entire
 catalog—copy only the complete folder for the skill you want to use. See

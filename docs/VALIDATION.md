@@ -1,6 +1,6 @@
 # Validation And Release Toolchain
 
-[한국어](./VALIDATION.ko.md)
+*English (canonical) · [한국어](./VALIDATION.ko.md)*
 
 This document describes the repository's validation toolchain under
 `tools/skillstead_validate/` and the release path it guards. The versioning

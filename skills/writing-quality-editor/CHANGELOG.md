@@ -11,6 +11,10 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [0.9.1] — 2026-07-29
+
+- Pointed the Korean README at the Korean install guide (`docs/INSTALL.ko.md`) instead of the English one.
+
 ## [0.9.0] — 2026-07-28
 
 - Added `WQE` as a natural-language discovery alias in the common description and user examples. The canonical
