@@ -17,10 +17,30 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from git_fixture import _git, build_unreleased_repo, commit_all  # noqa: E402
 from skillstead_validate import install_pins, record_schema  # noqa: E402
 from skillstead_validate.cutover import P3_MARKER  # noqa: E402
+from skillstead_validate.transport import TransportError  # noqa: E402
 from skillstead_validate.wrapper import (RequestError, parse_request,  # noqa: E402
                                          run_wrapper)
 from test_cutover import (FIX_PIN, FIX_TAGS, SKILLS, make_install,  # noqa: E402
                            make_release, write_install_pair)
+from test_release_gate import _bump_alpha  # noqa: E402
+
+
+def _bump_beta(repo: Path, version: str) -> None:
+    """beta-skill counterpart of _bump_alpha: version + CHANGELOG + catalog."""
+    skill_md = repo / "skills/beta-skill/SKILL.md"
+    skill_md.write_text(
+        skill_md.read_text(encoding="utf-8").replace("  version: 0.4.0", f"  version: {version}"),
+        encoding="utf-8")
+    changelog = repo / "skills/beta-skill/CHANGELOG.md"
+    changelog.write_text(
+        changelog.read_text(encoding="utf-8").replace(
+            "## [0.4.0]", f"## [{version}] — 2026-07-28\n\nFixture entry.\n\n## [0.4.0]", 1)
+        .replace(f"## [{version}] — 2026-07-28 — 2026-07-24", f"## [{version}] — 2026-07-28"),
+        encoding="utf-8")
+    for fname in ("README.md", "README.ko.md"):
+        f = repo / fname
+        f.write_text(f.read_text(encoding="utf-8").replace("`0.4.0`", f"`{version}`"),
+                     encoding="utf-8")
 
 
 def request_json(**overrides) -> str:
@@ -60,7 +80,7 @@ class RequestContract(unittest.TestCase):
             parse_request(request_json(action="edit-metadata"))
 
 
-class WrapperFixture(unittest.TestCase):
+class WrapperBase(unittest.TestCase):
     """tags-ok state fixture (record + baseline tags), constants patched."""
 
     def setUp(self) -> None:
@@ -90,7 +110,7 @@ class WrapperFixture(unittest.TestCase):
         self.latest: str | None = None
         self.commands: list[list[str]] = []
 
-    def fetch(self):
+    def fetch(self, deadline=None):
         return list(self.store), self.latest
 
     def execute_and_apply(self, cmd: list[str]) -> None:
@@ -121,6 +141,8 @@ class WrapperFixture(unittest.TestCase):
                            now=int(_git(self.repo, "log", "-1", "--format=%ct").strip()) + 10,
                            execute=self.execute_and_apply, **kwargs)
 
+
+class WrapperFixture(WrapperBase):
     # -- W2 allowed matrix ----------------------------------------------
     def test_publish_missing_baseline_release_in_tags_ok(self) -> None:
         result = self.invoke(request_json())
@@ -274,6 +296,210 @@ class WrapperFixture(unittest.TestCase):
         self.assertFalse(result.executed)
         self.assertIsNone(result.error)
         self.assertEqual(self.commands, [])
+
+
+class WrapperPostRead(WrapperBase):
+    """W5b — bounded re-read of a self-contradictory post-mutation read.
+
+    A read issued right after a publish can come back without the release that
+    was just created. That single case is retried; everything else keeps the
+    original red, because a wrong observation is not a slow one.
+    """
+
+    def setUp(self) -> None:
+        super().setUp()
+        # Promoted steady state needs both baselines released AND at least one
+        # earlier successor, so Step 6B compares published_at (CV-LATEST-STEADY)
+        # instead of taking the initial-promotion branch.
+        for i, ref in enumerate(FIX_TAGS):
+            self.store.append(make_release(ref.removeprefix("refs/tags/"),
+                                           f"2026-07-28T00:0{i}:00Z"))
+        _bump_beta(self.repo, "0.5.0")
+        prior_sha = commit_all(self.repo, "release beta-skill 0.5.0")
+        _git(self.repo, "tag", "beta-skill/v0.5.0", prior_sha)
+        self.store.append(make_release("beta-skill/v0.5.0", "2026-07-28T02:00:00Z"))
+        self.latest = "beta-skill/v0.5.0"
+
+        self.succ = "alpha-skill/v1.3.0"
+        _bump_alpha(self.repo, "1.3.0")
+        succ_sha = commit_all(self.repo, "release alpha-skill 1.3.0")
+        _git(self.repo, "tag", self.succ, succ_sha)
+
+        self.slept: list[float] = []
+        self.clock = 0.0
+        self.post_reads = 0
+        self.last_deadline = None
+
+    def _stale_store(self) -> list[dict]:
+        """What the API returns while the new release is not visible yet."""
+        return [r for r in self.store if r["tag_name"] != self.succ]
+
+    def _sleep(self, seconds: float) -> None:
+        self.slept.append(seconds)
+        self.clock += seconds
+
+    def _monotonic(self) -> float:
+        return self.clock
+
+    def _succ_release(self, published: str = "2026-07-28T04:00:00Z") -> dict:
+        return make_release(self.succ, published)
+
+    def _invoke_succ(self, fetch, **kwargs):
+        """Publish the successor tag; `fetch` drives the post-mutation reads."""
+        return run_wrapper(
+            self.repo, parse_request(request_json(tag=self.succ,
+                                                  title="alpha-skill 1.3.0")),
+            fetch,
+            now=int(_git(self.repo, "log", "-1", "--format=%ct").strip()) + 10,
+            execute=self.execute_and_apply, sleep=self._sleep,
+            monotonic=self._monotonic, **kwargs)
+
+    def _reader(self, post):
+        """Wrap a post-mutation reader; pre-mutation reads stay truthful.
+
+        `post(n)` receives the 1-based post-read index and returns
+        (releases, latest); the pre-mutation read always sees the real store.
+        """
+        def fetch(deadline=None):
+            if self.latest != self.succ:      # still before the publish
+                return list(self.store), self.latest
+            self.post_reads += 1
+            self.last_deadline = deadline
+            return post(self.post_reads)
+        return fetch
+
+    # 1 — a fresh first read never enters the re-read path.
+    def test_fresh_read_does_not_retry(self) -> None:
+        result = self._invoke_succ(
+            self._reader(lambda n: (list(self.store), self.latest)))
+        self.assertIsNone(result.error, result.error)
+        self.assertEqual(result.post_verdict.verdict, "complete")
+        self.assertEqual(self.slept, [])
+        self.assertEqual(result.post_read_notes, [])
+
+    # 2 — stale first read, then the release appears: green, reason resolved.
+    def test_stale_then_visible_resolves(self) -> None:
+        seen = {}
+
+        def post(n):
+            if n == 1:
+                stale = self._stale_store()
+                seen["tag_absent"] = self.succ not in [r["tag_name"] for r in stale]
+                seen["latest"] = self.latest
+                return stale, self.latest
+            return list(self.store), self.latest
+
+        result = self._invoke_succ(self._reader(post))
+        # The first observation really did contradict itself.
+        self.assertTrue(seen["tag_absent"])
+        self.assertEqual(seen["latest"], self.succ)
+        self.assertIsNone(result.error, result.error)
+        self.assertEqual(result.post_verdict.verdict, "complete")
+        notes = " ".join(result.post_read_notes)
+        self.assertIn("stale observation", notes)
+        self.assertIn("re-read 1/3", notes)
+        self.assertIn("-> resolved", notes)
+        self.assertEqual(self.slept, [1.0])
+
+    # 3 — a real misplacement is in the list and must never be retried.
+    def test_real_latest_misplacement_stays_red(self) -> None:
+        def post(n):
+            # Everything visible, but Latest names an older, present release.
+            return list(self.store), FIX_TAGS[0].removeprefix("refs/tags/")
+
+        result = self._invoke_succ(self._reader(post))
+        self.assertIn("postcondition failed", result.error)
+        self.assertEqual(self.slept, [])
+        self.assertEqual(result.post_read_notes, [])
+
+    # 4 — Latest never becomes the requested tag: postcondition, no retry.
+    def test_release_missing_stays_red(self) -> None:
+        def post(n):
+            return self._stale_store(), "beta-skill/v0.5.0"
+
+        result = self._invoke_succ(self._reader(post))
+        self.assertIn("postcondition failed", result.error)
+        self.assertEqual(self.slept, [])
+
+    # 5 — an observation failure is not staleness, and it is not a timeout
+    #     either: it keeps the first red under its own end reason.
+    def test_observation_failure_stays_red(self) -> None:
+        def post(n):
+            if n == 1:
+                return self._stale_store(), self.latest
+            raise TransportError("gh exploded")
+
+        result = self._invoke_succ(self._reader(post))
+        self.assertIn("post-mutation verdict is red", result.error)
+        self.assertEqual(result.post_verdict.code, "CV-LATEST-STEADY")
+        notes = " ".join(result.post_read_notes)
+        self.assertIn("gh exploded", notes)
+        self.assertIn("-> observation-failed", notes)
+        self.assertNotIn("total-cap", notes)
+
+    # 6 — still stale after every retry: original red, reason retry-exhausted.
+    def test_retry_exhausted_keeps_first_verdict(self) -> None:
+        def post(n):
+            return self._stale_store(), self.latest
+
+        result = self._invoke_succ(self._reader(post))
+        self.assertIn("post-mutation verdict is red", result.error)
+        self.assertEqual(result.post_verdict.code, "CV-LATEST-STEADY")
+        notes = " ".join(result.post_read_notes)
+        self.assertIn("re-read 3/3", notes)
+        self.assertIn("-> retry-exhausted", notes)
+        self.assertEqual(self.slept, [1.0, 2.0, 4.0])
+
+    # 7a/7b — the tag IS listed but its published_at is unusable: CV-DOMAIN,
+    # and the predicate must not read that as "not visible yet".
+    def _published_at_case(self, value) -> None:
+        def post(n):
+            bad = self._succ_release()
+            bad["published_at"] = value
+            return self._stale_store() + [bad], self.succ
+
+        result = self._invoke_succ(self._reader(post))
+        self.assertIn("post-mutation verdict is red", result.error)
+        self.assertEqual(result.post_verdict.code, "CV-DOMAIN")
+        self.assertEqual(self.slept, [])
+        self.assertEqual(result.post_read_notes, [])
+
+    def test_published_at_null_stays_red_without_retry(self) -> None:
+        self._published_at_case(None)
+
+    def test_published_at_empty_stays_red_without_retry(self) -> None:
+        self._published_at_case("")
+
+    # 8 — the wall clock runs out before the retry budget does.
+    def test_total_cap_stops_before_retries_exhaust(self) -> None:
+        def post(n):
+            if n > 1:
+                self.clock += 5.0     # each re-read costs real time
+            return self._stale_store(), self.latest
+
+        result = self._invoke_succ(self._reader(post))
+        self.assertIn("post-mutation verdict is red", result.error)
+        self.assertEqual(result.post_verdict.code, "CV-LATEST-STEADY")
+        notes = " ".join(result.post_read_notes)
+        self.assertIn("re-read 2/3", notes)
+        self.assertIn("-> total-cap", notes)
+        # Two backoffs fit; the third would cross the cap, so it never happens.
+        self.assertEqual(self.slept, [1.0, 2.0])
+
+    # 9 — the deadline reaches the transport, and a fetch that trips it ends
+    #     the loop instead of being retried.
+    def test_fetch_deadline_exceeded_ends_with_total_cap(self) -> None:
+        def post(n):
+            if n == 1:
+                return self._stale_store(), self.latest
+            raise TransportError("deadline exceeded before request")
+
+        result = self._invoke_succ(self._reader(post))
+        self.assertIn("post-mutation verdict is red", result.error)
+        self.assertEqual(result.post_verdict.code, "CV-LATEST-STEADY")
+        self.assertIn("-> total-cap", " ".join(result.post_read_notes))
+        # The transport was actually handed a deadline to enforce.
+        self.assertIsNotNone(self.last_deadline)
 
 
 if __name__ == "__main__":

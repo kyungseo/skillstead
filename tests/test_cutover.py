@@ -550,6 +550,35 @@ class TransportSeam(unittest.TestCase):
             raise TransportError("HTTP 404: Not Found")
         self.assertIsNone(fetch_latest("o/r", runner))
 
+    # A deadline that already passed must stop the call, not shorten it.
+    def test_expired_deadline_never_starts_a_request(self) -> None:
+        calls = []
+
+        def runner(args, timeout=None):
+            calls.append(args)
+            return json.dumps([])
+        with self.assertRaises(TransportError):
+            fetch_releases("o/r", runner, deadline=5.0, monotonic=lambda: 5.0)
+        self.assertEqual(calls, [])
+
+    # Per-request timeouts alone would not bound a paging loop, so the
+    # deadline is re-checked before every page.
+    def test_deadline_stops_paging_midway(self) -> None:
+        clock = {"t": 0.0}
+        timeouts = []
+
+        def runner(args, timeout=None):
+            timeouts.append(timeout)
+            clock["t"] += 4.0
+            return json.dumps([{"id": i} for i in range(100)])
+        with self.assertRaises(TransportError):
+            fetch_releases("o/r", runner, deadline=10.0,
+                           monotonic=lambda: clock["t"])
+        # Every page is given exactly the time still left, so no single request
+        # can outlive the deadline; once nothing is left the next page is never
+        # requested at all.
+        self.assertEqual(timeouts, [10.0, 6.0, 2.0])
+
 
 if __name__ == "__main__":
     unittest.main()

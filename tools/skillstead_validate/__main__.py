@@ -64,8 +64,9 @@ def main(argv: list[str] | None = None) -> int:
             print(f"request rejected (fail-closed): {e}", file=sys.stderr)
             return 1
 
-        def fetch():
-            return fetch_releases(args.repo_slug), fetch_latest(args.repo_slug)
+        def fetch(deadline=None):
+            return (fetch_releases(args.repo_slug, deadline=deadline),
+                    fetch_latest(args.repo_slug, deadline=deadline))
         try:
             result = run_wrapper(args.repo_root.resolve(), request, fetch,
                                  main_ref=args.main_ref, repo_slug=args.repo_slug,

@@ -35,6 +35,33 @@ action별 request boolean 제약(request는 의도한 최종 상태와 같아야
 `--verify-tag`). `gh release …` 직접 호출은 **지원되지 않는 경로**입니다 — 저장소 ruleset에는
 admin bypass가 있으므로 이 경계는 hard guarantee가 아니라 discipline입니다.
 
+**발행 직후 재관측 (M5).** 발행 직후에 보낸 읽기는 아직 따라잡지 못한 replica에서 응답할 수 있어,
+방금 만든 release가 빠진 목록이 돌아오기도 합니다. wrapper는 **그 경우만** 재시도하며, 판별 기준은
+스스로 모순되는 관측입니다 — `Latest`가 요청한 tag를 가리키는데 정작 그 tag가 release 목록에 없는
+상태입니다. 목록이 `Latest`가 가리키는 release를 빠뜨릴 수는 없으므로, 목록이 아직 보이지 않는
+것뿐입니다.
+
+그 밖의 경우는 red를 그대로 유지합니다. **실제 Latest 오배치**는 모양이 다릅니다 — `Latest`가 목록에
+존재하되 가장 최신이 아닙니다. Release 누락, 정규화할 수 없는 release 객체(`CV-DOMAIN` — 발행된
+release의 `published_at`이 null이거나 빈 문자열인 경우 포함), transport 실패도 마찬가지입니다.
+
+재시도는 세 가지로 제한됩니다: 최대 **3회** 재관측, **1초 / 2초 / 4초** backoff, 첫 stale 읽기부터
+측정하는 **10초** wall-clock 상한. 이 상한은 deadline으로 transport까지 전달되어 페이지 단위 release
+호출의 **매 페이지 직전에 다시 검사**되므로, 이미 시작된 요청 하나도 상한을 넘길 수 없습니다 —
+요청당 timeout만으로는 한 페이지만 제한할 뿐 루프 전체를 제한하지 못합니다. wrapper는 재관측이 어떻게
+끝났는지를 최초 stale verdict와 함께 보고하며, `resolved`가 아닌 경우 그 최초 verdict를 그대로
+반환합니다.
+
+| 종료 이유 | 의미 |
+| --- | --- |
+| `resolved` | 재관측이 더 이상 스스로 모순되지 않아 verdict를 다시 계산했습니다 |
+| `retry-exhausted` | 세 번의 재관측이 모두 여전히 stale이었습니다 |
+| `total-cap` | wall-clock 상한에 도달했거나, deadline이 지나 transport가 요청을 시작하지 않았습니다 |
+| `observation-failed` | deadline과 무관한 이유로 재관측이 실패했습니다(예: CLI 자체 오류) |
+
+마지막 두 값을 나눈 것은 의도적입니다. transport 오류를 timeout으로 보고하면 실행이 관측하지 않은
+사실을 말하게 됩니다.
+
 ## CI workflow
 
 | 파일 | trigger | 목적 |
