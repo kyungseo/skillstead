@@ -15,10 +15,18 @@ from . import SEMVER_RE, record_schema
 from .bump import default_step, step_of
 from .changelog import ChangelogError, topmost_released_version
 from .catalog import EN_HEADER, KO_HEADER, CatalogError, catalog_versions
+from .evidence_records import (
+    RecordError,
+    major_approval_path,
+    parse_major_approval_record,
+    parse_retirement_record,
+    retirement_path,
+)
 from .findings import Finding
 from .frontmatter import FrontmatterError, parse_skill_frontmatter
 from .gitio import (GitError, dirs_at, file_at, first_parent_positions, git,
                     peeled, tag_names)
+from .install_pins import parse_pins
 from .normalize import changed_payload_paths, payload_changed
 from .package_check import run_repo_validation_at
 from .release_plan import ReleasePlan
@@ -83,6 +91,126 @@ def _entry_section(changelog_text: str, version: str) -> str | None:
             end = j
             break
     return "\n".join(lines[start:end])
+
+
+def _retired_row(skill: str, last_release_ref: str | None) -> str:
+    release = last_release_ref or "unreleased"
+    path = retirement_path(skill)
+    return f"| `{skill}` | `{release}` | [record](./{path}) |"
+
+
+_RETIRED_TABLES = {
+    "README.md": (
+        "## Retired skills",
+        "| Skill | Last release | Evidence |",
+        "| --- | --- | --- |",
+    ),
+    "README.ko.md": (
+        "## 은퇴한 스킬",
+        "| 스킬 | 마지막 릴리스 | 증거 |",
+        "| --- | --- | --- |",
+    ),
+}
+
+
+def _retired_table_contains(text: str, fname: str, expected_row: str) -> bool:
+    """Require the evidence row inside one explicit retired-skills table."""
+    heading, header, separator = _RETIRED_TABLES[fname]
+    lines = text.splitlines()
+    positions = [i for i, line in enumerate(lines) if line == heading]
+    if len(positions) != 1:
+        return False
+    start = positions[0] + 1
+    end = next(
+        (i for i in range(start, len(lines)) if lines[i].startswith("## ")),
+        len(lines),
+    )
+    section = lines[start:end]
+    for i in range(len(section) - 1):
+        if section[i] == header and section[i + 1] == separator:
+            return expected_row in section[i + 2:]
+    return False
+
+
+def _retirement_findings(
+        repo: Path, target: str, skill: str) -> list[Finding]:
+    """I-10 target-tree half of the retirement contract."""
+    findings: list[Finding] = []
+    path = retirement_path(skill)
+    text = file_at(repo, target, path)
+    if text is None:
+        return [Finding(
+            "I-10", skill,
+            f"inventory decreased without retirement record {path}")]
+    try:
+        record = parse_retirement_record(text, skill)
+    except RecordError as error:
+        return [Finding(
+            "RETIREMENT", path, f"record rejected (fail-closed): {error}")]
+
+    previous = previous_release(repo, skill)
+    if previous is None:
+        if record.last_release_ref is not None:
+            findings.append(Finding(
+                "RETIREMENT", path,
+                "unreleased skill must use last_release_ref null"))
+    elif record.last_release_ref != previous[1]:
+        findings.append(Finding(
+            "RETIREMENT", path,
+            f"last_release_ref {record.last_release_ref!r} != latest "
+            f"observable release {previous[1]!r}"))
+
+    for fname in ("docs/INSTALL.md", "docs/INSTALL.ko.md"):
+        install = file_at(repo, target, fname)
+        if install is None:
+            findings.append(Finding(
+                "RETIREMENT", fname,
+                "install document missing; active-pin removal unobservable"))
+            continue
+        pins = parse_pins(install)
+        if pins.ambiguous:
+            findings.append(Finding(
+                "RETIREMENT", fname,
+                "install pin inventory is ambiguous (fail-closed)"))
+        if any(pin.copy_skill == skill for pin in pins.pins):
+            findings.append(Finding(
+                "RETIREMENT", fname,
+                f"active install pin remains for retired skill {skill}"))
+
+    expected_row = _retired_row(skill, record.last_release_ref)
+    for fname in ("README.md", "README.ko.md"):
+        root = file_at(repo, target, fname)
+        if root is None or not _retired_table_contains(
+                root, fname, expected_row):
+            findings.append(Finding(
+                "RETIREMENT", fname,
+                f"localized retired table must contain exact material row "
+                f"{expected_row!r}"))
+    return findings
+
+
+def _major_approval_findings(
+        repo: Path, target: str, skill: str, previous_ref: str,
+        proposed_version: str) -> list[Finding]:
+    path = major_approval_path(skill, proposed_version)
+    text = file_at(repo, target, path)
+    if text is None:
+        return [Finding(
+            "MAJOR-APPROVAL", path,
+            "single-step major transition requires a tracked approval record")]
+    try:
+        record = parse_major_approval_record(
+            text, skill, proposed_version)
+    except RecordError as error:
+        return [Finding(
+            "MAJOR-APPROVAL", path,
+            f"record rejected (fail-closed): {error}")]
+    if record.previous_ref != previous_ref:
+        return [Finding(
+            "MAJOR-APPROVAL", path,
+            f"previous_ref {record.previous_ref!r} != latest observable "
+            f"release {previous_ref!r}")]
+    return []
 
 
 def _baseline_record_at(repo: Path, target: str,
@@ -297,7 +425,8 @@ def preflight(repo: Path, plan: ReleasePlan, main_ref: str = "main") -> list[Fin
                 findings.append(Finding("I-6", e.skill, f"{prev[0]} -> {e.proposed_version} is not a single-step bump"))
                 continue
             if step == "major":
-                findings.append(Finding("E14", e.skill, "major bump requires owner approval evidence; no evidence format exists yet (fail-closed)"))
+                findings.extend(_major_approval_findings(
+                    repo, target, e.skill, prev[1], e.proposed_version))
                 continue
             try:
                 prev_target = peeled(repo, prev[1])
@@ -360,13 +489,15 @@ def preflight(repo: Path, plan: ReleasePlan, main_ref: str = "main") -> list[Fin
                     if e.skill in parent_table:
                         findings.append(Finding("D3-3", e.skill, f"{fname} catalog row existed before the target commit"))
 
-    # I-10: inventory reduction requires an approved retirement marker; no
-    # marker format exists until the playbook defines one — fail-closed.
+    # I-10: inventory reduction requires a target-bound retirement record and
+    # the complete target-tree removal predicate.
     # No-op green must be activation-aware (MR1R-F8): "no namespaced release"
     # is only pre-cutover when there is also no cutover-record trace in
     # first-parent history — otherwise a full tag deletion would masquerade
     # as the pre-cutover state and silence I-10.
     baseline_commit = _latest_release_commit(repo, target)
+    before: set[str] = set()
+    before_observed = False
     if baseline_commit is None:
         try:
             record_trace = git(repo, "log", "--first-parent", "--format=%H",
@@ -378,14 +509,27 @@ def preflight(repo: Path, plan: ReleasePlan, main_ref: str = "main") -> list[Fin
             findings.append(Finding("I-10", "skills/", "no prior namespaced release observable from target, but the state is not provably pre-cutover (fail-closed)"))
     else:
         try:
-            before = dirs_at(repo, baseline_commit, "skills")
+            before.update(dirs_at(repo, baseline_commit, "skills"))
+            before_observed = True
         except GitError as e:
             findings.append(Finding("GIT", "skills/", f"I-10 baseline unobservable (fail-closed): {e}"))
-            before = None
-        if before is not None:
-            removed = before - inventory
-            if removed:
-                findings.append(Finding("I-10", ",".join(sorted(removed)), "inventory decreased without an approved retirement marker (fail-closed until the marker format is defined)"))
+
+    # The latest release baseline protects released inventory. The immediate
+    # parent independently protects a never-released package introduced after
+    # that baseline and removed by this target.
+    if target_parent is not None:
+        try:
+            before.update(dirs_at(repo, target_parent, "skills"))
+            before_observed = True
+        except GitError as e:
+            findings.append(Finding(
+                "GIT", "skills/",
+                f"I-10 parent inventory unobservable (fail-closed): {e}"))
+
+    if before_observed:
+        for removed_skill in sorted(before - inventory):
+            findings.extend(_retirement_findings(
+                repo, target, removed_skill))
 
     return findings
 

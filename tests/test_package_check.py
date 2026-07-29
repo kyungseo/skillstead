@@ -101,6 +101,53 @@ class PackageCheckFixtures(unittest.TestCase):
             encoding="utf-8")
         self.assertIn("I-1", self.checks())
 
+    def test_template_identity_is_reserved_in_active_inventory(self) -> None:
+        import shutil
+        source = self.repo / "skills/alpha-skill"
+        target = self.repo / "skills/sample-skill"
+        shutil.move(str(source), str(target))
+        skill_md = target / "SKILL.md"
+        skill_md.write_text(
+            skill_md.read_text(encoding="utf-8").replace(
+                "name: alpha-skill", "name: sample-skill"),
+            encoding="utf-8")
+        for fname in ("README.md", "README.ko.md"):
+            readme = self.repo / fname
+            readme.write_text(
+                readme.read_text(encoding="utf-8").replace(
+                    "alpha-skill", "sample-skill"),
+                encoding="utf-8")
+        checks = self.checks()
+        self.assertIn("RESERVED-NAME", checks)
+        self.assertNotIn("I-7", checks)
+
+    def test_materialized_template_passes_production_m1(self) -> None:
+        import shutil
+        template = (
+            Path(__file__).resolve().parent.parent
+            / "playbooks/skill-development/templates/skill-package")
+        package = self.repo / "skills/example-skill"
+        shutil.copytree(template, package)
+        for path in package.glob("*.md"):
+            path.write_text(
+                path.read_text(encoding="utf-8").replace(
+                    "sample-skill", "example-skill").replace(
+                    "Sample Skill", "Example Skill"),
+                encoding="utf-8")
+        (package / "LICENSE.txt").write_bytes(
+            (self.repo / "LICENSE").read_bytes())
+        for fname in ("README.md", "README.ko.md"):
+            readme = self.repo / fname
+            readme.write_text(
+                readme.read_text(encoding="utf-8").replace(
+                    "| --- | --- | --- | --- | --- |",
+                    "| --- | --- | --- | --- | --- |\n"
+                    "| [`example-skill`](./skills/example-skill) | "
+                    "Fixture | `0.1.0` | Claude Code | Beta |",
+                    1),
+                encoding="utf-8")
+        self.assertEqual(run_repo_validation(self.repo), [])
+
 
 class CatalogFixtures(unittest.TestCase):
     def setUp(self) -> None:

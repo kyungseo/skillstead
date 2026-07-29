@@ -15,6 +15,7 @@ from unittest.mock import patch  # noqa: E402
 
 from git_fixture import _git, build_released_repo, commit_all  # noqa: E402
 from skillstead_validate import record_schema  # noqa: E402
+from skillstead_validate.gitio import GitError  # noqa: E402
 from skillstead_validate.tag_check import RECORD_PATH, run_tag_checks  # noqa: E402
 
 FIXTURE_BASELINE = ("refs/tags/alpha-skill/v1.2.3",)
@@ -51,6 +52,23 @@ def _release_alpha(repo: Path, version: str, prev: str) -> str:
     sha = commit_all(repo, f"release alpha {version}")
     _git(repo, "tag", f"alpha-skill/v{version}", sha)
     return sha
+
+
+def _retire_beta(repo: Path) -> str:
+    import shutil
+    shutil.rmtree(repo / "skills/beta-skill")
+    path = repo / ".skillstead/retirements/beta-skill.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({
+        "schema_version": 1,
+        "skill": "beta-skill",
+        "last_release_ref": "beta-skill/v0.4.0",
+        "authorization_id": "owner-20260729-fedcba9876543210",
+        "approved_at": "2026-07-29",
+        "reason": "The maintained replacement covers this use case.",
+        "replacement": None,
+    }), encoding="utf-8")
+    return commit_all(repo, "retire beta-skill")
 
 
 class TagCheckFixtures(unittest.TestCase):
@@ -122,6 +140,87 @@ class TagCheckFixtures(unittest.TestCase):
         head = _git(self.repo, "rev-parse", "HEAD").strip()
         _git(self.repo, "tag", "alpha-skill/v1.3.0-rc1", head)
         self.assertIn("D3-3", self.checks())
+
+
+class RetirementHistoryFixtures(unittest.TestCase):
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.repo = build_released_repo(Path(self._tmp.name) / "repo")
+        self.addCleanup(self._tmp.cleanup)
+
+    def checks(self) -> set[str]:
+        return {finding.check for finding in run_tag_checks(self.repo)}
+
+    def test_durable_record_and_removed_package_are_green(self) -> None:
+        _retire_beta(self.repo)
+        self.assertNotIn("RETIREMENT-HISTORY", self.checks())
+
+    def test_record_first_split_merge_is_permanently_red(self) -> None:
+        import shutil
+        path = self.repo / ".skillstead/retirements/beta-skill.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({
+            "schema_version": 1,
+            "skill": "beta-skill",
+            "last_release_ref": "beta-skill/v0.4.0",
+            "authorization_id": "owner-20260729-8899aabbccddeeff",
+            "approved_at": "2026-07-29",
+            "reason": "Support ends with the coordinated removal.",
+            "replacement": None,
+        }), encoding="utf-8")
+        commit_all(self.repo, "merge retirement record before removal")
+        self.assertIn("RETIREMENT-HISTORY", self.checks())
+
+        shutil.rmtree(self.repo / "skills/beta-skill")
+        commit_all(self.repo, "remove package in later merge")
+        self.assertIn("RETIREMENT-HISTORY", self.checks())
+
+    def test_record_deletion_is_fail_closed(self) -> None:
+        _retire_beta(self.repo)
+        (self.repo / ".skillstead/retirements/beta-skill.json").unlink()
+        commit_all(self.repo, "delete retirement record")
+        self.assertIn("RETIREMENT-HISTORY", self.checks())
+
+    def test_record_mutation_is_fail_closed(self) -> None:
+        _retire_beta(self.repo)
+        record = self.repo / ".skillstead/retirements/beta-skill.json"
+        record.write_text(
+            record.read_text(encoding="utf-8").replace(
+                "maintained replacement", "different replacement"),
+            encoding="utf-8")
+        commit_all(self.repo, "mutate retirement reason")
+        self.assertIn("RETIREMENT-HISTORY", self.checks())
+
+    def test_delete_and_restore_is_fail_closed(self) -> None:
+        _retire_beta(self.repo)
+        record = self.repo / ".skillstead/retirements/beta-skill.json"
+        original = record.read_text(encoding="utf-8")
+        record.unlink()
+        commit_all(self.repo, "delete retirement record")
+        record.write_text(original, encoding="utf-8")
+        commit_all(self.repo, "restore retirement record")
+        self.assertIn("RETIREMENT-HISTORY", self.checks())
+
+    def test_record_rename_is_fail_closed(self) -> None:
+        _retire_beta(self.repo)
+        record = self.repo / ".skillstead/retirements/beta-skill.json"
+        record.rename(record.with_name("beta-renamed.json"))
+        commit_all(self.repo, "rename retirement record")
+        self.assertIn("RETIREMENT-HISTORY", self.checks())
+
+    def test_package_reactivation_after_record_deletion_is_fail_closed(self) -> None:
+        _retire_beta(self.repo)
+        (self.repo / ".skillstead/retirements/beta-skill.json").unlink()
+        _git(self.repo, "checkout", "HEAD~1", "--", "skills/beta-skill")
+        commit_all(self.repo, "silently reactivate beta-skill")
+        self.assertIn("RETIREMENT-HISTORY", self.checks())
+
+    def test_history_observation_failure_is_not_skipped(self) -> None:
+        _retire_beta(self.repo)
+        with patch(
+                "skillstead_validate.tag_check.files_at",
+                side_effect=GitError("fixture failure")):
+            self.assertIn("GIT", self.checks())
 
 
 class DetachedHeadHydration(unittest.TestCase):

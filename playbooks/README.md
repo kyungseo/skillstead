@@ -8,16 +8,14 @@ on these files at installation time.
 | Playbook | Purpose |
 | --- | --- |
 | [`public-release/`](./public-release/README.md) | Generic checklists and templates for taking a private repository public and verifying it afterward |
+| [`skill-development/`](./skill-development/README.md) | Package, naming, validation, review, release, and retirement standard for developing skills |
 
-## public-release Provenance
+## public-release History
 
-Six documents in `public-release/`—the README, checklist, sensitive-information sweep, repository settings
-template, post-public verification, and social template—were consolidated from snapshot `5594aef` of the
-independent private repository `kyungseo/public-release-playbook` on 2026-07-17. The Git history was not imported;
-the consolidation used a public-safe snapshot, and the six files matched that source snapshot at the time of
-import. `recurring-release-protection-checkpoint.md` was not part of the snapshot. It was added as the seventh
-document in the first release-protection update after consolidation (2026-07-17). All
-documents may now change through this repository's normal pull-request process and are covered by the
+The initial six `public-release/` documents were consolidated from an independently maintained, public-safe
+snapshot on 2026-07-17 without importing its Git history. `recurring-release-protection-checkpoint.md` was added
+later as the seventh document. The source identity and local revision are not part of the public operating
+contract. All documents now change through this repository's normal pull-request process and are covered by the
 [Apache-2.0 license](../LICENSE).
 
 These playbooks are the canonical source for generic release mechanics.
@@ -25,3 +23,6 @@ These playbooks are the canonical source for generic release mechanics.
 two copies conflict, follow the playbooks. English is the canonical language; Korean mirrors use the `.ko.md`
 suffix and must carry the same semantic changes in the same pull request. If the English and Korean versions
 conflict, follow the English version.
+
+`skill-development/` is the canonical maintainer reference for authoring and lifecycle rules. It does not make an
+installed skill depend on the playbook.

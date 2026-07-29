@@ -16,6 +16,7 @@ from pathlib import Path
 from . import SEMVER_RE
 from .catalog import EN_HEADER, KO_HEADER, CatalogError, catalog_versions
 from .changelog import ChangelogError, topmost_released_version
+from .evidence_records import RESERVED_SKILL_NAMES
 from .findings import Finding
 from .frontmatter import FrontmatterError, parse_skill_frontmatter
 from .source import CommitSource, Source, WorktreeSource
@@ -116,6 +117,10 @@ def run_validation(source: Source) -> list[Finding]:
         return [Finding("INVENTORY", "skills/", "no packages found")]
     versions: dict[str, str | None] = {}
     for name in inventory:
+        if name in RESERVED_SKILL_NAMES:
+            findings.append(Finding(
+                "RESERVED-NAME", name,
+                "template identity is reserved and cannot enter active skills/"))
         pkg_findings, version = check_package(source, name)
         findings.extend(pkg_findings)
         versions[name] = version

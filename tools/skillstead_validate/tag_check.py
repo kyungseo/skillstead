@@ -25,9 +25,23 @@ import re
 from pathlib import Path
 
 from . import record_schema
+from .evidence_records import (
+    RETIREMENT_DIR,
+    RecordError,
+    RetirementRecord,
+    parse_retirement_record,
+)
 from .findings import Finding
 from .frontmatter import FrontmatterError, parse_skill_frontmatter
-from .gitio import GitError, dirs_at, file_at, git, peeled, tag_names
+from .gitio import (
+    GitError,
+    dirs_at,
+    file_at,
+    files_at,
+    git,
+    peeled,
+    tag_names,
+)
 
 RECORD_PATH = record_schema.RECORD_PATH
 _TAG_RE = re.compile(r"^([a-z0-9][a-z0-9-]*)/v(\d+\.\d+\.\d+)$")
@@ -126,6 +140,92 @@ class _History:
         return found, bad
 
 
+def _retirement_history_findings(
+        repo: Path, history: _History) -> list[Finding]:
+    """Continuous first-parent durability and reactivation checks.
+
+    Once a valid record appears, every later first-parent state must preserve
+    its path and semantic value. A current-tree-only check cannot distinguish a
+    deleted record plus re-added package from a new skill.
+    """
+    findings: list[Finding] = []
+    known: dict[str, RetirementRecord] = {}
+    reported: set[tuple[str, str]] = set()
+
+    def report(kind: str, skill: str, commit: str, detail: str) -> None:
+        key = (kind, skill)
+        if key not in reported:
+            reported.add(key)
+            findings.append(Finding(
+                "RETIREMENT-HISTORY", skill,
+                f"{detail} at {commit[:12]} (fail-closed)"))
+
+    for commit in reversed(history.commits):  # oldest -> tip
+        try:
+            paths = files_at(repo, commit, RETIREMENT_DIR)
+        except GitError as error:
+            findings.append(Finding(
+                "GIT", RETIREMENT_DIR,
+                f"retirement history unobservable at {commit[:12]} "
+                f"(fail-closed): {error}"))
+            return findings
+
+        current: dict[str, RetirementRecord] = {}
+        prefix = RETIREMENT_DIR + "/"
+        for path in sorted(paths):
+            leaf = path.removeprefix(prefix)
+            if "/" in leaf or not leaf.endswith(".json"):
+                findings.append(Finding(
+                    "RETIREMENT-HISTORY", path,
+                    f"unexpected retirement record path at {commit[:12]} "
+                    "(fail-closed)"))
+                continue
+            skill = leaf[:-5]
+            text = file_at(repo, commit, path)
+            if text is None:
+                findings.append(Finding(
+                    "RETIREMENT-HISTORY", path,
+                    f"record content unobservable at {commit[:12]} "
+                    "(fail-closed)"))
+                continue
+            try:
+                current[skill] = parse_retirement_record(text, skill)
+            except RecordError as error:
+                findings.append(Finding(
+                    "RETIREMENT-HISTORY", path,
+                    f"record rejected at {commit[:12]} "
+                    f"(fail-closed): {error}"))
+
+        for skill, original in known.items():
+            observed = current.get(skill)
+            if observed is None:
+                report(
+                    "missing", skill, commit,
+                    "retirement record disappeared or moved")
+            elif observed != original:
+                report(
+                    "mutated", skill, commit,
+                    "retirement record semantic value changed")
+
+        for skill, record in current.items():
+            known.setdefault(skill, record)
+
+        if known:
+            try:
+                inventory = dirs_at(repo, commit, "skills")
+            except GitError as error:
+                findings.append(Finding(
+                    "GIT", "skills/",
+                    f"reactivation inventory unobservable at {commit[:12]} "
+                    f"(fail-closed): {error}"))
+                return findings
+            for skill in sorted(set(known) & inventory):
+                report(
+                    "reactivated", skill, commit,
+                    "active package coexists with historical retirement")
+    return findings
+
+
 def run_tag_checks(repo: Path, main_ref: str = "main") -> list[Finding]:
     findings: list[Finding] = []
     try:
@@ -133,6 +233,8 @@ def run_tag_checks(repo: Path, main_ref: str = "main") -> list[Finding]:
         history = _History(repo, main_tip)
     except GitError as e:
         return [Finding("GIT", main_ref, f"main history unobservable (fail-closed): {e}")]
+
+    findings.extend(_retirement_history_findings(repo, history))
 
     record: dict | None = None
     try:

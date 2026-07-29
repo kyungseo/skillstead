@@ -86,6 +86,9 @@ produces, not the reason for one, so changing only them does not make a release.
 | Everything else | patch |
 | Promotion to `1.0.0` or above | major — requires explicit owner approval |
 
+The executable major-transition evidence and binding contract is specified in
+[`VALIDATION.md`](./VALIDATION.md#major-transition-approval-record).
+
 When the nature of a change is unclear, the file's location decides: `SKILL.md` body, `references/`,
 `scripts/` (excluding fixtures), and `agents/` default to minor; `README*.md`, `LICENSE*`, `assets/`,
 and fixtures default to patch. A release may override the default in either direction, but the reason

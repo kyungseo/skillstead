@@ -15,9 +15,9 @@ verdict, never a silent pass.
 
 | Mode | What | When it runs | Command |
 | --- | --- | --- | --- |
-| M1 | Repository validation — package structure, `metadata.version` ↔ CHANGELOG (I-1), catalog `Version` columns (I-7), package completeness (I-9), licence copy byte-equality | every PR, push to `main`, daily schedule | `PYTHONPATH=tools python3 -m skillstead_validate repo` |
-| M2 | Release preflight and tag creation — ordinary payload-diff gate plus the exact-record baseline branch, bump-step check (I-6), inventory guard (I-10), major-bump guard, new-skill initial release, tag uniqueness | invoked for a proposed release; dry-runnable | `… preflight --plan PLAN.json` / `… apply-tags --plan PLAN.json` (publishes to the remote with `git push --atomic`; a push failure rolls local refs back) |
-| M3 | Continuous tag checks — I-2, I-5, I-8 and the durable expected-target relation for every namespaced tag, on every run (tags are mutable; creation-time checks alone guarantee nothing) | every PR, push, tag create/delete, daily schedule | `… tags --main-ref origin/main` |
+| M1 | Repository validation — package structure, `metadata.version` ↔ CHANGELOG (I-1), catalog `Version` columns (I-7), package completeness (I-9), licence copy byte-equality, and reserved active identities | every PR, push to `main`, daily schedule | `PYTHONPATH=tools python3 -m skillstead_validate repo` |
+| M2 | Release preflight and tag creation — ordinary payload-diff gate plus the exact-record baseline branch, bump-step check (I-6), inventory/retirement guard (I-10), major-transition approval, new-skill initial release, tag uniqueness | invoked for a proposed release; dry-runnable | `… preflight --plan PLAN.json` / `… apply-tags --plan PLAN.json` (publishes to the remote with `git push --atomic`; a push failure rolls local refs back) |
+| M3 | Continuous tag and retirement-history checks — I-2, I-5, I-8, the durable expected-target relation for every namespaced tag, and retirement-record persistence/reactivation on every run | every PR, push, tag create/delete, daily schedule | `… tags --main-ref origin/main` |
 | M4 | Cutover verdict — the ordered evaluator over the cutover record, INSTALL pins, baseline refs, and GitHub Releases | CI runs + before/after every release operation | `… cutover --live --repo-slug OWNER/REPO` |
 | M5 | Canonical release wrapper — **the only supported path for GitHub Release operations** | manual, or the `release` workflow | `… release --request REQUEST.json --repo-slug OWNER/REPO [--dry-run]` |
 
@@ -79,12 +79,12 @@ I-4 finding. Payload excludes exactly two bookkeeping artifacts: the
 
 Additional checks: the target commit must satisfy the full M1 validation and
 sit on `main` first-parent history; the bump step must match the path-default
-step; a major bump is rejected unconditionally until an owner-approval
-evidence format exists; an inventory reduction without an approved retirement
-marker is rejected unconditionally until the marker format exists; a new
-skill's initial release must introduce the package and both catalog rows in
-the target commit itself; no existing tag may share the proposed version's
-SemVer precedence (including `+build` aliases).
+step unless the major-transition branch applies; a single-step major
+transition requires the exact tracked approval record below; an inventory
+reduction requires the exact retirement record and full-removal predicate
+below; a new skill's initial release must introduce the package and both
+catalog rows in the target commit itself; no existing tag may share the
+proposed version's SemVer precedence (including `+build` aliases).
 
 The one-time baseline branch activates only when the target carries the
 canonical prepared cutover record. The plan must equal the record's four
@@ -96,6 +96,118 @@ new-skill `0.1.0`/same-commit rules do not apply to this baseline, but
 package/catalog checks, tag grammar and uniqueness, `main` ancestry, exact
 four-ref atomicity, and I-10 remain active. Baseline I-10 compares the target
 inventory with `baseline_finalization_sha:skills`; any decrease is a finding.
+
+## Tracked transition evidence
+
+Both evidence types are strict JSON objects. Unknown or duplicate keys, wrong
+types, path/content identity mismatches, malformed dates, and unobservable
+state fail closed. `authorization_id` must match
+`owner-YYYYMMDD-<16 lowercase hex>` and its date must equal `approved_at`.
+The identifier is an allowlisted repository-local handle, not cryptographic
+proof of the approving person. Identity authority remains the owner-controlled
+review and merge boundary.
+
+Free-text `reason` must be non-empty and neutral. It must not contain private
+tracker identifiers, local absolute paths, or repository/external URLs. The
+validator applies those bounded hygiene patterns; owner review of the exact
+record and diff remains authoritative for other sensitive or identifying
+content.
+
+### Retirement record
+
+Path: `.skillstead/retirements/<skill>.json`
+
+```json
+{
+  "schema_version": 1,
+  "skill": "<skill>",
+  "last_release_ref": "<skill>/vX.Y.Z or null",
+  "authorization_id": "owner-YYYYMMDD-<16 lowercase hex>",
+  "approved_at": "YYYY-MM-DD",
+  "reason": "<neutral public-safe explanation>",
+  "replacement": null
+}
+```
+
+The package, both active catalog rows, and both INSTALL pins must disappear in
+the same target tree. `README.md` must carry a `## Retired skills` table and
+`README.ko.md` a `## 은퇴한 스킬` table, with localized three-column headers.
+Both tables must add this exact material row:
+
+```text
+| `<skill>` | `<last_release_ref or unreleased>` | [record](./.skillstead/retirements/<skill>.json) |
+```
+
+`last_release_ref` must equal the latest observable namespaced release. It must
+be `null` only when no such release exists; a string in the no-release case and
+`null` in the released case both fail closed.
+
+M2 compares the target inventory with the union of the latest observable
+release commit and the target's immediate parent. The parent comparison covers
+a never-released package introduced after the latest release and removed by
+this target; it must use `last_release_ref: null`.
+
+The record must first appear in the same `main` first-parent commit that removes
+the package, both active catalog rows, and both INSTALL pins and adds both
+retired-table rows. Never merge the record first. A split merge permanently
+records an active package coexisting with its retirement record, so every later
+M3 run remains red; deleting or rewriting the record cannot repair that
+history.
+
+M3 reads the complete `main` first-parent history. Once a valid retirement
+record appears, its fixed path and semantic value must remain present. Deletion,
+rename, mutation, delete-and-restore, and reactivation of the retired identity
+are findings. Because M3 is a continuous release-operation gate, a violation
+already merged into an environment without required checks becomes red after
+merge; this document does not claim the validator prevents every merge.
+Recovery from a false positive or contract defect requires an owner-approved
+contract amendment. Direct record repair or history editing is unsupported.
+
+V1 supports identity changes only before publication. A post-publication name
+change is not an in-place rename: handle the old identity as retirement and
+introduce the new identity as a separately approved skill.
+
+### Major-transition approval record
+
+Path: `.skillstead/major-approvals/<skill>-v<proposed_version>.json`
+
+```json
+{
+  "schema_version": 1,
+  "skill": "<skill>",
+  "previous_ref": "<skill>/vX.Y.Z",
+  "proposed_version": "X.Y.Z",
+  "authorization_id": "owner-YYYYMMDD-<16 lowercase hex>",
+  "approved_at": "YYYY-MM-DD",
+  "reason": "<neutral public-safe explanation>"
+}
+```
+
+The record applies only when the proposal is a single-step major transition.
+Its path, `skill`, `previous_ref`, and `proposed_version` bind it to that
+transition. The payload is still authorized by exact pull-request review and
+merge; the record does not approve arbitrary content. Any intervening release
+changes the latest observable `previous_ref` and invalidates the record
+fail-closed.
+
+Unlike retirement records, major-approval records are not first-parent
+persistence authorities in v1. The immutable version tag target preserves the
+accepted transition evidence, tag precedence prevents version reuse, and M3
+blocks tag deletion or retargeting. This lifecycle asymmetry is intentional:
+retirement records continue to authorize absence from the current inventory,
+while major-approval records authorize one completed transition.
+
+### Template identity and validator rotation
+
+`templates/skill-package/` is disposable scaffolding. `sample-skill` is a
+reserved identity, and M1 rejects it under active `skills/`; replace every
+identity surface before validating the materialized package. The template
+contains no second package validator.
+
+When a change rotates an INSTALL pin, lifecycle-state syntax, or another
+production validator contract, update the production validator and its
+real-repository fixture in the same pull request. This keeps documentation,
+the executable gate, and the consumer-shaped example on one revision.
 
 **Bump-Adjustment marker.** When the proposed step differs from the
 path-default step, the release's CHANGELOG entry must contain a standalone,
