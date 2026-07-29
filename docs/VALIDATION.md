@@ -40,6 +40,37 @@ wrapper never creates tags (`--verify-tag` on every create). Calling `gh
 release …` directly is an **unsupported path** — repository rulesets carry
 admin bypasses, so this boundary is discipline, not a hard guarantee.
 
+**Post-publish re-read (M5).** A read issued immediately after a publish can
+come back from a replica that has not caught up, listing releases without the
+one just created. The wrapper retries **only** that case, identified by an
+observation that contradicts itself: `Latest` names the requested tag, yet
+that tag is absent from the release list. A list cannot omit the release
+`Latest` points at, so the list is simply not visible yet.
+
+Everything else keeps its red. A *real* misplacement looks different — `Latest`
+is present in the list but is not the newest — and so do a missing Release, an
+unnormalizable release object (`CV-DOMAIN`, including a published release whose
+`published_at` is null or empty), and any transport failure.
+
+The retry is bounded three ways: at most **3** re-reads, backing off
+**1s / 2s / 4s**, inside a **10s** wall-clock cap measured from the first stale
+read. The cap is handed to the transport as a deadline and re-checked before
+every page of the paged releases call, so a single in-flight request cannot
+outlive it either — a per-request timeout alone would bound one page, not the
+loop. The wrapper reports how the re-read ended, together with the first stale
+verdict, and anything other than `resolved` returns that original verdict
+unchanged.
+
+| End reason | Meaning |
+| --- | --- |
+| `resolved` | a re-read no longer contradicted itself; the verdict was recomputed |
+| `retry-exhausted` | all three re-reads still showed the stale observation |
+| `total-cap` | the wall-clock cap was reached, or the transport refused a request because the deadline had passed |
+| `observation-failed` | a re-read failed for a reason unrelated to the deadline (for example the CLI itself erred) |
+
+The last two are separate on purpose: reporting a transport error as a timeout
+would state something the run did not observe.
+
 ## CI workflows
 
 | File | Triggers | Purpose |

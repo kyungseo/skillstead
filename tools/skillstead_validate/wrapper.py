@@ -21,16 +21,25 @@ import json
 import os
 import re
 import subprocess
-from dataclasses import dataclass
+import time
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from . import record_schema
 from .cutover import P3_MARKER, Verdict, _release_p123, run_cutover
 from .gitio import GitError, git
 from .tag_check import run_tag_checks
+from .transport import TransportError
 
 ACTIONS = ("create-draft", "publish", "edit-metadata")
 RECOVERY_MODES = ("none", "premature-accept-forward", "metadata-correction")
+
+# W5b bounded re-read. GitHub can answer a read issued right after a publish
+# from a replica that has not caught up yet; these bound how long the wrapper
+# is willing to wait for that to settle before it reports the original red.
+POST_READ_MAX_RETRIES = 3
+POST_READ_BACKOFF_SECONDS = (1.0, 2.0, 4.0)
+POST_READ_TOTAL_CAP_SECONDS = 10.0
 _NAMESPACED_TAG = re.compile(r"^([a-z0-9][a-z0-9-]*)/v(\d+)\.(\d+)\.(\d+)$")
 
 
@@ -95,10 +104,89 @@ class WrapperResult:
     commands: list[list[str]]
     post_verdict: Verdict | None = None
     error: str | None = None
+    post_read_notes: list[str] = field(default_factory=list)
 
     @property
     def ok(self) -> bool:
         return self.error is None and self.executed
+
+
+def _stale_observation(req: ReleaseOperationRequest, releases_raw, latest_tag,
+                       verdict: Verdict) -> bool:
+    """True only for an observation that contradicts itself.
+
+    ``Latest`` names the tag we just published, yet that tag is absent from the
+    release list — a list cannot omit the release Latest points at, so the list
+    is simply not visible yet. A *real* misplacement looks different: Latest is
+    present in the list but is not the newest, and that must stay red.
+
+    The scan reads raw, pre-normalization data, so anything unreadable makes
+    this predicate False (no re-read) rather than optimistic.
+    """
+    if req.action != "publish" or latest_tag != req.tag:
+        return False
+    if verdict.verdict != "red" or verdict.code != "CV-LATEST-STEADY":
+        return False
+    if not isinstance(releases_raw, list):
+        return False
+    for r in releases_raw:
+        if not isinstance(r, dict) or not isinstance(r.get("tag_name"), str):
+            return False
+        if r["tag_name"] == req.tag:
+            return False
+    return True
+
+
+def _reread(result: WrapperResult, req: ReleaseOperationRequest, repo: Path,
+            main_ref: str, fetch, now, sleep, monotonic):
+    """Re-observe a stale post-mutation read, bounded three ways.
+
+    Retries stop at POST_READ_MAX_RETRIES, at POST_READ_TOTAL_CAP_SECONDS of
+    wall clock (the deadline is handed to the transport so a single in-flight
+    request cannot outlive it either), or as soon as the observation stops
+    contradicting itself. Any other red never reaches here.
+    """
+    first = result.post_verdict
+    started = monotonic()
+    deadline = started + POST_READ_TOTAL_CAP_SECONDS
+    releases_raw, latest_tag = None, None
+    attempt = 0
+    reason = "retry-exhausted"
+
+    result.post_read_notes.append(
+        "stale observation (Latest == requested tag, tag absent from release list)")
+
+    for attempt in range(1, POST_READ_MAX_RETRIES + 1):
+        backoff = POST_READ_BACKOFF_SECONDS[attempt - 1]
+        if monotonic() + backoff >= deadline:
+            attempt -= 1
+            reason = "total-cap"
+            break
+        sleep(backoff)
+        if monotonic() >= deadline:
+            attempt -= 1
+            reason = "total-cap"
+            break
+        try:
+            releases_raw, latest_tag = fetch(deadline=deadline)
+        except TransportError as e:
+            reason = "total-cap" if "deadline" in str(e) or "timed out" in str(e) else "observation-failed"
+            result.post_read_notes.append(f"re-read {attempt} failed: {e}")
+            break
+        verdict = run_cutover(repo, main_ref, releases_raw, latest_tag, now=now)
+        if not _stale_observation(req, releases_raw, latest_tag, verdict):
+            result.post_verdict = verdict
+            reason = "resolved"
+            break
+
+    elapsed = monotonic() - started
+    result.post_read_notes.append(
+        f"re-read {attempt}/{POST_READ_MAX_RETRIES}, elapsed {elapsed:.1f}s -> {reason}")
+    if reason == "resolved":
+        result.post_read_notes.append(f"first observation: {first}")
+        return releases_raw, latest_tag
+    result.post_verdict = first
+    return (releases_raw, latest_tag) if latest_tag is not None else (None, req.tag)
 
 
 def _missing_baseline_tags(releases_raw: list[dict]) -> set[str]:
@@ -214,6 +302,8 @@ def _default_execute(args: list[str]) -> None:
 
 def _emit_summary(result: WrapperResult) -> None:
     lines = [f"wrapper pre-verdict: {result.pre_verdict}"]
+    for note in result.post_read_notes:
+        lines.append(f"wrapper post-read: {note}")
     if result.post_verdict is not None:
         lines.append(f"wrapper post-verdict: {result.post_verdict}")
     if result.error:
@@ -229,11 +319,14 @@ def _emit_summary(result: WrapperResult) -> None:
 def run_wrapper(repo: Path, req: ReleaseOperationRequest, fetch,
                 main_ref: str = "main", now: int | None = None,
                 execute=_default_execute, repo_slug: str | None = None,
-                dry_run: bool = False) -> WrapperResult:
+                dry_run: bool = False, sleep=time.sleep,
+                monotonic=time.monotonic) -> WrapperResult:
     """``fetch() -> (releases_raw, latest_tag)`` supplies the Release
     observation before and after the mutation (transport in live use,
     injected in tests). ``execute(argv)`` performs the permitted gh call.
-    ``dry_run`` stops after the allowed-matrix and pre-publish checks."""
+    ``dry_run`` stops after the allowed-matrix and pre-publish checks.
+    ``sleep``/``monotonic`` are injected so the bounded re-read below is
+    exercised without real waiting."""
     releases_raw, latest_tag = fetch()
     pre = run_cutover(repo, main_ref, releases_raw, latest_tag, now=now)
     result = WrapperResult(pre_verdict=pre, executed=False, commands=[])
@@ -299,6 +392,12 @@ def run_wrapper(repo: Path, req: ReleaseOperationRequest, fetch,
     # W5 — post-mutation evaluator + exact postcondition on publish.
     post_releases, post_latest = fetch()
     result.post_verdict = run_cutover(repo, main_ref, post_releases, post_latest, now=now)
+
+    # W5b — bounded re-read for a self-contradictory observation only.
+    if _stale_observation(req, post_releases, post_latest, result.post_verdict):
+        post_releases, post_latest = _reread(
+            result, req, repo, main_ref, fetch, now, sleep, monotonic)
+
     if req.action == "publish" and post_latest != req.tag:
         result.error = f"postcondition failed: Latest is {post_latest!r}, expected {req.tag!r}"
     elif result.post_verdict.verdict == "red":

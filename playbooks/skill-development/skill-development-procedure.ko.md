@@ -92,6 +92,11 @@ GitHub source archive는 repository snapshot이며 standalone package artifact�
 Merge-to-tag 구간의 임시 red를 숨기지 않습니다. 실제 merge target과 remote ref를 관측한 뒤 문서에
 정한 bounded path만 다시 실행합니다. 예상하지 못한 code나 partial ref는 Owner가 결정합니다.
 
+Publish 단계 자체에는 그런 판단이 필요하지 않습니다. Release wrapper는 발행 직후의 관측이 스스로
+모순될 때에 **한해서만** 정해진 예산 안에서 재관측하고 그 결과를 보고합니다. 따라서 wrapper가 돌려준
+red는 이미 그 재시도를 견딘 결과이므로, 타이밍 문제가 아니라 실제 finding으로 읽고 red를 없애려고
+publish를 다시 실행하지 않습니다.
+
 ## 9. 지원 종료 시 retirement
 
 Retirement는 active skill에 적용하며 disposable pre-publication material에는 적용하지 않습니다.
