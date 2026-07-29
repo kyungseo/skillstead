@@ -118,7 +118,7 @@ V1은 두 시점에 사용할 수 있습니다. 비공개 github.com 저장소�
 숨기지는 않습니다. AI 탐지기 회피와 작성 주체·출처 은폐는 명시적으로 하지 않습니다.
 
 - 자세한 안내: [`writing-quality-editor` 한국어 README](./skills/writing-quality-editor/README.ko.md)
-- 검증 자료: [검증 시나리오 21개와 별도 정답표](./examples/writing-quality-editor/README.ko.md)
+- 검증 자료: [검증 시나리오 27개와 별도 정답표](./examples/writing-quality-editor/README.ko.md)
 - 스킬 이름을 쓰는 예시: `writing-quality-editor를 사용해 아래 문서를 자연스럽게 다듬어 줘. 원문의 핵심 사실, 조건과 요구 사항은 그대로 유지해 줘.`
 - 줄임말을 쓰는 예시: `WQE로 이 온보딩 안내서를 검토해 줘. 문제를 찾되 아직 문장은 수정하지 마.`
 - 자연스럽게 요청하는 예시: `이 README를 검토해 줘. 아직 문장은 수정하지 마.` · `아래 자료에서 확인할 수 있는 내용만 바탕으로 새 README를 작성해 줘.` · `이 영어 릴리스 노트를 한국어 독자가 자연스럽게 읽을 수 있도록 다시 써 줘. 의미와 조건은 바꾸지 마.`
