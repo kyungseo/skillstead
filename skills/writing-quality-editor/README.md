@@ -19,8 +19,20 @@ same language, or adapt it naturally between English and Korean.
 | `Adapt` | Rewrite between English and Korean so the result feels native to the target language | Only the requested scope |
 
 `Adapt` is not word-for-word translation. It may change sentence boundaries, information order, idioms, and
-explanation density to fit the target audience and document type. It must preserve factual claims, intent, voice,
+explanation density to fit the target audience and document type. It must preserve factual claims, intent,
 conditions, numbers, identifiers, exceptions, limitations, risks, approvals, and next actions.
+
+`Revise` works the same way on a document that is already in the right language. A draft carries what the
+document means, but supplied facts and reviewed evidence outrank it — a claim that contradicts them, or reaches
+past what they cover, gets removed or qualified rather than kept. Evidence that simply says nothing about a
+point is not a reason to drop it. What a draft never settles on its own is how the document reads: when the
+style does not fit the reader it is aimed at, the style can change, while what the document claims, requires,
+and warns stays put. Where sentence-level edits leave the reader stuck — a warning that arrives after the
+instruction, or the point buried three paragraphs down — `Revise` may also move paragraphs and sections, as long
+as it names the reader problem it is solving and leaves the rest alone.
+
+Both modes keep the author's voice: the warmth, directness, and rhythm the writing carries. A trait changes only
+when you ask for it or where it genuinely conflicts with the intended reader, and then only that trait.
 
 `Compose` avoids a separate write-then-polish cycle. It writes directly for the intended reader and profile, but
 it creates prose—not facts. Missing capabilities, evidence, compatibility, metrics, or operating decisions remain

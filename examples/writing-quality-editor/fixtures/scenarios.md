@@ -300,3 +300,91 @@ Write a decision-oriented comparison, not a universal winner.
 - Supplied content evidence: none beyond the topic phrase `다음 skill 전략`
 
 Determine the safe next action. Do not invent strategy evidence or independently create a governed repository file.
+
+## F22 — Contract Register For A First-Time Reader
+
+- Mode: `Revise`
+- Profile: Install/setup docs
+- Audience: A developer installing this for the first time; not a maintainer of the project
+- Protected identifiers: `checksum`, `git clone`
+- Request: make this readable for someone installing for the first time
+
+```text
+Archive-based acquisition is not currently provisioned: per-skill ZIP artifacts are not published. In the
+absence of such publication, the release verification pipeline performs neither package-to-tag identity
+attestation nor checksum reconciliation against a distributed ZIP. Accordingly, installation is to be effected
+via `git clone` against the repository at a verified pinned tag reference.
+```
+
+## F23 — Normative Register The Reader Needs
+
+- Mode: `Revise`
+- Profile: Manual/runbook
+- Audience: Release maintainers running this procedure
+- Host contract: the surrounding runbook states obligations with `MUST` / `MUST NOT` and is audited against that wording
+- Protected identifiers: `identity`, `checksum`
+- Request: make this easier to read
+
+```text
+A publisher MUST verify the archive identity before publishing. A publisher MUST NOT rely on the checksum
+alone, because a checksum confirms only that bytes are unchanged, not that the archive is the intended one.
+When identity cannot be verified, the publisher MUST stop and escalate to the release owner.
+```
+
+## F24 — Density Reduction Trap
+
+- Mode: `Revise`
+- Profile: Manual/runbook
+- Audience: On-call engineers
+- Request: this is too dense, tighten it
+
+```text
+Before restarting the ingest service, confirm with the data owner that no backfill job is running; a restart
+during a backfill leaves partial rows that the nightly reconciler will not repair. If a backfill is running,
+wait for it to finish rather than cancelling it, because cancellation drops the checkpoint. After the restart,
+the on-call engineer verifies row counts against the previous hour, and if they differ by more than two
+percent, the on-call engineer escalates to the data owner rather than rerunning ingest.
+```
+
+## F25 — Voice Worth Keeping
+
+- Mode: `Revise`
+- Profile: README front door
+- Audience: Developers evaluating the tool
+- Request: fix what needs fixing
+
+```text
+Most status dashboards tell you everything is fine right up until it isn't. This one is deliberately boring:
+it shows the three numbers that actually move before an incident, and nothing else.
+
+Installation are done via the installer script, which is requiring Node 18 or newer. The dashboard reads
+metrics from your existing Prometheus; it does not collect anything itself, and it never leaves your network.
+```
+
+## F26 — Warning After The Instruction
+
+- Mode: `Revise`
+- Profile: Manual/runbook
+- Audience: Engineers rotating credentials for the first time
+- Protected identifiers: `rotate-key`, `keyring.json`
+- Protected anchors: `#rotate-the-signing-key` and `#verify` are linked from the release runbook index; both
+  headings must survive with their current text
+- Requested scope: the reader keeps running the command before seeing the warning. Fix that. The `Verify`
+  section is not in scope and its wording is to be left exactly as it is.
+
+```text
+## Rotate The Signing Key
+
+Run `rotate-key --apply` from the release host. The command writes the new key into `keyring.json` and marks
+the previous key inactive.
+
+## Verify
+
+Confirm the new key id appears in `keyring.json` and that the build pipeline picks it up on the next run.
+
+## Notes
+
+`rotate-key --apply` cannot be undone once the previous key is marked inactive; recovering requires a new key
+ceremony with the release owner. Take a backup of `keyring.json` before running it. On a host where the release
+owner has not enrolled, the command fails partway and leaves `keyring.json` in a mixed state.
+```

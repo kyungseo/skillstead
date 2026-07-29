@@ -110,3 +110,35 @@ Keep captions readable at their actual display size. Do not imply that a curated
 - A command such as `git diff --check` must not be translated; explain its purpose around it.
 - A compact maintainer note is not automatically too technical. Judge it against the maintainer audience.
 - A repeated phrase is not automatically AI-like. Flag it only when it weakens flow, tone, or reader trust.
+
+## Register, Voice, And Structure
+
+Judging "this reads badly" is not enough. Say which layer the problem sits in, because that decides what you are
+allowed to do about it.
+
+| Signal | Layer | What it licenses |
+| --- | --- | --- |
+| A claim, condition, obligation, actor, or identifier is wrong or missing | Semantic contract | Blocking. Fix by restoring the source meaning, never by smoothing over it |
+| The writing is stiff for its audience: contract phrasing, stacked nominalizations, bullets where prose would read better, no explanation on first use of a term | Register | Adjust it. The source register is not owed preservation when it does not fit the audience |
+| The writing carries itself well — a distinct directness, warmth, or rhythm | Author voice | Keep it. Change a trait only when the user asks or where it genuinely conflicts with the audience, and only that trait. What the document commits to is not voice; it is in the ledger |
+| The reader cannot find what they need, or meets an instruction before its warning | Structure | Consider a structural revise; see the strategy rules in `SKILL.md` |
+
+Two failure modes matter more than the rest.
+
+**Flattening.** Editing a few sentences and, along the way, ironing out a voice that was working. If nothing about
+the voice conflicts with this audience and the user did not ask for a different tone, leave it alone.
+
+**Restructuring without a reason.** Moving sections because the shape feels tidier. Structure changes need a named
+reader problem, the specific sections involved, and a reason local edits would not do; otherwise they are churn.
+
+### Order that carries meaning
+
+Two orderings hide inside "information order", and only one is free to change.
+
+- Which point is mentioned first is a presentation choice. Leading with the conclusion and following with the
+  evidence is fine.
+- Which item causes, precedes, or is a prerequisite for another is a fact. It survives any rearrangement, and the
+  reader must still be able to see it.
+
+Separately, a reader who is about to decide or act must already have met the conditions and warnings that govern
+that step. Mentioning an action in an overview is fine; a warning that arrives after the instruction is not.

@@ -11,6 +11,22 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [0.10.0] — 2026-07-29
+
+- Clarified what happens when the audience and the source register disagree. A draft carries what a document
+  means, but supplied facts and reviewed evidence outrank it, and it settles nothing on its own about how the
+  document reads: style can change when it does not fit the intended reader, while everything the document
+  claims, requires, or warns stays fixed. Audience was already part of the editing contract; the priority between
+  it and preservation was not.
+- Separated the invariant ledger, the author's voice, and the register into distinct layers. Voice here means how
+  the writing carries itself — warmth, directness, rhythm — not what the document commits to, and a trait changes
+  only on request or where it conflicts with the audience.
+- Gave `Revise` two strategies. Alongside local edits, a structural revise may move paragraphs and sections when
+  it names the reader problem, points to the sections involved, and changes no more than that problem requires.
+  Relationships, step order, prerequisite placement, referenced headings, and link targets survive it.
+- Added five scenarios covering register adjustment, register retention under a host contract, density reduction,
+  voice survival, and a bounded structural revise.
+
 ## [0.9.1] — 2026-07-29
 
 - Pointed the Korean README at the Korean install guide (`docs/INSTALL.ko.md`) instead of the English one.

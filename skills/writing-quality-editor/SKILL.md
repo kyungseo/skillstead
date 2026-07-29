@@ -3,7 +3,7 @@ name: writing-quality-editor
 description: Writing Quality Editor (WQE) composes, assesses, revises, and adapts user-facing writing so it reads naturally while preserving meaning, claims, intent, voice, conditions, numbers, identifiers, exceptions, and risks. Use when a user asks to write, review, polish, fix, improve, supplement, clarify, translate, localize, or make a document sound natural; no skill or mode name is required. Covers README, onboarding, release notes, manuals, UI, errors, gallery copy, research-backed briefs, technical comparisons, and natural English↔Korean adaptation. If a host repository workflow owns document classification, path, indexing, lifecycle, or approval, keep it primary and use this skill only as an optional authoring layer. Locale-neutral design; EN↔KO (`ko-KR`) is the initial profile under validation. Do not game detectors, conceal provenance, invent claims, replace evidence review, or bypass host workflows.
 license: LICENSE.txt
 metadata:
-  version: 0.9.1
+  version: 0.10.0
 ---
 
 # Writing Quality Editor
@@ -74,7 +74,8 @@ Confirm or infer, in this order:
 2. Document profile: README, onboarding, release note, manual, app UI, error message, gallery copy, or other
 3. Purpose and desired next action
 4. Output language; for `Adapt`, source and target language; for Korean, use `ko-KR` conventions unless the user says otherwise
-5. Tone, formality, and author voice to preserve
+5. Tone and formality the audience needs, and the author voice traits worth keeping (see
+   [Separate What Is Said From How It Reads](#separate-what-is-said-from-how-it-reads))
 6. Canonical source or supplied fact/evidence packet, glossary, protected identifiers, and capability evidence
 7. Requested scope, length, format, and any positive/negative exemplars
 
@@ -84,11 +85,13 @@ sentence length, formality, or information order, but do not imitate distinctive
 
 ## Bound The Meaning Before Writing
 
-Build a short invariant ledger before writing. For `Compose`, supplied material and traceable reviewed sources are
-the ledger; missing information is not permission to complete the story from model memory or general knowledge.
+Build a short invariant ledger before writing. This ledger is the document's semantic contract: no audience,
+profile, or style decision may change anything in it. For `Compose`, supplied material and traceable reviewed
+sources are the ledger; missing information is not permission to complete the story from model memory or general
+knowledge.
 
 - factual claims and evidence boundaries,
-- intent and author stance,
+- intent, and the position the document commits to,
 - conditions, numbers, dates, versions, units, and comparisons,
 - commands, paths, URLs, status values, error codes, product names, and other identifiers,
 - exceptions, limitations, risks, uncertainty, approvals, rollback, and next actions,
@@ -103,6 +106,98 @@ them when useful. Do not infer adjacent facts, benefits, guarantees, or experien
 
 Do not treat an imperative, passive construction, or equally vague translation as proof that ambiguity was
 preserved safely when it hides who decides or acts, or what a destructive or consent action does.
+
+## Separate What Is Said From How It Reads
+
+A source draft carries the document's meaning, but not unconditionally. Supplied facts, reviewed evidence, and an
+explicit correction outrank it: a claim that contradicts them, or reaches past what they cover, is removed or
+qualified rather than preserved because the draft said it. Evidence that is simply silent on a point is not by
+itself a reason to delete it. What a source draft never carries on its own is authority over how the document reads.
+
+Three layers decide what the audience may change.
+
+| Layer | What it covers | May the audience change it? |
+| --- | --- | --- |
+| Semantic contract | The invariant ledger above — everything the document claims, requires, promises, or warns | Never |
+| Author voice | How the writing carries itself — warmth, directness, humour, rhythm. Not what it commits to; that is in the ledger | Kept by default. Change a trait only when the user asks for it or when that trait conflicts with the audience, and change only that trait |
+| Register | The style level the writing is pitched at | Yes. The audience decides |
+
+When these pull in different directions, resolve in this order:
+
+1. semantic contract and evidence
+2. explicit user constraints and the host workflow
+3. target audience and document profile
+4. register inferred from the source
+
+Rank 3 is not an instruction to rewrite. When the source already fits its audience, the `Revise` no-edit gate
+still wins.
+
+A source register that does not fit the target audience is not something you owe preservation to. Adjusting it is
+allowed, and staying with it because "that is how the source sounded" is not a reason.
+
+### What register may change
+
+Every adjustment below is allowed only while the semantic contract survives intact.
+
+- sentence length and boundaries
+- which point is stated first, as long as the relationships stay clear and prerequisites still arrive in time
+- connectives and level of address
+- the balance of prose and lists, as long as each item keeps the conditions attached to it
+- an explanation on first use of a term the audience will not know
+- collapsing duplicate explanation and moving a needed explanation to where it is needed
+
+That last item is not permission to thin the text. Dropping a condition, an exception, an actor, or a recovery
+step because the writing felt dense is a claim change, not a register change.
+
+### What register may never change
+
+- obligation strength, or which reader or case a condition applies to
+- who decides, acts, approves, or is handed the work
+- which rule an exception belongs to
+- a causal, prerequisite, or step-order relationship
+- numbers, dates, units, comparisons, versions, commands, paths, URLs, status values, error codes, product
+  names, or other identifiers
+
+Reordering by itself is fine. Reordering that leaves a relationship changed—or leaves the reader unable to tell
+what it is—is not.
+
+### Where this applies
+
+`Compose` has no source register to preserve, so these rules mainly shape `Revise` and `Adapt`.
+
+## Choose A Revise Strategy
+
+`Revise` has two strategies. Sentence-level polish cannot fix a document whose paragraphs or sections are in the
+wrong place, so do not default to it.
+
+| Strategy | Works on |
+| --- | --- |
+| Local edit | Sentences and phrases inside the existing structure |
+| Structural revise | Paragraph and section boundaries, and which point the document leads with |
+
+Use structural revise only when all three hold, and only inside the requested scope:
+
+1. You can name the concrete reader problem it solves.
+2. You can point to the paragraphs or sections involved and say why local edits leave the problem in place.
+3. You make the smallest structural change that solves it, and leave unrelated parts alone.
+
+If you cannot do all three, use local edits.
+
+Structural revise moves presentation around. It earns no new permissions: the semantic contract, the author
+voice guard, and the register limits above all still apply, and so does the host workflow's ownership of
+document classification, path, index, and lifecycle.
+
+Two things need care when moving material.
+
+**Relationships travel with the text.** Explaining an outcome before its cause, or a conclusion before its
+evidence, is fine when the relationship stays visible. What must not change is which item is the cause,
+the prerequisite, or the earlier step—and the reader must still be able to tell.
+
+**Prerequisites and warnings arrive before they are needed.** A reader who is asked to decide or act must
+already have seen the conditions and warnings that govern it. Introducing an action in an overview is fine;
+leaving its warning until after the reader has been told to do it is not.
+
+Report a structural revise under `Material Changes`, naming the reader problem and the sections affected.
 
 ## Write And Edit For Natural, Skilled Results
 
@@ -205,6 +300,10 @@ Return:
 
 For a direct short-text request, the revised text may come first and the notes may be brief. For file edits,
 preserve the existing format and links unless changing them is part of the requested scope.
+
+A structural revise may add or merge headings, but any heading another document links to, and any link target,
+survives unchanged unless the request covers updating those references too. When headings move, say so under
+`Material Changes` with the reader problem that motivated it.
 
 When the `Revise` no-edit gate finds no material improvement, reproduce the source under `Revised Text`, explain
 what is already effective under `Preservation Notes`, and write `None` under `Material Changes`.
