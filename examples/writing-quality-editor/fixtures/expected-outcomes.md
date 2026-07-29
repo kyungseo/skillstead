@@ -14,7 +14,9 @@ Every scenario must:
 - avoid inventing facts to make the result smoother,
 - expose ambiguity as `needs-human`,
 - treat acceptable preference differences as `Neutral` and preserve them rather than manufacturing a finding,
-- keep already-effective text when no material improvement is available.
+- keep already-effective text when no material improvement is available,
+- keep the author's voice except where a trait conflicts with the stated audience, and then change only that trait,
+- treat a source register that does not fit the stated audience as adjustable, not as something to preserve.
 
 ## Scenario Matrix
 
@@ -41,6 +43,54 @@ Every scenario must:
 | F19 | Research with opened, traceable public sources within the fixture budget; give AX a brief context-specific gloss without claiming a universal definition; state an evidence cutoff; use multiple independent sources; distinguish measured adoption, intent, vendor framing, and synthesis; preserve geography/sample limits; cite material claims directly; stop when those distinctions are supported. | Rely on memory or search snippets; use one vendor report as the market; invent or detach statistics from scope; present promotional language or inference as measured fact; omit source dates and links; exceed the validation budget to make the brief exhaustive. |
 | F20 | Use official Spring Modulith documentation and primary architecture sources within the fixture budget. Distinguish toolkit from architecture style and compare the requested technical/organizational axes with citations, explicit assumptions, and decision criteria; stop when the requested axes are supported. | Call Spring Modulith and modular monolith identical; claim one architecture is universally superior; invent framework guarantees; omit operational/data/transaction tradeoffs; cite only unsourced summaries; exceed the validation budget to build a literature review. |
 | F21 | Recognize `workflow-work-brief` as primary owner of classification, path, index, follow-up routing, and approval. Do not independently create `docs/briefs/` content or invent strategy evidence. Offer `writing-quality-editor` only as an optional prose layer after the host workflow establishes the artifact contract, or ask for the missing core question/evidence through that workflow. | Treat the word `brief` as automatic `Compose` ownership; choose a repository path; write a plausible strategy brief from model memory; update an index or workflow state; imply explicit skill installation overrides host approval rules. |
+| F22 | Lead with what the reader can do now, in plain language, and drop the contract register. Keep every claim: per-skill zip files are not offered; the release checks verify neither that an archive matches its skill and tag nor its `checksum`; the pinned-tag `git clone` is the way to install today. The reason must stay attached to the recommendation. | Drop the identity check, the `checksum`, or the reason the clone is recommended; imply zip files are coming; present the clone as one option among several; keep the stacked contract phrasing unchanged. |
+| F23 | Improve rhythm and connectives within the existing register. Keep each obligation at its stated level, keep `identity` and `checksum` as distinct things, keep the reason a checksum is insufficient, and keep the escalation path to the release owner. | Replace `MUST` / `MUST NOT` with softer modals; merge identity and checksum into one check; drop the escalation; restructure the runbook because it reads formally; call the audited wording unnecessary jargon. |
+| F24 | Tighten wording only. Every one of these survives: confirm with the data owner first; a restart during a backfill leaves partial rows; the nightly reconciler will not repair them; wait rather than cancel; cancellation drops the checkpoint; the row-count check happens **after** the restart; it compares against the previous hour; the on-call engineer performs it; the two percent threshold; escalate to the data owner rather than rerunning ingest. | Drop any reason clause as redundant; merge the data owner and the on-call engineer into one actor; turn the escalation into a rerun; lose the two percent figure or the previous-hour comparison; move the row-count check before the restart or leave its timing unstated; remove the cancellation warning because the wait instruction implies it. |
+| F25 | Fix the two grammar defects (`Installation are done`, `is requiring`). Keep the opening voice — the dry contrast about dashboards and the deliberate `boring` framing — intact, and keep the installer script as the installation route, `Node 18 or newer` including the `or newer`, the Prometheus dependency, the no-collection claim, and the network boundary. | Rewrite the opening into neutral marketing prose; delete the contrast because it is informal; flatten `deliberately boring`; restructure the README when two sentence-level fixes suffice; pin Node to exactly 18; drop the installer script or the network boundary. |
+| F26 | Name the reader problem and move the irreversibility warning, the backup step, and the unenrolled-host failure ahead of the `rotate-key --apply` instruction. Keep `#rotate-the-signing-key` and `#verify` with their current heading text, keep `keyring.json` and `rotate-key`, and reproduce the `Verify` section **word for word** — it is outside the requested scope. | Restructure without naming the reader problem; leave the warning under `Notes`; reword `Verify` at all; rename or drop either protected heading; drop the mixed-state failure or the backup step; reorder so the previous key deactivation reads as reversible. |
+
+## Register, Voice, And Structure Fixtures
+
+F22 to F26 test the layer separation. Judge them on two axes at once: did the writing get easier to use, and did
+every invariant survive.
+
+| Fixture | Tests |
+| --- | --- |
+| F22 | Register adjusts for a first-time reader while the identity and `checksum` limits survive |
+| F23 | Register is retained because the host contract requires it — improvement is not a licence to soften audited wording |
+| F24 | Reducing density must not delete a condition, an actor, a threshold, or a reason |
+| F25 | A working voice survives a sentence-level fix; local edits are enough, so a structural revise here is a failure |
+| F26 | A structural revise is warranted, and it is bounded: warning before instruction, anchors intact, unrelated sections untouched |
+
+### Building the invariant list for these fixtures
+
+Do not write the list from memory of the source. Build it twice and reconcile.
+
+1. Walk the ledger categories in `SKILL.md` and pull every item of each kind out of the source.
+2. Walk the source clause by clause and map each one to a list entry or to a recorded `N/A` with a reason. A
+   clause with no mapping means the list is not finished.
+
+Record each entry as: source anchor, invariant kind, the proposition or relationship to keep, exact tokens if any,
+what may change, what may not.
+
+A second reviewer who has not seen the list builds their own from the source and compares. Record the result of
+that comparison, including when nothing was missing.
+
+This procedure belongs to fixture and answer-key preparation. It is not something the skill asks of a user at
+runtime.
+
+### Judging a run
+
+- Exact tokens — commands, numbers, identifiers, links — compare mechanically.
+- Obligation strength, conditions, actors, causal and prerequisite relationships, and step order — compare as
+  propositions against the list, not as strings.
+- For F26, the anchors named as referenced by other documents must still exist and resolve.
+
+Then check the result reads better, not just differently. An evaluator who sees **only the revised text** — not
+the source, not this answer key — should be able to say what the document is about, why it matters, what to do,
+and what conditions or risks remain. Compare those answers against the required propositions: an evaluator who
+cannot answer means the writing did not improve, and an answer missing a required proposition means something was
+lost.
 
 ## Coverage
 
@@ -51,6 +101,8 @@ Every scenario must:
 | Revise | F02, F08, F10, F11, F12, F15 |
 | Adapt EN→KO | F03, F06, F09 |
 | Adapt KO→EN | F04, F13, F14 |
+| Register and voice layers | F22, F23, F24, F25 |
+| Structural revise | F25 (must not), F26 (must) |
 | Meaning drift defense | F02, F03, F04, F06, F08, F09, F10, F11, F12, F13, F14, F15 |
 | Over-editing defense | F12 |
 | Enrichment without invention or over-refusal | F15 |

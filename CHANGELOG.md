@@ -22,6 +22,9 @@ Granular, per-change entries begin at the first public release. Earlier developm
 
 - `svg-infographic` `0.8.2` — package tree correction and Korean install link.
 - `writing-quality-editor` `0.9.1` — Korean install link.
+- `writing-quality-editor` `0.10.0` — clarified the priority between the target audience and the source
+  register, separated the invariant ledger from author voice and register, and gave `Revise` a bounded
+  structural strategy alongside local edits.
 
 ## 2026-07-28
 
