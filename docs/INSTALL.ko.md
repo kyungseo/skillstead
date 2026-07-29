@@ -37,9 +37,9 @@ cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 
 아래에서 runtime·scope·운영체제별 전체 명령을 확인할 수 있습니다.
 
-git 대신 파일을 내려받고 싶을 수 있지만 skill별 zip 파일은 아직 제공하지 않습니다. 현재 release
-검사는 zip 파일의 identity와 checksum을 검증하지 않으므로, 검토된 pinned tag를 clone하는 방법을
-재현 가능한 설치 경로로 유지합니다.
+파일을 내려받아 설치하는 방식은 아직 지원하지 않습니다. skill별 zip 파일을 제공하지 않기 때문입니다.
+현재 release 검사는 zip 파일이 해당 skill과 tag에 맞는 파일인지, 또 checksum이 맞는지 확인하지
+못하므로, 지금은 검증된 tag를 지정해 `git clone`하는 방법으로 설치해 주세요.
 
 `svg-infographic`을 복사하거나 discovery해도 Node.js가 설치되지 않으며, 필요하지도 않습니다. Node.js 18+는
 자동화된 source lint와 bundled render workflow에만 필요합니다. Node.js가 없으면 skill이 감지한 package

@@ -40,6 +40,9 @@ RECOVERY_MODES = ("none", "premature-accept-forward", "metadata-correction")
 POST_READ_MAX_RETRIES = 3
 POST_READ_BACKOFF_SECONDS = (1.0, 2.0, 4.0)
 POST_READ_TOTAL_CAP_SECONDS = 10.0
+# Promotion verdicts a stale list can produce. Which one appears depends only
+# on whether any successor release is visible, so both are in scope.
+_STALE_CODES = ("CV-LATEST-STEADY", "CV-LATEST-INITIAL")
 _NAMESPACED_TAG = re.compile(r"^([a-z0-9][a-z0-9-]*)/v(\d+)\.(\d+)\.(\d+)$")
 
 
@@ -118,14 +121,19 @@ def _stale_observation(req: ReleaseOperationRequest, releases_raw, latest_tag,
     ``Latest`` names the tag we just published, yet that tag is absent from the
     release list — a list cannot omit the release Latest points at, so the list
     is simply not visible yet. A *real* misplacement looks different: Latest is
-    present in the list but is not the newest, and that must stay red.
+    present in the list but is not the expected one, and that must stay red.
+
+    Both promotion codes are covered. Once the release just published drops out
+    of a stale list, the successor set can look empty, so the very first
+    ordinary release after the cutover reports the same staleness as
+    ``CV-LATEST-INITIAL`` rather than ``CV-LATEST-STEADY``.
 
     The scan reads raw, pre-normalization data, so anything unreadable makes
     this predicate False (no re-read) rather than optimistic.
     """
     if req.action != "publish" or latest_tag != req.tag:
         return False
-    if verdict.verdict != "red" or verdict.code != "CV-LATEST-STEADY":
+    if verdict.verdict != "red" or verdict.code not in _STALE_CODES:
         return False
     if not isinstance(releases_raw, list):
         return False

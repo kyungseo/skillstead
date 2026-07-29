@@ -502,5 +502,96 @@ class WrapperPostRead(WrapperBase):
         self.assertIsNotNone(self.last_deadline)
 
 
+class WrapperPostReadInitial(WrapperBase):
+    """W5b in the initial-promotion branch.
+
+    Before any successor release exists, Step 6B judges promotion instead of
+    comparing timestamps, so the same stale list reports CV-LATEST-INITIAL.
+    The recovery predicate is unchanged; only the verdict code differs.
+    """
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.slept: list[float] = []
+        self.clock = 0.0
+        self.post_reads = 0
+
+    def _sleep(self, seconds: float) -> None:
+        self.slept.append(seconds)
+        self.clock += seconds
+
+    def _monotonic(self) -> float:
+        return self.clock
+
+    def _invoke(self, tag: str, title: str, fetch):
+        return run_wrapper(
+            self.repo, parse_request(request_json(tag=tag, title=title)), fetch,
+            now=int(_git(self.repo, "log", "-1", "--format=%ct").strip()) + 10,
+            execute=self.execute_and_apply, sleep=self._sleep,
+            monotonic=self._monotonic)
+
+    def _reader(self, post):
+        def fetch(deadline=None):
+            if self.latest != self.pending:
+                return list(self.store), self.latest
+            self.post_reads += 1
+            return post(self.post_reads)
+        return fetch
+
+    # B1 — the first ordinary release after the cutover, read too early.
+    def test_first_successor_stale_read_resolves(self) -> None:
+        for i, ref in enumerate(FIX_TAGS):          # every baseline published
+            self.store.append(make_release(ref.removeprefix("refs/tags/"),
+                                           f"2026-07-28T00:0{i}:00Z"))
+        self.latest = FIX_TAGS[-1].removeprefix("refs/tags/")   # == LATEST_REF
+        succ = "alpha-skill/v1.3.0"
+        _bump_alpha(self.repo, "1.3.0")
+        _git(self.repo, "tag", succ, commit_all(self.repo, "release alpha 1.3.0"))
+        self.pending = succ
+        seen = {}
+
+        def post(n):
+            if n == 1:
+                stale = [r for r in self.store if r["tag_name"] != succ]
+                seen["code_input"] = [r["tag_name"] for r in stale]
+                return stale, self.latest
+            return list(self.store), self.latest
+
+        result = self._invoke(succ, "alpha-skill 1.3.0", self._reader(post))
+        # The stale list held no successor at all, which is why the first
+        # verdict took the initial-promotion branch.
+        self.assertNotIn(succ, seen["code_input"])
+        notes = " ".join(result.post_read_notes)
+        self.assertIn("CV-LATEST-INITIAL", notes)      # first observation
+        self.assertIn("-> resolved", notes)
+        self.assertIsNone(result.error, result.error)
+        self.assertEqual(result.post_verdict.verdict, "complete")
+        self.assertEqual(self.slept, [1.0])
+
+    # B2 — a genuine misplacement in the same branch: Latest lands on a
+    #      baseline tag that is not the declared Latest ref. The tag IS listed,
+    #      so the predicate declines and the red stands.
+    def test_initial_promotion_misplacement_stays_red(self) -> None:
+        wrong = FIX_TAGS[0].removeprefix("refs/tags/")   # not LATEST_REF
+        self.store.append(make_release(FIX_TAGS[-1].removeprefix("refs/tags/"),
+                                       "2026-07-28T00:00:00Z"))
+        self.latest = FIX_TAGS[-1].removeprefix("refs/tags/")
+        self.pending = wrong
+        listed = {}
+
+        def post(n):
+            listed["tags"] = [r["tag_name"] for r in self.store]
+            return list(self.store), self.latest
+
+        result = self._invoke(wrong, "alpha-skill 1.2.3", self._reader(post))
+        # Publishing the last missing baseline left Latest on the wrong tag.
+        self.assertEqual(result.post_verdict.code, "CV-LATEST-INITIAL")
+        self.assertEqual(self.latest, wrong)
+        self.assertIn(wrong, listed["tags"])            # present, so not stale
+        self.assertIn("post-mutation verdict is red", result.error)
+        self.assertEqual(self.slept, [])                # never retried
+        self.assertEqual(result.post_read_notes, [])
+
+
 if __name__ == "__main__":
     unittest.main()

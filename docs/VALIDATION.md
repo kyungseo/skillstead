@@ -47,10 +47,17 @@ observation that contradicts itself: `Latest` names the requested tag, yet
 that tag is absent from the release list. A list cannot omit the release
 `Latest` points at, so the list is simply not visible yet.
 
+This covers both promotion verdicts. Which one a stale list produces depends
+only on whether any successor release is visible, so the very first ordinary
+release after the cutover reports the same staleness as `CV-LATEST-INITIAL`
+rather than `CV-LATEST-STEADY`. A list that is still missing baseline Releases
+never reaches either check — it is judged earlier — so the retry does not apply
+during a cutover.
+
 Everything else keeps its red. A *real* misplacement looks different — `Latest`
-is present in the list but is not the newest — and so do a missing Release, an
-unnormalizable release object (`CV-DOMAIN`, including a published release whose
-`published_at` is null or empty), and any transport failure.
+is present in the list but is not the expected one — and so do a missing
+Release, an unnormalizable release object (`CV-DOMAIN`, including a published
+release whose `published_at` is null or empty), and any transport failure.
 
 The retry is bounded three ways: at most **3** re-reads, backing off
 **1s / 2s / 4s**, inside a **10s** wall-clock cap measured from the first stale

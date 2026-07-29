@@ -761,6 +761,31 @@ class PlanParsingFailClosed(unittest.TestCase):
         with self.assertRaises(PlanError):
             parse_plan(plan_json("HEAD", entries))
 
+    # proposed_ref is checked here rather than left to the gate, so a plan that
+    # names the tag loosely is refused with the expected form in the message.
+    def _reject_ref(self, ref: str) -> str:
+        bad = entry("alpha-skill", None, "0.1.0")
+        bad["proposed_ref"] = ref
+        with self.assertRaises(PlanError) as caught:
+            parse_plan(plan_json("HEAD", [bad]))
+        return str(caught.exception)
+
+    def test_short_tag_name_rejected(self) -> None:
+        message = self._reject_ref("alpha-skill/v0.1.0")
+        self.assertIn("refs/tags/alpha-skill/v0.1.0", message)
+        self.assertIn("refs/tags/<skill>/v<proposed_version>", message)
+
+    def test_ref_naming_another_skill_rejected(self) -> None:
+        self._reject_ref("refs/tags/beta-skill/v0.1.0")
+
+    def test_ref_disagreeing_with_version_rejected(self) -> None:
+        self._reject_ref("refs/tags/alpha-skill/v0.2.0")
+
+    def test_well_formed_ref_accepted(self) -> None:
+        plan = parse_plan(plan_json("HEAD", [entry("alpha-skill", None, "0.1.0")]))
+        self.assertEqual(plan.releases[0].proposed_ref,
+                         "refs/tags/alpha-skill/v0.1.0")
+
 
 if __name__ == "__main__":
     unittest.main()

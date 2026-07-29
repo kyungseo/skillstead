@@ -41,8 +41,13 @@ admin bypass가 있으므로 이 경계는 hard guarantee가 아니라 disciplin
 상태입니다. 목록이 `Latest`가 가리키는 release를 빠뜨릴 수는 없으므로, 목록이 아직 보이지 않는
 것뿐입니다.
 
+이 판정은 promotion verdict 두 가지를 모두 덮습니다. stale 목록이 둘 중 무엇을 내는지는 successor
+release가 하나라도 보이는지에만 달려 있으므로, cutover 이후 **첫** 통상 release는 같은 staleness를
+`CV-LATEST-STEADY`가 아니라 `CV-LATEST-INITIAL`로 보고합니다. baseline Release가 아직 덜 보이는
+목록은 두 검사에 닿기 전에 판정되므로, cutover 진행 중에는 이 재시도가 적용되지 않습니다.
+
 그 밖의 경우는 red를 그대로 유지합니다. **실제 Latest 오배치**는 모양이 다릅니다 — `Latest`가 목록에
-존재하되 가장 최신이 아닙니다. Release 누락, 정규화할 수 없는 release 객체(`CV-DOMAIN` — 발행된
+존재하되 기대한 tag가 아닙니다. Release 누락, 정규화할 수 없는 release 객체(`CV-DOMAIN` — 발행된
 release의 `published_at`이 null이거나 빈 문자열인 경우 포함), transport 실패도 마찬가지입니다.
 
 재시도는 세 가지로 제한됩니다: 최대 **3회** 재관측, **1초 / 2초 / 4초** backoff, 첫 stale 읽기부터
