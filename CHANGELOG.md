@@ -4,6 +4,17 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## 2026-07-29
+
+### Repository
+
+- **Reusable skill-development playbook.** Added bilingual package standards, a maintainer procedure, validation
+  examples, and reusable templates for scenarios, expected outcomes, evidence ledgers, release notes, and
+  role-based cross-review relay.
+- **Lifecycle evidence and validation.** Added strict retirement and major-version approval records, fail-closed
+  current-tree and first-parent history checks, reserved-identity protection, and positive and negative fixtures
+  for lifecycle boundary failures.
+
 ## 2026-07-28
 
 ### Repository
