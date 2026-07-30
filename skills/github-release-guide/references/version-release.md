@@ -19,7 +19,9 @@ source or release path conflicts or is unknown, keep Guided Blocked until the ow
 4. Check for an existing conflicting local or remote tag and verify the intended target commit/ref.
 5. Classify README, CHANGELOG, version source, install/setup docs, LICENSE, compatibility, migration guide,
    and release notes with `assessment.md`.
-6. Apply the selected claim-audit and language profiles.
+6. Apply the separate workflow-automation and artifact-provenance axes in `assessment.md`. Classify each axis
+   from its own evidence and do not infer one from the other.
+7. Apply the selected claim-audit and language profiles.
 
 ## Release surface protection
 
@@ -95,6 +97,7 @@ Require observed evidence for:
 - Pinned install/clone instructions resolve
 - Release-critical compatibility/runtime/version claims match direct evidence
 - Public README, install, changelog, compare/detail links, and examples are accessible
-- Repository-defined test/build/validation passes or a named blocker remains
+- Repository-defined test/build/validation passes through observed evidence, or an explicit unknown or named
+  blocker remains when execution is declined or unavailable
 
 If any item is missing, report partial or Blocked rather than complete.

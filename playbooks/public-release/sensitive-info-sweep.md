@@ -58,6 +58,13 @@ Use history-wide commands carefully in large repositories.
 - [ ] Screenshots do not show a local path, terminal, credential, or private tab.
 - [ ] Example data is synthetic or has been confirmed safe for public use.
 
+## Reporting Hygiene
+
+- [ ] Do not copy a full secret, credential, token, or PII value into review notes or release evidence.
+- [ ] Use the location, type, impact, and a masked identifying reference when the owner must decide whether
+      exposure was intended.
+- [ ] Treat this as output hygiene, not a promise to detect every form of PII or perform a privacy audit.
+
 ## Decision
 
 Choose one conclusion before making the repository public:

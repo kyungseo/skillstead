@@ -19,6 +19,16 @@ automated checks read the topmost released heading to confirm it matches `metada
   exposure-unknown release tags while preserving an exact approval gate for confirmed limited-remote correction.
 - Added RO1–RO8 answer-key-blind Claude Code/Codex parity evidence, including immutable-release deletion,
   forward correction, non-recall acknowledgment, and broad-request denial behavior.
+- Limited release-automation review to release/tag workflows, artifact producers or publishers, and
+  release-critical elevated-permission paths, with static trust and provenance classification rather than
+  a workflow security-audit claim.
+- Split workflow-automation and artifact-provenance applicability so manual or producer-unknown artifacts
+  retain provenance handling without expanding unrelated workflow review.
+- Separated read-only repository state from repository-code execution safety; scripts, builds, scanners, and
+  workflows now require an exact execution preview and separate approval, while declined or unavailable
+  evidence remains unknown or a named blocker.
+- Extended no-value-output hygiene to PII while preserving masked identifying references, and added RA1–RA7
+  fixtures for applicability, trust, provenance, execution refusal, and non-universal attestation behavior.
 
 ## [0.8.2] — 2026-07-30
 

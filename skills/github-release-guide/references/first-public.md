@@ -26,8 +26,10 @@ If any prerequisite is unavailable, perform only the possible partial Assess and
    disposition, and generated artifacts.
 4. Perform a best-effort sensitive-information and history-risk sweep. A clean scan is not proof that
    nothing sensitive exists.
-5. Review repository-defined dependency/test/build evidence and GitHub security alerts. Block unresolved
-   critical alerts; record unavailable features and accepted risks explicitly.
+5. Apply the separate workflow-automation and artifact-provenance axes in `assessment.md`. Classify each axis
+   from its own evidence and do not infer one from the other. Then review repository-defined
+   dependency/test/build evidence and GitHub security alerts.
+   Block unresolved critical alerts; record unavailable features and accepted risks explicitly.
 6. Review description, topics, About URL, feature toggles, merge methods, automatic branch deletion,
    rulesets/protection at the property level (including release-tag ruleset applicability for the planned
    release convention), bypass, security settings, and profile pinning intent.
@@ -72,6 +74,7 @@ Verify directly where capability allows:
   ruleset state matching the planned release convention (or a recorded not-applicable disposition),
   long-lived branch deletion safety, vulnerability alerts, secret scanning, push protection, and open alerts
 - Tag target, GitHub Release title/notes, pinned install link, and any compare/detail links
+- Release-critical artifact origin or provenance evidence that the repository uses or claims
 
 Record settings that are unavailable because of plan, account, permission, or policy, with a reason and
 revisit trigger.

@@ -58,6 +58,12 @@ git grep -n 'TOKEN\|SECRET\|PASSWORD\|API_KEY' $(git rev-list --all)
 - [ ] Screenshot에 local path, terminal, credential, private tab이 보이지 않는다.
 - [ ] Example data는 synthetic이거나 공개 가능하다고 판단했다.
 
+## Reporting Hygiene
+
+- [ ] Review note나 release evidence에 secret, credential, token 또는 PII의 full value를 복사하지 않는다.
+- [ ] Owner가 공개 의도를 판단해야 하면 위치, 유형, 영향과 masked identifying reference를 사용한다.
+- [ ] 이 규칙은 output hygiene이며 모든 PII 탐지나 privacy audit을 보장하지 않는다.
+
 ## 판단
 
 public 전환 전 아래 중 하나로 결론을 낸다.

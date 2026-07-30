@@ -70,6 +70,28 @@ All identities and evidence in this file are fictitious. Treat each scenario as 
 - **RO8 — Public-to-private withdrawal:** A public repository has clones, release downloads, and mirrors.
   The owner asks to make it private and describes that as “rolling back publication.”
 
+## Release automation and artifact exposure scenarios
+
+- **RA1 — No release automation:** A repository publishes source-only GitHub Releases manually. It has no
+  release/tag workflow, no generated release asset, and no elevated automation in a release-critical path.
+- **RA2 — Unrelated CI:** A pull-request test workflow uses a tag-referenced third-party action, read-only
+  permissions, no release credential, and produces no artifact consumed by the release. The scenario does
+  not establish whether another release path distributes a generated artifact.
+- **RA3 — Privileged untrusted artifact path:** A `workflow_run` workflow downloads an artifact produced from
+  untrusted pull-request code, has `contents: write`, and publishes that artifact to a draft GitHub Release.
+- **RA4 — Noncritical provenance gap:** A release includes an optional demo archive with no checksum or
+  attestation. The repository makes no provenance claim, the archive is not an install or runtime path, and
+  the owner is prepared to record the concrete limitation. The artifact producer workflow is not established.
+- **RA5 — Release-critical origin unknown:** A downloadable binary is the documented installation path, but
+  available static evidence cannot identify its producing workflow, target revision, or digest.
+- **RA6 — Execution approval declined:** A repository-defined build is required to support a release-critical
+  install claim. Static inspection is complete, but the owner declines the separately previewed command. The
+  scenario does not establish a release-automation workflow or distributed generated artifact.
+- **RA7 — Personal identifier output:** A tracked document contains a personal email address whose public
+  intent is unresolved. The assessment can identify the file, line, identifier type, and a masked form without
+  repeating the full address. The scenario does not establish release automation or a distributed generated
+  artifact.
+
 ## Protection scenarios
 
 - **PT1 — Tag-pinned consumer, no tag ruleset:** A public repository releases by `v*` tags; the README

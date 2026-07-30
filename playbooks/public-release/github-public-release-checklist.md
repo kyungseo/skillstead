@@ -49,6 +49,29 @@ Minimum bar:
 - [ ] Documentation reflects any runtime baseline change required by a security fix.
 - [ ] Accepted risk is recorded in the target repository.
 
+### Release Automation And Artifact Provenance Boundary
+
+- [ ] Classify workflow automation separately: `applicable` for a release/tag event, artifact
+      creation/publication/signing, or release-critical elevated permission; `out-of-scope` for an observed
+      workflow that meets none of them; `not-applicable` only when automation is confirmed absent; otherwise
+      `Unknown`.
+- [ ] Classify artifact provenance separately: `applicable` when a Release distributes an artifact or a
+      consumer claim depends on one; `not-applicable` when no generated artifact is distributed; otherwise
+      `Unknown`.
+- [ ] A manual or producer-unknown artifact may still need provenance review. Do not infer one axis from the
+      other or treat repository-code execution as proof that workflow automation applies.
+- [ ] Use static evidence to review workflow trigger trust, release permissions, third-party action or
+      reusable-workflow references, and release-artifact target revision, producer, digest, or provenance.
+- [ ] Keep an unresolved release-critical trust or provenance path `Blocked`; treat a noncritical gap as
+      `Needs attention` with an explicit accepted risk, and preserve an unavailable observation as unknown.
+- [ ] Do not require a full-SHA action reference, checksum, attestation, or SBOM for every repository. Apply
+      repository policy and the actual release-critical consumer path.
+- [ ] Do not execute a repository script, build, scanner, or workflow merely because the review is read-only.
+      Preview the exact command, trust boundary, possible side effects, and evidence, then obtain separate
+      approval. A refusal or unavailable capability remains unknown or a named blocker, never a pass.
+- [ ] Hand detailed exploitability and stack-specific security, privacy, compliance, or supply-chain analysis
+      to a qualified human or specialist. This static check is not a workflow security audit.
+
 ## 5. GitHub Settings Before The Visibility Change
 
 - [ ] The repository description is accurate.

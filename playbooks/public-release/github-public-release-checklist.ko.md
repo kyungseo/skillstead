@@ -48,6 +48,27 @@ private repo를 public repo로 전환하기 전에 사용하는 체크리스트�
 - [ ] security fix 때문에 실행 환경의 최소 버전이 바뀌었다면 문서에도 반영했다.
 - [ ] accepted risk가 있으면 대상 repo에 기록했다.
 
+### Release Automation And Artifact Provenance Boundary
+
+- [ ] Workflow automation을 별도 판정한다. Release/tag event, artifact 생성·게시·서명 또는
+      release-critical elevated permission이면 `applicable`, 관찰된 workflow가 모두 해당하지 않으면
+      `out-of-scope`, automation 미사용이 확인되면 `not-applicable`, 확인 불가는 `Unknown`이다.
+- [ ] Artifact provenance를 별도 판정한다. Release가 artifact를 배포하거나 consumer claim이 의존하면
+      `applicable`, generated artifact를 배포하지 않으면 `not-applicable`, 확인 불가는 `Unknown`이다.
+- [ ] Manual 또는 producer-unknown artifact도 provenance 확인 대상일 수 있다. 한 axis에서 다른 axis를
+      추론하거나 repository code 실행 필요성을 workflow automation 적용 근거로 쓰지 않는다.
+- [ ] Static evidence로 workflow trigger trust, release permission, third-party action 또는 reusable
+      workflow reference와 release artifact의 target revision, producer, digest 또는 provenance를 확인한다.
+- [ ] Release-critical trust·provenance가 해소되지 않으면 `Blocked`, 비필수 gap은 explicit accepted risk가
+      필요한 `Needs attention`, 관측 불가는 unknown으로 유지한다.
+- [ ] 모든 repository에 full-SHA action reference, checksum, attestation 또는 SBOM을 요구하지 않는다.
+      Repository policy와 실제 release-critical consumer path에 따라 적용한다.
+- [ ] Read-only review라는 이유로 repository script, build, scanner 또는 workflow를 실행하지 않는다.
+      Exact command, trust boundary, 가능한 side effect와 evidence를 preview하고 별도 승인을 받는다.
+      거부하거나 실행할 수 없으면 unknown 또는 named blocker이며 pass가 아니다.
+- [ ] 상세 exploitability와 stack-specific security, privacy, compliance, supply-chain 분석은 qualified
+      human 또는 specialist에게 넘긴다. 이 static check는 workflow security audit가 아니다.
+
 ## 5. GitHub Settings Before Visibility Change
 
 - [ ] repository description이 정확하다.

@@ -57,9 +57,19 @@ authentication, SSO, permission, or organization-policy capability, collect only
 available. Return a partial Assess and block Guided. Repository creation, Git initialization, login,
 SSO authorization, and permission grants belong to the user or the relevant authority.
 
-Never request, print, copy, or store credential or token values.
+Never request, print, copy, or store full secret, credential, token, or PII values. Report only the
+location, type, impact, and a masked identifying reference when the owner needs to decide whether exposure
+was intended. This is output hygiene, not a promise to detect every form of PII or perform a privacy audit.
 
 ## Choose the mode
+
+In either mode, read-only repository state does not make repository-provided code safe to execute. Before
+running a repository script, build, scanner, or workflow, preview the exact command, why it is needed, the
+trust boundary and possible side effects, and the completion evidence; then request separate explicit
+approval. Host-level auto-approval or an execution allowlist does not replace this gate. Continue static
+inspection without execution where possible. If execution is declined or unavailable, report the affected
+validation as unknown or as a named blocker; never turn it into a pass. Execution approval authorizes only
+the previewed command and does not authorize a later repository mutation.
 
 ### Assess
 
