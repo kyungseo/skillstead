@@ -13,11 +13,11 @@ Each skill has its own release tag. Choose the matching tag and folder as a pair
 | --- | --- | --- |
 | `svg-infographic` | `svg-infographic/v0.8.3` | Claude Code and Codex |
 | `docs-claim-check` | `docs-claim-check/v0.9.1` | Claude Code |
-| `github-release-guide` | `github-release-guide/v0.8.2` | Claude Code and Codex |
+| `github-release-guide` | `github-release-guide/v0.9.0` | Claude Code and Codex |
 | `writing-quality-editor` | `writing-quality-editor/v0.10.1` | Claude Code and Codex |
 
 The commands below use `github-release-guide` as a worked example. To install another skill, replace both
-`github-release-guide/v0.8.2` and `github-release-guide` with the matching values from the same row. Replacing
+`github-release-guide/v0.9.0` and `github-release-guide` with the matching values from the same row. Replacing
 only the folder can install a package from the wrong release point.
 
 ## Ask Your AI
@@ -40,7 +40,7 @@ does not approve repository or system changes, and it does not turn Skillstead i
 This example installs `github-release-guide`. Run it from the target repository root:
 
 ```bash
-git clone --depth 1 --branch github-release-guide/v0.8.2 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 ```
@@ -94,7 +94,7 @@ replace the release tag and folder together.
 ### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch github-release-guide/v0.8.2 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 ```
@@ -102,7 +102,7 @@ cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 ### Codex — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch github-release-guide/v0.8.2 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.agents/skills
 cp -R /tmp/skillstead/skills/github-release-guide ~/.agents/skills/
 ```
@@ -110,7 +110,7 @@ cp -R /tmp/skillstead/skills/github-release-guide ~/.agents/skills/
 ### Claude Code — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch github-release-guide/v0.8.2 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.claude\skills\"
 ```
@@ -118,7 +118,7 @@ Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$e
 ### Codex — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch github-release-guide/v0.8.2 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.agents\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.agents\skills\"
 ```
@@ -130,7 +130,7 @@ Run from the target repository root. Commit the copied folder if the team should
 ### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch github-release-guide/v0.8.2 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 ```
@@ -138,7 +138,7 @@ cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 ### Codex — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch github-release-guide/v0.8.2 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .agents/skills
 cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
 ```
@@ -148,14 +148,14 @@ cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
 Use `.claude\skills` for Claude Code or `.agents\skills` for Codex:
 
 ```powershell
-git clone --depth 1 --branch github-release-guide/v0.8.2 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force ".agents\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" ".agents\skills\"
 ```
 
 ## Use the latest development state for evaluation
 
-Omit `--branch github-release-guide/v0.8.2` to copy the current default branch. This is useful for evaluation, not reproducible
+Omit `--branch github-release-guide/v0.9.0` to copy the current default branch. This is useful for evaluation, not reproducible
 team installation. Pinned tags are recommended for teams and release evidence.
 
 ## Keep the complete package
