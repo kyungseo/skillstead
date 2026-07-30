@@ -6,7 +6,8 @@ Each skill in this catalog carries its own version. The catalog itself does not 
 
 If you install a skill, the version you care about is the one declared in that skill's `SKILL.md`, and
 the history you care about is that skill's own `CHANGELOG.md`. Releasing one skill does not renumber the
-others — the only shared surface a release touches is that skill's row in the root README catalog table.
+others. A release updates two shared repository surfaces: that skill's row in the root README catalog
+table and its entry in the root repository changelog.
 
 > **Using rather than maintaining Skillstead?** Choose the current pinned tag from the
 > [installation guide](./INSTALL.md). The remaining sections explain the release contract for maintainers.
@@ -32,10 +33,16 @@ namespaced baseline tags. Later releases change and publish only the affected sk
 | `skills/<name>/SKILL.md` → `metadata.version` | The declared version of the installed package |
 | `skills/<name>/CHANGELOG.md` | That skill's own history |
 | Root `README.md` / `README.ko.md` catalog table, `Version` column | The published current version of each skill |
+| Root `CHANGELOG.md` | Repository and catalog history, including each released skill/version pair |
 | Git tag `<name>/vX.Y.Z` | The exact commit a version was released from |
 
 The catalog table is the source of truth for "what is the current version of this skill". A release
-updates the package and that table together, so the two never drift apart.
+updates the package and that table together, so the two never drift apart. The root changelog records
+repository-wide context without replacing the detailed per-skill history.
+
+M1 requires every current pair to appear in a root changelog bullet beginning exactly
+`- \`<name>\` \`X.Y.Z\``. The remainder of the bullet is free-form, and the check does not interpret
+the date section or description.
 
 ## Changelog heading grammar
 

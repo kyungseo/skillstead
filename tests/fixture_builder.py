@@ -44,6 +44,32 @@ def _catalog(header: str, rows: dict[str, str]) -> str:
     return "# Fixture catalog\n\n" + "\n".join(lines) + "\n"
 
 
+def _root_changelog(rows: dict[str, str]) -> str:
+    lines = [
+        "# Changelog",
+        "",
+        "## 2026-07-24",
+        "",
+        "### Skills",
+        "",
+    ]
+    for name, version in sorted(rows.items()):
+        lines.append(f"- `{name}` `{version}` — Fixture release.")
+    return "\n".join(lines) + "\n"
+
+
+def record_root_release(root: Path, name: str, version: str) -> None:
+    """Add a current pair to the fixture repository history."""
+    path = root / "CHANGELOG.md"
+    marker = "### Skills\n\n"
+    text = path.read_text(encoding="utf-8")
+    if marker not in text:
+        raise ValueError("fixture root CHANGELOG has no Skills section")
+    path.write_text(
+        text.replace(marker, marker + f"- `{name}` `{version}` — Fixture release.\n", 1),
+        encoding="utf-8")
+
+
 def build_valid_repo(root: Path, skills: dict[str, str] | None = None) -> Path:
     """Create a valid fixture repo at ``root``; returns ``root``."""
     skills = skills or {"alpha-skill": "1.2.3", "beta-skill": "0.4.0"}
@@ -51,6 +77,7 @@ def build_valid_repo(root: Path, skills: dict[str, str] | None = None) -> Path:
     (root / "LICENSE").write_text(LICENSE_TEXT, encoding="utf-8")
     (root / "README.md").write_text(_catalog(EN_HEADER, skills), encoding="utf-8")
     (root / "README.ko.md").write_text(_catalog(KO_HEADER, skills), encoding="utf-8")
+    (root / "CHANGELOG.md").write_text(_root_changelog(skills), encoding="utf-8")
     for name, version in skills.items():
         pkg = root / "skills" / name
         pkg.mkdir(parents=True)

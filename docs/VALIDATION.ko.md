@@ -16,7 +16,7 @@
 
 | Mode | 내용 | 실행 시점 | 명령 |
 | --- | --- | --- | --- |
-| M1 | 저장소 검증 — package 구조, `metadata.version` ↔ CHANGELOG(I-1), 카탈로그 `Version` 열(I-7), package 완전성(I-9), 라이선스 사본 바이트 일치, active identity 예약어 | 모든 PR, `main` push, 매일 schedule | `PYTHONPATH=tools python3 -m skillstead_validate repo` |
+| M1 | 저장소 검증 — package 구조, `metadata.version` ↔ 스킬별 CHANGELOG 일치와 루트 CHANGELOG의 현재 버전 수록 여부(I-1), 카탈로그 `Version` 열(I-7), package 완전성(I-9), 라이선스 사본 바이트 일치, active identity 예약어 | 모든 PR, `main` push, 매일 schedule | `PYTHONPATH=tools python3 -m skillstead_validate repo` |
 | M2 | 릴리스 preflight와 tag 생성 — 통상 payload diff gate와 exact-record baseline 분기, bump 단계 검사(I-6), inventory·retirement 보호(I-10), major transition 승인, 신규 skill 최초 릴리스, tag 고유성 | 릴리스 제안 시. dry-run 가능 | `… preflight --plan PLAN.json` / `… apply-tags --plan PLAN.json` (`git push --atomic`으로 remote에 발행. push 실패 시 local ref rollback) |
 | M3 | tag·retirement history 지속 검사 — 모든 namespaced tag의 I-2·I-5·I-8, durable expected-target 관계, retirement record 지속성과 identity 재활성화를 매 실행 검사 | 모든 PR, push, tag 생성/삭제, 매일 schedule | `… tags --main-ref origin/main` |
 | M4 | cutover verdict — cutover record·INSTALL pin·baseline ref·GitHub Releases에 대한 ordered evaluator | CI 상시 + 모든 릴리스 작업 전후 | `… cutover --live --repo-slug OWNER/REPO` |

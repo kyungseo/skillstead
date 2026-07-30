@@ -14,6 +14,7 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from fixture_builder import record_root_release  # noqa: E402
 from git_fixture import _git, build_unreleased_repo, commit_all  # noqa: E402
 from skillstead_validate import install_pins, record_schema  # noqa: E402
 from skillstead_validate.cutover import P3_MARKER  # noqa: E402
@@ -41,6 +42,7 @@ def _bump_beta(repo: Path, version: str) -> None:
         f = repo / fname
         f.write_text(f.read_text(encoding="utf-8").replace("`0.4.0`", f"`{version}`"),
                      encoding="utf-8")
+    record_root_release(repo, "beta-skill", version)
 
 
 def request_json(**overrides) -> str:

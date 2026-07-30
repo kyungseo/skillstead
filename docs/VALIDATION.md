@@ -18,7 +18,7 @@ verdict, never a silent pass.
 
 | Mode | What | When it runs | Command |
 | --- | --- | --- | --- |
-| M1 | Repository validation — package structure, `metadata.version` ↔ CHANGELOG (I-1), catalog `Version` columns (I-7), package completeness (I-9), licence copy byte-equality, and reserved active identities | every PR, push to `main`, daily schedule | `PYTHONPATH=tools python3 -m skillstead_validate repo` |
+| M1 | Repository validation — package structure, `metadata.version` ↔ per-skill CHANGELOG and root CHANGELOG current-version coverage (I-1), catalog `Version` columns (I-7), package completeness (I-9), licence copy byte-equality, and reserved active identities | every PR, push to `main`, daily schedule | `PYTHONPATH=tools python3 -m skillstead_validate repo` |
 | M2 | Release preflight and tag creation — ordinary payload-diff gate plus the exact-record baseline branch, bump-step check (I-6), inventory/retirement guard (I-10), major-transition approval, new-skill initial release, tag uniqueness | invoked for a proposed release; dry-runnable | `… preflight --plan PLAN.json` / `… apply-tags --plan PLAN.json` (publishes to the remote with `git push --atomic`; a push failure rolls local refs back) |
 | M3 | Continuous tag and retirement-history checks — I-2, I-5, I-8, the durable expected-target relation for every namespaced tag, and retirement-record persistence/reactivation on every run | every PR, push, tag create/delete, daily schedule | `… tags --main-ref origin/main` |
 | M4 | Cutover verdict — the ordered evaluator over the cutover record, INSTALL pins, baseline refs, and GitHub Releases | CI runs + before/after every release operation | `… cutover --live --repo-slug OWNER/REPO` |
