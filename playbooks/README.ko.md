@@ -18,10 +18,17 @@ Git 이력은 가져오지 않았습니다. `recurring-release-protection-checkp
 이 저장소의 일반 pull request로 변경하며 [Apache-2.0](../LICENSE) 라이선스 범위에 포함됩니다.
 
 이 playbook은 범용 릴리스 절차의 최종 기준입니다.
-[`skills/github-release-guide`](../skills/github-release-guide)는 같은 규칙을 자체 패키지에 포함한
-설치형 대응 문서입니다. 두 문서의 내용이 다르면 이 playbook을 기준으로 판단합니다. 영문 문서가
-최종 기준이며 `.ko.md` 파일은 같은 내용을 담는 한국어 문서입니다. 의미가 달라지는 변경은 같은
-pull request에서 두 언어에 함께 반영합니다.
+[`skills/github-release-guide`](../skills/github-release-guide)는 자체 product behavior를 가진,
+독립 설치 가능한 operational projection입니다. Playbook은 수정 순서 gate가 아닙니다. Skill에서
+변경을 먼저 설계할 수 있지만, 공유하는 범용 mechanics는 이 playbook에도 반영해야 합니다.
+
+차이가 있으면 ownership에 따라 판정합니다. 범용 release mechanics는 playbook을 따릅니다.
+Assess/Guided state machine, readiness status, approval, refusal, handoff와 runtime output은 해당 차이와
+근거가 검토된 ownership 또는 disposition evidence에 intentional difference로 기록된 경우에만 skill을
+따릅니다. 기록되지 않은 차이는 의도된 예외가 아니라 drift이며 merge 또는 release 전에 해소해야 합니다.
+
+영문 문서가 최종 기준이며 `.ko.md` 파일은 같은 내용을 담는 한국어 문서입니다. 의미가 달라지는 변경은
+같은 pull request에서 두 언어에 함께 반영합니다.
 
 `skill-development/`는 작성·수명주기 규칙에 관한 최종 유지관리자 참고 문서입니다. 설치된 스킬이 이
 playbook에 의존하도록 만들지는 않습니다.
