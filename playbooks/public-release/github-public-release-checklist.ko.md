@@ -48,6 +48,27 @@ private repo를 public repo로 전환하기 전에 사용하는 체크리스트�
 - [ ] security fix 때문에 실행 환경의 최소 버전이 바뀌었다면 문서에도 반영했다.
 - [ ] accepted risk가 있으면 대상 repo에 기록했다.
 
+### Release Automation And Artifact Provenance Boundary
+
+- [ ] Workflow automation을 별도 판정한다. Release/tag event, artifact 생성·게시·서명 또는
+      release-critical elevated permission이면 `applicable`, 관찰된 workflow가 모두 해당하지 않으면
+      `out-of-scope`, automation 미사용이 확인되면 `not-applicable`, 확인 불가는 `Unknown`이다.
+- [ ] Artifact provenance를 별도 판정한다. Release가 artifact를 배포하거나 consumer claim이 의존하면
+      `applicable`, generated artifact를 배포하지 않으면 `not-applicable`, 확인 불가는 `Unknown`이다.
+- [ ] Manual 또는 producer-unknown artifact도 provenance 확인 대상일 수 있다. 한 axis에서 다른 axis를
+      추론하거나 repository code 실행 필요성을 workflow automation 적용 근거로 쓰지 않는다.
+- [ ] Static evidence로 workflow trigger trust, release permission, third-party action 또는 reusable
+      workflow reference와 release artifact의 target revision, producer, digest 또는 provenance를 확인한다.
+- [ ] Release-critical trust·provenance가 해소되지 않으면 `Blocked`, 비필수 gap은 explicit accepted risk가
+      필요한 `Needs attention`, 관측 불가는 unknown으로 유지한다.
+- [ ] 모든 repository에 full-SHA action reference, checksum, attestation 또는 SBOM을 요구하지 않는다.
+      Repository policy와 실제 release-critical consumer path에 따라 적용한다.
+- [ ] Read-only review라는 이유로 repository script, build, scanner 또는 workflow를 실행하지 않는다.
+      Exact command, trust boundary, 가능한 side effect와 evidence를 preview하고 별도 승인을 받는다.
+      거부하거나 실행할 수 없으면 unknown 또는 named blocker이며 pass가 아니다.
+- [ ] 상세 exploitability와 stack-specific security, privacy, compliance, supply-chain 분석은 qualified
+      human 또는 specialist에게 넘긴다. 이 static check는 workflow security audit가 아니다.
+
 ## 5. GitHub Settings Before Visibility Change
 
 - [ ] repository description이 정확하다.
@@ -198,9 +219,26 @@ GitHub Release를 publish하기 전에 타이틀과 notes를 준비한다.
 - [ ] known limitation이 있다면 솔직하게 표현한다.
 - [ ] 게시 채널과 타이밍을 정했다.
 
-## 12. Rollback And Incident Notes
+## 12. Published Object Corrections
 
-- [ ] repository를 다시 private으로 돌리는 방법을 알고 있다.
+- [ ] Consumer exposure와 platform mutability를 별도 축으로 판정한다. 삭제 가능한 object도 회수할 수는 없다.
+- [ ] 대상 Release object를 관측한다. Repository의 현재 설정만으로 과거 Release의 immutable 상태를
+      추론하지 않고, 관측할 수 없으면 unknown으로 기록한다.
+- [ ] Metadata edit, remote draft 삭제, published Release 삭제, asset 삭제·교체와 public→private access
+      withdrawal을 서로 다른 action으로 두고 영향과 검증을 각각 기록한다.
+- [ ] Remote draft를 삭제하기 전에 assets, notes와 누적 내용을 열거한다.
+- [ ] Published Release 삭제보다 supersede 또는 patch release를 우선한다. Immutable Release를 삭제하면
+      연결된 tag 이름을 repository 삭제·재생성 뒤에도 다시 사용할 수 없음을 고지한다.
+- [ ] Platform이 금지하는 immutable asset mutation을 제안하지 않는다.
+- [ ] Public·distributed 상태였거나 exposure 이력이 있거나 exposure가 unknown인 release tag는 이동,
+      overwrite, 삭제, 삭제 후 재생성 또는 이름 재사용하지 않는다. 새 tag와 release로 forward correction한다.
+- [ ] Public→private 변경은 content 회수가 아니라 access withdrawal로 취급하고, visibility 변경 직전에
+      별도의 명시적 비회수 acknowledgment를 받는다.
+
+## 13. Rollback And Incident Notes
+
+- [ ] repository를 다시 private으로 만들어 신규 public access를 끊는 방법을 알고 있다. 이미 복제된 content를
+      회수하는 것으로 표현하지 않는다.
 - [ ] secret이 노출됐다면 rotate 또는 revoke한다. visibility를 다시 private으로 바꾸는 것만으로는 충분하지 않다.
 - [ ] history에 민감정보가 있으면 history rewrite가 필요한지 판단한다.
 - [ ] incident note를 대상 repo 또는 private incident log에 남긴다.

@@ -19,7 +19,9 @@ source or release path conflicts or is unknown, keep Guided Blocked until the ow
 4. Check for an existing conflicting local or remote tag and verify the intended target commit/ref.
 5. Classify README, CHANGELOG, version source, install/setup docs, LICENSE, compatibility, migration guide,
    and release notes with `assessment.md`.
-6. Apply the selected claim-audit and language profiles.
+6. Apply the separate workflow-automation and artifact-provenance axes in `assessment.md`. Classify each axis
+   from its own evidence and do not infer one from the other.
+7. Apply the selected claim-audit and language profiles.
 
 ## Release surface protection
 
@@ -72,8 +74,19 @@ Follow the repository's branch flow and keep each shared approval unit separate:
 7. Publish the GitHub Release after its own preview, recheck, and approval.
 8. Verify the release object, install/quick-start path, public links, and repository-defined validation.
 
-Do not move or overwrite an existing remote tag silently. Treat tag correction as a post-release corrective
-mutation with a new assessment, explicit preview, and approval; explain downstream cache and consumer risk.
+For a remote tag that was public or distributed, has exposure history, or has unknown exposure, never move,
+overwrite, delete, delete and recreate, or reuse it. Keep Guided `Blocked` for that operation and hand it to
+a qualified human or specialist. Correct forward with a new tag and superseding or patch release.
+
+A remote tag confirmed to exist only on a limited remote surface with no public or distributed history may
+use the separate corrective-mutation gate in `assessment.md`. Reassess and preview the exact ref, old and new
+targets, downstream reachability, impact, verification, and failure state; then recheck and request explicit
+approval. A general release or correction approval never authorizes the tag operation.
+
+Classify Release metadata edits, draft deletion, published Release deletion, asset deletion/replacement, and
+access withdrawal separately with `assessment.md`. Prefer superseding or patching to deleting a published
+Release. If the target Release is immutable, disclose the permanent tag-name non-reuse consequence before
+any exact deletion preview and never offer a platform-blocked asset mutation.
 
 ## Completion evidence
 
@@ -84,6 +97,7 @@ Require observed evidence for:
 - Pinned install/clone instructions resolve
 - Release-critical compatibility/runtime/version claims match direct evidence
 - Public README, install, changelog, compare/detail links, and examples are accessible
-- Repository-defined test/build/validation passes or a named blocker remains
+- Repository-defined test/build/validation passes through observed evidence, or an explicit unknown or named
+  blocker remains when execution is declined or unavailable
 
 If any item is missing, report partial or Blocked rather than complete.

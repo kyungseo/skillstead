@@ -26,8 +26,10 @@ If any prerequisite is unavailable, perform only the possible partial Assess and
    disposition, and generated artifacts.
 4. Perform a best-effort sensitive-information and history-risk sweep. A clean scan is not proof that
    nothing sensitive exists.
-5. Review repository-defined dependency/test/build evidence and GitHub security alerts. Block unresolved
-   critical alerts; record unavailable features and accepted risks explicitly.
+5. Apply the separate workflow-automation and artifact-provenance axes in `assessment.md`. Classify each axis
+   from its own evidence and do not infer one from the other. Then review repository-defined
+   dependency/test/build evidence and GitHub security alerts.
+   Block unresolved critical alerts; record unavailable features and accepted risks explicitly.
 6. Review description, topics, About URL, feature toggles, merge methods, automatic branch deletion,
    rulesets/protection at the property level (including release-tag ruleset applicability for the planned
    release convention), bypass, security settings, and profile pinning intent.
@@ -51,6 +53,16 @@ Keep approval units separate and follow the shared state machine:
 9. Publish the GitHub Release only after a separate preview, recheck, and approval.
 10. Run post-public verification and record the observed evidence and accepted risks.
 
+Before visibility changes, a pushed tag may still be a `limited remote surface` only when evidence shows no
+public or distributed exposure. Any correction still needs its own exact preview, recheck, and approval.
+After visibility becomes public—or whenever prior exposure is unknown—do not move, overwrite, delete,
+delete and recreate, or reuse that tag; use a new tag and superseding release path or hand off to a
+qualified human or specialist.
+
+Treat a later public-to-private change as access withdrawal, not rollback. It requires its own visibility
+approval and a separate explicit non-recall acknowledgment immediately before mutation. It cannot recall
+clones, forks, caches, mirrors, downloaded assets, or earlier tag exposure.
+
 ## Post-public verification
 
 Verify directly where capability allows:
@@ -62,6 +74,7 @@ Verify directly where capability allows:
   ruleset state matching the planned release convention (or a recorded not-applicable disposition),
   long-lived branch deletion safety, vulnerability alerts, secret scanning, push protection, and open alerts
 - Tag target, GitHub Release title/notes, pinned install link, and any compare/detail links
+- Release-critical artifact origin or provenance evidence that the repository uses or claims
 
 Record settings that are unavailable because of plan, account, permission, or policy, with a reason and
 revisit trigger.

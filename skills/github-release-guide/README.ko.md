@@ -73,10 +73,11 @@ Assess는 현재 접근할 수 있는 자료를 확인하고, 확인하지 못�
 | --- | --- | --- |
 | 인증 정보와 민감 정보 | 추적 중인 파일에 API 키, 토큰, 비밀번호와 비슷한 값이 있는지 확인 | 실제 인증 정보 값을 요구하거나 출력하지 않음 |
 | Git 이력 | 현재 파일에서 삭제됐지만 이전 커밋에 남아 있을 수 있는 민감 정보 | 가능한 범위에서 확인하며 전문적인 전체 이력 조사를 대신하지 않음 |
-| 개인 환경 흔적 | 개인 컴퓨터 경로, 사용자명, 이메일, 계정·조직 식별자 | 식별자가 있다는 이유만으로 비밀로 판정하지 않고 공개 의도를 확인 |
+| 개인 환경 흔적 | 개인 컴퓨터 경로, 사용자명, 이메일, 계정·조직 식별자 | 개인 정보의 full value를 반복하지 않고 위치·유형·masked reference를 사용하며 공개 의도는 별도로 확인 |
 | 내부 연결 정보 | localhost, 내부 서버 주소, 사설 네트워크 이름, 사내 도메인 | 존재만으로 릴리스를 막지 않고 공개 대상과 의도를 확인 |
 | 생성 파일과 메타데이터 | 빌드 결과물, 압축 파일, PDF·Office 파일, 이미지, 스크린샷과 포함된 메타데이터 | 현재 실행 환경에서 읽을 수 있는 형식과 내용만 확인 가능 |
 | 설정과 자동화 파일 | 환경 변수, 설정, CI와 배포 파일이 민감한 값을 포함하거나 참조하는지 확인 | 실제 값을 노출하지 않고 관련 파일과 위험만 확인 |
+| Release automation과 artifact origin | Release-adjacent workflow trigger, permission, 외부 reference, target revision과 사용 가능한 provenance | Static evidence만 확인하며 workflow security audit가 아니고 release-critical evidence를 확인할 수 없으면 unknown으로 유지 |
 | GitHub 보안 설정 | Secret scanning, push protection, 취약점 경고와 미해결 경고 상태 | 요금제, 권한과 조직 정책에 따라 확인하지 못할 수 있음 |
 
 점검 결과가 깨끗하다는 말은 확인한 범위에서 문제를 발견하지 못했다는 뜻입니다. 저장소에 민감 정보나 보안
@@ -101,10 +102,18 @@ Assess는 현재 접근할 수 있는 자료를 확인하고, 확인하지 못�
 ## 반드시 지키는 안전 원칙
 
 - 중요한 정보가 확인되지 않으면 중단 사유로 분명하게 알려주며, 성공한 것으로 추측하지 않습니다.
+- Read-only assessment는 repository script, build, scanner 또는 workflow 실행을 승인하지 않습니다.
+  Exact execution과 trust risk를 먼저 보여주고 별도로 승인받으며, 거부하거나 실행할 수 없는 evidence는
+  unknown으로 유지합니다.
 - 저장소에 영향을 주는 변경은 매번 내용과 영향을 먼저 보여주고 별도로 승인받습니다.
 - 변경 직전에 브랜치, 태그, 공개 상태 등 중요한 조건을 다시 확인합니다. 상태가 달라졌다면 이전 승인은
   무효가 되고 새 내용을 다시 보여줍니다.
 - 저장소 공개 전환은 설정 변경, 태그 생성, GitHub Release 공개와 한꺼번에 처리하지 않습니다.
+- Release metadata 수정, draft 삭제, published Release 삭제, asset 교체와 access withdrawal은 서로 다른
+  action으로 검토합니다. Object를 삭제해도 이미 내려받거나 mirror된 복사본은 회수되지 않습니다.
+- Public·distributed 상태로 노출됐거나 과거 exposure를 확인할 수 없는 release tag는 이동, overwrite,
+  삭제, 재생성 또는 재사용하지 않습니다. 새 tag와 supersede/patch release를 권하거나 자격 있는 사람이나
+  전문가에게 correction을 handoff합니다.
 - 변경이 실패하거나 일부만 성공하면 다음 변경으로 넘어가지 않고 중단합니다. 시도한 내용과 확인한
   로컬·원격 상태를 기록한 뒤, 다시 시도하기 전에 재점검하고 새로 승인받습니다.
 - 공개 노출이나 인증 정보 노출은 일반적인 되돌리기와 분리된 보안 사고로 다룹니다. 인증 정보가

@@ -77,10 +77,11 @@ become publicly accessible for the first time.
 | --- | --- | --- |
 | Credentials and secrets | API-key, token, password, and similar patterns in tracked files | It never asks for or prints the actual credential value |
 | Git history | Sensitive material that was deleted from current files but may remain in earlier commits | History review is best-effort, not exhaustive forensics |
-| Personal environment traces | Host-local paths, usernames, emails, and account or organization identifiers | An identifier is not automatically secret; public intent still needs context |
+| Personal environment traces | Host-local paths, usernames, emails, and account or organization identifiers | It uses a location, type, and masked reference rather than repeating a full personal value; public intent still needs context |
 | Internal connections | Localhost, internal server URLs, private network names, and company-only domains | Presence alone does not block release; the intended audience must be confirmed |
 | Generated files and metadata | Build outputs, archives, PDFs, Office files, images, screenshots, and embedded metadata | It checks only formats and content available to the current runtime |
 | Configuration and automation | Environment, config, CI, and deployment files that may expose or reference sensitive values | It inventories relevant files without dumping their values |
+| Release automation and artifact origin | Release-adjacent workflow triggers, permissions, external references, target revision, and available provenance | Static evidence only; this is not a workflow security audit, and unavailable release-critical evidence stays unknown |
 | GitHub security settings | Secret scanning, push protection, vulnerability alerts, and open alerts | Availability depends on plan, permission, and organization policy |
 
 A clean result means that no issue was found in the inspected scope. It does not prove that the repository has
@@ -105,9 +106,16 @@ Never provide a password, access token, or other credential value to the skill.
 ## Safety rules you can rely on
 
 - A missing critical fact stays visible as a blocker; the guide does not silently assume success.
+- Read-only assessment does not approve repository scripts, builds, scanners, or workflows. The guide previews
+  an exact execution and its trust risk, asks separately, and keeps declined or unavailable evidence unknown.
 - Every material change gets its own preview and approval.
 - The guide checks important state again immediately before a change. If it changed, the old approval is void.
 - Public visibility is never bundled with settings, tags, or GitHub Release publication.
+- Release metadata edits, draft deletion, published Release deletion, asset replacement, and access withdrawal
+  are reviewed as different actions. Deleting an object does not recall copies already downloaded or mirrored.
+- The guide does not move, overwrite, delete, recreate, or reuse a release tag after public/distributed exposure,
+  or when prior exposure is unknown. It recommends a new tag and superseding or patch release, or hands the
+  correction to a qualified human or specialist.
 - If a step fails or succeeds only in part, the guide stops before making another change. If credentials may
   have been exposed, it treats the situation as a security incident instead of merely undoing the last step.
 - The guide never force-pushes or rewrites published history.

@@ -18,6 +18,8 @@ Granular, per-change entries begin at the first public release. Earlier developm
 ### Skills
 
 - `docs-claim-check` `0.9.1` — first-use claim/evidence guidance and the current pinned-tag installation path.
+- `github-release-guide` `0.9.0` — release-object exposure and mutability boundaries, focused
+  release-automation and artifact-provenance applicability, and approval-gated repository-code execution.
 - `github-release-guide` `0.8.2` — first-use mode/profile guidance and distinct Korean recovery states.
 - `svg-infographic` `0.8.3` — first-use request guidance and canonical renderer clarification.
 - `writing-quality-editor` `0.10.1` — first-use input guidance and clearer read-only assessment requests.

@@ -455,7 +455,7 @@ class RealRepoInstallSurface(unittest.TestCase):
         self.assertFalse(any(inv.ambiguous for inv in inventories))
         self.assertTrue(all(
             pin == install_pins.Pin(
-                "github-release-guide/v0.8.2", "github-release-guide")
+                "github-release-guide/v0.9.0", "github-release-guide")
             for pin in inventories[0].pins))
         self.assertEqual(
             install_pins.classify(inventories[0], lambda _t: True),

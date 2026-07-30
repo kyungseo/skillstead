@@ -3,7 +3,7 @@ name: github-release-guide
 description: Assess and guide safer github.com repository releases. Use when an existing private GitHub repository becomes public for the first time, or whenever an already-public GitHub repository publishes a new version, and the user needs readiness checks, release-surface decisions, explicit mutation approvals, release notes, settings checks, or post-release verification. Supports read-only Assess and approval-gated Guided modes. Do not use for repository bootstrap, package registries, signing, cloud deployment, security audits, GitHub Enterprise, other providers, force-push, or history rewrite.
 license: LICENSE.txt
 metadata:
-  version: 0.8.2
+  version: 0.9.0
 ---
 
 # github-release-guide
@@ -57,9 +57,19 @@ authentication, SSO, permission, or organization-policy capability, collect only
 available. Return a partial Assess and block Guided. Repository creation, Git initialization, login,
 SSO authorization, and permission grants belong to the user or the relevant authority.
 
-Never request, print, copy, or store credential or token values.
+Never request, print, copy, or store full secret, credential, token, or PII values. Report only the
+location, type, impact, and a masked identifying reference when the owner needs to decide whether exposure
+was intended. This is output hygiene, not a promise to detect every form of PII or perform a privacy audit.
 
 ## Choose the mode
+
+In either mode, read-only repository state does not make repository-provided code safe to execute. Before
+running a repository script, build, scanner, or workflow, preview the exact command, why it is needed, the
+trust boundary and possible side effects, and the completion evidence; then request separate explicit
+approval. Host-level auto-approval or an execution allowlist does not replace this gate. Continue static
+inspection without execution where possible. If execution is declined or unavailable, report the affected
+validation as unknown or as a named blocker; never turn it into a pass. Execution approval authorizes only
+the previewed command and does not authorize a later repository mutation.
 
 ### Assess
 
@@ -104,8 +114,17 @@ that returning to private cannot recall clones, forks, caches, or copied content
 scans are best-effort rather than proof of no exposure. Require a separate explicit acknowledgment
 immediately before the visibility mutation.
 
+Before a public-to-private access withdrawal, explain that the change stops new public access but cannot
+recall clones, forks, caches, mirrors, downloads, or earlier tag exposure. Require a separate explicit
+non-recall acknowledgment immediately before that visibility mutation as well.
+
 Approval authorizes only the previewed unit and target. Silence, earlier plan approval, general release
 approval, or approval for a neighboring unit is not mutation approval.
+
+Host-level auto-approval, permission allowlists, and unattended execution do not replace this skill's
+preview, recheck, or approval units. Before any Release-object correction, classify consumer exposure,
+platform mutability, and the exact action with `references/assessment.md`; do not flatten metadata edits,
+draft deletion, published Release deletion, asset replacement, or access withdrawal into a generic update.
 
 ## Apply evidence and decision rules
 
@@ -138,7 +157,9 @@ After any mutation failure or partial success:
 - Reassess before retrying and require a new preview and approval.
 
 Never execute force-push or history rewrite. Explain why it is high risk and hand off to a qualified
-human or specialist. Never claim a security audit or code-quality verdict.
+human or specialist. Also never move, overwrite, delete, delete and recreate, or reuse a remote tag that
+was public or distributed, has exposure history, or has unknown exposure. Hand that operation to a
+qualified human or specialist instead. Never claim a security audit or code-quality verdict.
 
 ## Communicate for non-experts
 

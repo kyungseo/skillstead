@@ -49,6 +49,29 @@ Minimum bar:
 - [ ] Documentation reflects any runtime baseline change required by a security fix.
 - [ ] Accepted risk is recorded in the target repository.
 
+### Release Automation And Artifact Provenance Boundary
+
+- [ ] Classify workflow automation separately: `applicable` for a release/tag event, artifact
+      creation/publication/signing, or release-critical elevated permission; `out-of-scope` for an observed
+      workflow that meets none of them; `not-applicable` only when automation is confirmed absent; otherwise
+      `Unknown`.
+- [ ] Classify artifact provenance separately: `applicable` when a Release distributes an artifact or a
+      consumer claim depends on one; `not-applicable` when no generated artifact is distributed; otherwise
+      `Unknown`.
+- [ ] A manual or producer-unknown artifact may still need provenance review. Do not infer one axis from the
+      other or treat repository-code execution as proof that workflow automation applies.
+- [ ] Use static evidence to review workflow trigger trust, release permissions, third-party action or
+      reusable-workflow references, and release-artifact target revision, producer, digest, or provenance.
+- [ ] Keep an unresolved release-critical trust or provenance path `Blocked`; treat a noncritical gap as
+      `Needs attention` with an explicit accepted risk, and preserve an unavailable observation as unknown.
+- [ ] Do not require a full-SHA action reference, checksum, attestation, or SBOM for every repository. Apply
+      repository policy and the actual release-critical consumer path.
+- [ ] Do not execute a repository script, build, scanner, or workflow merely because the review is read-only.
+      Preview the exact command, trust boundary, possible side effects, and evidence, then obtain separate
+      approval. A refusal or unavailable capability remains unknown or a named blocker, never a pass.
+- [ ] Hand detailed exploitability and stack-specific security, privacy, compliance, or supply-chain analysis
+      to a qualified human or specialist. This static check is not a workflow security audit.
+
 ## 5. GitHub Settings Before The Visibility Change
 
 - [ ] The repository description is accurate.
@@ -205,9 +228,26 @@ them.
 - [ ] State known limitations honestly when relevant.
 - [ ] Choose the publication channel and timing.
 
-## 12. Rollback And Incident Notes
+## 12. Published Object Corrections
 
-- [ ] Know how to make the repository private again.
+- [ ] Classify consumer exposure separately from platform mutability. A deletable object is not recallable.
+- [ ] Observe the target Release object. Do not infer an older Release's immutable state only from the
+      repository's current setting; record an unavailable observation as unknown.
+- [ ] Keep metadata editing, remote draft deletion, published Release deletion, asset deletion/replacement, and
+      public-to-private access withdrawal as separate actions with separate impact and verification.
+- [ ] Before deleting a remote draft, list its assets, notes, and accumulated content.
+- [ ] Prefer a superseding or patch release to deleting a published Release. If an immutable Release is deleted,
+      disclose that its associated tag name can never be reused, even after deleting and recreating the repository.
+- [ ] Do not offer a platform-blocked immutable asset mutation.
+- [ ] Do not move, overwrite, delete, delete and recreate, or reuse a release tag that was public or distributed,
+      has exposure history, or has unknown exposure. Correct forward with a new tag and release.
+- [ ] Treat a public-to-private change as access withdrawal, not content recall, and require a separate explicit
+      non-recall acknowledgment immediately before the visibility change.
+
+## 13. Rollback And Incident Notes
+
+- [ ] Know how to withdraw new public access by making the repository private again, without describing it as
+      recall of content that was already copied.
 - [ ] Rotate or revoke any exposed secret. Making the repository private again is not sufficient.
 - [ ] Determine whether sensitive information in history requires a history rewrite.
 - [ ] Record an incident note in the target repository or a private incident log.
