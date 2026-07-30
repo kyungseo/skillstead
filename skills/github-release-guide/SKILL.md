@@ -104,8 +104,17 @@ that returning to private cannot recall clones, forks, caches, or copied content
 scans are best-effort rather than proof of no exposure. Require a separate explicit acknowledgment
 immediately before the visibility mutation.
 
+Before a public-to-private access withdrawal, explain that the change stops new public access but cannot
+recall clones, forks, caches, mirrors, downloads, or earlier tag exposure. Require a separate explicit
+non-recall acknowledgment immediately before that visibility mutation as well.
+
 Approval authorizes only the previewed unit and target. Silence, earlier plan approval, general release
 approval, or approval for a neighboring unit is not mutation approval.
+
+Host-level auto-approval, permission allowlists, and unattended execution do not replace this skill's
+preview, recheck, or approval units. Before any Release-object correction, classify consumer exposure,
+platform mutability, and the exact action with `references/assessment.md`; do not flatten metadata edits,
+draft deletion, published Release deletion, asset replacement, or access withdrawal into a generic update.
 
 ## Apply evidence and decision rules
 
@@ -138,7 +147,9 @@ After any mutation failure or partial success:
 - Reassess before retrying and require a new preview and approval.
 
 Never execute force-push or history rewrite. Explain why it is high risk and hand off to a qualified
-human or specialist. Never claim a security audit or code-quality verdict.
+human or specialist. Also never move, overwrite, delete, delete and recreate, or reuse a remote tag that
+was public or distributed, has exposure history, or has unknown exposure. Hand that operation to a
+qualified human or specialist instead. Never claim a security audit or code-quality verdict.
 
 ## Communicate for non-experts
 

@@ -108,6 +108,11 @@ Never provide a password, access token, or other credential value to the skill.
 - Every material change gets its own preview and approval.
 - The guide checks important state again immediately before a change. If it changed, the old approval is void.
 - Public visibility is never bundled with settings, tags, or GitHub Release publication.
+- Release metadata edits, draft deletion, published Release deletion, asset replacement, and access withdrawal
+  are reviewed as different actions. Deleting an object does not recall copies already downloaded or mirrored.
+- The guide does not move, overwrite, delete, recreate, or reuse a release tag after public/distributed exposure,
+  or when prior exposure is unknown. It recommends a new tag and superseding or patch release, or hands the
+  correction to a qualified human or specialist.
 - If a step fails or succeeds only in part, the guide stops before making another change. If credentials may
   have been exposed, it treats the situation as a security incident instead of merely undoing the last step.
 - The guide never force-pushes or rewrites published history.

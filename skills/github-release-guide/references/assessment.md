@@ -58,6 +58,45 @@ new ruleset or migrating from legacy protection, keep the overlap until the repl
 Never remove existing protection before the replacement is verified. A protection gap is never itself
 approval to mutate settings.
 
+## Release-object state and corrective mutation
+
+Classify state on two independent axes before previewing a Release-object correction:
+
+| Axis | States | Rule |
+| --- | --- | --- |
+| Consumer exposure | `local-only`, `limited remote surface`, `public or distributed`, `unknown` | Exposure history survives later deletion or access withdrawal. Current privacy does not prove that no consumer received the object. |
+| Platform mutability | `draft`, `published-mutable`, `published-immutable`, `unknown` | Observe the target Release object. Do not infer an older object's state only from the repository's current immutable-release setting. |
+
+Platform mutability never lowers the exposure duty: **deletable does not mean recallable**. If object-level
+mutability cannot be observed, report `unknown` and keep the warnings required by both mutable and immutable
+paths. Recheck the exact object, exposure evidence, associated tag, asset list, and available operation
+immediately before mutation.
+
+Apply readiness status consistently. When limited exposure and the exact object and action are already
+confirmed, and no other release-critical gap remains, use `Ready` for the next corrective preview. The normal
+need for preview, recheck, and approval does not by itself create `Needs attention`. Use `Needs attention`
+when an additional explicit decision, limitation, or accepted risk remains. A broad correction request with
+a confirmed repository but no exact Release object or action is therefore `Needs attention`, while mutation
+remains blocked and approval-ineligible until the user identifies both. Keep public-to-private access
+withdrawal `Blocked` until the separate non-recall acknowledgment is obtained.
+
+Keep these actions distinct:
+
+| Action | Required handling |
+| --- | --- |
+| Metadata edit | Preview the exact fields. On an immutable published Release, treat only an observed supported metadata operation, such as title or notes editing, as eligible; asset or tag mutation is not metadata editing. |
+| Remote draft deletion | Use a separate corrective-mutation unit. List the draft's assets, notes, accumulated content, and exact target before approval. |
+| Published Release deletion | Warn that downloads, caches, mirrors, and copied content cannot be recalled. Prefer superseding or patching the release. For an immutable Release, disclose that deletion permanently prevents reuse of the associated tag name, even if the repository is later deleted and recreated. |
+| Asset deletion or replacement | Treat as destructive for a published-mutable Release and explain downstream checksum and consumer impact. A platform-blocked immutable asset mutation is unsupported, not approval-eligible. |
+| Public-to-private access withdrawal | Use the separate visibility approval unit. Explain that it stops new public access but does not recall existing clones, forks, caches, mirrors, or downloads, and require a separate explicit non-recall acknowledgment immediately before mutation. |
+
+For a remote tag with public/distributed exposure, any exposure history, or unknown exposure, do not move,
+overwrite, delete, delete and recreate, or reuse the tag. Keep Guided `Blocked` for that operation and hand
+it to a qualified human or specialist. A tag confirmed to exist only on a limited remote surface with no
+public or distributed history may use a separate corrective-mutation gate: preview the exact ref and target,
+downstream reachability, action, impact, verification, and failure state; then recheck and request explicit
+approval. A broad request such as "fix the release" never identifies or approves a destructive action.
+
 ### Sensitive-information lane detail
 
 Use this table as the detailed contract. Inspect only available material and never expose a credential while

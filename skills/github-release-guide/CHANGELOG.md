@@ -11,6 +11,15 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [Unreleased]
+
+- Separated consumer exposure from platform mutability for Release-object corrections and made metadata edits,
+  draft deletion, published Release deletion, asset mutation, and access withdrawal distinct actions.
+- Refused move, overwrite, deletion, recreation, or reuse of public, distributed, exposure-history, or
+  exposure-unknown release tags while preserving an exact approval gate for confirmed limited-remote correction.
+- Added RO1–RO8 answer-key-blind Claude Code/Codex parity evidence, including immutable-release deletion,
+  forward correction, non-recall acknowledgment, and broad-request denial behavior.
+
 ## [0.8.2] — 2026-07-30
 
 - Added a first-use path for choosing `Assess` or `Guided`, selecting a release profile, and installing the

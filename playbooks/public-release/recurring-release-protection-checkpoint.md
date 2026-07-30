@@ -23,6 +23,8 @@ Run this checkpoint **before every version release**.
       requests are required, and required checks are configured when CI exists.
 - [ ] The release tag ruleset is active: updates and deletion of existing tags are blocked, tag creation remains
       allowed, and the administrative bypass is narrow. Follow `repo-settings-template.md`.
+- [ ] Existing public or distributed release tags are treated as published anchors. Correct forward with a new
+      tag and release; do not use an administrative bypass to move, overwrite, delete, recreate, or reuse them.
 - [ ] The ruleset pattern matches the actual release tag namespace. Compare it with the tag list for both missed
       matches and overreach.
 - [ ] Plan and permission constraints are known. As of 2026-07-17, rulesets and protected branches on private

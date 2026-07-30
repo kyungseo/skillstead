@@ -205,9 +205,26 @@ them.
 - [ ] State known limitations honestly when relevant.
 - [ ] Choose the publication channel and timing.
 
-## 12. Rollback And Incident Notes
+## 12. Published Object Corrections
 
-- [ ] Know how to make the repository private again.
+- [ ] Classify consumer exposure separately from platform mutability. A deletable object is not recallable.
+- [ ] Observe the target Release object. Do not infer an older Release's immutable state only from the
+      repository's current setting; record an unavailable observation as unknown.
+- [ ] Keep metadata editing, remote draft deletion, published Release deletion, asset deletion/replacement, and
+      public-to-private access withdrawal as separate actions with separate impact and verification.
+- [ ] Before deleting a remote draft, list its assets, notes, and accumulated content.
+- [ ] Prefer a superseding or patch release to deleting a published Release. If an immutable Release is deleted,
+      disclose that its associated tag name can never be reused, even after deleting and recreating the repository.
+- [ ] Do not offer a platform-blocked immutable asset mutation.
+- [ ] Do not move, overwrite, delete, delete and recreate, or reuse a release tag that was public or distributed,
+      has exposure history, or has unknown exposure. Correct forward with a new tag and release.
+- [ ] Treat a public-to-private change as access withdrawal, not content recall, and require a separate explicit
+      non-recall acknowledgment immediately before the visibility change.
+
+## 13. Rollback And Incident Notes
+
+- [ ] Know how to withdraw new public access by making the repository private again, without describing it as
+      recall of content that was already copied.
 - [ ] Rotate or revoke any exposed secret. Making the repository private again is not sufficient.
 - [ ] Determine whether sensitive information in history requires a history rewrite.
 - [ ] Record an incident note in the target repository or a private incident log.

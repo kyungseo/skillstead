@@ -105,6 +105,11 @@ Assess는 현재 접근할 수 있는 자료를 확인하고, 확인하지 못�
 - 변경 직전에 브랜치, 태그, 공개 상태 등 중요한 조건을 다시 확인합니다. 상태가 달라졌다면 이전 승인은
   무효가 되고 새 내용을 다시 보여줍니다.
 - 저장소 공개 전환은 설정 변경, 태그 생성, GitHub Release 공개와 한꺼번에 처리하지 않습니다.
+- Release metadata 수정, draft 삭제, published Release 삭제, asset 교체와 access withdrawal은 서로 다른
+  action으로 검토합니다. Object를 삭제해도 이미 내려받거나 mirror된 복사본은 회수되지 않습니다.
+- Public·distributed 상태로 노출됐거나 과거 exposure를 확인할 수 없는 release tag는 이동, overwrite,
+  삭제, 재생성 또는 재사용하지 않습니다. 새 tag와 supersede/patch release를 권하거나 자격 있는 사람이나
+  전문가에게 correction을 handoff합니다.
 - 변경이 실패하거나 일부만 성공하면 다음 변경으로 넘어가지 않고 중단합니다. 시도한 내용과 확인한
   로컬·원격 상태를 기록한 뒤, 다시 시도하기 전에 재점검하고 새로 승인받습니다.
 - 공개 노출이나 인증 정보 노출은 일반적인 되돌리기와 분리된 보안 사고로 다룹니다. 인증 정보가

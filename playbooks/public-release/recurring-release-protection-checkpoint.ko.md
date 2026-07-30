@@ -23,6 +23,8 @@ checkpoint다. 첫 공개 전환 시점(§8)에만 확인하고 끝내면 이후
       CI가 있으면 required checks).
 - [ ] release tag ruleset이 active다 (기존 tag update/deletion 차단, creation 비제한, narrow admin
       bypass — `repo-settings-template.ko.md` 기준).
+- [ ] 이미 public 또는 distributed 상태가 된 release tag는 published anchor로 취급한다. Admin bypass로
+      이동·overwrite·삭제·재생성·재사용하지 않고 새 tag와 release로 forward correction한다.
 - [ ] ruleset pattern이 실제 release tag namespace와 일치한다(tag 목록으로 누락과 과도 적용을 확인).
 - [ ] plan/permission 제약을 확인했다 (private repo의 rulesets·protected branches는
       Pro/Team/Enterprise 필요 — 2026-07-17 기준, `repo-settings-template.ko.md` 참조).

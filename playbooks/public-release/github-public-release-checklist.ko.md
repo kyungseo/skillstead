@@ -198,9 +198,26 @@ GitHub Release를 publish하기 전에 타이틀과 notes를 준비한다.
 - [ ] known limitation이 있다면 솔직하게 표현한다.
 - [ ] 게시 채널과 타이밍을 정했다.
 
-## 12. Rollback And Incident Notes
+## 12. Published Object Corrections
 
-- [ ] repository를 다시 private으로 돌리는 방법을 알고 있다.
+- [ ] Consumer exposure와 platform mutability를 별도 축으로 판정한다. 삭제 가능한 object도 회수할 수는 없다.
+- [ ] 대상 Release object를 관측한다. Repository의 현재 설정만으로 과거 Release의 immutable 상태를
+      추론하지 않고, 관측할 수 없으면 unknown으로 기록한다.
+- [ ] Metadata edit, remote draft 삭제, published Release 삭제, asset 삭제·교체와 public→private access
+      withdrawal을 서로 다른 action으로 두고 영향과 검증을 각각 기록한다.
+- [ ] Remote draft를 삭제하기 전에 assets, notes와 누적 내용을 열거한다.
+- [ ] Published Release 삭제보다 supersede 또는 patch release를 우선한다. Immutable Release를 삭제하면
+      연결된 tag 이름을 repository 삭제·재생성 뒤에도 다시 사용할 수 없음을 고지한다.
+- [ ] Platform이 금지하는 immutable asset mutation을 제안하지 않는다.
+- [ ] Public·distributed 상태였거나 exposure 이력이 있거나 exposure가 unknown인 release tag는 이동,
+      overwrite, 삭제, 삭제 후 재생성 또는 이름 재사용하지 않는다. 새 tag와 release로 forward correction한다.
+- [ ] Public→private 변경은 content 회수가 아니라 access withdrawal로 취급하고, visibility 변경 직전에
+      별도의 명시적 비회수 acknowledgment를 받는다.
+
+## 13. Rollback And Incident Notes
+
+- [ ] repository를 다시 private으로 만들어 신규 public access를 끊는 방법을 알고 있다. 이미 복제된 content를
+      회수하는 것으로 표현하지 않는다.
 - [ ] secret이 노출됐다면 rotate 또는 revoke한다. visibility를 다시 private으로 바꾸는 것만으로는 충분하지 않다.
 - [ ] history에 민감정보가 있으면 history rewrite가 필요한지 판단한다.
 - [ ] incident note를 대상 repo 또는 private incident log에 남긴다.
