@@ -4,6 +4,24 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## 2026-07-30
+
+### Repository
+
+- **User documentation path.** Added concise English and Korean entry points for choosing, installing, and
+  requesting a skill, then reorganized the catalog, installation, validation, versioning, playbook, and package
+  guides around the first-use path without changing the underlying contracts.
+- **Accuracy corrections.** Aligned support-state wording with the catalog, separated release failure recovery
+  states, and identified `scripts/render.mjs` as the canonical SVG renderer while keeping `render.sh` as its
+  optional Bash wrapper.
+
+### Skills
+
+- `docs-claim-check` `0.9.1` — first-use claim/evidence guidance and the current pinned-tag installation path.
+- `github-release-guide` `0.8.2` — first-use mode/profile guidance and distinct Korean recovery states.
+- `svg-infographic` `0.8.3` — first-use request guidance and canonical renderer clarification.
+- `writing-quality-editor` `0.10.1` — first-use input guidance and clearer read-only assessment requests.
+
 ## 2026-07-29
 
 ### Repository

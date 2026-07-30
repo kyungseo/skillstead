@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from unittest.mock import patch  # noqa: E402
 
+from fixture_builder import record_root_release  # noqa: E402
 from git_fixture import _git, build_released_repo, commit_all  # noqa: E402
 from skillstead_validate import record_schema  # noqa: E402
 from skillstead_validate.gitio import GitError  # noqa: E402
@@ -49,6 +50,7 @@ def _release_alpha(repo: Path, version: str, prev: str) -> str:
         f = repo / fname
         f.write_text(f.read_text(encoding="utf-8").replace(f"`{prev}`", f"`{version}`"),
                      encoding="utf-8")
+    record_root_release(repo, "alpha-skill", version)
     sha = commit_all(repo, f"release alpha {version}")
     _git(repo, "tag", f"alpha-skill/v{version}", sha)
     return sha
@@ -122,6 +124,7 @@ class TagCheckFixtures(unittest.TestCase):
                 f = self.repo / fname
                 f.write_text(f.read_text(encoding="utf-8").replace(f"`{prev}`", f"`{version}`"),
                              encoding="utf-8")
+            record_root_release(self.repo, skill, version)
         sha = commit_all(self.repo, "release alpha 1.3.0 + beta 0.5.0")
         _git(self.repo, "tag", "alpha-skill/v1.3.0", sha)
         _git(self.repo, "tag", "beta-skill/v0.5.0", sha)

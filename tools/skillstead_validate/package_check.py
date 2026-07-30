@@ -4,8 +4,9 @@ Runs against the working tree (M1) or a specific commit (shared with the M2
 release preflight — the release-gate axis of I-7·I-9 requires checking the
 release target, not the checkout). Covers what the pinned spec reference
 validator does not: license pointer resolution, license byte equality with
-the root LICENSE, SemVer form, I-1 CHANGELOG agreement, and the catalog
-Version columns. Every parse failure is itself a finding (fail-closed).
+the root LICENSE, SemVer form, I-1 per-skill CHANGELOG agreement and root
+CHANGELOG current-version coverage, and the catalog Version columns. Every
+parse failure is itself a finding (fail-closed).
 """
 
 from __future__ import annotations
@@ -22,6 +23,10 @@ from .frontmatter import FrontmatterError, parse_skill_frontmatter
 from .source import CommitSource, Source, WorktreeSource
 
 _SEMVER = re.compile(SEMVER_RE)
+
+
+def _root_changelog_prefix(name: str, version: str) -> str:
+    return f"- `{name}` `{version}`"
 
 
 def check_package(source: Source, name: str) -> tuple[list[Finding], str | None]:
@@ -78,6 +83,25 @@ def check_package(source: Source, name: str) -> tuple[list[Finding], str | None]
     return findings, version
 
 
+def check_root_changelog(
+        source: Source, versions: dict[str, str | None]) -> list[Finding]:
+    """I-1: root repository history records every current skill/version pair."""
+    text = source.read_text("CHANGELOG.md")
+    if text is None:
+        return [Finding("I-1", "CHANGELOG.md", "file missing")]
+    findings: list[Finding] = []
+    lines = set(text.splitlines())
+    for name, version in versions.items():
+        if version is None:
+            continue
+        prefix = _root_changelog_prefix(name, version)
+        if not any(line.startswith(prefix) for line in lines):
+            findings.append(Finding(
+                "I-1", "CHANGELOG.md",
+                f"{name}: current version {version} is not recorded with prefix {prefix!r}"))
+    return findings
+
+
 def check_catalog(source: Source, versions: dict[str, str | None]) -> list[Finding]:
     """I-7: both catalog tables cover the inventory with matching versions."""
     findings: list[Finding] = []
@@ -124,6 +148,7 @@ def run_validation(source: Source) -> list[Finding]:
         pkg_findings, version = check_package(source, name)
         findings.extend(pkg_findings)
         versions[name] = version
+    findings.extend(check_root_changelog(source, versions))
     findings.extend(check_catalog(source, versions))
     return findings
 

@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from git_fixture import (_git, add_bare_remote, build_released_repo,  # noqa: E402
                          build_unreleased_repo, commit_all, entry, plan_json)
+from fixture_builder import record_root_release  # noqa: E402
 from skillstead_validate import record_schema  # noqa: E402
 from skillstead_validate.release_gate import apply_tags, preflight  # noqa: E402
 from skillstead_validate.release_plan import PlanError, parse_plan  # noqa: E402
@@ -36,6 +37,7 @@ def _bump_alpha(repo: Path, version: str, *, adjustment: bool = False) -> None:
     for fname in ("README.md", "README.ko.md"):
         f = repo / fname
         f.write_text(f.read_text(encoding="utf-8").replace("`1.2.3`", f"`{version}`"), encoding="utf-8")
+    record_root_release(repo, "alpha-skill", version)
 
 
 def _write_major_record(
@@ -547,6 +549,7 @@ class BaselineReleaseFixtures(unittest.TestCase):
                     if skill in line else line
                     for line in lines) + "\n",
                 encoding="utf-8")
+        record_root_release(self.repo, skill, "0.8.1")
         commit_all(self.repo, "ordinary release after cutover")
 
         plan = parse_plan(plan_json("HEAD", [
@@ -624,6 +627,7 @@ class MR1Fixtures(unittest.TestCase):
                 f = self.repo / fname
                 f.write_text(f.read_text(encoding="utf-8").replace(f"`{prev}`", f"`{version}`"),
                              encoding="utf-8")
+            record_root_release(self.repo, skill, version)
         commit_all(self.repo, "dual release")
         add_bare_remote(self.repo)
         plan = parse_plan(plan_json("HEAD", [

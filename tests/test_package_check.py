@@ -15,7 +15,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from fixture_builder import build_valid_repo  # noqa: E402
+from fixture_builder import build_valid_repo, record_root_release  # noqa: E402
 from skillstead_validate.package_check import run_repo_validation  # noqa: E402
 
 
@@ -60,6 +60,39 @@ class PackageCheckFixtures(unittest.TestCase):
             changelog.read_text(encoding="utf-8").replace("[1.2.3]", "[9.9.9]"),
             encoding="utf-8")
         self.assertIn("I-1", self.checks())
+
+    def test_root_changelog_missing(self) -> None:
+        (self.repo / "CHANGELOG.md").unlink()
+        findings = run_repo_validation(self.repo)
+        self.assertIn(
+            "[I-1] CHANGELOG.md: file missing",
+            {str(finding) for finding in findings})
+
+    def test_root_changelog_current_pair_missing(self) -> None:
+        changelog = self.repo / "CHANGELOG.md"
+        changelog.write_text(
+            changelog.read_text(encoding="utf-8").replace(
+                "- `alpha-skill` `1.2.3` — Fixture release.\n", ""),
+            encoding="utf-8")
+        findings = run_repo_validation(self.repo)
+        self.assertTrue(any(
+            finding.check == "I-1"
+            and finding.subject == "CHANGELOG.md"
+            and "alpha-skill: current version 1.2.3" in finding.detail
+            for finding in findings))
+
+    def test_root_changelog_stale_version(self) -> None:
+        changelog = self.repo / "CHANGELOG.md"
+        changelog.write_text(
+            changelog.read_text(encoding="utf-8").replace(
+                "- `alpha-skill` `1.2.3`", "- `alpha-skill` `1.2.2`"),
+            encoding="utf-8")
+        findings = run_repo_validation(self.repo)
+        self.assertTrue(any(
+            finding.check == "I-1"
+            and finding.subject == "CHANGELOG.md"
+            and "alpha-skill: current version 1.2.3" in finding.detail
+            for finding in findings))
 
     # ④ 라이선스 사본 ↔ root LICENSE 바이트 불일치
     def test_license_byte_mismatch(self) -> None:
@@ -146,6 +179,7 @@ class PackageCheckFixtures(unittest.TestCase):
                     "Fixture | `0.1.0` | Claude Code | Beta |",
                     1),
                 encoding="utf-8")
+        record_root_release(self.repo, "example-skill", "0.1.0")
         self.assertEqual(run_repo_validation(self.repo), [])
 
 
