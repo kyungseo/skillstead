@@ -9,6 +9,16 @@ guide safer GitHub releases, and turn rough or translated text into natural, pre
 > **Skillstead = skill + homestead.** A small, durable place for skills that coding agents can carry into
 > real repositories. Each public support claim is tied to examples and runtime evidence.
 
+## Start here
+
+1. [Choose one skill](#choose-a-skill) for the task in front of you. Each skill works independently.
+2. Follow the [installation guide](./docs/INSTALL.md) to copy that skill's complete folder at a pinned version.
+3. Open the skill's README, copy a request that is close to your task, and adapt it to your material.
+4. Check the skill's stated limits before relying on the result in a release or other consequential workflow.
+
+Looking for a particular guide? The [documentation index](./docs/README.md) separates user guides from
+maintainer references.
+
 ## Highlights
 
 ### Explore the SVG gallery
@@ -32,10 +42,10 @@ required pipeline: start with the skill you need, skip the others, and recheck a
 
 | Skill | Best for | Version | Runtime support | Maturity |
 | --- | --- | --- | --- | --- |
-| [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | `0.8.2` | Supported: Claude Code + Codex | Stable |
-| [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | `0.9.0` | Claude Code | Beta |
-| [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | `0.8.1` | Supported: Claude Code + Codex | Stable |
-| [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | `0.10.0` | Supported: Claude Code + Codex | Beta |
+| [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | `0.8.3` | Supported: Claude Code + Codex | Stable |
+| [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | `0.9.1` | Claude Code | Beta |
+| [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | `0.8.2` | Supported: Claude Code + Codex | Stable |
+| [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | `0.10.1` | Supported: Claude Code + Codex | Beta |
 
 Each skill is self-contained and can be installed independently. You do not need to install the entire
 catalog—copy only the complete folder for the skill you want to use. See

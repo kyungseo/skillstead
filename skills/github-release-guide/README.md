@@ -10,6 +10,18 @@ undo once other people can clone or copy the repository.
 next. It can then guide the release one approved change at a time. You remain the release authority throughout
 the process.
 
+## Start here
+
+Choose two things:
+
+1. `Assess` if you want a read-only readiness report, or `Guided` if you may approve changes one at a time after
+   the assessment;
+2. `first-public` for an existing private repository's first public transition, or `version-release` for a new
+   version of an already-public repository.
+
+If you are unsure, ask for `Assess` and describe the release you are considering. The guide will keep missing
+information visible and will not change the repository.
+
 > **Runtime status:** Claude Code and Codex behavior match on clean synthetic fixtures, the disposable
 > first-public live E2E passed, and both runtimes discovered the complete pinned `v0.5.0` project package.
 > The final strict claim audit also passed, so public support is `Supported` within that recorded evidence scope.
@@ -148,3 +160,9 @@ force-push, or rewrite history.
 The installed folder includes this README, the agent instructions in `SKILL.md`, information shown in the Codex
 interface, and the rules for each release type. The synthetic examples and diagrams used for validation stay in
 the Skillstead repository rather than the installed skill folder.
+
+## Install
+
+Install the complete `skills/github-release-guide/` folder. See the
+[catalog-wide installation guide](https://github.com/kyungseo/skillstead/blob/main/docs/INSTALL.md) for the
+current pinned tag and runtime-specific paths.

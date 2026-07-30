@@ -7,6 +7,9 @@ This document describes the repository's validation toolchain under
 rules themselves live in [`VERSIONING.md`](./VERSIONING.md); this page covers
 how they are checked and how a release is executed.
 
+> **Maintainer reference:** You do not need this toolchain to install or use a skill. Start with the
+> [installation guide](./INSTALL.md) unless you are changing or releasing Skillstead itself.
+
 All judgment logic is Python 3.11+ standard library only and **fails
 closed**: anything the tools cannot parse or observe is a finding or a red
 verdict, never a silent pass.

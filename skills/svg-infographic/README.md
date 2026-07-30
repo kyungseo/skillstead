@@ -11,6 +11,19 @@ before any drawing), writes an editable SVG, runs a source lint that catches hig
 a crisp 2x PNG with a bundled render script that verifies the output dimensions. The goal is a first render that
 passes review, not a render-and-fix loop.
 
+## Quick Start
+
+Provide the subject, intended reader, main message, language, and any required output size. If you do not know
+the visual format, describe the relationship you need to explain and let the skill propose one.
+
+```text
+Use svg-infographic to turn this architecture note into an editable Korean technical diagram and a verified
+2× PNG. Before creating files, propose an output directory and tell me which defaults I can change.
+```
+
+The skill confirms the output location and adjustable defaults before writing files. The remaining sections
+explain the available diagram types, validation path, and environment requirements.
+
 ## Runtime Support
 
 **Supported: Claude Code + Codex.** Evidence covers the same frozen, fresh-context briefs on macOS and a fresh
@@ -36,9 +49,10 @@ The skill follows a fixed five-step workflow designed so the **first render pass
 4. **Author + source lint** — writes the SVG from the computed numbers, runs `scripts/check-svg.mjs` to catch
    broken references, implicit or extreme marker sizing, and high-confidence text overflow, then reviews any
    heuristic warnings instead of treating them as a pass.
-5. **Render + verify** — exports a 2× PNG via the bundled `scripts/render.sh`. The script runs the lint again before
-   opening a browser and verifies the PNG dimensions; the skill then reviews the pixels against a quality bar
-   (rendering, containment, message).
+5. **Render + verify** — exports a 2× PNG via the canonical `scripts/render.mjs`. The optional
+   `scripts/render.sh` Bash wrapper calls the same renderer. It runs the lint again before opening a browser and
+   verifies the PNG dimensions; the skill then reviews the pixels against a quality bar (rendering, containment,
+   message).
 
 You don't need to know any of this to use the skill — but it explains what the skill tells you at each step, and why the output tends to be right the first time.
 

@@ -6,6 +6,16 @@ Check whether the claims in public-facing documentation — README files, releas
 notes, install and usage docs — are actually supported by the evidence you provide:
 manifests, logs, tag lists, CI output, command output you ran yourself.
 
+## Start here
+
+Provide two things:
+
+1. the exact document or claims you want assessed;
+2. the evidence the assessment may use.
+
+Ask for findings only. The skill does not search for missing material, run verification commands, or rewrite the
+document. Its result states the reviewed scope first, then assigns one confidence label to each claim.
+
 The skill splits composite statements into atomic claims and walks each one through a
 fixed decision tree, producing exactly one confidence label per claim:
 
@@ -69,3 +79,9 @@ handle mixed or ambiguous requests.
 
 See [`examples/docs-claim-check`](https://github.com/kyungseo/skillstead/tree/main/examples/docs-claim-check) for a synthetic
 fixture set and a complete worked output.
+
+## Install
+
+Install the complete `skills/docs-claim-check/` folder. See the
+[catalog-wide installation guide](https://github.com/kyungseo/skillstead/blob/main/docs/INSTALL.md) for the
+current pinned tag and runtime-specific paths.

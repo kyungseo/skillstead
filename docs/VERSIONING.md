@@ -8,6 +8,9 @@ If you install a skill, the version you care about is the one declared in that s
 the history you care about is that skill's own `CHANGELOG.md`. Releasing one skill does not renumber the
 others — the only shared surface a release touches is that skill's row in the root README catalog table.
 
+> **Using rather than maintaining Skillstead?** Choose the current pinned tag from the
+> [installation guide](./INSTALL.md). The remaining sections explain the release contract for maintainers.
+
 ## Transition status
 
 **Per-skill versioning is now the active release model.**

@@ -11,6 +11,13 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [0.10.1] — 2026-07-30
+
+- Added a first-use path that asks for the source or reliable facts, intended reader, and protected meaning or
+  identifiers before writing.
+- Clarified how to request read-only `Assess` findings while keeping ordinary drafting, revision, and adaptation
+  usable without choosing a mode explicitly.
+
 ## [0.10.0] — 2026-07-29
 
 - Clarified what happens when the audience and the source register disagree. A draft carries what a document
