@@ -11,6 +11,13 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [0.8.2] — 2026-07-30
+
+- Added a first-use path for choosing `Assess` or `Guided`, selecting a release profile, and installing the
+  complete package from the current pinned tag.
+- Clarified the Korean safety guidance so mutation failure, partial success, and credential incidents remain
+  distinct recovery states.
+
 ## [0.8.1] — 2026-07-28
 
 - Added canonical-name and intent-only release examples that distinguish read-only readiness assessment from

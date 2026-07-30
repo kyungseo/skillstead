@@ -11,6 +11,12 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [0.9.1] — 2026-07-30
+
+- Added first-use guidance for supplying claim text and evidence, requesting findings only, and installing the
+  complete package from the current pinned tag.
+- Aligned the user guide with the contract term `confidence label`, using natural Korean in the companion README.
+
 ## [0.9.0] — 2026-07-28
 
 - Added a pre-tool missing-target branch that asks for the document or claim text without listing, searching,

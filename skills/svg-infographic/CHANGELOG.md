@@ -11,6 +11,13 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [0.8.3] — 2026-07-30
+
+- Added a first-use path with an example request, adjustable defaults, and a direct link to the catalog-wide
+  installation guide.
+- Clarified that `scripts/render.mjs` is the canonical renderer and `scripts/render.sh` is its optional Bash
+  wrapper.
+
 ## [0.8.2] — 2026-07-29
 
 - Corrected the package tree in `README.md` and `README.ko.md` to list every file the complete-folder

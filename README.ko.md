@@ -9,6 +9,17 @@
 > **Skillstead = skill + homestead.** 코딩 에이전트가 실제 저장소에서 사용할 수 있는 스킬을 모아 두는
 > 작은 도구 모음입니다. 각 스킬이 지원하는 실행 환경은 실제 검증 결과가 있을 때만 표시합니다.
 
+## 처음이라면 여기서 시작하세요
+
+1. 지금 하려는 일에 맞는 [스킬 하나를 선택합니다](#필요한-스킬을-선택하세요). 각 스킬은 독립적으로
+   사용할 수 있습니다.
+2. [설치 안내](./docs/INSTALL.ko.md)에 따라 선택한 버전의 스킬 폴더 전체를 복사합니다.
+3. 스킬별 README에서 내 작업과 가까운 요청 예시를 골라 가지고 있는 자료에 맞게 바꿉니다.
+4. 릴리스처럼 영향이 큰 작업에 결과를 사용하기 전에는 해당 스킬의 지원 범위와 제한을 확인합니다.
+
+특정 문서를 찾고 있다면 [문서 안내](./docs/README.ko.md)에서 사용자 문서와 유지관리자용 참고 문서를
+나누어 볼 수 있습니다.
+
 ## 하이라이트
 
 ### SVG 갤러리
@@ -33,10 +44,10 @@
 
 | 스킬 | 이런 작업에 적합 | 버전 | 지원 실행 환경 | 성숙도 |
 | --- | --- | --- | --- | --- |
-| [`svg-infographic`](./skills/svg-infographic) | 아키텍처 설명, 작업 흐름, 비교 자료를 수정 가능한 SVG와 검증된 2× PNG로 제작 | `0.8.2` | Supported: Claude Code + Codex | Stable |
-| [`docs-claim-check`](./skills/docs-claim-check) | 공개 문서의 주장이 제공된 근거로 뒷받침되는지 확인 | `0.9.0` | Claude Code | Beta |
-| [`github-release-guide`](./skills/github-release-guide) | 비공개 GitHub 저장소의 첫 공개 전환 또는 공개 후 매 버전 릴리스를 점검하고 단계별로 안내 | `0.8.1` | Supported: Claude Code + Codex | Stable |
-| [`writing-quality-editor`](./skills/writing-quality-editor) | 사용자 문서를 처음부터 작성하거나 자연스럽게 다듬고, 사실·의도·목소리·운영 제약을 보존하면서 영어↔한국어 내용을 재구성 | `0.10.0` | Supported: Claude Code + Codex | Beta |
+| [`svg-infographic`](./skills/svg-infographic) | 아키텍처 설명, 작업 흐름, 비교 자료를 수정 가능한 SVG와 검증된 2× PNG로 제작 | `0.8.3` | Supported: Claude Code + Codex | Stable |
+| [`docs-claim-check`](./skills/docs-claim-check) | 공개 문서의 주장이 제공된 근거로 뒷받침되는지 확인 | `0.9.1` | Claude Code | Beta |
+| [`github-release-guide`](./skills/github-release-guide) | 비공개 GitHub 저장소의 첫 공개 전환 또는 공개 후 매 버전 릴리스를 점검하고 단계별로 안내 | `0.8.2` | Supported: Claude Code + Codex | Stable |
+| [`writing-quality-editor`](./skills/writing-quality-editor) | 사용자 문서를 처음부터 작성하거나 자연스럽게 다듬고, 사실·의도·목소리·운영 제약을 보존하면서 영어↔한국어 내용을 재구성 | `0.10.1` | Supported: Claude Code + Codex | Beta |
 
 각 스킬은 필요한 파일을 모두 갖춘 독립 패키지입니다. 전체 목록을 설치할 필요 없이, 사용할 스킬의
 폴더만 통째로 복사하면 됩니다. 개인용·프로젝트용 설치 경로, 고정 버전 설치, 깨끗한 업데이트 방법,
@@ -46,7 +57,7 @@ Windows 명령과 실행 환경별 지원 상태는 [`docs/INSTALL.ko.md`](./doc
 위 표의 `버전`은 카탈로그 전체가 아니라 스킬별 버전입니다. 의미와 변경 방식은
 [`docs/VERSIONING.ko.md`](./docs/VERSIONING.ko.md)에서 확인할 수 있습니다.
 
-자연스러운 요청, `WQE` 줄임말, 여러 skill이 함께 필요한 요청의 예시는 repository 전용
+자연스러운 요청, `WQE` 줄임말, 여러 스킬이 함께 필요한 요청의 예시는 저장소 전용
 [`intent와 invocation 계약`](./examples/intent-invocation-contract/README.ko.md)에서 확인할 수 있습니다.
 
 GitHub의 **Latest** 배지는 가장 최근에 발행된 개별 스킬 릴리스를 가리킵니다. 카탈로그 버전을 뜻하지
@@ -124,18 +135,18 @@ V1은 두 시점에 사용할 수 있습니다. 비공개 github.com 저장소�
 - 자연스럽게 요청하는 예시: `이 README를 검토해 줘. 아직 문장은 수정하지 마.` · `아래 자료에서 확인할 수 있는 내용만 바탕으로 새 README를 작성해 줘.` · `이 영어 릴리스 노트를 한국어 독자가 자연스럽게 읽을 수 있도록 다시 써 줘. 의미와 조건은 바꾸지 마.`
 - 필요할 때만 mode를 지정하는 예시: `writing-quality-editor를 Assess mode로 사용해 이 릴리스 노트를 검토해 줘. 수정안은 작성하지 마.`
 
-## Playbooks (maintainer 참고 자료)
+## Playbook 모음 (유지관리자 참고 자료)
 
 [`playbooks/public-release`](./playbooks/public-release/README.ko.md)에는 비공개 저장소를 공개로 전환하고 이후를
 검증할 때 쓰는 범용 체크리스트와 템플릿이 있습니다. 설치형 스킬이 아니라 유지관리자용 참고 문서이며,
 어떤 스킬을 설치하더라도 이 파일들은 필요하지 않습니다.
-`github-release-guide` 스킬은 이 playbook의 규칙을 자체 패키지 안에도 포함합니다. English 문서를
+`github-release-guide` 스킬은 이 playbook의 규칙을 자체 패키지 안에도 포함합니다. 영문 문서를
 최종 기준으로 관리하며, `.ko.md` 파일은 같은 내용을 담는 한국어 문서입니다. 의미가 달라지는 수정은
 두 언어 문서에 같은 pull request로 반영합니다.
 
 [`playbooks/skill-development`](./playbooks/skill-development/README.ko.md)는 스킬을 설계하고 검증하며
-독립적으로 검토하고 릴리스·은퇴시키는 저장소 표준입니다. Package template은 예약 identity인
-`sample-skill`을 바꾸기 전에는 설치할 수 없도록 설계했습니다. Release gate가 집행하는 retirement와
+독립적으로 검토하고 릴리스하거나 지원을 종료하는 저장소 표준입니다. 패키지 템플릿은 예약 이름인
+`sample-skill`을 바꾸기 전에는 설치할 수 없도록 설계했습니다. 릴리스 검사가 집행하는 지원 종료와
 major transition 추적 증거 규격은 [`docs/VALIDATION.ko.md`](./docs/VALIDATION.ko.md)에 있습니다.
 
 ## 공개 스킬의 품질 기준
@@ -157,7 +168,7 @@ lint, 정확한 2× 브라우저 출력, 한국어/CJK 글자, 영역 포함 관
 Windows 11 ARM64 VM에서 시작한 새 Codex App 작업이 포함됩니다. 이 기록된 범위에서 Claude Code와
 Codex를 `Supported`로 표시합니다.
 
-`github-release-guide`는 Claude Code와 Codex의 핵심 행동 일치 검증, disposable 저장소의 실제 첫 공개
+`github-release-guide`는 Claude Code와 Codex의 핵심 행동 일치 검증, 일회용 저장소의 실제 첫 공개
 E2E, `v0.5.0` 고정 버전의 프로젝트 설치와 발견 확인과 최종 공개 문구 검증을 모두 통과했습니다.
 기록된 검증 범위에서 두 실행 환경을 모두 `Supported`로 표시합니다.
 

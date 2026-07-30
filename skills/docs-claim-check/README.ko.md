@@ -6,6 +6,17 @@
 뒷받침되는지 검토합니다. 확인할 수 있는 자료에는 manifest, 로그, 태그 목록, CI 출력,
 사용자가 직접 실행한 명령의 출력 등이 있습니다.
 
+## 처음 사용할 때 준비할 것
+
+다음 두 가지를 제공하세요.
+
+1. 검토할 문서 또는 주장 원문
+2. 검토에 사용할 수 있는 근거
+
+결과만 보고해 달라고 요청하면 됩니다. 이 스킬은 빠진 자료를 찾기 위해 저장소를 검색하거나 검증 명령을
+실행하지 않으며, 문서를 다시 쓰지도 않습니다. 결과는 먼저 검토 범위를 밝힌 뒤 각 주장에 신뢰도 표시
+하나를 부여합니다.
+
 여러 주장이 섞인 문장은 개별 주장으로 나누고, 각 주장을 정해진 판정 절차에 따라 검토해
 다음 상태 중 하나를 부여합니다.
 
@@ -60,9 +71,14 @@ docs-claim-check로 이 릴리스 노트의 주장을 제공한 태그 목록과
 주장 판정과 문장 수정을 함께 요청했다면 `docs-claim-check`가 먼저 판정을 담당합니다. 이 스킬은
 수정 문구를 만들지 않으며, 문장 수정은 별도 단계로 남습니다.
 
-여러 skill이 섞이거나 요청이 모호할 때 어떻게 처리하는지는 repository 전용
+여러 스킬이 섞이거나 요청이 모호할 때 어떻게 처리하는지는 저장소 전용
 [`intent와 invocation 계약`](../../examples/intent-invocation-contract/README.ko.md)의 예시에서
 확인할 수 있습니다.
 
 가상 검증 자료와 전체 판정 예시는
 [`examples/docs-claim-check`](https://github.com/kyungseo/skillstead/tree/main/examples/docs-claim-check)에서 확인할 수 있습니다.
+
+## 설치
+
+`skills/docs-claim-check/` 폴더 전체를 설치하세요. 현재 고정 태그와 실행 환경별 설치 경로는
+[전체 설치 안내](https://github.com/kyungseo/skillstead/blob/main/docs/INSTALL.ko.md)에서 확인할 수 있습니다.

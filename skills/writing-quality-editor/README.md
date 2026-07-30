@@ -9,6 +9,19 @@ Use `writing-quality-editor` for README files, onboarding, release notes, manual
 gallery copy. It can write a new document directly from a reliable brief, review existing prose, revise it in the
 same language, or adapt it naturally between English and Korean.
 
+## Start Here
+
+Name the skill and describe the result you want. Include the source text or reliable facts, the intended reader,
+and any meaning or identifiers that must not change.
+
+```text
+Use writing-quality-editor to make this installation guide easier for a first-time user to follow. Preserve
+every command, path, prerequisite, warning, and recovery step.
+```
+
+If you want findings without replacement text, say that explicitly. The skill will use its read-only `Assess`
+mode. You usually do not need to choose a mode for ordinary drafting, revision, or adaptation.
+
 ## Four Modes
 
 | Mode | Use it for | Mutation |
