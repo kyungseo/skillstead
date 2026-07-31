@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350" width="1080" height="1350" role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>삭제해도 공개된 Release는 회수되지 않습니다</title>
+  <desc>github-release-guide v0.9.0은 공개된 Release를 수정하거나 삭제하기 전에 소비자 노출과 플랫폼 수정 가능성을 따로 확인한다. 공개·배포됐거나 노출 이력이 있거나 확인할 수 없는 tag는 이동, 삭제, 재사용하지 않고 새 tag와 patch Release로 앞으로 수정하도록 안내한다. Assess는 읽기 전용으로 점검하고 Guided는 정확한 변경을 미리 보여준 뒤 사용자 승인과 상태 재확인을 거친다.</desc>
+  <style>
+    svg {
+      --bg:#08111F;
+      --panel:#101C2D;
+      --panel-2:#132238;
+      --ink:#F6F8FC;
+      --muted:#AAB8CB;
+      --line:#2A3A52;
+      --danger:#FF6B5E;
+      --danger-deep:#D94C43;
+      --danger-soft:#321D25;
+      --amber:#F6B94D;
+      --amber-soft:#2D2618;
+      --blue:#61A9FF;
+      --blue-soft:#152B46;
+      --teal:#49D3B2;
+      --teal-soft:#12352F;
+      --white:#FFFFFF;
+    }
+    .caps { letter-spacing:1.4px; }
+    .mono { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  </style>
+  <defs>
+    <linearGradient id="bgGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#152845"/>
+      <stop offset="0.48" stop-color="#08111F"/>
+      <stop offset="1" stop-color="#101B2D"/>
+    </linearGradient>
+    <linearGradient id="dangerGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF7C70"/>
+      <stop offset="1" stop-color="#D94C43"/>
+    </linearGradient>
+    <linearGradient id="safeGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#63E0C2"/>
+      <stop offset="1" stop-color="#2DA88E"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#000814" flood-opacity="0.38"/>
+    </filter>
+    <marker id="arrowSafe" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0 0L12 6L0 12Z" fill="#49D3B2"/>
+    </marker>
+    <symbol id="ic-trash" viewBox="0 0 32 32">
+      <path d="M8 10h16M12 10V7h8v3M10 10l1.2 16h9.6L22 10M14 14v8M18 14v8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ic-download" viewBox="0 0 32 32">
+      <path d="M16 5v14M10.5 14.5L16 20l5.5-5.5M7 24h18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ic-eye" viewBox="0 0 32 32">
+      <path d="M3.5 16s4.5-7 12.5-7 12.5 7 12.5 7-4.5 7-12.5 7S3.5 16 3.5 16Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+      <circle cx="16" cy="16" r="3.8" fill="none" stroke="currentColor" stroke-width="2.2"/>
+    </symbol>
+    <symbol id="ic-lock" viewBox="0 0 32 32">
+      <rect x="7" y="14" width="18" height="13" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/>
+      <path d="M11 14V10a5 5 0 0 1 10 0v4M16 19v3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="ic-shield" viewBox="0 0 32 32">
+      <path d="M16 4l10 4v7c0 6.4-4.1 10.6-10 13-5.9-2.4-10-6.6-10-13V8Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+      <path d="M11.5 16l3 3 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ic-search" viewBox="0 0 32 32">
+      <circle cx="14" cy="14" r="8" fill="none" stroke="currentColor" stroke-width="2.2"/>
+      <path d="M20 20l7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+
+  <rect width="1080" height="1350" fill="url(#bgGlow)"/>
+  <circle cx="990" cy="58" r="190" fill="#1B3356" opacity="0.28"/>
+  <circle cx="65" cy="1290" r="210" fill="#153D3A" opacity="0.18"/>
+
+  <!-- identity -->
+  <rect x="68" y="54" width="294" height="44" rx="22" fill="#15253C" stroke="#30445F"/>
+  <circle cx="94" cy="76" r="6" fill="var(--teal)"/>
+  <text x="112" y="77" dominant-baseline="central" font-size="17" font-weight="700" fill="var(--ink)">github-release-guide</text>
+  <rect x="884" y="54" width="128" height="44" rx="22" fill="var(--blue-soft)" stroke="#315D8C"/>
+  <text x="948" y="77" dominant-baseline="central" text-anchor="middle" font-size="17" font-weight="760" fill="var(--blue)">v0.9.0</text>
+
+  <!-- headline -->
+  <text x="68" y="179" font-size="84" font-weight="820" fill="var(--ink)">삭제</text>
+  <text x="258" y="179" font-size="84" font-weight="820" fill="var(--danger)">≠</text>
+  <text x="350" y="179" font-size="84" font-weight="820" fill="var(--ink)">회수</text>
+  <text x="68" y="226" font-size="24" font-weight="560" fill="var(--muted)">공개된 Release를 건드리기 전, 한 번 더 멈춥니다</text>
+
+  <!-- delete does not recall -->
+  <g filter="url(#shadow)">
+    <rect x="68" y="276" width="944" height="216" rx="26" fill="var(--panel)" stroke="#31425B" stroke-width="2"/>
+    <rect x="94" y="302" width="194" height="164" rx="20" fill="url(#dangerGlow)"/>
+    <circle cx="191" cy="357" r="33" fill="#FFFFFF" opacity="0.16"/>
+    <use href="#ic-trash" x="173" y="339" width="36" height="36" style="color:var(--white)"/>
+    <text x="191" y="410" dominant-baseline="central" text-anchor="middle" font-size="24" font-weight="780" fill="var(--white)">Release 삭제</text>
+
+    <line x1="318" y1="384" x2="514" y2="384" stroke="#5E718A" stroke-width="3" stroke-dasharray="10 11"/>
+    <circle cx="416" cy="384" r="26" fill="var(--danger-soft)" stroke="var(--danger)" stroke-width="2"/>
+    <path d="M404 372l24 24M428 372l-24 24" stroke="var(--danger)" stroke-width="4" stroke-linecap="round"/>
+
+    <rect x="548" y="310" width="428" height="148" rx="18" fill="#0B1524" stroke="#293B54"/>
+    <circle cx="598" cy="359" r="26" fill="#162B45"/>
+    <use href="#ic-download" x="582" y="343" width="32" height="32" style="color:var(--blue)"/>
+    <text x="640" y="348" dominant-baseline="central" font-size="19" font-weight="720" fill="var(--ink)">이미 내려받은 복사본 · 캐시 · 미러</text>
+    <text x="640" y="390" dominant-baseline="central" font-size="18" fill="var(--muted)">삭제해도 복사본은 회수되지 않습니다</text>
+    <rect x="640" y="415" width="225" height="28" rx="14" fill="var(--danger-soft)"/>
+    <text x="752" y="430" dominant-baseline="central" text-anchor="middle" font-size="15" font-weight="760" fill="#FF9B91">노출 이력은 삭제되지 않음</text>
+  </g>
+
+  <!-- two-axis decision -->
+  <text x="68" y="558" font-size="20" font-weight="760" fill="var(--blue)" class="caps">먼저 두 가지를 따로 확인합니다</text>
+  <g>
+    <rect x="68" y="592" width="456" height="250" rx="24" fill="var(--panel-2)" stroke="#315D8C" stroke-width="2"/>
+    <circle cx="116" cy="640" r="25" fill="var(--blue-soft)"/>
+    <use href="#ic-eye" x="100" y="624" width="32" height="32" style="color:var(--blue)"/>
+    <text x="158" y="633" dominant-baseline="central" font-size="19" font-weight="760" fill="var(--blue)">01 · 소비자 노출</text>
+    <text x="98" y="693" font-size="27" font-weight="760" fill="var(--ink)">이미 누군가 받았는가?</text>
+    <g>
+      <rect x="98" y="725" width="96" height="36" rx="18" fill="#17283D"/><text x="146" y="744" dominant-baseline="central" text-anchor="middle" font-size="15" fill="#C5D2E2">limited</text>
+      <rect x="204" y="725" width="92" height="36" rx="18" fill="var(--danger-soft)"/><text x="250" y="744" dominant-baseline="central" text-anchor="middle" font-size="15" fill="#FF9B91">public</text>
+      <rect x="306" y="725" width="102" height="36" rx="18" fill="var(--amber-soft)"/><text x="357" y="744" dominant-baseline="central" text-anchor="middle" font-size="15" fill="var(--amber)">unknown</text>
+    </g>
+    <text x="98" y="801" font-size="17" fill="var(--muted)">현재 비공개여도 과거 노출은 사라지지 않습니다</text>
+  </g>
+
+  <g>
+    <rect x="556" y="592" width="456" height="250" rx="24" fill="var(--panel-2)" stroke="#69562A" stroke-width="2"/>
+    <circle cx="604" cy="640" r="25" fill="var(--amber-soft)"/>
+    <use href="#ic-lock" x="588" y="624" width="32" height="32" style="color:var(--amber)"/>
+    <text x="646" y="633" dominant-baseline="central" font-size="19" font-weight="760" fill="var(--amber)">02 · 플랫폼 수정 가능성</text>
+    <text x="586" y="693" font-size="27" font-weight="760" fill="var(--ink)">지금 무엇을 바꿀 수 있는가?</text>
+    <g>
+      <rect x="586" y="725" width="74" height="36" rx="18" fill="#17283D"/><text x="623" y="744" dominant-baseline="central" text-anchor="middle" font-size="15" fill="#C5D2E2">draft</text>
+      <rect x="670" y="725" width="92" height="36" rx="18" fill="var(--blue-soft)"/><text x="716" y="744" dominant-baseline="central" text-anchor="middle" font-size="15" fill="var(--blue)">mutable</text>
+      <rect x="772" y="725" width="110" height="36" rx="18" fill="var(--amber-soft)"/><text x="827" y="744" dominant-baseline="central" text-anchor="middle" font-size="15" fill="var(--amber)">immutable</text>
+      <rect x="892" y="725" width="90" height="36" rx="18" fill="#3A2E1A"/><text x="937" y="744" dominant-baseline="central" text-anchor="middle" font-size="15" fill="#FFD180">unknown</text>
+    </g>
+    <text x="586" y="793" font-size="17" fill="var(--muted)">Immutable Release 삭제 → 연결된 tag 이름</text>
+    <text x="586" y="819" font-size="17" font-weight="700" fill="#FFD180">영구 재사용 불가</text>
+  </g>
+
+  <!-- forward correction -->
+  <rect x="68" y="882" width="944" height="190" rx="26" fill="#0D1B2A" stroke="#276C60" stroke-width="2"/>
+  <text x="100" y="924" font-size="18" font-weight="760" fill="var(--teal)" class="caps">공개·배포됐거나, 노출 이력이 있거나 불명이라면</text>
+  <rect x="100" y="952" width="348" height="78" rx="18" fill="var(--danger-soft)" stroke="#703B40"/>
+  <text x="274" y="980" dominant-baseline="central" text-anchor="middle" font-size="20" font-weight="760" fill="#FF9B91">기존 tag를 건드리지 않습니다</text>
+  <text x="274" y="1009" dominant-baseline="central" text-anchor="middle" font-size="16" fill="#DAB2B3">이동 · 삭제 · 재사용하지 않음</text>
+  <line x1="478" y1="991" x2="586" y2="991" stroke="var(--teal)" stroke-width="4" marker-end="url(#arrowSafe)"/>
+  <rect x="616" y="952" width="364" height="78" rx="18" fill="url(#safeGlow)"/>
+  <text x="798" y="980" dominant-baseline="central" text-anchor="middle" font-size="20" font-weight="800" fill="#06231D">새 tag + patch Release</text>
+  <text x="798" y="1009" dominant-baseline="central" text-anchor="middle" font-size="16" font-weight="650" fill="#0D4B3F">앞으로 수정하고 기존 이력을 보존</text>
+
+  <!-- operating guardrails -->
+  <g>
+    <rect x="68" y="1110" width="286" height="128" rx="20" fill="var(--blue-soft)" stroke="#315D8C"/>
+    <use href="#ic-search" x="92" y="1134" width="32" height="32" style="color:var(--blue)"/>
+    <text x="140" y="1150" dominant-baseline="central" font-size="20" font-weight="780" fill="var(--ink)">Assess</text>
+    <text x="92" y="1194" font-size="16" fill="#C7D5E6">읽기 전용 점검</text>
+    <text x="92" y="1218" font-size="16" fill="#C7D5E6">Unknown을 숨기지 않음</text>
+  </g>
+  <g>
+    <rect x="378" y="1110" width="286" height="128" rx="20" fill="var(--teal-soft)" stroke="#2D796A"/>
+    <use href="#ic-shield" x="402" y="1134" width="32" height="32" style="color:var(--teal)"/>
+    <text x="450" y="1150" dominant-baseline="central" font-size="20" font-weight="780" fill="var(--ink)">Guided</text>
+    <text x="402" y="1194" font-size="16" fill="#C7E7DF">정확한 변경을 먼저 제시</text>
+    <text x="402" y="1218" font-size="16" fill="#C7E7DF">개별 승인 · 실행 전 재확인</text>
+  </g>
+  <g>
+    <rect x="688" y="1110" width="324" height="128" rx="20" fill="var(--amber-soft)" stroke="#6B582F"/>
+    <text x="712" y="1148" font-size="18" font-weight="780" fill="var(--amber)">READ-ONLY ≠ EXECUTE</text>
+    <text x="712" y="1192" font-size="16" fill="#E4D5B5">script · build · scanner · workflow는</text>
+    <text x="712" y="1218" font-size="16" fill="#E4D5B5">별도 실행 미리보기와 승인 필요</text>
+  </g>
+
+  <!-- footer -->
+  <line x1="68" y1="1280" x2="1012" y2="1280" stroke="var(--line)"/>
+  <text x="68" y="1315" font-size="16" font-weight="680" fill="var(--muted)">Skillstead · github-release-guide</text>
+  <text x="1012" y="1315" text-anchor="end" font-size="16" fill="var(--muted)">결정권은 사용자에게 남습니다</text>
+</svg>
