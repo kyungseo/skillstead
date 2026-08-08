@@ -11,6 +11,9 @@ Granular, per-change entries begin at the first public release. Earlier developm
 - `svg-infographic` `0.9.0` — opt-in source layout contracts for panel headers, icon-text cards, and one-line or
   two-line page-title rails, with deterministic failures for provable geometry drift and warnings for unsupported
   source geometry.
+- `writing-quality-editor` `0.11.0` — local-first revision for wording and naturalness requests, smallest complete
+  span boundaries, ambiguity holds for discretion/approval/notification meaning, and proportional direct
+  short-text output. Important documents still require final delta review because agent output is non-deterministic.
 
 ## 2026-07-30
 
