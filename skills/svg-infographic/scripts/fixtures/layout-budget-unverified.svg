@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <title>Unverified layout budget fixture</title>
+  <desc>Unsupported geometry stays visible as warnings while explicit opt-outs and definitions stay quiet.</desc>
+  <rect width="1080" height="1350" fill="#f7f9fc"/>
+
+  <defs>
+    <g id="card-template" data-layout-role="icon-text-card" data-layout-center-y="100">
+      <rect data-layout-role="card-frame" width="300" height="200"/>
+      <circle data-layout-role="icon-center" cx="40" cy="20" r="20"/>
+      <text data-layout-role="card-title" x="80" y="180" font-size="18" dominant-baseline="middle">Definition only</text>
+    </g>
+  </defs>
+  <use href="#card-template" x="720" y="80"/>
+
+  <g transform="translate(40 40)" data-layout-role="panel-header" data-layout-top="0" data-layout-bottom="130" data-layout-gap="12" data-layout-padding-top="10" data-layout-padding-bottom="20">
+    <text data-layout-role="header-title" x="0" y="30" font-size="24">Unsupported baseline</text>
+    <text data-layout-role="header-subtitle" x="0" y="75" font-size="18" dominant-baseline="middle">Must warn</text>
+    <line data-layout-role="header-divider" x1="0" y1="110" x2="460" y2="110" stroke="#2374ab"/>
+  </g>
+
+  <g transform="rotate(2)" data-layout-role="icon-text-card" data-layout-center-y="100">
+    <rect data-layout-role="card-frame" x="40" y="220" width="300" height="200"/>
+    <circle data-layout-role="icon-center" cx="90" cy="320" r="20"/>
+    <text data-layout-role="card-title" x="130" y="320" font-size="18" dominant-baseline="middle">Rotated card</text>
+  </g>
+
+  <g transform="translate(400 220)" data-layout-role="icon-text-card" data-layout-center-y="100" data-layout-center-tolerance="999">
+    <rect data-layout-role="card-frame" width="300" height="200"/>
+    <circle data-layout-role="icon-center" cx="50" cy="20" r="20"/>
+    <text data-layout-role="card-title" x="95" y="180" font-size="18" dominant-baseline="middle">Tolerance warning</text>
+  </g>
+
+  <g transform="translate(40 500)" data-layout-role="panel-header" data-layout-top="0" data-layout-bottom="500" data-layout-gap="12" data-layout-padding-top="10" data-layout-padding-bottom="20">
+    <text data-layout-role="header-title" x="0" y="30" font-size="24" dominant-baseline="middle">Oversized budget</text>
+    <text data-layout-role="header-subtitle" x="0" y="75" font-size="18" dominant-baseline="middle">Must warn</text>
+    <line data-layout-role="header-divider" x1="0" y1="110" x2="460" y2="110" stroke="#2374ab"/>
+  </g>
+
+  <g transform="translate(40 760)" data-layout-role="icon-text-card" data-layout-center-y="100">
+    <rect data-layout-role="card-frame" y="10%" width="300" height="200"/>
+    <circle data-layout-role="icon-center" cx="50" cy="100" r="20"/>
+    <text data-layout-role="card-title" x="95" y="100" font-size="18" dominant-baseline="middle">Relative frame position</text>
+  </g>
+
+  <g transform="translate(560 500)" data-layout-role="icon-text-card" data-lint-allow="layout-geometry">
+    <circle data-layout-role="icon-center" cx="50" cy="20" r="20"/>
+  </g>
+</svg>

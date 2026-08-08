@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 500" width="1080" height="500" role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>Invalid fixed-height and subtitle-intruding page title rails</title>
+  <desc>Synthetic negative fixture for page title rail geometry.</desc>
+  <rect width="1080" height="500" fill="#fff"/>
+  <g data-layout-role="page-title-header" data-layout-rail-padding-top="12" data-layout-rail-padding-bottom="0" data-layout-subtitle-gap="16">
+    <rect data-layout-role="title-rail" x="40" y="40" width="6" height="93" rx="3" fill="#1F6FB2"/>
+    <text data-layout-role="title-eyebrow" x="68" y="60" font-size="16" dominant-baseline="middle">SKILL · FIXED HEIGHT</text>
+    <text data-layout-role="title-line" x="68" y="110" font-size="46" dominant-baseline="middle">첫 번째 제목 줄</text>
+    <text data-layout-role="title-line" x="68" y="162" font-size="46" dominant-baseline="middle">두 번째 제목 줄</text>
+    <text data-layout-role="title-subtitle" x="68" y="216" font-size="18" dominant-baseline="middle">rail이 마지막 제목 줄보다 짧다</text>
+  </g>
+  <g data-layout-role="page-title-header" data-layout-rail-padding-top="12" data-layout-rail-padding-bottom="24" data-layout-subtitle-gap="16">
+    <rect data-layout-role="title-rail" x="40" y="270" width="6" height="117" rx="3" fill="#B86B18"/>
+    <text data-layout-role="title-eyebrow" x="68" y="290" font-size="16" dominant-baseline="middle">SKILL · SUBTITLE</text>
+    <text data-layout-role="title-line" x="68" y="340" font-size="46" dominant-baseline="middle">한 줄 제목</text>
+    <text data-layout-role="title-subtitle" x="68" y="392" font-size="18" dominant-baseline="middle">rail이 설명 여백을 침범한다</text>
+  </g>
+</svg>

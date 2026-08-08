@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 500" width="1080" height="500" role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>Valid one-line and two-line page title rails</title>
+  <desc>Synthetic fixture proving that the accent rail follows the final title line.</desc>
+  <rect width="1080" height="500" fill="#fff"/>
+  <g data-layout-role="page-title-header" data-layout-rail-padding-top="12" data-layout-rail-padding-bottom="0" data-layout-subtitle-gap="16">
+    <rect data-layout-role="title-rail" x="40" y="40" width="6" height="93" rx="3" fill="#1F6FB2"/>
+    <text data-layout-role="title-eyebrow" x="68" y="60" font-size="16" dominant-baseline="middle">SKILL · ONE LINE</text>
+    <text data-layout-role="title-line" x="68" y="110" font-size="46" dominant-baseline="middle">한 줄 제목</text>
+    <text data-layout-role="title-subtitle" x="68" y="164" font-size="18" dominant-baseline="middle">한 줄 설명</text>
+  </g>
+  <g data-layout-role="page-title-header" data-layout-rail-padding-top="12" data-layout-rail-padding-bottom="0" data-layout-subtitle-gap="16">
+    <rect data-layout-role="title-rail" x="40" y="250" width="6" height="145" rx="3" fill="#0F7A5F"/>
+    <text data-layout-role="title-eyebrow" x="68" y="270" font-size="16" dominant-baseline="middle">SKILL · TWO LINES</text>
+    <text data-layout-role="title-line" x="68" y="320" font-size="46" dominant-baseline="middle">두 줄 제목은</text>
+    <text data-layout-role="title-line" x="68" y="372" font-size="46" dominant-baseline="middle">rail도 함께 늘어난다</text>
+    <text data-layout-role="title-subtitle" x="68" y="426" font-size="18" dominant-baseline="middle">마지막 제목 줄에서 계산한 설명</text>
+  </g>
+</svg>

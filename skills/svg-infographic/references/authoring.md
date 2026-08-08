@@ -5,6 +5,25 @@ Detailed geometry, connector, panel, emphasis, color, and icon rules, plus the m
 ## 1. Geometry & containment
 
 - **Containment is arithmetic, not eyeballing.** Every child (card, icon, arrow, badge, label) sits inside its container/panel bounds **plus inner padding**, unless it is a deliberate outside-the-frame callout. For a row of repeated cards, compute the last card's far edge as `start + (n−1)·(cardW+gap) + cardW` and confirm it is `≤ container_edge − padding`; same for a column's bottom edge. If a row won't fit, shrink `cardW`/`gap`, wrap to a second row, or widen the canvas.
+- **Page-title accent rail follows the title stack.** Never copy a fixed rail height from a one-line title into a two-line title. With centered-baseline text, compute `eyebrowTop = eyebrowY − eyebrowFontSize/2`, `titleBottom = max(titleLineY + titleFontSize/2)`, `railY = eyebrowTop − railTopPad`, and `railH = titleBottom + railBottomPad − railY`. Keep `subtitleTop − railBottom ≥ subtitleGap`. For the premium one-line/two-line header, opt into the source check:
+
+```xml
+<g data-layout-role="page-title-header" data-layout-rail-padding-top="16"
+   data-layout-rail-padding-bottom="0" data-layout-subtitle-gap="12"
+   data-layout-tolerance="2">
+  <rect data-layout-role="title-rail" x="60" y="58" width="6" height="143" rx="3"/>
+  <text data-layout-role="title-eyebrow" x="88" y="82" font-size="16"
+    dominant-baseline="middle">SKILL · EXAMPLE</text>
+  <text data-layout-role="title-line" x="88" y="127" font-size="46"
+    dominant-baseline="middle">첫 번째 제목 줄</text>
+  <text data-layout-role="title-line" x="88" y="178" font-size="46"
+    dominant-baseline="middle">두 번째 제목 줄</text>
+  <text data-layout-role="title-subtitle" x="88" y="230" font-size="18"
+    dominant-baseline="middle">한 줄 설명</text>
+</g>
+```
+
+The contract accepts one or two **measurable visual title lines**, counted across `title-line` elements and their non-nested `<tspan>` lines. It requires plain numeric rail padding/gap, a positive-width rect rail, centered-baseline measurable text, and translate-only transforms. Optional `data-layout-tolerance` defaults to 2px and accepts 0–8px; an unsupported, negative, or larger value emits `W-LAYOUT` and falls back to 2px for the actual comparison. Unsupported units or typography become `W-LAYOUT`; a rail whose top/bottom does not match the stack or that enters the subtitle clearance becomes `E-LAYOUT`. The same source-coordinate limitation described in §4 applies, so verify the final rail and rendered glyphs in the 2× PNG.
 - **Containment is judged on visual bounds, not the fill rect.** A child's visual edge = its rect/path edge **plus** half its stroke width, the drop-shadow spread (conservative margin: `abs(offset) + ~3 × stdDeviation`), and anything drawn outside the base rect (badge, corner label, marker/arrowhead). Pass condition on every side: `child_visual_edge ≤ parent_edge − inner_padding`. In a padded panel, a child that merely *touches* the parent edge is a containment failure even though the coordinates read "inside" — and a generous shadow *filter region* says nothing about containment. Keep left/right inner padding balanced, and fix an overflow by recomputing card width, gutters, or position inside the current region before reaching for a wider canvas.
 - **Paired / side-by-side boxes:** always leave a **visible gutter of 24–32px**; never let two boxes touch. Balance the left/right outer margins.
 - **Generous margins; align to a grid; consistent gutters.** Pick the margin and gutter values once in the layout pass and reuse them everywhere.
@@ -52,6 +71,20 @@ Detailed geometry, connector, panel, emphasis, color, and icon rules, plus the m
 ## 4. Panels & header bands
 
 - **Header band on a rounded panel:** use a **top-only rounded** header — a `<path>` with rounded top corners and a square bottom edge (`M x+r,y H x+w-r A r r 0 0 1 x+w,y+r V y+h H x V y+r A r r 0 0 1 x+r,y Z`), or a header rect clipped to the panel. **Never stack a fully-rounded rect plus a square "cover" rect** — it smears the lower corners in the PNG.
+- **Budget title, subtitle, and divider as one vertical unit.** Compute `headerH = padTop + titleH + gap + subtitleH + padBottom`; the divider begins after `subtitleBottom + padBottom`, never through the subtitle's line box. For repeated panel headers, opt into the source check with plain numeric values and centered-baseline text:
+
+```xml
+<g data-layout-role="panel-header" data-layout-top="0" data-layout-bottom="132"
+   data-layout-gap="16" data-layout-padding-top="20" data-layout-padding-bottom="24">
+  <text data-layout-role="header-title" y="38" font-size="32" dominant-baseline="middle">…</text>
+  <text data-layout-role="header-subtitle" y="82" font-size="20" dominant-baseline="middle">…</text>
+  <line data-layout-role="header-divider" x1="0" y1="120" x2="936" y2="120"/>
+</g>
+```
+
+The contract accepts `translate()` but not rotate/scale/skew. It accumulates non-nested `<tspan>` lines with plain numeric `y`/`dy`; nested spans, relative units, and unsupported baselines become `W-LAYOUT`, not a silent pass. Divider bounds include half its stroke width. Keep `data-layout-bottom` close to the divider—more than the documented small slack produces a warning so downstream bands do not inherit accidental empty space. A reviewed exception may use `data-lint-allow="layout-geometry"`; record why the PNG check is sufficient.
+
+The line box is a **source-coordinate model**, not rendered ink measurement. `middle` and `central`, font fallback, and mixed CJK/Latin glyphs can look optically different even when their source boxes align. Final typography alignment remains part of the 2× PNG pass.
 - **Band containers** (premium base): light tinted fill, hairline border, `rx 14–22`; white content cards on top with a subtle `<filter>` drop shadow at low opacity. Keep shadows soft — a heavy shadow reads as clutter at 2×.
 
 ## 5. Emphasis & corner decorations
@@ -75,7 +108,21 @@ Detailed geometry, connector, panel, emphasis, color, and icon rules, plus the m
 Icon-first is the default: a simple **line icon inside a soft tinted circle** per card or node.
 
 - **Icon vs number:** a **number badge only when sequence or cross-reference matters** (numbered steps). When the icon alone identifies the item, use the icon only — never icon + redundant number.
-- **Placement:** icon circle `r≈34–38` with a light tint fill (`#E3EEF8`), the icon centered inside at ~40px via `<use>`. Derive the circle center from card geometry (`cy = card_y + card_h/2`) — never a hand-tuned per-language offset; EN and KO variants share the same formula.
+- **Placement:** icon circle `r≈34–38` with a light tint fill (`#E3EEF8`), the icon centered inside at ~40px via `<use>`. Derive both the circle center and the complete text cluster from card geometry (`centerY = card_y + card_h/2`) — never a hand-tuned per-language offset; EN and KO variants share the same formula. For repeated icon-text cards, annotate the card group with `data-layout-role="icon-text-card" data-layout-center-y="118"`; mark its actual background rect `card-frame`, the circle `icon-center`, and centered-baseline text lines `card-title` / `card-body`. The lint checks frame, icon, and the accumulated text cluster against the same target. The card-specific `data-layout-center-tolerance` defaults to 2px; keep explicit values in the reviewed 0–8px range. For backward compatibility, a larger value emits `W-LAYOUT` but remains the supplied comparison tolerance, unlike the page-title contract's 2px fallback. Treat that warning as unverified geometry requiring correction or explicit 2× PNG disposition, never as alignment proof.
+
+```xml
+<g data-layout-role="icon-text-card" data-layout-center-y="118">
+  <rect data-layout-role="card-frame" width="444" height="236" rx="24"/>
+  <circle data-layout-role="icon-center" cx="72" cy="118" r="28"/>
+  <text data-layout-role="card-title" y="94" font-size="24" dominant-baseline="middle">…</text>
+  <text data-layout-role="card-body" y="122" font-size="16" dominant-baseline="middle">
+    <tspan x="124" dy="0">…</tspan><tspan x="124" dy="24">…</tspan>
+  </text>
+</g>
+```
+
+The source-coordinate model limitation described in §4 also applies to card-center checks; confirm rendered ink and optical centering in the final 2× PNG.
+
 - **Recolor:** author each symbol with `stroke="currentColor"`; set the color per instance with `style="color:#…"` on the `<use>`.
 - **Style options to offer:** default = soft circular background + thin line icon. Alternatives: no background (line icon only), filled/solid icon, or mono. Stroke width ~1.7–1.9.
 

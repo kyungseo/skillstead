@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <title>Valid layout budget fixture</title>
+  <desc>Two panel headers and four icon-text cards share explicit vertical geometry.</desc>
+  <rect width="1080" height="1350" fill="#f7f9fc"/>
+
+  <g transform="translate(72 68)" data-layout-role="panel-header" data-layout-top="0" data-layout-bottom="132" data-layout-gap="16" data-layout-padding-top="20" data-layout-padding-bottom="24">
+    <text data-layout-role="header-title" x="0" y="38" font-size="32" dominant-baseline="middle">Layout budget</text>
+    <text data-layout-role="header-subtitle" x="0" y="82" font-size="20" dominant-baseline="middle">Define the vertical rhythm before rendering.</text>
+    <line data-layout-role="header-divider" x1="0" y1="120" x2="936" y2="120" stroke="#2374ab" stroke-width="2"/>
+  </g>
+
+  <g transform="translate(72 248)" data-layout-role="panel-header" data-layout-top="0" data-layout-bottom="132" data-layout-gap="16" data-layout-padding-top="20" data-layout-padding-bottom="24">
+    <text data-layout-role="header-title" x="0" y="38" font-size="32" dominant-baseline="middle">Shared center</text>
+    <text data-layout-role="header-subtitle" x="0" y="82" font-size="20" dominant-baseline="middle">Icon and copy derive from the same card geometry.</text>
+    <line data-layout-role="header-divider" x1="0" y1="120" x2="936" y2="120" stroke="#2374ab" stroke-width="2"/>
+  </g>
+
+  <g transform="translate(72 440)" data-layout-role="icon-text-card" data-layout-center-y="118" data-layout-center-tolerance="2">
+    <rect data-layout-role="card-frame" width="444" height="236" rx="24" fill="#ffffff" stroke="#b9c7d8"/>
+    <circle data-layout-role="icon-center" cx="72" cy="118" r="28" fill="#e7f2fa"/>
+    <text data-layout-role="card-title" x="124" y="106" font-size="24" font-weight="700" dominant-baseline="middle">Header budget</text>
+    <text data-layout-role="card-body" x="124" y="134" font-size="16" dominant-baseline="middle">Title, subtitle, divider</text>
+  </g>
+  <g transform="translate(564 440)" data-layout-role="icon-text-card" data-layout-center-y="118" data-layout-center-tolerance="2">
+    <rect data-layout-role="card-frame" width="444" height="236" rx="24" fill="#ffffff" stroke="#b9c7d8"/>
+    <circle data-layout-role="icon-center" cx="72" cy="118" r="28" fill="#e7f2fa"/>
+    <text data-layout-role="card-title" x="124" y="106" font-size="24" font-weight="700" dominant-baseline="middle">Text cluster</text>
+    <text data-layout-role="card-body" x="124" y="134" font-size="16" dominant-baseline="middle">One computed vertical center</text>
+  </g>
+  <g transform="translate(72 724)" data-layout-role="icon-text-card" data-layout-center-y="118" data-layout-center-tolerance="2">
+    <rect data-layout-role="card-frame" width="444" height="236" rx="24" fill="#ffffff" stroke="#b9c7d8"/>
+    <circle data-layout-role="icon-center" cx="72" cy="118" r="28" fill="#e7f2fa"/>
+    <text data-layout-role="card-title" x="124" y="106" font-size="24" font-weight="700" dominant-baseline="middle">Source check</text>
+    <text data-layout-role="card-body" x="124" y="134" font-size="16" dominant-baseline="middle">Fail before PNG rendering</text>
+  </g>
+  <g transform="translate(564 724)" data-layout-role="icon-text-card" data-layout-center-y="118" data-layout-center-tolerance="2">
+    <rect data-layout-role="card-frame" width="444" height="236" rx="24" fill="#ffffff" stroke="#b9c7d8"/>
+    <circle data-layout-role="icon-center" cx="72" cy="118" r="28" fill="#e7f2fa"/>
+    <text data-layout-role="card-title" x="124" y="106" font-size="24" font-weight="700" dominant-baseline="middle">Visual check</text>
+    <text data-layout-role="card-body" x="124" y="134" font-size="16" dominant-baseline="middle">Confirm the rendered result</text>
+  </g>
+</svg>
