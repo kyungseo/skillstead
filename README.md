@@ -121,12 +121,16 @@ Writing can start generic, over-structured, or translated sentence by sentence.
 improves existing prose so it reads like careful work by a skilled writer or editor while preserving facts, intent,
 author voice, commands, conditions, limitations, risks, and next actions.
 
+For wording and naturalness requests, it now starts with the smallest complete span that has a concrete reader
+problem and leaves the surrounding text unchanged. Ambiguous discretion, approval, or notification wording stays unchanged
+for human judgment while other safe edits continue.
+
 Its `Adapt` mode rewrites between English and Korean for the target-language reader instead of copying the source
 sentence structure. It may change information order, sentence rhythm, idioms, and explanation density, but it
 does not invent claims or hide ambiguity. AI-detector gaming and provenance concealment are explicit non-goals.
 
 - Friendly guide: [`writing-quality-editor` README](./skills/writing-quality-editor/README.md)
-- Validation material: [27 scenarios and a separate answer key](./examples/writing-quality-editor)
+- Validation material: [28 scenarios and a separate answer key](./examples/writing-quality-editor)
 - Name the skill: `Use writing-quality-editor to make the document below read naturally. Preserve its core facts, conditions, and requirements.`
 - Use the shorthand: `Use WQE to review this onboarding guide. Identify problems, but do not revise it yet.`
 - Or ask naturally: `Review this README. Do not revise the prose yet.` · `Write a new README using only information supported by the material below.` · `Rewrite this English release note so it reads naturally to Korean readers. Preserve its meaning and conditions.`
@@ -184,6 +188,9 @@ evidence scope; maturity remains Beta.
   it does not prove that the repository being assessed has no secrets, private information, or security risks.
 - `writing-quality-editor` is designed as locale-neutral, but its initial localization fixtures cover only
   English↔Korean (`ko-KR` for Korean output). Other locale pairs are not yet claimed as behaviorally validated.
+- Agent output is non-deterministic. `writing-quality-editor` defaults to local-first edits and holds ambiguous
+  wording for review, but it cannot guarantee that every run avoids preference-driven changes outside the marked
+  spans. Review the final delta before publishing or relying on an important document.
 
 ## License
 

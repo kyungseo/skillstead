@@ -30,6 +30,31 @@ over-editing and preference-driven churn.
 - Preserve a coherent author voice. Do not flatten everything into one neutral corporate tone.
 - Leave already-natural text alone unless a material improvement is available.
 
+For a local edit, judge the diff span by span and require a source-span → replacement → named-defect map. Use the
+smallest complete phrase, clause, or sentence that can be rewritten naturally; a malformed construction may need
+sentence-level recasting even when only one sentence is defective. Treat everything outside those spans, and every
+`needs-human` span, as locked. A punctuation, contraction, article, equivalent-word, specificity, or antecedent
+change outside the map is preference-driven churn even when the result is fluent. Require paragraph count and order
+to remain unchanged unless the structural-revise gate passed.
+
+#### Concrete phrasing without mechanical replacement
+
+Flag an abstract phrase only when it makes this audience translate the expression into an actor, action,
+condition, timing, or authority boundary before the sentence becomes usable. Quote that exact span and explain
+the reading cost. Prefer a concrete rewrite, but keep a vivid phrase that is immediately clear and carries the
+author's working voice.
+
+These are completed contrasts for three different claims, not interchangeable synonyms:
+
+| Intended boundary | Concrete Korean | Claim preserved |
+| --- | --- | --- |
+| Discretionary-change prohibition | “설정을 임의로 바꾸지 않는다.” | An operator may not change it at their own discretion |
+| Approval gate | “유지보수자 승인 없이 기본값을 바꾸지 않는다.” | Maintainer approval is required |
+| Notification promise | “사용자에게 알리지 않고 설정을 바꾸지 않는다.” | Users must be notified of the change |
+
+If the source says only “조용히 바꾸지 않는다” and context does not distinguish these meanings, return
+`needs-human`. Continue other safe local edits; fluency does not authorize the editor to select a governance rule.
+
 ### Plain-Language Accessibility
 
 - Lead with the conclusion, user value, or purpose before internal machinery.
@@ -37,6 +62,9 @@ over-editing and preference-driven churn.
   meaning from the sentence itself.
 - Preserve commands, paths, codes, status values, and product identities exactly.
 - Treat easy writing as information design, not information deletion.
+
+For a wording-level `Revise`, use conclusion-first as a diagnostic question, not as permission to reorder the
+source. The strategy gate in `SKILL.md` decides whether structural change is warranted.
 
 ### Argument And Information Flow
 

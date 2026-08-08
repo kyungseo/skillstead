@@ -44,6 +44,12 @@ and warns stays put. Where sentence-level edits leave the reader stuck — a war
 instruction, or the point buried three paragraphs down — `Revise` may also move paragraphs and sections, as long
 as it names the reader problem it is solving and leaves the rest alone.
 
+For wording, naturalness, and clarity requests, `Revise` starts locally when the paragraph and section order
+already works. It marks the smallest complete phrase, clause, or sentence with a specific reader problem and
+leaves the surrounding text unchanged. If a phrase could mean discretion, approval, or notification, the skill
+leaves that span unchanged under `Needs Human` and continues with other safe edits instead of choosing the most
+fluent interpretation silently. Structural revision remains a separate choice for a named structural problem.
+
 Both modes keep the author's voice: the warmth, directness, and rhythm the writing carries. A trait changes only
 when you ask for it or where it genuinely conflicts with the intended reader, and then only that trait.
 
@@ -85,6 +91,10 @@ add fake personal experience, or inject random and unusual wording.
 
 These are evidence-bounded claims. Other languages and profiles may still benefit, but they are not marked as
 validated.
+
+Agent output is non-deterministic. The local-first and ambiguity-hold defaults reduce unnecessary change, but they
+cannot guarantee that every run avoids preference-driven changes outside the marked spans. Review the final delta
+before publishing or relying on an important document.
 
 ## Example Prompts
 

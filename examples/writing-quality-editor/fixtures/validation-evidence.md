@@ -4,7 +4,7 @@ This ledger separates static contract review from fresh-context runtime behavior
 for Claude Code and Codex within the recorded evidence scope after pinned `v0.7.0` installation/discovery and the
 post-release claim closeout passed.
 
-## Static Contract Gate
+## Static Contract Gate Through F27
 
 | Check | Result |
 | --- | --- |
@@ -16,6 +16,48 @@ post-release claim closeout passed.
 | Whitespace validation | Pass: `git diff --check` |
 
 This gate verifies package consistency, not independent model behavior.
+
+## F28 Local-Naturalness Amendment — 2026-08-08 to 2026-08-09
+
+Status: static source and fixture consistency pass; fresh-context behavior partial, runtime gate open.
+
+- Added a local-first `Revise` default for wording-level requests and a sentence-level naturalness pass that
+  distinguishes concrete phrasing from structural rewriting.
+- Added contextual handling for `임의로`, `승인 없이`, and `알리지 않고`; the editor must preserve the supplied
+  policy, approval, or notification boundary instead of applying a mechanical replacement.
+- Added F28 as a Korean technical-guide fixture with A/B controlled variants under one scenario ID. The current
+  shape is 28 scenario headings, 27 Scenario Matrix rows for F01–F26 and F28, and one separate frozen-candidate
+  answer-key section for F27.
+- Repository validation passes: `python3 -m unittest discover -s tests` ran 178 tests, and
+  `PYTHONPATH=tools python3 -m skillstead_validate repo --repo-root .` returned 0 findings.
+- The generic `skill-creator` quick validator was rerun in an isolated PyYAML environment and returned
+  `Skill is valid!`; `git diff --check` also passes.
+- Do not extend the existing Claude Code or Codex runtime-support claim to F28 until isolated, answer-key-blind
+  executions pass on the intended runtimes.
+
+Fresh-context amendment evidence:
+
+- The initial five-scenario set passed `5/5` on Claude Code and `3/5` on Codex. Codex failed F25 local-edit
+  minimality and collapsed F28-A paragraph structure; F28-A passed one same-contract corrective rerun.
+- A Codex F27 diagnostic produced the expected independent verdicts and ranking, showing that the runtime can
+  distinguish meaning preservation from improved readability when judging frozen candidates.
+- The first remediation candidate added an exact-span edit map and removed an unintended pronoun ambiguity from
+  synthetic F25. Claude Code passed that F25, while Codex either rewrote outside the expected token-level fixes or
+  omitted the full change report. Review of those outputs showed that both checks were too mechanical for a direct
+  short-text request: the answer key rejected a natural sentence-level repair even when every other sentence and
+  claim survived, and the response contract made a report mandatory even when the usable text was sufficient.
+- The current candidate therefore maps the smallest complete phrase, clause, or sentence that can be rewritten
+  naturally and locks everything outside that span. Direct short-text revisions may return only the usable text
+  when no ambiguity or material interpretation change remains; longer, structural, file-based, and traceability
+  requests retain the full report. F25 now accepts a natural rewrite of its malformed installation sentence but
+  still rejects changes to the opening, the unaffected dashboard sentence, paragraph structure, or any invariant.
+- A corrected project-local targeted run of the current candidate produced three distinct results: Codex passed
+  F28-B; Codex failed F25 after replacing one locked span with an equivalent phrase; and Claude Code preserved the
+  F12 source but added a disproportionate report to the direct short-text response. A broader 10-run batch was not
+  promoted as current-candidate evidence because its Codex legs loaded a user-level installation instead of the
+  project-local candidate. No runtime-support claim has been promoted from these results.
+- Static checks for the current candidate remain green: repository unit tests `178/178`, repository validator
+  `0 finding(s)`, generic quick validator `Skill is valid!`, and `git diff --check` pass.
 
 ## Fresh-Context Executions
 
@@ -232,6 +274,9 @@ implicit Korean actors, Korean obligation strength, and user-approved enrichment
 For each run:
 
 - use one scenario in a fresh context with only the installed skill and that scenario;
+- for F28, supply only the selected variant and do not include runner-only instructions. Variant B must exclude
+  Variant A's heading and additional protected meaning; preserve the exact prompt delivered to the agent with the
+  raw evidence;
 - keep `expected-outcomes.md` unavailable to the agent under evaluation;
 - record runtime, observed model, reasoning effort when known, isolation method, raw output, and corrective reruns;
 - separate error identification from the driver pass/fail decision;

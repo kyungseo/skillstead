@@ -292,7 +292,7 @@ Write a decision-oriented comparison, not a universal winner.
 
 ## F21 — Host-Owned Brief Workflow Precedence
 
-- User request: `Toolstead의 다음 skill 전략을 비교하는 brief를 작성해 줘.`
+- User request: `Acme Workbench의 다음 skill 전략을 비교하는 brief를 작성해 줘.`
 - Host context:
   - The repository provides `workflow-work-brief` for classifying strategy/comparison/position documents.
   - That workflow owns the `docs/briefs/` destination, index update, follow-up routing, and repository approval rules.
@@ -358,7 +358,8 @@ Most status dashboards tell you everything is fine right up until it isn't. This
 it shows the three numbers that actually move before an incident, and nothing else.
 
 Installation are done via the installer script, which is requiring Node 18 or newer. The dashboard reads
-metrics from your existing Prometheus; it does not collect anything itself, and it never leaves your network.
+metrics from your existing Prometheus; it does not collect anything itself, and the metrics never leave your
+network.
 ```
 
 ## F26 — Warning After The Instruction
@@ -490,4 +491,41 @@ has already paid for.
 There is still one case where the profile gets dropped: images whose profile fails validation. Those are
 converted to sRGB and flagged instead of being passed through unvalidated, because the maintainers decided
 that a wrong profile is worse than no profile at all.
+```
+
+## F28 — Korean Local Naturalness Without Structural Churn
+
+- Mode: `Revise`
+- Profile: Technical guide
+- Audience: Korean developers changing a product setting
+- User request: `문장을 자연스럽고 명확하게 다듬어 줘.`
+- Shared protected meaning:
+  - The guide must surface the risk before the reader acts.
+  - Unsupported explanations are excluded because the evidence is insufficient.
+  - The reader checks the current setting before execution and verifies the resulting state afterward.
+- Runner-only isolation (do not include this instruction in the agent prompt): execute one variant at a time. For
+  Variant B, supply the mode, profile, audience, user request, shared protected meaning, and B source block only;
+  omit the Variant A heading and its additional protected meaning.
+
+### Variant A — Approval Meaning Supplied
+
+- Additional protected meaning: `말없이 바꾸지 않는다` means the default may not change without maintainer
+  approval; notification and operator discretion are not the intended claims.
+
+```text
+이 안내는 설정 변경의 위험이 독자에게 도착하도록 작성되었습니다.
+
+검증 근거가 막는 설명은 포함하지 않으며, 기본값은 말없이 바꾸지 않습니다.
+
+실행 전에는 현재 설정을 확인하고, 변경 이후에는 결과 상태의 확인을 수행합니다.
+```
+
+### Variant B — Governance Meaning Unspecified
+
+```text
+이 안내는 설정 변경의 위험이 독자에게 도착하도록 작성되었습니다.
+
+검증 근거가 막는 설명은 포함하지 않으며, 기본값은 말없이 바꾸지 않습니다.
+
+실행 전에는 현재 설정을 확인하고, 변경 이후에는 결과 상태의 확인을 수행합니다.
 ```
