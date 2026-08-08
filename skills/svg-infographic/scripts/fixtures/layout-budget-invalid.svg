@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <title>Invalid layout budget fixture</title>
+  <desc>Headers collide with dividers and card text clusters drift from their icons.</desc>
+  <rect width="1080" height="1350" fill="#f7f9fc"/>
+
+  <g transform="translate(72 68)" data-layout-role="panel-header" data-layout-top="0" data-layout-bottom="100" data-layout-gap="16" data-layout-padding-top="20" data-layout-padding-bottom="20">
+    <text data-layout-role="header-title" x="0" y="32" font-size="32" dominant-baseline="middle">Cramped header</text>
+    <text data-layout-role="header-subtitle" x="0" y="50" font-size="20" dominant-baseline="middle">The divider crosses the content.</text>
+    <line data-layout-role="header-divider" x1="0" y1="58" x2="936" y2="58" stroke="#c13d3d" stroke-width="2"/>
+  </g>
+
+  <g transform="translate(72 220)" data-layout-role="panel-header" data-layout-top="0" data-layout-bottom="100" data-layout-gap="16" data-layout-padding-top="20" data-layout-padding-bottom="20">
+    <text data-layout-role="header-title" x="0" y="32" font-size="32" dominant-baseline="middle">Second collision</text>
+    <text data-layout-role="header-subtitle" x="0" y="50" font-size="20" dominant-baseline="middle">The same arithmetic fails again.</text>
+    <line data-layout-role="header-divider" x1="0" y1="58" x2="936" y2="58" stroke="#c13d3d" stroke-width="2"/>
+  </g>
+
+  <g transform="translate(72 408)" data-layout-role="icon-text-card" data-layout-center-y="118" data-layout-center-tolerance="2">
+    <rect data-layout-role="card-frame" width="444" height="236" rx="24" fill="#ffffff" stroke="#b9c7d8"/>
+    <circle data-layout-role="icon-center" cx="72" cy="118" r="28" fill="#fbe9e9"/>
+    <text data-layout-role="card-title" x="124" y="76" font-size="24" font-weight="700" dominant-baseline="middle">Text too high</text>
+    <text data-layout-role="card-body" x="124" y="104" font-size="16" dominant-baseline="middle">Centers do not match</text>
+  </g>
+  <g transform="translate(564 408)" data-layout-role="icon-text-card" data-layout-center-y="118" data-layout-center-tolerance="2">
+    <rect data-layout-role="card-frame" width="444" height="236" rx="24" fill="#ffffff" stroke="#b9c7d8"/>
+    <circle data-layout-role="icon-center" cx="72" cy="86" r="28" fill="#fbe9e9"/>
+    <text data-layout-role="card-title" x="124" y="106" font-size="24" font-weight="700" dominant-baseline="middle">Icon too high</text>
+    <text data-layout-role="card-body" x="124" y="134" font-size="16" dominant-baseline="middle">Centers do not match</text>
+  </g>
+  <g transform="translate(72 692)" data-layout-role="icon-text-card" data-layout-center-y="118" data-layout-center-tolerance="2">
+    <rect data-layout-role="card-frame" width="444" height="236" rx="24" fill="#ffffff" stroke="#b9c7d8"/>
+    <circle data-layout-role="icon-center" cx="72" cy="150" r="28" fill="#fbe9e9"/>
+    <text data-layout-role="card-title" x="124" y="106" font-size="24" font-weight="700" dominant-baseline="middle">Icon too low</text>
+    <text data-layout-role="card-body" x="124" y="134" font-size="16" dominant-baseline="middle">Centers do not match</text>
+  </g>
+  <g transform="translate(564 692)" data-layout-role="icon-text-card" data-layout-center-y="118" data-layout-center-tolerance="2">
+    <rect data-layout-role="card-frame" width="444" height="236" rx="24" fill="#ffffff" stroke="#b9c7d8"/>
+    <circle data-layout-role="icon-center" cx="72" cy="118" r="28" fill="#fbe9e9"/>
+    <text data-layout-role="card-title" x="124" y="132" font-size="24" font-weight="700" dominant-baseline="middle">Text too low</text>
+    <text data-layout-role="card-body" x="124" y="160" font-size="16" dominant-baseline="middle">Centers do not match</text>
+  </g>
+</svg>

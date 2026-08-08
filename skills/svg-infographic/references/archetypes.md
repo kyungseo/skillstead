@@ -8,7 +8,7 @@ Every archetype uses the same section schema: **Choose when** (content signal) �
 
 This is the default visual language — the gallery look. Apply it unless the user asks for something plainer:
 
-- **Page header:** short vertical accent bar (4–6px wide, primary color) at the left of the H1; conclusion-style title; one-line muted subtitle. Header region ≈ 120–150px tall on wide canvases.
+- **Page header:** vertical accent rail (4–6px wide, primary color) at the left of the eyebrow + H1 stack; conclusion-style title; one-line muted subtitle. Compute the rail from the actual one-line/two-line title stack rather than reusing a fixed height (`authoring.md` §1). Header region ≈ 120–150px tall on wide canvases and grows when the title wraps.
 - **Band containers:** each major section sits in a light-tinted rounded panel (`rx 14–22`, very light fill such as `#F4F8FC`, hairline border). Bands stack top→bottom with 32–48px gaps.
 - **Pill section headers:** each band opens with a filled pill (rounded rect, saturated section color, `class="on-accent"` label, optional ①②③ numbering) at the band's top-left, overlapping or just inside the band's top edge.
 - **White cards:** content cards are white (`#FFFFFF`) on the tinted band, hairline border in the card's semantic color, subtle shadow (`<filter>` soft drop shadow, low opacity). Icon circle left, title + 1–2 body lines right — or icon-top for narrow cards.
@@ -167,7 +167,7 @@ Two **equal-height, equal-width** panels with a 32–48px gutter; optional cente
 
 **Recipe:** icon-first white cards; a number badge only if the cards form a sequence; KPI numerals in the card's family ink at ~2× card-title size; keep one card emphasized at most.
 
-**Checks:** grid arithmetic both directions (last-edge formula for columns *and* rows); all cards identical size; text budget per card respected (headline ≤ 2 lines, body ≤ 2 lines); icons vertically centered by formula, not nudged.
+**Checks:** grid arithmetic both directions (last-edge formula for columns *and* rows); all cards identical size; text budget per card respected (headline ≤ 2 lines, body ≤ 2 lines); icon and full text cluster share one computed vertical center, not separate nudges; repeated cards use the opt-in `icon-text-card` source contract from `authoring.md` §7.
 
 ## Decision / risk matrix
 

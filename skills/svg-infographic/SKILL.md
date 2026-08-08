@@ -83,14 +83,14 @@ Pick from the content signal, then **read that archetype's section in `reference
 **This step is the main defense against render-fix loops. Do the arithmetic first; never place a box at an eyeballed coordinate.** Produce a short numeric plan (a scratch table of coordinates is enough), then author the SVG from those numbers.
 
 1. **Canvas.** Pick a preset: **compact doc** 680w · **wide architecture** 1400×900 · **16:9 slide** 1600×900 · **social portrait** 1080×1350 (4:5). Height is flexible for the doc width. Fix outer margins (≥ 40px wide canvases, ≥ 24px at 680w).
-2. **Regions.** Split the canvas top→bottom: header (title + subtitle), one band per section, optional footer row. Assign each region a `y` range and keep 32–48px between bands.
+2. **Regions.** Split the canvas top→bottom: header (title + subtitle), one band per section, optional footer row. Assign each region a `y` range and keep 32–48px between bands. For a page title with a left accent rail, compute `eyebrowTop`, the final `titleBottom`, then `railY = eyebrowTop − railTopPad` and `railH = titleBottom + railBottomPad − railY`; a two-line title must therefore produce a taller rail than a one-line title. Keep the subtitle below `railBottom + subtitleGap`. For every panel header, compute `headerH = top padding + title line box + title/subtitle gap + subtitle line box + bottom padding`; place the divider only after that budget. Do not squeeze the title area until the copy happens to fit.
 3. **Grid arithmetic.** For each row of n cards inside a region: choose `cardW` and `gap` (gutter 24–32px), then **verify the last edge before drawing**: `start + (n−1)·(cardW+gap) + cardW ≤ region_right − padding`. Same check vertically for columns/stacks. If it doesn't fit: shrink `cardW`/`gap`, wrap to a second row, or widen the canvas — decide *now*, not after a render.
 4. **Text budget.** For each box, set lines × chars/line from the box width: ~28–36 Latin chars per line at body size, **Korean ≈ 60% of that**; 2–3 lines max per box. **Edit the copy to fit the budget before writing SVG** — abbreviate long tokens now. SVG has no auto-wrap; every line you plan here becomes one `<tspan>`.
 5. **Type scale — unified across the diagram** (never vary per box):
    - 1080-wide social: H1 46 / section 24 / card title 25 / body 19 / caption 16
    - 1400–1600 wide: H1 40–44 / section 22 / card title 20–22 / body 16–17 / caption 13–14
    - 680-wide docs: title 22 / box label 14 / caption 11
-6. **Icons.** Derive every icon-circle center from card geometry (e.g. `cy = card_y + card_h/2`), never a hand-tuned per-language offset. EN and KO variants must share the **same formulas**.
+6. **Icons and copy clusters.** Derive every icon-circle center from card geometry (e.g. `cy = card_y + card_h/2`). Compute the text cluster's visual bounds from its planned line boxes and center that cluster on the **same** `card_y + card_h/2`; never hand-tune either side per language. EN and KO variants must share the same formulas.
 7. **Connector corridors.** Budget connectors like cards: `corridor = target_visual_left − source_visual_right`, and subtract the marker's real footprint (`markerUnits="strokeWidth"` multiplies it by the stroke width — formulas in `authoring.md` §3). If no readable shaft survives, choose a compact arrow, a transition glyph, or a reflow *now*, not after a render.
 
 ## 3. Author the SVG — core rules
@@ -114,7 +114,8 @@ Read `references/authoring.md` for the detailed rules and the reusable icon set.
 
 - **Boxes:** rounded rect `rx="8"` (wide bands `rx="12–22"`), hairline border `stroke-width:1`. Each box = tinted fill + same-family border + same-family text (one semantic color family per box).
 - **Vertical centering:** center text with `dominant-baseline="central"` and `y` at the box's vertical center. Two lines straddle the center: title at `center−11`, sub at `center+10`, both `central`. Never rely on the default alphabetic baseline for box labels — it sits high.
-- **Wrapping:** one planned line = one `<tspan x=.. dy=..>`; keep to the §2 text budget.
+- **Layout contracts for repeated structures:** annotate page-title headers, panel headers, and icon-text cards with the opt-in `data-layout-role` contract from `authoring.md` §1/§4/§7. The page-title contract derives the rail from the eyebrow and final title line; a card contract names its actual background rect `card-frame`, so frame, icon, and complete text cluster derive from one center. The source lint then rejects short/floating title rails, divider collisions, and mismatched centers before rendering. Keep unsupported transforms or unusual typography outside this annotation and verify them manually.
+- **Wrapping:** one planned line = one `<tspan x=.. dy=..>`; keep to the §2 text budget. Inside an opt-in layout contract, use plain numeric `y`/`dy` and non-nested `<tspan>` lines so the lint can accumulate the complete vertical line box.
 - **Arrows:** define one `<marker>` arrowhead, use `marker-end`. Solid = sync/request, dashed (`stroke-dasharray="5 4"`) = async/batch/private. The default head is an **open-V stroked marker sized by visible geometry: `visible ≈ markerWidth × 8/12`, aim visible ≈3× the shaft → `markerWidth ≈ 4.5 × shaft`** (sizing table in `authoring.md` §3) — filled triangles only as a deliberate choice with the same visible-extent arithmetic. `markerUnits="userSpaceOnUse"` is **mandatory** on every referenced marker and the lint gate enforces it — the default `markerUnits="strokeWidth"` multiplies the head by the stroke width. Set `refX` so the tip lands on the path endpoint; leave an 8–12px gap between tip and target box **and** keep a visible shaft behind the head; pick each connector's form (standard / compact / curved / transition glyph / reflow) from the corridor budget, and prefer the gentle single-bend curve recipe when boxes sit at different heights (`authoring.md` §3).
 - **On-accent text is light:** any label on a saturated fill uses `class="on-accent"` (white/near-white) — never dark text on a mid/dark accent, and never rely on a blanket `text{fill}` rule to sort it out.
 - **Emphasis toolkit:** stroke + soft shadow + a number/status badge + a corner label + a filled icon badge. **No top accent bar on cards** (corner-smear and badge-collision failure modes — details and narrow exception in `authoring.md`).
@@ -123,7 +124,7 @@ Read `references/authoring.md` for the detailed rules and the reusable icon set.
 ## 4. Pre-render checklist (source-level — run before every render)
 
 **Run the lint gate first for a verified handoff** — it machine-checks the deterministic subset of this list
-(ids/references, root viewBox, marker units and footprint, high-confidence Latin/CJK text overflow) with file/line,
+(ids/references, root viewBox, marker units and footprint, opt-in header/card layout geometry, high-confidence Latin/CJK text overflow) with file/line,
 measured values, and a suggested fix per finding. If Node 18+ is unavailable, follow the §0 approval/fallback
 branch; the manual fallback does not count as a machine-linted handoff.
 

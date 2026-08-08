@@ -10,6 +10,7 @@
 //   E-BOUNDS    shape obviously outside the root viewBox
 //   E-MARKER    referenced <marker> without explicit markerUnits="userSpaceOnUse"
 //   E-HEADSIZE  effective arrowhead footprint far beyond the connector contract
+//   E-LAYOUT    opt-in page-title, panel-header, and icon/text-cluster geometry violations
 //   E-TEXT      high-confidence Latin/CJK text overflow past its containing box
 //   W-*         ambiguous cases (transforms, unresolved styles, near-threshold
 //               overflow, large-but-plausible heads) — reported, never fatal
@@ -28,7 +29,8 @@
 //
 // Opt-outs for deliberate design exceptions (use sparingly, with a reason in
 // the surrounding commit/PR): data-lint-allow="text-overflow" on the text or
-// its container, data-lint-allow="marker-footprint" on the marker.
+// its container, data-lint-allow="marker-footprint" on the marker, or
+// data-lint-allow="layout-geometry" on an explicitly annotated layout group.
 
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
@@ -181,6 +183,27 @@ function declsFor(el, rules) {
   }
   Object.assign(merged, parseInlineStyle(el.attrs.style));
   return merged;
+}
+
+// Resolve non-inherited geometry on the element itself. Unlike declsFor(),
+// this must not merge root `svg` rules into descendants: width/y/height do not
+// inherit. Presentation attributes are the fallback; local CSS wins.
+function localGeometryProp(el, name, rules) {
+  const merged = Object.create(null);
+  const classes = (el.attrs.class ?? "").split(/\s+/).filter(Boolean);
+  for (const r of rules) if (r.selector === el.tag) Object.assign(merged, r.decls);
+  for (const r of rules) {
+    const m = r.selector.match(/^([A-Za-z]*)\.([\w-]+)$/);
+    if (m && classes.includes(m[2]) && (m[1] === "" || m[1] === el.tag)) Object.assign(merged, r.decls);
+  }
+  if (el.attrs.id) {
+    for (const r of rules) {
+      const m = r.selector.match(/^([A-Za-z]*)#([\w:.-]+)$/);
+      if (m && m[2] === el.attrs.id && (m[1] === "" || m[1] === el.tag)) Object.assign(merged, r.decls);
+    }
+  }
+  Object.assign(merged, parseInlineStyle(el.attrs.style));
+  return merged[name] ?? el.attrs[name];
 }
 
 function px(value) {
@@ -532,6 +555,245 @@ export function lintSvg(source, filename = "input.svg") {
       if (r.uncertain) continue;
       if (r.x < vb.x - SLACK || r.y < vb.y - SLACK || r.x + r.w > vb.x + vb.w + SLACK || r.y + r.h > vb.y + vb.h + SLACK) {
         add(errors, r.el.line, "E-BOUNDS", `rect (${round1(r.x)},${round1(r.y)} ${round1(r.w)}×${round1(r.h)}) extends outside the ${vb.w}×${vb.h} viewBox`, "recompute the layout so every element sits inside the canvas margins (SKILL.md §2)");
+      }
+    }
+  }
+
+  // --- opt-in layout geometry contracts ---------------------------------
+  // Generic SVG is too varied for a reliable universal overlap detector.
+  // Authors opt in only the repeated structures that the skill can prove:
+  // page-title headers, panel headers, and icon/text cards. Text in these groups must use a centered
+  // baseline so its source-coordinate line box can be derived from y, dy, and
+  // font-size. Rendered ink and optical centering still belong to PNG QA.
+  const roleOf = (el) => el.attrs["data-layout-role"];
+  const descendantsWithRole = (group, roles) => [...walk(group)].filter((el) => roles.includes(roleOf(el)));
+  const lineBox = (el) => {
+    if (el.tag !== "text") return { proven: false, reason: `role is on <${el.tag}>, not <text>` };
+    const lineAt = (lineEl, y) => {
+      const fs = px(inheritedProp(lineEl, "font-size", rules));
+      const baseline = String(inheritedProp(lineEl, "dominant-baseline", rules) ?? "").trim().toLowerCase();
+      const t = resolveTransform(lineEl);
+      if (t.uncertain) return { proven: false, reason: "non-translate transform present" };
+      if (y === undefined || fs === undefined) return { proven: false, reason: "plain y/dy and font-size are required" };
+      if (!["middle", "central"].includes(baseline)) {
+        return { proven: false, reason: 'dominant-baseline must be "middle" or "central"' };
+      }
+      const center = y + t.dy;
+      return { proven: true, top: center - fs / 2, bottom: center + fs / 2 };
+    };
+
+    let currentY = px(el.attrs.y);
+    const boxes = [];
+    const ownText = decodeEntities(el.text.trim());
+    if (ownText) boxes.push(lineAt(el, currentY));
+    const tspans = el.children.filter((child) => child.tag === "tspan");
+    if (el.children.some((child) => child.tag === "tspan" && child.children.some((nested) => nested.tag === "tspan"))) {
+      return { proven: false, reason: "nested tspan text is outside the provable subset" };
+    }
+    for (const ts of tspans) {
+      const absoluteY = px(ts.attrs.y);
+      const dy = px(ts.attrs.dy);
+      if (ts.attrs.y !== undefined && absoluteY === undefined) return { proven: false, reason: "tspan y must be a plain number" };
+      if (ts.attrs.dy !== undefined && dy === undefined) return { proven: false, reason: "tspan dy must be a plain number" };
+      if (absoluteY !== undefined) currentY = absoluteY;
+      if (dy !== undefined && currentY === undefined) return { proven: false, reason: "tspan dy needs a resolvable parent y or absolute y" };
+      if (dy !== undefined) currentY += dy;
+      if (currentY === undefined) return { proven: false, reason: "tspan needs a resolvable parent y, y, or dy" };
+      if (decodeEntities(ts.text.trim())) boxes.push(lineAt(ts, currentY));
+    }
+    if (!boxes.length) return { proven: false, reason: "layout text has no measurable line" };
+    const unproven = boxes.find((box) => !box.proven);
+    if (unproven) return unproven;
+    return {
+      proven: true,
+      top: Math.min(...boxes.map((box) => box.top)),
+      bottom: Math.max(...boxes.map((box) => box.bottom)),
+      lineCount: boxes.length,
+    };
+  };
+  const clusterBox = (elements) => {
+    const boxes = elements.map((el) => ({ el, box: lineBox(el) }));
+    const unproven = boxes.find(({ box }) => !box.proven);
+    if (unproven) return { proven: false, el: unproven.el, reason: unproven.box.reason };
+    return {
+      proven: true,
+      top: Math.min(...boxes.map(({ box }) => box.top)),
+      bottom: Math.max(...boxes.map(({ box }) => box.bottom)),
+      lineCount: boxes.reduce((sum, { box }) => sum + box.lineCount, 0),
+    };
+  };
+
+  for (const group of walk(svgRoot)) {
+    const definitionTags = ["defs", "symbol", "marker", "clipPath", "mask", "pattern"];
+    if (definitionTags.includes(group.tag) || hasAncestor(group, definitionTags)) continue;
+    if (ancestorAllows(group, "layout-geometry")) continue;
+    const role = roleOf(group);
+    if (role === "page-title-header") {
+      const topPadding = px(group.attrs["data-layout-rail-padding-top"]);
+      const bottomPadding = px(group.attrs["data-layout-rail-padding-bottom"]);
+      const subtitleGap = px(group.attrs["data-layout-subtitle-gap"]);
+      const toleranceRaw = group.attrs["data-layout-tolerance"];
+      const parsedTolerance = px(toleranceRaw);
+      const tolerance = toleranceRaw === undefined || parsedTolerance === undefined || parsedTolerance < 0 || parsedTolerance > 8 ? 2 : parsedTolerance;
+      const gt = resolveTransform(group);
+      const rails = descendantsWithRole(group, ["title-rail"]);
+      const eyebrows = descendantsWithRole(group, ["title-eyebrow"]);
+      const titles = descendantsWithRole(group, ["title-line"]);
+      const subtitles = descendantsWithRole(group, ["title-subtitle"]);
+      if ([topPadding, bottomPadding, subtitleGap].some((n) => n === undefined || n < 0) || rails.length !== 1 || rails[0].tag !== "rect" || eyebrows.length !== 1 || titles.length < 1 || titles.length > 2 || subtitles.length !== 1) {
+        add(errors, group.line, "E-LAYOUT", "page-title-header contract requires non-negative numeric rail padding/subtitle gap, one title-rail rect, one title-eyebrow text, one or two title-line texts, and one title-subtitle text", "complete the page-title-header roles and numeric budget or remove the annotation (authoring.md §1)");
+        continue;
+      }
+      if (gt.uncertain) {
+        add(warnings, group.line, "W-LAYOUT", "page-title-header geometry is unverified because a non-translate transform is present", "use translate() only or verify the title rail manually in the 2× PNG (authoring.md §1)");
+        continue;
+      }
+      if (toleranceRaw !== undefined && (parsedTolerance === undefined || parsedTolerance < 0)) {
+        add(warnings, group.line, "W-LAYOUT", `page-title-header tolerance "${toleranceRaw}" is unsupported; the 2px default was used`, 'use a plain 0–8px tolerance or data-lint-allow="layout-geometry" with a reviewed reason (authoring.md §1)');
+      } else if (parsedTolerance !== undefined && parsedTolerance > 8) {
+        add(warnings, group.line, "W-LAYOUT", `page-title-header tolerance ${parsedTolerance}px exceeds the 8px review threshold; the 2px default was used`, 'use 0–8px or data-lint-allow="layout-geometry" with a reviewed reason (authoring.md §1)');
+      }
+      const eyebrow = lineBox(eyebrows[0]);
+      const titleBox = clusterBox(titles);
+      const subtitle = lineBox(subtitles[0]);
+      if ([eyebrow, titleBox, subtitle].some((box) => !box.proven && box.reason === "layout text has no measurable line")) {
+        add(errors, group.line, "E-LAYOUT", "page-title-header contract requires every eyebrow/title/subtitle role to contain measurable text", "add visible text content or remove the empty layout role (authoring.md §1)");
+        continue;
+      }
+      const railYRaw = localGeometryProp(rails[0], "y", rules);
+      const railY = railYRaw === undefined ? 0 : px(railYRaw);
+      const railH = px(localGeometryProp(rails[0], "height", rules));
+      const railWidthRaw = localGeometryProp(rails[0], "width", rules);
+      const railW = px(railWidthRaw);
+      const rt = resolveTransform(rails[0]);
+      if (railH !== undefined && railH <= 0) {
+        add(errors, group.line, "E-LAYOUT", "page-title-header title-rail height must be greater than zero", "compute a positive rail height from the eyebrow and final title line (authoring.md §1)");
+        continue;
+      }
+      if (railW !== undefined && railW <= 0) {
+        add(errors, group.line, "E-LAYOUT", "page-title-header title-rail width must be greater than zero", "use a visible positive rail width (authoring.md §1)");
+        continue;
+      }
+      if (!eyebrow.proven || !titleBox.proven || !subtitle.proven || railY === undefined || railH === undefined || railW === undefined || rt.uncertain) {
+        const reason = !eyebrow.proven ? eyebrow.reason : !titleBox.proven ? titleBox.reason : !subtitle.proven ? subtitle.reason : railW === undefined ? "title rail needs a plain positive width" : "title rail needs plain y/height and a translate-only transform";
+        add(warnings, group.line, "W-LAYOUT", `page-title-header geometry is unverified: ${reason}`, "use plain centered-baseline text and rect geometry so the pre-render rail check can prove the stack (authoring.md §1)");
+        continue;
+      }
+      if (titleBox.lineCount < 1 || titleBox.lineCount > 2) {
+        add(errors, group.line, "E-LAYOUT", `page-title-header supports one or two measurable title lines; found ${titleBox.lineCount}`, "split the title into one or two measurable lines or remove the premium page-title contract (authoring.md §1)");
+        continue;
+      }
+      const expectedTop = eyebrow.top - topPadding;
+      const expectedBottom = titleBox.bottom + bottomPadding;
+      const railTop = railY + rt.dy;
+      const railBottom = railTop + railH;
+      const violations = [];
+      if (Math.abs(railTop - expectedTop) > tolerance) violations.push(`rail top differs from eyebrow budget by ${round1(Math.abs(railTop - expectedTop))}px`);
+      if (Math.abs(railBottom - expectedBottom) > tolerance) violations.push(`rail bottom differs from final title line by ${round1(Math.abs(railBottom - expectedBottom))}px`);
+      if (subtitle.top < titleBox.bottom + subtitleGap - 0.01) violations.push(`title/subtitle gap is ${round1(subtitle.top - titleBox.bottom)}px; needs ${subtitleGap}px`);
+      if (railBottom > subtitle.top - subtitleGap + 0.01) violations.push(`rail bottom leaves ${round1(subtitle.top - railBottom)}px before the subtitle; needs ${subtitleGap}px`);
+      if (violations.length) {
+        add(errors, group.line, "E-LAYOUT", `page-title-header rail budget failed: ${violations.join("; ")}`, "derive rail y/height from the eyebrow and final title line before rendering (SKILL.md §2, authoring.md §1)");
+      }
+    } else if (role === "panel-header") {
+      const top = px(group.attrs["data-layout-top"]);
+      const bottom = px(group.attrs["data-layout-bottom"]);
+      const gap = px(group.attrs["data-layout-gap"]);
+      const padTop = px(group.attrs["data-layout-padding-top"]);
+      const padBottom = px(group.attrs["data-layout-padding-bottom"]);
+      const gt = resolveTransform(group);
+      if ([top, bottom, gap, padTop, padBottom].some((n) => n === undefined) || gt.uncertain) {
+        add(warnings, group.line, "W-LAYOUT", "panel-header geometry is unverified because its numeric budget or transform is unsupported", 'use plain data-layout-top/bottom/gap/padding-top/padding-bottom values and translate() only (authoring.md §4)');
+        continue;
+      }
+      const titles = descendantsWithRole(group, ["header-title"]);
+      const subtitles = descendantsWithRole(group, ["header-subtitle"]);
+      const dividers = descendantsWithRole(group, ["header-divider"]);
+      if (titles.length !== 1 || subtitles.length !== 1 || dividers.length !== 1 || dividers[0].tag !== "line") {
+        add(errors, group.line, "E-LAYOUT", "panel-header contract requires exactly one header-title text, one header-subtitle text, and one header-divider line", "add the three data-layout-role children or remove the panel-header annotation (authoring.md §4)");
+        continue;
+      }
+      const title = lineBox(titles[0]);
+      const subtitle = lineBox(subtitles[0]);
+      const divider = dividers[0];
+      const dt = resolveTransform(divider);
+      const y1 = px(divider.attrs.y1);
+      const y2 = px(divider.attrs.y2);
+      const strokeRaw = inheritedProp(divider, "stroke-width", rules);
+      const strokeWidth = strokeRaw === undefined ? 1 : px(strokeRaw);
+      if (!title.proven || !subtitle.proven || dt.uncertain || y1 === undefined || y2 === undefined || Math.abs(y1 - y2) > 0.01 || strokeWidth === undefined) {
+        const reason = !title.proven ? title.reason : !subtitle.proven ? subtitle.reason : strokeWidth === undefined ? "divider stroke-width must be a plain number" : "divider must be a horizontal line with plain y1/y2";
+        add(warnings, group.line, "W-LAYOUT", `panel-header geometry is unverified: ${reason}`, 'use centered-baseline text with plain y/font-size and a horizontal <line> divider (authoring.md §4)');
+        continue;
+      }
+      const frameTop = top + gt.dy;
+      const frameBottom = bottom + gt.dy;
+      const dividerY = y1 + dt.dy;
+      const dividerTop = dividerY - strokeWidth / 2;
+      const dividerBottom = dividerY + strokeWidth / 2;
+      const violations = [];
+      if (title.top < frameTop + padTop - 0.01) violations.push(`title starts ${round1(frameTop + padTop - title.top)}px inside the top padding`);
+      if (subtitle.top < title.bottom + gap - 0.01) violations.push(`title/subtitle gap is ${round1(subtitle.top - title.bottom)}px; needs ${gap}px`);
+      if (dividerTop < subtitle.bottom + padBottom - 0.01) violations.push(`subtitle/divider visual gap is ${round1(dividerTop - subtitle.bottom)}px; needs ${padBottom}px`);
+      if (dividerBottom > frameBottom + 0.01) violations.push(`divider visual edge is ${round1(dividerBottom - frameBottom)}px below the header budget`);
+      if (violations.length) {
+        add(errors, group.line, "E-LAYOUT", `panel-header vertical budget failed: ${violations.join("; ")}`, "recompute header height and y positions before rendering (SKILL.md §2, authoring.md §4)");
+      } else {
+        const unused = frameBottom - dividerBottom;
+        const slackLimit = Math.max(16, gap);
+        if (unused > slackLimit) {
+          add(warnings, group.line, "W-LAYOUT", `panel-header declares ${round1(unused)}px below its divider; more than the ${slackLimit}px slack allowance`, "tighten data-layout-bottom so downstream regions do not inherit accidental empty space (authoring.md §4)");
+        }
+      }
+    } else if (role === "icon-text-card") {
+      const targetRaw = group.attrs["data-layout-center-y"];
+      const target = px(targetRaw);
+      const toleranceRaw = group.attrs["data-layout-center-tolerance"];
+      const parsedTolerance = px(toleranceRaw);
+      const tolerance = toleranceRaw === undefined || parsedTolerance === undefined || parsedTolerance < 0 ? 2 : parsedTolerance;
+      const gt = resolveTransform(group);
+      const frames = descendantsWithRole(group, ["card-frame"]);
+      const icons = descendantsWithRole(group, ["icon-center"]);
+      const texts = descendantsWithRole(group, ["card-title", "card-body"]);
+      if (targetRaw === undefined || target === undefined || frames.length !== 1 || frames[0].tag !== "rect" || icons.length !== 1 || icons[0].tag !== "circle" || texts.length === 0) {
+        add(errors, group.line, "E-LAYOUT", "icon-text-card contract requires a plain data-layout-center-y, exactly one card-frame rect, exactly one icon-center circle, and at least one card-title/card-body text", "complete the declared card contract or remove the icon-text-card annotation (authoring.md §7)");
+        continue;
+      }
+      if (gt.uncertain) {
+        add(warnings, group.line, "W-LAYOUT", "icon-text-card geometry is unverified because a non-translate transform is present", "use translate() only or verify the card manually in the 2× PNG (authoring.md §7)");
+        continue;
+      }
+      if (toleranceRaw !== undefined && (parsedTolerance === undefined || parsedTolerance < 0)) {
+        add(warnings, group.line, "W-LAYOUT", `icon-text-card tolerance "${toleranceRaw}" is unsupported; the 2px default was used`, 'use a plain 0–8px tolerance or data-lint-allow="layout-geometry" with a reviewed reason (authoring.md §7)');
+      } else if (tolerance > 8) {
+        add(warnings, group.line, "W-LAYOUT", `icon-text-card tolerance ${tolerance}px exceeds the 8px review threshold and can conceal visible drift`, 'use 0–8px or data-lint-allow="layout-geometry" with a reviewed reason (authoring.md §7)');
+      }
+      const frameYRaw = frames[0].attrs.y;
+      const frameY = frameYRaw === undefined ? 0 : px(frameYRaw);
+      const frameH = px(frames[0].attrs.height);
+      const ft = resolveTransform(frames[0]);
+      const iconCy = px(icons[0].attrs.cy);
+      const it = resolveTransform(icons[0]);
+      const textBox = clusterBox(texts);
+      if (!textBox.proven && textBox.reason === "layout text has no measurable line") {
+        add(errors, group.line, "E-LAYOUT", "icon-text-card contract requires every card-title/card-body text to contain at least one measurable line", "add visible text content or remove the empty layout role (authoring.md §7)");
+        continue;
+      }
+      if (frameY === undefined || frameH === undefined || ft.uncertain || iconCy === undefined || it.uncertain || !textBox.proven) {
+        const reason = !textBox.proven ? textBox.reason : frameY === undefined || frameH === undefined || ft.uncertain ? "card frame needs plain y/height and a translate-only transform" : "icon circle needs a plain cy and translate-only transform";
+        add(warnings, group.line, "W-LAYOUT", `icon-text-card geometry is unverified: ${reason}`, "use plain card-frame, circle, and centered-baseline text geometry so the pre-render center check can prove the cluster (authoring.md §7)");
+        continue;
+      }
+      const targetY = target + gt.dy;
+      const frameCenterY = frameY + frameH / 2 + ft.dy;
+      const actualIconY = iconCy + it.dy;
+      const textCenterY = (textBox.top + textBox.bottom) / 2;
+      const violations = [];
+      if (Math.abs(frameCenterY - targetY) > tolerance) violations.push(`card-frame center differs from target by ${round1(Math.abs(frameCenterY - targetY))}px`);
+      if (Math.abs(actualIconY - targetY) > tolerance) violations.push(`icon center differs from target by ${round1(Math.abs(actualIconY - targetY))}px`);
+      if (Math.abs(textCenterY - targetY) > tolerance) violations.push(`text-cluster center differs from target by ${round1(Math.abs(textCenterY - targetY))}px`);
+      if (violations.length) {
+        add(errors, group.line, "E-LAYOUT", `icon-text-card center alignment failed: ${violations.join("; ")} (tolerance ${tolerance}px)`, "derive the frame, icon, and text-cluster centers from the same card center before rendering (SKILL.md §2, authoring.md §7)");
       }
     }
   }
