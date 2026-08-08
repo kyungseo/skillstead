@@ -3,7 +3,7 @@ name: writing-quality-editor
 description: Writing Quality Editor (WQE) composes, assesses, revises, and adapts user-facing writing so it reads naturally while preserving meaning, claims, intent, voice, conditions, numbers, identifiers, exceptions, and risks. Use when a user asks to write, review, polish, fix, improve, supplement, clarify, translate, localize, or make a document sound natural; no skill or mode name is required. Covers README, onboarding, release notes, manuals, UI, errors, gallery copy, research-backed briefs, technical comparisons, and natural English↔Korean adaptation. If a host repository workflow owns document classification, path, indexing, lifecycle, or approval, keep it primary and use this skill only as an optional authoring layer. Locale-neutral design; EN↔KO (`ko-KR`) is the initial profile under validation. Do not game detectors, conceal provenance, invent claims, replace evidence review, or bypass host workflows.
 license: LICENSE.txt
 metadata:
-  version: 0.10.1
+  version: 0.11.0
 ---
 
 # Writing Quality Editor

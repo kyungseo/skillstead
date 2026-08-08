@@ -11,7 +11,7 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
-## [Unreleased]
+## [0.11.0] — 2026-08-09
 
 - Made local editing the default for wording, naturalness, and clarity requests when the existing paragraph and
   section order already works. The skill now marks the smallest complete phrase, clause, or sentence with a named
