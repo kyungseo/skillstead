@@ -4,6 +4,14 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## 2026-08-09
+
+### Skills
+
+- `svg-infographic` `0.9.0` — opt-in source layout contracts for panel headers, icon-text cards, and one-line or
+  two-line page-title rails, with deterministic failures for provable geometry drift and warnings for unsupported
+  source geometry.
+
 ## 2026-07-30
 
 ### Repository

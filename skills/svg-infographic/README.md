@@ -47,8 +47,8 @@ The skill follows a fixed five-step workflow designed so the **first render pass
 2. **Archetype** — picks the diagram shape from your content (see the table below) and loads that archetype's layout skeleton, visual guidance, and failure checks.
 3. **Layout pass** — fixes the canvas regions, card grid, and per-box text budgets *numerically* before drawing. Copy that won't fit its box is shortened here — not after a broken render.
 4. **Author + source lint** — writes the SVG from the computed numbers, runs `scripts/check-svg.mjs` to catch
-   broken references, implicit or extreme marker sizing, and high-confidence text overflow, then reviews any
-   heuristic warnings instead of treating them as a pass.
+   broken references, implicit or extreme marker sizing, opt-in header/card layout drift, and high-confidence
+   text overflow, then reviews any heuristic warnings instead of treating them as a pass.
 5. **Render + verify** — exports a 2× PNG via the canonical `scripts/render.mjs`. The optional
    `scripts/render.sh` Bash wrapper calls the same renderer. It runs the lint again before opening a browser and
    verifies the PNG dimensions; the skill then reviews the pixels against a quality bar (rendering, containment,
@@ -182,8 +182,10 @@ The skill proposes an output directory inside your current project before writin
 
 The skill checks the output at three stages, not just at the end:
 
-- **Pre-render (source)** — the source lint reports hard failures with a location and suggested fix; remaining
-  containment arithmetic, contrast classes, EN/KO geometry parity, and heuristic warnings are reviewed explicitly.
+- **Pre-render (source)** — the source lint reports hard failures with a location and suggested fix. Repeated
+  page-title, panel-header, and icon-text-card structures can opt into layout contracts that check rail bounds,
+  divider clearance, and shared vertical centers. Remaining containment arithmetic, rendered-ink alignment,
+  contrast classes, EN/KO geometry parity, and heuristic warnings are reviewed explicitly.
 - **Rendering (PNG)** — no text overflow, correct Korean/CJK glyphs (no tofu), PNG dimensions verified as exactly 2× (automated by the render script), icons render, and the SVG stays editable.
 - **Message** — the archetype fits the content, there is one clear reading order, the title carries the conclusion, text density stays low per box, and the depth and language fit your audience.
 

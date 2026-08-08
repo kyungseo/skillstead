@@ -44,7 +44,7 @@
 
 | 스킬 | 이런 작업에 적합 | 버전 | 지원 실행 환경 | 성숙도 |
 | --- | --- | --- | --- | --- |
-| [`svg-infographic`](./skills/svg-infographic) | 아키텍처 설명, 작업 흐름, 비교 자료를 수정 가능한 SVG와 검증된 2× PNG로 제작 | `0.8.3` | Supported: Claude Code + Codex | Stable |
+| [`svg-infographic`](./skills/svg-infographic) | 아키텍처 설명, 작업 흐름, 비교 자료를 수정 가능한 SVG와 검증된 2× PNG로 제작 | `0.9.0` | Supported: Claude Code + Codex | Stable |
 | [`docs-claim-check`](./skills/docs-claim-check) | 공개 문서의 주장이 제공된 근거로 뒷받침되는지 확인 | `0.9.1` | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide) | 비공개 GitHub 저장소의 첫 공개 전환 또는 공개 후 매 버전 릴리스를 점검하고 단계별로 안내 | `0.9.0` | Supported: Claude Code + Codex | Stable |
 | [`writing-quality-editor`](./skills/writing-quality-editor) | 사용자 문서를 처음부터 작성하거나 자연스럽게 다듬고, 사실·의도·목소리·운영 제약을 보존하면서 영어↔한국어 내용을 재구성 | `0.10.1` | Supported: Claude Code + Codex | Beta |
