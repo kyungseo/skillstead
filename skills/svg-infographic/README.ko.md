@@ -50,8 +50,9 @@ svg-infographic으로 이 아키텍처 메모를 수정 가능한 한국어 기�
 3. **레이아웃 계산** — 그리기 전에 캔버스 영역, 카드 격자와 박스별 글자 분량을 *수치로*
    확정합니다. 박스에 들어가지 않을 문구는 렌더링이 깨진 뒤가 아니라 이 단계에서 줄입니다.
 4. **SVG 작성과 source lint** — 계산한 수치에 맞춰 SVG를 작성한 뒤,
-   `scripts/check-svg.mjs`로 끊어진 참조, 명시하지 않았거나 지나치게 큰 marker 크기와 명백한
-   text overflow를 찾습니다. 추정에 따른 warning은 통과로 간주하지 않고 직접 확인합니다.
+   `scripts/check-svg.mjs`로 끊어진 참조, 명시하지 않았거나 지나치게 큰 marker 크기, opt-in
+   header/card 배치 오류와 명백한 text overflow를 찾습니다. 추정에 따른 warning은 통과로 간주하지
+   않고 직접 확인합니다.
 5. **렌더링과 검증** — 표준 `scripts/render.mjs`로 2× PNG를 내보냅니다. 선택형 Bash wrapper인
    `scripts/render.sh`도 같은 렌더러를 호출합니다. 렌더러는 browser를 열기 전에 lint를 다시 실행하고
    PNG 크기를 자동 확인하며, 그다음 실제 이미지의 렌더링, 배치와 메시지를 검토합니다.
@@ -192,8 +193,10 @@ svg-infographic으로 아래 내용을 한국어 기술 인포그래픽으로 �
 
 결과물은 마지막에 한 번만 보는 것이 아니라 세 가지 관점에서 점검합니다.
 
-- **렌더링 전 원본** — source lint가 hard error의 위치와 수정 방향을 알려줍니다. 영역 포함 관계,
-  색상 대비, 영문판과 한국어판의 배치 일치와 heuristic warning은 별도로 직접 확인합니다.
+- **렌더링 전 원본** — source lint가 hard error의 위치와 수정 방향을 알려줍니다. 반복되는 page title,
+  panel header와 icon-text card에는 layout contract를 적용해 rail 범위, divider 여백과 공통 세로 중심을
+  검사할 수 있습니다. 영역 포함 관계, 렌더링된 글자의 시각적 정렬, 색상 대비, 영문판과 한국어판의
+  배치 일치와 heuristic warning은 별도로 직접 확인합니다.
 - **PNG 렌더링** — 글자가 넘치지 않는지, 한국어/CJK 글자가 깨지지 않는지, PNG 크기가 정확히
   2×인지, 아이콘이 정상적으로 보이는지, SVG가 계속 편집 가능한지 확인합니다.
 - **메시지** — 다이어그램 유형이 내용에 맞는지, 읽는 순서가 분명한지, 제목이 결론을 담는지,

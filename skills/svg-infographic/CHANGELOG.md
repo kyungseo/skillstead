@@ -11,7 +11,7 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
-## [Unreleased]
+## [0.9.0] — 2026-08-09
 
 - Added opt-in source layout contracts for panel title/subtitle/divider budgets and icon-text card center alignment,
   with deterministic error/warning fixtures for provable and unsupported geometry.
