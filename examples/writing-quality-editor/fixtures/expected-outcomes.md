@@ -33,7 +33,7 @@ Every scenario must:
 | F09 | Preserve destructive-action strength but mark the effect on shared copies as `needs-human`. Offer alternatives that distinguish delete/disconnect/local-only impact. Do not finalize ambiguous Korean body/button copy. | Pick one effect silently; soften the warning; turn `Clear` into a non-destructive action. |
 | F10 | State failure, exact resume command, and concrete post-resume verification. Remove vague hedging and nominalizations. | Change the command; guarantee resume succeeds; omit result verification. |
 | F11 | Remove hype, repetitive “also,” formulaic framing, and unsupported scalability/innovation claims. Describe the observed request path and components plainly. | Retain scalability claims; add performance benefits; use detector-gaming language. |
-| F12 | Infer `Revise` from the plain-language request without requiring the skill name or mode, then preserve the text or make only a demonstrably useful micro-edit. Explicitly recognize that identity, action, inputs, output, and privacy boundary are already clear. | Ask the user to name the skill or choose a mode; rewrite vocabulary or sentence order merely to appear active; weaken the no-upload claim; change the command. |
+| F12 | Infer `Revise` from the plain-language request without requiring the skill name or mode, then preserve the text byte-for-byte because identity, action, inputs, output, and privacy boundary are already clear. For this direct short-text request, return only the unchanged source unless the user asks for an explanation. | Ask the user to name the skill or choose a mode; rewrite vocabulary or sentence order merely to appear active; weaken the no-upload claim; change the command; add an unrequested report instead of returning only the unchanged source. |
 | F13 | Preserve the review→approval→deploy→rollback→record sequence and `release-plan.md`, but mark the missing actors and ownership as `needs-human`. Show the smallest ambiguous span and viable actor choices instead of finalizing actor-specific English. | Invent “you,” “the release manager,” or another owner; hide the ambiguity with an imperative or passive construction; omit the approval-only condition or rollback. |
 | F14 | Produce natural English while preserving each obligation level: backing up `config.yml` is required, running the full test suite is recommended, attaching `review.log` is optional, and deployment is prohibited after a required check fails. | Translate every modal as “should”; weaken required/prohibited actions; strengthen optional actions; change either identifier. |
 | F15 | Integrate all three user-supplied facts into concise README copy while preserving `acme sync --resume`, the 5 GB limit, local progress storage, and the expired-authentication stop/sign-in condition. | Refuse the requested enrichment merely because the facts are absent from the original paragraph; invent encryption, cloud retention, automatic retry, or broader file-size support; omit or alter a supplied constraint. |
@@ -46,8 +46,9 @@ Every scenario must:
 | F22 | Lead with what the reader can do now, in plain language, and drop the contract register. Keep every claim: per-skill zip files are not offered; the release checks verify neither that an archive matches its skill and tag nor its `checksum`; the pinned-tag `git clone` is the way to install today. The reason must stay attached to the recommendation. | Drop the identity check, the `checksum`, or the reason the clone is recommended; imply zip files are coming; present the clone as one option among several; keep the stacked contract phrasing unchanged. |
 | F23 | Improve rhythm and connectives within the existing register. Keep each obligation at its stated level, keep `identity` and `checksum` as distinct things, keep the reason a checksum is insufficient, and keep the escalation path to the release owner. | Replace `MUST` / `MUST NOT` with softer modals; merge identity and checksum into one check; drop the escalation; restructure the runbook because it reads formally; call the audited wording unnecessary jargon. |
 | F24 | Tighten wording only. Every one of these survives: confirm with the data owner first; a restart during a backfill leaves partial rows; the nightly reconciler will not repair them; wait rather than cancel; cancellation drops the checkpoint; the row-count check happens **after** the restart; it compares against the previous hour; the on-call engineer performs it; the two percent threshold; escalate to the data owner rather than rerunning ingest. | Drop any reason clause as redundant; merge the data owner and the on-call engineer into one actor; turn the escalation into a rerun; lose the two percent figure or the previous-hour comparison; move the row-count check before the restart or leave its timing unstated; remove the cancellation warning because the wait instruction implies it. |
-| F25 | Fix the two grammar defects (`Installation are done`, `is requiring`). Keep the opening voice — the dry contrast about dashboards and the deliberate `boring` framing — intact, and keep the installer script as the installation route, `Node 18 or newer` including the `or newer`, the Prometheus dependency, the no-collection claim, and the network boundary. | Rewrite the opening into neutral marketing prose; delete the contrast because it is informal; flatten `deliberately boring`; restructure the README when two sentence-level fixes suffice; pin Node to exactly 18; drop the installer script or the network boundary. |
+| F25 | Fix the malformed installation sentence at the smallest span that produces natural English; phrase-, clause-, or sentence-level recasting is acceptable. Keep the unaffected opening and dashboard sentence unchanged, including the dry contrast, deliberate `boring` framing, Prometheus dependency, no-collection claim, and network boundary. Preserve the installer script as the installation route and `Node 18 or newer`. | Rewrite the opening into neutral marketing prose; delete the contrast because it is informal; flatten `deliberately boring`; restructure the README; change the unaffected Prometheus/no-collection/network sentence; pin Node to exactly 18; drop the installer script or network boundary. |
 | F26 | Name the reader problem and move the irreversibility warning, the backup step, and the unenrolled-host failure ahead of the `rotate-key --apply` instruction. Keep `#rotate-the-signing-key` and `#verify` with their current heading text, keep `keyring.json` and `rotate-key`, and reproduce the `Verify` section **word for word** — it is outside the requested scope. | Restructure without naming the reader problem; leave the warning under `Notes`; reword `Verify` at all; rename or drop either protected heading; drop the mixed-state failure or the backup step; reorder so the previous key deactivation reads as reversible. |
+| F28 | For both variants, infer the local-first strategy without an explicit structure instruction, preserve the three-paragraph order, and concretize the arrival, evidence, and nominalized verification wording. In A, express the material approval-gate claim: the named maintainer is the approval authority and the default may not change without that approval; exact wording is not required. In B, mark only the unresolved governance phrase as `needs-human` while completing the other safe local edits. Preserve the direct technical voice and both timing relationships. | Lead with a new conclusion or reorganize the guide; retain the other abstract expressions merely because they are grammatical; choose a discretion, approval, or notification interpretation in B; stop all editing because one span is ambiguous; expose an internal quote/cause inventory as a new output section; add headings, bullets, actors, procedures, or a notification promise; flatten the voice or remove either timing relationship. |
 
 ## Register, Voice, And Structure Fixtures
 
@@ -61,6 +62,7 @@ every invariant survive.
 | F24 | Reducing density must not delete a condition, an actor, a threshold, or a reason |
 | F25 | A working voice survives a sentence-level fix; local edits are enough, so a structural revise here is a failure |
 | F26 | A structural revise is warranted, and it is bounded: warning before instruction, anchors intact, unrelated sections untouched |
+| F28 | A local wording request stays local; A preserves the supplied approval meaning, while B isolates the unresolved governance phrase without blocking other safe edits |
 
 ### Building the invariant list for these fixtures
 
@@ -150,12 +152,12 @@ and conventions of that language. Counts and thresholds are never shared across 
 | --- | --- |
 | Assess | F01, F05, F07 |
 | Compose | F16, F17, F18, F19, F20 |
-| Revise | F02, F08, F10, F11, F12, F15 |
+| Revise | F02, F08, F10, F11, F12, F15, F28 |
 | Adapt EN→KO | F03, F06, F09 |
 | Adapt KO→EN | F04, F13, F14 |
-| Register and voice layers | F22, F23, F24, F25 |
-| Structural revise | F25 (must not), F26 (must) |
-| Meaning drift defense | F02, F03, F04, F06, F08, F09, F10, F11, F12, F13, F14, F15 |
+| Register and voice layers | F22, F23, F24, F25, F28 |
+| Structural revise | F25 and F28 (must not), F26 (must) |
+| Meaning drift defense | F02, F03, F04, F06, F08, F09, F10, F11, F12, F13, F14, F15, F28 |
 | Over-editing defense | F12 |
 | Enrichment without invention or over-refusal | F15 |
 | New-document composition without invention | F16, F17, F18, F19, F20 |
@@ -176,3 +178,4 @@ and conventions of that language. Counts and thresholds are never shared across 
 | Gallery copy | F11 |
 | Brief/technical comparison | F19, F20 |
 | Reads-better enforcement (frozen candidates) | F27 |
+| Korean local naturalness | F28 |

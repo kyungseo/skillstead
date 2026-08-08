@@ -55,6 +55,23 @@ focused question instead of silently choosing the broader action.
 Do not mutate files in `Assess`. In `Compose`, `Revise`, or `Adapt`, follow the host repository's approval and
 mutation rules. A request to review or diagnose does not authorize a file edit.
 
+## Apply Revise Defaults First
+
+For a wording, naturalness, or clarity request whose paragraph and section order already works, select local edit
+before applying the broader writing guidance below. After respecting any host artifact workflow and building the
+invariant ledger, establish the allowed change surface before drafting:
+
+1. Copy the source and mark only the smallest complete phrase, clause, or sentence that has a named reader problem.
+2. Lock every unmarked span, paragraph boundary, and paragraph position. Do not improve locked text opportunistically.
+3. If a marked span has more than one material reading—for example discretion, approval, or notification—leave
+   that span unchanged and report the ambiguity under `Needs Human`. Continue other safe edits.
+4. Replace only the marked spans, then compare the result with the source and revert every out-of-scope delta.
+5. For a direct short-text request, return only the usable text by default. Add a concise `Needs Human` note only
+   when unresolved ambiguity remains or when the user asked for an explanation.
+
+These defaults outrank optional improvements to rhythm, information order, vocabulary, punctuation, or
+specificity. Use structural revise only when the separate strategy gate below passes.
+
 ## Respect Host Artifact Workflows
 
 Treat a document label such as `brief`, `decision`, `retrospective`, or `release note` as a profile, not automatic
@@ -167,8 +184,10 @@ what it is—is not.
 
 ## Choose A Revise Strategy
 
-`Revise` has two strategies. Sentence-level polish cannot fix a document whose paragraphs or sections are in the
-wrong place, so do not default to it.
+`Revise` has two strategies. Start with the narrowest intervention that can solve the user's problem. A request
+to make wording natural, clear, or less awkward defaults to local editing when the existing paragraph and section
+order already works. Do not turn a sentence-quality request into a structural rewrite merely because a different
+opening or outline is possible.
 
 | Strategy | Works on |
 | --- | --- |
@@ -199,11 +218,44 @@ leaving its warning until after the reader has been told to do it is not.
 
 Report a structural revise under `Material Changes`, naming the reader problem and the sections affected.
 
+## Run The Local Naturalness Pass
+
+Use the following five steps as internal diagnosis, not as a required output section. Do not emit a quote-and-cause
+inventory unless the output contract requires it. When local editing is selected, work sentence by sentence
+without changing paragraph shape:
+
+1. Quote the smallest phrase that makes a target reader pause, reread, or guess.
+2. Name the cause: translated syntax, an awkward collocation, stacked nominalizations, mixed-language clutter,
+   an indirect metaphor, or a missing actor, action, timing, or authority boundary.
+3. Rewrite that span with the concrete actor and action, or with the collocation a capable native writer would
+   normally choose for this profile.
+4. Check the replacement against the invariant ledger and the author's working voice. A more explicit sentence
+   is not better if it adds an actor, approval, timing, or consequence the source did not establish.
+5. Reread the whole paragraph for rhythm and connective logic, but leave its structure intact unless the
+   structural-revise gate is independently met.
+
+Use the change surface established under `Apply Revise Defaults First`. Do not force a token-level correction when
+grammar or collocation requires recasting the complete clause or sentence, but do not open the surrounding
+paragraph merely because it could also be improved. A fluent explanation after the fact does not justify an
+unmapped change.
+
+Prefer concrete wording when an abstract expression makes the reader interpret the metaphor before understanding
+the instruction. Do not run a mechanical replacement list: the intended boundary decides the word. For example,
+express a policy prohibition as **not changed arbitrarily**, an approval gate as **not changed without approval**,
+and a visibility promise as **not changed without notice**. See the completed Korean contrasts in
+`references/review-rubric.md`. If the source does not reveal which meaning applies, mark the phrase `needs-human`
+instead of choosing the most fluent option.
+
+For a direct short-text `Revise`, return only the revised text by default. Add a concise `Needs Human` note when it
+applies or a brief explanation when the user asks for one. Use the full sectioned report for file edits, longer or
+multi-part documents, structural revision, or requests for traceability.
+
 ## Write And Edit For Natural, Skilled Results
 
 Prefer language that a capable writer would choose for this audience and document—not language that merely
-passes grammar checks. Improve the conclusion, paragraph roles, information order, sentence rhythm, connective
-logic, and concrete next action.
+passes grammar checks. Within the selected revise strategy, improve the conclusion, paragraph roles, information
+order, sentence rhythm, connective logic, and concrete next action. A local edit does not independently authorize
+reordering or opening an otherwise locked span.
 
 Watch for patterns, not banned words:
 
@@ -214,6 +266,11 @@ Watch for patterns, not banned words:
 - excessive headings or bullets that replace an argument,
 - inflated certainty, vague praise, and defensive provenance wording,
 - technical detail presented before the reader knows why it matters.
+
+After identifying a concrete wording defect in a local request, check whether the sentence uses natural
+collocations and lets the reader identify the actor, action, condition, and consequence without decoding an
+ornamental metaphor. The no-edit gate still wins: if the prose is already natural and immediately understandable,
+return it unchanged instead of inventing work for this pass.
 
 Keep technical terms and identifiers when they carry exact meaning. Explain them at first use when the target
 reader would not understand them from the sentence itself. Do not simplify maintainer prose as if every reader
@@ -251,6 +308,7 @@ Compare the result with the invariant ledger and the selected profile. Check:
 4. Natural reading order and target-language idiom
 5. Unsupported additions or omitted material
 6. Unresolved actor, ownership, handoff, destructive-effect, and glossary ambiguity
+7. For a local edit, unchanged paragraph count and order, plus every textual delta mapped to a marked source span
 
 For `Compose`, also confirm that every material sentence is supported by the supplied ledger and that every
 required brief item was used or explicitly dispositioned. There is no source paragraph to preserve, but the facts,
@@ -291,22 +349,23 @@ publishable document, label the draft as partial or provisional instead of filli
 
 ### Revise Or Adapt
 
-Return:
+For file edits, longer or multi-part documents, structural revision, or requests for traceability, return:
 
 1. `Revised Text` or `Adapted Text`
 2. `Preservation Notes` — material claims, identifiers, constraints, and voice choices retained
 3. `Needs Human` — unresolved choices; omit when empty
 4. `Material Changes` — only changes that affect information order, terminology, tone, or interpretation
 
-For a direct short-text request, the revised text may come first and the notes may be brief. For file edits,
-preserve the existing format and links unless changing them is part of the requested scope.
+For a direct short-text request, return only the usable text by default. Add only a concise `Needs Human` note when
+unresolved, or a brief explanation when the user asks for one. For file edits, preserve the existing format and
+links unless changing them is part of the requested scope.
 
 A structural revise may add or merge headings, but any heading another document links to, and any link target,
 survives unchanged unless the request covers updating those references too. When headings move, say so under
 `Material Changes` with the reader problem that motivated it.
 
-When the `Revise` no-edit gate finds no material improvement, reproduce the source under `Revised Text`, explain
-what is already effective under `Preservation Notes`, and write `None` under `Material Changes`.
+When the `Revise` no-edit gate finds no material improvement, reproduce the source exactly. For a direct
+short-text request, return only the reproduced source unless the user asked for an explanation.
 
 ## Boundaries
 

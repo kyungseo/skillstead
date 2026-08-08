@@ -11,6 +11,21 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [Unreleased]
+
+- Made local editing the default for wording, naturalness, and clarity requests when the existing paragraph and
+  section order already works. The skill now marks the smallest complete phrase, clause, or sentence with a named
+  reader problem and leaves the surrounding text unchanged.
+- Added a sentence-level naturalness pass for translated syntax, awkward collocations, nominalizations, indirect
+  metaphors, and missing actor, action, timing, or authority boundaries without turning those issues into an
+  automatic structural rewrite.
+- Added an ambiguity hold for phrases that could express discretion, approval, or notification. The unresolved
+  span stays unchanged under `Needs Human` while other safe local edits may continue.
+- Made direct short-text output proportional: return the usable revision, or the unchanged source when no edit is
+  needed, unless the user requests an explanation.
+- Added Korean local-naturalness fixtures and an evidence-bounded release limitation. Agent output remains
+  non-deterministic, so important documents still require a final delta review.
+
 ## [0.10.1] — 2026-07-30
 
 - Added a first-use path that asks for the source or reliable facts, intended reader, and protected meaning or
