@@ -1,144 +1,136 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 772" width="960" height="772" role="img"
-     shape-rendering="geometricPrecision" text-rendering="optimizeLegibility"
-     style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
-<title>Release Candidate Artifact Promotion</title>
-<desc>Build once to produce an RC artifact, then promote that same image digest through dev, test, and prod; a test bug triggers a RELEASE FIX that builds a new RC. Deploy by digest, roll back by redeploying a previously approved digest, and tag after a successful prod deploy.</desc>
-<style>
-  svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#DCE3EC;
-    --primary:#1F6FB2; --pf:#EAF1F8; --pf-tint:#D9E6F4; --pf-ink:#124267;
-    --ok-fill:#E7F5EF;   --ok-line:#0F7A5F;   --ok-ink:#085041;   --ok-tint:#D0EBDF;
-    --cand-fill:#FBEED8; --cand-line:#A5660E; --cand-ink:#633806; --cand-tint:#F4DEB6;
-    --risk-fill:#FBE9E4; --risk-line:#C2502B; --risk-ink:#7A2E15; --risk-tint:#F6D8CE;
-    --data-fill:#F1F1EE; --data-line:#7A8398; --data-ink:#3F4453; --data-tint:#E4E6EA;
-    --band:#F7FAFD; }
-  text{ fill:var(--ink) }
-  .card{ fill:#FFFFFF }
-  .ct{ font-size:15.5px; font-weight:700 }
-  .cs{ font-size:12px }
-  .mono{ font-family:"SFMono-Regular",Menlo,monospace; font-size:11.5px }
-  .ic{ fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round }
-  .lab{ font-size:13.5px; font-weight:700; fill:#FFFFFF }
-</style>
-<defs>
-  <marker id="ar" viewBox="0 0 9 9" data-lint-allow="marker-footprint" markerUnits="userSpaceOnUse" markerWidth="19.8" markerHeight="19.8" refX="6.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="var(--primary)"/></marker>
-  <marker id="arc" viewBox="0 0 9 9" data-lint-allow="marker-footprint" markerUnits="userSpaceOnUse" markerWidth="21.6" markerHeight="21.6" refX="6.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="var(--cand-line)"/></marker>
-  <symbol id="ic-branch" viewBox="0 0 24 24"><circle cx="6.5" cy="6" r="2.5"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="8" r="2.5"/><path d="M6.5 8.5v7M17.5 10.5c0 4.5-5 3-7 5"/></symbol>
-  <symbol id="ic-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1"/></symbol>
-  <symbol id="ic-package" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
-  <symbol id="ic-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 9l3 3-3 3"/><path d="M13 15h4"/></symbol>
-  <symbol id="ic-flask" viewBox="0 0 24 24"><path d="M9.5 3h5M10.5 3v6l-5 8.5a1.8 1.8 0 0 0 1.6 2.7h9.8a1.8 1.8 0 0 0 1.6-2.7l-5-8.5V3"/><path d="M8 14.5h8"/></symbol>
-  <symbol id="ic-rocket" viewBox="0 0 24 24"><path d="M12 3c3.2 1.4 5 4.4 5 8.2L14.5 14h-5L7 11.2C7 7.4 8.8 4.4 12 3z"/><circle cx="12" cy="9.5" r="1.6"/><path d="M9.5 14.5l-2 3.5M14.5 14.5l2 3.5M12 14.5V19"/></symbol>
-  <symbol id="ic-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l2.5 2.5L16 9"/></symbol>
-  <symbol id="ic-bug" viewBox="0 0 24 24"><path d="M8 9.5a4 4 0 0 1 8 0v3.5a4 4 0 0 1-8 0z"/><path d="M9 5.5a3 3 0 0 1 6 0"/><path d="M8 11.5H4M16 11.5h4M8 15.5l-3.5 2.5M16 15.5l3.5 2.5M8 8.5L5 6.5M16 8.5l3-2"/></symbol>
-  <symbol id="ic-hash" viewBox="0 0 24 24"><path d="M9 4L7.5 20M16.5 4L15 20M4.5 9h15.5M3.5 15h15.5"/></symbol>
-  <symbol id="ic-rollback" viewBox="0 0 24 24"><path d="M9 14l-4.5-4L9 6"/><path d="M4.5 10h9a5.5 5.5 0 0 1 0 11H10"/></symbol>
-  <symbol id="ic-tag" viewBox="0 0 24 24"><path d="M4 12l8-8h7v7l-8 8z"/><circle cx="15.5" cy="8.5" r="1.5"/></symbol>
-</defs>
-<rect width="960" height="772" fill="var(--bg)"/>
+  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>Release Candidate Artifact Promotion</title>
+  <desc>Build once, promote the same digest. A single CI build produces RC-01 at image@sha256:aaa111, and dev, test, and prod all deploy that exact digest behind an approval gate, so test and prod are provably identical. A bug found in test retires RC-01 and a fix produces a new RC-02 at a different digest.</desc>
 
-<!-- header -->
-<rect x="40" y="34" width="5" height="46" rx="2.5" fill="var(--primary)"/>
-<text x="60" y="56" style="font-size:30px;font-weight:800">Release Candidate Artifact Promotion</text>
-<text x="60" y="82" style="font-size:15px;fill:var(--muted)">Build once, promote the same digest — the traceable unit is the RC artifact digest, not the branch</text>
+  <style>
+    svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#D6E0EC; --primary:#1F6FB2;
+      --card:#FFFFFF; --strip:#F7FAFD; --band:#F4F8FC;
+      --b-fill:#E8F1FB; --b-line:#1F6FB2; --b-ink:#124267;
+      --g-fill:#E7F5EF; --g-line:#0F7A5F; --g-ink:#085041;
+      --a-fill:#FDF3E3; --a-line:#D9A441; --a-ink:#8A5D14;
+      --r-fill:#FBEDEC; --r-line:#C0544A; --r-ink:#8A322A; }
+    .on-accent{ fill:#FFFFFF }
+    .eyebrow{ fill:var(--primary); font-size:16px; font-weight:700; letter-spacing:0.10em }
+    .h1{ fill:var(--ink); font-size:32px; font-weight:700 }
+    .sub{ fill:var(--muted); font-size:15.5px }
+    .pill{ font-size:14px; font-weight:700; letter-spacing:0.06em }
+    .nt{ font-size:16px; font-weight:700 }
+    .ns{ fill:var(--muted); font-size:11.5px }
+    .gate{ font-size:13px; font-weight:700 }
+    .rule{ font-size:13px }
+    .rule b{ font-weight:700 }
+  </style>
 
-<!-- ============ BAND 1 · BUILD ============ -->
-<rect x="40" y="104" width="880" height="150" rx="16" fill="var(--band)" stroke="var(--hair)"/>
-<rect x="60" y="122" width="196" height="28" rx="14" fill="var(--primary)"/>
-<text x="158" y="136" text-anchor="middle" class="lab" dominant-baseline="central">① BUILD — build once</text>
+  <defs>
+    <marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="10" markerHeight="10"
+      markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M2 2 L10 6 L2 10" fill="none" stroke="#1F6FB2" stroke-width="2" stroke-linecap="round"/>
+    </marker>
+    <filter id="cardShadow" x="-12%" y="-12%" width="124%" height="124%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1F2733" flood-opacity="0.09"/>
+    </filter>
+    <symbol id="ic-src" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="6" r="2.2"/><circle cx="7" cy="18" r="2.2"/><circle cx="17" cy="6" r="2.2"/><path d="M7 8.2v7.6"/><path d="M17 8.2v3.3a4 4 0 0 1-4 4H9.4"/></symbol>
+    <symbol id="ic-build" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 9l3 3-3 3"/><path d="M13 15h4"/></symbol>
+    <symbol id="ic-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4.2v9.6L12 21l-8-4.2V7.2z"/><path d="M4 7.2l8 4.3 8-4.3"/><path d="M12 11.5V21"/></symbol>
+    <symbol id="ic-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="7" rx="2"/><rect x="4" y="13" width="16" height="7" rx="2"/><path d="M8 7.5h.01M8 16.5h.01"/></symbol>
+    <symbol id="ic-bug" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5v17"/><path d="M4.5 20.5l15-15"/><circle cx="12" cy="12" r="8.5"/></symbol>
+    <symbol id="ic-fix" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11a7.5 7.5 0 0 1 12.8-5.3L20 8"/><path d="M20 2.5V8h-5.5"/><path d="M8.5 15.5l2.4 2.4 4.6-4.8"/></symbol>
+  </defs>
 
-<!-- b1 card: Source -->
-<rect class="card" x="64" y="168" width="248" height="72" rx="12" stroke="var(--data-line)"/>
-<circle cx="96" cy="204" r="22" fill="var(--data-tint)"/><use href="#ic-branch" class="ic" x="81" y="189" width="30" height="30" style="color:var(--data-line)"/>
-<text x="126" y="195" class="ct" style="fill:var(--data-ink)" dominant-baseline="central">Source</text>
-<text x="126" y="216" class="cs" style="fill:var(--data-ink)" dominant-baseline="central">release tip · develop→release/*</text>
-<!-- b1 card: CI Build -->
-<rect class="card" x="356" y="168" width="248" height="72" rx="12" stroke="var(--primary)"/>
-<circle cx="388" cy="204" r="22" fill="var(--pf-tint)"/><use href="#ic-gear" class="ic" x="373" y="189" width="30" height="30" style="color:var(--primary)"/>
-<text x="418" y="195" class="ct" style="fill:var(--pf-ink)" dominant-baseline="central">CI Build</text>
-<text x="418" y="216" class="cs" style="fill:var(--pf-ink)" dominant-baseline="central">built exactly once</text>
-<!-- b1 card: RC-01 -->
-<rect class="card" x="648" y="168" width="248" height="72" rx="12" stroke="var(--ok-line)" stroke-width="1.4"/>
-<circle cx="680" cy="204" r="22" fill="var(--ok-tint)"/><use href="#ic-package" class="ic" x="665" y="189" width="30" height="30" style="color:var(--ok-line)"/>
-<text x="710" y="195" class="ct" style="fill:var(--ok-ink)" dominant-baseline="central">RC-01 artifact</text>
-<text x="710" y="216" class="mono" style="fill:var(--ok-ink)" dominant-baseline="central">image@sha256:aaa111…</text>
-<line x1="314" y1="204" x2="352" y2="204" stroke="var(--primary)" stroke-width="2.2" marker-end="url(#ar)"/>
-<line x1="606" y1="204" x2="644" y2="204" stroke="var(--primary)" stroke-width="2.2" marker-end="url(#ar)"/>
+  <rect width="960" height="772" fill="var(--bg)"/>
 
-<!-- ============ BAND 2 · PROMOTE ============ -->
-<rect x="40" y="270" width="880" height="200" rx="16" fill="var(--band)" stroke="var(--hair)"/>
-<rect x="60" y="288" width="290" height="28" rx="14" fill="var(--ok-line)"/>
-<text x="205" y="302" text-anchor="middle" class="lab" dominant-baseline="central">② PROMOTE — promote the same digest</text>
+  <!-- header: rail from eyebrowTop(56) to titleBottom(116) -->
+  <g data-layout-role="page-title-header" data-layout-rail-padding-top="16"
+     data-layout-rail-padding-bottom="0" data-layout-subtitle-gap="12" data-layout-tolerance="2">
+    <rect data-layout-role="title-rail" x="40" y="40" width="6" height="76" rx="3" fill="var(--primary)"/>
+    <text data-layout-role="title-eyebrow" class="eyebrow" x="68" y="64" font-size="16" dominant-baseline="middle">RELEASE PIPELINE</text>
+    <text data-layout-role="title-line" class="h1" x="68" y="100" font-size="32" dominant-baseline="middle">Release Candidate Artifact Promotion</text>
+    <text data-layout-role="title-subtitle" class="sub" x="68" y="144" font-size="15.5" dominant-baseline="middle">Build once, promote the same digest — the unit you track is the artifact, not the branch</text>
+  </g>
 
-<!-- approval gate pill over test→prod -->
-<rect x="566" y="330" width="124" height="26" rx="13" fill="var(--cand-fill)" stroke="var(--cand-line)" stroke-width="1"/>
-<use href="#ic-check" class="ic" x="576" y="336" width="14" height="14" style="color:var(--cand-line)"/>
-<text x="634" y="343" text-anchor="middle" class="cs" style="fill:var(--cand-ink);font-weight:700" dominant-baseline="central">approval gate</text>
-<line x1="628" y1="356" x2="628" y2="392" stroke="var(--cand-line)" stroke-width="1.4" stroke-dasharray="3 3"/>
+  <!-- band 1 — BUILD -->
+  <rect x="40" y="180" width="880" height="138" rx="16" fill="var(--band)" stroke="var(--hair)" stroke-width="1"/>
+  <rect x="68" y="161" width="120" height="38" rx="19" fill="var(--primary)"/>
+  <text class="pill on-accent" x="128" y="180" text-anchor="middle" dominant-baseline="central">① BUILD</text>
 
-<!-- b2 card: dev -->
-<rect class="card" x="64" y="362" width="248" height="72" rx="12" stroke="var(--primary)"/>
-<circle cx="96" cy="398" r="22" fill="var(--pf-tint)"/><use href="#ic-terminal" class="ic" x="81" y="383" width="30" height="30" style="color:var(--primary)"/>
-<text x="126" y="389" class="ct" style="fill:var(--pf-ink)" dominant-baseline="central">dev</text>
-<text x="126" y="410" class="cs" style="fill:var(--pf-ink)" dominant-baseline="central"><tspan class="mono">@aaa111</tspan> · auto deploy</text>
-<!-- b2 card: test -->
-<rect class="card" x="356" y="362" width="248" height="72" rx="12" stroke="var(--ok-line)"/>
-<circle cx="388" cy="398" r="22" fill="var(--ok-tint)"/><use href="#ic-flask" class="ic" x="373" y="383" width="30" height="30" style="color:var(--ok-line)"/>
-<text x="418" y="389" class="ct" style="fill:var(--ok-ink)" dominant-baseline="central">test</text>
-<text x="418" y="410" class="cs" style="fill:var(--ok-ink)" dominant-baseline="central"><tspan class="mono">@aaa111</tspan> · verify</text>
-<!-- b2 card: prod -->
-<rect class="card" x="648" y="362" width="248" height="72" rx="12" stroke="var(--ok-line)"/>
-<circle cx="680" cy="398" r="22" fill="var(--ok-tint)"/><use href="#ic-rocket" class="ic" x="665" y="383" width="30" height="30" style="color:var(--ok-line)"/>
-<text x="710" y="389" class="ct" style="fill:var(--ok-ink)" dominant-baseline="central">prod</text>
-<text x="710" y="410" class="cs" style="fill:var(--ok-ink)" dominant-baseline="central"><tspan class="mono">@aaa111</tspan> · operate</text>
-<line x1="314" y1="398" x2="352" y2="398" stroke="var(--primary)" stroke-width="2.2" marker-end="url(#ar)"/>
-<line x1="606" y1="398" x2="644" y2="398" stroke="var(--cand-line)" stroke-width="2.4" marker-end="url(#arc)"/>
+  <rect x="84" y="222" width="224" height="76" rx="12" fill="var(--card)" stroke="var(--b-line)" stroke-width="1" filter="url(#cardShadow)"/>
+  <circle cx="124" cy="260" r="20" fill="var(--b-fill)"/><use href="#ic-src" x="112" y="248" width="24" height="24" style="color:#1F6FB2"/>
+  <text class="nt" x="156" y="250" dominant-baseline="central" fill="var(--b-ink)">Source</text>
+  <text class="ns" x="156" y="272" dominant-baseline="central">develop → release/*</text>
 
-<!-- annotation: test == prod -->
-<text x="480" y="451" text-anchor="middle" class="cs" style="fill:var(--ok-ink);font-weight:700" dominant-baseline="central">test == prod (identical digest guaranteed) · dev may run ahead on the next integration build</text>
+  <rect x="368" y="222" width="224" height="76" rx="12" fill="var(--card)" stroke="var(--b-line)" stroke-width="1" filter="url(#cardShadow)"/>
+  <circle cx="408" cy="260" r="20" fill="var(--b-fill)"/><use href="#ic-build" x="396" y="248" width="24" height="24" style="color:#1F6FB2"/>
+  <text class="nt" x="440" y="250" dominant-baseline="central" fill="var(--b-ink)">CI build</text>
+  <text class="ns" x="440" y="272" dominant-baseline="central">runs exactly once</text>
 
-<!-- ============ BAND 3 · RELEASE FIX ============ -->
-<rect x="40" y="486" width="880" height="150" rx="16" fill="var(--band)" stroke="var(--hair)"/>
-<rect x="60" y="504" width="300" height="28" rx="14" fill="var(--risk-line)"/>
-<text x="210" y="518" text-anchor="middle" class="lab" dominant-baseline="central">③ RELEASE FIX — test bug → new RC</text>
+  <rect x="652" y="222" width="224" height="76" rx="12" fill="var(--card)" stroke="var(--g-line)" stroke-width="2.5" filter="url(#cardShadow)"/>
+  <circle cx="692" cy="260" r="20" fill="var(--g-fill)"/><use href="#ic-box" x="680" y="248" width="24" height="24" style="color:#0F7A5F"/>
+  <text class="nt" x="724" y="250" dominant-baseline="central" fill="var(--g-ink)">RC-01 artifact</text>
+  <text class="ns" x="724" y="272" dominant-baseline="central">@sha256:aaa111…</text>
 
-<!-- b3 cards (4) w=190 -->
-<rect class="card" x="64" y="550" width="190" height="72" rx="12" stroke="var(--risk-line)" stroke-width="1.4"/>
-<circle cx="92" cy="586" r="19" fill="var(--risk-tint)"/><use href="#ic-bug" class="ic" x="79" y="573" width="26" height="26" style="color:var(--risk-line)"/>
-<text x="118" y="578" style="font-size:13.5px;font-weight:700;fill:var(--risk-ink)" dominant-baseline="central">Bug in test</text>
-<text x="118" y="597" style="font-size:10.5px;fill:var(--risk-ink)" dominant-baseline="central">drop RC-01</text>
+  <g fill="none" stroke="var(--b-line)" stroke-width="2.2" stroke-linecap="round" marker-end="url(#ah)">
+    <path d="M316 260 H356"/>
+    <path d="M600 260 H640"/>
+  </g>
 
-<rect class="card" x="278" y="550" width="190" height="72" rx="12" stroke="var(--cand-line)"/>
-<circle cx="306" cy="586" r="19" fill="var(--cand-tint)"/><use href="#ic-branch" class="ic" x="293" y="573" width="26" height="26" style="color:var(--cand-line)"/>
-<text x="332" y="578" style="font-size:13.5px;font-weight:700;fill:var(--cand-ink)" dominant-baseline="central">release/* fix</text>
-<text x="332" y="597" style="font-size:10.5px;fill:var(--cand-ink)" dominant-baseline="central">fix the cause</text>
+  <!-- band 2 — PROMOTE -->
+  <rect x="40" y="340" width="880" height="138" rx="16" fill="var(--band)" stroke="var(--hair)" stroke-width="1"/>
+  <rect x="68" y="321" width="140" height="38" rx="19" fill="var(--primary)"/>
+  <text class="pill on-accent" x="138" y="340" text-anchor="middle" dominant-baseline="central">② PROMOTE</text>
 
-<rect class="card" x="492" y="550" width="190" height="72" rx="12" stroke="var(--primary)"/>
-<circle cx="520" cy="586" r="19" fill="var(--pf-tint)"/><use href="#ic-gear" class="ic" x="507" y="573" width="26" height="26" style="color:var(--primary)"/>
-<text x="546" y="578" style="font-size:13.5px;font-weight:700;fill:var(--pf-ink)" dominant-baseline="central">CI Build</text>
-<text x="546" y="597" style="font-size:10.5px;fill:var(--pf-ink)" dominant-baseline="central">rebuild the fix</text>
+  <rect x="562" y="346" width="120" height="28" rx="14" fill="var(--a-fill)" stroke="var(--a-line)" stroke-width="1"/>
+  <text class="gate" x="622" y="360" text-anchor="middle" dominant-baseline="central" fill="var(--a-ink)">approval gate</text>
+  <path d="M622 374 V412" fill="none" stroke="var(--a-line)" stroke-width="1.5" stroke-dasharray="3 3"/>
 
-<rect class="card" x="706" y="550" width="190" height="72" rx="12" stroke="var(--ok-line)" stroke-width="1.4"/>
-<circle cx="734" cy="586" r="19" fill="var(--ok-tint)"/><use href="#ic-package" class="ic" x="721" y="573" width="26" height="26" style="color:var(--ok-line)"/>
-<text x="760" y="578" style="font-size:13.5px;font-weight:700;fill:var(--ok-ink)" dominant-baseline="central">New RC-02</text>
-<text x="760" y="597" class="mono" style="fill:var(--ok-ink);font-size:10.5px" dominant-baseline="central">@sha256:bbb222…</text>
+  <rect x="84" y="382" width="224" height="76" rx="12" fill="var(--card)" stroke="var(--b-line)" stroke-width="1" filter="url(#cardShadow)"/>
+  <circle cx="124" cy="420" r="20" fill="var(--b-fill)"/><use href="#ic-server" x="112" y="408" width="24" height="24" style="color:#1F6FB2"/>
+  <text class="nt" x="156" y="410" dominant-baseline="central" fill="var(--b-ink)">dev</text>
+  <text class="ns" x="156" y="432" dominant-baseline="central">@aaa111</text>
 
-<line x1="256" y1="586" x2="276" y2="586" stroke="var(--primary)" stroke-width="2.2" marker-end="url(#ar)"/>
-<line x1="470" y1="586" x2="490" y2="586" stroke="var(--primary)" stroke-width="2.2" marker-end="url(#ar)"/>
-<line x1="684" y1="586" x2="704" y2="586" stroke="var(--primary)" stroke-width="2.2" marker-end="url(#ar)"/>
+  <rect x="368" y="382" width="224" height="76" rx="12" fill="var(--card)" stroke="var(--b-line)" stroke-width="1" filter="url(#cardShadow)"/>
+  <circle cx="408" cy="420" r="20" fill="var(--b-fill)"/><use href="#ic-server" x="396" y="408" width="24" height="24" style="color:#1F6FB2"/>
+  <text class="nt" x="440" y="410" dominant-baseline="central" fill="var(--b-ink)">test</text>
+  <text class="ns" x="440" y="432" dominant-baseline="central">@aaa111</text>
 
-<!-- ============ FOOTER · 3 rules ============ -->
-<rect class="card" x="64" y="654" width="268" height="86" rx="12" fill="var(--pf)" stroke="var(--primary)" stroke-width=".75"/>
-<circle cx="98" cy="697" r="21" fill="#FFFFFF"/><use href="#ic-hash" class="ic" x="84" y="683" width="28" height="28" style="color:var(--primary)"/>
-<text x="128" y="688" style="font-size:13.5px;font-weight:700;fill:var(--pf-ink)" dominant-baseline="central">Deploy by digest</text>
-<text x="128" y="708" style="font-size:11px;fill:var(--primary)" dominant-baseline="central">by <tspan class="mono">@sha256</tspan>, not by tag</text>
+  <rect x="652" y="382" width="224" height="76" rx="12" fill="var(--card)" stroke="var(--g-line)" stroke-width="2.5" filter="url(#cardShadow)"/>
+  <circle cx="692" cy="420" r="20" fill="var(--g-fill)"/><use href="#ic-server" x="680" y="408" width="24" height="24" style="color:#0F7A5F"/>
+  <text class="nt" x="724" y="410" dominant-baseline="central" fill="var(--g-ink)">prod</text>
+  <text class="ns" x="724" y="432" dominant-baseline="central">same digest as test</text>
 
-<rect class="card" x="346" y="654" width="268" height="86" rx="12" fill="var(--pf)" stroke="var(--primary)" stroke-width=".75"/>
-<circle cx="380" cy="697" r="21" fill="#FFFFFF"/><use href="#ic-rollback" class="ic" x="366" y="683" width="28" height="28" style="color:var(--primary)"/>
-<text x="410" y="688" style="font-size:13.5px;font-weight:700;fill:var(--pf-ink)" dominant-baseline="central">Rollback = redeploy</text>
-<text x="410" y="708" style="font-size:11px;fill:var(--primary)" dominant-baseline="central">a previously approved digest</text>
+  <g fill="none" stroke="var(--b-line)" stroke-width="2.2" stroke-linecap="round" marker-end="url(#ah)">
+    <path d="M316 420 H356"/>
+    <path d="M600 420 H640"/>
+  </g>
 
-<rect class="card" x="628" y="654" width="268" height="86" rx="12" fill="var(--pf)" stroke="var(--primary)" stroke-width=".75"/>
-<circle cx="662" cy="697" r="21" fill="#FFFFFF"/><use href="#ic-tag" class="ic" x="648" y="683" width="28" height="28" style="color:var(--primary)"/>
-<text x="692" y="688" style="font-size:13.5px;font-weight:700;fill:var(--pf-ink)" dominant-baseline="central">Tag after success</text>
-<text x="692" y="708" style="font-size:11px;fill:var(--primary)" dominant-baseline="central">tag <tspan class="mono">main</tspan> after a good prod deploy</text>
+  <!-- band 3 — RELEASE FIX -->
+  <rect x="40" y="500" width="880" height="138" rx="16" fill="var(--band)" stroke="var(--hair)" stroke-width="1"/>
+  <rect x="68" y="481" width="176" height="38" rx="19" fill="var(--r-line)"/>
+  <text class="pill on-accent" x="156" y="500" text-anchor="middle" dominant-baseline="central">③ RELEASE FIX</text>
+
+  <rect x="84" y="542" width="224" height="76" rx="12" fill="var(--card)" stroke="var(--r-line)" stroke-width="1" filter="url(#cardShadow)"/>
+  <circle cx="124" cy="580" r="20" fill="var(--r-fill)"/><use href="#ic-bug" x="112" y="568" width="24" height="24" style="color:#C0544A"/>
+  <text class="nt" x="156" y="570" dominant-baseline="central" fill="var(--r-ink)">Bug in test</text>
+  <text class="ns" x="156" y="592" dominant-baseline="central">RC-01 is dropped</text>
+
+  <rect x="368" y="542" width="224" height="76" rx="12" fill="var(--card)" stroke="var(--b-line)" stroke-width="1" filter="url(#cardShadow)"/>
+  <circle cx="408" cy="580" r="20" fill="var(--b-fill)"/><use href="#ic-fix" x="396" y="568" width="24" height="24" style="color:#1F6FB2"/>
+  <text class="nt" x="440" y="570" dominant-baseline="central" fill="var(--b-ink)">Fix and rebuild</text>
+  <text class="ns" x="440" y="592" dominant-baseline="central">release/* fix</text>
+
+  <rect x="652" y="542" width="224" height="76" rx="12" fill="var(--card)" stroke="var(--g-line)" stroke-width="2.5" filter="url(#cardShadow)"/>
+  <circle cx="692" cy="580" r="20" fill="var(--g-fill)"/><use href="#ic-box" x="680" y="568" width="24" height="24" style="color:#0F7A5F"/>
+  <text class="nt" x="724" y="570" dominant-baseline="central" fill="var(--g-ink)">New RC-02</text>
+  <text class="ns" x="724" y="592" dominant-baseline="central">@sha256:bbb222…</text>
+
+  <g fill="none" stroke="var(--b-line)" stroke-width="2.2" stroke-linecap="round" marker-end="url(#ah)">
+    <path d="M316 580 H356"/>
+    <path d="M600 580 H640"/>
+  </g>
+
+  <!-- footer rules -->
+  <rect x="40" y="662" width="880" height="60" rx="12" fill="var(--strip)" stroke="var(--hair)" stroke-width="1"/>
+  <text class="rule" x="68" y="692" dominant-baseline="central" fill="var(--muted)"><tspan font-weight="700" fill="#1F2733">Deploy by digest</tspan>, never by tag</text>
+  <text class="rule" x="352" y="692" dominant-baseline="central" fill="var(--muted)"><tspan font-weight="700" fill="#1F2733">Rollback</tspan> = redeploy an approved digest</text>
+  <text class="rule" x="672" y="692" dominant-baseline="central" fill="var(--muted)"><tspan font-weight="700" fill="#1F2733">Tag</tspan> after prod succeeds</text>
 </svg>

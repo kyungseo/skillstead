@@ -1,63 +1,98 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350" width="1080" height="1350" role="img"
-     shape-rendering="geometricPrecision" text-rendering="optimizeLegibility"
-     style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
-<title>AI 엔지니어링의 4가지 레이어</title>
-<desc>중첩된 4개 레이어 — Prompt를 Context가, Context를 Harness가, Harness를 Loop가 감싼다. 각 엔지니어링 레이어를 아이콘과 한 줄 설명으로 표현.</desc>
-<style>
-  svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#DCE3EC; --band:#F7FAFD;
-    --l1:#1F6FB2; --l2:#5A8DC4; --l3:#7AA6D2; --l4:#9DBEDE; }
-  text{ fill:var(--ink) }
-  .sub{ fill:var(--muted) }
-  .ct{ font-size:25px; font-weight:700 }
-  .cd{ font-size:18px; fill:var(--muted) }
-  .ic{ fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round }
-</style>
-<defs>
-  <symbol id="ic-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 9l3 3-3 3"/><path d="M13 15h4"/></symbol>
-  <symbol id="ic-doc" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 16.5h6M9 9.5h2"/></symbol>
-  <symbol id="ic-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
-  <symbol id="ic-loop" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 0 1 12.8-5.3L20 9"/><path d="M20 3.5V9h-5.5"/><path d="M19.5 12a7.5 7.5 0 0 1-12.8 5.3L4 15"/><path d="M4 20.5V15h5.5"/></symbol>
-</defs>
-<rect width="1080" height="1350" fill="var(--bg)"/>
+  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>AI 엔지니어링의 4가지 레이어</title>
+  <desc>AI 엔지니어링을 네 겹의 레이어로 정리했습니다. 루프가 하네스를, 하네스가 컨텍스트를, 컨텍스트가 프롬프트를 감쌉니다. 안쪽 레이어가 갖춰져야 바깥 레이어가 제 값을 합니다.</desc>
 
-<!-- title -->
-<rect x="80" y="60" width="8" height="54" rx="4" fill="var(--l1)"/>
-<text x="106" y="100" style="font-size:44px;font-weight:800">AI 엔지니어링의 4가지 레이어</text>
-<text x="106" y="136" class="sub" style="font-size:20px">각 레이어는 그 앞의 레이어를 감싼다.</text>
+  <style>
+    svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#D6E0EC; --primary:#1F6FB2;
+      --card:#FFFFFF; --strip:#F7FAFD; --icon-tint:#E3EEF8; --card-line:#C9DCEE;
+      --r1-fill:#EAF2FA; --r1-line:#C3DAF0; --r1-ink:#2C5B85;
+      --r2-fill:#D8E8F7; --r2-line:#A6C9E7; --r2-ink:#23527C;
+      --r3-fill:#B9D6F0; --r3-line:#8AB6DE; --r3-ink:#17436E;
+      --r4-fill:#1F6FB2; --r4-line:#17588F; }
+    .on-accent{ fill:#FFFFFF }
+    .eyebrow{ fill:var(--primary); font-size:16px; font-weight:700; letter-spacing:0.10em }
+    .h1{ fill:var(--ink); font-size:46px; font-weight:700 }
+    .sub{ fill:var(--muted); font-size:19px }
+    .ring-label{ font-size:24px; font-weight:700 }
+    .core-label{ font-size:26px; font-weight:700 }
+    .c-title{ fill:var(--ink); font-size:25px; font-weight:700 }
+    .c-body{ fill:var(--muted); font-size:19px }
+    .c-num{ fill:var(--primary); font-size:28px; font-weight:700 }
+    .caption{ fill:var(--muted); font-size:16px }
+  </style>
 
-<!-- nested onion -->
-<rect x="120" y="184" width="840" height="410" rx="24" fill="#E8F1FB" stroke="#9DBEDE" stroke-width="1.5"/>
-<text x="540" y="216" text-anchor="middle" dominant-baseline="central" style="font-size:25px;font-weight:800;fill:#2C5A86">Loop</text>
-<rect x="212" y="246" width="656" height="288" rx="20" fill="#CFE0F2" stroke="#7AA6D2" stroke-width="1.5"/>
-<text x="540" y="278" text-anchor="middle" dominant-baseline="central" style="font-size:24px;font-weight:800;fill:#274F79">Harness</text>
-<rect x="318" y="302" width="444" height="176" rx="18" fill="#9DC0E4" stroke="#5A8DC4" stroke-width="1.5"/>
-<text x="540" y="334" text-anchor="middle" dominant-baseline="central" style="font-size:23px;font-weight:800;fill:#193A5C">Context</text>
-<rect x="410" y="352" width="260" height="86" rx="16" fill="#1F6FB2" stroke="#175789" stroke-width="1.5"/>
-<text x="540" y="395" text-anchor="middle" dominant-baseline="central" style="font-size:23px;font-weight:800;fill:#FFFFFF">Prompt</text>
+  <defs>
+    <symbol id="ic-prompt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7l4.5 5L5 17"/><path d="M12.5 17H19"/></symbol>
+    <filter id="cardShadow" x="-12%" y="-12%" width="124%" height="124%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1F2733" flood-opacity="0.10"/>
+    </filter>
+  </defs>
 
-<!-- 2x2 cards -->
-<rect x="96" y="654" width="426" height="200" rx="18" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
-<circle cx="162" cy="754" r="38" fill="#E3EEF8"/><use href="#ic-terminal" class="ic" x="142" y="734" width="40" height="40" style="color:var(--l1)"/>
-<text x="222" y="712" class="ct">프롬프트 엔지니어링</text>
-<text x="222" y="750" class="cd"><tspan x="222" dy="0">직접 입력하는 정확한 단어와</tspan><tspan x="222" dy="26">지시·제약 조건.</tspan></text>
+  <rect width="1080" height="1350" fill="var(--bg)"/>
 
-<rect x="558" y="654" width="426" height="200" rx="18" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
-<circle cx="624" cy="754" r="38" fill="#E3EEF8"/><use href="#ic-doc" class="ic" x="604" y="734" width="40" height="40" style="color:#3F72A8"/>
-<text x="684" y="712" class="ct">컨텍스트 엔지니어링</text>
-<text x="684" y="750" class="cd"><tspan x="684" dy="0">시스템 프롬프트·참조 파일·</tspan><tspan x="684" dy="26">히스토리를 사전에 읽는다.</tspan></text>
+  <!-- header: rail derived from eyebrowTop(68) and titleBottom(147) -->
+  <g data-layout-role="page-title-header" data-layout-rail-padding-top="16"
+     data-layout-rail-padding-bottom="0" data-layout-subtitle-gap="12" data-layout-tolerance="2">
+    <rect data-layout-role="title-rail" x="48" y="52" width="6" height="95" rx="3" fill="var(--primary)"/>
+    <text data-layout-role="title-eyebrow" class="eyebrow" x="76" y="76" font-size="16" dominant-baseline="middle">개념 정리</text>
+    <text data-layout-role="title-line" class="h1" x="76" y="124" font-size="46" dominant-baseline="middle">AI 엔지니어링의 4가지 레이어</text>
+    <text data-layout-role="title-subtitle" class="sub" x="76" y="182" font-size="19" dominant-baseline="middle">각 레이어는 안쪽 레이어를 감싼다.</text>
+  </g>
 
-<rect x="96" y="878" width="426" height="200" rx="18" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
-<circle cx="162" cy="978" r="38" fill="#EAF1F8"/><use href="#ic-gear" class="ic" x="142" y="958" width="40" height="40" style="color:#4E7DAE"/>
-<text x="222" y="936" class="ct">하네스 엔지니어링</text>
-<text x="222" y="974" class="cd"><tspan x="222" dy="0">도구를 라우팅하고 출력을 검사하며</tspan><tspan x="222" dy="26">스스로 재시도하는 코드.</tspan></text>
+  <!-- nested rings: uniform 56px inset per ring -->
+  <rect x="162" y="236" width="756" height="504" rx="28" fill="var(--r1-fill)" stroke="var(--r1-line)" stroke-width="1"/>
+  <text class="ring-label" x="540" y="264" text-anchor="middle" dominant-baseline="central" fill="var(--r1-ink)">루프</text>
 
-<rect x="558" y="878" width="426" height="200" rx="18" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
-<circle cx="624" cy="978" r="38" fill="#EEF3F9"/><use href="#ic-loop" class="ic" x="604" y="958" width="40" height="40" style="color:#5E8AB8"/>
-<text x="684" y="936" class="ct">루프 엔지니어링</text>
-<text x="684" y="974" class="cd"><tspan x="684" dy="0">목표와 중단 조건을 두어</tspan><tspan x="684" dy="26">스스로 실행하고 교정한다.</tspan></text>
+  <rect x="218" y="292" width="644" height="392" rx="24" fill="var(--r2-fill)" stroke="var(--r2-line)" stroke-width="1"/>
+  <text class="ring-label" x="540" y="320" text-anchor="middle" dominant-baseline="central" fill="var(--r2-ink)">하네스</text>
 
-<!-- footer -->
-<rect x="96" y="1140" width="888" height="86" rx="16" fill="var(--band)" stroke="var(--hair)"/>
-<text x="540" y="1172" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:18px">훌륭한 프롬프트도 컨텍스트가 없으면 추측 · 하네스가 없으면 표류</text>
-<text x="540" y="1200" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:18px">· 루프가 없으면 당신을 기다린다.</text>
+  <rect x="274" y="348" width="532" height="280" rx="20" fill="var(--r3-fill)" stroke="var(--r3-line)" stroke-width="1"/>
+  <text class="ring-label" x="540" y="376" text-anchor="middle" dominant-baseline="central" fill="var(--r3-ink)">컨텍스트</text>
+
+  <rect x="330" y="404" width="420" height="168" rx="16" fill="var(--r4-fill)" stroke="var(--r4-line)" stroke-width="1"/>
+  <circle cx="540" cy="462" r="34" fill="#FFFFFF" fill-opacity="0.18"/>
+  <use href="#ic-prompt" x="520" y="442" width="40" height="40" style="color:#FFFFFF"/>
+  <text class="core-label on-accent" x="540" y="528" text-anchor="middle" dominant-baseline="central">프롬프트</text>
+
+  <!-- card 1 -->
+  <g data-layout-role="icon-text-card" data-layout-center-y="878">
+    <rect data-layout-role="card-frame" x="56" y="788" width="468" height="180" rx="24" fill="var(--card)" stroke="var(--card-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <circle data-layout-role="icon-center" cx="128" cy="878" r="34" fill="var(--icon-tint)"/>
+    <text class="c-num" x="128" y="878" text-anchor="middle" dominant-baseline="middle">1</text>
+    <text data-layout-role="card-title" class="c-title" x="180" y="848" font-size="25" dominant-baseline="middle">프롬프트 엔지니어링</text>
+    <text data-layout-role="card-body" class="c-body" x="180" y="886" font-size="19" dominant-baseline="middle"><tspan x="180" dy="0">직접 입력하는 정확한 단어와</tspan><tspan x="180" dy="26">지시·제약 조건.</tspan></text>
+  </g>
+
+  <!-- card 2 -->
+  <g data-layout-role="icon-text-card" data-layout-center-y="878">
+    <rect data-layout-role="card-frame" x="556" y="788" width="468" height="180" rx="24" fill="var(--card)" stroke="var(--card-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <circle data-layout-role="icon-center" cx="628" cy="878" r="34" fill="var(--icon-tint)"/>
+    <text class="c-num" x="628" y="878" text-anchor="middle" dominant-baseline="middle">2</text>
+    <text data-layout-role="card-title" class="c-title" x="680" y="848" font-size="25" dominant-baseline="middle">컨텍스트 엔지니어링</text>
+    <text data-layout-role="card-body" class="c-body" x="680" y="886" font-size="19" dominant-baseline="middle"><tspan x="680" dy="0">시스템 프롬프트와 참조 파일,</tspan><tspan x="680" dy="26">히스토리를 미리 읽어 둔다.</tspan></text>
+  </g>
+
+  <!-- card 3 -->
+  <g data-layout-role="icon-text-card" data-layout-center-y="1090">
+    <rect data-layout-role="card-frame" x="56" y="1000" width="468" height="180" rx="24" fill="var(--card)" stroke="var(--card-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <circle data-layout-role="icon-center" cx="128" cy="1090" r="34" fill="var(--icon-tint)"/>
+    <text class="c-num" x="128" y="1090" text-anchor="middle" dominant-baseline="middle">3</text>
+    <text data-layout-role="card-title" class="c-title" x="180" y="1060" font-size="25" dominant-baseline="middle">하네스 엔지니어링</text>
+    <text data-layout-role="card-body" class="c-body" x="180" y="1098" font-size="19" dominant-baseline="middle"><tspan x="180" dy="0">도구를 라우팅하고 출력을 검사하며</tspan><tspan x="180" dy="26">스스로 재시도하는 코드.</tspan></text>
+  </g>
+
+  <!-- card 4 -->
+  <g data-layout-role="icon-text-card" data-layout-center-y="1090">
+    <rect data-layout-role="card-frame" x="556" y="1000" width="468" height="180" rx="24" fill="var(--card)" stroke="var(--card-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <circle data-layout-role="icon-center" cx="628" cy="1090" r="34" fill="var(--icon-tint)"/>
+    <text class="c-num" x="628" y="1090" text-anchor="middle" dominant-baseline="middle">4</text>
+    <text data-layout-role="card-title" class="c-title" x="680" y="1060" font-size="25" dominant-baseline="middle">루프 엔지니어링</text>
+    <text data-layout-role="card-body" class="c-body" x="680" y="1098" font-size="19" dominant-baseline="middle"><tspan x="680" dy="0">목표와 중단 조건을 두어</tspan><tspan x="680" dy="26">스스로 실행하고 교정한다.</tspan></text>
+  </g>
+
+  <!-- footer -->
+  <rect x="48" y="1220" width="984" height="72" rx="14" fill="var(--strip)" stroke="var(--hair)" stroke-width="1"/>
+  <text class="caption" x="540" y="1246" text-anchor="middle" dominant-baseline="central">훌륭한 프롬프트도 컨텍스트가 없으면 추측에 그치고, 하네스가 없으면 표류하며,</text>
+  <text class="caption" x="540" y="1272" text-anchor="middle" dominant-baseline="central">루프가 없으면 당신을 기다린다.</text>
 </svg>

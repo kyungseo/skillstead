@@ -1,112 +1,135 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1120" width="1080" height="1120" role="img"
-     shape-rendering="geometricPrecision" text-rendering="optimizeLegibility"
-     style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
-<title>svg-infographic — 무엇을 만들고 어떻게 동작하나</title>
-<desc>svg-infographic skill 개요: 만드는 다이어그램 종류, 확인-작성-렌더-검증 흐름, 한국어/CJK 최우선 텍스트, 크로스 플랫폼 렌더링.</desc>
-<style>
-  svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#DCE3EC; --primary:#1F6FB2; --pf-tint:#E3EEF8;
-    --band:#F7FAFD; --no-ink:#8A3618; }
-  text{ fill:var(--ink) }
-  .sub{ fill:var(--muted) }
-  .sec{ font-size:23px; font-weight:800 }
-  .ic{ fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round }
-</style>
-<defs>
-  <marker id="a2" viewBox="0 0 9 9" data-lint-allow="marker-footprint" markerUnits="userSpaceOnUse" markerWidth="16.2" markerHeight="16.2" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8A94A3"/></marker>
-  <symbol id="ic-network" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></symbol>
-  <symbol id="ic-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 16l9 5 9-5"/></symbol>
-  <symbol id="ic-flow" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2.4"/><circle cx="19" cy="12" r="2.4"/><path d="M7.4 12h6.2M14 8.5l3.5 3.5-3.5 3.5"/></symbol>
-  <symbol id="ic-compare" viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/></symbol>
-  <symbol id="ic-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.6"/><rect x="13" y="3" width="8" height="8" rx="1.6"/><rect x="3" y="13" width="8" height="8" rx="1.6"/><rect x="13" y="13" width="8" height="8" rx="1.6"/></symbol>
-  <symbol id="ic-roadmap" viewBox="0 0 24 24"><path d="M6 21V4"/><path d="M6 4h12l-2.5 4L18 12H6"/></symbol>
-  <symbol id="ic-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></symbol>
-</defs>
-<rect width="1080" height="1120" fill="var(--bg)"/>
+  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>svg-infographic — 이 스킬이 만드는 것</title>
+  <desc>svg-infographic 스킬 개요입니다. 그릴 수 있는 다이어그램 여섯 종류, 확인·SVG 작성·렌더·검증의 네 단계, 한국어와 CJK를 우선으로 다루는 조판, 어느 환경에서나 도는 렌더링, 그리고 일부러 맡지 않는 작업을 함께 보여 줍니다.</desc>
 
-<!-- title -->
-<rect x="64" y="54" width="8" height="54" rx="4" fill="var(--primary)"/>
-<text x="90" y="94" style="font-size:44px;font-weight:800">svg-infographic</text>
-<text x="90" y="130" class="sub" style="font-size:20px">설명만 하면 — 깔끔한 기술 다이어그램과 공유용 PNG가 나온다.</text>
+  <style>
+    svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#D6E0EC; --primary:#1F6FB2;
+      --card:#FFFFFF; --strip:#F7FAFD; --band:#F4F8FC;
+      --b-fill:#E8F1FB; --b-line:#1F6FB2; --b-ink:#124267;
+      --g-fill:#E7F5EF; --g-line:#0F7A5F; --g-ink:#085041;
+      --n-fill:#F1F1EE; --n-line:#C3CBD4; --n-ink:#4A5563; }
+    .on-accent{ fill:#FFFFFF }
+    .eyebrow{ fill:var(--primary); font-size:16px; font-weight:700; letter-spacing:0.10em }
+    .h1{ fill:var(--ink); font-size:36px; font-weight:700 }
+    .sub{ fill:var(--muted); font-size:16px }
+    .sec{ fill:var(--ink); font-size:17px; font-weight:700 }
+    .ct{ font-size:19px; font-weight:700 }
+    .cs{ fill:var(--muted); font-size:13.5px }
+    .badge{ font-size:14px; font-weight:700 }
+    .ft{ font-size:18px; font-weight:700 }
+    .sample{ fill:var(--ink); font-size:20px; font-weight:650 }
+    .fs{ fill:var(--muted); font-size:13.5px }
+    .no{ fill:var(--muted); font-size:14px }
+    .tag{ fill:var(--muted); font-size:14px }
+  </style>
 
-<!-- section: 다이어그램 종류 -->
-<rect x="64" y="180" width="5" height="24" rx="2.5" fill="var(--primary)"/>
-<text x="82" y="199" class="sec">만들 수 있는 다이어그램</text>
-<g>
-  <rect x="64" y="222" width="304" height="150" rx="16" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
-  <circle cx="120" cy="284" r="30" fill="var(--pf-tint)"/><use href="#ic-network" class="ic" x="102" y="266" width="36" height="36" style="color:var(--primary)"/>
-  <text x="170" y="278" dominant-baseline="central" style="font-size:20px;font-weight:700">토폴로지</text>
-  <text x="170" y="304" class="sub" style="font-size:14px" dominant-baseline="central">구역 · 노드 · 경로</text>
+  <defs>
+    <marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="9" markerHeight="9"
+      markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M2 2 L10 6 L2 10" fill="none" stroke="#1F6FB2" stroke-width="2" stroke-linecap="round"/>
+    </marker>
+    <filter id="cardShadow" x="-12%" y="-12%" width="124%" height="124%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1F2733" flood-opacity="0.09"/>
+    </filter>
+    <symbol id="ic-topo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></symbol>
+    <symbol id="ic-onion" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="3"/><rect x="6.5" y="8" width="11" height="8" rx="2"/><rect x="10" y="10.8" width="4" height="2.4" rx="1"/></symbol>
+    <symbol id="ic-flow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="9" width="6" height="6" rx="1.6"/><rect x="15.5" y="9" width="6" height="6" rx="1.6"/><path d="M9 12h4.4"/><path d="M11.8 10.2l1.8 1.8-1.8 1.8"/></symbol>
+    <symbol id="ic-ba" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="8" height="14" rx="1.8"/><rect x="13.5" y="5" width="8" height="14" rx="1.8"/></symbol>
+    <symbol id="ic-cards" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="8" height="7" rx="1.6"/><rect x="13" y="4" width="8" height="7" rx="1.6"/><rect x="3" y="13" width="8" height="7" rx="1.6"/><rect x="13" y="13" width="8" height="7" rx="1.6"/></symbol>
+    <symbol id="ic-road" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18"/><circle cx="6.5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="17.5" cy="12" r="2"/></symbol>
+    <symbol id="ic-lang" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5a13 13 0 0 1 0 17 13 13 0 0 1 0-17z"/></symbol>
+    <symbol id="ic-plat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 20h8"/><path d="M12 17v3"/></symbol>
+  </defs>
 
-  <rect x="388" y="222" width="304" height="150" rx="16" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
-  <circle cx="444" cy="284" r="30" fill="var(--pf-tint)"/><use href="#ic-layers" class="ic" x="426" y="266" width="36" height="36" style="color:var(--primary)"/>
-  <text x="494" y="278" dominant-baseline="central" style="font-size:20px;font-weight:700">레이어 / 온니언</text>
-  <text x="494" y="304" class="sub" style="font-size:14px" dominant-baseline="central">중첩 모델</text>
+  <rect width="1080" height="1120" fill="var(--bg)"/>
 
-  <rect x="712" y="222" width="304" height="150" rx="16" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
-  <circle cx="768" cy="284" r="30" fill="var(--pf-tint)"/><use href="#ic-flow" class="ic" x="750" y="266" width="36" height="36" style="color:var(--primary)"/>
-  <text x="818" y="278" dominant-baseline="central" style="font-size:20px;font-weight:700">플로우</text>
-  <text x="818" y="304" class="sub" style="font-size:14px" dominant-baseline="central">프로세스 · 데이터 흐름</text>
+  <!-- header: rail from eyebrowTop(60) to titleBottom(122) -->
+  <g data-layout-role="page-title-header" data-layout-rail-padding-top="16"
+     data-layout-rail-padding-bottom="0" data-layout-subtitle-gap="12" data-layout-tolerance="2">
+    <rect data-layout-role="title-rail" x="44" y="44" width="6" height="78" rx="3" fill="var(--primary)"/>
+    <text data-layout-role="title-eyebrow" class="eyebrow" x="72" y="68" font-size="16" dominant-baseline="middle">에이전트 스킬</text>
+    <text data-layout-role="title-line" class="h1" x="72" y="104" font-size="36" dominant-baseline="middle">svg-infographic</text>
+    <text data-layout-role="title-subtitle" class="sub" x="72" y="150" font-size="16" dominant-baseline="middle">설명만 하면 깔끔한 기술 다이어그램과 공유용 PNG가 나온다.</text>
+  </g>
 
-  <rect x="64" y="388" width="304" height="150" rx="16" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
-  <circle cx="120" cy="450" r="30" fill="var(--pf-tint)"/><use href="#ic-compare" class="ic" x="102" y="432" width="36" height="36" style="color:var(--primary)"/>
-  <text x="170" y="444" dominant-baseline="central" style="font-size:20px;font-weight:700">Before / After</text>
-  <text x="170" y="470" class="sub" style="font-size:14px" dominant-baseline="central">비교 패널</text>
+  <text class="sec" x="44" y="192" dominant-baseline="central">만들 수 있는 다이어그램</text>
 
-  <rect x="388" y="388" width="304" height="150" rx="16" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
-  <circle cx="444" cy="450" r="30" fill="var(--pf-tint)"/><use href="#ic-grid" class="ic" x="426" y="432" width="36" height="36" style="color:var(--primary)"/>
-  <text x="494" y="444" dominant-baseline="central" style="font-size:20px;font-weight:700">카드</text>
-  <text x="494" y="470" class="sub" style="font-size:14px" dominant-baseline="central">아이콘 · 제목 · 텍스트</text>
+  <rect x="44" y="212" width="484" height="92" rx="14" fill="var(--card)" stroke="var(--hair)" stroke-width="1" filter="url(#cardShadow)"/>
+  <circle cx="94" cy="258" r="24" fill="var(--b-fill)"/><use href="#ic-topo" x="80" y="244" width="28" height="28" style="color:#1F6FB2"/>
+  <text class="ct" x="136" y="246" dominant-baseline="central" fill="var(--b-ink)">토폴로지</text>
+  <text class="cs" x="136" y="272" dominant-baseline="central">구역 · 노드 · 요청 경로</text>
 
-  <rect x="712" y="388" width="304" height="150" rx="16" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
-  <circle cx="768" cy="450" r="30" fill="var(--pf-tint)"/><use href="#ic-roadmap" class="ic" x="750" y="432" width="36" height="36" style="color:var(--primary)"/>
-  <text x="818" y="444" dominant-baseline="central" style="font-size:20px;font-weight:700">로드맵</text>
-  <text x="818" y="470" class="sub" style="font-size:14px" dominant-baseline="central">단계 · 마일스톤</text>
-</g>
+  <rect x="552" y="212" width="484" height="92" rx="14" fill="var(--card)" stroke="var(--hair)" stroke-width="1" filter="url(#cardShadow)"/>
+  <circle cx="602" cy="258" r="24" fill="var(--b-fill)"/><use href="#ic-onion" x="588" y="244" width="28" height="28" style="color:#1F6FB2"/>
+  <text class="ct" x="644" y="246" dominant-baseline="central" fill="var(--b-ink)">레이어 / 온니언</text>
+  <text class="cs" x="644" y="272" dominant-baseline="central">중첩 포함 모델</text>
 
-<!-- section: 동작 방식 -->
-<rect x="64" y="588" width="5" height="24" rx="2.5" fill="var(--primary)"/>
-<text x="82" y="607" class="sec">동작 방식</text>
-<g>
-  <rect x="64" y="632" width="222" height="122" rx="16" fill="var(--band)" stroke="var(--hair)" stroke-width="1.4"/>
-  <circle cx="98" cy="670" r="17" fill="var(--primary)"/><text x="98" y="670" text-anchor="middle" dominant-baseline="central" style="font-size:17px;font-weight:700;fill:#FFFFFF">1</text>
-  <text x="126" y="672" style="font-size:19px;font-weight:700">확인</text>
-  <text x="88" y="714" class="sub" style="font-size:13px" dominant-baseline="central">의도 · 비율 · 언어</text>
+  <rect x="44" y="324" width="484" height="92" rx="14" fill="var(--card)" stroke="var(--hair)" stroke-width="1" filter="url(#cardShadow)"/>
+  <circle cx="94" cy="370" r="24" fill="var(--b-fill)"/><use href="#ic-flow" x="80" y="356" width="28" height="28" style="color:#1F6FB2"/>
+  <text class="ct" x="136" y="358" dominant-baseline="central" fill="var(--b-ink)">플로우</text>
+  <text class="cs" x="136" y="384" dominant-baseline="central">프로세스 · 데이터 파이프라인</text>
 
-  <rect x="310" y="632" width="222" height="122" rx="16" fill="var(--band)" stroke="var(--hair)" stroke-width="1.4"/>
-  <circle cx="344" cy="670" r="17" fill="var(--primary)"/><text x="344" y="670" text-anchor="middle" dominant-baseline="central" style="font-size:17px;font-weight:700;fill:#FFFFFF">2</text>
-  <text x="372" y="672" style="font-size:19px;font-weight:700">SVG 작성</text>
-  <text x="334" y="714" class="sub" style="font-size:13px" dominant-baseline="central">토큰 · CJK 폰트</text>
+  <rect x="552" y="324" width="484" height="92" rx="14" fill="var(--card)" stroke="var(--hair)" stroke-width="1" filter="url(#cardShadow)"/>
+  <circle cx="602" cy="370" r="24" fill="var(--b-fill)"/><use href="#ic-ba" x="588" y="356" width="28" height="28" style="color:#1F6FB2"/>
+  <text class="ct" x="644" y="358" dominant-baseline="central" fill="var(--b-ink)">비교</text>
+  <text class="cs" x="644" y="384" dominant-baseline="central">나란히 놓고 보는 두 패널</text>
 
-  <rect x="556" y="632" width="222" height="122" rx="16" fill="var(--band)" stroke="var(--hair)" stroke-width="1.4"/>
-  <circle cx="590" cy="670" r="17" fill="var(--primary)"/><text x="590" y="670" text-anchor="middle" dominant-baseline="central" style="font-size:17px;font-weight:700;fill:#FFFFFF">3</text>
-  <text x="618" y="672" style="font-size:19px;font-weight:700">렌더</text>
-  <text x="580" y="714" class="sub" style="font-size:13px" dominant-baseline="central">headless → 2× PNG</text>
+  <rect x="44" y="436" width="484" height="92" rx="14" fill="var(--card)" stroke="var(--hair)" stroke-width="1" filter="url(#cardShadow)"/>
+  <circle cx="94" cy="482" r="24" fill="var(--b-fill)"/><use href="#ic-cards" x="80" y="468" width="28" height="28" style="color:#1F6FB2"/>
+  <text class="ct" x="136" y="470" dominant-baseline="central" fill="var(--b-ink)">카드</text>
+  <text class="cs" x="136" y="496" dominant-baseline="central">아이콘 · 제목 · 한 줄 설명</text>
 
-  <rect x="802" y="632" width="214" height="122" rx="16" fill="var(--band)" stroke="var(--hair)" stroke-width="1.4"/>
-  <circle cx="836" cy="670" r="17" fill="var(--primary)"/><text x="836" y="670" text-anchor="middle" dominant-baseline="central" style="font-size:17px;font-weight:700;fill:#FFFFFF">4</text>
-  <text x="864" y="672" style="font-size:19px;font-weight:700">검증</text>
-  <text x="854" y="714" class="sub" style="font-size:13px" dominant-baseline="central">넘침 없음 · 글리프</text>
+  <rect x="552" y="436" width="484" height="92" rx="14" fill="var(--card)" stroke="var(--hair)" stroke-width="1" filter="url(#cardShadow)"/>
+  <circle cx="602" cy="482" r="24" fill="var(--b-fill)"/><use href="#ic-road" x="588" y="468" width="28" height="28" style="color:#1F6FB2"/>
+  <text class="ct" x="644" y="470" dominant-baseline="central" fill="var(--b-ink)">로드맵</text>
+  <text class="cs" x="644" y="496" dominant-baseline="central">단계 · 마일스톤</text>
 
-  <line x1="288" y1="693" x2="308" y2="693" stroke="#8A94A3" stroke-width="1.8" marker-end="url(#a2)"/>
-  <line x1="534" y1="693" x2="554" y2="693" stroke="#8A94A3" stroke-width="1.8" marker-end="url(#a2)"/>
-  <line x1="780" y1="693" x2="800" y2="693" stroke="#8A94A3" stroke-width="1.8" marker-end="url(#a2)"/>
-</g>
+  <text class="sec" x="44" y="568" dominant-baseline="central">동작 방식</text>
 
-<!-- feature bands -->
-<rect x="64" y="808" width="464" height="130" rx="16" fill="#EAF2FB" stroke="#9DBEDE" stroke-width="1.4"/>
-<text x="96" y="854" style="font-size:21px;font-weight:700;fill:#1B4F7D">한국어 / CJK 최우선</text>
-<text x="96" y="890" class="sub" style="font-size:15px">렌더·검증 완료, tofu 없음 — 가나다라 · ABCabc · 0123</text>
+  <rect x="44" y="588" width="212" height="112" rx="14" fill="var(--band)" stroke="var(--hair)" stroke-width="1"/>
+  <circle cx="72" cy="616" r="15" fill="var(--b-line)"/><text class="badge on-accent" x="72" y="616" text-anchor="middle" dominant-baseline="central">1</text>
+  <text class="ct" x="150" y="654" text-anchor="middle" dominant-baseline="central" fill="var(--b-ink)">확인</text>
+  <text class="cs" x="150" y="678" text-anchor="middle" dominant-baseline="central">의도 · 비율 · 언어</text>
 
-<rect x="552" y="808" width="464" height="130" rx="16" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
-<circle cx="602" cy="873" r="28" fill="var(--pf-tint)"/><use href="#ic-globe" class="ic" x="586" y="857" width="32" height="32" style="color:var(--primary)"/>
-<text x="648" y="854" style="font-size:21px;font-weight:700">크로스 플랫폼</text>
-<text x="648" y="890" class="sub" style="font-size:15px">macOS · Windows · Linux · Chrome/Edge/Chromium</text>
+  <rect x="304" y="588" width="212" height="112" rx="14" fill="var(--band)" stroke="var(--hair)" stroke-width="1"/>
+  <circle cx="332" cy="616" r="15" fill="var(--b-line)"/><text class="badge on-accent" x="332" y="616" text-anchor="middle" dominant-baseline="central">2</text>
+  <text class="ct" x="410" y="654" text-anchor="middle" dominant-baseline="central" fill="var(--b-ink)">SVG 작성</text>
+  <text class="cs" x="410" y="678" text-anchor="middle" dominant-baseline="central">토큰 · CJK 폰트 스택</text>
 
-<!-- 비대상 -->
-<rect x="64" y="984" width="952" height="52" rx="12" fill="#FBEDE7" stroke="#E4B9A6" stroke-width="1"/>
-<text x="92" y="1010" dominant-baseline="central" style="font-size:15px;font-weight:700;fill:var(--no-ink)">비대상</text>
-<text x="164" y="1010" dominant-baseline="central" class="sub" style="font-size:14.5px">사진 · 일러스트 · 데이터 정확 차트 · 손그림 / 크레용 스케치노트 · 마스코트·캐릭터</text>
+  <rect x="564" y="588" width="212" height="112" rx="14" fill="var(--band)" stroke="var(--hair)" stroke-width="1"/>
+  <circle cx="592" cy="616" r="15" fill="var(--b-line)"/><text class="badge on-accent" x="592" y="616" text-anchor="middle" dominant-baseline="central">3</text>
+  <text class="ct" x="670" y="654" text-anchor="middle" dominant-baseline="central" fill="var(--b-ink)">렌더</text>
+  <text class="cs" x="670" y="678" text-anchor="middle" dominant-baseline="central">headless → 2× PNG</text>
 
-<!-- footer -->
-<text x="540" y="1082" text-anchor="middle" class="sub" style="font-size:16px">휴대 가능한 agent skill · flat, 구조적 기술 인포그래픽 — SVG 소스 + 2× PNG.</text>
+  <rect x="824" y="588" width="212" height="112" rx="14" fill="var(--band)" stroke="var(--hair)" stroke-width="1"/>
+  <circle cx="852" cy="616" r="15" fill="var(--g-line)"/><text class="badge on-accent" x="852" y="616" text-anchor="middle" dominant-baseline="central">4</text>
+  <text class="ct" x="930" y="654" text-anchor="middle" dominant-baseline="central" fill="var(--g-ink)">검증</text>
+  <text class="cs" x="930" y="678" text-anchor="middle" dominant-baseline="central">넘침 없음 · tofu 없음</text>
+
+  <g fill="none" stroke="var(--b-line)" stroke-width="2.2" stroke-linecap="round" marker-end="url(#ah)">
+    <path d="M264 644 H295"/>
+    <path d="M524 644 H555"/>
+    <path d="M784 644 H815"/>
+  </g>
+
+  <!-- feature bands -->
+  <rect x="44" y="736" width="484" height="130" rx="16" fill="var(--band)" stroke="var(--hair)" stroke-width="1"/>
+  <circle cx="88" cy="778" r="22" fill="var(--b-fill)"/><use href="#ic-lang" x="75" y="765" width="26" height="26" style="color:#1F6FB2"/>
+  <text class="ft" x="124" y="778" dominant-baseline="central" fill="var(--b-ink)">한국어 / CJK 최우선</text>
+  <text class="sample" x="72" y="820" dominant-baseline="central">가나다라 · ABCabc · 0123</text>
+  <text class="fs" x="72" y="846" dominant-baseline="central">렌더·검증까지 마쳤고 tofu가 없다</text>
+
+  <rect x="552" y="736" width="484" height="130" rx="16" fill="var(--band)" stroke="var(--hair)" stroke-width="1"/>
+  <circle cx="596" cy="778" r="22" fill="var(--b-fill)"/><use href="#ic-plat" x="583" y="765" width="26" height="26" style="color:#1F6FB2"/>
+  <text class="ft" x="632" y="778" dominant-baseline="central" fill="var(--b-ink)">어디서 작업하든 돈다</text>
+  <text class="sample" x="580" y="820" dominant-baseline="central">macOS · Windows · Linux</text>
+  <text class="fs" x="580" y="846" dominant-baseline="central">Chromium 계열이면 된다 — Chrome, Edge, Chromium</text>
+
+  <!-- not for -->
+  <rect x="44" y="894" width="992" height="60" rx="12" fill="var(--n-fill)" stroke="var(--n-line)" stroke-width="1"/>
+  <text class="no" x="72" y="924" dominant-baseline="central"><tspan font-weight="700" fill="#4A5563">비대상</tspan> — 사진·일러스트 작업 · 데이터 정확 차트 · 마스코트·캐릭터 그림</text>
+
+  <!-- tagline -->
+  <text class="tag" x="44" y="1006" dominant-baseline="central">휴대 가능한 agent skill · 평면형 구조 기술 인포그래픽 — SVG 소스와 2× PNG.</text>
 </svg>

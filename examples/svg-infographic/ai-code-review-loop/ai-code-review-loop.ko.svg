@@ -1,105 +1,125 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 720" width="1600" height="720" role="img"
-     shape-rendering="geometricPrecision" text-rendering="optimizeLegibility"
-     style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
-<title>AI 코드 리뷰 루프</title>
-<desc>좌→우 코드 리뷰 흐름: PR 생성, AI 리뷰 에이전트(강조), 사람 리뷰어, 수정 및 검증, 병합 준비. 패치 후 재검토를 위한 점선 피드백 루프 포함.</desc>
-<style>
-  svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#DCE3EC;
-    --b1:#1F6FB2; --b1t:#DCEBFA; --b1k:#124267;
-    --p:#534AB7; --pt:#DEDCF6; --pk:#322B7A;
-    --am:#B5771F; --amt:#F5E4C4; --amk:#7A4E12;
-    --cy:#0E7C90; --cyt:#CDEAEF; --cyk:#084A57;
-    --gr:#0F7A5F; --grt:#D3EEE2; --grk:#085041; }
-  text{ fill:var(--ink) }
-  .num{ font-size:15px; font-weight:700; fill:#FFFFFF }
-  .ct{ font-size:22px; font-weight:700 }
-  .cs{ font-size:13px; fill:var(--muted) }
-  .bl{ font-size:16px }
-  .ic{ fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round }
-</style>
-<defs>
-  <marker id="arw" viewBox="0 0 9 9" refX="7" refY="4" data-lint-allow="marker-footprint" markerUnits="userSpaceOnUse" markerWidth="19.8" markerHeight="19.8" orient="auto-start-reverse"><path d="M0.5,0.5 L8,4 L0.5,7.5 z" fill="#5B6675"/></marker>
-  <marker id="arwfb" viewBox="0 0 9 9" refX="7" refY="4" data-lint-allow="marker-footprint" markerUnits="userSpaceOnUse" markerWidth="19.8" markerHeight="19.8" orient="auto-start-reverse"><path d="M0.5,0.5 L8,4 L0.5,7.5 z" fill="#534AB7"/></marker>
-  <filter id="soft" x="-25%" y="-25%" width="150%" height="160%"><feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#534AB7" flood-opacity="0.22"/></filter>
-  <symbol id="ic-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 9l3 3-3 3"/><path d="M13 15h4"/></symbol>
-  <symbol id="ic-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
-  <symbol id="ic-doc" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 16.5h6M9 9.5h2"/></symbol>
-  <symbol id="ic-loop" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 0 1 12.8-5.3L20 9"/><path d="M20 3.5V9h-5.5"/><path d="M19.5 12a7.5 7.5 0 0 1-12.8 5.3L4 15"/><path d="M4 20.5V15h5.5"/></symbol>
-  <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
-</defs>
-<rect width="1600" height="720" fill="var(--bg)"/>
+  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>AI 코드 리뷰 루프</title>
+  <desc>코드 리뷰를 다섯 단계로 정리했습니다. PR이 열리면 AI 리뷰 에이전트가 diff 전체를 읽고, 사람 리뷰어가 무엇이 중요한지 가려내며, 작성자가 고쳐서 다시 검증하면 병합할 준비가 끝납니다. 점선 피드백 루프는 수정본을 AI 에이전트에게 한 번 더 보냅니다.</desc>
 
-<!-- header -->
-<rect x="44" y="40" width="6" height="46" rx="3" fill="var(--p)"/>
-<text x="66" y="64" style="font-size:32px;font-weight:800">AI 코드 리뷰 루프</text>
-<text x="66" y="94" class="cs" style="font-size:16px">PR에서 병합까지 — AI 리뷰 · 사람 승인 · 재검토를 하나의 흐름으로</text>
+  <style>
+    svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#D6E0EC; --primary:#1F6FB2;
+      --band:#F4F8FC; --card:#FFFFFF; --strip:#F7FAFD;
+      --step-fill:#E8F1FB; --step-line:#1F6FB2; --step-ink:#124267;
+      --key-fill:#ECEBFB; --key-line:#534AB7; --key-ink:#3C3489; }
+    .on-accent{ fill:#FFFFFF }
+    .eyebrow{ fill:var(--primary); font-size:16px; font-weight:700; letter-spacing:0.10em }
+    .h1{ fill:var(--ink); font-size:44px; font-weight:700 }
+    .sub{ fill:var(--muted); font-size:18px }
+    .pill{ font-size:16px; font-weight:700; letter-spacing:0.06em }
+    .tag{ font-size:11.5px; font-weight:700; letter-spacing:0.08em }
+    .card-title{ font-size:20px; font-weight:700 }
+    .card-sub{ fill:var(--muted); font-size:14px }
+    .badge{ font-size:15px; font-weight:700 }
+    .loop-label{ fill:var(--key-ink); font-size:14px; font-weight:650 }
+    .legend{ fill:var(--muted); font-size:14px }
+  </style>
 
-<!-- solid arrows -->
-<line x1="326" y1="300" x2="350" y2="300" stroke="#5B6675" stroke-width="2.2" marker-end="url(#arw)"/>
-<line x1="634" y1="300" x2="658" y2="300" stroke="#5B6675" stroke-width="2.2" marker-end="url(#arw)"/>
-<line x1="942" y1="300" x2="966" y2="300" stroke="#5B6675" stroke-width="2.2" marker-end="url(#arw)"/>
-<line x1="1250" y1="300" x2="1274" y2="300" stroke="#5B6675" stroke-width="2.2" marker-end="url(#arw)"/>
+  <defs>
+    <marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="11.25" markerHeight="11.25"
+      markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M2 2 L10 6 L2 10" fill="none" stroke="#1F6FB2" stroke-width="2" stroke-linecap="round"/>
+    </marker>
+    <marker id="ahLoop" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="11.25" markerHeight="11.25"
+      markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M2 2 L10 6 L2 10" fill="none" stroke="#534AB7" stroke-width="2" stroke-linecap="round"/>
+    </marker>
+    <filter id="cardShadow" x="-12%" y="-12%" width="124%" height="124%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1F2733" flood-opacity="0.10"/>
+    </filter>
+    <symbol id="ic-pr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="6" r="2.2"/><circle cx="7" cy="18" r="2.2"/><circle cx="17" cy="6" r="2.2"/><path d="M7 8.2v7.6"/><path d="M17 8.2v3.3a4 4 0 0 1-4 4H9.4"/></symbol>
+    <symbol id="ic-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 3l1.7 4.6L16.8 9l-4.6 1.7L10.5 15 8.8 10.7 4.2 9l4.6-1.4z"/><path d="M17.6 14.6l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/></symbol>
+    <symbol id="ic-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/></symbol>
+    <symbol id="ic-retest" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11a7.5 7.5 0 0 1 12.8-5.3L20 8"/><path d="M20 2.5V8h-5.5"/><path d="M8.5 15.5l2.4 2.4 4.6-4.8"/></symbol>
+    <symbol id="ic-ready" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 12.3l2.4 2.4 4.6-4.8"/></symbol>
+  </defs>
 
-<!-- feedback loop: Patch(4) -> AI Review(2) -->
-<path d="M1108 526 V566 H492 V526" fill="none" stroke="var(--p)" stroke-width="2.2" stroke-dasharray="6 5" marker-end="url(#arwfb)"/>
-<rect x="700" y="551" width="200" height="30" rx="15" fill="#FFFFFF" stroke="var(--p)" stroke-width="1"/>
-<text x="800" y="566" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:600;fill:var(--p)">패치 후 재검토</text>
+  <rect width="1600" height="720" fill="var(--bg)"/>
 
-<!-- Card 1: PR 생성 -->
-<rect x="44" y="150" width="280" height="368" rx="16" fill="#FFFFFF" stroke="var(--b1)" stroke-width="1.4"/>
-<circle cx="72" cy="178" r="15" fill="var(--b1)"/><text x="72" y="178" class="num" text-anchor="middle" dominant-baseline="central">1</text>
-<circle cx="184" cy="238" r="36" fill="var(--b1t)"/><use href="#ic-terminal" class="ic" x="164" y="218" width="40" height="40" style="color:var(--b1)"/>
-<text x="184" y="316" class="ct" text-anchor="middle" dominant-baseline="central" style="fill:var(--b1k)">PR 생성</text>
-<text x="184" y="342" class="cs" text-anchor="middle" dominant-baseline="central">개발자가 PR 생성</text>
-<line x1="68" y1="372" x2="300" y2="372" stroke="var(--hair)"/>
-<circle cx="80" cy="410" r="2.6" fill="var(--b1)"/><text x="94" y="410" class="bl" dominant-baseline="central">코드 변경</text>
-<circle cx="80" cy="446" r="2.6" fill="var(--b1)"/><text x="94" y="446" class="bl" dominant-baseline="central">테스트 결과 첨부</text>
+  <!-- header: rail from eyebrowTop(68) to titleBottom(142) -->
+  <g data-layout-role="page-title-header" data-layout-rail-padding-top="16"
+     data-layout-rail-padding-bottom="0" data-layout-subtitle-gap="12" data-layout-tolerance="2">
+    <rect data-layout-role="title-rail" x="52" y="52" width="6" height="90" rx="3" fill="var(--primary)"/>
+    <text data-layout-role="title-eyebrow" class="eyebrow" x="80" y="76" font-size="16" dominant-baseline="middle">리뷰 흐름</text>
+    <text data-layout-role="title-line" class="h1" x="80" y="120" font-size="44" dominant-baseline="middle">AI 코드 리뷰 루프</text>
+    <text data-layout-role="title-subtitle" class="sub" x="80" y="178" font-size="18" dominant-baseline="middle">PR에서 병합까지 — AI 리뷰와 사람의 판단, 그리고 재검토를 한 줄기로</text>
+  </g>
 
-<!-- Card 2: AI 리뷰 에이전트 (KEY STEP) -->
-<rect x="352" y="150" width="280" height="368" rx="16" fill="#F3F2FC" stroke="var(--p)" stroke-width="2.6" filter="url(#soft)"/>
-<circle cx="380" cy="178" r="15" fill="var(--p)"/><text x="380" y="178" class="num" text-anchor="middle" dominant-baseline="central">2</text>
-<rect x="516" y="166" width="96" height="24" rx="12" fill="var(--p)"/><text x="564" y="178" text-anchor="middle" dominant-baseline="central" style="font-size:12px;font-weight:700;fill:#FFFFFF;letter-spacing:.5px">KEY STEP</text>
-<circle cx="492" cy="238" r="38" fill="var(--p)"/><use href="#ic-gear" class="ic" x="471" y="217" width="42" height="42" style="color:#FFFFFF"/>
-<text x="492" y="316" class="ct" text-anchor="middle" dominant-baseline="central" style="fill:var(--pk)">AI 리뷰 에이전트</text>
-<text x="492" y="342" class="cs" text-anchor="middle" dominant-baseline="central" style="fill:#6B63C0">자동 diff 리뷰</text>
-<line x1="376" y1="372" x2="608" y2="372" stroke="#D7D4F3"/>
-<circle cx="388" cy="404" r="2.6" fill="var(--p)"/><text x="402" y="404" class="bl" dominant-baseline="central">diff 분석</text>
-<circle cx="388" cy="440" r="2.6" fill="var(--p)"/><text x="402" y="440" class="bl" dominant-baseline="central">위험 지점 표시</text>
-<circle cx="388" cy="476" r="2.6" fill="var(--p)"/><text x="402" y="476" class="bl" dominant-baseline="central">테스트 누락 확인</text>
+  <!-- band -->
+  <rect x="52" y="220" width="1496" height="370" rx="20" fill="var(--band)" stroke="var(--hair)" stroke-width="1"/>
+  <rect x="84" y="201" width="196" height="38" rx="19" fill="var(--primary)"/>
+  <text class="pill on-accent" x="182" y="220" text-anchor="middle" dominant-baseline="central">리뷰 경로</text>
 
-<!-- Card 3: 사람 리뷰어 -->
-<rect x="660" y="150" width="280" height="368" rx="16" fill="#FFFFFF" stroke="var(--am)" stroke-width="1.4"/>
-<circle cx="688" cy="178" r="15" fill="var(--am)"/><text x="688" y="178" class="num" text-anchor="middle" dominant-baseline="central">3</text>
-<circle cx="800" cy="238" r="36" fill="var(--amt)"/><use href="#ic-doc" class="ic" x="780" y="218" width="40" height="40" style="color:var(--am)"/>
-<text x="800" y="316" class="ct" text-anchor="middle" dominant-baseline="central" style="fill:var(--amk)">사람 리뷰어</text>
-<text x="800" y="342" class="cs" text-anchor="middle" dominant-baseline="central">사람 리뷰·선별</text>
-<line x1="684" y1="372" x2="916" y2="372" stroke="var(--hair)"/>
-<circle cx="696" cy="410" r="2.6" fill="var(--am)"/><text x="710" y="410" class="bl" dominant-baseline="central">표시된 코멘트 확인</text>
-<circle cx="696" cy="446" r="2.6" fill="var(--am)"/><text x="710" y="446" class="bl" dominant-baseline="central">오탐 정리</text>
+  <!-- stage 1 -->
+  <g>
+    <rect x="120" y="296" width="224" height="200" rx="16" fill="var(--card)" stroke="var(--step-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <circle cx="148" cy="324" r="15" fill="var(--step-line)"/><text class="badge on-accent" x="148" y="324" text-anchor="middle" dominant-baseline="central">1</text>
+    <circle cx="232" cy="386" r="34" fill="var(--step-fill)"/><use href="#ic-pr" x="212" y="366" width="40" height="40" style="color:#1F6FB2"/>
+    <text class="card-title" x="232" y="442" text-anchor="middle" dominant-baseline="central" fill="var(--step-ink)">PR 생성</text>
+    <text class="card-sub" x="232" y="470" text-anchor="middle" dominant-baseline="central">작성자가 올린다</text>
+  </g>
 
-<!-- Card 4: 수정 & 검증 -->
-<rect x="968" y="150" width="280" height="368" rx="16" fill="#FFFFFF" stroke="var(--cy)" stroke-width="1.4"/>
-<circle cx="996" cy="178" r="15" fill="var(--cy)"/><text x="996" y="178" class="num" text-anchor="middle" dominant-baseline="central">4</text>
-<circle cx="1108" cy="238" r="36" fill="var(--cyt)"/><use href="#ic-loop" class="ic" x="1088" y="218" width="40" height="40" style="color:var(--cy)"/>
-<text x="1108" y="316" class="ct" text-anchor="middle" dominant-baseline="central" style="fill:var(--cyk)">수정 &amp; 검증</text>
-<text x="1108" y="342" class="cs" text-anchor="middle" dominant-baseline="central">수정 후 재테스트</text>
-<line x1="992" y1="372" x2="1224" y2="372" stroke="var(--hair)"/>
-<circle cx="1004" cy="410" r="2.6" fill="var(--cy)"/><text x="1018" y="410" class="bl" dominant-baseline="central">수정 반영</text>
-<circle cx="1004" cy="446" r="2.6" fill="var(--cy)"/><text x="1018" y="446" class="bl" dominant-baseline="central">테스트 재실행</text>
+  <!-- stage 2 — key step -->
+  <g>
+    <rect x="404" y="296" width="224" height="200" rx="16" fill="var(--card)" stroke="var(--key-line)" stroke-width="2.5" filter="url(#cardShadow)"/>
+    <circle cx="432" cy="324" r="15" fill="var(--key-line)"/><text class="badge on-accent" x="432" y="324" text-anchor="middle" dominant-baseline="central">2</text>
+    <rect x="512" y="310" width="92" height="26" rx="13" fill="var(--key-fill)"/>
+    <text class="tag" x="558" y="323" text-anchor="middle" dominant-baseline="central" fill="var(--key-ink)">핵심 단계</text>
+    <circle cx="516" cy="386" r="34" fill="var(--key-fill)"/><use href="#ic-ai" x="496" y="366" width="40" height="40" style="color:#534AB7"/>
+    <text class="card-title" x="516" y="442" text-anchor="middle" dominant-baseline="central" fill="var(--key-ink)">AI 리뷰 에이전트</text>
+    <text class="card-sub" x="516" y="470" text-anchor="middle" dominant-baseline="central">diff 전체를 읽는다</text>
+  </g>
 
-<!-- Card 5: 병합 준비 -->
-<rect x="1276" y="150" width="280" height="368" rx="16" fill="var(--grt)" stroke="var(--gr)" stroke-width="1.6"/>
-<circle cx="1304" cy="178" r="15" fill="var(--gr)"/><text x="1304" y="178" class="num" text-anchor="middle" dominant-baseline="central">5</text>
-<circle cx="1416" cy="238" r="36" fill="#FFFFFF"/><use href="#ic-shield" class="ic" x="1396" y="218" width="40" height="40" style="color:var(--gr)"/>
-<text x="1416" y="316" class="ct" text-anchor="middle" dominant-baseline="central" style="fill:var(--grk)">병합 준비</text>
-<text x="1416" y="342" class="cs" text-anchor="middle" dominant-baseline="central" style="fill:var(--grk)">승인·병합 완료</text>
-<line x1="1300" y1="372" x2="1532" y2="372" stroke="#C4E6D6"/>
-<circle cx="1312" cy="410" r="2.6" fill="var(--gr)"/><text x="1326" y="410" class="bl" dominant-baseline="central">승인 완료</text>
-<circle cx="1312" cy="446" r="2.6" fill="var(--gr)"/><text x="1326" y="446" class="bl" dominant-baseline="central">PR 병합</text>
+  <!-- stage 3 -->
+  <g>
+    <rect x="688" y="296" width="224" height="200" rx="16" fill="var(--card)" stroke="var(--step-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <circle cx="716" cy="324" r="15" fill="var(--step-line)"/><text class="badge on-accent" x="716" y="324" text-anchor="middle" dominant-baseline="central">3</text>
+    <circle cx="800" cy="386" r="34" fill="var(--step-fill)"/><use href="#ic-person" x="780" y="366" width="40" height="40" style="color:#1F6FB2"/>
+    <text class="card-title" x="800" y="442" text-anchor="middle" dominant-baseline="central" fill="var(--step-ink)">사람 리뷰어</text>
+    <text class="card-sub" x="800" y="470" text-anchor="middle" dominant-baseline="central">무엇이 중요한지 가린다</text>
+  </g>
 
-<!-- legend -->
-<line x1="66" y1="662" x2="126" y2="662" stroke="#5B6675" stroke-width="2.2" marker-end="url(#arw)"/>
-<text x="138" y="662" style="font-size:15px;fill:#3F4453" dominant-baseline="central">실선 = 정상 경로</text>
-<line x1="392" y1="662" x2="452" y2="662" stroke="var(--p)" stroke-width="2.2" stroke-dasharray="6 5" marker-end="url(#arwfb)"/>
-<text x="464" y="662" style="font-size:15px;fill:#3F4453" dominant-baseline="central">점선 = 피드백 루프</text>
+  <!-- stage 4 -->
+  <g>
+    <rect x="972" y="296" width="224" height="200" rx="16" fill="var(--card)" stroke="var(--step-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <circle cx="1000" cy="324" r="15" fill="var(--step-line)"/><text class="badge on-accent" x="1000" y="324" text-anchor="middle" dominant-baseline="central">4</text>
+    <circle cx="1084" cy="386" r="34" fill="var(--step-fill)"/><use href="#ic-retest" x="1064" y="366" width="40" height="40" style="color:#1F6FB2"/>
+    <text class="card-title" x="1084" y="442" text-anchor="middle" dominant-baseline="central" fill="var(--step-ink)">수정 &amp; 검증</text>
+    <text class="card-sub" x="1084" y="470" text-anchor="middle" dominant-baseline="central">고치고 테스트를 다시 돌린다</text>
+  </g>
+
+  <!-- stage 5 -->
+  <g>
+    <rect x="1256" y="296" width="224" height="200" rx="16" fill="var(--card)" stroke="var(--step-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <circle cx="1284" cy="324" r="15" fill="var(--step-line)"/><text class="badge on-accent" x="1284" y="324" text-anchor="middle" dominant-baseline="central">5</text>
+    <circle cx="1368" cy="386" r="34" fill="var(--step-fill)"/><use href="#ic-ready" x="1348" y="366" width="40" height="40" style="color:#1F6FB2"/>
+    <text class="card-title" x="1368" y="442" text-anchor="middle" dominant-baseline="central" fill="var(--step-ink)">병합 준비</text>
+    <text class="card-sub" x="1368" y="470" text-anchor="middle" dominant-baseline="central">승인받고 병합된다</text>
+  </g>
+
+  <!-- normal path: corridor 60, shaft 2.5, visible head 7.5 (3.0x) -->
+  <g fill="none" stroke="var(--step-line)" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah)">
+    <path d="M354 386 H394"/>
+    <path d="M638 386 H678"/>
+    <path d="M922 386 H962"/>
+    <path d="M1206 386 H1246"/>
+  </g>
+
+  <!-- feedback loop: patch and verify → AI review agent -->
+  <path d="M1084 504 V548 H516 V514" fill="none" stroke="var(--key-line)" stroke-width="2.5"
+    stroke-dasharray="6 5" stroke-linecap="round" marker-end="url(#ahLoop)"/>
+  <text class="loop-label" x="800" y="532" text-anchor="middle" dominant-baseline="central">수정본을 다시 검토한다</text>
+
+  <!-- legend -->
+  <rect x="52" y="618" width="1496" height="48" rx="12" fill="var(--strip)" stroke="var(--hair)" stroke-width="1"/>
+  <path d="M84 642 H124" fill="none" stroke="var(--step-line)" stroke-width="2.5" stroke-linecap="round"/>
+  <text class="legend" x="136" y="642" dominant-baseline="central">실선 — 정상 경로</text>
+  <path d="M420 642 H460" fill="none" stroke="var(--key-line)" stroke-width="2.5" stroke-dasharray="6 5" stroke-linecap="round"/>
+  <text class="legend" x="472" y="642" dominant-baseline="central">점선 — 리뷰로 되돌아가는 피드백 루프</text>
 </svg>
