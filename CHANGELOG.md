@@ -6,6 +6,17 @@ Granular, per-change entries begin at the first public release. Earlier developm
 
 ## 2026-08-09
 
+### Repository
+
+- **Gallery examples regenerated.** Rebuilt all fourteen `svg-infographic` examples in English and Korean with
+  `svg-infographic` `0.9.0`, so the published SVG and PNG reflect the current authoring contracts. The previous set
+  had drifted — nine of fifteen examples shipped an SVG and a PNG built from different revisions — and three Korean
+  variants carried English labels their own documented prompt did not ask for. Two examples grew taller to fit the
+  new title-rail and connector budgets; the other twelve kept their original canvas.
+- **Gallery preview source.** Added a composite SVG that references the six featured example exports, so the preview
+  can be re-rendered instead of rebuilt from scratch. Sketch examples were re-subset per file, because an embedded
+  font subset only carries the glyphs present when it was made.
+
 ### Skills
 
 - `svg-infographic` `0.9.0` — opt-in source layout contracts for panel headers, icon-text cards, and one-line or
