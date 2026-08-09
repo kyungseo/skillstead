@@ -40,7 +40,7 @@
   <!-- NOW marker: sits in the gutter between Alpha and Beta -->
   <rect x="590" y="182" width="60" height="26" rx="13" fill="var(--primary)"/>
   <text class="pill on-accent" x="620" y="195" text-anchor="middle" dominant-baseline="central">NOW</text>
-  <path d="M620 208 V460" fill="none" stroke="var(--primary)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <path d="M620 208 V494" fill="none" stroke="var(--primary)" stroke-width="1.5" stroke-dasharray="5 4"/>
 
   <!-- axis -->
   <path d="M60 250 H1180" fill="none" stroke="var(--hair)" stroke-width="3" stroke-linecap="round"/>
@@ -60,55 +60,55 @@
 
   <!-- phase 1 — done -->
   <g>
-    <rect x="63" y="290" width="256" height="162" rx="16" fill="var(--card)" stroke="var(--done-line)" stroke-width="1" filter="url(#cardShadow)"/>
-    <rect x="85" y="312" width="78" height="26" rx="13" fill="var(--done-fill)"/>
-    <text class="pill on-accent" x="124" y="325" text-anchor="middle" dominant-baseline="central">DONE</text>
-    <circle cx="90" cy="366" r="3" fill="var(--done-line)"/><text class="bullet" x="104" y="366" dominant-baseline="central">Problem validation</text>
-    <circle cx="90" cy="394" r="3" fill="var(--done-line)"/><text class="bullet" x="104" y="394" dominant-baseline="central">Scope and non-goals</text>
-    <circle cx="90" cy="422" r="3" fill="var(--done-line)"/><text class="bullet" x="104" y="422" dominant-baseline="central">Go decision</text>
+    <rect x="63" y="290" width="256" height="196" rx="16" fill="var(--card)" stroke="var(--done-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <rect x="85" y="318" width="78" height="28" rx="14" fill="var(--done-fill)"/>
+    <text class="pill on-accent" x="124" y="332" text-anchor="middle" dominant-baseline="central">DONE</text>
+    <circle cx="90" cy="394" r="3" fill="var(--done-line)"/><text class="bullet" x="104" y="394" dominant-baseline="central">Problem validation</text>
+    <circle cx="90" cy="426" r="3" fill="var(--done-line)"/><text class="bullet" x="104" y="426" dominant-baseline="central">Scope and non-goals</text>
+    <circle cx="90" cy="458" r="3" fill="var(--done-line)"/><text class="bullet" x="104" y="458" dominant-baseline="central">Go decision</text>
   </g>
 
   <!-- phase 2 — current, emphasized -->
   <g>
-    <rect x="349" y="290" width="256" height="162" rx="16" fill="var(--card)" stroke="var(--now-line)" stroke-width="2.5" filter="url(#cardShadow)"/>
-    <rect x="371" y="312" width="78" height="26" rx="13" fill="var(--primary)"/>
-    <text class="pill on-accent" x="410" y="325" text-anchor="middle" dominant-baseline="central">NOW</text>
-    <circle cx="376" cy="366" r="3" fill="var(--now-line)"/><text class="bullet" x="390" y="366" dominant-baseline="central">Core MVP build</text>
-    <circle cx="376" cy="394" r="3" fill="var(--now-line)"/><text class="bullet" x="390" y="394" dominant-baseline="central">Internal testing</text>
-    <circle cx="376" cy="422" r="3" fill="var(--now-line)"/><text class="bullet" x="390" y="422" dominant-baseline="central">First examples</text>
+    <rect x="349" y="290" width="256" height="196" rx="16" fill="var(--card)" stroke="var(--now-line)" stroke-width="2.5" filter="url(#cardShadow)"/>
+    <rect x="371" y="318" width="78" height="28" rx="14" fill="var(--primary)"/>
+    <text class="pill on-accent" x="410" y="332" text-anchor="middle" dominant-baseline="central">NOW</text>
+    <circle cx="376" cy="394" r="3" fill="var(--now-line)"/><text class="bullet" x="390" y="394" dominant-baseline="central">Core MVP build</text>
+    <circle cx="376" cy="426" r="3" fill="var(--now-line)"/><text class="bullet" x="390" y="426" dominant-baseline="central">Internal testing</text>
+    <circle cx="376" cy="458" r="3" fill="var(--now-line)"/><text class="bullet" x="390" y="458" dominant-baseline="central">First examples</text>
   </g>
 
   <!-- phase 3 — next -->
   <g>
-    <rect x="635" y="290" width="256" height="162" rx="16" fill="var(--card)" stroke="var(--soon-line)" stroke-width="1" filter="url(#cardShadow)"/>
-    <rect x="657" y="312" width="78" height="26" rx="13" fill="var(--soon-fill)"/>
-    <text class="pill" x="696" y="325" text-anchor="middle" dominant-baseline="central" fill="var(--soon-ink)">NEXT</text>
-    <circle cx="662" cy="366" r="3" fill="var(--soon-line)"/><text class="bullet" x="676" y="366" dominant-baseline="central">Public preview</text>
-    <circle cx="662" cy="394" r="3" fill="var(--soon-line)"/><text class="bullet" x="676" y="394" dominant-baseline="central">Feedback loop</text>
-    <circle cx="662" cy="422" r="3" fill="var(--soon-line)"/><text class="bullet" x="676" y="422" dominant-baseline="central">Hardening</text>
+    <rect x="635" y="290" width="256" height="196" rx="16" fill="var(--card)" stroke="var(--soon-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <rect x="657" y="318" width="78" height="28" rx="14" fill="var(--soon-fill)"/>
+    <text class="pill" x="696" y="332" text-anchor="middle" dominant-baseline="central" fill="var(--soon-ink)">NEXT</text>
+    <circle cx="662" cy="394" r="3" fill="var(--soon-line)"/><text class="bullet" x="676" y="394" dominant-baseline="central">Public preview</text>
+    <circle cx="662" cy="426" r="3" fill="var(--soon-line)"/><text class="bullet" x="676" y="426" dominant-baseline="central">Feedback loop</text>
+    <circle cx="662" cy="458" r="3" fill="var(--soon-line)"/><text class="bullet" x="676" y="458" dominant-baseline="central">Hardening</text>
   </g>
 
   <!-- phase 4 — later -->
   <g>
-    <rect x="921" y="290" width="256" height="162" rx="16" fill="var(--card)" stroke="var(--late-line)" stroke-width="1" filter="url(#cardShadow)"/>
-    <rect x="943" y="312" width="78" height="26" rx="13" fill="var(--late-fill)"/>
-    <text class="pill" x="982" y="325" text-anchor="middle" dominant-baseline="central" fill="var(--late-ink)">LATER</text>
-    <circle cx="948" cy="366" r="3" fill="var(--late-line)"/><text class="bullet" x="962" y="366" dominant-baseline="central">General release</text>
-    <circle cx="948" cy="394" r="3" fill="var(--late-line)"/><text class="bullet" x="962" y="394" dominant-baseline="central">Full documentation</text>
-    <circle cx="948" cy="422" r="3" fill="var(--late-line)"/><text class="bullet" x="962" y="422" dominant-baseline="central">Distribution</text>
+    <rect x="921" y="290" width="256" height="196" rx="16" fill="var(--card)" stroke="var(--late-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <rect x="943" y="318" width="78" height="28" rx="14" fill="var(--late-fill)"/>
+    <text class="pill" x="982" y="332" text-anchor="middle" dominant-baseline="central" fill="var(--late-ink)">LATER</text>
+    <circle cx="948" cy="394" r="3" fill="var(--late-line)"/><text class="bullet" x="962" y="394" dominant-baseline="central">General release</text>
+    <circle cx="948" cy="426" r="3" fill="var(--late-line)"/><text class="bullet" x="962" y="426" dominant-baseline="central">Full documentation</text>
+    <circle cx="948" cy="458" r="3" fill="var(--late-line)"/><text class="bullet" x="962" y="458" dominant-baseline="central">Distribution</text>
   </g>
 
-  <line x1="85" y1="352" x2="297" y2="352" stroke="var(--done-line)" stroke-opacity="0.6" stroke-width="1"/>
-  <line x1="371" y1="352" x2="583" y2="352" stroke="var(--now-line)" stroke-opacity="0.6" stroke-width="1"/>
-  <line x1="657" y1="352" x2="869" y2="352" stroke="var(--soon-line)" stroke-opacity="0.6" stroke-width="1"/>
-  <line x1="943" y1="352" x2="1155" y2="352" stroke="var(--late-line)" stroke-opacity="0.6" stroke-width="1"/>
+  <line x1="85" y1="366" x2="297" y2="366" stroke="var(--done-line)" stroke-opacity="0.6" stroke-width="1"/>
+  <line x1="371" y1="366" x2="583" y2="366" stroke="var(--now-line)" stroke-opacity="0.6" stroke-width="1"/>
+  <line x1="657" y1="366" x2="869" y2="366" stroke="var(--soon-line)" stroke-opacity="0.6" stroke-width="1"/>
+  <line x1="943" y1="366" x2="1155" y2="366" stroke="var(--late-line)" stroke-opacity="0.6" stroke-width="1"/>
 
   <!-- legend -->
-  <rect x="44" y="500" width="1152" height="60" rx="12" fill="var(--strip)" stroke="var(--hair)" stroke-width="1"/>
-  <circle cx="80" cy="530" r="7" fill="var(--done-fill)"/>
-  <text class="legend" x="98" y="530" dominant-baseline="central">Filled — done or in progress</text>
-  <circle cx="390" cy="530" r="7" fill="#FFFFFF" stroke="var(--soon-line)" stroke-width="2.5"/>
-  <text class="legend" x="408" y="530" dominant-baseline="central">Hollow — still ahead</text>
-  <path d="M660 520 V540" fill="none" stroke="var(--primary)" stroke-width="1.5" stroke-dasharray="5 4"/>
-  <text class="legend" x="678" y="530" dominant-baseline="central">Dashed — where the work stands today</text>
+  <rect x="44" y="512" width="1152" height="60" rx="12" fill="var(--strip)" stroke="var(--hair)" stroke-width="1"/>
+  <circle cx="80" cy="542" r="7" fill="var(--done-fill)"/>
+  <text class="legend" x="98" y="542" dominant-baseline="central">Filled — done or in progress</text>
+  <circle cx="390" cy="542" r="7" fill="#FFFFFF" stroke="var(--soon-line)" stroke-width="2.5"/>
+  <text class="legend" x="408" y="542" dominant-baseline="central">Hollow — still ahead</text>
+  <path d="M660 532 V552" fill="none" stroke="var(--primary)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text class="legend" x="678" y="542" dominant-baseline="central">Dashed — where the work stands today</text>
 </svg>

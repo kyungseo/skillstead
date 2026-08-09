@@ -40,7 +40,7 @@
   <!-- NOW marker: sits in the gutter between Alpha and Beta -->
   <rect x="590" y="182" width="60" height="26" rx="13" fill="var(--primary)"/>
   <text class="pill on-accent" x="620" y="195" text-anchor="middle" dominant-baseline="central">현재</text>
-  <path d="M620 208 V460" fill="none" stroke="var(--primary)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <path d="M620 208 V494" fill="none" stroke="var(--primary)" stroke-width="1.5" stroke-dasharray="5 4"/>
 
   <!-- axis -->
   <path d="M60 250 H1180" fill="none" stroke="var(--hair)" stroke-width="3" stroke-linecap="round"/>
@@ -60,55 +60,55 @@
 
   <!-- phase 1 — done -->
   <g>
-    <rect x="63" y="290" width="256" height="162" rx="16" fill="var(--card)" stroke="var(--done-line)" stroke-width="1" filter="url(#cardShadow)"/>
-    <rect x="85" y="312" width="78" height="26" rx="13" fill="var(--done-fill)"/>
-    <text class="pill on-accent" x="124" y="325" text-anchor="middle" dominant-baseline="central">완료</text>
-    <circle cx="90" cy="366" r="3" fill="var(--done-line)"/><text class="bullet" x="104" y="366" dominant-baseline="central">문제 검증</text>
-    <circle cx="90" cy="394" r="3" fill="var(--done-line)"/><text class="bullet" x="104" y="394" dominant-baseline="central">범위·비목표 설정</text>
-    <circle cx="90" cy="422" r="3" fill="var(--done-line)"/><text class="bullet" x="104" y="422" dominant-baseline="central">Go 결정</text>
+    <rect x="63" y="290" width="256" height="196" rx="16" fill="var(--card)" stroke="var(--done-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <rect x="85" y="318" width="78" height="28" rx="14" fill="var(--done-fill)"/>
+    <text class="pill on-accent" x="124" y="332" text-anchor="middle" dominant-baseline="central">완료</text>
+    <circle cx="90" cy="394" r="3" fill="var(--done-line)"/><text class="bullet" x="104" y="394" dominant-baseline="central">문제 검증</text>
+    <circle cx="90" cy="426" r="3" fill="var(--done-line)"/><text class="bullet" x="104" y="426" dominant-baseline="central">범위·비목표 설정</text>
+    <circle cx="90" cy="458" r="3" fill="var(--done-line)"/><text class="bullet" x="104" y="458" dominant-baseline="central">Go 결정</text>
   </g>
 
   <!-- phase 2 — current, emphasized -->
   <g>
-    <rect x="349" y="290" width="256" height="162" rx="16" fill="var(--card)" stroke="var(--now-line)" stroke-width="2.5" filter="url(#cardShadow)"/>
-    <rect x="371" y="312" width="78" height="26" rx="13" fill="var(--primary)"/>
-    <text class="pill on-accent" x="410" y="325" text-anchor="middle" dominant-baseline="central">현재</text>
-    <circle cx="376" cy="366" r="3" fill="var(--now-line)"/><text class="bullet" x="390" y="366" dominant-baseline="central">코어 MVP 구축</text>
-    <circle cx="376" cy="394" r="3" fill="var(--now-line)"/><text class="bullet" x="390" y="394" dominant-baseline="central">내부 테스트</text>
-    <circle cx="376" cy="422" r="3" fill="var(--now-line)"/><text class="bullet" x="390" y="422" dominant-baseline="central">첫 예제</text>
+    <rect x="349" y="290" width="256" height="196" rx="16" fill="var(--card)" stroke="var(--now-line)" stroke-width="2.5" filter="url(#cardShadow)"/>
+    <rect x="371" y="318" width="78" height="28" rx="14" fill="var(--primary)"/>
+    <text class="pill on-accent" x="410" y="332" text-anchor="middle" dominant-baseline="central">현재</text>
+    <circle cx="376" cy="394" r="3" fill="var(--now-line)"/><text class="bullet" x="390" y="394" dominant-baseline="central">코어 MVP 구축</text>
+    <circle cx="376" cy="426" r="3" fill="var(--now-line)"/><text class="bullet" x="390" y="426" dominant-baseline="central">내부 테스트</text>
+    <circle cx="376" cy="458" r="3" fill="var(--now-line)"/><text class="bullet" x="390" y="458" dominant-baseline="central">첫 예제</text>
   </g>
 
   <!-- phase 3 — next -->
   <g>
-    <rect x="635" y="290" width="256" height="162" rx="16" fill="var(--card)" stroke="var(--soon-line)" stroke-width="1" filter="url(#cardShadow)"/>
-    <rect x="657" y="312" width="78" height="26" rx="13" fill="var(--soon-fill)"/>
-    <text class="pill" x="696" y="325" text-anchor="middle" dominant-baseline="central" fill="var(--soon-ink)">다음</text>
-    <circle cx="662" cy="366" r="3" fill="var(--soon-line)"/><text class="bullet" x="676" y="366" dominant-baseline="central">공개 프리뷰</text>
-    <circle cx="662" cy="394" r="3" fill="var(--soon-line)"/><text class="bullet" x="676" y="394" dominant-baseline="central">피드백 루프</text>
-    <circle cx="662" cy="422" r="3" fill="var(--soon-line)"/><text class="bullet" x="676" y="422" dominant-baseline="central">안정화</text>
+    <rect x="635" y="290" width="256" height="196" rx="16" fill="var(--card)" stroke="var(--soon-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <rect x="657" y="318" width="78" height="28" rx="14" fill="var(--soon-fill)"/>
+    <text class="pill" x="696" y="332" text-anchor="middle" dominant-baseline="central" fill="var(--soon-ink)">다음</text>
+    <circle cx="662" cy="394" r="3" fill="var(--soon-line)"/><text class="bullet" x="676" y="394" dominant-baseline="central">공개 프리뷰</text>
+    <circle cx="662" cy="426" r="3" fill="var(--soon-line)"/><text class="bullet" x="676" y="426" dominant-baseline="central">피드백 루프</text>
+    <circle cx="662" cy="458" r="3" fill="var(--soon-line)"/><text class="bullet" x="676" y="458" dominant-baseline="central">안정화</text>
   </g>
 
   <!-- phase 4 — later -->
   <g>
-    <rect x="921" y="290" width="256" height="162" rx="16" fill="var(--card)" stroke="var(--late-line)" stroke-width="1" filter="url(#cardShadow)"/>
-    <rect x="943" y="312" width="78" height="26" rx="13" fill="var(--late-fill)"/>
-    <text class="pill" x="982" y="325" text-anchor="middle" dominant-baseline="central" fill="var(--late-ink)">이후</text>
-    <circle cx="948" cy="366" r="3" fill="var(--late-line)"/><text class="bullet" x="962" y="366" dominant-baseline="central">정식 릴리스</text>
-    <circle cx="948" cy="394" r="3" fill="var(--late-line)"/><text class="bullet" x="962" y="394" dominant-baseline="central">전체 문서</text>
-    <circle cx="948" cy="422" r="3" fill="var(--late-line)"/><text class="bullet" x="962" y="422" dominant-baseline="central">배포</text>
+    <rect x="921" y="290" width="256" height="196" rx="16" fill="var(--card)" stroke="var(--late-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <rect x="943" y="318" width="78" height="28" rx="14" fill="var(--late-fill)"/>
+    <text class="pill" x="982" y="332" text-anchor="middle" dominant-baseline="central" fill="var(--late-ink)">이후</text>
+    <circle cx="948" cy="394" r="3" fill="var(--late-line)"/><text class="bullet" x="962" y="394" dominant-baseline="central">정식 릴리스</text>
+    <circle cx="948" cy="426" r="3" fill="var(--late-line)"/><text class="bullet" x="962" y="426" dominant-baseline="central">전체 문서</text>
+    <circle cx="948" cy="458" r="3" fill="var(--late-line)"/><text class="bullet" x="962" y="458" dominant-baseline="central">배포</text>
   </g>
 
-  <line x1="85" y1="352" x2="297" y2="352" stroke="var(--done-line)" stroke-opacity="0.6" stroke-width="1"/>
-  <line x1="371" y1="352" x2="583" y2="352" stroke="var(--now-line)" stroke-opacity="0.6" stroke-width="1"/>
-  <line x1="657" y1="352" x2="869" y2="352" stroke="var(--soon-line)" stroke-opacity="0.6" stroke-width="1"/>
-  <line x1="943" y1="352" x2="1155" y2="352" stroke="var(--late-line)" stroke-opacity="0.6" stroke-width="1"/>
+  <line x1="85" y1="366" x2="297" y2="366" stroke="var(--done-line)" stroke-opacity="0.6" stroke-width="1"/>
+  <line x1="371" y1="366" x2="583" y2="366" stroke="var(--now-line)" stroke-opacity="0.6" stroke-width="1"/>
+  <line x1="657" y1="366" x2="869" y2="366" stroke="var(--soon-line)" stroke-opacity="0.6" stroke-width="1"/>
+  <line x1="943" y1="366" x2="1155" y2="366" stroke="var(--late-line)" stroke-opacity="0.6" stroke-width="1"/>
 
   <!-- legend -->
-  <rect x="44" y="500" width="1152" height="60" rx="12" fill="var(--strip)" stroke="var(--hair)" stroke-width="1"/>
-  <circle cx="80" cy="530" r="7" fill="var(--done-fill)"/>
-  <text class="legend" x="98" y="530" dominant-baseline="central">채운 원 — 완료했거나 진행 중</text>
-  <circle cx="390" cy="530" r="7" fill="#FFFFFF" stroke="var(--soon-line)" stroke-width="2.5"/>
-  <text class="legend" x="408" y="530" dominant-baseline="central">빈 원 — 아직 남은 단계</text>
-  <path d="M660 520 V540" fill="none" stroke="var(--primary)" stroke-width="1.5" stroke-dasharray="5 4"/>
-  <text class="legend" x="678" y="530" dominant-baseline="central">점선 — 오늘 작업이 서 있는 지점</text>
+  <rect x="44" y="512" width="1152" height="60" rx="12" fill="var(--strip)" stroke="var(--hair)" stroke-width="1"/>
+  <circle cx="80" cy="542" r="7" fill="var(--done-fill)"/>
+  <text class="legend" x="98" y="542" dominant-baseline="central">채운 원 — 완료했거나 진행 중</text>
+  <circle cx="390" cy="542" r="7" fill="#FFFFFF" stroke="var(--soon-line)" stroke-width="2.5"/>
+  <text class="legend" x="408" y="542" dominant-baseline="central">빈 원 — 아직 남은 단계</text>
+  <path d="M660 532 V552" fill="none" stroke="var(--primary)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text class="legend" x="678" y="542" dominant-baseline="central">점선 — 오늘 작업이 서 있는 지점</text>
 </svg>
