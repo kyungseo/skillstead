@@ -1,98 +1,103 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 680" width="1060" height="680" role="img"
-     shape-rendering="geometricPrecision" text-rendering="optimizeLegibility"
-     style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
-<title>이슈 트래커 ↔ CI/CD 승인 연동 흐름</title>
-<desc>이슈 키가 커밋·빌드·배포·승인을 하나로 엮고, 승인 게이트는 이슈 상태 전이로 처리되며, 승인 후 파이프라인이 동일 digest를 배포하는 연동 흐름.</desc>
-<style>
-  svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#DCE3EC; --band:#F7FAFD;
-    --primary:#1F6FB2; --pf-tint:#DCEBFA; --pf-ink:#124267;
-    --ok-line:#0F7A5F; --ok-tint:#D0EBDF; --ok-ink:#085041;
-    --app-line:#534AB7; --app-tint:#DEDCF6; --app-ink:#322B7A; --app-fill:#ECEBFB;
-    --data-line:#7A8398; --data-tint:#E4E6EA; --data-ink:#414755; }
-  text{ fill:var(--ink) }
-  .num{ font-size:15px; font-weight:700; fill:#FFFFFF }
-  .ct{ font-size:16px; font-weight:700 }
-  .cs{ font-size:12.5px; fill:var(--muted) }
-  .mono{ font-family:"SFMono-Regular",Menlo,monospace; font-size:12px }
-  .chip{ font-size:12.5px; font-weight:700 }
-  .ic{ fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round }
-</style>
-<defs>
-  <marker id="arw" viewBox="0 0 9 9" data-lint-allow="marker-footprint" markerUnits="userSpaceOnUse" markerWidth="19.8" markerHeight="19.8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="var(--primary)"/></marker>
-  <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></symbol>
-  <symbol id="ic-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1"/></symbol>
-  <symbol id="ic-server" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="7" rx="2"/><rect x="4" y="13" width="16" height="7" rx="2"/><path d="M8 7.5h.01M8 16.5h.01"/></symbol>
-  <symbol id="ic-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l2.5 2.5L16 9"/></symbol>
-  <symbol id="ic-rocket" viewBox="0 0 24 24"><path d="M12 3c3.2 1.4 5 4.4 5 8.2L14.5 14h-5L7 11.2C7 7.4 8.8 4.4 12 3z"/><circle cx="12" cy="9.5" r="1.6"/><path d="M9.5 14.5l-2 3.5M14.5 14.5l2 3.5M12 14.5V19"/></symbol>
-</defs>
-<rect width="1060" height="680" fill="var(--bg)"/>
+  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>이슈 트래커 ↔ CI/CD 승인 연동 흐름</title>
+  <desc>이슈 키 하나가 릴리스를 꿰는 다섯 단계입니다. 개발자가 브랜치와 커밋에 키를 달면 CI가 아티팩트 digest를 기록하고, 같은 digest가 test에 배포되며, 승인 게이트에서 승인자가 티켓을 전이하고, CI가 그 digest를 그대로 prod에 올립니다. 오른쪽 rail은 TICKET-123이 Open에서 Deployed까지 가는 상태를 따라갑니다.</desc>
 
-<!-- header -->
-<rect x="44" y="38" width="6" height="46" rx="3" fill="var(--primary)"/>
-<text x="66" y="62" style="font-size:30px;font-weight:800">이슈 트래커 ↔ CI/CD 승인 연동 흐름</text>
-<text x="66" y="90" class="cs" style="font-size:15px">이슈 키 하나가 커밋·빌드·배포·승인을 엮는다 — 승인 게이트 = 이슈 상태 전이.</text>
+  <style>
+    svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#D6E0EC; --primary:#1F6FB2;
+      --card:#FFFFFF; --strip:#F7FAFD; --rail:#F4F8FC;
+      --n-fill:#EEF1F4; --n-line:#C3CBD4; --n-ink:#4A5563;
+      --b-fill:#E8F1FB; --b-line:#1F6FB2; --b-ink:#124267;
+      --a-fill:#FDF3E3; --a-line:#D9A441; --a-ink:#8A5D14;
+      --g-fill:#E7F5EF; --g-line:#0F7A5F; --g-ink:#085041; }
+    .on-accent{ fill:#FFFFFF }
+    .eyebrow{ fill:var(--primary); font-size:16px; font-weight:700; letter-spacing:0.10em }
+    .h1{ fill:var(--ink); font-size:34px; font-weight:700 }
+    .sub{ fill:var(--muted); font-size:16px }
+    .col{ fill:var(--muted); font-size:12.5px; font-weight:700; letter-spacing:0.08em }
+    .st{ font-size:16px; font-weight:700 }
+    .sd{ fill:var(--muted); font-size:12.5px }
+    .num{ font-size:14px; font-weight:700 }
+    .chip{ font-size:14px; font-weight:650 }
+    .note{ fill:var(--muted); font-size:12.5px }
+  </style>
 
-<!-- right rail: issue state -->
-<rect x="760" y="96" width="256" height="500" rx="16" fill="var(--band)" stroke="var(--hair)"/>
-<text x="888" y="120" text-anchor="middle" dominant-baseline="central" class="cs" style="font-weight:700">이슈 상태 · <tspan class="mono" style="font-size:12px;fill:var(--ink)">TICKET-123</tspan></text>
-<line x1="888" y1="190" x2="888" y2="536" stroke="#C4CDDA" stroke-width="2"/>
+  <defs>
+    <filter id="cardShadow" x="-12%" y="-12%" width="124%" height="124%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1F2733" flood-opacity="0.09"/>
+    </filter>
+    <symbol id="ic-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/></symbol>
+    <symbol id="ic-build" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 9l3 3-3 3"/><path d="M13 15h4"/></symbol>
+    <symbol id="ic-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="7" rx="2"/><rect x="4" y="13" width="16" height="7" rx="2"/><path d="M8 7.5h.01M8 16.5h.01"/></symbol>
+    <symbol id="ic-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="ic-cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1 0-8 5 5 0 0 1 9.6-1.3A3.5 3.5 0 0 1 18 18z"/></symbol>
+  </defs>
 
-<!-- flow spine -->
-<line x1="80" y1="168" x2="80" y2="536" stroke="#C4CDDA" stroke-width="2.5"/>
+  <rect width="1060" height="680" fill="var(--bg)"/>
 
-<!-- step 1: 개발자 -->
-<circle cx="80" cy="168" r="17" fill="var(--data-line)"/><text x="80" y="168" class="num" text-anchor="middle" dominant-baseline="central">1</text>
-<rect x="108" y="128" width="620" height="80" rx="14" fill="#FFFFFF" stroke="var(--data-line)" stroke-width="1.3"/>
-<circle cx="154" cy="168" r="24" fill="var(--data-tint)"/><use href="#ic-user" class="ic" x="138" y="152" width="32" height="32" style="color:var(--data-ink)"/>
-<text x="196" y="156" class="ct" style="fill:var(--data-ink)" dominant-baseline="central">개발자 · 이슈 등록</text>
-<text x="196" y="180" class="cs" dominant-baseline="central">브랜치·커밋에 이슈 키 참조 · <tspan class="mono">feature/TICKET-123</tspan></text>
-<rect x="782" y="150" width="212" height="36" rx="10" fill="#FFFFFF" stroke="var(--data-line)" stroke-width="1.2"/>
-<text x="888" y="168" text-anchor="middle" dominant-baseline="central" class="chip" style="fill:var(--data-ink)">Open</text>
+  <!-- header: rail from eyebrowTop(56) to titleBottom(121) -->
+  <g data-layout-role="page-title-header" data-layout-rail-padding-top="16"
+     data-layout-rail-padding-bottom="0" data-layout-subtitle-gap="12" data-layout-tolerance="2">
+    <rect data-layout-role="title-rail" x="40" y="40" width="6" height="81" rx="3" fill="var(--primary)"/>
+    <text data-layout-role="title-eyebrow" class="eyebrow" x="68" y="64" font-size="16" dominant-baseline="middle">릴리스 거버넌스</text>
+    <text data-layout-role="title-line" class="h1" x="68" y="104" font-size="34" dominant-baseline="middle">이슈 트래커 ↔ CI/CD 승인 연동 흐름</text>
+    <text data-layout-role="title-subtitle" class="sub" x="68" y="150" font-size="16" dominant-baseline="middle">이슈 키 하나가 커밋·빌드·배포·승인을 꿴다</text>
+  </g>
 
-<!-- step 2: CI 파이프라인 빌드 -->
-<circle cx="80" cy="260" r="17" fill="var(--primary)"/><text x="80" y="260" class="num" text-anchor="middle" dominant-baseline="central">2</text>
-<rect x="108" y="220" width="620" height="80" rx="14" fill="#FFFFFF" stroke="var(--primary)" stroke-width="1.3"/>
-<circle cx="154" cy="260" r="24" fill="var(--pf-tint)"/><use href="#ic-gear" class="ic" x="138" y="244" width="32" height="32" style="color:var(--primary)"/>
-<text x="196" y="248" class="ct" style="fill:var(--pf-ink)" dominant-baseline="central">CI 파이프라인 · 빌드 &amp; 기록</text>
-<text x="196" y="272" class="cs" dominant-baseline="central">머지 → 빌드 → <tspan class="mono">digest</tspan> → 아티팩트·상태 전이 기록</text>
-<rect x="782" y="242" width="212" height="36" rx="10" fill="#FFFFFF" stroke="var(--primary)" stroke-width="1.2"/>
-<text x="888" y="260" text-anchor="middle" dominant-baseline="central" class="chip" style="fill:var(--primary)">In Progress</text>
+  <!-- issue state rail -->
+  <rect x="792" y="194" width="228" height="346" rx="14" fill="var(--rail)" stroke="var(--hair)" stroke-width="1"/>
+  <text class="col" x="906" y="176" text-anchor="middle" dominant-baseline="central">이슈 상태 · TICKET-123</text>
 
-<!-- step 3: 환경 test -->
-<circle cx="80" cy="352" r="17" fill="var(--ok-line)"/><text x="80" y="352" class="num" text-anchor="middle" dominant-baseline="central">3</text>
-<rect x="108" y="312" width="620" height="80" rx="14" fill="#FFFFFF" stroke="var(--ok-line)" stroke-width="1.3"/>
-<circle cx="154" cy="352" r="24" fill="var(--ok-tint)"/><use href="#ic-server" class="ic" x="138" y="336" width="32" height="32" style="color:var(--ok-line)"/>
-<text x="196" y="340" class="ct" style="fill:var(--ok-ink)" dominant-baseline="central">환경 · test 배포 &amp; 검증</text>
-<text x="196" y="364" class="cs" dominant-baseline="central">동일 <tspan class="mono">@digest</tspan>로 test 배포 · 배포 이력·QA 결과 첨부</text>
-<rect x="782" y="334" width="212" height="36" rx="10" fill="#FFFFFF" stroke="var(--ok-line)" stroke-width="1.2"/>
-<text x="888" y="352" text-anchor="middle" dominant-baseline="central" class="chip" style="fill:var(--ok-ink)">In Test</text>
+  <!-- spine -->
+  <path d="M76 223 V511" fill="none" stroke="var(--hair)" stroke-width="3" stroke-linecap="round"/>
 
-<!-- step 4: 이슈 트래커 승인 -->
-<circle cx="80" cy="444" r="17" fill="var(--app-line)"/><text x="80" y="444" class="num" text-anchor="middle" dominant-baseline="central">4</text>
-<rect x="108" y="404" width="620" height="80" rx="14" fill="var(--app-fill)" stroke="var(--app-line)" stroke-width="2"/>
-<circle cx="154" cy="444" r="24" fill="var(--app-tint)"/><use href="#ic-check" class="ic" x="138" y="428" width="32" height="32" style="color:var(--app-line)"/>
-<text x="196" y="432" class="ct" style="fill:var(--app-ink)" dominant-baseline="central">이슈 트래커 · 승인 게이트</text>
-<text x="196" y="456" class="cs" style="fill:var(--app-line)" dominant-baseline="central">승인자가 티켓 상태 전이 · 승인자·시각 자동 기록(감사 추적)</text>
-<rect x="782" y="426" width="212" height="36" rx="10" fill="var(--app-fill)" stroke="var(--app-line)" stroke-width="1.4"/>
-<text x="888" y="444" text-anchor="middle" dominant-baseline="central" class="chip" style="fill:var(--app-ink)">Approved</text>
+  <!-- step 1 -->
+  <circle cx="76" cy="223" r="15" fill="var(--b-line)"/><text class="num on-accent" x="76" y="223" text-anchor="middle" dominant-baseline="central">1</text>
+  <rect x="112" y="194" width="640" height="58" rx="12" fill="var(--card)" stroke="var(--b-line)" stroke-width="1" filter="url(#cardShadow)"/>
+  <circle cx="142" cy="223" r="20" fill="var(--b-fill)"/><use href="#ic-person" x="130" y="211" width="24" height="24" style="color:#1F6FB2"/>
+  <text class="st" x="176" y="213" dominant-baseline="central" fill="var(--b-ink)">개발자가 이슈를 등록한다</text>
+  <text class="sd" x="176" y="234" dominant-baseline="central">브랜치와 커밋에 이슈 키를 단다 — feature/TICKET-123</text>
+  <rect x="816" y="204" width="180" height="38" rx="10" fill="var(--n-fill)" stroke="var(--n-line)" stroke-width="1"/>
+  <text class="chip" x="906" y="223" text-anchor="middle" dominant-baseline="central" fill="var(--n-ink)">Open</text>
 
-<!-- step 5: CI 파이프라인 prod 배포 -->
-<circle cx="80" cy="536" r="17" fill="var(--primary)"/><text x="80" y="536" class="num" text-anchor="middle" dominant-baseline="central">5</text>
-<rect x="108" y="496" width="620" height="80" rx="14" fill="#FFFFFF" stroke="var(--primary)" stroke-width="1.3"/>
-<circle cx="154" cy="536" r="24" fill="var(--pf-tint)"/><use href="#ic-rocket" class="ic" x="138" y="520" width="32" height="32" style="color:var(--primary)"/>
-<text x="196" y="524" class="ct" style="fill:var(--pf-ink)" dominant-baseline="central">CI 파이프라인 · prod 배포</text>
-<text x="196" y="548" class="cs" dominant-baseline="central">파이프라인이 승인 상태 확인 → 동일 <tspan class="mono">@digest</tspan> prod 배포</text>
-<rect x="782" y="518" width="212" height="36" rx="10" fill="var(--ok-tint)" stroke="var(--ok-line)" stroke-width="1.2"/>
-<text x="888" y="536" text-anchor="middle" dominant-baseline="central" class="chip" style="fill:var(--ok-ink)">Deployed</text>
+  <!-- step 2 -->
+  <circle cx="76" cy="295" r="15" fill="var(--b-line)"/><text class="num on-accent" x="76" y="295" text-anchor="middle" dominant-baseline="central">2</text>
+  <rect x="112" y="266" width="640" height="58" rx="12" fill="var(--card)" stroke="var(--b-line)" stroke-width="1" filter="url(#cardShadow)"/>
+  <circle cx="142" cy="295" r="20" fill="var(--b-fill)"/><use href="#ic-build" x="130" y="283" width="24" height="24" style="color:#1F6FB2"/>
+  <text class="st" x="176" y="285" dominant-baseline="central" fill="var(--b-ink)">CI 파이프라인이 빌드하고 기록한다</text>
+  <text class="sd" x="176" y="306" dominant-baseline="central">아티팩트 digest를 남기고 티켓 상태를 다음으로 넘긴다</text>
+  <rect x="816" y="276" width="180" height="38" rx="10" fill="var(--b-fill)" stroke="var(--b-line)" stroke-width="1"/>
+  <text class="chip" x="906" y="295" text-anchor="middle" dominant-baseline="central" fill="var(--b-ink)">In Progress</text>
 
-<!-- spine arrows -->
-<path d="M80 205 l0 14" stroke="var(--primary)" stroke-width="2.2" marker-end="url(#arw)"/>
-<path d="M80 297 l0 14" stroke="var(--primary)" stroke-width="2.2" marker-end="url(#arw)"/>
-<path d="M80 389 l0 14" stroke="var(--primary)" stroke-width="2.2" marker-end="url(#arw)"/>
-<path d="M80 481 l0 14" stroke="var(--primary)" stroke-width="2.2" marker-end="url(#arw)"/>
+  <!-- step 3 -->
+  <circle cx="76" cy="367" r="15" fill="var(--b-line)"/><text class="num on-accent" x="76" y="367" text-anchor="middle" dominant-baseline="central">3</text>
+  <rect x="112" y="338" width="640" height="58" rx="12" fill="var(--card)" stroke="var(--b-line)" stroke-width="1" filter="url(#cardShadow)"/>
+  <circle cx="142" cy="367" r="20" fill="var(--b-fill)"/><use href="#ic-server" x="130" y="355" width="24" height="24" style="color:#1F6FB2"/>
+  <text class="st" x="176" y="357" dominant-baseline="central" fill="var(--b-ink)">test 환경이 같은 digest를 받는다</text>
+  <text class="sd" x="176" y="378" dominant-baseline="central">같은 @digest를 배포하고 QA 결과를 붙인다</text>
+  <rect x="816" y="348" width="180" height="38" rx="10" fill="var(--a-fill)" stroke="var(--a-line)" stroke-width="1"/>
+  <text class="chip" x="906" y="367" text-anchor="middle" dominant-baseline="central" fill="var(--a-ink)">In Test</text>
 
-<!-- footer -->
-<rect x="44" y="606" width="972" height="52" rx="14" fill="var(--band)" stroke="var(--hair)"/>
-<text x="66" y="624" class="cs" style="font-weight:700;fill:var(--primary)" dominant-baseline="central">파이프라인이 트래커 API / webhook으로 기록·조회 — 개발자는 이슈 키만 참조한다.</text>
-<text x="66" y="644" class="cs" style="fill:var(--primary)" dominant-baseline="central">수동 승인 변형: ④는 상태 전이 대신 이메일 / 체크리스트 서명 + 파이프라인 input 게이트.</text>
+  <!-- step 4 — approval gate -->
+  <circle cx="76" cy="439" r="15" fill="var(--a-line)"/><text class="num on-accent" x="76" y="439" text-anchor="middle" dominant-baseline="central">4</text>
+  <rect x="112" y="410" width="640" height="58" rx="12" fill="var(--card)" stroke="var(--a-line)" stroke-width="2.5" filter="url(#cardShadow)"/>
+  <circle cx="142" cy="439" r="20" fill="var(--a-fill)"/><use href="#ic-shield" x="130" y="427" width="24" height="24" style="color:#D9A441"/>
+  <text class="st" x="176" y="429" dominant-baseline="central" fill="var(--a-ink)">이슈 트래커의 승인 게이트</text>
+  <text class="sd" x="176" y="450" dominant-baseline="central">승인자가 티켓을 전이하고, 승인자와 시각이 자동으로 남는다</text>
+  <rect x="816" y="420" width="180" height="38" rx="10" fill="var(--g-fill)" stroke="var(--g-line)" stroke-width="1"/>
+  <text class="chip" x="906" y="439" text-anchor="middle" dominant-baseline="central" fill="var(--g-ink)">Approved</text>
+
+  <!-- step 5 -->
+  <circle cx="76" cy="511" r="15" fill="var(--g-line)"/><text class="num on-accent" x="76" y="511" text-anchor="middle" dominant-baseline="central">5</text>
+  <rect x="112" y="482" width="640" height="58" rx="12" fill="var(--card)" stroke="var(--g-line)" stroke-width="1" filter="url(#cardShadow)"/>
+  <circle cx="142" cy="511" r="20" fill="var(--g-fill)"/><use href="#ic-cloud" x="130" y="499" width="24" height="24" style="color:#0F7A5F"/>
+  <text class="st" x="176" y="501" dominant-baseline="central" fill="var(--g-ink)">CI 파이프라인이 prod에 올린다</text>
+  <text class="sd" x="176" y="522" dominant-baseline="central">승인 상태를 먼저 확인한 뒤 같은 @digest를 배포한다</text>
+  <rect x="816" y="492" width="180" height="38" rx="10" fill="var(--g-line)"/>
+  <text class="chip on-accent" x="906" y="511" text-anchor="middle" dominant-baseline="central">Deployed</text>
+
+  <!-- footer -->
+  <rect x="40" y="572" width="980" height="68" rx="12" fill="var(--strip)" stroke="var(--hair)" stroke-width="1"/>
+  <text class="note" x="68" y="594" dominant-baseline="central">파이프라인이 트래커 API와 webhook으로 상태를 기록하고 읽는다 — 개발자는 이슈 키만 참조하면 된다.</text>
+  <text class="note" x="68" y="620" dominant-baseline="central">수동 승인 변형: 4단계는 상태 전이 대신 이메일이나 체크리스트 서명 + 파이프라인 input 게이트가 된다.</text>
 </svg>

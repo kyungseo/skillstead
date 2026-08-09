@@ -1,126 +1,138 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 820" width="1400" height="820" role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
-  <title>Waiting Alerts Erase Agent Idle Time</title>
-  <desc>A swimlane flow placing agent session states and user actions side by side. When the agent enters a waiting state, an alert reaches the user, and a one-click approval resumes the agent instantly — idle time disappears.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 820" width="1400" height="820" role="img"
+  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>Waiting alerts erase agent idle time</title>
+  <desc>Two aligned lanes. The agent state lane runs Working, Waiting, Resumed, Done; the user lane runs deep work, a one-click approval, staying in flow, and reviewing results. At the Waiting column a dashed alert goes down to the user and a dashed one-click approval comes back up, so the pause never becomes idle time.</desc>
+
   <style>
     svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#D6E0EC; --primary:#1F6FB2;
-      --band:#F4F8FC;
-      --ag-line:#1F6FB2; --ag-ink:#124267; --ag-tint:#E3EEF8;
-      --wait-fill:#FDF3E3; --wait-line:#C98A2B; --wait-ink:#7A5514; --wait-tint:#F7E7C8;
-      --ok-line:#0F7A5F; --ok-ink:#085041; --ok-tint:#DFF2E9;
-      --us-line:#7A8398; --us-ink:#3F4453; --us-tint:#EEF0F3;
-      --arrow:#6B7A8F; }
+      --card:#FFFFFF; --strip:#F7FAFD;
+      --lane-a:#F4F8FC; --lane-b:#F6F7F9;
+      --b-fill:#E8F1FB; --b-line:#1F6FB2; --b-ink:#124267;
+      --a-fill:#FDF3E3; --a-line:#D9A441; --a-ink:#8A5D14;
+      --n-fill:#EEF1F4; --n-line:#B9C2CC; --n-ink:#435060; }
     .on-accent{ fill:#FFFFFF }
+    .eyebrow{ fill:var(--primary); font-size:16px; font-weight:700; letter-spacing:0.10em }
+    .h1{ fill:var(--ink); font-size:42px; font-weight:700 }
+    .sub{ fill:var(--muted); font-size:18px }
+    .lane{ font-size:15px; font-weight:700; letter-spacing:0.08em }
+    .ct{ font-size:20px; font-weight:700 }
+    .cs{ fill:var(--muted); font-size:13.5px }
+    .badge{ font-size:14px; font-weight:700 }
+    .xlabel{ font-size:13.5px; font-weight:650 }
+    .legend{ fill:var(--muted); font-size:14px }
   </style>
+
   <defs>
-    <symbol id="ic-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 9l3 3-3 3"/><path d="M13 15h4"/></symbol>
-    <symbol id="ic-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 16.5h6M9 9.5h2"/></symbol>
-    <symbol id="ic-loop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12a7.5 7.5 0 0 1 12.8-5.3L20 9"/><path d="M20 3.5V9h-5.5"/><path d="M19.5 12a7.5 7.5 0 0 1-12.8 5.3L4 15"/><path d="M4 20.5V15h5.5"/></symbol>
-    <symbol id="ic-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
-    <symbol id="ic-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4a5.5 5.5 0 0 1 5.5 5.5c0 3 .8 4.6 1.7 5.7H4.8c.9-1.1 1.7-2.7 1.7-5.7A5.5 5.5 0 0 1 12 4z"/><path d="M10 18.5a2 2 0 0 0 4 0"/></symbol>
-    <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></symbol>
-    <symbol id="ic-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4"/><path d="M6 5h11l-2.5 3.5L17 12H6"/></symbol>
-    <symbol id="ic-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol>
-    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" data-lint-allow="marker-footprint" markerUnits="userSpaceOnUse" markerWidth="15" markerHeight="15" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--arrow)"/></marker>
-    <filter id="soft" x="-12%" y="-12%" width="124%" height="136%">
-      <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#5A4310" flood-opacity="0.18"/>
+    <marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="11.25" markerHeight="11.25"
+      markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M2 2 L10 6 L2 10" fill="none" stroke="#1F6FB2" stroke-width="2" stroke-linecap="round"/>
+    </marker>
+    <marker id="ahX" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="11.25" markerHeight="11.25"
+      markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M2 2 L10 6 L2 10" fill="none" stroke="#D9A441" stroke-width="2" stroke-linecap="round"/>
+    </marker>
+    <filter id="cardShadow" x="-12%" y="-12%" width="124%" height="124%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1F2733" flood-opacity="0.09"/>
     </filter>
+    <symbol id="ic-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v2.4M12 18.6V21M21 12h-2.4M5.4 12H3M18.4 5.6l-1.7 1.7M7.3 16.7l-1.7 1.7M18.4 18.4l-1.7-1.7M7.3 7.3L5.6 5.6"/></symbol>
+    <symbol id="ic-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6"/><path d="M10.4 19.5a2.2 2.2 0 0 0 3.2 0"/></symbol>
+    <symbol id="ic-resume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M10.2 8.6l5 3.4-5 3.4z"/></symbol>
+    <symbol id="ic-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 12.3l2.4 2.4 4.6-4.8"/></symbol>
+    <symbol id="ic-focus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="ic-click" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.5v3.6M4.5 9h3.6M6.1 6.1l2.5 2.5"/><path d="M11.5 11l8.5 3.2-3.7 1.4-1.4 3.7z"/></symbol>
+    <symbol id="ic-flow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12h5.2"/><circle cx="12" cy="12" r="2.4"/><path d="M15.3 12h5.2"/><path d="M17.8 9.2l2.8 2.8-2.8 2.8"/></symbol>
+    <symbol id="ic-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 16.5h6M9 9.5h2"/></symbol>
   </defs>
 
   <rect width="1400" height="820" fill="var(--bg)"/>
 
-  <!-- header -->
-  <rect x="48" y="52" width="6" height="64" rx="3" fill="var(--primary)"/>
-  <text x="72" y="90" font-size="40" font-weight="800" fill="var(--ink)">Waiting Alerts Erase Agent Idle Time</text>
-  <text x="72" y="126" font-size="17" fill="var(--muted)">Agent session states and user actions side by side — the workflow never stalls at an approval</text>
+  <!-- header: rail from eyebrowTop(64) to titleBottom(139) -->
+  <g data-layout-role="page-title-header" data-layout-rail-padding-top="16"
+     data-layout-rail-padding-bottom="0" data-layout-subtitle-gap="12" data-layout-tolerance="2">
+    <rect data-layout-role="title-rail" x="48" y="48" width="6" height="91" rx="3" fill="var(--primary)"/>
+    <text data-layout-role="title-eyebrow" class="eyebrow" x="76" y="72" font-size="16" dominant-baseline="middle">SESSION FLOW</text>
+    <text data-layout-role="title-line" class="h1" x="76" y="118" font-size="42" dominant-baseline="middle">Waiting alerts erase agent idle time</text>
+    <text data-layout-role="title-subtitle" class="sub" x="76" y="176" font-size="18" dominant-baseline="middle">Agent state and what you are doing, side by side — approval never stalls the run</text>
+  </g>
 
-  <!-- band container -->
-  <rect x="48" y="170" width="1304" height="510" rx="20" fill="var(--band)" stroke="var(--hair)" stroke-width="1"/>
+  <!-- lane A -->
+  <rect x="48" y="226" width="1304" height="170" rx="16" fill="var(--lane-a)" stroke="var(--hair)" stroke-width="1"/>
+  <text class="lane" x="76" y="311" dominant-baseline="central" fill="var(--b-ink)">AGENT STATE</text>
 
-  <!-- lane pills -->
-  <rect x="72" y="290" width="140" height="40" rx="20" fill="var(--ag-line)"/>
-  <text x="142" y="310" font-size="15" font-weight="700" class="on-accent" text-anchor="middle" dominant-baseline="central">AGENT STATE</text>
-  <rect x="72" y="520" width="140" height="40" rx="20" fill="var(--us-line)"/>
-  <text x="142" y="540" font-size="15" font-weight="700" class="on-accent" text-anchor="middle" dominant-baseline="central">USER</text>
+  <g>
+    <rect x="206" y="256" width="250" height="110" rx="14" fill="var(--card)" stroke="var(--b-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <circle cx="232" cy="282" r="14" fill="var(--b-line)"/><text class="badge on-accent" x="232" y="282" text-anchor="middle" dominant-baseline="central">1</text>
+    <circle cx="331" cy="286" r="20" fill="var(--b-fill)"/><use href="#ic-gear" x="319" y="274" width="24" height="24" style="color:#1F6FB2"/>
+    <text class="ct" x="331" y="318" text-anchor="middle" dominant-baseline="central" fill="var(--b-ink)">Working</text>
+    <text class="cs" x="331" y="344" text-anchor="middle" dominant-baseline="central">writing code, running tools</text>
+  </g>
+  <g>
+    <rect x="500" y="256" width="250" height="110" rx="14" fill="var(--card)" stroke="var(--a-line)" stroke-width="2.5" filter="url(#cardShadow)"/>
+    <circle cx="526" cy="282" r="14" fill="var(--a-line)"/><text class="badge on-accent" x="526" y="282" text-anchor="middle" dominant-baseline="central">2</text>
+    <circle cx="625" cy="286" r="20" fill="var(--a-fill)"/><use href="#ic-bell" x="613" y="274" width="24" height="24" style="color:#D9A441"/>
+    <text class="ct" x="625" y="318" text-anchor="middle" dominant-baseline="central" fill="var(--a-ink)">Waiting</text>
+    <text class="cs" x="625" y="344" text-anchor="middle" dominant-baseline="central">needs your approval</text>
+  </g>
+  <g>
+    <rect x="794" y="256" width="250" height="110" rx="14" fill="var(--card)" stroke="var(--b-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <circle cx="820" cy="282" r="14" fill="var(--b-line)"/><text class="badge on-accent" x="820" y="282" text-anchor="middle" dominant-baseline="central">3</text>
+    <circle cx="919" cy="286" r="20" fill="var(--b-fill)"/><use href="#ic-resume" x="907" y="274" width="24" height="24" style="color:#1F6FB2"/>
+    <text class="ct" x="919" y="318" text-anchor="middle" dominant-baseline="central" fill="var(--b-ink)">Resumed</text>
+    <text class="cs" x="919" y="344" text-anchor="middle" dominant-baseline="central">continues the moment it lands</text>
+  </g>
+  <g>
+    <rect x="1088" y="256" width="250" height="110" rx="14" fill="var(--card)" stroke="var(--b-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <circle cx="1114" cy="282" r="14" fill="var(--b-line)"/><text class="badge on-accent" x="1114" y="282" text-anchor="middle" dominant-baseline="central">4</text>
+    <circle cx="1213" cy="286" r="20" fill="var(--b-fill)"/><use href="#ic-done" x="1201" y="274" width="24" height="24" style="color:#1F6FB2"/>
+    <text class="ct" x="1213" y="318" text-anchor="middle" dominant-baseline="central" fill="var(--b-ink)">Done</text>
+    <text class="cs" x="1213" y="344" text-anchor="middle" dominant-baseline="central">results are ready</text>
+  </g>
 
-  <!-- lane 1 · agent -->
-  <!-- c1 작업 중 -->
-  <rect x="240" y="230" width="220" height="160" rx="12" fill="#FFFFFF" stroke="var(--ag-line)" stroke-width="1"/>
-  <circle cx="264" cy="254" r="13" fill="var(--ag-line)"/>
-  <text x="264" y="254" font-size="14" font-weight="700" class="on-accent" text-anchor="middle" dominant-baseline="central">1</text>
-  <circle cx="350" cy="280" r="28" fill="var(--ag-tint)"/>
-  <use href="#ic-terminal" x="334" y="264" width="32" height="32" style="color:#1F6FB2"/>
-  <text x="350" y="334" font-size="19" font-weight="700" fill="var(--ag-ink)" text-anchor="middle" dominant-baseline="central">Working</text>
-  <text x="350" y="360" font-size="14" fill="var(--muted)" text-anchor="middle" dominant-baseline="central">coding · running tools</text>
-  <!-- c2 승인 대기 (key step) -->
-  <rect x="516" y="230" width="220" height="160" rx="12" fill="var(--wait-fill)" stroke="var(--wait-line)" stroke-width="2" filter="url(#soft)"/>
-  <circle cx="540" cy="254" r="13" fill="var(--wait-line)"/>
-  <text x="540" y="254" font-size="14" font-weight="700" class="on-accent" text-anchor="middle" dominant-baseline="central">2</text>
-  <circle cx="626" cy="280" r="28" fill="var(--wait-tint)"/>
-  <use href="#ic-bell" x="610" y="264" width="32" height="32" style="color:#B4761F"/>
-  <text x="626" y="334" font-size="19" font-weight="700" fill="var(--wait-ink)" text-anchor="middle" dominant-baseline="central">Waiting</text>
-  <text x="626" y="360" font-size="14" fill="var(--wait-ink)" text-anchor="middle" dominant-baseline="central">user approval needed</text>
-  <!-- c3 작업 재개 -->
-  <rect x="792" y="230" width="220" height="160" rx="12" fill="#FFFFFF" stroke="var(--ag-line)" stroke-width="1"/>
-  <circle cx="816" cy="254" r="13" fill="var(--ag-line)"/>
-  <text x="816" y="254" font-size="14" font-weight="700" class="on-accent" text-anchor="middle" dominant-baseline="central">3</text>
-  <circle cx="902" cy="280" r="28" fill="var(--ag-tint)"/>
-  <use href="#ic-loop" x="886" y="264" width="32" height="32" style="color:#1F6FB2"/>
-  <text x="902" y="334" font-size="19" font-weight="700" fill="var(--ag-ink)" text-anchor="middle" dominant-baseline="central">Resumed</text>
-  <text x="902" y="360" font-size="14" fill="var(--muted)" text-anchor="middle" dominant-baseline="central">continues instantly</text>
-  <!-- c4 완료 -->
-  <rect x="1068" y="230" width="220" height="160" rx="12" fill="#FFFFFF" stroke="var(--ok-line)" stroke-width="1"/>
-  <circle cx="1092" cy="254" r="13" fill="var(--ok-line)"/>
-  <text x="1092" y="254" font-size="14" font-weight="700" class="on-accent" text-anchor="middle" dominant-baseline="central">4</text>
-  <circle cx="1178" cy="280" r="28" fill="var(--ok-tint)"/>
-  <use href="#ic-flag" x="1162" y="264" width="32" height="32" style="color:#0F7A5F"/>
-  <text x="1178" y="334" font-size="19" font-weight="700" fill="var(--ok-ink)" text-anchor="middle" dominant-baseline="central">Done</text>
-  <text x="1178" y="360" font-size="14" fill="var(--muted)" text-anchor="middle" dominant-baseline="central">results ready</text>
+  <g fill="none" stroke="var(--b-line)" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah)">
+    <path d="M464 311 H490"/>
+    <path d="M758 311 H784"/>
+    <path d="M1052 311 H1078"/>
+  </g>
 
-  <!-- lane 1 arrows -->
-  <line x1="466" y1="310" x2="506" y2="310" stroke="var(--arrow)" stroke-width="2" marker-end="url(#ah)"/>
-  <line x1="742" y1="310" x2="782" y2="310" stroke="var(--arrow)" stroke-width="2" marker-end="url(#ah)"/>
-  <line x1="1018" y1="310" x2="1058" y2="310" stroke="var(--arrow)" stroke-width="2" marker-end="url(#ah)"/>
+  <!-- cross-lane exchange at the Waiting column -->
+  <path d="M596 404 V478" fill="none" stroke="var(--a-line)" stroke-width="2.5" stroke-dasharray="6 5" stroke-linecap="round" marker-end="url(#ahX)"/>
+  <path d="M664 478 V404" fill="none" stroke="var(--a-line)" stroke-width="2.5" stroke-dasharray="6 5" stroke-linecap="round" marker-end="url(#ahX)"/>
+  <text class="xlabel" x="586" y="441" text-anchor="end" dominant-baseline="central" fill="var(--a-ink)">waiting alert</text>
+  <text class="xlabel" x="674" y="441" dominant-baseline="central" fill="var(--a-ink)">one-click approve</text>
 
-  <!-- cross-lane arrows at column 2 -->
-  <line x1="606" y1="396" x2="606" y2="450" stroke="var(--wait-line)" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ah)"/>
-  <line x1="646" y1="460" x2="646" y2="406" stroke="var(--ok-line)" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ah)"/>
-  <text x="596" y="428" font-size="13" fill="var(--wait-ink)" text-anchor="end" dominant-baseline="central">waiting alert</text>
-  <text x="656" y="428" font-size="13" fill="var(--ok-ink)" text-anchor="start" dominant-baseline="central">One-click approve</text>
+  <!-- lane B -->
+  <rect x="48" y="490" width="1304" height="170" rx="16" fill="var(--lane-b)" stroke="var(--hair)" stroke-width="1"/>
+  <text class="lane" x="76" y="575" dominant-baseline="central" fill="var(--muted)">USER</text>
 
-  <!-- lane 2 · user -->
-  <!-- c1 다른 작업 집중 -->
-  <rect x="240" y="460" width="220" height="160" rx="12" fill="#FFFFFF" stroke="var(--us-line)" stroke-width="1"/>
-  <circle cx="350" cy="510" r="28" fill="var(--us-tint)"/>
-  <use href="#ic-doc" x="334" y="494" width="32" height="32" style="color:#5B6675"/>
-  <text x="350" y="564" font-size="19" font-weight="700" fill="var(--us-ink)" text-anchor="middle" dominant-baseline="central">Deep in other work</text>
-  <text x="350" y="590" font-size="14" fill="var(--muted)" text-anchor="middle" dominant-baseline="central">no context switching</text>
-  <!-- c2 원클릭 승인 -->
-  <rect x="516" y="460" width="220" height="160" rx="12" fill="#FFFFFF" stroke="var(--ok-line)" stroke-width="1.5"/>
-  <circle cx="626" cy="510" r="28" fill="var(--ok-tint)"/>
-  <use href="#ic-check" x="610" y="494" width="32" height="32" style="color:#0F7A5F"/>
-  <text x="626" y="564" font-size="19" font-weight="700" fill="var(--ok-ink)" text-anchor="middle" dominant-baseline="central">One-click approve</text>
-  <text x="626" y="590" font-size="14" fill="var(--muted)" text-anchor="middle" dominant-baseline="central">right from the alert</text>
-  <!-- c3 몰입 유지 -->
-  <rect x="792" y="460" width="220" height="160" rx="12" fill="#FFFFFF" stroke="var(--us-line)" stroke-width="1"/>
-  <circle cx="902" cy="510" r="28" fill="var(--us-tint)"/>
-  <use href="#ic-gear" x="886" y="494" width="32" height="32" style="color:#5B6675"/>
-  <text x="902" y="564" font-size="19" font-weight="700" fill="var(--us-ink)" text-anchor="middle" dominant-baseline="central">Stays in flow</text>
-  <text x="902" y="590" font-size="14" fill="var(--muted)" text-anchor="middle" dominant-baseline="central">no interruption</text>
-  <!-- c4 결과 리뷰 -->
-  <rect x="1068" y="460" width="220" height="160" rx="12" fill="#FFFFFF" stroke="var(--us-line)" stroke-width="1"/>
-  <circle cx="1178" cy="510" r="28" fill="var(--us-tint)"/>
-  <use href="#ic-eye" x="1162" y="494" width="32" height="32" style="color:#5B6675"/>
-  <text x="1178" y="564" font-size="19" font-weight="700" fill="var(--us-ink)" text-anchor="middle" dominant-baseline="central">Reviews results</text>
-  <text x="1178" y="590" font-size="14" fill="var(--muted)" text-anchor="middle" dominant-baseline="central">when it's done</text>
-
-  <!-- lane 2 arrows -->
-  <line x1="466" y1="540" x2="506" y2="540" stroke="var(--arrow)" stroke-width="2" marker-end="url(#ah)"/>
-  <line x1="742" y1="540" x2="782" y2="540" stroke="var(--arrow)" stroke-width="2" marker-end="url(#ah)"/>
-  <line x1="1018" y1="540" x2="1058" y2="540" stroke="var(--arrow)" stroke-width="2" marker-end="url(#ah)"/>
+  <g>
+    <rect x="206" y="520" width="250" height="110" rx="14" fill="var(--card)" stroke="var(--n-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <circle cx="331" cy="550" r="20" fill="var(--n-fill)"/><use href="#ic-focus" x="319" y="538" width="24" height="24" style="color:#5B6675"/>
+    <text class="ct" x="331" y="582" text-anchor="middle" dominant-baseline="central" fill="var(--ink)">Deep in other work</text>
+    <text class="cs" x="331" y="608" text-anchor="middle" dominant-baseline="central">attention is elsewhere</text>
+  </g>
+  <g>
+    <rect x="500" y="520" width="250" height="110" rx="14" fill="var(--card)" stroke="var(--a-line)" stroke-width="2.5" filter="url(#cardShadow)"/>
+    <circle cx="625" cy="550" r="20" fill="var(--a-fill)"/><use href="#ic-click" x="613" y="538" width="24" height="24" style="color:#D9A441"/>
+    <text class="ct" x="625" y="582" text-anchor="middle" dominant-baseline="central" fill="var(--a-ink)">One-click approve</text>
+    <text class="cs" x="625" y="608" text-anchor="middle" dominant-baseline="central">straight from the alert</text>
+  </g>
+  <g>
+    <rect x="794" y="520" width="250" height="110" rx="14" fill="var(--card)" stroke="var(--n-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <circle cx="919" cy="550" r="20" fill="var(--n-fill)"/><use href="#ic-flow" x="907" y="538" width="24" height="24" style="color:#5B6675"/>
+    <text class="ct" x="919" y="582" text-anchor="middle" dominant-baseline="central" fill="var(--ink)">Stays in flow</text>
+    <text class="cs" x="919" y="608" text-anchor="middle" dominant-baseline="central">nothing breaks the thread</text>
+  </g>
+  <g>
+    <rect x="1088" y="520" width="250" height="110" rx="14" fill="var(--card)" stroke="var(--n-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <circle cx="1213" cy="550" r="20" fill="var(--n-fill)"/><use href="#ic-doc" x="1201" y="538" width="24" height="24" style="color:#5B6675"/>
+    <text class="ct" x="1213" y="582" text-anchor="middle" dominant-baseline="central" fill="var(--ink)">Reviews results</text>
+    <text class="cs" x="1213" y="608" text-anchor="middle" dominant-baseline="central">checks it once it is done</text>
+  </g>
 
   <!-- legend -->
-  <line x1="480" y1="755" x2="530" y2="755" stroke="var(--arrow)" stroke-width="2" marker-end="url(#ah)"/>
-  <text x="542" y="755" font-size="14" fill="var(--muted)" dominant-baseline="central">state transition</text>
-  <line x1="680" y1="755" x2="730" y2="755" stroke="var(--arrow)" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ah)"/>
-  <text x="742" y="755" font-size="14" fill="var(--muted)" dominant-baseline="central">alert · approval (cross-lane)</text>
+  <rect x="48" y="692" width="1304" height="60" rx="12" fill="var(--strip)" stroke="var(--hair)" stroke-width="1"/>
+  <path d="M80 722 H120" fill="none" stroke="var(--b-line)" stroke-width="2.5" stroke-linecap="round"/>
+  <text class="legend" x="132" y="722" dominant-baseline="central">Solid — state transition inside a lane</text>
+  <path d="M470 722 H510" fill="none" stroke="var(--a-line)" stroke-width="2.5" stroke-dasharray="6 5" stroke-linecap="round"/>
+  <text class="legend" x="522" y="722" dominant-baseline="central">Dashed — alert and approval crossing lanes</text>
 </svg>

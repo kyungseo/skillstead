@@ -1,72 +1,122 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 540" width="1240" height="540" role="img"
-     shape-rendering="geometricPrecision" text-rendering="optimizeLegibility"
-     style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
-<title>RAG 질의 파이프라인 — 프로세스 플로우</title>
-<desc>검색 증강 생성(RAG)의 좌→우 프로세스 플로우: 사용자 질의, 임베딩, 벡터 검색, 컨텍스트 증강, 답변 생성.</desc>
-<style>
-  svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#DCE3EC; --primary:#1F6FB2; --pf-tint:#E3EEF8;
-    --band:#F7FAFD; --ok-fill:#E7F5EF; --ok-line:#0F7A5F; --ok-ink:#0B5E49; --ok-tint:#D0EBDF; }
-  text{ fill:var(--ink) }
-  .sub{ fill:var(--muted) }
-  .ct{ font-size:17px; font-weight:700 }
-  .cs{ font-size:13px }
-  .ic{ fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round }
-</style>
-<defs>
-  <marker id="arrow" viewBox="0 0 10 10" data-lint-allow="marker-footprint" markerUnits="userSpaceOnUse" markerWidth="20" markerHeight="20" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8A94A3"/></marker>
-  <symbol id="ic-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-4 4V5z"/><path d="M8 10h8M8 13h5"/></symbol>
-  <symbol id="ic-api" viewBox="0 0 24 24"><path d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></symbol>
-  <symbol id="ic-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v14c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></symbol>
-  <symbol id="ic-doc" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 16.5h6M9 9.5h2"/></symbol>
-  <symbol id="ic-spark" viewBox="0 0 24 24"><path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z"/></symbol>
-</defs>
-<rect width="1240" height="540" fill="var(--bg)"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 700" width="1400" height="700" role="img"
+  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>RAG 질의 파이프라인</title>
+  <desc>검색 증강 생성의 다섯 단계 흐름입니다. 사용자 질의를 임베딩해 벡터 저장소에서 관련 문서를 찾고, 찾아온 컨텍스트를 질의에 결합한 뒤에야 모델에 넘깁니다. 그래서 답변이 기억이 아니라 검색된 근거에 기댑니다.</desc>
 
-<!-- header -->
-<rect x="44" y="40" width="6" height="46" rx="3" fill="var(--primary)"/>
-<text x="66" y="64" style="font-size:32px;font-weight:800">RAG 질의 파이프라인</text>
-<text x="66" y="94" class="sub" style="font-size:16px">검색 증강 생성 — 검색된 컨텍스트가 답변 전에 모델을 grounding한다</text>
+  <style>
+    svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#D6E0EC; --primary:#1F6FB2;
+      --band:#F4F8FC; --card:#FFFFFF; --strip:#F7FAFD;
+      --step-fill:#E8F1FB; --step-line:#1F6FB2; --step-ink:#124267;
+      --ok-fill:#E7F5EF; --ok-line:#0F7A5F; --ok-ink:#085041; }
+    .on-accent{ fill:#FFFFFF }
+    .eyebrow{ fill:var(--primary); font-size:16px; font-weight:700; letter-spacing:0.10em }
+    .h1{ fill:var(--ink); font-size:42px; font-weight:700 }
+    .sub{ fill:var(--muted); font-size:18px }
+    .pill-label{ font-size:16px; font-weight:700; letter-spacing:0.06em }
+    .card-title{ font-size:21px; font-weight:700 }
+    .card-sub{ fill:var(--muted); font-size:15px }
+    .badge-num{ font-size:15px; font-weight:700 }
+    .caption{ fill:var(--muted); font-size:17px }
+  </style>
 
-<!-- band container -->
-<rect x="44" y="130" width="1152" height="290" rx="18" fill="var(--band)" stroke="var(--hair)"/>
-<rect x="68" y="152" width="150" height="32" rx="16" fill="var(--primary)"/>
-<text x="143" y="169" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:700;fill:#FFFFFF">RAG 파이프라인</text>
+  <defs>
+    <marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="11.25" markerHeight="11.25"
+      markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M2 2 L10 6 L2 10" fill="none" stroke="#1F6FB2" stroke-width="2" stroke-linecap="round"/>
+    </marker>
+    <filter id="cardShadow" x="-12%" y="-12%" width="124%" height="124%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1F2733" flood-opacity="0.10"/>
+    </filter>
+    <symbol id="ic-query" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h14v10H10l-4 4v-4H5z"/><path d="M10.4 8.4a1.7 1.7 0 1 1 1.9 1.9v.9"/><path d="M12.3 12.7h.01"/></symbol>
+    <symbol id="ic-embed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h7M4 12h7M4 18h5"/><path d="M13.5 12h5"/><path d="M16.5 9.5l2.5 2.5-2.5 2.5"/></symbol>
+    <symbol id="ic-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l4.5 4.5"/></symbol>
+    <symbol id="ic-merge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h4c3 0 3 6 6 6h5"/><path d="M4 18h4c3 0 3-6 6-6"/><path d="M16.5 9.5l2.5 2.5-2.5 2.5"/></symbol>
+    <symbol id="ic-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 3l1.7 4.6L16.8 9l-4.6 1.7L10.5 15 8.8 10.7 4.2 9l4.6-1.4z"/><path d="M17.6 14.6l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/></symbol>
+    <symbol id="ic-bulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 17.5h5"/><path d="M10.5 20.5h3"/><path d="M12 3a6 6 0 0 0-3.4 10.9c.4.3.6.7.6 1.1h5.6c0-.4.2-.8.6-1.1A6 6 0 0 0 12 3z"/></symbol>
+  </defs>
 
-<!-- 5 flow cards · cardW=200, pitch=224, x=72..968 → last right edge 1168 < band right 1196 -->
-<g>
-  <rect x="72" y="204" width="200" height="176" rx="14" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
-  <circle cx="172" cy="254" r="28" fill="var(--pf-tint)"/><use href="#ic-chat" class="ic" x="154" y="236" width="36" height="36" style="color:var(--primary)"/>
-  <text x="172" y="308" text-anchor="middle" dominant-baseline="central" class="ct">사용자 질의</text>
-  <text x="172" y="332" text-anchor="middle" dominant-baseline="central" class="sub cs">질문</text>
+  <rect width="1400" height="700" fill="var(--bg)"/>
 
-  <rect x="296" y="204" width="200" height="176" rx="14" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
-  <circle cx="396" cy="254" r="28" fill="var(--pf-tint)"/><use href="#ic-api" class="ic" x="378" y="236" width="36" height="36" style="color:var(--primary)"/>
-  <text x="396" y="308" text-anchor="middle" dominant-baseline="central" class="ct">임베딩</text>
-  <text x="396" y="332" text-anchor="middle" dominant-baseline="central" class="sub cs">텍스트 → 벡터</text>
+  <!-- header: rail derived from eyebrowTop(64) and titleBottom(135) -->
+  <g data-layout-role="page-title-header" data-layout-rail-padding-top="16"
+     data-layout-rail-padding-bottom="0" data-layout-subtitle-gap="12" data-layout-tolerance="2">
+    <rect data-layout-role="title-rail" x="48" y="48" width="6" height="87" rx="3" fill="var(--primary)"/>
+    <text data-layout-role="title-eyebrow" class="eyebrow" x="76" y="72" font-size="16" dominant-baseline="middle">프로세스 플로우</text>
+    <text data-layout-role="title-line" class="h1" x="76" y="114" font-size="42" dominant-baseline="middle">RAG 질의 파이프라인</text>
+    <text data-layout-role="title-subtitle" class="sub" x="76" y="168" font-size="18" dominant-baseline="middle">검색 증강 생성 — 모델이 답하기 전에, 검색된 컨텍스트가 답의 근거가 된다</text>
+  </g>
 
-  <rect x="520" y="204" width="200" height="176" rx="14" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
-  <circle cx="620" cy="254" r="28" fill="var(--pf-tint)"/><use href="#ic-database" class="ic" x="602" y="236" width="36" height="36" style="color:var(--primary)"/>
-  <text x="620" y="308" text-anchor="middle" dominant-baseline="central" class="ct">벡터 검색</text>
-  <text x="620" y="332" text-anchor="middle" dominant-baseline="central" class="sub cs">top-k 검색</text>
+  <!-- band -->
+  <rect x="48" y="212" width="1304" height="310" rx="20" fill="var(--band)" stroke="var(--hair)" stroke-width="1"/>
+  <rect x="80" y="193" width="200" height="38" rx="19" fill="var(--primary)"/>
+  <text class="pill-label on-accent" x="180" y="212" text-anchor="middle" dominant-baseline="central">RAG 파이프라인</text>
 
-  <rect x="744" y="204" width="200" height="176" rx="14" fill="#FFFFFF" stroke="var(--hair)" stroke-width="1.4"/>
-  <circle cx="844" cy="254" r="28" fill="var(--pf-tint)"/><use href="#ic-doc" class="ic" x="826" y="236" width="36" height="36" style="color:var(--primary)"/>
-  <text x="844" y="308" text-anchor="middle" dominant-baseline="central" class="ct">증강</text>
-  <text x="844" y="332" text-anchor="middle" dominant-baseline="central" class="sub cs">질의 + 컨텍스트</text>
+  <!-- stage 1 -->
+  <g>
+    <rect x="108" y="262" width="192" height="210" rx="16" fill="var(--card)" stroke="var(--step-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <circle cx="136" cy="290" r="15" fill="var(--step-line)"/>
+    <text class="badge-num on-accent" x="136" y="290" text-anchor="middle" dominant-baseline="central">1</text>
+    <circle cx="204" cy="354" r="34" fill="var(--step-fill)"/>
+    <use href="#ic-query" x="184" y="334" width="40" height="40" style="color:#1F6FB2"/>
+    <text class="card-title" x="204" y="414" text-anchor="middle" dominant-baseline="central" fill="var(--step-ink)">사용자 질의</text>
+    <text class="card-sub" x="204" y="444" text-anchor="middle" dominant-baseline="central">질문</text>
+  </g>
 
-  <rect x="968" y="204" width="200" height="176" rx="14" fill="var(--ok-fill)" stroke="var(--ok-line)" stroke-width="1.6"/>
-  <circle cx="1068" cy="254" r="28" fill="var(--ok-tint)"/><use href="#ic-spark" class="ic" x="1050" y="236" width="36" height="36" style="color:var(--ok-line)"/>
-  <text x="1068" y="308" text-anchor="middle" dominant-baseline="central" class="ct" style="fill:var(--ok-ink)">생성</text>
-  <text x="1068" y="332" text-anchor="middle" dominant-baseline="central" class="cs" style="fill:var(--ok-ink)">LLM → 답변</text>
-</g>
+  <!-- stage 2 -->
+  <g>
+    <rect x="356" y="262" width="192" height="210" rx="16" fill="var(--card)" stroke="var(--step-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <circle cx="384" cy="290" r="15" fill="var(--step-line)"/>
+    <text class="badge-num on-accent" x="384" y="290" text-anchor="middle" dominant-baseline="central">2</text>
+    <circle cx="452" cy="354" r="34" fill="var(--step-fill)"/>
+    <use href="#ic-embed" x="432" y="334" width="40" height="40" style="color:#1F6FB2"/>
+    <text class="card-title" x="452" y="414" text-anchor="middle" dominant-baseline="central" fill="var(--step-ink)">임베딩</text>
+    <text class="card-sub" x="452" y="444" text-anchor="middle" dominant-baseline="central">텍스트 → 벡터</text>
+  </g>
 
-<!-- arrows (between card edges) -->
-<line x1="274" y1="292" x2="294" y2="292" stroke="#8A94A3" stroke-width="2" marker-end="url(#arrow)"/>
-<line x1="498" y1="292" x2="518" y2="292" stroke="#8A94A3" stroke-width="2" marker-end="url(#arrow)"/>
-<line x1="722" y1="292" x2="742" y2="292" stroke="#8A94A3" stroke-width="2" marker-end="url(#arrow)"/>
-<line x1="946" y1="292" x2="966" y2="292" stroke="#8A94A3" stroke-width="2" marker-end="url(#arrow)"/>
+  <!-- stage 3 -->
+  <g>
+    <rect x="604" y="262" width="192" height="210" rx="16" fill="var(--card)" stroke="var(--step-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <circle cx="632" cy="290" r="15" fill="var(--step-line)"/>
+    <text class="badge-num on-accent" x="632" y="290" text-anchor="middle" dominant-baseline="central">3</text>
+    <circle cx="700" cy="354" r="34" fill="var(--step-fill)"/>
+    <use href="#ic-search" x="680" y="334" width="40" height="40" style="color:#1F6FB2"/>
+    <text class="card-title" x="700" y="414" text-anchor="middle" dominant-baseline="central" fill="var(--step-ink)">벡터 검색</text>
+    <text class="card-sub" x="700" y="444" text-anchor="middle" dominant-baseline="central">top-k 검색</text>
+  </g>
 
-<!-- footer note -->
-<rect x="44" y="446" width="1152" height="58" rx="14" fill="var(--band)" stroke="var(--hair)"/>
-<text x="620" y="475" text-anchor="middle" dominant-baseline="central" style="font-size:15px;font-weight:600;fill:var(--primary)">검색된 top-k 컨텍스트를 프롬프트에 더해, 모델이 기억이 아니라 근거 있는 사실로 답한다.</text>
+  <!-- stage 4 -->
+  <g>
+    <rect x="852" y="262" width="192" height="210" rx="16" fill="var(--card)" stroke="var(--step-line)" stroke-width="1" filter="url(#cardShadow)"/>
+    <circle cx="880" cy="290" r="15" fill="var(--step-line)"/>
+    <text class="badge-num on-accent" x="880" y="290" text-anchor="middle" dominant-baseline="central">4</text>
+    <circle cx="948" cy="354" r="34" fill="var(--step-fill)"/>
+    <use href="#ic-merge" x="928" y="334" width="40" height="40" style="color:#1F6FB2"/>
+    <text class="card-title" x="948" y="414" text-anchor="middle" dominant-baseline="central" fill="var(--step-ink)">컨텍스트 결합</text>
+    <text class="card-sub" x="948" y="444" text-anchor="middle" dominant-baseline="central">질의 + 컨텍스트</text>
+  </g>
+
+  <!-- stage 5 — emphasized outcome -->
+  <g>
+    <rect x="1100" y="262" width="192" height="210" rx="16" fill="var(--card)" stroke="var(--ok-line)" stroke-width="2.5" filter="url(#cardShadow)"/>
+    <circle cx="1128" cy="290" r="15" fill="var(--ok-line)"/>
+    <text class="badge-num on-accent" x="1128" y="290" text-anchor="middle" dominant-baseline="central">5</text>
+    <circle cx="1196" cy="354" r="34" fill="var(--ok-fill)"/>
+    <use href="#ic-spark" x="1176" y="334" width="40" height="40" style="color:#0F7A5F"/>
+    <text class="card-title" x="1196" y="414" text-anchor="middle" dominant-baseline="central" fill="var(--ok-ink)">생성</text>
+    <text class="card-sub" x="1196" y="444" text-anchor="middle" dominant-baseline="central">LLM → 답변</text>
+  </g>
+
+  <!-- connectors: corridor 56, shaft 2.5, visible head 7.5 (3.0x), tip gap 9 -->
+  <g fill="none" stroke="var(--step-line)" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah)">
+    <path d="M310 354 L346 354"/>
+    <path d="M558 354 L594 354"/>
+    <path d="M806 354 L842 354"/>
+    <path d="M1054 354 L1090 354"/>
+  </g>
+
+  <!-- footer -->
+  <rect x="48" y="562" width="1304" height="78" rx="14" fill="var(--strip)" stroke="var(--hair)" stroke-width="1"/>
+  <circle cx="88" cy="601" r="22" fill="#E3EEF8"/>
+  <use href="#ic-bulb" x="74" y="587" width="28" height="28" style="color:#1F6FB2"/>
+  <text class="caption" x="124" y="601" dominant-baseline="central">검색된 top-k 컨텍스트를 프롬프트에 함께 넣으면, 모델은 기억이 아니라 그 근거를 바탕으로 답한다.</text>
 </svg>

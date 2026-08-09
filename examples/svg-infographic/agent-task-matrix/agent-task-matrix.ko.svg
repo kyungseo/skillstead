@@ -1,103 +1,130 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 1070" width="1300" height="1070" role="img"
-     style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
   <title>AI Agent 작업 유형 선택 매트릭스</title>
-  <desc>작업 범위(가로: 좁음↔넓음)와 불확실성(세로: 낮음↔높음)으로 나눈 2x2 decision matrix. Quick Fix, Guided Change, Investigation, Design Review 네 사분면과 각 추천 실행 방식. Design Review를 최강조.</desc>
+  <desc>작업 범위와 불확실성으로 agent 작업을 배치한 2×2 매트릭스입니다. 좁고 확실하면 바로 실행하는 Quick Fix, 넓고 확실하면 계획을 먼저 세우는 Guided Change, 좁지만 불확실하면 증거부터 모으는 Investigation, 넓고 불확실하면 cross-agent·red-team 검토가 필요한 Design Review입니다.</desc>
+
+  <style>
+    svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#D6E0EC; --primary:#1F6FB2;
+      --card:#FFFFFF; --strip:#F7FAFD; --axis:#B4BEC9;
+      --g-fill:#E7F5EF; --g-line:#0F7A5F; --g-ink:#085041;
+      --b-fill:#E8F1FB; --b-line:#1F6FB2; --b-ink:#124267;
+      --a-fill:#FDF3E3; --a-line:#D9A441; --a-ink:#8A5D14;
+      --r-fill:#FBEDEC; --r-line:#C0544A; --r-ink:#8A322A; }
+    .on-accent{ fill:#FFFFFF }
+    .eyebrow{ fill:var(--primary); font-size:16px; font-weight:700; letter-spacing:0.10em }
+    .h1{ fill:var(--ink); font-size:40px; font-weight:700 }
+    .sub{ fill:var(--muted); font-size:17px }
+    .axis{ fill:var(--muted); font-size:15px; font-weight:650 }
+    .axis-name{ fill:var(--ink); font-size:16px; font-weight:700; letter-spacing:0.04em }
+    .qt{ font-size:26px; font-weight:700 }
+    .qs{ fill:var(--muted); font-size:14.5px }
+    .lbl{ fill:var(--muted); font-size:12.5px; font-weight:700; letter-spacing:0.09em }
+    .ex{ fill:var(--ink); font-size:14.5px }
+    .rec{ font-size:14.5px; font-weight:650 }
+    .num{ font-size:18px; font-weight:700 }
+    .caution{ font-size:12px; font-weight:700; letter-spacing:0.09em }
+    .note{ fill:var(--muted); font-size:15px }
+  </style>
 
   <defs>
-    <marker id="axar" viewBox="0 0 10 10" refX="8" refY="5" data-lint-allow="marker-footprint" markerUnits="userSpaceOnUse" markerWidth="20" markerHeight="20" orient="auto-start-reverse">
-      <path d="M1,1 L9,5 L1,9 z" fill="#5B6675"/>
+    <marker id="axisHead" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="10" markerHeight="10"
+      markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M2 2 L10 6 L2 10" fill="none" stroke="#B4BEC9" stroke-width="2" stroke-linecap="round"/>
     </marker>
-    <filter id="soft" x="-20%" y="-20%" width="140%" height="150%">
-      <feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#534AB7" flood-opacity="0.22"/>
+    <filter id="cardShadow" x="-12%" y="-12%" width="124%" height="124%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1F2733" flood-opacity="0.10"/>
     </filter>
-
-    <symbol id="ic-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 9l3 3-3 3"/><path d="M13 15h4"/></symbol>
-    <symbol id="ic-loop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12a7.5 7.5 0 0 1 12.8-5.3L20 9"/><path d="M20 3.5V9h-5.5"/><path d="M19.5 12a7.5 7.5 0 0 1-12.8 5.3L4 15"/><path d="M4 20.5V15h5.5"/></symbol>
-    <symbol id="ic-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 16.5h6M9 9.5h2"/></symbol>
-    <symbol id="ic-network" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></symbol>
+    <symbol id="ic-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l4.5 4.5"/></symbol>
+    <symbol id="ic-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="ic-fix" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11a7.5 7.5 0 0 1 12.8-5.3L20 8"/><path d="M20 2.5V8h-5.5"/><path d="M8.5 15.5l2.4 2.4 4.6-4.8"/></symbol>
+    <symbol id="ic-plan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h3M4 12h3M4 18h3"/><path d="M10 6h10M10 12h10M10 18h6"/></symbol>
   </defs>
 
-  <rect x="0" y="0" width="1300" height="1070" fill="#FFFFFF"/>
+  <rect width="1300" height="1070" fill="var(--bg)"/>
 
-  <!-- Header -->
-  <rect x="44" y="30" width="6" height="42" rx="3" fill="#1F6FB2"/>
-  <text x="66" y="54" font-size="32" font-weight="800" fill="#1F2733">AI Agent 작업 유형 선택 매트릭스</text>
-  <text x="66" y="84" font-size="16" fill="#5B6675">작업을 AI agent에 맡길 때 &#8212; 범위와 불확실성으로 실행 방식을 고른다</text>
+  <!-- header: rail from eyebrowTop(64) to titleBottom(138) -->
+  <g data-layout-role="page-title-header" data-layout-rail-padding-top="16"
+     data-layout-rail-padding-bottom="0" data-layout-subtitle-gap="12" data-layout-tolerance="2">
+    <rect data-layout-role="title-rail" x="48" y="48" width="6" height="90" rx="3" fill="var(--primary)"/>
+    <text data-layout-role="title-eyebrow" class="eyebrow" x="76" y="72" font-size="16" dominant-baseline="middle">의사결정 매트릭스</text>
+    <text data-layout-role="title-line" class="h1" x="76" y="118" font-size="40" dominant-baseline="middle">AI Agent 작업 유형 선택 매트릭스</text>
+    <text data-layout-role="title-subtitle" class="sub" x="76" y="176" font-size="17" dominant-baseline="middle">범위와 불확실성이 agent에게 맡기는 방식을 정한다</text>
+  </g>
 
-  <!-- ===================== Axes ===================== -->
-  <!-- Y axis (uncertainty, up) -->
-  <line x1="150" y1="888" x2="150" y2="134" stroke="#5B6675" stroke-width="2" marker-end="url(#axar)"/>
-  <text x="150" y="120" font-size="14" font-weight="600" fill="#3F4453" text-anchor="middle">높음</text>
-  <text x="150" y="908" font-size="14" font-weight="600" fill="#3F4453" text-anchor="middle">낮음</text>
-  <text x="52" y="510" font-size="17" font-weight="700" fill="#3F4453" text-anchor="middle" transform="rotate(-90 52 510)">불확실성</text>
-  <!-- X axis (scope, right) -->
-  <line x1="210" y1="924" x2="1244" y2="924" stroke="#5B6675" stroke-width="2" marker-end="url(#axar)"/>
-  <text x="457" y="950" font-size="14" font-weight="600" fill="#3F4453" text-anchor="middle">좁음</text>
-  <text x="992" y="950" font-size="14" font-weight="600" fill="#3F4453" text-anchor="middle">넓음</text>
-  <text x="725" y="986" font-size="17" font-weight="700" fill="#3F4453" text-anchor="middle">작업 범위</text>
+  <!-- axes -->
+  <path d="M120 834 V228" fill="none" stroke="var(--axis)" stroke-width="2" stroke-linecap="round" marker-end="url(#axisHead)"/>
+  <text class="axis" x="104" y="240" text-anchor="end" dominant-baseline="central">높음</text>
+  <text class="axis" x="104" y="822" text-anchor="end" dominant-baseline="central">낮음</text>
+  <text class="axis-name" x="120" y="202" text-anchor="middle" dominant-baseline="central">불확실성</text>
 
-  <!-- ===================== Quadrant 3 : Investigation (top-left, amber) ===================== -->
-  <rect x="210" y="132" width="495" height="360" rx="16" fill="#FBF2E1" stroke="#B5771F" stroke-width="1.4"/>
-  <circle cx="244" cy="168" r="17" fill="#B5771F"/>
-  <text x="244" y="168" font-size="17" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">3</text>
-  <circle cx="649" cy="186" r="30" fill="#F5E4C4"/>
-  <use href="#ic-doc" x="630" y="167" width="38" height="38" style="color:#B5771F"/>
-  <text x="240" y="240" font-size="26" font-weight="700" fill="#7A4E12" dominant-baseline="central">Investigation</text>
-  <text x="240" y="272" font-size="14" fill="#5B6675" dominant-baseline="central">좁은 범위 · 높은 불확실성</text>
-  <line x1="238" y1="294" x2="677" y2="294" stroke="#E7D3A9" stroke-width="1"/>
-  <text x="240" y="324" font-size="13" font-weight="700" fill="#9A7327" letter-spacing="1.5" dominant-baseline="central">예시</text>
-  <text x="240" y="352" font-size="16.5" fill="#1F2733" dominant-baseline="central">버그 원인 추적, 깨지는 렌더링 분석,</text>
-  <text x="240" y="380" font-size="16.5" fill="#1F2733" dominant-baseline="central">실패 로그 해석</text>
-  <rect x="238" y="422" width="439" height="42" rx="9" fill="#F6ECD5"/>
-  <text x="256" y="443" font-size="15.5" font-weight="700" fill="#7A4E12" dominant-baseline="central">추천 · 증거 수집 후 최소 수정</text>
+  <path d="M160 878 H1246" fill="none" stroke="var(--axis)" stroke-width="2" stroke-linecap="round" marker-end="url(#axisHead)"/>
+  <text class="axis" x="160" y="904" dominant-baseline="central">좁음</text>
+  <text class="axis" x="1252" y="904" text-anchor="end" dominant-baseline="central">넓음</text>
+  <text class="axis-name" x="706" y="904" text-anchor="middle" dominant-baseline="central">작업 범위</text>
 
-  <!-- ===================== Quadrant 4 : Design Review (top-right, purple ACCENT) ===================== -->
-  <rect x="745" y="132" width="495" height="360" rx="16" fill="#ECEBFB" stroke="#534AB7" stroke-width="2.6" filter="url(#soft)"/>
-  <circle cx="779" cy="168" r="17" fill="#534AB7"/>
-  <text x="779" y="168" font-size="17" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">4</text>
-  <text x="816" y="168" font-size="12" font-weight="700" fill="#534AB7" text-anchor="start" letter-spacing="1" dominant-baseline="central">MOST CAUTION</text>
-  <circle cx="1184" cy="192" r="31" fill="#534AB7"/>
-  <use href="#ic-network" x="1164" y="172" width="40" height="40" style="color:#FFFFFF"/>
-  <text x="775" y="244" font-size="26" font-weight="700" fill="#322B7A" dominant-baseline="central">Design Review</text>
-  <text x="775" y="276" font-size="14" fill="#6B63C0" dominant-baseline="central">넓은 범위 · 높은 불확실성</text>
-  <line x1="773" y1="298" x2="1212" y2="298" stroke="#C9C5F0" stroke-width="1"/>
-  <text x="775" y="328" font-size="13" font-weight="700" fill="#6B63C0" letter-spacing="1.5" dominant-baseline="central">예시</text>
-  <text x="775" y="356" font-size="16.5" fill="#1F2733" dominant-baseline="central">아키텍처 방향 검토, 제품 포지셔닝,</text>
-  <text x="775" y="384" font-size="16.5" fill="#1F2733" dominant-baseline="central">workflow 재설계</text>
-  <rect x="773" y="426" width="439" height="42" rx="9" fill="#534AB7"/>
-  <text x="791" y="447" font-size="15.5" font-weight="700" fill="#FFFFFF" dominant-baseline="central">추천 · cross-agent / red-team review</text>
+  <!-- Q3 — Investigation (narrow · high) -->
+  <g>
+    <rect x="160" y="222" width="530" height="290" rx="20" fill="var(--card)" stroke="var(--a-line)" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <circle cx="216" cy="278" r="18" fill="var(--a-line)"/><text class="num on-accent" x="216" y="278" text-anchor="middle" dominant-baseline="central">3</text>
+    <text class="qt" x="252" y="270" dominant-baseline="central" fill="var(--a-ink)">Investigation</text>
+    <text class="qs" x="252" y="300" dominant-baseline="central">좁은 범위 · 높은 불확실성</text>
+    <circle cx="632" cy="278" r="22" fill="var(--a-fill)"/><use href="#ic-search" x="619" y="265" width="26" height="26" style="color:#D9A441"/>
+    <line x1="188" y1="328" x2="662" y2="328" stroke="var(--a-line)" stroke-opacity="0.38" stroke-width="1"/>
+    <text class="lbl" x="188" y="356" dominant-baseline="central">예시</text>
+    <text class="ex" x="188" y="386" dominant-baseline="central">버그 원인 추적, 깨진 렌더링 분석,</text>
+    <text class="ex" x="188" y="412" dominant-baseline="central">실패 로그 해석</text>
+    <rect x="188" y="442" width="330" height="36" rx="18" fill="var(--a-fill)"/>
+    <text class="rec" x="212" y="460" dominant-baseline="central" fill="var(--a-ink)">증거를 모은 뒤 최소로 고친다</text>
+  </g>
 
-  <!-- ===================== Quadrant 1 : Quick Fix (bottom-left, green) ===================== -->
-  <rect x="210" y="528" width="495" height="360" rx="16" fill="#E7F5EF" stroke="#0F7A5F" stroke-width="1.4"/>
-  <circle cx="244" cy="564" r="17" fill="#0F7A5F"/>
-  <text x="244" y="564" font-size="17" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">1</text>
-  <circle cx="649" cy="582" r="30" fill="#D3EEE2"/>
-  <use href="#ic-terminal" x="630" y="563" width="38" height="38" style="color:#0F7A5F"/>
-  <text x="240" y="636" font-size="26" font-weight="700" fill="#085041" dominant-baseline="central">Quick Fix</text>
-  <text x="240" y="668" font-size="14" fill="#5B6675" dominant-baseline="central">좁은 범위 · 낮은 불확실성</text>
-  <line x1="238" y1="690" x2="677" y2="690" stroke="#C4E6D6" stroke-width="1"/>
-  <text x="240" y="720" font-size="13" font-weight="700" fill="#2E8468" letter-spacing="1.5" dominant-baseline="central">예시</text>
-  <text x="240" y="748" font-size="16.5" fill="#1F2733" dominant-baseline="central">typo 수정, 작은 테스트 보완,</text>
-  <text x="240" y="776" font-size="16.5" fill="#1F2733" dominant-baseline="central">단순 문서 정리</text>
-  <rect x="238" y="818" width="439" height="42" rx="9" fill="#DCF0E7"/>
-  <text x="256" y="839" font-size="15.5" font-weight="700" fill="#085041" dominant-baseline="central">추천 · 바로 실행</text>
+  <!-- Q4 — Design Review (broad · high) — most caution -->
+  <g>
+    <rect x="722" y="222" width="530" height="290" rx="20" fill="var(--card)" stroke="var(--r-line)" stroke-width="3" filter="url(#cardShadow)"/>
+    <circle cx="778" cy="278" r="18" fill="var(--r-line)"/><text class="num on-accent" x="778" y="278" text-anchor="middle" dominant-baseline="central">4</text>
+    <text class="qt" x="814" y="270" dominant-baseline="central" fill="var(--r-ink)">Design Review</text>
+    <text class="qs" x="814" y="300" dominant-baseline="central">넓은 범위 · 높은 불확실성</text>
+    <rect x="1060" y="248" width="148" height="26" rx="13" fill="var(--r-line)"/>
+    <text class="caution on-accent" x="1134" y="261" text-anchor="middle" dominant-baseline="central">최대 주의</text>
+    <circle cx="1194" cy="460" r="22" fill="var(--r-fill)"/><use href="#ic-shield" x="1181" y="447" width="26" height="26" style="color:#C0544A"/>
+    <line x1="750" y1="328" x2="1224" y2="328" stroke="var(--r-line)" stroke-opacity="0.38" stroke-width="1"/>
+    <text class="lbl" x="750" y="356" dominant-baseline="central">예시</text>
+    <text class="ex" x="750" y="386" dominant-baseline="central">아키텍처 방향 검토, 제품 포지셔닝,</text>
+    <text class="ex" x="750" y="412" dominant-baseline="central">workflow 재설계</text>
+    <rect x="750" y="442" width="360" height="36" rx="18" fill="var(--r-fill)"/>
+    <text class="rec" x="774" y="460" dominant-baseline="central" fill="var(--r-ink)">cross-agent / red-team review</text>
+  </g>
 
-  <!-- ===================== Quadrant 2 : Guided Change (bottom-right, blue) ===================== -->
-  <rect x="745" y="528" width="495" height="360" rx="16" fill="#EEF5FC" stroke="#1F6FB2" stroke-width="1.4"/>
-  <circle cx="779" cy="564" r="17" fill="#1F6FB2"/>
-  <text x="779" y="564" font-size="17" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">2</text>
-  <circle cx="1184" cy="582" r="30" fill="#DCEBFA"/>
-  <use href="#ic-loop" x="1165" y="563" width="38" height="38" style="color:#1F6FB2"/>
-  <text x="775" y="636" font-size="26" font-weight="700" fill="#124267" dominant-baseline="central">Guided Change</text>
-  <text x="775" y="668" font-size="14" fill="#5B6675" dominant-baseline="central">넓은 범위 · 낮은 불확실성</text>
-  <line x1="773" y1="690" x2="1212" y2="690" stroke="#CBDDF0" stroke-width="1"/>
-  <text x="775" y="720" font-size="13" font-weight="700" fill="#2C6EA5" letter-spacing="1.5" dominant-baseline="central">예시</text>
-  <text x="775" y="748" font-size="16.5" fill="#1F2733" dominant-baseline="central">반복 리팩터링, 문서 구조 정리,</text>
-  <text x="775" y="776" font-size="16.5" fill="#1F2733" dominant-baseline="central">예제 일괄 업데이트</text>
-  <rect x="773" y="818" width="439" height="42" rx="9" fill="#E3EFFA"/>
-  <text x="791" y="839" font-size="15.5" font-weight="700" fill="#124267" dominant-baseline="central">추천 · plan 후 실행</text>
+  <!-- Q1 — Quick Fix (narrow · low) -->
+  <g>
+    <rect x="160" y="544" width="530" height="290" rx="20" fill="var(--card)" stroke="var(--g-line)" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <circle cx="216" cy="600" r="18" fill="var(--g-line)"/><text class="num on-accent" x="216" y="600" text-anchor="middle" dominant-baseline="central">1</text>
+    <text class="qt" x="252" y="592" dominant-baseline="central" fill="var(--g-ink)">Quick Fix</text>
+    <text class="qs" x="252" y="622" dominant-baseline="central">좁은 범위 · 낮은 불확실성</text>
+    <circle cx="632" cy="600" r="22" fill="var(--g-fill)"/><use href="#ic-fix" x="619" y="587" width="26" height="26" style="color:#0F7A5F"/>
+    <line x1="188" y1="650" x2="662" y2="650" stroke="var(--g-line)" stroke-opacity="0.38" stroke-width="1"/>
+    <text class="lbl" x="188" y="678" dominant-baseline="central">예시</text>
+    <text class="ex" x="188" y="708" dominant-baseline="central">typo 수정, 작은 테스트 보완,</text>
+    <text class="ex" x="188" y="734" dominant-baseline="central">단순 문서 정리</text>
+    <rect x="188" y="764" width="220" height="36" rx="18" fill="var(--g-fill)"/>
+    <text class="rec" x="212" y="782" dominant-baseline="central" fill="var(--g-ink)">바로 실행한다</text>
+  </g>
 
-  <!-- ===================== Bottom note ===================== -->
-  <rect x="292" y="1012" width="716" height="38" rx="19" fill="#F2F4F8"/>
-  <text x="650" y="1031" font-size="14.5" fill="#3F4453" text-anchor="middle" dominant-baseline="central">경험칙: 불확실성이 리뷰 깊이를, 범위가 계획 깊이를 결정한다.</text>
+  <!-- Q2 — Guided Change (broad · low) -->
+  <g>
+    <rect x="722" y="544" width="530" height="290" rx="20" fill="var(--card)" stroke="var(--b-line)" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <circle cx="778" cy="600" r="18" fill="var(--b-line)"/><text class="num on-accent" x="778" y="600" text-anchor="middle" dominant-baseline="central">2</text>
+    <text class="qt" x="814" y="592" dominant-baseline="central" fill="var(--b-ink)">Guided Change</text>
+    <text class="qs" x="814" y="622" dominant-baseline="central">넓은 범위 · 낮은 불확실성</text>
+    <circle cx="1194" cy="600" r="22" fill="var(--b-fill)"/><use href="#ic-plan" x="1181" y="587" width="26" height="26" style="color:#1F6FB2"/>
+    <line x1="750" y1="650" x2="1224" y2="650" stroke="var(--b-line)" stroke-opacity="0.38" stroke-width="1"/>
+    <text class="lbl" x="750" y="678" dominant-baseline="central">예시</text>
+    <text class="ex" x="750" y="708" dominant-baseline="central">반복 리팩터링, 문서 구조 정리,</text>
+    <text class="ex" x="750" y="734" dominant-baseline="central">예제 일괄 업데이트</text>
+    <rect x="750" y="764" width="250" height="36" rx="18" fill="var(--b-fill)"/>
+    <text class="rec" x="774" y="782" dominant-baseline="central" fill="var(--b-ink)">계획을 먼저 세운 뒤 실행한다</text>
+  </g>
+
+  <!-- note -->
+  <rect x="48" y="934" width="1204" height="60" rx="12" fill="var(--strip)" stroke="var(--hair)" stroke-width="1"/>
+  <text class="note" x="76" y="964" dominant-baseline="central">경험칙: 불확실성이 리뷰의 깊이를 정하고, 범위가 계획의 양을 정한다.</text>
 </svg>

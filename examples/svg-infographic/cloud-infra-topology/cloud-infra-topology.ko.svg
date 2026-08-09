@@ -1,101 +1,125 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 900" width="720" height="900" role="img"
-     shape-rendering="geometricPrecision" text-rendering="optimizeLegibility"
-     style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
-<title>Azure 레퍼런스 토폴로지 — AGW에서 APIM, AKS, PostgreSQL까지</title>
-<desc>Azure VNet 안에서 인터넷 → Application Gateway(WAF) → API Management → AKS 클러스터(인그레스, 서비스, Pod) → Azure Database for PostgreSQL로 이어지는 요청 경로.</desc>
-<style>
-  svg{ --bg:#FFFFFF; --ink:#2A2E37; --muted:#6B7280; --hair:#DCE3EC; --band:#F7FAFD;
-    --edge-fill:#E8F1FB; --edge-line:#1F6FB2; --edge-ink:#124267; --edge-tint:#DCEBFA;
-    --api-fill:#ECEBFB;  --api-line:#534AB7;  --api-ink:#3C3489; --api-tint:#DEDCF6;
-    --k8s-fill:#E7F5EF;  --k8s-line:#0F7A5F;  --k8s-ink:#085041; --k8s-tint:#D0EBDF;
-    --data-fill:#F1F1EE; --data-line:#7A8398; --data-ink:#3F4453; --data-tint:#E4E6EA; }
-  text{ fill:var(--ink) }
-  .lbl{ font-size:14.5px; font-weight:700 }
-  .sub{ font-size:11.5px; fill:var(--muted) }
-  .ic{ fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round }
-</style>
-<defs>
-  <marker id="arrow" viewBox="0 0 9 9" data-lint-allow="marker-footprint" markerUnits="userSpaceOnUse" markerWidth="14.4" markerHeight="14.4" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8A94A3"/></marker>
-  <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
-  <symbol id="ic-api" viewBox="0 0 24 24"><path d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></symbol>
-  <symbol id="ic-network" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></symbol>
-  <symbol id="ic-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v14c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></symbol>
-  <symbol id="ic-server" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="7" rx="2"/><rect x="3.5" y="13" width="17" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></symbol>
-</defs>
-<rect width="720" height="900" fill="var(--bg)"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1020" width="720" height="1020" role="img"
+  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>Azure 레퍼런스 토폴로지</title>
+  <desc>요청이 위에서 아래로 흐릅니다. 클라이언트 트래픽이 WAF를 얹은 Application Gateway로 들어와 API Management를 지나 AKS 클러스터에 닿고, 인그레스 컨트롤러가 ClusterIP Service와 레플리카 Pod 세 개로 넘깁니다. Pod는 프라이빗 엔드포인트로 Azure Database for PostgreSQL에 접근합니다. 클라이언트 뒤쪽은 모두 하나의 Azure VNet 안에 있습니다.</desc>
 
-<!-- title -->
-<rect x="36" y="34" width="6" height="42" rx="3" fill="var(--edge-line)"/>
-<text x="56" y="56" style="font-size:24px;font-weight:800">Azure 레퍼런스 토폴로지</text>
-<text x="56" y="80" class="sub" style="font-size:13px">요청 경로: Application Gateway → APIM → AKS → PostgreSQL</text>
+  <style>
+    svg{ --bg:#FFFFFF; --ink:#1F2733; --muted:#5B6675; --hair:#D6E0EC; --primary:#1F6FB2;
+      --card:#FFFFFF; --strip:#F7FAFD;
+      --vnet-fill:#F6F8FA; --vnet-line:#C6CFD9;
+      --edge-fill:#E8F1FB; --edge-line:#1F6FB2; --edge-ink:#124267;
+      --api-fill:#ECEBFB; --api-line:#534AB7; --api-ink:#3C3489;
+      --k8s-fill:#E7F5EF; --k8s-line:#0F7A5F; --k8s-ink:#085041; --k8s-band:#F1F9F5;
+      --data-fill:#F1F1EE; --data-line:#7A8398; --data-ink:#3F4453; }
+    .eyebrow{ fill:var(--primary); font-size:14px; font-weight:700; letter-spacing:0.10em }
+    .h1{ fill:var(--ink); font-size:28px; font-weight:700 }
+    .sub{ fill:var(--muted); font-size:14px }
+    .frame{ font-size:14px; font-weight:700; letter-spacing:0.04em }
+    .bt{ font-size:15px; font-weight:700 }
+    .bs{ fill:var(--muted); font-size:11.5px }
+    .legend{ fill:var(--muted); font-size:12px }
+  </style>
 
-<!-- Internet -->
-<rect x="270" y="104" width="180" height="44" rx="22" fill="var(--data-fill)" stroke="var(--data-line)"/>
-<text x="360" y="126" text-anchor="middle" dominant-baseline="central" class="lbl" style="fill:var(--data-ink)">인터넷 / 클라이언트</text>
-<line x1="360" y1="150" x2="360" y2="176" stroke="#8A94A3" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <defs>
+    <marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="9" markerHeight="9"
+      markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M2 2 L10 6 L2 10" fill="none" stroke="#1F6FB2" stroke-width="2" stroke-linecap="round"/>
+    </marker>
+    <marker id="ahD" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="9" markerHeight="9"
+      markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M2 2 L10 6 L2 10" fill="none" stroke="#7A8398" stroke-width="2" stroke-linecap="round"/>
+    </marker>
+    <filter id="cardShadow" x="-12%" y="-12%" width="124%" height="124%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1F2733" flood-opacity="0.08"/>
+    </filter>
+    <symbol id="ic-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5a13 13 0 0 1 0 17 13 13 0 0 1 0-17z"/></symbol>
+    <symbol id="ic-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="ic-api" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></symbol>
+    <symbol id="ic-net" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></symbol>
+    <symbol id="ic-svc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="7" rx="2"/><rect x="4" y="13" width="16" height="7" rx="2"/><path d="M8 7.5h.01M8 16.5h.01"/></symbol>
+    <symbol id="ic-pod" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4.2v9.6L12 21l-8-4.2V7.2z"/><path d="M4 7.2l8 4.3 8-4.3"/><path d="M12 11.5V21"/></symbol>
+    <symbol id="ic-db" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v14c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></symbol>
+  </defs>
 
-<!-- VNet zone -->
-<rect x="40" y="180" width="640" height="640" rx="18" fill="var(--band)" stroke="var(--hair)" stroke-width="1.2"/>
-<text x="60" y="206" class="sub" style="font-size:12px;font-weight:700;fill:var(--muted)">Azure VNet</text>
+  <rect width="720" height="1020" fill="var(--bg)"/>
 
-<!-- Application Gateway -->
-<rect x="150" y="222" width="420" height="66" rx="12" fill="#FFFFFF" stroke="var(--edge-line)" stroke-width="1.4"/>
-<circle cx="188" cy="255" r="19" fill="var(--edge-tint)"/><use href="#ic-shield" class="ic" x="174" y="241" width="28" height="28" style="color:var(--edge-line)"/>
-<text x="222" y="248" class="lbl" style="fill:var(--edge-ink)" dominant-baseline="central">Application Gateway + WAF</text>
-<text x="222" y="269" class="sub" dominant-baseline="central">공개 진입 · TLS 종료 · L7 라우팅</text>
-<line x1="360" y1="288" x2="360" y2="312" stroke="#8A94A3" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <!-- header: rail from eyebrowTop(51) to titleBottom(106) -->
+  <g data-layout-role="page-title-header" data-layout-rail-padding-top="16"
+     data-layout-rail-padding-bottom="0" data-layout-subtitle-gap="12" data-layout-tolerance="2">
+    <rect data-layout-role="title-rail" x="36" y="35" width="5" height="71" rx="2.5" fill="var(--primary)"/>
+    <text data-layout-role="title-eyebrow" class="eyebrow" x="60" y="58" font-size="14" dominant-baseline="middle">레퍼런스 토폴로지</text>
+    <text data-layout-role="title-line" class="h1" x="60" y="92" font-size="28" dominant-baseline="middle">Azure 레퍼런스 토폴로지</text>
+    <text data-layout-role="title-subtitle" class="sub" x="60" y="130" font-size="14" dominant-baseline="middle">요청 경로 — Application Gateway → APIM → AKS → PostgreSQL</text>
+  </g>
 
-<!-- APIM -->
-<rect x="150" y="316" width="420" height="66" rx="12" fill="#FFFFFF" stroke="var(--api-line)" stroke-width="1.4"/>
-<circle cx="188" cy="349" r="19" fill="var(--api-tint)"/><use href="#ic-api" class="ic" x="174" y="335" width="28" height="28" style="color:var(--api-line)"/>
-<text x="222" y="342" class="lbl" style="fill:var(--api-ink)" dominant-baseline="central">API Management (APIM)</text>
-<text x="222" y="363" class="sub" dominant-baseline="central">인증 · rate limit · 정책 · 버전</text>
-<line x1="360" y1="382" x2="360" y2="406" stroke="#8A94A3" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <!-- client -->
+  <rect x="210" y="168" width="300" height="46" rx="10" fill="var(--card)" stroke="var(--edge-line)" stroke-width="1" filter="url(#cardShadow)"/>
+  <circle cx="242" cy="191" r="15" fill="var(--edge-fill)"/><use href="#ic-globe" x="233" y="182" width="18" height="18" style="color:#1F6FB2"/>
+  <text class="bt" x="266" y="191" dominant-baseline="central" fill="var(--edge-ink)">인터넷 / 클라이언트</text>
+  <path d="M360 222 V245" fill="none" stroke="var(--edge-line)" stroke-width="2.2" stroke-linecap="round" marker-end="url(#ah)"/>
 
-<!-- AKS cluster zone -->
-<rect x="80" y="410" width="560" height="308" rx="14" fill="#F3FAF7" stroke="var(--k8s-line)" stroke-width="1.1"/>
-<text x="100" y="434" class="sub" style="font-size:12px;font-weight:700;fill:var(--k8s-ink)">AKS Cluster</text>
+  <!-- VNet frame -->
+  <rect x="36" y="254" width="648" height="640" rx="18" fill="var(--vnet-fill)" stroke="var(--vnet-line)" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <text class="frame" x="60" y="276" dominant-baseline="central" fill="var(--muted)">Azure VNet</text>
 
-<!-- Ingress -->
-<rect x="150" y="446" width="420" height="54" rx="10" fill="var(--k8s-fill)" stroke="var(--k8s-line)" stroke-width="1.2"/>
-<circle cx="186" cy="473" r="17" fill="#FFFFFF"/><use href="#ic-network" class="ic" x="173" y="460" width="26" height="26" style="color:var(--k8s-line)"/>
-<text x="220" y="473" class="lbl" style="fill:var(--k8s-ink)" dominant-baseline="central">인그레스 컨트롤러</text>
-<line x1="360" y1="500" x2="360" y2="522" stroke="#8A94A3" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <!-- application gateway -->
+  <rect x="68" y="296" width="584" height="54" rx="10" fill="var(--card)" stroke="var(--edge-line)" stroke-width="1" filter="url(#cardShadow)"/>
+  <circle cx="100" cy="323" r="17" fill="var(--edge-fill)"/><use href="#ic-shield" x="90" y="313" width="20" height="20" style="color:#1F6FB2"/>
+  <text class="bt" x="128" y="315" dominant-baseline="central" fill="var(--edge-ink)">Application Gateway + WAF</text>
+  <text class="bs" x="128" y="335" dominant-baseline="central">공개 진입 · TLS 종료 · L7 라우팅</text>
+  <path d="M360 358 V381" fill="none" stroke="var(--edge-line)" stroke-width="2.2" stroke-linecap="round" marker-end="url(#ah)"/>
 
-<!-- Service -->
-<rect x="220" y="526" width="280" height="50" rx="10" fill="#FFFFFF" stroke="var(--k8s-line)" stroke-width="1.2"/>
-<circle cx="252" cy="551" r="15" fill="var(--k8s-fill)"/><use href="#ic-server" class="ic" x="240" y="539" width="24" height="24" style="color:var(--k8s-line)"/>
-<text x="278" y="551" class="lbl" style="fill:var(--k8s-ink)" dominant-baseline="central">Service (ClusterIP)</text>
+  <!-- api management -->
+  <rect x="68" y="390" width="584" height="54" rx="10" fill="var(--card)" stroke="var(--api-line)" stroke-width="1" filter="url(#cardShadow)"/>
+  <circle cx="100" cy="417" r="17" fill="var(--api-fill)"/><use href="#ic-api" x="90" y="407" width="20" height="20" style="color:#534AB7"/>
+  <text class="bt" x="128" y="409" dominant-baseline="central" fill="var(--api-ink)">API Management (APIM)</text>
+  <text class="bs" x="128" y="429" dominant-baseline="central">인증 · rate limit · 정책 · 버전 관리</text>
+  <path d="M360 452 V475" fill="none" stroke="var(--edge-line)" stroke-width="2.2" stroke-linecap="round" marker-end="url(#ah)"/>
 
-<!-- fan-out bus -->
-<line x1="360" y1="576" x2="360" y2="590" stroke="#8A94A3" stroke-width="1.4"/>
-<line x1="245" y1="590" x2="475" y2="590" stroke="#8A94A3" stroke-width="1.4"/>
-<line x1="245" y1="590" x2="245" y2="606" stroke="#8A94A3" stroke-width="1.6" marker-end="url(#arrow)"/>
-<line x1="360" y1="590" x2="360" y2="606" stroke="#8A94A3" stroke-width="1.6" marker-end="url(#arrow)"/>
-<line x1="475" y1="590" x2="475" y2="606" stroke="#8A94A3" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <!-- AKS cluster -->
+  <rect x="68" y="484" width="584" height="288" rx="14" fill="var(--k8s-band)" stroke="var(--k8s-line)" stroke-width="1"/>
+  <text class="frame" x="96" y="506" dominant-baseline="central" fill="var(--k8s-ink)">AKS 클러스터</text>
 
-<rect x="200" y="610" width="90" height="60" rx="10" fill="var(--k8s-fill)" stroke="var(--k8s-line)" stroke-width="1.2"/>
-<text x="245" y="632" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:700;fill:var(--k8s-ink)">Pod</text>
-<text x="245" y="650" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:10.5px">레플리카</text>
-<rect x="315" y="610" width="90" height="60" rx="10" fill="var(--k8s-fill)" stroke="var(--k8s-line)" stroke-width="1.2"/>
-<text x="360" y="632" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:700;fill:var(--k8s-ink)">Pod</text>
-<text x="360" y="650" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:10.5px">레플리카</text>
-<rect x="430" y="610" width="90" height="60" rx="10" fill="var(--k8s-fill)" stroke="var(--k8s-line)" stroke-width="1.2"/>
-<text x="475" y="632" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:700;fill:var(--k8s-ink)">Pod</text>
-<text x="475" y="650" text-anchor="middle" dominant-baseline="central" class="sub" style="font-size:10.5px">레플리카</text>
+  <rect x="96" y="524" width="528" height="44" rx="9" fill="var(--card)" stroke="var(--k8s-line)" stroke-width="1"/>
+  <circle cx="126" cy="546" r="14" fill="var(--k8s-fill)"/><use href="#ic-net" x="118" y="538" width="16" height="16" style="color:#0F7A5F"/>
+  <text class="bt" x="152" y="546" dominant-baseline="central" fill="var(--k8s-ink)">인그레스 컨트롤러</text>
+  <path d="M360 576 V599" fill="none" stroke="var(--k8s-line)" stroke-width="2.2" stroke-linecap="round" marker-end="url(#ah)"/>
 
-<!-- AKS to Postgres (private, dashed) -->
-<line x1="360" y1="718" x2="360" y2="740" stroke="#8A94A3" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+  <rect x="96" y="608" width="528" height="44" rx="9" fill="var(--card)" stroke="var(--k8s-line)" stroke-width="1"/>
+  <circle cx="126" cy="630" r="14" fill="var(--k8s-fill)"/><use href="#ic-svc" x="118" y="622" width="16" height="16" style="color:#0F7A5F"/>
+  <text class="bt" x="152" y="630" dominant-baseline="central" fill="var(--k8s-ink)">Service (ClusterIP)</text>
 
-<!-- PostgreSQL -->
-<rect x="150" y="744" width="420" height="66" rx="12" fill="#FFFFFF" stroke="var(--data-line)" stroke-width="1.4"/>
-<circle cx="188" cy="777" r="19" fill="var(--data-tint)"/><use href="#ic-database" class="ic" x="174" y="763" width="28" height="28" style="color:var(--data-line)"/>
-<text x="222" y="770" class="lbl" style="fill:var(--data-ink)" dominant-baseline="central">Azure Database for PostgreSQL</text>
-<text x="222" y="791" class="sub" dominant-baseline="central">Flexible Server · 프라이빗 엔드포인트</text>
+  <!-- fan-out to replica pods -->
+  <g fill="none" stroke="var(--k8s-line)" stroke-width="2" stroke-linecap="round">
+    <path d="M360 660 V668"/>
+    <path d="M180 668 H540"/>
+    <path d="M180 668 V691" marker-end="url(#ah)"/>
+    <path d="M360 668 V691" marker-end="url(#ah)"/>
+    <path d="M540 668 V691" marker-end="url(#ah)"/>
+  </g>
 
-<!-- legend -->
-<line x1="222" y1="852" x2="262" y2="852" stroke="#8A94A3" stroke-width="1.6"/>
-<text x="270" y="852" class="sub" dominant-baseline="central">요청 경로 (동기)</text>
-<line x1="430" y1="852" x2="470" y2="852" stroke="#8A94A3" stroke-width="1.6" stroke-dasharray="5 4"/>
-<text x="478" y="852" class="sub" dominant-baseline="central">프라이빗 링크 (관리형)</text>
+  <rect x="96" y="700" width="168" height="52" rx="9" fill="var(--card)" stroke="var(--k8s-line)" stroke-width="1"/>
+  <text class="bt" x="180" y="718" text-anchor="middle" dominant-baseline="central" fill="var(--k8s-ink)">Pod</text>
+  <text class="bs" x="180" y="737" text-anchor="middle" dominant-baseline="central">레플리카</text>
+  <rect x="276" y="700" width="168" height="52" rx="9" fill="var(--card)" stroke="var(--k8s-line)" stroke-width="1"/>
+  <text class="bt" x="360" y="718" text-anchor="middle" dominant-baseline="central" fill="var(--k8s-ink)">Pod</text>
+  <text class="bs" x="360" y="737" text-anchor="middle" dominant-baseline="central">레플리카</text>
+  <rect x="456" y="700" width="168" height="52" rx="9" fill="var(--card)" stroke="var(--k8s-line)" stroke-width="1"/>
+  <text class="bt" x="540" y="718" text-anchor="middle" dominant-baseline="central" fill="var(--k8s-ink)">Pod</text>
+  <text class="bs" x="540" y="737" text-anchor="middle" dominant-baseline="central">레플리카</text>
+
+  <!-- private link to postgres -->
+  <path d="M360 780 V803" fill="none" stroke="var(--data-line)" stroke-width="2.2" stroke-dasharray="6 4" stroke-linecap="round" marker-end="url(#ahD)"/>
+
+  <rect x="68" y="812" width="584" height="54" rx="10" fill="var(--card)" stroke="var(--data-line)" stroke-width="1" filter="url(#cardShadow)"/>
+  <circle cx="100" cy="839" r="17" fill="var(--data-fill)"/><use href="#ic-db" x="90" y="829" width="20" height="20" style="color:#7A8398"/>
+  <text class="bt" x="128" y="831" dominant-baseline="central" fill="var(--data-ink)">Azure Database for PostgreSQL</text>
+  <text class="bs" x="128" y="851" dominant-baseline="central">Flexible Server · 프라이빗 엔드포인트</text>
+
+  <!-- legend -->
+  <rect x="36" y="922" width="648" height="50" rx="10" fill="var(--strip)" stroke="var(--hair)" stroke-width="1"/>
+  <path d="M62 947 H98" fill="none" stroke="var(--edge-line)" stroke-width="2.2" stroke-linecap="round"/>
+  <text class="legend" x="108" y="947" dominant-baseline="central">요청 경로 (동기)</text>
+  <path d="M330 947 H366" fill="none" stroke="var(--data-line)" stroke-width="2.2" stroke-dasharray="6 4" stroke-linecap="round"/>
+  <text class="legend" x="376" y="947" dominant-baseline="central">프라이빗 링크 (관리형 서비스)</text>
 </svg>

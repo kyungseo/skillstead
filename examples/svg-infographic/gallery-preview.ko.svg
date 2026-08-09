@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  viewBox="0 0 1800 1100" width="1800" height="1100" role="img"
+  style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>svg-infographic 갤러리 미리보기</title>
+  <desc>svg-infographic 예제 여섯 개를 모은 미리보기입니다. 위쪽 둘은 sketch 프리셋으로 만든 손그림 노트이고, 아래 넷은 평면형 구조 스타일의 온니언·swimlane·토폴로지·매트릭스입니다.</desc>
+
+  <style>
+    svg{ --bg:#EEF3F8; --card:#FFFFFF; --paper:#FBF7EE; --ink:#1F2733; --muted:#5B6675;
+      --hair:#D8E1EA; --sketch-line:#D9C89A; --pill-a:#7A5EA8; --pill-b:#B85C4F; }
+    .on-accent{ fill:#FFFFFF }
+    .t-hero{ fill:var(--ink); font-size:34px; font-weight:750 }
+    .t-card{ fill:var(--ink); font-size:26px; font-weight:700 }
+    .pill{ font-size:16px; font-weight:700; letter-spacing:0.10em }
+  </style>
+
+  <defs>
+    <filter id="sh" filterUnits="userSpaceOnUse" x="0" y="0" width="1800" height="1100">
+      <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#1F2733" flood-opacity="0.10"/>
+    </filter>
+  </defs>
+
+  <rect width="1800" height="1100" fill="var(--bg)"/>
+
+  <!-- hero row — sketch preset -->
+  <rect x="32" y="32" width="856" height="640" rx="22" fill="var(--paper)" stroke="var(--sketch-line)" stroke-width="1.5" filter="url(#sh)"/>
+  <image href="./incident-response-sketch/incident-response-sketch.ko.png" xlink:href="./incident-response-sketch/incident-response-sketch.ko.png"
+    x="56" y="56" width="808" height="484" preserveAspectRatio="xMidYMid meet"/>
+  <rect x="56" y="586" width="150" height="34" rx="17" fill="var(--pill-b)"/>
+  <text class="pill on-accent" x="131" y="603" text-anchor="middle" dominant-baseline="central">SKETCH</text>
+  <text class="t-hero" x="224" y="603" dominant-baseline="central">장애 대응</text>
+
+  <rect x="912" y="32" width="856" height="640" rx="22" fill="var(--paper)" stroke="var(--sketch-line)" stroke-width="1.5" filter="url(#sh)"/>
+  <image href="./agent-system-sketch/agent-system-sketch.ko.png" xlink:href="./agent-system-sketch/agent-system-sketch.ko.png"
+    x="936" y="56" width="808" height="484" preserveAspectRatio="xMidYMid meet"/>
+  <rect x="936" y="586" width="150" height="34" rx="17" fill="var(--pill-a)"/>
+  <text class="pill on-accent" x="1011" y="603" text-anchor="middle" dominant-baseline="central">SKETCH</text>
+  <text class="t-hero" x="1104" y="603" dominant-baseline="central">Agent system map</text>
+
+  <!-- flat row -->
+  <rect x="32" y="696" width="419" height="372" rx="18" fill="var(--card)" stroke="var(--hair)" stroke-width="1" filter="url(#sh)"/>
+  <image href="./zero-trust-onion/zero-trust-onion.ko.png" xlink:href="./zero-trust-onion/zero-trust-onion.ko.png"
+    x="48" y="712" width="387" height="256" preserveAspectRatio="xMidYMid meet"/>
+  <text class="t-card" x="48" y="1014" dominant-baseline="central">Zero Trust 온니언</text>
+
+  <rect x="471" y="696" width="419" height="372" rx="18" fill="var(--card)" stroke="var(--hair)" stroke-width="1" filter="url(#sh)"/>
+  <image href="./agent-waiting-swimlane/agent-waiting-swimlane.ko.png" xlink:href="./agent-waiting-swimlane/agent-waiting-swimlane.ko.png"
+    x="487" y="712" width="387" height="256" preserveAspectRatio="xMidYMid meet"/>
+  <text class="t-card" x="487" y="1014" dominant-baseline="central">Agent 대기 swimlane</text>
+
+  <rect x="910" y="696" width="419" height="372" rx="18" fill="var(--card)" stroke="var(--hair)" stroke-width="1" filter="url(#sh)"/>
+  <image href="./cloud-infra-topology/cloud-infra-topology.ko.png" xlink:href="./cloud-infra-topology/cloud-infra-topology.ko.png"
+    x="926" y="712" width="387" height="256" preserveAspectRatio="xMidYMid meet"/>
+  <text class="t-card" x="926" y="1014" dominant-baseline="central">Cloud topology</text>
+
+  <rect x="1349" y="696" width="419" height="372" rx="18" fill="var(--card)" stroke="var(--hair)" stroke-width="1" filter="url(#sh)"/>
+  <image href="./agent-task-matrix/agent-task-matrix.ko.png" xlink:href="./agent-task-matrix/agent-task-matrix.ko.png"
+    x="1365" y="712" width="387" height="256" preserveAspectRatio="xMidYMid meet"/>
+  <text class="t-card" x="1365" y="1014" dominant-baseline="central">Agent 작업 matrix</text>
+</svg>
