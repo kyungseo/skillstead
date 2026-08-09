@@ -111,11 +111,11 @@
 
   <!-- feedback edge -->
   <g filter="url(#rline)">
-    <path d="M883 700 C1078 700 1078 560 819 560" fill="none"
+    <path d="M883 700 C1143 700 1143 560 819 560" fill="none"
       stroke="var(--g-s)" stroke-width="3" stroke-dasharray="9 7" stroke-linecap="round" marker-end="url(#ahL)"/>
   </g>
-  <text class="edge" x="885" y="620" dominant-baseline="central">learn and</text>
-  <text class="edge" x="885" y="644" dominant-baseline="central">correct</text>
+  <text class="edge" x="941" y="620" dominant-baseline="central">learn and</text>
+  <text class="edge" x="941" y="644" dominant-baseline="central">correct</text>
 
   <text class="foot" x="600" y="812" text-anchor="middle" dominant-baseline="central">Reliability comes from the loop — not from one clever instruction.</text>
 </svg>

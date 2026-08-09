@@ -111,10 +111,10 @@
 
   <!-- feedback edge -->
   <g filter="url(#rline)">
-    <path d="M883 700 C1078 700 1078 560 819 560" fill="none"
+    <path d="M883 700 C1143 700 1143 560 819 560" fill="none"
       stroke="var(--g-s)" stroke-width="3" stroke-dasharray="9 7" stroke-linecap="round" marker-end="url(#ahL)"/>
   </g>
-  <text class="edge" x="885" y="632" dominant-baseline="central">학습·보정</text>
+  <text class="edge" x="941" y="632" dominant-baseline="central">학습·보정</text>
 
   <text class="foot" x="600" y="812" text-anchor="middle" dominant-baseline="central">신뢰성은 영리한 한 문장이 아니라 loop에서 나온다.</text>
 </svg>
