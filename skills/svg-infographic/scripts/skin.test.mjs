@@ -257,11 +257,30 @@ test("canonical presets carry exact aspect ratios", () => {
   const r45 = run(["pageframe", "social-4x5", "--json"]);
   const r169 = run(["pageframe", "presentation-16x9", "--json"]);
   const j45 = JSON.parse(r45.out), j169 = JSON.parse(r169.out);
-  // 4:5 and 16:9 exactly (F1: 720/900 = 0.8, 1600/900 = 16/9)
-  assert.equal(720 / 900, 4 / 5);
-  assert.equal(1600 / 900, 16 / 9);
+  // 실제 preset 값(receipt canvas)으로 비율을 검증 — YAML이 다시 틀어지면 여기서 실패한다
+  assert.equal(j45.canvas.width / j45.canvas.height, 4 / 5);
+  assert.equal(j169.canvas.width / j169.canvas.height, 16 / 9);
   assert.equal(j45.orientation, "portrait");
   assert.equal(j169.orientation, "landscape");
+});
+test("pageframe regions never overlap (content/support/footer non-overlap fixture)", () => {
+  for (const preset of ["social-4x5", "presentation-16x9"]) {
+    for (const extra of [["--support", "bottom"], ["--support", "bottom", "--footer", "true"], ["--footer", "true"], []]) {
+      const r = run(["pageframe", preset, ...extra, "--json"]);
+      assert.equal(r.code, 0, r.out);
+      const j = JSON.parse(r.out);
+      const R = j.regions;
+      const hdr = R.headerRegion, cb = R.contentBox;
+      assert.ok(hdr.y + hdr.h <= cb.y, `${preset}: header overlaps content`);
+      let after = j.canvas.height;
+      if (R.footerBox) { assert.ok(R.footerBox.y + R.footerBox.h <= after, `${preset}: footer past canvas`); after = R.footerBox.y; }
+      if (R.supportBottom) {
+        assert.ok(R.supportBottom.y + R.supportBottom.h <= after, `${preset}: support overlaps footer/canvas`);
+        after = R.supportBottom.y;
+      }
+      assert.ok(cb.y + cb.h <= after, `${preset} ${extra.join(" ")}: contentBox overlaps next region (${cb.y + cb.h} > ${after})`);
+    }
+  }
 });
 
 // --- CP5-R1-F3: TypePack manifest validator ------------------------------------
@@ -269,9 +288,19 @@ test("manifest: shipped (empty) manifest validates", () => {
   const r = run(["manifest"]);
   assert.equal(r.code, 0, r.out);
 });
-test("manifest: fixture-only typepack positive validates", () => {
+test("manifest: fixture-only typepack positive validates (full locked schema)", () => {
   const r = run(["manifest", path.join(FIX, "manifest-positive.yaml")]);
   assert.equal(r.code, 0, r.out);
+});
+test("manifest: unknown field is rejected (locked schema)", () => {
+  const r = run(["manifest", path.join(FIX, "manifest-unknown-field.yaml")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /unknown field "palette_hex"/);
+});
+test("manifest: unknown Foundation role is rejected", () => {
+  const r = run(["manifest", path.join(FIX, "manifest-bad-role.yaml")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /unknown role "brand-red"/);
 });
 test("manifest: duplicate id fails closed", () => {
   const r = run(["manifest", path.join(FIX, "manifest-dup-id.yaml")]);

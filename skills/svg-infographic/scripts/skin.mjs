@@ -81,6 +81,7 @@ function parseYaml(text, file) {
       if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1);
       else if (v === "null") v = null;
       else if (v === "[]") v = [];
+      else if (v.startsWith("[") && v.endsWith("]")) v = v.slice(1, -1).split(",").map((x) => x.trim()).filter(Boolean).map((x) => x.startsWith('"') && x.endsWith('"') ? x.slice(1, -1) : x);
       else if (/^-?\d+(\.\d+)?$/.test(v)) v = Number(v);
       parent.obj[key] = v;
     }
@@ -575,6 +576,7 @@ function main() {
     if (out.contentBox.w <= 0) fail(1, `preset ${preset}: computed contentBox width is not positive (${out.contentBox.w})`);
     const receipt = { schemaVersion: 1, command: "pageframe", kernelVersion: "wave0-cp2",
       profile: { id: pf.doc.id, digest: pf.digest }, preset, orientation: P.orientation,
+      canvas: { width: P["canvas-width"], height: P["canvas-height"] },
       options: opts, arrow: P.arrow, "scale-band": pf.doc["scale-band"], regions: out, errors: [], warnings: [] };
     if (po["--json"]) console.log(JSON.stringify(receipt, null, 1));
     else {
@@ -609,6 +611,41 @@ function main() {
         try { readFileSync(specPath); } catch { errors.push(`manifest: ${id}: spec path not found (${p.spec})`); }
       }
       if (!p.selection_signal) errors.push(`manifest: ${id}: missing selection_signal`);
+      // full locked-schema validation (Wave 0 CP2 계약 전체 — CP5-R1B)
+      const FIELDS = ["id", "selection_signal", "profile", "support", "spec", "presets",
+        "orientations", "verifier", "fixtures", "examples", "required_roles",
+        "optional_aliases", "canonical_prompt"];
+      for (const k of Object.keys(p)) if (!FIELDS.includes(k)) errors.push(`manifest: ${id}: unknown field "${k}" (locked schema: ${FIELDS.join("/")})`);
+      for (const k of FIELDS) if (!(k in p)) errors.push(`manifest: ${id}: missing field "${k}"`);
+      let pfPresets = [];
+      try { pfPresets = Object.keys(readYaml(path.resolve(here, "..", "references", "skins", "pageframe-v1.yaml")).doc.presets || {}); } catch { errors.push("manifest: cannot load pageframe registry for preset validation"); }
+      if ("presets" in p) {
+        if (!Array.isArray(p.presets) || p.presets.length === 0) errors.push(`manifest: ${id}: presets must be a non-empty array of PageFrame preset ids`);
+        else for (const pr of p.presets) if (!pfPresets.includes(pr)) errors.push(`manifest: ${id}: unknown preset "${pr}" (pageframe registry: ${pfPresets.join("/")})`);
+      }
+      const ORIENT = ["portrait", "landscape", "square"];
+      if ("orientations" in p) {
+        if (!Array.isArray(p.orientations) || p.orientations.length === 0) errors.push(`manifest: ${id}: orientations must be a non-empty array`);
+        else for (const o of p.orientations) if (!ORIENT.includes(o)) errors.push(`manifest: ${id}: invalid orientation "${o}"`);
+      }
+      if ("verifier" in p && p.verifier !== null) {
+        try { readFileSync(path.resolve(path.dirname(mPath), "..", String(p.verifier))); } catch { errors.push(`manifest: ${id}: verifier path not found (${p.verifier})`); }
+      }
+      if ("fixtures" in p) {
+        if (!Array.isArray(p.fixtures)) errors.push(`manifest: ${id}: fixtures must be an array`);
+        else for (const f of p.fixtures) { try { readFileSync(path.resolve(path.dirname(mPath), "..", String(f))); } catch { errors.push(`manifest: ${id}: fixture path not found (${f})`); } }
+      }
+      if ("examples" in p && (!Array.isArray(p.examples) || p.examples.some((e) => !/^[a-z0-9][a-z0-9-]*$/.test(String(e)))))
+        errors.push(`manifest: ${id}: examples must be an array of kebab-case gallery ids`);
+      if ("required_roles" in p) {
+        if (!Array.isArray(p.required_roles) || p.required_roles.length === 0) errors.push(`manifest: ${id}: required_roles must be a non-empty array`);
+        else for (const r of p.required_roles) if (!ROLES.includes(r)) errors.push(`manifest: ${id}: unknown role "${r}" (Foundation roles: ${ROLES.join("/")})`);
+      }
+      const MANIFEST_ALIASES = ["edge", "api", "compute", "data", "external", "icon"];
+      if ("optional_aliases" in p && (!Array.isArray(p.optional_aliases) || p.optional_aliases.some((a) => !MANIFEST_ALIASES.includes(a))))
+        errors.push(`manifest: ${id}: optional_aliases must be an array within ${MANIFEST_ALIASES.join("/")}`);
+      if ("canonical_prompt" in p && !/^PROMPT-GALLERY\.md#[a-z0-9][a-z0-9-]*$/.test(String(p.canonical_prompt)))
+        errors.push(`manifest: ${id}: canonical_prompt must match PROMPT-GALLERY.md#<kebab-anchor> (semantics reserved)`);
     }
     const receipt = { schemaVersion: 1, command: "manifest", digest, count: (packs || []).length, errors, warnings: [] };
     if (mo["--json"]) console.log(JSON.stringify(receipt, null, 1));

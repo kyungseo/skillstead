@@ -11,19 +11,6 @@ typepacks:
     verifier: null
     fixtures: [skin-fixtures/portable-positive.svg]
     examples: []
-    required_roles: [canvas, surface, ink, muted, rule, focus]
+    required_roles: [canvas, brand-red]
     optional_aliases: [edge, compute, data]
     canonical_prompt: PROMPT-GALLERY.md#fixture-topology
-  - id: fixture-topology
-    selection_signal: "duplicate id entry"
-    profile: constrained-layout
-    support: experimental
-    spec: skin-fixtures/types/fixture-spec.md
-    presets: [social-4x5]
-    orientations: [portrait]
-    verifier: null
-    fixtures: []
-    examples: []
-    required_roles: [canvas, ink]
-    optional_aliases: []
-    canonical_prompt: PROMPT-GALLERY.md#fixture-topology-dup
