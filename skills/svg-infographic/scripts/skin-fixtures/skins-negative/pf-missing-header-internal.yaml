@@ -17,8 +17,8 @@ extends: null
 status: current
 
 scale-band:
-  min: 1.2
-  max: 0.9
+  min: 0.88
+  max: 1.14
 
 presets:
   social-4x5:
@@ -30,15 +30,6 @@ presets:
       eyebrow: 14
       h1: 28
       subtitle: 14
-    header-internal:
-      ascent-mult: 0.85
-      eyebrow-row-mult: 1.15
-      eyebrow-gap: 6
-      collapsed-top-mult: 0.35
-      h1-line-mult: 1.2
-      h1-descent-mult: 0.25
-      subtitle-gap-mult: 1.9
-      subtitle-descent-mult: 0.35
     gaps:
       breathing: 36
       content-gap: 24

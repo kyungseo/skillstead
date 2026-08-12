@@ -111,8 +111,12 @@ add/remove is a kernel migration, not a profile edit.
 - Fallback chain: `Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`.
   No remote font loading (Google Fonts included) — outputs stay self-contained.
 - The fallback chain carries no dedicated CJK entry: when Pretendard is unavailable,
-  KO glyphs resolve through the OS cascade. Renderers must record fallback use in
-  their receipt; KO/EN fixtures verify wrapping, containment and geometry parity.
+  KO glyphs resolve through the OS cascade. A font-availability/fallback entry in the
+  render receipt is **reserved — not yet implemented** (named follow-up
+  `svg-infographic-font-availability-receipt`, scheduled with the typography-profile
+  SSoT before the sketch typography audition); until it lands, verify tofu/fallback
+  visually in the 2× PNG. KO/EN fixtures verify wrapping, containment and geometry
+  parity.
 - A locally bundled Inter may later become an *optional typography profile*, kept
   separate from palette profiles. Until then typography does not fork.
 - Shipped sketch artifacts subset-embed an OFL handwriting font (`sketch.md`); review
@@ -265,10 +269,14 @@ into one rounded-card look.
 
 ## 7. Regeneration & provenance
 
-- The contact sheet above is an approved snapshot synchronized with `current-v1`;
-  it becomes a regenerated profile consumer when the recolor pipeline lands
-  (`skin.mjs contact-sheet`, reserved — generator lineage: Work FEAT-20260812-001
-  review evidence).
+- The contact sheet above is a **generated composite evidence artifact**: it mixes
+  light/dark/sketch profiles on one canvas for review, so it is *not* an ordinary
+  canonical-output surface and is not linted under a single `--palette-profile`
+  (its pilots are linted individually under their own profiles). It is regenerated
+  from resolver output + materializer-verified pilots (generator lineage: Work
+  FEAT-20260812-001 evidence); package-local automatic regeneration
+  (`skin.mjs contact-sheet`) stays **reserved** and the recolor/contact-sheet
+  contract items stay **partial** until it lands.
 - Resolver receipts reserve the provenance identity shared by future SVG
   `<metadata>`, sidecar receipts and PNG `iTXt`: kernel version, palette id/version,
   mode, treatment, source digest, resolved-token digest.

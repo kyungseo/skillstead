@@ -24,12 +24,21 @@ presets:
   social-4x5:
     orientation: portrait
     canvas-width: 720
-    canvas-height: 1020
+    canvas-height: 900
     outer-margin: 36
     header:
       eyebrow: 14
       h1: 28
       subtitle: 14
+    header-internal:
+      ascent-mult: 0.85
+      eyebrow-row-mult: 1.15
+      eyebrow-gap: 6
+      collapsed-top-mult: 0.35
+      h1-line-mult: 1.2
+      h1-descent-mult: 0.25
+      subtitle-gap-mult: 1.9
+      subtitle-descent-mult: 0.35
     gaps:
       content-gap: 24
       content-footer-gap: 16
@@ -46,13 +55,22 @@ presets:
       min-visible-head: 6.6
   presentation-16x9:
     orientation: landscape
-    canvas-width: 1400
-    canvas-height: 820
+    canvas-width: 1600
+    canvas-height: 900
     outer-margin: 48
     header:
       eyebrow: 16
       h1: 42
       subtitle: 18
+    header-internal:
+      ascent-mult: 0.85
+      eyebrow-row-mult: 1.15
+      eyebrow-gap: 6
+      collapsed-top-mult: 0.35
+      h1-line-mult: 1.2
+      h1-descent-mult: 0.25
+      subtitle-gap-mult: 1.9
+      subtitle-descent-mult: 0.35
     gaps:
       breathing: 44
       content-gap: 28
@@ -77,6 +95,15 @@ presets:
       eyebrow: 12
       h1: 24
       subtitle: 13
+    header-internal:
+      ascent-mult: 0.85
+      eyebrow-row-mult: 1.15
+      eyebrow-gap: 6
+      collapsed-top-mult: 0.35
+      h1-line-mult: 1.2
+      h1-descent-mult: 0.25
+      subtitle-gap-mult: 1.9
+      subtitle-descent-mult: 0.35
     gaps:
       breathing: 30
       content-gap: 20

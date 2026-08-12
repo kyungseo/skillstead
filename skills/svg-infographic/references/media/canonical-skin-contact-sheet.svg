@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1660 976" width="1660" height="976" role="img"
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1660 934" width="1660" height="934" role="img"
   style="font-family:Pretendard,Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
   <title>svg-infographic canonical skin</title>
   <desc>Approved canonical skin contact sheet — regenerated profile consumer: H-C header, materializer-verified pilots(flat light/dark·sketch, KO/EN), 11-role tokens, normative contrast, provenance.</desc>
-  <rect width="1660" height="976" fill="#FDFDFC"/>
+  <rect width="1660" height="934" fill="#FDFDFC"/>
   <style>.cap{ fill:#4A5361; font-size:15px; font-weight:700 } .lab{ fill:#66707E; font-size:11.5px } .hex{ fill:#4A5361; font-size:10px; font-family:ui-monospace,Menlo,monospace }</style>
   <g>
     <rect x="40" y="44" width="8" height="8" rx="2" fill="#2E6DA4"/>
@@ -12,7 +12,7 @@
   </g>
   <text class="cap" x="40" y="140">지원 조합 6종 — materializer-verified pilots (dark은 동일 source의 --mode dark 재색; dark×sketch는 resolver 거부)</text><text class="lab" x="40" y="162">flat.light.ko</text><g transform="translate(40,170) scale(0.3472)" style="font-family:Pretendard,Inter,-apple-system,sans-serif">
   <title>파일럿 — Azure 레퍼런스 토폴로지</title>
-  <desc>Wave 0 CP4 pilot: dense topology, flat treatment, canonical portable form (direct paint + role annotations, H-C header, PageFrame social-4x5, arrow C anchor).</desc>
+  <desc>Wave 0 CP4 pilot: dense topology, flat treatment, canonical portable form (direct paint + role annotations, H-C header, PageFrame social-4x5 (720×900, exact 4:5), arrow C anchor).</desc>
   <defs>
     <marker id="ah-m0" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="11.25" markerHeight="11.25" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
       <path d="M2 2 L10 6 L2 10" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2" stroke-linecap="round"/></marker>
@@ -21,16 +21,16 @@
     <filter id="cardShadow-m0" x="-12%" y="-12%" width="124%" height="124%">
       <feDropShadow data-paint-static="true" dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.08"/></filter>
   </defs>
-  <rect data-fill-role="canvas" fill="#F7F7F5" width="720" height="1020"/>
-  
+  <rect data-fill-role="canvas" fill="#F7F7F5" width="720" height="900"/>
+
   <title>Azure 레퍼런스 토폴로지</title>
   <desc>요청이 위에서 아래로 흐릅니다. 클라이언트 트래픽이 WAF를 얹은 Application Gateway로 들어와 API Management를 지나 AKS 클러스터에 닿고, 인그레스 컨트롤러가 ClusterIP Service와 레플리카 Pod 세 개로 넘깁니다. Pod는 프라이빗 엔드포인트로 Azure Database for PostgreSQL에 접근합니다. 클라이언트 뒤쪽은 모두 하나의 Azure VNet 안에 있습니다.</desc>
 
-  
 
-  
 
-  <rect width="720" height="1020" data-fill-role="canvas" fill="#F7F7F5"/>
+
+
+  <rect width="720" height="900" data-fill-role="canvas" fill="#F7F7F5"/>
 
   <!-- header: rail from eyebrowTop(51) to titleBottom(106) -->
   <g data-layout-role="header-cluster" data-layout-content-top="168" data-layout-breathing="36" data-layout-tolerance="2">
@@ -105,15 +105,15 @@
   <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="128" y="851" dominant-baseline="central">Flexible Server · 프라이빗 엔드포인트</text>
 
   <!-- legend -->
-  <rect x="36" y="922" width="648" height="50" rx="10" data-fill-role="strip" fill="#F7F9FB" data-stroke-role="rule" stroke="#DEE0E2" stroke-width="1"/>
-  <path d="M62 947 H98" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" stroke-linecap="round"/>
-  <text font-size="12" data-fill-role="muted" fill="#636A75" x="108" y="947" dominant-baseline="central">요청 경로 (동기)</text>
-  <path d="M330 947 H366" fill="none" data-stroke-role="data-line" stroke="#636A75" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round"/>
-  <text font-size="12" data-fill-role="muted" fill="#636A75" x="376" y="947" dominant-baseline="central">프라이빗 링크 (관리형 서비스)</text>
+  <rect x="36" y="814" width="648" height="50" rx="10" data-fill-role="strip" fill="#F7F9FB" data-stroke-role="rule" stroke="#DEE0E2" stroke-width="1"/>
+  <path d="M62 839 H98" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" stroke-linecap="round"/>
+  <text font-size="12" data-fill-role="muted" fill="#636A75" x="108" y="839" dominant-baseline="central">요청 경로 (동기)</text>
+  <path d="M330 839 H366" fill="none" data-stroke-role="data-line" stroke="#636A75" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round"/>
+  <text font-size="12" data-fill-role="muted" fill="#636A75" x="376" y="839" dominant-baseline="central">프라이빗 링크 (관리형 서비스)</text>
 
-</g><rect x="40" y="170" width="250" height="354" fill="none" stroke="#D8DDE3"/><text class="lab" x="308" y="162">flat.light.en</text><g transform="translate(308,170) scale(0.3472)" style="font-family:Pretendard,Inter,-apple-system,sans-serif">
+</g><rect x="40" y="170" width="250" height="312" fill="none" stroke="#D8DDE3"/><text class="lab" x="308" y="162">flat.light.en</text><g transform="translate(308,170) scale(0.3472)" style="font-family:Pretendard,Inter,-apple-system,sans-serif">
   <title>Pilot — Azure reference topology</title>
-  <desc>Wave 0 CP4 pilot: dense topology, flat treatment, canonical portable form (direct paint + role annotations, H-C header, PageFrame social-4x5, arrow C anchor).</desc>
+  <desc>Wave 0 CP4 pilot: dense topology, flat treatment, canonical portable form (direct paint + role annotations, H-C header, PageFrame social-4x5 (720×900, exact 4:5), arrow C anchor).</desc>
   <defs>
     <marker id="ah-m1" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="11.25" markerHeight="11.25" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
       <path d="M2 2 L10 6 L2 10" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2" stroke-linecap="round"/></marker>
@@ -122,16 +122,16 @@
     <filter id="cardShadow-m1" x="-12%" y="-12%" width="124%" height="124%">
       <feDropShadow data-paint-static="true" dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.08"/></filter>
   </defs>
-  <rect data-fill-role="canvas" fill="#F7F7F5" width="720" height="1020"/>
-  
+  <rect data-fill-role="canvas" fill="#F7F7F5" width="720" height="900"/>
+
   <title>Azure reference topology</title>
   <desc>A vertical request path. Client traffic enters through Application Gateway with WAF, passes API Management, reaches an AKS cluster where an ingress controller routes to a ClusterIP service and three replica pods, and the pods reach Azure Database for PostgreSQL over a private endpoint. Everything after the client sits inside one Azure VNet.</desc>
 
-  
 
-  
 
-  <rect width="720" height="1020" data-fill-role="canvas" fill="#F7F7F5"/>
+
+
+  <rect width="720" height="900" data-fill-role="canvas" fill="#F7F7F5"/>
 
   <!-- header: rail from eyebrowTop(51) to titleBottom(106) -->
   <g data-layout-role="header-cluster" data-layout-content-top="168" data-layout-breathing="36" data-layout-tolerance="2">
@@ -206,15 +206,15 @@
   <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="128" y="851" dominant-baseline="central">Flexible Server · private endpoint</text>
 
   <!-- legend -->
-  <rect x="36" y="922" width="648" height="50" rx="10" data-fill-role="strip" fill="#F7F9FB" data-stroke-role="rule" stroke="#DEE0E2" stroke-width="1"/>
-  <path d="M62 947 H98" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" stroke-linecap="round"/>
-  <text font-size="12" data-fill-role="muted" fill="#636A75" x="108" y="947" dominant-baseline="central">Request path (synchronous)</text>
-  <path d="M330 947 H366" fill="none" data-stroke-role="data-line" stroke="#636A75" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round"/>
-  <text font-size="12" data-fill-role="muted" fill="#636A75" x="376" y="947" dominant-baseline="central">Private link (managed service)</text>
+  <rect x="36" y="814" width="648" height="50" rx="10" data-fill-role="strip" fill="#F7F9FB" data-stroke-role="rule" stroke="#DEE0E2" stroke-width="1"/>
+  <path d="M62 839 H98" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" stroke-linecap="round"/>
+  <text font-size="12" data-fill-role="muted" fill="#636A75" x="108" y="839" dominant-baseline="central">Request path (synchronous)</text>
+  <path d="M330 839 H366" fill="none" data-stroke-role="data-line" stroke="#636A75" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round"/>
+  <text font-size="12" data-fill-role="muted" fill="#636A75" x="376" y="839" dominant-baseline="central">Private link (managed service)</text>
 
-</g><rect x="308" y="170" width="250" height="354" fill="none" stroke="#D8DDE3"/><text class="lab" x="576" y="162">flat.dark.ko</text><g transform="translate(576,170) scale(0.3472)" style="font-family:Pretendard,Inter,-apple-system,sans-serif">
+</g><rect x="308" y="170" width="250" height="312" fill="none" stroke="#D8DDE3"/><text class="lab" x="576" y="162">flat.dark.ko</text><g transform="translate(576,170) scale(0.3472)" style="font-family:Pretendard,Inter,-apple-system,sans-serif">
   <title>파일럿 — Azure 레퍼런스 토폴로지</title>
-  <desc>Wave 0 CP4 pilot: dense topology, flat treatment, canonical portable form (direct paint + role annotations, H-C header, PageFrame social-4x5, arrow C anchor).</desc>
+  <desc>Wave 0 CP4 pilot: dense topology, flat treatment, canonical portable form (direct paint + role annotations, H-C header, PageFrame social-4x5 (720×900, exact 4:5), arrow C anchor).</desc>
   <defs>
     <marker id="ah-m2" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="11.25" markerHeight="11.25" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
       <path d="M2 2 L10 6 L2 10" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2" stroke-linecap="round"/></marker>
@@ -223,16 +223,16 @@
     <filter id="cardShadow-m2" x="-12%" y="-12%" width="124%" height="124%">
       <feDropShadow data-paint-static="true" dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.08"/></filter>
   </defs>
-  <rect data-fill-role="canvas" fill="#16191E" width="720" height="1020"/>
-  
+  <rect data-fill-role="canvas" fill="#16191E" width="720" height="900"/>
+
   <title>Azure 레퍼런스 토폴로지</title>
   <desc>요청이 위에서 아래로 흐릅니다. 클라이언트 트래픽이 WAF를 얹은 Application Gateway로 들어와 API Management를 지나 AKS 클러스터에 닿고, 인그레스 컨트롤러가 ClusterIP Service와 레플리카 Pod 세 개로 넘깁니다. Pod는 프라이빗 엔드포인트로 Azure Database for PostgreSQL에 접근합니다. 클라이언트 뒤쪽은 모두 하나의 Azure VNet 안에 있습니다.</desc>
 
-  
 
-  
 
-  <rect width="720" height="1020" data-fill-role="canvas" fill="#16191E"/>
+
+
+  <rect width="720" height="900" data-fill-role="canvas" fill="#16191E"/>
 
   <!-- header: rail from eyebrowTop(51) to titleBottom(106) -->
   <g data-layout-role="header-cluster" data-layout-content-top="168" data-layout-breathing="36" data-layout-tolerance="2">
@@ -307,15 +307,15 @@
   <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="128" y="851" dominant-baseline="central">Flexible Server · 프라이빗 엔드포인트</text>
 
   <!-- legend -->
-  <rect x="36" y="922" width="648" height="50" rx="10" data-fill-role="strip" fill="#1F2730" data-stroke-role="rule" stroke="#363B44" stroke-width="1"/>
-  <path d="M62 947 H98" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2.5" stroke-linecap="round"/>
-  <text font-size="12" data-fill-role="muted" fill="#9EA6B0" x="108" y="947" dominant-baseline="central">요청 경로 (동기)</text>
-  <path d="M330 947 H366" fill="none" data-stroke-role="data-line" stroke="#9EA6B0" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round"/>
-  <text font-size="12" data-fill-role="muted" fill="#9EA6B0" x="376" y="947" dominant-baseline="central">프라이빗 링크 (관리형 서비스)</text>
+  <rect x="36" y="814" width="648" height="50" rx="10" data-fill-role="strip" fill="#1F2730" data-stroke-role="rule" stroke="#363B44" stroke-width="1"/>
+  <path d="M62 839 H98" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2.5" stroke-linecap="round"/>
+  <text font-size="12" data-fill-role="muted" fill="#9EA6B0" x="108" y="839" dominant-baseline="central">요청 경로 (동기)</text>
+  <path d="M330 839 H366" fill="none" data-stroke-role="data-line" stroke="#9EA6B0" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round"/>
+  <text font-size="12" data-fill-role="muted" fill="#9EA6B0" x="376" y="839" dominant-baseline="central">프라이빗 링크 (관리형 서비스)</text>
 
-</g><rect x="576" y="170" width="250" height="354" fill="none" stroke="#D8DDE3"/><text class="lab" x="844" y="162">flat.dark.en</text><g transform="translate(844,170) scale(0.3472)" style="font-family:Pretendard,Inter,-apple-system,sans-serif">
+</g><rect x="576" y="170" width="250" height="312" fill="none" stroke="#D8DDE3"/><text class="lab" x="844" y="162">flat.dark.en</text><g transform="translate(844,170) scale(0.3472)" style="font-family:Pretendard,Inter,-apple-system,sans-serif">
   <title>Pilot — Azure reference topology</title>
-  <desc>Wave 0 CP4 pilot: dense topology, flat treatment, canonical portable form (direct paint + role annotations, H-C header, PageFrame social-4x5, arrow C anchor).</desc>
+  <desc>Wave 0 CP4 pilot: dense topology, flat treatment, canonical portable form (direct paint + role annotations, H-C header, PageFrame social-4x5 (720×900, exact 4:5), arrow C anchor).</desc>
   <defs>
     <marker id="ah-m3" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="11.25" markerHeight="11.25" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
       <path d="M2 2 L10 6 L2 10" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2" stroke-linecap="round"/></marker>
@@ -324,16 +324,16 @@
     <filter id="cardShadow-m3" x="-12%" y="-12%" width="124%" height="124%">
       <feDropShadow data-paint-static="true" dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.08"/></filter>
   </defs>
-  <rect data-fill-role="canvas" fill="#16191E" width="720" height="1020"/>
-  
+  <rect data-fill-role="canvas" fill="#16191E" width="720" height="900"/>
+
   <title>Azure reference topology</title>
   <desc>A vertical request path. Client traffic enters through Application Gateway with WAF, passes API Management, reaches an AKS cluster where an ingress controller routes to a ClusterIP service and three replica pods, and the pods reach Azure Database for PostgreSQL over a private endpoint. Everything after the client sits inside one Azure VNet.</desc>
 
-  
 
-  
 
-  <rect width="720" height="1020" data-fill-role="canvas" fill="#16191E"/>
+
+
+  <rect width="720" height="900" data-fill-role="canvas" fill="#16191E"/>
 
   <!-- header: rail from eyebrowTop(51) to titleBottom(106) -->
   <g data-layout-role="header-cluster" data-layout-content-top="168" data-layout-breathing="36" data-layout-tolerance="2">
@@ -408,15 +408,15 @@
   <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="128" y="851" dominant-baseline="central">Flexible Server · private endpoint</text>
 
   <!-- legend -->
-  <rect x="36" y="922" width="648" height="50" rx="10" data-fill-role="strip" fill="#1F2730" data-stroke-role="rule" stroke="#363B44" stroke-width="1"/>
-  <path d="M62 947 H98" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2.5" stroke-linecap="round"/>
-  <text font-size="12" data-fill-role="muted" fill="#9EA6B0" x="108" y="947" dominant-baseline="central">Request path (synchronous)</text>
-  <path d="M330 947 H366" fill="none" data-stroke-role="data-line" stroke="#9EA6B0" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round"/>
-  <text font-size="12" data-fill-role="muted" fill="#9EA6B0" x="376" y="947" dominant-baseline="central">Private link (managed service)</text>
+  <rect x="36" y="814" width="648" height="50" rx="10" data-fill-role="strip" fill="#1F2730" data-stroke-role="rule" stroke="#363B44" stroke-width="1"/>
+  <path d="M62 839 H98" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2.5" stroke-linecap="round"/>
+  <text font-size="12" data-fill-role="muted" fill="#9EA6B0" x="108" y="839" dominant-baseline="central">Request path (synchronous)</text>
+  <path d="M330 839 H366" fill="none" data-stroke-role="data-line" stroke="#9EA6B0" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round"/>
+  <text font-size="12" data-fill-role="muted" fill="#9EA6B0" x="376" y="839" dominant-baseline="central">Private link (managed service)</text>
 
-</g><rect x="844" y="170" width="250" height="354" fill="none" stroke="#D8DDE3"/><text class="lab" x="1112" y="162">sketch.light.ko</text><g transform="translate(1112,170) scale(0.3472)" style="font-family:'Nanum Pen Script','NanumPen',Pretendard,sans-serif">
+</g><rect x="844" y="170" width="250" height="312" fill="none" stroke="#D8DDE3"/><text class="lab" x="1112" y="162">sketch.light.ko</text><g transform="translate(1112,170) scale(0.3472)" style="font-family:'Nanum Pen Script','NanumPen',Pretendard,sans-serif">
   <title>파일럿 — Azure 레퍼런스 토폴로지</title>
-  <desc>Wave 0 CP4 pilot: dense topology, flat treatment, canonical portable form (direct paint + role annotations, H-C header, PageFrame social-4x5, arrow C anchor).</desc>
+  <desc>Wave 0 CP4 pilot: dense topology, flat treatment, canonical portable form (direct paint + role annotations, H-C header, PageFrame social-4x5 (720×900, exact 4:5), arrow C anchor).</desc>
   <defs>
     <marker id="ah-m4" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="13.1" markerHeight="13.1" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
       <path d="M2 2 L10 6 L2 10" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2" stroke-linecap="round" filter="url(#rline-m4)"/></marker>
@@ -424,21 +424,21 @@
       <path d="M2 2 L10 6 L2 10" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2" stroke-linecap="round" filter="url(#rline-m4)"/></marker>
     <filter id="cardShadow-m4" x="-12%" y="-12%" width="124%" height="124%">
       <feDropShadow data-paint-static="true" dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.08"/></filter>
-    <filter id="rbox-m4" filterUnits="userSpaceOnUse" x="0" y="0" width="720" height="1020">
+    <filter id="rbox-m4" filterUnits="userSpaceOnUse" x="0" y="0" width="720" height="900">
       <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="3" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3"/></filter>
-    <filter id="rline-m4" filterUnits="userSpaceOnUse" x="0" y="0" width="720" height="1020">
+    <filter id="rline-m4" filterUnits="userSpaceOnUse" x="0" y="0" width="720" height="900">
       <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="2" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3"/></filter>
   </defs>
-  <rect data-fill-role="paper" fill="#FAF4EB" width="720" height="1020"/>
-  
+  <rect data-fill-role="paper" fill="#FAF4EB" width="720" height="900"/>
+
   <title>Azure 레퍼런스 토폴로지</title>
   <desc>요청이 위에서 아래로 흐릅니다. 클라이언트 트래픽이 WAF를 얹은 Application Gateway로 들어와 API Management를 지나 AKS 클러스터에 닿고, 인그레스 컨트롤러가 ClusterIP Service와 레플리카 Pod 세 개로 넘깁니다. Pod는 프라이빗 엔드포인트로 Azure Database for PostgreSQL에 접근합니다. 클라이언트 뒤쪽은 모두 하나의 Azure VNet 안에 있습니다.</desc>
 
-  
 
-  
 
-  <rect width="720" height="1020" data-fill-role="paper" fill="#FAF4EB"/>
+
+
+  <rect width="720" height="900" data-fill-role="paper" fill="#FAF4EB"/>
 
   <!-- header: rail from eyebrowTop(51) to titleBottom(106) -->
   <g data-layout-role="header-cluster" data-layout-content-top="168" data-layout-breathing="36" data-layout-tolerance="2">
@@ -513,15 +513,15 @@
   <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="128" y="851" dominant-baseline="central">Flexible Server · 프라이빗 엔드포인트</text>
 
   <!-- legend -->
-  <rect x="36" y="922" width="648" height="50" rx="10" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
-  <path d="M62 947 H98" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" filter="url(#rline-m4)"/>
-  <text font-size="12" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="108" y="947" dominant-baseline="central">요청 경로 (동기)</text>
-  <path d="M330 947 H366" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round" filter="url(#rline-m4)"/>
-  <text font-size="12" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="376" y="947" dominant-baseline="central">프라이빗 링크 (관리형 서비스)</text>
+  <rect x="36" y="814" width="648" height="50" rx="10" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
+  <path d="M62 839 H98" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" filter="url(#rline-m4)"/>
+  <text font-size="12" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="108" y="839" dominant-baseline="central">요청 경로 (동기)</text>
+  <path d="M330 839 H366" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round" filter="url(#rline-m4)"/>
+  <text font-size="12" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="376" y="839" dominant-baseline="central">프라이빗 링크 (관리형 서비스)</text>
 
-</g><rect x="1112" y="170" width="250" height="354" fill="none" stroke="#D8DDE3"/><text class="lab" x="1380" y="162">sketch.light.en</text><g transform="translate(1380,170) scale(0.3472)" style="font-family:'Nanum Pen Script','NanumPen',Pretendard,sans-serif">
+</g><rect x="1112" y="170" width="250" height="312" fill="none" stroke="#D8DDE3"/><text class="lab" x="1380" y="162">sketch.light.en</text><g transform="translate(1380,170) scale(0.3472)" style="font-family:'Nanum Pen Script','NanumPen',Pretendard,sans-serif">
   <title>Pilot — Azure reference topology</title>
-  <desc>Wave 0 CP4 pilot: dense topology, flat treatment, canonical portable form (direct paint + role annotations, H-C header, PageFrame social-4x5, arrow C anchor).</desc>
+  <desc>Wave 0 CP4 pilot: dense topology, flat treatment, canonical portable form (direct paint + role annotations, H-C header, PageFrame social-4x5 (720×900, exact 4:5), arrow C anchor).</desc>
   <defs>
     <marker id="ah-m5" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="13.1" markerHeight="13.1" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
       <path d="M2 2 L10 6 L2 10" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2" stroke-linecap="round" filter="url(#rline-m5)"/></marker>
@@ -529,21 +529,21 @@
       <path d="M2 2 L10 6 L2 10" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2" stroke-linecap="round" filter="url(#rline-m5)"/></marker>
     <filter id="cardShadow-m5" x="-12%" y="-12%" width="124%" height="124%">
       <feDropShadow data-paint-static="true" dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.08"/></filter>
-    <filter id="rbox-m5" filterUnits="userSpaceOnUse" x="0" y="0" width="720" height="1020">
+    <filter id="rbox-m5" filterUnits="userSpaceOnUse" x="0" y="0" width="720" height="900">
       <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="3" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3"/></filter>
-    <filter id="rline-m5" filterUnits="userSpaceOnUse" x="0" y="0" width="720" height="1020">
+    <filter id="rline-m5" filterUnits="userSpaceOnUse" x="0" y="0" width="720" height="900">
       <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="2" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3"/></filter>
   </defs>
-  <rect data-fill-role="paper" fill="#FAF4EB" width="720" height="1020"/>
-  
+  <rect data-fill-role="paper" fill="#FAF4EB" width="720" height="900"/>
+
   <title>Azure reference topology</title>
   <desc>A vertical request path. Client traffic enters through Application Gateway with WAF, passes API Management, reaches an AKS cluster where an ingress controller routes to a ClusterIP service and three replica pods, and the pods reach Azure Database for PostgreSQL over a private endpoint. Everything after the client sits inside one Azure VNet.</desc>
 
-  
 
-  
 
-  <rect width="720" height="1020" data-fill-role="paper" fill="#FAF4EB"/>
+
+
+  <rect width="720" height="900" data-fill-role="paper" fill="#FAF4EB"/>
 
   <!-- header: rail from eyebrowTop(51) to titleBottom(106) -->
   <g data-layout-role="header-cluster" data-layout-content-top="168" data-layout-breathing="36" data-layout-tolerance="2">
@@ -618,14 +618,14 @@
   <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="128" y="851" dominant-baseline="central">Flexible Server · private endpoint</text>
 
   <!-- legend -->
-  <rect x="36" y="922" width="648" height="50" rx="10" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
-  <path d="M62 947 H98" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" filter="url(#rline-m5)"/>
-  <text font-size="12" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="108" y="947" dominant-baseline="central">Request path (synchronous)</text>
-  <path d="M330 947 H366" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round" filter="url(#rline-m5)"/>
-  <text font-size="12" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="376" y="947" dominant-baseline="central">Private link (managed service)</text>
+  <rect x="36" y="814" width="648" height="50" rx="10" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
+  <path d="M62 839 H98" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" filter="url(#rline-m5)"/>
+  <text font-size="12" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="108" y="839" dominant-baseline="central">Request path (synchronous)</text>
+  <path d="M330 839 H366" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round" filter="url(#rline-m5)"/>
+  <text font-size="12" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="376" y="839" dominant-baseline="central">Private link (managed service)</text>
 
-</g><rect x="1380" y="170" width="250" height="354" fill="none" stroke="#D8DDE3"/><text class="cap" x="40" y="568">Token 값 (11 role · light/dark) — SSoT: references/skins/current-v1.yaml + registry</text><text class="lab" x="40" y="594">light</text><rect x="100" y="584" width="120" height="20" rx="4" fill="#F7F7F5" stroke="#D8DDE3"/><text class="lab" x="100" y="618">canvas</text><text class="hex" x="100" y="632">#F7F7F5</text><rect x="238" y="584" width="120" height="20" rx="4" fill="#FFFFFF" stroke="#D8DDE3"/><text class="lab" x="238" y="618">surface</text><text class="hex" x="238" y="632">#FFFFFF</text><rect x="376" y="584" width="120" height="20" rx="4" fill="#E4EDF3" stroke="#D8DDE3"/><text class="lab" x="376" y="618">surface-tint</text><text class="hex" x="376" y="632">#E4EDF3</text><rect x="514" y="584" width="120" height="20" rx="4" fill="#252B35" stroke="#D8DDE3"/><text class="lab" x="514" y="618">ink</text><text class="hex" x="514" y="632">#252B35</text><rect x="652" y="584" width="120" height="20" rx="4" fill="#636A75" stroke="#D8DDE3"/><text class="lab" x="652" y="618">muted</text><text class="hex" x="652" y="632">#636A75</text><rect x="790" y="584" width="120" height="20" rx="4" fill="#DEE0E2" stroke="#D8DDE3"/><text class="lab" x="790" y="618">rule</text><text class="hex" x="790" y="632">#DEE0E2</text><rect x="928" y="584" width="120" height="20" rx="4" fill="#2E6DA4" stroke="#D8DDE3"/><text class="lab" x="928" y="618">focus</text><text class="hex" x="928" y="632">#2E6DA4</text><rect x="1066" y="584" width="120" height="20" rx="4" fill="#3F8F72" stroke="#D8DDE3"/><text class="lab" x="1066" y="618">positive</text><text class="hex" x="1066" y="632">#3F8F72</text><rect x="1204" y="584" width="120" height="20" rx="4" fill="#B08434" stroke="#D8DDE3"/><text class="lab" x="1204" y="618">warning</text><text class="hex" x="1204" y="632">#B08434</text><rect x="1342" y="584" width="120" height="20" rx="4" fill="#B45A50" stroke="#D8DDE3"/><text class="lab" x="1342" y="618">danger</text><text class="hex" x="1342" y="632">#B45A50</text><rect x="1480" y="584" width="120" height="20" rx="4" fill="#FFFFFF" stroke="#D8DDE3"/><text class="lab" x="1480" y="618">on-focus</text><text class="hex" x="1480" y="632">#FFFFFF</text><text class="lab" x="40" y="690">dark</text><rect x="100" y="680" width="120" height="20" rx="4" fill="#16191E" stroke="#D8DDE3"/><text class="lab" x="100" y="714">canvas</text><text class="hex" x="100" y="728">#16191E</text><rect x="238" y="680" width="120" height="20" rx="4" fill="#20242B" stroke="#D8DDE3"/><text class="lab" x="238" y="714">surface</text><text class="hex" x="238" y="728">#20242B</text><rect x="376" y="680" width="120" height="20" rx="4" fill="#2A3D50" stroke="#D8DDE3"/><text class="lab" x="376" y="714">surface-tint</text><text class="hex" x="376" y="728">#2A3D50</text><rect x="514" y="680" width="120" height="20" rx="4" fill="#E9ECEF" stroke="#D8DDE3"/><text class="lab" x="514" y="714">ink</text><text class="hex" x="514" y="728">#E9ECEF</text><rect x="652" y="680" width="120" height="20" rx="4" fill="#9EA6B0" stroke="#D8DDE3"/><text class="lab" x="652" y="714">muted</text><text class="hex" x="652" y="728">#9EA6B0</text><rect x="790" y="680" width="120" height="20" rx="4" fill="#363B44" stroke="#D8DDE3"/><text class="lab" x="790" y="714">rule</text><text class="hex" x="790" y="728">#363B44</text><rect x="928" y="680" width="120" height="20" rx="4" fill="#6FA3D3" stroke="#D8DDE3"/><text class="lab" x="928" y="714">focus</text><text class="hex" x="928" y="728">#6FA3D3</text><rect x="1066" y="680" width="120" height="20" rx="4" fill="#5FAE8F" stroke="#D8DDE3"/><text class="lab" x="1066" y="714">positive</text><text class="hex" x="1066" y="728">#5FAE8F</text><rect x="1204" y="680" width="120" height="20" rx="4" fill="#CBA050" stroke="#D8DDE3"/><text class="lab" x="1204" y="714">warning</text><text class="hex" x="1204" y="728">#CBA050</text><rect x="1342" y="680" width="120" height="20" rx="4" fill="#CE8378" stroke="#D8DDE3"/><text class="lab" x="1342" y="714">danger</text><text class="hex" x="1342" y="728">#CE8378</text><rect x="1480" y="680" width="120" height="20" rx="4" fill="#12151A" stroke="#D8DDE3"/><text class="lab" x="1480" y="714">on-focus</text><text class="hex" x="1480" y="728">#12151A</text><text class="cap" x="40" y="806">Normative contrast (validate receipt) · sketch: paper #FAF4EB · sketch-ink #403C34 · highlight #EFDCA9</text><text class="lab" x="40" y="826">light: ink/canvas 13.27 · ink/surface 14.23 · ink/surface-tint 12 · muted/canvas 5.09 · muted/surface 5.46 · on-focus/focus 5.47 · positive/surface 3.9 · warning/surface 3.39 · danger/surface 4.65</text><text class="lab" x="40" y="844">dark: ink/canvas 14.86 · ink/surface 13.13 · ink/surface-tint 9.41 · muted/canvas 7.16 · muted/surface 6.33 · on-focus/focus 6.84 · positive/surface 5.89 · warning/surface 6.44 · danger/surface 5.3</text><text class="cap" x="40" y="896">Decision provenance</text>
-  <text class="lab" x="40" y="916">Selected canonical skin — Candidate C + Owner neutral-hierarchy adjustment (2026-08-12, FEAT-20260812-001 CP1B) · header: H-C editorial stack (CP2S)</text>
-  <text class="lab" x="40" y="934">kernel wave0-cp2 · palette current-v1 (digest 8590ad0d06c8f350) · resolved light 3c802918ff9e294f / dark f1dd1ff037d40403</text>
-  <text class="lab" x="40" y="952">이 시트는 profile consumer(재생성: skin.mjs resolve/materialize 파이프라인 + Work FEAT-20260812-001 evidence generator) — palette SSoT 아님</text>
+</g><rect x="1380" y="170" width="250" height="312" fill="none" stroke="#D8DDE3"/><text class="cap" x="40" y="526">Token 값 (11 role · light/dark) — SSoT: references/skins/current-v1.yaml + registry</text><text class="lab" x="40" y="552">light</text><rect x="100" y="542" width="120" height="20" rx="4" fill="#F7F7F5" stroke="#D8DDE3"/><text class="lab" x="100" y="576">canvas</text><text class="hex" x="100" y="590">#F7F7F5</text><rect x="238" y="542" width="120" height="20" rx="4" fill="#FFFFFF" stroke="#D8DDE3"/><text class="lab" x="238" y="576">surface</text><text class="hex" x="238" y="590">#FFFFFF</text><rect x="376" y="542" width="120" height="20" rx="4" fill="#E4EDF3" stroke="#D8DDE3"/><text class="lab" x="376" y="576">surface-tint</text><text class="hex" x="376" y="590">#E4EDF3</text><rect x="514" y="542" width="120" height="20" rx="4" fill="#252B35" stroke="#D8DDE3"/><text class="lab" x="514" y="576">ink</text><text class="hex" x="514" y="590">#252B35</text><rect x="652" y="542" width="120" height="20" rx="4" fill="#636A75" stroke="#D8DDE3"/><text class="lab" x="652" y="576">muted</text><text class="hex" x="652" y="590">#636A75</text><rect x="790" y="542" width="120" height="20" rx="4" fill="#DEE0E2" stroke="#D8DDE3"/><text class="lab" x="790" y="576">rule</text><text class="hex" x="790" y="590">#DEE0E2</text><rect x="928" y="542" width="120" height="20" rx="4" fill="#2E6DA4" stroke="#D8DDE3"/><text class="lab" x="928" y="576">focus</text><text class="hex" x="928" y="590">#2E6DA4</text><rect x="1066" y="542" width="120" height="20" rx="4" fill="#3F8F72" stroke="#D8DDE3"/><text class="lab" x="1066" y="576">positive</text><text class="hex" x="1066" y="590">#3F8F72</text><rect x="1204" y="542" width="120" height="20" rx="4" fill="#B08434" stroke="#D8DDE3"/><text class="lab" x="1204" y="576">warning</text><text class="hex" x="1204" y="590">#B08434</text><rect x="1342" y="542" width="120" height="20" rx="4" fill="#B45A50" stroke="#D8DDE3"/><text class="lab" x="1342" y="576">danger</text><text class="hex" x="1342" y="590">#B45A50</text><rect x="1480" y="542" width="120" height="20" rx="4" fill="#FFFFFF" stroke="#D8DDE3"/><text class="lab" x="1480" y="576">on-focus</text><text class="hex" x="1480" y="590">#FFFFFF</text><text class="lab" x="40" y="648">dark</text><rect x="100" y="638" width="120" height="20" rx="4" fill="#16191E" stroke="#D8DDE3"/><text class="lab" x="100" y="672">canvas</text><text class="hex" x="100" y="686">#16191E</text><rect x="238" y="638" width="120" height="20" rx="4" fill="#20242B" stroke="#D8DDE3"/><text class="lab" x="238" y="672">surface</text><text class="hex" x="238" y="686">#20242B</text><rect x="376" y="638" width="120" height="20" rx="4" fill="#2A3D50" stroke="#D8DDE3"/><text class="lab" x="376" y="672">surface-tint</text><text class="hex" x="376" y="686">#2A3D50</text><rect x="514" y="638" width="120" height="20" rx="4" fill="#E9ECEF" stroke="#D8DDE3"/><text class="lab" x="514" y="672">ink</text><text class="hex" x="514" y="686">#E9ECEF</text><rect x="652" y="638" width="120" height="20" rx="4" fill="#9EA6B0" stroke="#D8DDE3"/><text class="lab" x="652" y="672">muted</text><text class="hex" x="652" y="686">#9EA6B0</text><rect x="790" y="638" width="120" height="20" rx="4" fill="#363B44" stroke="#D8DDE3"/><text class="lab" x="790" y="672">rule</text><text class="hex" x="790" y="686">#363B44</text><rect x="928" y="638" width="120" height="20" rx="4" fill="#6FA3D3" stroke="#D8DDE3"/><text class="lab" x="928" y="672">focus</text><text class="hex" x="928" y="686">#6FA3D3</text><rect x="1066" y="638" width="120" height="20" rx="4" fill="#5FAE8F" stroke="#D8DDE3"/><text class="lab" x="1066" y="672">positive</text><text class="hex" x="1066" y="686">#5FAE8F</text><rect x="1204" y="638" width="120" height="20" rx="4" fill="#CBA050" stroke="#D8DDE3"/><text class="lab" x="1204" y="672">warning</text><text class="hex" x="1204" y="686">#CBA050</text><rect x="1342" y="638" width="120" height="20" rx="4" fill="#CE8378" stroke="#D8DDE3"/><text class="lab" x="1342" y="672">danger</text><text class="hex" x="1342" y="686">#CE8378</text><rect x="1480" y="638" width="120" height="20" rx="4" fill="#12151A" stroke="#D8DDE3"/><text class="lab" x="1480" y="672">on-focus</text><text class="hex" x="1480" y="686">#12151A</text><text class="cap" x="40" y="764">Normative contrast (validate receipt) · sketch: paper #FAF4EB · sketch-ink #403C34 · highlight #EFDCA9</text><text class="lab" x="40" y="784">light: ink/canvas 13.27 · ink/surface 14.23 · ink/surface-tint 12 · muted/canvas 5.09 · muted/surface 5.46 · on-focus/focus 5.47 · positive/surface 3.9 · warning/surface 3.39 · danger/surface 4.65</text><text class="lab" x="40" y="802">dark: ink/canvas 14.86 · ink/surface 13.13 · ink/surface-tint 9.41 · muted/canvas 7.16 · muted/surface 6.33 · on-focus/focus 6.84 · positive/surface 5.89 · warning/surface 6.44 · danger/surface 5.3</text><text class="cap" x="40" y="854">Decision provenance</text>
+  <text class="lab" x="40" y="874">Selected canonical skin — Candidate C + Owner neutral-hierarchy adjustment (2026-08-12, FEAT-20260812-001 CP1B) · header: H-C editorial stack (CP2S)</text>
+  <text class="lab" x="40" y="892">kernel wave0-cp2 · palette current-v1 (digest 8590ad0d06c8f350) · resolved light 3c802918ff9e294f / dark f1dd1ff037d40403</text>
+  <text class="lab" x="40" y="910">이 시트는 profile consumer(재생성: skin.mjs resolve/materialize 파이프라인 + Work FEAT-20260812-001 evidence generator) — palette SSoT 아님</text>
 </svg>

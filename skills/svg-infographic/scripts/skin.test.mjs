@@ -248,3 +248,38 @@ test("--content-height on a fixed canvas is rejected", () => {
   const r = run(["pageframe", "social-4x5", "--content-height", "500"]);
   assert.equal(r.code, 2);
 });
+
+test("pageframe rejects a preset missing header-internal", () => pfNeg("pf-missing-header-internal.yaml", [], /missing "header-internal"/));
+test("pageframe rejects a negative header-internal gap", () => pfNeg("pf-bad-header-internal.yaml", [], /header-internal\.eyebrow-gap/));
+test("canonical presets carry exact aspect ratios", () => {
+  const s = pageframe();
+  assert.equal(s.regions.headerRegion.w + 2 * 36, 720);
+  const r45 = run(["pageframe", "social-4x5", "--json"]);
+  const r169 = run(["pageframe", "presentation-16x9", "--json"]);
+  const j45 = JSON.parse(r45.out), j169 = JSON.parse(r169.out);
+  // 4:5 and 16:9 exactly (F1: 720/900 = 0.8, 1600/900 = 16/9)
+  assert.equal(720 / 900, 4 / 5);
+  assert.equal(1600 / 900, 16 / 9);
+  assert.equal(j45.orientation, "portrait");
+  assert.equal(j169.orientation, "landscape");
+});
+
+// --- CP5-R1-F3: TypePack manifest validator ------------------------------------
+test("manifest: shipped (empty) manifest validates", () => {
+  const r = run(["manifest"]);
+  assert.equal(r.code, 0, r.out);
+});
+test("manifest: fixture-only typepack positive validates", () => {
+  const r = run(["manifest", path.join(FIX, "manifest-positive.yaml")]);
+  assert.equal(r.code, 0, r.out);
+});
+test("manifest: duplicate id fails closed", () => {
+  const r = run(["manifest", path.join(FIX, "manifest-dup-id.yaml")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /duplicate typepack id/);
+});
+test("manifest: missing spec path fails closed", () => {
+  const r = run(["manifest", path.join(FIX, "manifest-missing-spec.yaml")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /spec path not found/);
+});

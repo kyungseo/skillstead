@@ -50,9 +50,22 @@ function parseYaml(text, file) {
     if (trimmed.startsWith("- ")) {
       if (!parent.holder || !parent.key) throw new Error(`${file}:${i + 1} list item without a preceding key`);
       if (!Array.isArray(parent.holder[parent.key])) parent.holder[parent.key] = [];
-      let v = trimmed.slice(2).trim();
-      if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1);
-      parent.holder[parent.key].push(v);
+      const rest = trimmed.slice(2).trim();
+      const km = rest.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
+      if (km) { // list of maps: "- key: value" starts a new item
+        const item = {};
+        parent.holder[parent.key].push(item);
+        stack.push({ indent: indent + 1, obj: item, holder: null, key: null });
+        let v = km[2].trim();
+        if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1);
+        else if (v === "null") v = null;
+        else if (/^-?\d+(\.\d+)?$/.test(v)) v = Number(v);
+        item[km[1]] = v;
+      } else {
+        let v = rest;
+        if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1);
+        parent.holder[parent.key].push(v);
+      }
       continue;
     }
     const m = trimmed.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
@@ -67,6 +80,7 @@ function parseYaml(text, file) {
       let v = valRaw.trim();
       if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1);
       else if (v === "null") v = null;
+      else if (v === "[]") v = [];
       else if (/^-?\d+(\.\d+)?$/.test(v)) v = Number(v);
       parent.obj[key] = v;
     }
@@ -338,6 +352,7 @@ const OPTION_SPEC = {
   resolve: { "--mode": true, "--treatment": true, "--json": false },
   registry: { "--json": false },
   materialize: { "--profile": true, "--mode": true, "--treatment": true, "--check": false, "--json": false },
+  manifest: { "--json": false },
   pageframe: { "--h1-lines": true, "--eyebrow": true, "--subtitle": true, "--support": true, "--footer": true, "--content-height": true, "--json": false },
 };
 function parseOptions(cmd, rest) {
@@ -425,6 +440,8 @@ function materializeSvg(text, tokens) {
 }
 
 const PF_HEADER = ["eyebrow", "h1", "subtitle"];
+const PF_HI = ["ascent-mult", "eyebrow-row-mult", "eyebrow-gap", "collapsed-top-mult",
+  "h1-line-mult", "h1-descent-mult", "subtitle-gap-mult", "subtitle-descent-mult"];
 const PF_GAPS = ["breathing", "content-gap", "content-footer-gap", "footer-safe"];
 const PF_SUPPORT = ["bottom-height", "side-width", "side-gap"];
 const PF_ARROW = ["primary-shaft", "secondary-shaft", "min-shaft", "min-visible-head"];
@@ -446,6 +463,15 @@ function validatePageFrame(doc, preset, P, errors) {
     errors.push(`preset ${preset}: canvas-height must be positive or "fluid"`);
   if (typeof P["outer-margin"] !== "number" || P["outer-margin"] <= 0) errors.push(`preset ${preset}: outer-margin must be positive`);
   num(P.header, PF_HEADER, "header");
+  const hi = P["header-internal"];
+  if (!hi) errors.push(`preset ${preset}: missing "header-internal"`);
+  else {
+    for (const k of PF_HI) {
+      const v = hi[k];
+      if (typeof v !== "number" || Number.isNaN(v) || v < 0) errors.push(`preset ${preset}: header-internal.${k} must be a non-negative number (got ${v})`);
+    }
+    for (const k of Object.keys(hi)) if (!PF_HI.includes(k)) errors.push(`preset ${preset}: header-internal unknown field "${k}"`);
+  }
   num(P.gaps, PF_GAPS.slice(0, 3), "gaps");
   if (typeof P.gaps?.["footer-safe"] !== "number" || P.gaps["footer-safe"] < 0) errors.push(`preset ${preset}: gaps.footer-safe must be a non-negative number`);
   num(P.support, PF_SUPPORT, "support");
@@ -454,7 +480,7 @@ function validatePageFrame(doc, preset, P, errors) {
   const a = P.arrow ?? {};
   if (!(a["min-shaft"] <= a["secondary-shaft"] && a["secondary-shaft"] <= a["primary-shaft"]))
     errors.push(`preset ${preset}: arrow relation must hold min-shaft <= secondary-shaft <= primary-shaft`);
-  for (const k of Object.keys(P)) if (!["orientation", "canvas-width", "canvas-height", "outer-margin", "header", "gaps", "support", "footer-height", "arrow"].includes(k))
+  for (const k of Object.keys(P)) if (!["orientation", "canvas-width", "canvas-height", "outer-margin", "header", "header-internal", "gaps", "support", "footer-height", "arrow"].includes(k))
     errors.push(`preset ${preset}: unknown field "${k}"`);
 }
 
@@ -462,10 +488,13 @@ function computePageFrame(P, opts) {
   const H = P.header, G = P.gaps;
   const lines = opts.h1Lines, ey = opts.eyebrow, sub = opts.subtitle;
   // header cluster (top-relative): absent elements collapse with their gaps
+  const HI = P["header-internal"];
   let h = 0;
-  h += ey ? Math.round(H.eyebrow * 0.85) + Math.round(H.h1 * 1.15) + 6 : Math.round(H.h1 * 0.85) + Math.round(H.h1 * 0.35);
-  h += Math.round(H.h1 * 1.2) * (lines - 1);
-  h += sub ? Math.round(H.subtitle * 1.9) + Math.round(H.subtitle * 0.35) : Math.round(H.h1 * 0.25);
+  h += ey ? Math.round(H.eyebrow * HI["ascent-mult"]) + Math.round(H.h1 * HI["eyebrow-row-mult"]) + HI["eyebrow-gap"]
+          : Math.round(H.h1 * HI["ascent-mult"]) + Math.round(H.h1 * HI["collapsed-top-mult"]);
+  h += Math.round(H.h1 * HI["h1-line-mult"]) * (lines - 1);
+  h += sub ? Math.round(H.subtitle * HI["subtitle-gap-mult"]) + Math.round(H.subtitle * HI["subtitle-descent-mult"])
+           : Math.round(H.h1 * HI["h1-descent-mult"]);
   const m = P["outer-margin"];
   const headerTop = m;
   const headerBottom = m + h;
@@ -552,6 +581,42 @@ function main() {
       console.log(`pageframe ${preset} (${P.orientation}) — header ${out.headerRegion.y}..${out.headerRegion.y + out.headerRegion.h} (${out.headerRegion.h}px), contentBox ${JSON.stringify(out.contentBox)}, footer: ${out.footerRule}`);
     }
     process.exit(0);
+  }
+  if (cmd === "manifest") {
+    const arg = restAll[0] && !restAll[0].startsWith("--") ? restAll[0] : null;
+    const mo = parseOptions("manifest", arg ? restAll.slice(1) : restAll);
+    const mPath = arg ? path.resolve(arg) : path.resolve(here, "..", "references", "types", "manifest.yaml");
+    const errors = [];
+    let doc, digest;
+    try { ({ doc, digest } = readYaml(mPath)); } catch (e) { fail(1, `manifest: ${e.message}`); }
+    if (doc.schema_version !== 1) errors.push(`manifest: schema_version must be 1 (got ${doc.schema_version})`);
+    const packs = doc.typepacks;
+    if (!Array.isArray(packs)) errors.push("manifest: typepacks must be an array");
+    const ids = new Set();
+    const PROFILES = ["exact-parametric", "constrained-layout", "editorial-composition"];
+    const SUPPORTS = ["core", "experimental", "gated"];
+    for (const p of packs || []) {
+      if (typeof p !== "object") { errors.push(`manifest: non-map typepack entry ${JSON.stringify(p)}`); continue; }
+      const id = p.id;
+      if (!id || !/^[a-z0-9][a-z0-9-]*$/.test(String(id))) errors.push(`manifest: invalid typepack id "${id}"`);
+      else if (ids.has(id)) errors.push(`manifest: duplicate typepack id "${id}"`);
+      else ids.add(id);
+      if (!PROFILES.includes(p.profile)) errors.push(`manifest: ${id}: invalid profile "${p.profile}"`);
+      if (!SUPPORTS.includes(p.support)) errors.push(`manifest: ${id}: invalid support "${p.support}"`);
+      if (!p.spec) errors.push(`manifest: ${id}: missing spec`);
+      else {
+        const specPath = path.resolve(path.dirname(mPath), "..", String(p.spec));
+        try { readFileSync(specPath); } catch { errors.push(`manifest: ${id}: spec path not found (${p.spec})`); }
+      }
+      if (!p.selection_signal) errors.push(`manifest: ${id}: missing selection_signal`);
+    }
+    const receipt = { schemaVersion: 1, command: "manifest", digest, count: (packs || []).length, errors, warnings: [] };
+    if (mo["--json"]) console.log(JSON.stringify(receipt, null, 1));
+    else {
+      console.log(`manifest — ${receipt.count} typepack(s), ${errors.length} error(s)`);
+      for (const e of errors) console.log(`  ERROR ${e}`);
+    }
+    process.exit(errors.length ? 1 : 0);
   }
   if (cmd === "materialize") {
     svgArg = restAll[0];

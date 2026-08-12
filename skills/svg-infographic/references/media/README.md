@@ -8,7 +8,7 @@ canonical skin.
 - **These files are not the palette source of truth.** Color SSoT is the versioned
   skin profile `references/skins/current-v1.yaml` consumed through the single
   resolver `scripts/skin.mjs` (see `references/design-kernel.md` §3).
-- Status: **regenerated profile consumer** (2026-08-12, CP4) — H-C header, six
+- Status: **generated composite evidence artifact — regenerated profile consumer** (2026-08-12, CP4). Mixed light/dark/sketch profiles on one canvas: not an ordinary canonical-output surface, so it is not linted under a single `--palette-profile` (each embedded pilot is linted under its own profile). Package-local automatic regeneration (`skin.mjs contact-sheet`) stays reserved; the recolor/contact-sheet contract items stay partial until it lands. — H-C header, six
   materializer-verified pilots (flat light/dark + sketch, KO/EN; dark is a
   deterministic `--mode dark` re-color of the same sources), 11-role tokens,
   normative contrast from the validate receipt, and provenance digests, all

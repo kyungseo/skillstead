@@ -108,7 +108,7 @@ Icon-first is the default: a simple **line icon inside a soft tinted circle** pe
 
 The source-coordinate model limitation described in §4 also applies to card-center checks; confirm rendered ink and optical centering in the final 2× PNG.
 
-- **Recolor:** the `<symbol>`/`<use>` library is an *authoring convenience source only*. Before an SVG counts as canonical, expand each used icon into **concrete paths** carrying `data-stroke-role` (and `data-fill-role` where filled) with direct paint — the materializer performs/refreshes this expansion. Per-instance `currentColor` recoloring never appears in canonical output.
+- **Recolor:** the `<symbol>`/`<use>` library is an *authoring convenience source only*. Before an SVG counts as canonical, expand each used icon into **concrete paths** carrying `data-stroke-role` (and `data-fill-role` where filled) with direct paint — today this expansion is the generator/author's responsibility (the CP4 pilot generator does it); automatic expansion inside the materializer is a named Wave 1 candidate (`svg-infographic-materializer-icon-expansion`). Per-instance `currentColor` recoloring never appears in canonical output.
 - **Style options to offer:** default = soft circular background + thin line icon. Alternatives: no background (line icon only), filled/solid icon, or mono. Stroke width ~1.7–1.9.
 
 Reusable icon library (authoring convenience; all 24×24, `fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"` — the placeholder stroke is replaced with role-annotated direct paint when icons are expanded into canonical output):

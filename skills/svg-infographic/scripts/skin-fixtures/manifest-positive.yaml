@@ -1,0 +1,7 @@
+schema_version: 1
+typepacks:
+  - id: fixture-topology
+    selection_signal: "system components and boundaries"
+    profile: constrained-layout
+    support: experimental
+    spec: skin-fixtures/types/fixture-spec.md
