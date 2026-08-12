@@ -170,7 +170,13 @@ export function checkLayoutFile(file) {
     const contentTop = frame.y + reserve; // title reservation excluded from content bounds
     const kids = els.filter((e) => e.a["data-layout-parent"] === id);
     // title participant: 실측 line-box (중앙 baseline: y ± 0.6×font-size 보수 범위)
-    const titleEl = els.find((e) => e.a["data-layout-title"] === id);
+    const titleEls = els.filter((e) => e.a["data-layout-title"] === id);
+    const titledMode = "data-title-gap" in c.a;
+    if (titledMode && titleEls.length === 0)
+      errors.push(`E-LAYOUT-SCHEMA ${ctx}: titled mode (data-title-gap) declared but no data-layout-title participant — the title-gap contract must not silently disappear`);
+    if (titleEls.length > 1)
+      errors.push(`E-LAYOUT-SCHEMA ${ctx}: ${titleEls.length} data-layout-title participants — exactly one is allowed`);
+    const titleEl = titleEls[0];
     let titleBox = null;
     if (titleEl) {
       const fs = num(titleEl.a["font-size"]);
@@ -189,6 +195,11 @@ export function checkLayoutFile(file) {
       }
     }
     const titleGapMin = field(c.a, "data-title-gap", errors, ctx, { def: null });
+    // titled mode: contentBox(reserve 이후) 기준 top inset 최소값을 명시 계약으로 요구하고,
+    // y-symmetry는 titled container에 적용 불가(제목이 상단을 채우는 의도적 비대칭 — silent 강등이 아닌 명시 계약)
+    const contentPadTop = field(c.a, "data-content-pad-top", errors, ctx, { required: titledMode, def: null });
+    if (titledMode && symAxes.includes("y"))
+      errors.push(`E-LAYOUT-SCHEMA ${ctx}: y-symmetry is not applicable to a titled container — declare data-content-pad-top + data-title-gap instead (design-kernel §7a)`);
     if (kids.length !== declaredCount)
       errors.push(`E-LAYOUT-COUNT ${ctx}: declared ${declaredCount} children, found ${kids.length} annotated — fail-closed`);
     const geo = { left: [], right: [], top: [], bottom: [] };
@@ -207,7 +218,7 @@ export function checkLayoutFile(file) {
           errors.push(`E-LAYOUT-TOUCH ${ctx}/${kid}: visual ${side} edge touches or crosses the parent edge (${r1(vi[side])}px)`);
         else if (vi[side] < visPad)
           errors.push(`E-LAYOUT-VISPAD ${ctx}/${kid}: visual ${side} clearance ${r1(vi[side])}px < floor ${visPad}px`);
-        if (gi[side] < minPad - 0.5)
+        if (gi[side] < minPad - 0.5 && !(side === "top" && titledMode))
           errors.push(`E-LAYOUT-PAD ${ctx}/${kid}: ${side} inset ${r1(gi[side])}px < declared min padding ${minPad}px`);
         geo[side].push(gi[side]); vis[side].push(vi[side]);
       }
@@ -215,6 +226,8 @@ export function checkLayoutFile(file) {
         errors.push(`E-LAYOUT-RESERVE ${ctx}/${kid}: visual top ${r1(k.vis.y)} enters the title reservation (content starts at ${r1(contentTop)}) — title and content collide`);
       if (titleBox && titleGapMin != null && k.vis.y - titleBox.bottom < titleGapMin - 0.05)
         errors.push(`E-LAYOUT-TITLE-GAP ${ctx}/${kid}: measured title→content visual gap ${r1(k.vis.y - titleBox.bottom)}px < preset minimum ${titleGapMin}px`);
+      if (contentPadTop != null && k.geom.y - contentTop < contentPadTop - 0.5)
+        errors.push(`E-LAYOUT-PAD ${ctx}/${kid}: contentBox-adjusted top inset ${r1(k.geom.y - contentTop)}px (contentTop ${r1(contentTop)}) < declared data-content-pad-top ${contentPadTop}px`);
       kidRecs.push({ id: kid, geom: k.geom,
         insets: { geometric: { left: r1(gi.left), right: r1(gi.right), top: r1(gi.top), bottom: r1(gi.bottom) },
                   visual: { left: r1(vi.left), right: r1(vi.right), top: r1(vi.top), bottom: r1(vi.bottom) },
@@ -236,8 +249,17 @@ export function checkLayoutFile(file) {
     receipt.containers.push({ id, frame, contentTop: r1(contentTop), reserveTop: reserve, minPad, minVisualPad: visPad,
       bindingInsets: { geometric: { left: r1(bind(geo, "left") ?? -1), right: r1(bind(geo, "right") ?? -1), top: r1(bind(geo, "top") ?? -1), bottom: r1(bind(geo, "bottom") ?? -1) },
                        visual: { left: r1(bind(vis, "left") ?? -1), right: r1(bind(vis, "right") ?? -1), top: r1(bind(vis, "top") ?? -1), bottom: r1(bind(vis, "bottom") ?? -1) } },
-      symmetry: sym, titleBounds: titleBox ? { top: r1(titleBox.top), bottom: r1(titleBox.bottom) } : null,
+      symmetry: sym, titledMode, contentPadTop,
+      contentInsets: kids.length ? { topFromContentTop: r1(Math.min(...kids.filter((k) => !k.uv && k.geom).map((k) => k.geom.y - contentTop))),
+                                     bottomFromFrame: r1(bind(geo, "bottom") ?? -1) } : null,
+      titleBounds: titleBox ? { top: r1(titleBox.top), bottom: r1(titleBox.bottom) } : null,
       titleGapMin, children: kidRecs });
+  }
+
+  // title이 미선언 container를 참조하면 schema error (orphan title)
+  for (const e of els.filter((x) => x.a["data-layout-title"])) {
+    if (!containers.has(e.a["data-layout-title"]))
+      errors.push(`E-LAYOUT-SCHEMA title participant references undeclared container "${e.a["data-layout-title"]}"`);
   }
 
   // ---- groups (duplicate id = error; distribution/axis/count required) ----

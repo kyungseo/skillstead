@@ -91,6 +91,11 @@ test("P1-4 data-cluster-at 미선언은 schema error (containment만으로 원�
 });
 test("P1-2 title이 reservation을 넘으면 error", () => neg("ln-title-overflow.svg", /E-LAYOUT-RESERVE .*title visual bottom .*overflows the reservation/));
 test("P1-2 실측 title→content gap 미달은 error", () => neg("ln-title-gap.svg", /E-LAYOUT-TITLE-GAP .*measured title→content visual gap/));
+test("P1-2 titled mode인데 title participant가 없으면 error", () => neg("ln-title-zero.svg", /E-LAYOUT-SCHEMA .*titled mode .*no data-layout-title participant/));
+test("P1-2 title participant 중복은 error", () => neg("ln-title-dup.svg", /E-LAYOUT-SCHEMA .*2 data-layout-title participants/));
+test("P1-2 미선언 container를 참조하는 title은 error", () => neg("ln-title-orphan.svg", /E-LAYOUT-SCHEMA title participant references undeclared container "ghost"/));
+test("P1-3 titled container의 y-symmetry 선언은 모순으로 거부", () => neg("ln-titled-ysym.svg", /E-LAYOUT-SCHEMA .*y-symmetry is not applicable to a titled container/));
+test("P1-3 contentBox 기준 top inset 미달은 error", () => neg("ln-content-pad.svg", /E-LAYOUT-PAD .*contentBox-adjusted top inset .*< declared data-content-pad-top/));
 test("P2 unknown CLI option은 exit 2", () => {
   const r = run(["--mdoe", path.join(FIX, "lp-positive.svg")]);
   assert.equal(r.code, 2);

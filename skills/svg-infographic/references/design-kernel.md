@@ -284,8 +284,18 @@ tiers: the **geometric** inset (rect bounds) must meet the declared min padding,
 and the **visual** bounds (rect + stroke/2 + conservative shadow range:
 `abs(offset) + 3×stdDeviation`, displacement scale) must never touch the parent
 edge and must keep the visual clearance floor (`data-min-visual-pad`, default 8).
-Titled containers compare insets against the reserve-adjusted content top — the
-comparison target is the contentBox, not the raw frame. Declared symmetry axes
+Titled containers (declared by `data-title-gap`) verify the vertical axis as two
+separate regions, not one symmetric pair: the **title region** (title line-box
+fits the reservation; measured title→content visual gap ≥ the preset
+`data-title-gap`) and the **content region** (`contentTop → first content`
+geometric inset ≥ the required `data-content-pad-top`, replacing the raw-frame
+top min-pad check; `last content → frame bottom` still meets min-pad). The
+receipt records both honestly — `contentInsets.topFromContentTop` and
+`contentInsets.bottomFromFrame` alongside the raw-frame binding insets.
+y-symmetry is **not applicable** to a titled container (declaring it is a schema
+error, not a silent downgrade): the title intentionally fills the top, so the
+vertical contract is reserve + title-gap + content-pad-top + bottom min-pad.
+Untitled containers keep the full x/y symmetry contract. Declared symmetry axes
 must balance within tolerance; `data-layout-count` pins the child count
 fail-closed. Containers nest: a nested container is checked twice — as a child of
 its parent and as a parent of its own children — and any level failing fails the

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300"><defs><filter id="sh" x="-12%" y="-12%" width="124%" height="124%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.1"/></filter></defs>
+<rect data-layout-container="p" data-min-pad="16" data-layout-count="1" data-reserve-top="30" data-title-gap="8" data-content-pad-top="10" x="20" y="20" width="360" height="260" fill="none" stroke="#888888"/>
+<text data-layout-title="p" x="32" y="38" font-size="14" dominant-baseline="central">Panel title</text>
+<rect data-layout-parent="p" x="40" y="54" width="200" height="60" fill="#EEEEEE"/>
+</svg>

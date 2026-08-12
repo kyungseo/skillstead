@@ -46,7 +46,7 @@
   <path d="M360 208 V228" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m0)"/>
 
   <!-- VNet frame -->
-  <rect data-title-gap="4" x="36" y="236" width="648" height="554" rx="18" data-fill-role="external-fill" fill="#F9F9F9" data-stroke-role="external-line" stroke="#B9BCC1" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <rect data-title-gap="4" data-content-pad-top="12" x="36" y="236" width="648" height="554" rx="18" data-fill-role="external-fill" fill="#F9F9F9" data-stroke-role="external-line" stroke="#B9BCC1" stroke-width="1.5" stroke-dasharray="7 5"/>
   <text font-size="14" font-weight="700" letter-spacing="0.04em" x="60" y="256" dominant-baseline="central" data-fill-role="muted" fill="#636A75">Azure VNet</text>
 
   <!-- application gateway -->
@@ -64,7 +64,7 @@
   <path d="M360 430 V450" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m0)"/>
 
   <!-- AKS cluster -->
-  <rect data-title-gap="4" x="68" y="458" width="584" height="210" rx="14" data-fill-role="compute-band" fill="#F7FBF9" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
+  <rect data-title-gap="4" data-content-pad-top="12" x="68" y="458" width="584" height="210" rx="14" data-fill-role="compute-band" fill="#F7FBF9" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
   <text font-size="14" font-weight="700" letter-spacing="0.04em" x="96" y="478" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">AKS 클러스터</text>
 
   <rect x="100" y="500" width="236" height="44" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
@@ -146,7 +146,7 @@
   <path d="M360 208 V228" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m1)"/>
 
   <!-- VNet frame -->
-  <rect data-title-gap="4" x="36" y="236" width="648" height="554" rx="18" data-fill-role="external-fill" fill="#F9F9F9" data-stroke-role="external-line" stroke="#B9BCC1" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <rect data-title-gap="4" data-content-pad-top="12" x="36" y="236" width="648" height="554" rx="18" data-fill-role="external-fill" fill="#F9F9F9" data-stroke-role="external-line" stroke="#B9BCC1" stroke-width="1.5" stroke-dasharray="7 5"/>
   <text font-size="14" font-weight="700" letter-spacing="0.04em" x="60" y="256" dominant-baseline="central" data-fill-role="muted" fill="#636A75">Azure VNet</text>
 
   <!-- application gateway -->
@@ -164,7 +164,7 @@
   <path d="M360 430 V450" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m1)"/>
 
   <!-- AKS cluster -->
-  <rect data-title-gap="4" x="68" y="458" width="584" height="210" rx="14" data-fill-role="compute-band" fill="#F7FBF9" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
+  <rect data-title-gap="4" data-content-pad-top="12" x="68" y="458" width="584" height="210" rx="14" data-fill-role="compute-band" fill="#F7FBF9" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
   <text font-size="14" font-weight="700" letter-spacing="0.04em" x="96" y="478" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">AKS cluster</text>
 
   <rect x="100" y="500" width="236" height="44" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
@@ -246,7 +246,7 @@
   <path d="M360 208 V228" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m2)"/>
 
   <!-- VNet frame -->
-  <rect data-title-gap="4" x="36" y="236" width="648" height="554" rx="18" data-fill-role="external-fill" fill="#24272D" data-stroke-role="external-line" stroke="#61676E" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <rect data-title-gap="4" data-content-pad-top="12" x="36" y="236" width="648" height="554" rx="18" data-fill-role="external-fill" fill="#24272D" data-stroke-role="external-line" stroke="#61676E" stroke-width="1.5" stroke-dasharray="7 5"/>
   <text font-size="14" font-weight="700" letter-spacing="0.04em" x="60" y="256" dominant-baseline="central" data-fill-role="muted" fill="#9EA6B0">Azure VNet</text>
 
   <!-- application gateway -->
@@ -264,7 +264,7 @@
   <path d="M360 430 V450" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m2)"/>
 
   <!-- AKS cluster -->
-  <rect data-title-gap="4" x="68" y="458" width="584" height="210" rx="14" data-fill-role="compute-band" fill="#202E2E" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
+  <rect data-title-gap="4" data-content-pad-top="12" x="68" y="458" width="584" height="210" rx="14" data-fill-role="compute-band" fill="#202E2E" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
   <text font-size="14" font-weight="700" letter-spacing="0.04em" x="96" y="478" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">AKS 클러스터</text>
 
   <rect x="100" y="500" width="236" height="44" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
@@ -346,7 +346,7 @@
   <path d="M360 208 V228" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m3)"/>
 
   <!-- VNet frame -->
-  <rect data-title-gap="4" x="36" y="236" width="648" height="554" rx="18" data-fill-role="external-fill" fill="#24272D" data-stroke-role="external-line" stroke="#61676E" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <rect data-title-gap="4" data-content-pad-top="12" x="36" y="236" width="648" height="554" rx="18" data-fill-role="external-fill" fill="#24272D" data-stroke-role="external-line" stroke="#61676E" stroke-width="1.5" stroke-dasharray="7 5"/>
   <text font-size="14" font-weight="700" letter-spacing="0.04em" x="60" y="256" dominant-baseline="central" data-fill-role="muted" fill="#9EA6B0">Azure VNet</text>
 
   <!-- application gateway -->
@@ -364,7 +364,7 @@
   <path d="M360 430 V450" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m3)"/>
 
   <!-- AKS cluster -->
-  <rect data-title-gap="4" x="68" y="458" width="584" height="210" rx="14" data-fill-role="compute-band" fill="#202E2E" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
+  <rect data-title-gap="4" data-content-pad-top="12" x="68" y="458" width="584" height="210" rx="14" data-fill-role="compute-band" fill="#202E2E" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
   <text font-size="14" font-weight="700" letter-spacing="0.04em" x="96" y="478" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">AKS cluster</text>
 
   <rect x="100" y="500" width="236" height="44" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
@@ -450,7 +450,7 @@
   <path d="M360 208 V228" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m4)" filter="url(#rline-m4)"/>
 
   <!-- VNet frame -->
-  <rect data-title-gap="4" x="36" y="236" width="648" height="554" rx="18" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" opacity="0.72" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <rect data-title-gap="4" data-content-pad-top="12" x="36" y="236" width="648" height="554" rx="18" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" opacity="0.72" stroke-width="1.5" stroke-dasharray="7 5"/>
   <text font-size="14" font-weight="700" letter-spacing="0.04em" x="60" y="256" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72">Azure VNet</text>
 
   <!-- application gateway -->
@@ -468,7 +468,7 @@
   <path d="M360 430 V450" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m4)" filter="url(#rline-m4)"/>
 
   <!-- AKS cluster -->
-  <rect data-title-gap="4" x="68" y="458" width="584" height="210" rx="14" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
+  <rect data-title-gap="4" data-content-pad-top="12" x="68" y="458" width="584" height="210" rx="14" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
   <text font-size="14" font-weight="700" letter-spacing="0.04em" x="96" y="478" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">AKS 클러스터</text>
 
   <rect x="100" y="500" width="236" height="44" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
@@ -554,7 +554,7 @@
   <path d="M360 208 V228" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m5)" filter="url(#rline-m5)"/>
 
   <!-- VNet frame -->
-  <rect data-title-gap="4" x="36" y="236" width="648" height="554" rx="18" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" opacity="0.72" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <rect data-title-gap="4" data-content-pad-top="12" x="36" y="236" width="648" height="554" rx="18" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" opacity="0.72" stroke-width="1.5" stroke-dasharray="7 5"/>
   <text font-size="14" font-weight="700" letter-spacing="0.04em" x="60" y="256" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72">Azure VNet</text>
 
   <!-- application gateway -->
@@ -572,7 +572,7 @@
   <path d="M360 430 V450" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m5)" filter="url(#rline-m5)"/>
 
   <!-- AKS cluster -->
-  <rect data-title-gap="4" x="68" y="458" width="584" height="210" rx="14" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
+  <rect data-title-gap="4" data-content-pad-top="12" x="68" y="458" width="584" height="210" rx="14" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
   <text font-size="14" font-weight="700" letter-spacing="0.04em" x="96" y="478" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">AKS cluster</text>
 
   <rect x="100" y="500" width="236" height="44" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
