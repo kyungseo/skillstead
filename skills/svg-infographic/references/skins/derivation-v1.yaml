@@ -21,11 +21,8 @@ alias-sources:
   external: muted      # external/container frames
   icon: focus          # icon-circle tint family
 
-# The single non-foundation anchor allowed by the kernel. Bounded: one hue,
-# used only through the api alias.
-secondary:
-  light: "#5B54A8"
-  dark-lighten-toward-white: 0.35
+# "secondary" resolves to the palette's anchors.secondary-{mode} value.
+# Derivation owns mappings and formulas only — no authored hex values here.
 
 # Derivation formulas per mode. fill/ink are derived from the alias line color.
 derive:

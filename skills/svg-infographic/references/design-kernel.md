@@ -9,8 +9,12 @@ Owner neutral-hierarchy adjustment*, 2026-08-12):
 
 ![Approved svg-infographic canonical skin](media/canonical-skin-contact-sheet.png)
 
-[Editable SVG](media/canonical-skin-contact-sheet.svg) — both files are generated
-review artifacts. **They are not the palette source of truth** (see §3).
+[Editable SVG](media/canonical-skin-contact-sheet.svg) — both files are an **approved
+snapshot, synchronized with the `current-v1` profile**. They are not the palette
+source of truth (§3), and they become regenerated profile consumers once the recolor
+pipeline (`skin.mjs contact-sheet`, reserved) lands. The snapshot SVG references a
+locally installed handwriting font for its sketch slot (no `@font-face` embed); the
+PNG carries the approved rendering.
 
 ## 1. Design kernel
 
@@ -68,7 +72,12 @@ carried together by lightness, shape and labels).
 Color values live in exactly one place: **versioned skin profiles** under
 `references/skins/`, interpreted by the **single resolver** `scripts/skin.mjs`.
 
-- `skins/current-v1.yaml` — the approved palette (light + dark, 11 roles).
+- `skins/registry.yaml` — selects the CURRENT palette/derivation/overlay; switching
+  to an approved candidate edits only this file (version files stay immutable).
+- `skins/current-v1.yaml` — the approved palette (light + dark, 11 roles + the
+  bounded `anchors.secondary-*` hue consumed by the api alias).
+- `skins/legacy-v0.8.yaml` — frozen hex allowlist for the preserved v0.8.0 release
+  graphic (predates the role kernel; palette validation only).
 - `skins/sketch-overlay-v1.yaml` — sketch surface-treatment overlay (paper/ink/
   highlight + rough-stroke treatment). Sketch is an orthogonal overlay, not a palette.
 - `skins/derivation-v1.yaml` — alias mapping and derivation ratios. Generators must
@@ -76,14 +85,22 @@ Color values live in exactly one place: **versioned skin profiles** under
 
 ```bash
 node scripts/skin.mjs validate references/skins/current-v1.yaml
-node scripts/skin.mjs resolve  references/skins/current-v1.yaml --mode dark --treatment sketch --json
+node scripts/skin.mjs resolve  references/skins/current-v1.yaml --mode light --treatment sketch --json
+node scripts/skin.mjs registry
 ```
 
-Resolution model: `palette × mode(light|dark) × treatment(flat|sketch)` — every
-combination resolves without duplicate definitions and emits a receipt (profile
-digests, resolved-token digest, contrast matrix). Candidate palettes use
-`status: candidate` and a single shallow `extends`; the `current` pointer moves only
-after owner approval. Role add/remove is a kernel migration, not a profile edit.
+Resolution model: `palette × mode × treatment` without duplicate definitions, with
+a receipt (profile digests, resolved-token digest, selected-mode contrast matrix).
+Wave 0 supported combinations — anything else is rejected fail-closed:
+
+| treatment | light | dark |
+| --- | --- | --- |
+| flat | ✓ | ✓ |
+| sketch | ✓ | ✗ (needs a mode-aware overlay + contact-sheet approval) |
+
+Candidate palettes use `status: candidate` and a single shallow `extends`; the
+`current` pointer moves only in `registry.yaml` after owner approval. Role
+add/remove is a kernel migration, not a profile edit.
 
 ## 4. Typography (canonical, owner-approved 2026-08-12)
 
@@ -95,13 +112,15 @@ after owner approval. Role add/remove is a kernel migration, not a profile edit.
   their receipt; KO/EN fixtures verify wrapping, containment and geometry parity.
 - A locally bundled Inter may later become an *optional typography profile*, kept
   separate from palette profiles. Until then typography does not fork.
-- Sketch overlay embeds a subset OFL handwriting font (see `sketch.md`).
+- Shipped sketch artifacts subset-embed an OFL handwriting font (`sketch.md`); review
+  snapshots that merely reference a locally installed font must say so.
 
 ## 5. Regeneration & provenance
 
-- The contact sheet above is a consumer of `current-v1`; regenerate it from the
-  profile (generator lineage: Work FEAT-20260812-001 review evidence; a
-  `skin.mjs contact-sheet` subcommand is reserved for the recolor pipeline).
+- The contact sheet above is an approved snapshot synchronized with `current-v1`;
+  it becomes a regenerated profile consumer when the recolor pipeline lands
+  (`skin.mjs contact-sheet`, reserved — generator lineage: Work FEAT-20260812-001
+  review evidence).
 - Resolver receipts reserve the provenance identity shared by future SVG
   `<metadata>`, sidecar receipts and PNG `iTXt`: kernel version, palette id/version,
   mode, treatment, source digest, resolved-token digest.

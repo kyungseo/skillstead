@@ -8,8 +8,11 @@ canonical skin.
 - **These files are not the palette source of truth.** Color SSoT is the versioned
   skin profile `references/skins/current-v1.yaml` consumed through the single
   resolver `scripts/skin.mjs` (see `references/design-kernel.md` §3).
-- The PNG is a canonical-renderer (`scripts/render.mjs`) 2× output; the SVG is the
-  editable source.
+- Status: **approved snapshot, synchronized with `current-v1`** — not yet a
+  regenerated profile consumer (promotion happens when `skin.mjs contact-sheet`
+  lands). The PNG is a canonical-renderer (`scripts/render.mjs`) 2× output; the SVG
+  is the editable source. The SVG's sketch slot references a locally installed
+  handwriting font (no `@font-face` embed) — the PNG carries the approved rendering.
 - Regeneration: from the profile via the recolor pipeline (a `skin.mjs contact-sheet`
   subcommand is reserved); generator lineage for this edition is preserved in Work
   `FEAT-20260812-001` review evidence.

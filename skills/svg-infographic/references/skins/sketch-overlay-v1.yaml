@@ -10,7 +10,7 @@ id: sketch-overlay-v1
 kind: surface-treatment
 extends: null
 status: current
-description: Tidy hand-drawn overlay — warm paper, single ink, highlighter accent, rough displacement strokes, embedded handwriting font.
+description: Tidy hand-drawn overlay — warm paper, single ink, highlighter accent, rough displacement strokes. Wave 0 supports light mode only (dark x sketch is rejected until visually approved).
 
 tokens:
   paper: "#FAF4EB"
@@ -23,4 +23,4 @@ treatment:
   # authoring E-FILTERBOUNDS).
   rough-box: "feTurbulence fractalNoise baseFrequency=0.045 numOctaves=3 + feDisplacementMap scale=3"
   rough-line: "feTurbulence fractalNoise baseFrequency=0.09 numOctaves=2 + feDisplacementMap scale=3"
-  handwriting-font: "subset-embedded OFL handwriting font (Nanum Pen Script default; see references/sketch.md)"
+  handwriting-font: "OFL handwriting font (Nanum Pen Script default). Shipped sketch artifacts must subset-embed it (references/sketch.md); review artifacts that merely reference a locally installed font must say so."

@@ -24,6 +24,12 @@ light:
   danger: "#B45A50"
   on-focus: "#FFFFFF"
 
+anchors:
+  # Bounded secondary anchor (api family). Owned by the palette so candidate
+  # profiles recolor the api family too; derivation only maps and derives.
+  secondary-light: "#5B54A8"
+  secondary-dark: "#9490C6"
+
 dark:
   canvas: "#16191E"
   surface: "#20242B"
