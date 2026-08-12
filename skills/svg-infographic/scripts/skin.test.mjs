@@ -283,6 +283,46 @@ test("pageframe regions never overlap (content/support/footer non-overlap fixtur
   }
 });
 
+// --- FEAT-20260812-002 CP2: typography profile SSoT ----------------------------
+test("typography: canonical profile validates (fail-closed schema)", () => {
+  const r = run(["typography"]);
+  assert.equal(r.code, 0, r.out);
+});
+test("typography: registry가 current.typography를 선택한다", () => {
+  const r = run(["registry", "--json"]);
+  assert.equal(JSON.parse(r.out).errors.length, 0, r.out);
+});
+test("typography: synthetic 허용 시도는 거부", () => {
+  const r = run(["typography", path.join(FIX, "typography", "typo-synthetic.yaml")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /synthetic must be "forbidden"/);
+});
+test("typography: 비수치 weight 거부", () => {
+  const r = run(["typography", path.join(FIX, "typography", "typo-bad-weight.yaml")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /weights must be a non-empty list of numeric weights/);
+});
+test("typography: unknown field 거부", () => {
+  const r = run(["typography", path.join(FIX, "typography", "typo-unknown-field.yaml")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /unknown field "letter-spacing"/);
+});
+test("typography: locale 누락 거부", () => {
+  const r = run(["typography", path.join(FIX, "typography", "typo-missing-locale.yaml")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /missing locale "en"/);
+});
+test("typography: resolve receipt에 결정적 stack이 동봉된다", () => {
+  const r = run(["resolve", "current", "--mode", "light", "--treatment", "sketch", "--json"]);
+  const j = JSON.parse(r.out);
+  assert.equal(j.typography.stack, '"Nanum Pen Script", Pretendard, sans-serif');
+  assert.equal(j.typography.weightPolicy, "normalize-400");
+  assert.equal(j.typography.synthetic, "forbidden");
+  assert.ok(j.typography.profileDigest);
+  const r2 = run(["resolve", "current", "--mode", "light", "--json"]);
+  assert.equal(JSON.parse(r2.out).typography.stack.startsWith("Pretendard, Inter"), true);
+});
+
 // --- CP5-R1-F3: TypePack manifest validator ------------------------------------
 test("manifest: shipped (empty) manifest validates", () => {
   const r = run(["manifest"]);

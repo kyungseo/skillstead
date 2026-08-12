@@ -1,0 +1,52 @@
+# Typography profile — single SSoT for font families, faces, and asset policy.
+# Sizes and line rhythm stay owned by the PageFrame scale bands (pageframe-v1);
+# this profile owns family/face/weight/style, fallback order, synthetic policy,
+# asset/embed policy and license evidence. Selected through registry.yaml
+# (current.typography). Independent axis from palette/treatment profiles.
+schema_version: 1
+id: typography-v1
+kind: typography
+extends: null
+status: current
+remote-fonts: forbidden
+letter-spacing: 0.1
+treatments:
+  flat:
+    locales:
+      ko:
+        face: Pretendard
+        weights: [400, 700]
+        styles: [normal]
+      en:
+        face: Pretendard
+        weights: [400, 700]
+        styles: [normal]
+    fallback: [Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif]
+    synthetic: forbidden
+    asset:
+      policy: system
+      embed: none
+    license:
+      id: OFL-1.1
+      rfn: []
+  sketch:
+    # sketch face is under audition (FEAT-20260812-002) — baseline Nanum Pen Script
+    # holds the slot until the owner selection lands (CP3 updates face + asset).
+    locales:
+      ko:
+        face: Nanum Pen Script
+        weights: [400]
+        styles: [normal]
+      en:
+        face: Nanum Pen Script
+        weights: [400]
+        styles: [normal]
+    fallback: [Pretendard, sans-serif]
+    synthetic: forbidden
+    weight-policy: normalize-400
+    asset:
+      policy: bundled-on-selection
+      embed: subset
+    license:
+      id: OFL-1.1
+      rfn: [Nanum, Naver Nanum, NanumGothic, Naver]

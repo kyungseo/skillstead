@@ -157,22 +157,67 @@ function readYaml(p) {
 }
 
 const REGISTRY_SLOTS = [
-  ["current.palette", "palette", "current"],
-  ["current.derivation", "derivation", "current"],
-  ["overlays.sketch", "surface-treatment", "current"],
-  ["frozen.legacy", "frozen-allowlist", "frozen"],
+  ["current.palette", "palette", "current", null],
+  ["current.derivation", "derivation", "current", null],
+  ["current.typography", "typography", "current", "typography"],
+  ["overlays.sketch", "surface-treatment", "current", null],
+  ["frozen.legacy", "frozen-allowlist", "frozen", null],
 ];
+const TYPO_TREATMENTS = ["flat", "sketch"];
+const TYPO_LOCALES = ["ko", "en"];
+function loadTypography(errors, overridePath = null) {
+  const p = overridePath ? path.resolve(overridePath) : path.resolve(skinsDir, "..", "typography", "typography-v1.yaml");
+  let doc, digest;
+  try { ({ doc, digest } = readYaml(p)); } catch { errors.push("typography: typography-v1.yaml not found in references/typography/"); return null; }
+  validateIdentity(doc, "typography", "typography-v1", errors);
+  if (doc["remote-fonts"] !== "forbidden") errors.push('typography: remote-fonts must be "forbidden"');
+  const ROOT = ["schema_version", "id", "kind", "extends", "status", "remote-fonts", "treatments"];
+  for (const k of Object.keys(doc)) if (!ROOT.includes(k)) errors.push(`typography: unknown field "${k}"`);
+  const T = doc.treatments ?? {};
+  for (const t of TYPO_TREATMENTS) if (!(t in T)) errors.push(`typography: missing treatment "${t}"`);
+  for (const [t, cfg] of Object.entries(T)) {
+    if (!TYPO_TREATMENTS.includes(t)) { errors.push(`typography: unknown treatment "${t}"`); continue; }
+    const TK = ["locales", "fallback", "synthetic", "weight-policy", "asset", "license"];
+    for (const k of Object.keys(cfg)) if (!TK.includes(k)) errors.push(`typography: ${t}: unknown field "${k}"`);
+    if (cfg.synthetic !== "forbidden") errors.push(`typography: ${t}: synthetic must be "forbidden" (synthetic bold/italic is never allowed)`);
+    if ("weight-policy" in cfg && cfg["weight-policy"] !== "normalize-400") errors.push(`typography: ${t}: unknown weight-policy "${cfg["weight-policy"]}"`);
+    if (!Array.isArray(cfg.fallback) || cfg.fallback.length === 0 || cfg.fallback.some((f) => typeof f !== "string" || !f.trim()))
+      errors.push(`typography: ${t}: fallback must be a non-empty family list`);
+    for (const loc of TYPO_LOCALES) {
+      const L = cfg.locales?.[loc];
+      if (!L) { errors.push(`typography: ${t}: missing locale "${loc}"`); continue; }
+      for (const k of Object.keys(L)) if (!["face", "weights", "styles"].includes(k)) errors.push(`typography: ${t}.${loc}: unknown field "${k}"`);
+      if (typeof L.face !== "string" || !L.face.trim()) errors.push(`typography: ${t}.${loc}: face must be a non-empty string`);
+      if (!Array.isArray(L.weights) || L.weights.length === 0 || L.weights.some((w) => !Number.isFinite(Number(w)) || Number(w) < 1 || Number(w) > 1000))
+        errors.push(`typography: ${t}.${loc}: weights must be a non-empty list of numeric weights`);
+      if (!Array.isArray(L.styles) || L.styles.some((st) => !["normal", "italic"].includes(st)))
+        errors.push(`typography: ${t}.${loc}: styles must be within normal/italic`);
+    }
+    const A = cfg.asset ?? {};
+    if (!["system", "bundled", "bundled-on-selection"].includes(A.policy)) errors.push(`typography: ${t}: asset.policy must be system|bundled|bundled-on-selection`);
+    if (!["none", "subset"].includes(A.embed)) errors.push(`typography: ${t}: asset.embed must be none|subset`);
+    const Li = cfg.license ?? {};
+    if (typeof Li.id !== "string" || !Li.id.trim()) errors.push(`typography: ${t}: license.id required`);
+    if (!Array.isArray(Li.rfn)) errors.push(`typography: ${t}: license.rfn must be a list (empty when no Reserved Font Name is declared)`);
+  }
+  return { doc, digest };
+}
+// 결정적 stack 직렬화 — face + fallback을 CSS 규칙(공백 포함 family만 quote)으로
+function serializeStack(face, fallback) {
+  return [face, ...fallback].map((f) => /[ ]/.test(f) && !f.startsWith("-") ? `"${f}"` : f).join(", ");
+}
 function loadRegistry(errors) {
   let reg = null, digest = null;
   try { const r = readYaml(path.join(skinsDir, "registry.yaml")); reg = r.doc; digest = r.digest; }
   catch { errors.push("registry.yaml not found in references/skins/"); return null; }
   const get = (dotted) => dotted.split(".").reduce((o, k) => o?.[k], reg);
   const selected = {};
-  for (const [slot, kind, status] of REGISTRY_SLOTS) {
+  for (const [slot, kind, status, sub] of REGISTRY_SLOTS) {
     const id = get(slot);
     if (!id) { errors.push(`registry: missing ${slot} selection`); continue; }
+    const dir = sub ? path.resolve(skinsDir, "..", sub) : skinsDir;
     try {
-      const { doc } = readYaml(path.join(skinsDir, `${id}.yaml`));
+      const { doc } = readYaml(path.join(dir, `${id}.yaml`));
       if (doc.id !== id) errors.push(`registry: ${slot} -> ${id}.yaml has id "${doc.id}"`);
       if (doc.kind !== kind) errors.push(`registry: ${slot} -> ${id} kind "${doc.kind}" (expected ${kind})`);
       if (doc.status !== status) errors.push(`registry: ${slot} -> ${id} status "${doc.status}" (expected ${status})`);
@@ -354,6 +399,7 @@ const OPTION_SPEC = {
   registry: { "--json": false },
   materialize: { "--profile": true, "--mode": true, "--treatment": true, "--check": false, "--json": false },
   manifest: { "--json": false },
+  typography: { "--json": false },
   pageframe: { "--h1-lines": true, "--eyebrow": true, "--subtitle": true, "--support": true, "--footer": true, "--content-height": true, "--json": false },
 };
 function parseOptions(cmd, rest) {
@@ -584,6 +630,26 @@ function main() {
     }
     process.exit(0);
   }
+  if (cmd === "typography") {
+    const tArg = restAll[0] && !restAll[0].startsWith("--") ? restAll[0] : null;
+    const to = parseOptions("typography", tArg ? restAll.slice(1) : restAll);
+    const errors = [];
+    const typo = loadTypography(errors, tArg);
+    const receipt = { schemaVersion: 1, command: "typography", kernelVersion: "wave0-cp2",
+      profileDigest: typo?.digest ?? null,
+      treatments: typo && !errors.length ? Object.fromEntries(Object.entries(typo.doc.treatments).map(([t, cfg]) => [t, {
+        ko: cfg.locales.ko.face, en: cfg.locales.en.face,
+        weights: cfg.locales.ko.weights, weightPolicy: cfg["weight-policy"] ?? null,
+        stack: serializeStack(cfg.locales.ko.face, cfg.fallback),
+        asset: cfg.asset, rfn: cfg.license.rfn }])) : null,
+      errors, warnings: [] };
+    if (to["--json"]) console.log(JSON.stringify(receipt, null, 1));
+    else {
+      console.log(`typography — ${errors.length} error(s)` + (receipt.treatments ? ` · flat=${receipt.treatments.flat.ko} sketch=${receipt.treatments.sketch.ko}` : ""));
+      for (const e of errors) console.log(`  ERROR ${e}`);
+    }
+    process.exit(errors.length ? 1 : 0);
+  }
   if (cmd === "manifest") {
     const arg = restAll[0] && !restAll[0].startsWith("--") ? restAll[0] : null;
     const mo = parseOptions("manifest", arg ? restAll.slice(1) : restAll);
@@ -787,6 +853,16 @@ function main() {
   receipt.contrast = contrastMatrix(ctx.prof, [mode]); // always in the resolve receipt
   receipt.tokens = tokens;
   receipt.resolvedDigest = sha(JSON.stringify(tokens));
+  // typography는 독립 축이지만 소비자가 한 번에 받도록 resolve receipt에 동봉한다
+  const typoErrors = [];
+  const typo = loadTypography(typoErrors);
+  if (typoErrors.length) { receipt.errors.push(...typoErrors); printReceipt(receipt, opts["--json"]); process.exit(1); }
+  const tcfg = typo.doc.treatments[treatment];
+  receipt.typography = { profileDigest: typo.digest, treatment,
+    locales: { ko: tcfg.locales.ko, en: tcfg.locales.en },
+    fallback: tcfg.fallback, weightPolicy: tcfg["weight-policy"] ?? null,
+    synthetic: tcfg.synthetic,
+    stack: serializeStack(tcfg.locales.ko.face, tcfg.fallback) };
   printReceipt(receipt, opts["--json"]);
   process.exit(0);
 }
