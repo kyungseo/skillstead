@@ -1,0 +1,26 @@
+# Sketch surface-treatment overlay — NOT a palette profile.
+# Sketch changes surface treatment (paper, rough strokes, handwriting font), so it is
+# modeled as an orthogonal overlay composed with a palette profile by the resolver:
+#   e.g. current-v1 + light + sketch
+# Owner adjustment (2026-08-12): paper warmed one step from candidate C, below candidate
+# B's cream level.
+
+schema_version: 1
+id: sketch-overlay-v1
+kind: surface-treatment
+extends: null
+status: current
+description: Tidy hand-drawn overlay — warm paper, single ink, highlighter accent, rough displacement strokes, embedded handwriting font.
+
+tokens:
+  paper: "#FAF4EB"
+  sketch-ink: "#403C34"
+  highlight: "#EFDCA9"
+
+treatment:
+  # Full-canvas userSpaceOnUse filter regions (never percentage regions on strokes —
+  # collinear paths collapse the filter region and Chrome drops the stroke; see
+  # authoring E-FILTERBOUNDS).
+  rough-box: "feTurbulence fractalNoise baseFrequency=0.045 numOctaves=3 + feDisplacementMap scale=3"
+  rough-line: "feTurbulence fractalNoise baseFrequency=0.09 numOctaves=2 + feDisplacementMap scale=3"
+  handwriting-font: "subset-embedded OFL handwriting font (Nanum Pen Script default; see references/sketch.md)"

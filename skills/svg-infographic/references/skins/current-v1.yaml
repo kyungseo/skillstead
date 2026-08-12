@@ -1,0 +1,38 @@
+# svg-infographic canonical skin profile — SINGLE SOURCE OF TRUTH for palette values.
+# Decision: "Selected canonical skin — Candidate C + Owner neutral-hierarchy adjustment"
+# (2026-08-12). Canonical docs, TypePacks, examples and the contact sheet consume this
+# profile; none of them may re-own these hex values.
+# Validate/resolve with: node scripts/skin.mjs validate references/skins/current-v1.yaml
+
+schema_version: 1
+id: current-v1
+kind: palette
+extends: null
+status: current
+description: Neutral-pastel hybrid — calm neutral hierarchy, restrained pastel on small semantic surfaces, blue focus anchor.
+
+light:
+  canvas: "#F7F7F5"
+  surface: "#FFFFFF"
+  surface-tint: "#E4EDF3"
+  ink: "#252B35"
+  muted: "#636A75"
+  rule: "#DEE0E2"
+  focus: "#2E6DA4"
+  positive: "#3F8F72"
+  warning: "#B08434"
+  danger: "#B45A50"
+  on-focus: "#FFFFFF"
+
+dark:
+  canvas: "#16191E"
+  surface: "#20242B"
+  surface-tint: "#2A3D50"
+  ink: "#E9ECEF"
+  muted: "#9EA6B0"
+  rule: "#363B44"
+  focus: "#6FA3D3"
+  positive: "#5FAE8F"
+  warning: "#CBA050"
+  danger: "#CE8378"
+  on-focus: "#12151A"
