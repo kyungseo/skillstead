@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120" role="img">
+  <title>portable positive</title><desc>direct paint + role annotations (canonical form)</desc>
+  <rect data-fill-role="canvas" fill="#F7F7F5" width="200" height="120"/>
+  <rect data-fill-role="surface" data-stroke-role="edge-line" fill="#FFFFFF" stroke="#2E6DA4" x="20" y="20" width="160" height="40" rx="8"/>
+  <text data-fill-role="ink" fill="#252B35" x="30" y="44" font-size="12">portable</text>
+  <path data-stroke-role="edge-line" stroke="#2E6DA4" fill="none" stroke-width="2.5" d="M30 80 H170"/>
+  <circle data-fill-role="icon-tint" fill="#EAF0F6" cx="40" cy="100" r="10"/>
+  <rect data-paint-static="true" fill="#123456" x="180" y="100" width="10" height="10"/>
+</svg>

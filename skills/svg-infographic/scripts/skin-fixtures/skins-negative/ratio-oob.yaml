@@ -1,0 +1,49 @@
+# Alias/derived-token contract — versioned, palette-independent.
+# The resolver (scripts/skin.mjs) is the ONLY component that interprets these rules.
+# Generators must not scatter ad-hoc hex values or mix ratios.
+#
+# mix(a, b, t) = linear sRGB interpolation from a toward b by t.
+# Owner neutral-hierarchy adjustment (2026-08-12) lowered wide-area fill saturation:
+# fills mix farther toward the background than the pre-adjustment candidates did.
+
+schema_version: 1
+id: ratio-oob
+kind: derivation
+extends: null
+status: current
+
+# Domain aliases map to semantic sources (never to raw hex).
+alias-sources:
+  edge: focus          # request/flow connectors
+  api: secondary       # API/gateway family (secondary anchor below)
+  compute: positive    # compute/cluster family
+  data: muted          # datastore family
+  external: muted      # external/container frames
+  icon: focus          # icon-circle tint family
+
+# "secondary" resolves to the palette's anchors.secondary-{mode} value.
+# Derivation owns mappings and formulas only — no authored hex values here.
+
+# Derivation formulas per mode. fill/ink are derived from the alias line color.
+derive:
+  light:
+    fill-mix-toward-white: 1.70
+    ink-mix-toward-black: 0.45
+    band-mix-toward-white: 0.96
+    strip-mix-toward-white: 0.96
+    data-fill-mix-toward-white: 0.93
+    container-fill-mix-toward-white: 0.96
+    container-line-mix-toward-white: 0.55
+  dark:
+    fill-mix-toward-canvas: 0.78
+    ink-mix-toward-white: 0.60
+    band-mix-toward-canvas: 0.86
+    strip-mix-toward-canvas: 0.90
+    data-fill-mix-toward-canvas: 0.80
+    container-fill-mix-toward-canvas: 0.90
+    container-line-mix-toward-canvas: 0.45
+
+# Usage principles carried by the kernel contract (not enforced by derivation):
+# - pastel/tint only on small semantic surfaces (icon circles, callouts, limited bands)
+# - status colors lead with markers/borders/labels, not wide fills
+# - structure and typography must read before color

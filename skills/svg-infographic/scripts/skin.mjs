@@ -4,6 +4,15 @@
 //   node scripts/skin.mjs validate <profile.yaml|current> [--json]
 //   node scripts/skin.mjs resolve  <profile.yaml|current> [--mode light|dark] [--treatment flat|sketch] [--json]
 //   node scripts/skin.mjs registry [--json]
+//   node scripts/skin.mjs materialize <file.svg> [--profile <yaml|current>] [--mode ..]
+//                         [--treatment ..] [--check] [--json]
+//
+// materialize fills/updates direct fill/stroke attributes from data-fill-role /
+// data-stroke-role annotations IN PLACE (same SVG — no second artifact) and
+// verifies role/value parity. --check verifies only (no write): unknown role or
+// paint/value mismatch exits 1; hand-typed canonical hex without an annotation is
+// reported as a warning (palette lint escalates it in CP3C). data-paint-static
+// marks allowed non-token paint; fill="none" is always preserved.
 //
 // "current" resolves the registry-selected palette. Derivation/overlay are ALWAYS
 // loaded through registry.yaml — the registry is the selection SSoT; switching an
@@ -20,7 +29,8 @@
 // Deliberately NOT a theme engine: single resolver, versioned profiles, one shallow
 // `extends`, bounded overrides. No DSL, plugins or runtime editing.
 
-import { readFileSync, readdirSync, realpathSync } from "node:fs";
+import { readFileSync, readdirSync, realpathSync, writeFileSync } from "node:fs";
+const await_import_fs = () => ({ writeFileSync });
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -120,7 +130,10 @@ const OVERLAY_TOKENS = ["paper", "sketch-ink", "highlight"];
 const STATUSES = ["candidate", "current", "frozen", "deprecated"];
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const skinsDir = path.resolve(here, "..", "references", "skins");
+// SKIN_SKINS_DIR: test override for negative-fixture isolation (never set in production)
+const skinsDir = process.env.SKIN_SKINS_DIR
+  ? path.resolve(process.env.SKIN_SKINS_DIR)
+  : path.resolve(here, "..", "references", "skins");
 const sha = (buf) => createHash("sha256").update(buf).digest("hex").slice(0, 16);
 
 function readYaml(p) {
@@ -324,6 +337,7 @@ const OPTION_SPEC = {
   validate: { "--json": false },
   resolve: { "--mode": true, "--treatment": true, "--json": false },
   registry: { "--json": false },
+  materialize: { "--profile": true, "--mode": true, "--treatment": true, "--check": false, "--json": false },
 };
 function parseOptions(cmd, rest) {
   const spec = OPTION_SPEC[cmd];
@@ -371,10 +385,99 @@ function contrastMatrix(prof, modes) {
   return m;
 }
 
+const TAG_RE = /<[A-Za-z][^>]*?\/?>(?!<)/g;
+function materializeSvg(text, tokens) {
+  const findings = { updated: 0, verified: 0, mismatches: [], unknownRoles: [], unannotated: [], staticKept: 0 };
+  const tokenValues = new Set(Object.values(tokens).map((v) => v.toUpperCase()));
+  const out = text.replace(/<[A-Za-z][^>]*>/g, (tag) => {
+    if (tag.startsWith("<!") || tag.startsWith("<?")) return tag;
+    let t = tag;
+    const isStatic = /data-paint-static\s*=\s*"(true|1)"/.test(t);
+    for (const [attr, roleAttr] of [["fill", "data-fill-role"], ["stroke", "data-stroke-role"]]) {
+      const rm = t.match(new RegExp(`${roleAttr}\\s*=\\s*"([A-Za-z0-9-]+)"`));
+      const pm = t.match(new RegExp(`\\b${attr}\\s*=\\s*"([^"]*)"`));
+      if (rm) {
+        const role = rm[1];
+        const want = tokens[role];
+        if (want === undefined) { findings.unknownRoles.push(role); continue; }
+        if (pm) {
+          if (pm[1].toUpperCase() === want.toUpperCase()) findings.verified++;
+          else {
+            findings.mismatches.push({ role, have: pm[1], want });
+            t = t.replace(pm[0], `${attr}="${want}"`);
+            findings.updated++;
+          }
+        } else {
+          t = t.replace(rm[0], `${rm[0]} ${attr}="${want}"`);
+          findings.updated++;
+        }
+      } else if (pm && !isStatic) {
+        const v = pm[1].trim();
+        if (v !== "none" && /^#[0-9A-Fa-f]{6}$/.test(v) && tokenValues.has(v.toUpperCase())) {
+          findings.unannotated.push({ attr, value: v });
+        }
+      } else if (pm && isStatic) findings.staticKept++;
+    }
+    return t;
+  });
+  return { out, findings };
+}
+
 function main() {
   const [cmd, ...restAll] = process.argv.slice(2);
   if (!cmd || !(cmd in OPTION_SPEC)) fail(2, "usage: skin.mjs validate|resolve <profile.yaml> [options] | registry [--json]");
-  let profileArg = null, rest = restAll, selectionBasis = "explicit-path";
+  let profileArg = null, rest = restAll, selectionBasis = "explicit-path", svgArg = null;
+  if (cmd === "materialize") {
+    svgArg = restAll[0];
+    if (!svgArg || svgArg.startsWith("--")) fail(2, "materialize requires an SVG path");
+    rest = restAll.slice(1);
+    const mo = parseOptions("materialize", rest);
+    profileArg = mo["--profile"] ?? "current";
+    const mode = mo["--mode"] ?? "light";
+    const treatment = mo["--treatment"] ?? "flat";
+    if (!MODES.includes(mode)) fail(2, `invalid --mode ${mode} (light|dark)`);
+    if (!TREATMENTS.includes(treatment)) fail(2, `invalid --treatment ${treatment} (flat|sketch)`);
+    if (!SUPPORTED[treatment].includes(mode)) fail(1, `unsupported combination: ${mode} + ${treatment}`);
+    if (profileArg === "current") {
+      const regErrors = [];
+      const registry = loadRegistry(regErrors);
+      if (regErrors.length || !registry?.selected["current.palette"]) fail(1, regErrors[0] ?? "registry has no current.palette selection");
+      profileArg = path.join(skinsDir, `${registry.selected["current.palette"]}.yaml`);
+      selectionBasis = "registry-current";
+    }
+    const ctx = buildContext(path.resolve(profileArg), treatment === "sketch");
+    if (ctx.errors.length) { for (const e of ctx.errors) console.error(`ERROR ${e}`); process.exit(1); }
+    const tokens = resolveTokens(ctx.prof, ctx.deriv, mode);
+    if (treatment === "sketch") Object.assign(tokens, { paper: ctx.overlay.tokens.paper, "sketch-ink": ctx.overlay.tokens["sketch-ink"], highlight: ctx.overlay.tokens.highlight });
+    const svgPath = path.resolve(svgArg);
+    const text = readFileSync(svgPath, "utf8");
+    const { out, findings } = materializeSvg(text, tokens);
+    const check = !!mo["--check"];
+    const errors = [];
+    for (const r of new Set(findings.unknownRoles)) errors.push(`unknown role annotation "${r}" (not in resolver output)`);
+    if (check && findings.mismatches.length) for (const m of findings.mismatches) errors.push(`paint mismatch: ${m.role} has ${m.have}, profile resolves ${m.want}`);
+    const receipt = {
+      schemaVersion: 1, command: "materialize", check,
+      profile: { id: ctx.prof.id, digests: ctx.digestChain },
+      ...(ctx.registry ? { registry: { digest: ctx.registry.digest, selectionBasis } } : {}),
+      mode, treatment, updated: findings.updated, verified: findings.verified,
+      staticKept: findings.staticKept,
+      warnings: findings.unannotated.map((u) => `unannotated canonical hex ${u.value} on ${u.attr} (add a role annotation or data-paint-static)`),
+      errors,
+      resolvedDigest: sha(JSON.stringify(tokens)),
+    };
+    if (!check && !errors.length && findings.updated > 0) {
+      const { writeFileSync } = await_import_fs();
+      writeFileSync(svgPath, out);
+    }
+    if (mo["--json"]) console.log(JSON.stringify(receipt, null, 1));
+    else {
+      console.log(`materialize${check ? " --check" : ""} ${path.basename(svgPath)} — updated ${findings.updated}, verified ${findings.verified}, warnings ${receipt.warnings.length}, errors ${errors.length}`);
+      for (const e of errors) console.log(`  ERROR ${e}`);
+      for (const w of receipt.warnings) console.log(`  warn  ${w}`);
+    }
+    process.exit(errors.length ? 1 : 0);
+  }
   if (cmd !== "registry") {
     profileArg = restAll[0];
     if (!profileArg || profileArg.startsWith("--")) fail(2, `${cmd} requires a profile path or "current"`);
