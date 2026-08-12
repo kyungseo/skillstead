@@ -338,7 +338,7 @@ const OPTION_SPEC = {
   resolve: { "--mode": true, "--treatment": true, "--json": false },
   registry: { "--json": false },
   materialize: { "--profile": true, "--mode": true, "--treatment": true, "--check": false, "--json": false },
-  pageframe: { "--h1-lines": true, "--eyebrow": true, "--subtitle": true, "--support": true, "--footer": true, "--json": false },
+  pageframe: { "--h1-lines": true, "--eyebrow": true, "--subtitle": true, "--support": true, "--footer": true, "--content-height": true, "--json": false },
 };
 function parseOptions(cmd, rest) {
   const spec = OPTION_SPEC[cmd];
@@ -424,6 +424,40 @@ function materializeSvg(text, tokens) {
   return { out, findings };
 }
 
+const PF_HEADER = ["eyebrow", "h1", "subtitle"];
+const PF_GAPS = ["breathing", "content-gap", "content-footer-gap", "footer-safe"];
+const PF_SUPPORT = ["bottom-height", "side-width", "side-gap"];
+const PF_ARROW = ["primary-shaft", "secondary-shaft", "min-shaft", "min-visible-head"];
+function validatePageFrame(doc, preset, P, errors) {
+  validateIdentity(doc, "pageframe", doc.id ?? "pageframe", errors);
+  const band = doc["scale-band"];
+  if (!band || typeof band.min !== "number" || typeof band.max !== "number" || !(band.min < band.max))
+    errors.push("scale-band: min/max must be numbers with min < max");
+  const num = (obj, keys, label, positive = true) => {
+    for (const k of keys) {
+      const v = obj?.[k];
+      if (typeof v !== "number" || Number.isNaN(v) || (positive && v <= 0))
+        errors.push(`preset ${preset}: ${label}.${k} must be a positive number (got ${v})`);
+    }
+  };
+  if (!["portrait", "landscape", "square"].includes(P.orientation)) errors.push(`preset ${preset}: invalid orientation ${P.orientation}`);
+  if (typeof P["canvas-width"] !== "number" || P["canvas-width"] <= 0) errors.push(`preset ${preset}: canvas-width must be positive`);
+  if (P["canvas-height"] !== "fluid" && (typeof P["canvas-height"] !== "number" || P["canvas-height"] <= 0))
+    errors.push(`preset ${preset}: canvas-height must be positive or "fluid"`);
+  if (typeof P["outer-margin"] !== "number" || P["outer-margin"] <= 0) errors.push(`preset ${preset}: outer-margin must be positive`);
+  num(P.header, PF_HEADER, "header");
+  num(P.gaps, PF_GAPS.slice(0, 3), "gaps");
+  if (typeof P.gaps?.["footer-safe"] !== "number" || P.gaps["footer-safe"] < 0) errors.push(`preset ${preset}: gaps.footer-safe must be a non-negative number`);
+  num(P.support, PF_SUPPORT, "support");
+  if (typeof P["footer-height"] !== "number" || P["footer-height"] <= 0) errors.push(`preset ${preset}: footer-height must be positive`);
+  num(P.arrow, PF_ARROW, "arrow");
+  const a = P.arrow ?? {};
+  if (!(a["min-shaft"] <= a["secondary-shaft"] && a["secondary-shaft"] <= a["primary-shaft"]))
+    errors.push(`preset ${preset}: arrow relation must hold min-shaft <= secondary-shaft <= primary-shaft`);
+  for (const k of Object.keys(P)) if (!["orientation", "canvas-width", "canvas-height", "outer-margin", "header", "gaps", "support", "footer-height", "arrow"].includes(k))
+    errors.push(`preset ${preset}: unknown field "${k}"`);
+}
+
 function computePageFrame(P, opts) {
   const H = P.header, G = P.gaps;
   const lines = opts.h1Lines, ey = opts.eyebrow, sub = opts.subtitle;
@@ -443,6 +477,22 @@ function computePageFrame(P, opts) {
   if (opts.support === "side") {
     contentBox.w -= P.support["side-width"] + P.support["side-gap"];
     supportBox = { x: m + contentBox.w + P.support["side-gap"], y: contentTop, w: P.support["side-width"], h: null };
+  }
+  if (fluid && opts.contentHeight != null) {
+    let cy = contentTop + opts.contentHeight;
+    contentBox.h = opts.contentHeight;
+    if (supportBox) supportBox.h = contentBox.h;
+    if (opts.support === "bottom") {
+      supportBottom = { x: m, y: cy + G["content-gap"], w: W - 2 * m, h: P.support["bottom-height"] };
+      cy = supportBottom.y + supportBottom.h;
+    }
+    if (opts.footer) {
+      footerBox = { x: m, y: cy + G["content-footer-gap"], w: W - 2 * m, h: P["footer-height"] };
+      cy = footerBox.y + footerBox.h;
+    }
+    return { headerRegion: { x: m, y: headerTop, w: W - 2 * m, h }, breathing: G.breathing,
+             contentBox, supportBox, supportBottom, footerBox, fluid,
+             documentHeight: cy + m, footerRule: "flows-after-content" };
   }
   if (!fluid) {
     const Hc = P["canvas-height"];
@@ -475,18 +525,25 @@ function main() {
     let pf;
     try { pf = readYaml(pfPath); } catch { fail(1, "pageframe-v1.yaml not found"); }
     const errors = [];
-    validateIdentity(pf.doc, "pageframe", "pageframe-v1", errors);
     const P = pf.doc.presets?.[preset];
     if (!P) fail(1, `unknown preset "${preset}" (registry: ${Object.keys(pf.doc.presets || {}).join(", ")})`);
-    for (const k of ["orientation", "canvas-width", "outer-margin", "header", "gaps", "arrow"]) if (P[k] === undefined) errors.push(`preset ${preset}: missing "${k}"`);
+    validatePageFrame(pf.doc, preset, P, errors);
     if (errors.length) { for (const e of errors) console.error(`ERROR ${e}`); process.exit(1); }
     const b = (v, d) => v === undefined ? d : (["on", "true", "1"].includes(v) ? true : ["off", "false", "0"].includes(v) ? false : fail(2, `invalid boolean ${v}`));
     const h1Lines = Number(po["--h1-lines"] ?? 1);
     if (![1, 2].includes(h1Lines)) fail(2, "--h1-lines must be 1 or 2");
     const support = po["--support"] ?? "none";
     if (!["none", "bottom", "side"].includes(support)) fail(2, `invalid --support ${support}`);
-    const opts = { h1Lines, eyebrow: b(po["--eyebrow"], true), subtitle: b(po["--subtitle"], true), support, footer: b(po["--footer"], false) };
+    let contentHeight = null;
+    if (po["--content-height"] !== undefined) {
+      if (P["canvas-height"] !== "fluid") fail(2, "--content-height applies to fluid presets only (fixed canvases compute content height)");
+      contentHeight = Number(po["--content-height"]);
+      if (!Number.isFinite(contentHeight) || contentHeight <= 0) fail(2, "--content-height must be a positive number");
+    }
+    const opts = { h1Lines, eyebrow: b(po["--eyebrow"], true), subtitle: b(po["--subtitle"], true), support, footer: b(po["--footer"], false), contentHeight };
     const out = computePageFrame(P, opts);
+    if (!out.fluid && (out.contentBox.h == null || out.contentBox.h <= 0)) fail(1, `preset ${preset}: computed contentBox height is not positive (${out.contentBox.h}) — canvas too small for the requested regions`);
+    if (out.contentBox.w <= 0) fail(1, `preset ${preset}: computed contentBox width is not positive (${out.contentBox.w})`);
     const receipt = { schemaVersion: 1, command: "pageframe", kernelVersion: "wave0-cp2",
       profile: { id: pf.doc.id, digest: pf.digest }, preset, orientation: P.orientation,
       options: opts, arrow: P.arrow, "scale-band": pf.doc["scale-band"], regions: out, errors: [], warnings: [] };
@@ -630,6 +687,34 @@ function main() {
   receipt.resolvedDigest = sha(JSON.stringify(tokens));
   printReceipt(receipt, opts["--json"]);
   process.exit(0);
+}
+
+// Exported for the palette lint (check-svg.mjs) — the resolver stays the only
+// interpreter of profiles. Returns { allowed:Set<hex-upper>, kind, id } or throws.
+export function allowedPaintSet(profileId) {
+  if (profileId === "legacy-v0.8") {
+    const { doc } = readYaml(path.join(skinsDir, "legacy-v0.8.yaml"));
+    return { allowed: new Set((doc.allowed || []).map((h) => h.toUpperCase())), kind: "frozen-allowlist", id: doc.id };
+  }
+  if (profileId === "sketch") {
+    const { doc } = readYaml(path.join(skinsDir, "sketch-overlay-v1.yaml"));
+    const base = allowedPaintSet("current").allowed;
+    for (const v of Object.values(doc.tokens || {})) base.add(String(v).toUpperCase());
+    return { allowed: base, kind: "surface-treatment", id: doc.id };
+  }
+  if (profileId === "current") {
+    const errs = [];
+    const registry = loadRegistry(errs);
+    if (errs.length) throw new Error(errs[0]);
+    const p = path.join(skinsDir, `${registry.selected["current.palette"]}.yaml`);
+    const ctx = buildContext(p, false);
+    if (ctx.errors.length) throw new Error(ctx.errors[0]);
+    const allowed = new Set();
+    for (const mode of MODES) for (const v of Object.values(resolveTokens(ctx.prof, ctx.deriv, mode))) allowed.add(String(v).toUpperCase());
+    allowed.add("#FFFFFF"); allowed.add("#000000");
+    return { allowed, kind: "palette", id: ctx.prof.id };
+  }
+  throw new Error(`unknown palette profile "${profileId}" (current | legacy-v0.8 | sketch)`);
 }
 
 // entrypoint guard: run main() based on real paths so symlinked installs still execute

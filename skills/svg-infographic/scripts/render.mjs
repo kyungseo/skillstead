@@ -24,7 +24,7 @@
 // substituting another renderer and labelling it a Chromium render is
 // forbidden (SKILL.md §5).
 
-import { readFileSync, writeFileSync, copyFileSync, openSync, readSync, closeSync, existsSync, mkdtempSync, mkdirSync, renameSync, rmSync, statSync } from "node:fs";
+import { readFileSync, writeFileSync, copyFileSync, openSync, readSync, closeSync, existsSync, mkdtempSync, mkdirSync, renameSync, rmSync, statSync , realpathSync } from "node:fs";
 import { spawnSync, spawn } from "node:child_process";
 import { setTimeout as delay } from "node:timers/promises";
 import { tmpdir } from "node:os";
@@ -415,6 +415,17 @@ img{display:block;width:${vb.w}px;height:${vb.h}px}
   }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+// Entrypoint guard compares REAL paths so symlinked installs still execute —
+// the previous href comparison silently skipped main() behind a symlink (exit 0
+// with no output), bypassing the hard gate.
+const __isMain = (() => {
+  try {
+    if (!process.argv[1]) return false;
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]);
+  } catch {
+    return import.meta.url === pathToFileURL(process.argv[1] ?? "").href;
+  }
+})();
+if (__isMain) {
   process.exit(await main(process.argv.slice(2)));
 }

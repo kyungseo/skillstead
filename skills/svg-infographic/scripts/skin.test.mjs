@@ -220,3 +220,31 @@ test("micro-fixtures: connector shafts and visible heads meet the preset minimum
   const mw = Number(text.match(/markerWidth="([\d.]+)"/)[1]);
   assert.ok(mw * 8 / 12 >= arrow["min-visible-head"], "visible head below minimum");
 });
+
+// --- CP3C-B: pageframe fail-closed schema + fluid two-phase ---------------------
+function pfNeg(file, args, re) {
+  const dir = mkdtempSync(path.join(tmpdir(), "pf-"));
+  copyFileSync(path.join(NEG, file), path.join(dir, "pageframe-v1.yaml"));
+  const r = run(["pageframe", "social-4x5", ...args], { SKIN_SKINS_DIR: dir });
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, re);
+}
+test("pageframe rejects a non-numeric header size", () => pfNeg("pf-bad-number.yaml", [], /header\.h1 must be a positive number/));
+test("pageframe rejects a missing gap subfield", () => pfNeg("pf-missing-subfield.yaml", [], /gaps\.breathing must be a positive number/));
+test("pageframe rejects a reversed scale band", () => pfNeg("pf-band-order.yaml", [], /min < max/));
+test("pageframe rejects broken arrow minimum relations", () => pfNeg("pf-arrow-order.yaml", [], /min-shaft <= secondary-shaft <= primary-shaft/));
+test("pageframe rejects a canvas too small for the requested regions", () => pfNeg("pf-too-small.yaml", ["--support", "bottom", "--footer", "on"], /contentBox height is not positive/));
+test("pageframe rejects an unknown preset field", () => pfNeg("pf-unknown-field.yaml", [], /unknown field "mystery"/));
+test("fluid preset computes footer coordinates from --content-height (two-phase contract)", () => {
+  const r = run(["pageframe", "document-compact", "--content-height", "600", "--support", "bottom", "--footer", "on", "--json"]);
+  assert.equal(r.code, 0, r.out);
+  const j = JSON.parse(r.out).regions;
+  assert.equal(j.contentBox.h, 600);
+  assert.ok(j.supportBottom.y > j.contentBox.y + 600 - 1);
+  assert.ok(j.footerBox.y > j.supportBottom.y + j.supportBottom.h - 1);
+  assert.ok(j.documentHeight > j.footerBox.y + j.footerBox.h - 1);
+});
+test("--content-height on a fixed canvas is rejected", () => {
+  const r = run(["pageframe", "social-4x5", "--content-height", "500"]);
+  assert.equal(r.code, 2);
+});

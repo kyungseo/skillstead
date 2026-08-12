@@ -32,8 +32,9 @@
 // its container, data-lint-allow="marker-footprint" on the marker, or
 // data-lint-allow="layout-geometry" on an explicitly annotated layout group.
 
-import { readFileSync } from "node:fs";
-import { pathToFileURL } from "node:url";
+import { readFileSync , realpathSync } from "node:fs";
+import { pathToFileURL, fileURLToPath } from "node:url";
+import { allowedPaintSet } from "./skin.mjs";
 import process from "node:process";
 
 // ---------------------------------------------------------------------------
@@ -695,6 +696,76 @@ export function lintSvg(source, filename = "input.svg") {
       if (violations.length) {
         add(errors, group.line, "E-LAYOUT", `page-title-header rail budget failed: ${violations.join("; ")}`, "derive rail y/height from the eyebrow and final title line before rendering (SKILL.md §2, authoring.md §1)");
       }
+    } else if (role === "header-cluster") {
+      // H-C editorial stack contract (design-kernel §6): optional eyebrow row with a
+      // derived --focus locator → H1 (1–2 lines) → optional subtitle. Locator exists
+      // only with the eyebrow and derives from it (≈0.6×, accepted band 0.5–0.7).
+      const gt = resolveTransform(group);
+      const locators = descendantsWithRole(group, ["cluster-locator"]);
+      const eyebrows = descendantsWithRole(group, ["cluster-eyebrow"]);
+      const h1s = descendantsWithRole(group, ["cluster-h1"]);
+      const subtitles = descendantsWithRole(group, ["cluster-subtitle"]);
+      const toleranceRaw = group.attrs["data-layout-tolerance"];
+      const parsedTolerance = px(toleranceRaw);
+      const tolerance = toleranceRaw === undefined || parsedTolerance === undefined || parsedTolerance < 0 || parsedTolerance > 8 ? 2 : parsedTolerance;
+      if (h1s.length < 1 || locators.length > 1 || eyebrows.length > 1 || subtitles.length > 1) {
+        add(errors, group.line, "E-LAYOUT", "header-cluster contract requires at least one cluster-h1 and at most one cluster-locator/cluster-eyebrow/cluster-subtitle", "complete the header-cluster roles or remove the annotation (design-kernel §6)");
+        continue;
+      }
+      if (locators.length === 1 && eyebrows.length === 0) {
+        add(errors, group.line, "E-LAYOUT", "header-cluster locator exists without an eyebrow — the locator collapses with the eyebrow row", "remove the locator (H-B minimal variant) or restore the eyebrow (design-kernel §6)");
+        continue;
+      }
+      if (gt.uncertain) {
+        add(warnings, group.line, "W-LAYOUT", "header-cluster geometry is unverified because a non-translate transform is present", "use translate() only or verify the header manually in the 2× PNG (design-kernel §6)");
+        continue;
+      }
+      const h1Box = clusterBox(h1s);
+      const eyebrowBox = eyebrows.length ? lineBox(eyebrows[0]) : null;
+      const subtitleBox = subtitles.length ? lineBox(subtitles[0]) : null;
+      if (!h1Box.proven || (eyebrowBox && !eyebrowBox.proven) || (subtitleBox && !subtitleBox.proven)) {
+        const reason = !h1Box.proven ? h1Box.reason : eyebrowBox && !eyebrowBox.proven ? eyebrowBox.reason : subtitleBox.reason;
+        add(warnings, group.line, "W-LAYOUT", `header-cluster geometry is unverified: ${reason}`, "use plain measurable text so the cluster check can prove the stack (design-kernel §6)");
+        continue;
+      }
+      if (h1Box.lineCount < 1 || h1Box.lineCount > 2) {
+        add(errors, group.line, "E-LAYOUT", `header-cluster supports one or two H1 lines; found ${h1Box.lineCount}`, "keep the title to one or two lines (design-kernel §6)");
+        continue;
+      }
+      const violations = [];
+      const h1X = px(h1s[0].attrs.x);
+      if (locators.length === 1) {
+        const loc = locators[0];
+        if (loc.tag !== "rect") violations.push("cluster-locator must be a rect");
+        const locH = px(localGeometryProp(loc, "height", rules));
+        const locW = px(localGeometryProp(loc, "width", rules));
+        const locX = px(localGeometryProp(loc, "x", rules));
+        const eyFont = px(eyebrows[0].attrs["font-size"]);
+        if (locH === undefined || locW === undefined || eyFont === undefined) {
+          add(warnings, group.line, "W-LAYOUT", "header-cluster locator/eyebrow sizes are unverified (need plain numeric width/height/font-size)", "use plain numeric geometry (design-kernel §6)");
+          continue;
+        }
+        const ratio = locH / eyFont;
+        if (ratio < 0.5 - 0.001 || ratio > 0.7 + 0.001) violations.push(`locator height ${round1(locH)}px is ${round1(ratio * 100) / 100}× the eyebrow size — the derived band is 0.5–0.7×`);
+        const eyX = px(eyebrows[0].attrs.x);
+        if (locX !== undefined && h1X !== undefined && Math.abs(locX - h1X) > tolerance) violations.push(`locator x ${round1(locX)} is not aligned with the H1 left edge ${round1(h1X)}`);
+        if (locX !== undefined && eyX !== undefined && (eyX - (locX + locW) < 4 || eyX - (locX + locW) > 14)) violations.push(`eyebrow starts ${round1(eyX - (locX + locW))}px after the locator; expected a 4–14px gap`);
+      }
+      if (eyebrowBox && eyebrowBox.bottom > h1Box.top + tolerance) violations.push(`eyebrow bottom ${round1(eyebrowBox.bottom)} intrudes into the H1 top ${round1(h1Box.top)}`);
+      if (subtitleBox) {
+        const subX = px(subtitles[0].attrs.x);
+        if (subX !== undefined && h1X !== undefined && Math.abs(subX - h1X) > tolerance) violations.push(`subtitle x ${round1(subX)} is not aligned with the H1 left edge ${round1(h1X)}`);
+        if (subtitleBox.top < h1Box.bottom + 4 - 0.01) violations.push(`subtitle top ${round1(subtitleBox.top)} intrudes into the H1 bottom ${round1(h1Box.bottom)} (needs ≥4px)`);
+      }
+      const contentTop = px(group.attrs["data-layout-content-top"]);
+      const breathing = px(group.attrs["data-layout-breathing"]);
+      if (contentTop !== undefined && breathing !== undefined) {
+        const clusterBottom = subtitleBox ? subtitleBox.bottom : h1Box.bottom;
+        if (contentTop - clusterBottom < breathing - tolerance) violations.push(`content top ${round1(contentTop)} leaves ${round1(contentTop - clusterBottom)}px of breathing; the declared budget is ${breathing}px`);
+      }
+      if (violations.length) {
+        add(errors, group.line, "E-LAYOUT", `header-cluster contract failed: ${violations.join("; ")}`, "derive the locator/gaps from the computed cluster bounds (design-kernel §6, skin.mjs pageframe)");
+      }
     } else if (role === "panel-header") {
       const top = px(group.attrs["data-layout-top"]);
       const bottom = px(group.attrs["data-layout-bottom"]);
@@ -1060,7 +1131,71 @@ function formatFinding(kind, f) {
   return f.fix ? `${head}\n    fix: ${f.fix}` : head;
 }
 
+function paletteAndBypassChecks(source, file, profileId, add2) {
+  // authoring bypass (a): paint on a group inside defs/symbol does not reach <use>
+  // instances (observed shipped defect — icons render black while lint passed).
+  const defsRe = /<(defs|symbol)\b[\s\S]*?<\/\1>/g;
+  let m;
+  while ((m = defsRe.exec(source))) {
+    for (const g of m[0].matchAll(/<g\b[^>]*>/g)) {
+      const paint = g[0].match(/\b(fill|stroke)\s*=\s*"(?!none)[^"]+"/);
+      if (paint) add2("error", "E-BYPASS", `paint ${paint[0]} sits on a <g> inside <${m[1]}> — it does not reach <use> instances (icons render with default paint)`, "move the paint onto the drawable elements themselves (expanded concrete paths in canonical output)");
+    }
+  }
+  // authoring bypass (b): font-size on a parent <g> silently skips text overflow checks
+  const gFont = [...source.matchAll(/<g\b[^>]*\bfont-size\s*=\s*"[^"]+"[^>]*>/g)];
+  if (gFont.length) {
+    const bare = /<text\b(?![^>]*font-size)[^>]*>/.test(source);
+    if (bare) add2("warning", "W-BYPASS", "font-size on a parent <g> with font-size-less <text> children — overflow estimation is silently skipped for those labels", "put font-size on each <text> (or its class) so the text budget stays machine-checked");
+  }
+  if (!profileId) return;
+  let profile;
+  try { profile = allowedPaintSet(profileId); }
+  catch (e) { add2("error", "E-PALETTE", e.message, "use --palette-profile current | legacy-v0.8 | sketch"); return; }
+  const paints = [];
+  for (const mm of source.matchAll(/\b(fill|stroke|stop-color|flood-color)\s*=\s*(["'])([^"']*)\2/g)) paints.push({ prop: mm[1], v: mm[3], attr: mm[0] });
+  for (const st of source.matchAll(/style\s*=\s*"([^"]*)"/g)) {
+    for (const mm of st[1].matchAll(/(fill|stroke|stop-color|flood-color|color)\s*:\s*([^;"]+)/g)) paints.push({ prop: mm[1], v: mm[2].trim(), attr: mm[0] });
+  }
+  for (const sb of source.matchAll(/<style>([\s\S]*?)<\/style>/g)) {
+    for (const mm of sb[1].matchAll(/(fill|stroke|stop-color|flood-color)\s*:\s*([^;}]+)/g)) paints.push({ prop: mm[1], v: mm[2].trim(), attr: `style-block ${mm[1]}` });
+  }
+  const staticHex = new Set();
+  for (const mm of source.matchAll(/<[A-Za-z][^>]*data-paint-static\s*=\s*(["'])(?:true|1)\1[^>]*>/g)) {
+    for (const hm of mm[0].matchAll(/#[0-9A-Fa-f]{6}/g)) staticHex.add(hm[0].toUpperCase());
+  }
+  const annotated = new Set();
+  for (const mm of source.matchAll(/<[A-Za-z][^>]*data-(?:fill|stroke)-role\s*=\s*(["'])[A-Za-z0-9-]+\1[^>]*>/g)) {
+    for (const hm of mm[0].matchAll(/#[0-9A-Fa-f]{6}/g)) annotated.add(hm[0].toUpperCase());
+  }
+  let varHit = false;
+  for (const p of paints) {
+    const v = p.v.trim();
+    if (v === "none" || v === "transparent" || v.startsWith("url(")) continue;
+    if (/var\(|currentColor/.test(v)) { varHit = true; continue; }
+    const hex = v.match(/^#[0-9A-Fa-f]{6}$/);
+    if (!hex) continue;
+    const H = v.toUpperCase();
+    if (staticHex.has(H)) continue; // explicitly allowed non-token paint
+    if (profile.kind === "frozen-allowlist") {
+      if (!profile.allowed.has(H)) add2("error", "E-PALETTE", `hex ${v} is outside the frozen legacy-v0.8 allowlist`, "the preserved artifact is frozen — restore the original value");
+    } else if (profile.allowed.has(H)) {
+      if (!annotated.has(H)) add2("error", "E-PALETTE", `canonical hex ${v} appears without a role annotation`, "annotate data-fill-role/data-stroke-role (or data-paint-static) so the materializer owns recoloring");
+    } else {
+      add2("warning", "W-PALETTE", `hex ${v} is outside the ${profile.id} profile`, "use resolver tokens (skin.mjs resolve) — escalates to an error after the Wave 1 regeneration");
+    }
+  }
+  if (varHit && profile.kind !== "frozen-allowlist") add2("error", "E-PALETTE", "variable paint (var(--…)/currentColor) in canonical output — the rejected baseline-red form", "author direct per-shape paint with role annotations (design-kernel §5)");
+}
+
 export function runCli(argv) {
+  const ppIdx = argv.indexOf("--palette-profile");
+  let paletteProfile = null;
+  if (ppIdx !== -1) {
+    paletteProfile = argv[ppIdx + 1];
+    if (!paletteProfile || paletteProfile.startsWith("-")) { console.error("ERROR --palette-profile requires a value (current | legacy-v0.8 | sketch)"); return 2; }
+    argv = argv.filter((_, i) => i !== ppIdx && i !== ppIdx + 1);
+  }
   const files = argv.filter((a) => !a.startsWith("-"));
   if (files.length === 0) {
     console.error("usage: node check-svg.mjs file.svg [more.svg …]");
@@ -1078,6 +1213,10 @@ export function runCli(argv) {
       continue;
     }
     const { errors, warnings } = lintSvg(source, file);
+    paletteAndBypassChecks(source, file, paletteProfile, (kind, code, message, fix) => {
+      const finding = { file, line: 0, rule: code, message, fix };
+      (kind === "error" ? errors : warnings).push(finding);
+    });
     for (const f of errors) console.error(formatFinding("ERROR", f));
     for (const f of warnings) console.error(formatFinding("warn ", f));
     errorCount += errors.length;
@@ -1090,6 +1229,17 @@ export function runCli(argv) {
   return errorCount > 0 ? 1 : 0;
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+// Entrypoint guard compares REAL paths so symlinked installs still execute —
+// the previous href comparison silently skipped main() behind a symlink (exit 0
+// with no output), bypassing the hard gate.
+const __isMain = (() => {
+  try {
+    if (!process.argv[1]) return false;
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]);
+  } catch {
+    return import.meta.url === pathToFileURL(process.argv[1] ?? "").href;
+  }
+})();
+if (__isMain) {
   process.exit(runCli(process.argv.slice(2)));
 }

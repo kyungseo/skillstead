@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60" width="100" height="60" role="img"><title>bypass a ok</title><desc>paint on drawable elements directly</desc>
+<defs><symbol id="ic-y" viewBox="0 0 24 24"><path d="M4 4 L20 20" stroke="#2E6DA4" fill="none"/></symbol></defs>
+<use href="#ic-y" x="10" y="10" width="24" height="24"/></svg>

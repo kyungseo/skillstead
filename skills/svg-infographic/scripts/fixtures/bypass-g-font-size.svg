@@ -1,0 +1,2 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60" role="img"><title>bypass b red</title><desc>font-size on parent g skips overflow checks</desc>
+<g font-size="14"><text x="10" y="30" fill="#252B35">label without own size</text></g></svg>
