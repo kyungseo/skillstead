@@ -5,25 +5,7 @@ Detailed geometry, connector, panel, emphasis, color, and icon rules, plus the m
 ## 1. Geometry & containment
 
 - **Containment is arithmetic, not eyeballing.** Every child (card, icon, arrow, badge, label) sits inside its container/panel bounds **plus inner padding**, unless it is a deliberate outside-the-frame callout. For a row of repeated cards, compute the last card's far edge as `start + (n−1)·(cardW+gap) + cardW` and confirm it is `≤ container_edge − padding`; same for a column's bottom edge. If a row won't fit, shrink `cardW`/`gap`, wrap to a second row, or widen the canvas.
-- **Page-title accent rail follows the title stack.** Never copy a fixed rail height from a one-line title into a two-line title. With centered-baseline text, compute `eyebrowTop = eyebrowY − eyebrowFontSize/2`, `titleBottom = max(titleLineY + titleFontSize/2)`, `railY = eyebrowTop − railTopPad`, and `railH = titleBottom + railBottomPad − railY`. Keep `subtitleTop − railBottom ≥ subtitleGap`. For the premium one-line/two-line header, opt into the source check:
-
-```xml
-<g data-layout-role="page-title-header" data-layout-rail-padding-top="16"
-   data-layout-rail-padding-bottom="0" data-layout-subtitle-gap="12"
-   data-layout-tolerance="2">
-  <rect data-layout-role="title-rail" x="60" y="58" width="6" height="143" rx="3"/>
-  <text data-layout-role="title-eyebrow" x="88" y="82" font-size="16"
-    dominant-baseline="middle">SKILL · EXAMPLE</text>
-  <text data-layout-role="title-line" x="88" y="127" font-size="46"
-    dominant-baseline="middle">첫 번째 제목 줄</text>
-  <text data-layout-role="title-line" x="88" y="178" font-size="46"
-    dominant-baseline="middle">두 번째 제목 줄</text>
-  <text data-layout-role="title-subtitle" x="88" y="230" font-size="18"
-    dominant-baseline="middle">한 줄 설명</text>
-</g>
-```
-
-The contract accepts one or two **measurable visual title lines**, counted across `title-line` elements and their non-nested `<tspan>` lines. It requires plain numeric rail padding/gap, a positive-width rect rail, centered-baseline measurable text, and translate-only transforms. Optional `data-layout-tolerance` defaults to 2px and accepts 0–8px; an unsupported, negative, or larger value emits `W-LAYOUT` and falls back to 2px for the actual comparison. Unsupported units or typography become `W-LAYOUT`; a rail whose top/bottom does not match the stack or that enters the subtitle clearance becomes `E-LAYOUT`. The same source-coordinate limitation described in §4 applies, so verify the final rail and rendered glyphs in the 2× PNG.
+- **Page header:** the H-C editorial stack (design-kernel §6) — optional eyebrow row with derived `--focus` locator → H1 (1–2 lines) → optional muted subtitle → breathing room. The vertical accent rail is a **rejected** composition: never author it in new output. The legacy rail formula and its opt-in lint contract live only in `legacy/page-title-rail.md` (pre-kernel examples, until the Wave 1 regeneration; the header-cluster contract replaces it in CP3).
 - **Containment is judged on visual bounds, not the fill rect.** A child's visual edge = its rect/path edge **plus** half its stroke width, the drop-shadow spread (conservative margin: `abs(offset) + ~3 × stdDeviation`), and anything drawn outside the base rect (badge, corner label, marker/arrowhead). Pass condition on every side: `child_visual_edge ≤ parent_edge − inner_padding`. In a padded panel, a child that merely *touches* the parent edge is a containment failure even though the coordinates read "inside" — and a generous shadow *filter region* says nothing about containment. Keep left/right inner padding balanced, and fix an overflow by recomputing card width, gutters, or position inside the current region before reaching for a wider canvas.
 - **Paired / side-by-side boxes:** always leave a **visible gutter of 24–32px**; never let two boxes touch. Balance the left/right outer margins.
 - **Generous margins; align to a grid; consistent gutters.** Pick the margin and gutter values once in the layout pass and reuse them everywhere.
@@ -101,7 +83,7 @@ The line box is a **source-coordinate model**, not rendered ink measurement. `mi
 
 ## 6. Color & contrast
 
-- **Tokens:** all colors as CSS variables in one `<style>` block (see SKILL.md §3); Chrome headless fully supports SVG CSS custom properties. Colors encode role, not decoration — keep roles, change hex to rebrand.
+- **Tokens:** every paint-bearing shape carries direct `fill`/`stroke` plus `data-fill-role`/`data-stroke-role` annotations (SKILL.md §3, design-kernel §5). Colors encode role, not decoration — rebrand by re-running the `skin.mjs` materializer against a profile, never by hand-editing hex or maintaining a variable block.
 - **Dark variant:** a separate direct-paint artifact (`diagram.light.svg` / `diagram.dark.svg`), each materialized from the same profile — never a `prefers-color-scheme` media query inside one SVG (design-kernel §5). PNG renders from each artifact directly.
 - **On-focus text:** default to **light (white/near-white) text on a saturated fill** — never dark text on a mid/dark accent. A light-tinted chip may keep dark ink; a saturated fill needs light text. Annotate those labels `data-fill-role="on-focus"` with a direct light fill.
 - **Gotcha — blanket text color rules hide contrast problems.** An inline `fill="#FFFFFF"` usually wins over a global `text{ fill:… }` rule in headless Chrome, but inherited text (`<tspan>`, grouped labels, generated variants) can silently lose its on-focus contrast. When the diagram mixes dark body text and light on-focus text, **avoid a blanket `text{fill}` rule entirely** — set ink color per group/class — and always inspect the PNG (aim for an AA-like separation).

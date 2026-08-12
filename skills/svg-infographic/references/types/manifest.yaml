@@ -4,12 +4,19 @@
 #
 # Entry schema (locked in Wave 0 CP2):
 #   id:               unique kebab-case
+#   selection_signal: content signals that route a request to this type (the
+#                     selection table is DERIVED from these — no hand-kept copy)
 #   profile:          exact-parametric | constrained-layout | editorial-composition
 #   support:          core | experimental | gated   # charts stay gated until their
 #                                                   # machine verifier + receipt exist;
 #                                                   # gated types must not appear in
 #                                                   # discovery copy or the cookbook
-#   spec:             types/<id>.md                 # must exist
+#   spec:             types/<id>.md                 # must exist — owns local region
+#                                                   # partition, complexity budget,
+#                                                   # degrade ladder, known failures
+#   presets:          supported output presets (PageFrame registry ids, e.g. social-4x5)
+#   orientations:     supported orientations (portrait | landscape | square) — kept
+#                     separate from presets; preset ids never encode orientation
 #   verifier:         null | scripts path           # required for accuracy-bearing types
 #   fixtures:         [] | paths                    # baseline-red/positive pairs
 #   examples:         [] | example ids              # gallery mapping
