@@ -415,8 +415,8 @@
   <text font-size="12" data-fill-role="muted" fill="#9EA6B0" x="376" y="947" dominant-baseline="central">Private link (managed service)</text>
 
 </g><rect x="844" y="170" width="250" height="354" fill="none" stroke="#D8DDE3"/><text class="lab" x="1112" y="162">sketch.light.ko</text><g transform="translate(1112,170) scale(0.3472)" style="font-family:'Nanum Pen Script','NanumPen',Pretendard,sans-serif">
-  <title>파일럿(sketch) — Azure 레퍼런스 토폴로지</title>
-  <desc>Wave 0 CP4 pilot: dense topology, sketch treatment (light only), canonical portable form (direct paint + role annotations, H-C header, PageFrame social-4x5, arrow C anchor).</desc>
+  <title>파일럿 — Azure 레퍼런스 토폴로지</title>
+  <desc>Wave 0 CP4 pilot: dense topology, flat treatment, canonical portable form (direct paint + role annotations, H-C header, PageFrame social-4x5, arrow C anchor).</desc>
   <defs>
     <marker id="ah-m4" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="13.1" markerHeight="13.1" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
       <path d="M2 2 L10 6 L2 10" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2" stroke-linecap="round" filter="url(#rline-m4)"/></marker>
@@ -473,7 +473,7 @@
   <path d="M360 452 V475" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m4)" filter="url(#rline-m4)"/>
 
   <!-- AKS cluster -->
-  <rect x="68" y="484" width="584" height="288" rx="14" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
+  <rect x="68" y="484" width="584" height="288" rx="14" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
   <text font-size="14" font-weight="700" letter-spacing="0.04em" x="96" y="506" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">AKS 클러스터</text>
 
   <rect x="96" y="524" width="528" height="44" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
@@ -520,8 +520,8 @@
   <text font-size="12" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="376" y="947" dominant-baseline="central">프라이빗 링크 (관리형 서비스)</text>
 
 </g><rect x="1112" y="170" width="250" height="354" fill="none" stroke="#D8DDE3"/><text class="lab" x="1380" y="162">sketch.light.en</text><g transform="translate(1380,170) scale(0.3472)" style="font-family:'Nanum Pen Script','NanumPen',Pretendard,sans-serif">
-  <title>Pilot (sketch) — Azure reference topology</title>
-  <desc>Wave 0 CP4 pilot: dense topology, sketch treatment (light only), canonical portable form (direct paint + role annotations, H-C header, PageFrame social-4x5, arrow C anchor).</desc>
+  <title>Pilot — Azure reference topology</title>
+  <desc>Wave 0 CP4 pilot: dense topology, flat treatment, canonical portable form (direct paint + role annotations, H-C header, PageFrame social-4x5, arrow C anchor).</desc>
   <defs>
     <marker id="ah-m5" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="13.1" markerHeight="13.1" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
       <path d="M2 2 L10 6 L2 10" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2" stroke-linecap="round" filter="url(#rline-m5)"/></marker>
@@ -578,7 +578,7 @@
   <path d="M360 452 V475" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m5)" filter="url(#rline-m5)"/>
 
   <!-- AKS cluster -->
-  <rect x="68" y="484" width="584" height="288" rx="14" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
+  <rect x="68" y="484" width="584" height="288" rx="14" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
   <text font-size="14" font-weight="700" letter-spacing="0.04em" x="96" y="506" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">AKS cluster</text>
 
   <rect x="96" y="524" width="528" height="44" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>

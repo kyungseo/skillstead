@@ -452,3 +452,20 @@ test("palette matrix: omitted profile runs no palette checks in Wave 0 (default 
   const r = cliRaw([CLI, join(SKINFIX, "unannotated-canonical-hex.svg")]);
   assert.equal(r.code, 0);
 });
+
+// --- E-DUPATTR: malformed-XML duplicate attributes fail closed ------------------
+test("duplicate attribute (double quotes) is an error", () => {
+  const r = lint("dup-attr-double.svg");
+  assert.ok(r.errors.some((e) => e.rule === "E-DUPATTR" && /duplicate attribute "opacity"/.test(e.message)));
+});
+test("duplicate attribute (single quotes) is an error and CLI exits non-zero", () => {
+  const r = cliRaw([CLI, join(here, "fixtures", "dup-attr-single.svg")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-DUPATTR.*duplicate attribute "fill"/);
+});
+test("portable positive fixtures stay clean under the duplicate-attribute rule", () => {
+  for (const f of ["portable-positive.svg", "portable-positive-sq.svg"]) {
+    const r = cliRaw([CLI, join(SKINFIX, f)]);
+    assert.equal(r.code, 0, `${f}: ${r.out}`);
+  }
+});

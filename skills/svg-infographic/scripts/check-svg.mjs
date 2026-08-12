@@ -291,6 +291,23 @@ export function lintSvg(source, filename = "input.svg") {
   const warnings = [];
   const add = (list, line, rule, message, fix) => list.push({ file: filename, line, rule, message, fix });
 
+  // Duplicate attributes make the file invalid XML. Browsers tolerate it (last/first
+  // value wins inconsistently), so a malformed file can render "fine" while breaking
+  // strict consumers (PPT import, XML tooling) — fail closed here.
+  {
+    const tagRe = /<[A-Za-z][^>]*>/g;
+    let tm;
+    while ((tm = tagRe.exec(source))) {
+      const tagLine = source.slice(0, tm.index).split("\n").length;
+      const seen = new Set();
+      for (const am of tm[0].matchAll(/\s([A-Za-z_:][A-Za-z0-9_:.-]*)\s*=\s*(["'])[^"']*\2/g)) {
+        const name = am[1];
+        if (seen.has(name)) add(errors, tagLine, "E-DUPATTR", `duplicate attribute "${name}" on <${tm[0].match(/<([A-Za-z][A-Za-z0-9-]*)/)[1]}> — invalid XML that browsers silently tolerate`, "keep one value per attribute; strict consumers (PPT import, XML tooling) reject or misread duplicates");
+        else seen.add(name);
+      }
+    }
+  }
+
   const tree = parseTree(source);
   const svgRoot = tree.children.find((c) => c.tag === "svg");
   if (!svgRoot) {
