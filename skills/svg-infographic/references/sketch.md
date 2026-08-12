@@ -14,11 +14,14 @@ sketch overlay profile `references/skins/sketch-overlay-v1.yaml` (resolve with
 — Wave 0 supports sketch in **light mode only**):
 
 ```xml
+<!-- Canonical sketch output uses direct paint + role annotations, like flat
+     (design-kernel §5). Reference values from sketch-overlay-v1:
+     paper #FAF4EB · sketch-ink #403C34 · highlight #EFDCA9 · derived muted #847E71 -->
 <style>
-  text { font-family:'Hand',Pretendard,Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; fill:var(--sketch-ink) }
-  svg { --paper:#FAF4EB; --sketch-ink:#403C34; --highlight:#EFDCA9;
-    --muted:#847E71; /* derived: mix(sketch-ink, paper, 0.35) */ }
+  text { font-family:'Hand',Pretendard,Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif }
 </style>
+<rect data-fill-role="paper" fill="#FAF4EB" width="1000" height="880"/>
+<text data-fill-role="sketch-ink" fill="#403C34">…</text>
 ```
 
 The multi-hue pastel families (`--a-*` … `--g-*`) of pre-kernel sketch examples are
@@ -53,7 +56,7 @@ Roles still encode meaning (ok = green, warning = yellow/orange, danger = red). 
 ```xml
 <marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="11.25" markerHeight="11.25"
   markerUnits="userSpaceOnUse" orient="auto-start-reverse">
-  <path d="M2 2 L10 6 L2 10" fill="none" stroke="var(--sketch-ink)" stroke-width="2" stroke-linecap="round"/></marker>
+  <path d="M2 2 L10 6 L2 10" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2" stroke-linecap="round"/></marker>
 ```
 
 - Connectors may use gentle curves (`C`/`Q` paths) — hand-drawn lines aren't strictly orthogonal — but the curve **geometry** follows the flat recipe in `authoring.md` §3 (perpendicular entry/exit, single bend by default, 8–12px arrowhead gap, visible shaft); the sketch preset only adds the rough texture on top.

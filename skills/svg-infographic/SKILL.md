@@ -122,7 +122,7 @@ Read `references/authoring.md` for the detailed rules and the reusable icon set.
 - **Arrows:** define one `<marker>` arrowhead, use `marker-end`. Solid = sync/request, dashed (`stroke-dasharray="5 4"`) = async/batch/private. The default head is an **open-V stroked marker sized by visible geometry: `visible ≈ markerWidth × 8/12`, aim visible ≈3× the shaft → `markerWidth ≈ 4.5 × shaft`** (sizing table in `authoring.md` §3) — filled triangles only as a deliberate choice with the same visible-extent arithmetic. `markerUnits="userSpaceOnUse"` is **mandatory** on every referenced marker and the lint gate enforces it — the default `markerUnits="strokeWidth"` multiplies the head by the stroke width. Set `refX` so the tip lands on the path endpoint; leave an 8–12px gap between tip and target box **and** keep a visible shaft behind the head; pick each connector's form (standard / compact / curved / transition glyph / reflow) from the corridor budget, and prefer the gentle single-bend curve recipe when boxes sit at different heights (`authoring.md` §3).
 - **On-focus text is light:** any label on a saturated fill carries `data-fill-role="on-focus"` with a direct light fill — never dark text on a mid/dark saturated fill, and never rely on a blanket `text{fill}` rule to sort it out.
 - **Emphasis toolkit:** stroke + soft shadow + a number/status badge + a corner label + a filled icon badge. **No top accent bar on cards** (corner-smear and badge-collision failure modes — details and narrow exception in `authoring.md`).
-- **Icon-first (default on):** a line icon in a soft tinted circle (`r≈34–38`, `data-fill-role="icon-tint"` + direct fill) per card/node, icon ~40px via `<use>`, recolor with `style="color:#…"`. Number badge **only when sequence or cross-reference matters** — never icon + redundant number.
+- **Icon-first (default on):** a line icon in a soft tinted circle (`r≈34–38`, `data-fill-role="icon-tint"` + direct fill) per card/node, authored via the icon library (`<use>` as convenience), expanded to concrete role-annotated paths with direct paint in canonical output (`authoring.md` §7). Number badge **only when sequence or cross-reference matters** — never icon + redundant number.
 
 ## 4. Pre-render checklist (source-level — run before every render)
 
@@ -190,7 +190,7 @@ Keep wrapper/intermediate files in the session scratchpad, not the repo. In nati
 
 - Style: muted technical · light background · icons = soft circular bg + line icon. Opt-in alternative: **sketch preset** (tidy hand-drawn — paper, Korean handwriting font, rough strokes; see `references/sketch.md`) when the user asks for that feel
 - Font stack: Pretendard, Apple SD Gothic Neo, Malgun Gothic, Noto Sans KR, sans-serif (covers macOS/Windows/Linux CJK)
-- Changeable: brand color, ratio (docs vs 4:5 social), dark mode (override the same CSS vars under `@media (prefers-color-scheme:dark)`; PNG renders light unless forced), icon style, Korean/English, SVG-only vs SVG+PNG
+- Changeable: brand color, ratio (docs vs 4:5 social), dark mode (a separate direct-paint artifact re-materialized from the profile — `diagram.dark.svg`; never a media query in one SVG), icon style, Korean/English, SVG-only vs SVG+PNG
 - Optional attribution/footer layer: **off by default.** On request, add a small footer strip (source, author, or date) as its own bottom layer — a labeled footer, not a watermark laid over the content.
 
 ## 7. Verify the PNG (quality bar)

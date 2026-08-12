@@ -66,6 +66,9 @@ The contract accepts one or two **measurable visual title lines**, counted acros
   - **`markerUnits="userSpaceOnUse"` is mandatory on every referenced marker** — the lint gate (`scripts/check-svg.mjs`, run automatically by `render.sh`) hard-errors otherwise, because the default `strokeWidth` units silently multiply the head by the stroke width (a "10" head on a 3px line renders 30px). Declare a reviewed exception with `data-lint-allow="marker-footprint"` only when an oversized head is a deliberate design decision.
 - **Fan-out** (one source → many targets): one vertical stem from the source, one horizontal bus, then a centered vertical branch to each target. No orphan stubs, and no line that nearly overlaps a box edge.
 - **Zone aid for busy diagrams:** if nodes collide, assign each to a **3×3 zone** (top-left … center … bottom-right), route edges only between zones, and wrap co-located nodes in one group frame. A quick sketching aid to cut crossings — not a required schema; simple diagrams don't need it.
+- **Marker paint contract (canonical):** marker interiors never use `currentColor`, `context-stroke` or inherited paint. Either author one marker per role with direct stroke (`id="ah-edge"` … `data-stroke-role="edge-line"` `stroke="#2E6DA4"`), or let the materializer generate per-role markers. A connector references the marker matching its own stroke role.
+- **Sketch arrowhead band:** rough displacement visually thins the head, so the flat contract (visible ≈3× shaft) reads weak in sketch. Sketch targets **visible ≈3.5× shaft** within an acceptance band of **3.0–4.5×**. `data-lint-allow="marker-footprint"` stays reserved for pre-kernel legacy examples — new sketch output must meet the band, not bypass it.
+- **Machine-verifiable connector subset (boundary record):** future label-clearance and corridor-overlap lint (backlog `svg-infographic-connector-machine-guards`) may only *prove* violations where geometry is resolvable from source: straight segments from absolute `M/L/H/V` commands, translate-only transforms, numeric stroke-width, and label mask rects with numeric geometry. Curves/arcs, relative or exponent coordinates, non-translate transforms and CSS-resolved stroke widths degrade to warnings — never silent passes, never false errors (no-false-certainty).
 - **Semantics:** one `<marker>` arrowhead definition reused via `marker-end`. Solid = sync/request/normal; dashed `stroke-dasharray="5 4"` = async/batch/private/feedback. Legend whenever both appear.
 
 ## 4. Panels & header bands
@@ -99,9 +102,9 @@ The line box is a **source-coordinate model**, not rendered ink measurement. `mi
 ## 6. Color & contrast
 
 - **Tokens:** all colors as CSS variables in one `<style>` block (see SKILL.md §3); Chrome headless fully supports SVG CSS custom properties. Colors encode role, not decoration — keep roles, change hex to rebrand.
-- **Dark variant:** override the same variables under `@media (prefers-color-scheme:dark)`. PNG renders light unless forced.
+- **Dark variant:** a separate direct-paint artifact (`diagram.light.svg` / `diagram.dark.svg`), each materialized from the same profile — never a `prefers-color-scheme` media query inside one SVG (design-kernel §5). PNG renders from each artifact directly.
 - **On-focus text:** default to **light (white/near-white) text on a saturated fill** — never dark text on a mid/dark accent. A light-tinted chip may keep dark ink; a saturated fill needs light text. Annotate those labels `data-fill-role="on-focus"` with a direct light fill.
-- **Gotcha — blanket text color rules hide contrast problems.** An inline `fill="#FFFFFF"` usually wins over a global `text{ fill:var(--ink) }` rule in headless Chrome, but inherited text (`<tspan>`, grouped labels, generated variants) can silently lose its on-focus contrast. When the diagram mixes dark body text and light on-focus text, **avoid a blanket `text{fill}` rule entirely** — set ink color per group/class — and always inspect the PNG (aim for an AA-like separation).
+- **Gotcha — blanket text color rules hide contrast problems.** An inline `fill="#FFFFFF"` usually wins over a global `text{ fill:… }` rule in headless Chrome, but inherited text (`<tspan>`, grouped labels, generated variants) can silently lose its on-focus contrast. When the diagram mixes dark body text and light on-focus text, **avoid a blanket `text{fill}` rule entirely** — set ink color per group/class — and always inspect the PNG (aim for an AA-like separation).
 
 ## 7. Icons
 
@@ -123,10 +126,10 @@ Icon-first is the default: a simple **line icon inside a soft tinted circle** pe
 
 The source-coordinate model limitation described in §4 also applies to card-center checks; confirm rendered ink and optical centering in the final 2× PNG.
 
-- **Recolor:** author each symbol with `stroke="currentColor"`; set the color per instance with `style="color:#…"` on the `<use>`.
+- **Recolor:** the `<symbol>`/`<use>` library is an *authoring convenience source only*. Before an SVG counts as canonical, expand each used icon into **concrete paths** carrying `data-stroke-role` (and `data-fill-role` where filled) with direct paint — the materializer performs/refreshes this expansion. Per-instance `currentColor` recoloring never appears in canonical output.
 - **Style options to offer:** default = soft circular background + thin line icon. Alternatives: no background (line icon only), filled/solid icon, or mono. Stroke width ~1.7–1.9.
 
-Reusable icon set (drop into `<defs>`; all 24×24, `fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"`):
+Reusable icon library (authoring convenience; all 24×24, `fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"` — the placeholder stroke is replaced with role-annotated direct paint when icons are expanded into canonical output):
 
 ```xml
 <symbol id="ic-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 9l3 3-3 3"/><path d="M13 15h4"/></symbol>
@@ -141,9 +144,9 @@ Reusable icon set (drop into `<defs>`; all 24×24, `fill="none" stroke="currentC
 <symbol id="ic-api" viewBox="0 0 24 24"><path d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></symbol>
 ```
 
-Use example: `<circle cx="172" cy="726" r="38" data-fill-role="icon-tint" fill="#EAF0F6"/><use href="#ic-terminal" x="152" y="706" width="40" height="40" data-color-role="edge-line" style="color:#2E6DA4"/>`.
+Canonical example (icon expanded to a concrete path): `<circle cx="172" cy="726" r="38" data-fill-role="icon-tint" fill="#EAF0F6"/><path d="…terminal glyph at 152,706 scaled 40px…" data-stroke-role="edge-line" stroke="#2E6DA4" fill="none" stroke-width="3"/>`. There is no separate `data-color-role` schema — fill/stroke annotations cover icons too.
 
-Need an icon that isn't in the set? Compose it from the same 24×24 line grammar (stroke 1.8, round caps/joins, `currentColor`) so it matches — don't mix icon families.
+Need an icon that isn't in the set? Compose it from the same 24×24 line grammar (stroke 1.8, round caps/joins) so it matches — don't mix icon families.
 
 ## 8. Render — manual fallback
 
