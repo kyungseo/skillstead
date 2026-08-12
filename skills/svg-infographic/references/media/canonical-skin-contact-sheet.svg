@@ -33,73 +33,73 @@
   <rect width="720" height="900" data-fill-role="canvas" fill="#F7F7F5"/>
 
   <!-- header: rail from eyebrowTop(51) to titleBottom(106) -->
-  <g data-layout-role="header-cluster" data-layout-content-top="168" data-layout-breathing="36" data-layout-tolerance="2">
-    <rect data-layout-role="cluster-locator" data-fill-role="focus" x="40" y="48" width="8" height="8" rx="2" fill="#2E6DA4"/>
-    <text data-layout-role="cluster-eyebrow" data-fill-role="muted" x="56" y="56" font-size="14" font-weight="700" letter-spacing="0.10em" fill="#636A75" dominant-baseline="central">레퍼런스 토폴로지</text>
-    <text data-layout-role="cluster-h1" data-fill-role="ink" x="40" y="92" font-size="28" font-weight="700" fill="#252B35" dominant-baseline="central">Azure 레퍼런스 토폴로지</text>
-    <text data-layout-role="cluster-subtitle" data-fill-role="muted" x="40" y="124" font-size="14" fill="#636A75" dominant-baseline="central">요청 경로 — Application Gateway → APIM → AKS → PostgreSQL</text>
+  <g>
+    <rect data-fill-role="focus" x="40" y="48" width="8" height="8" rx="2" fill="#2E6DA4"/>
+    <text data-fill-role="muted" x="56" y="56" font-size="14" font-weight="700" letter-spacing="0.10em" fill="#636A75" dominant-baseline="central">레퍼런스 토폴로지</text>
+    <text data-fill-role="ink" x="40" y="92" font-size="28" font-weight="700" fill="#252B35" dominant-baseline="central">Azure 레퍼런스 토폴로지</text>
+    <text data-fill-role="muted" x="40" y="124" font-size="14" fill="#636A75" dominant-baseline="central">요청 경로 — Application Gateway → APIM → AKS → PostgreSQL</text>
   </g>
 
   <!-- client -->
   <rect x="210" y="154" width="300" height="46" rx="10" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="1" filter="url(#cardShadow-m0)"/>
   <circle cx="242" cy="177" r="15" data-fill-role="edge-fill" fill="#EAF0F6"/><g transform="translate(233.0,168.0) scale(0.7500)"><circle data-stroke-role="edge-line" stroke="#2E6DA4" cx="12" cy="12" r="8.5"/><path data-stroke-role="edge-line" stroke="#2E6DA4" d="M3.5 12h17"/><path data-stroke-role="edge-line" stroke="#2E6DA4" d="M12 3.5a13 13 0 0 1 0 17 13 13 0 0 1 0-17z"/></g>
   <text font-size="15" font-weight="700" x="266" y="177" dominant-baseline="central" data-fill-role="edge-ink" fill="#193C5A">인터넷 / 클라이언트</text>
-  <path d="M360 208 V232" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m0)"/>
+  <path d="M360 208 V234" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m0)"/>
 
   <!-- VNet frame -->
-  <rect data-layout-container="vnet" data-min-pad="32" data-min-visual-pad="12" data-symmetry="xy" data-symmetry-tol="4" data-layout-count="4" x="36" y="240" width="648" height="550" rx="18" data-fill-role="external-fill" fill="#F9F9F9" data-stroke-role="external-line" stroke="#B9BCC1" stroke-width="1.5" stroke-dasharray="7 5"/>
-  <text font-size="14" font-weight="700" letter-spacing="0.04em" x="60" y="260" dominant-baseline="central" data-fill-role="muted" fill="#636A75">Azure VNet</text>
+  <rect x="36" y="242" width="648" height="548" rx="18" data-fill-role="external-fill" fill="#F9F9F9" data-stroke-role="external-line" stroke="#B9BCC1" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <text font-size="14" font-weight="700" letter-spacing="0.04em" x="60" y="262" dominant-baseline="central" data-fill-role="muted" fill="#636A75">Azure VNet</text>
 
   <!-- application gateway -->
-  <rect data-layout-parent="vnet" x="68" y="272" width="584" height="54" rx="10" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="1" filter="url(#cardShadow-m0)"/>
-  <circle cx="100" cy="299" r="17" data-fill-role="edge-fill" fill="#EAF0F6"/><g transform="translate(90.0,289.0) scale(0.8333)"><path data-stroke-role="edge-line" stroke="#2E6DA4" d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path data-stroke-role="edge-line" stroke="#2E6DA4" d="M9 12l2 2 4-4"/></g>
-  <text font-size="15" font-weight="700" x="128" y="291" dominant-baseline="central" data-fill-role="edge-ink" fill="#193C5A">Application Gateway + WAF</text>
-  <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="128" y="311" dominant-baseline="central">공개 진입 · TLS 종료 · L7 라우팅</text>
-  <path d="M360 334 V358" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m0)"/>
+  <rect x="68" y="276" width="584" height="54" rx="10" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="1" filter="url(#cardShadow-m0)"/>
+  <circle cx="100" cy="303" r="17" data-fill-role="edge-fill" fill="#EAF0F6"/><g transform="translate(90.0,293.0) scale(0.8333)"><path data-stroke-role="edge-line" stroke="#2E6DA4" d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path data-stroke-role="edge-line" stroke="#2E6DA4" d="M9 12l2 2 4-4"/></g>
+  <text font-size="15" font-weight="700" x="128" y="295" dominant-baseline="central" data-fill-role="edge-ink" fill="#193C5A">Application Gateway + WAF</text>
+  <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="128" y="315" dominant-baseline="central">공개 진입 · TLS 종료 · L7 라우팅</text>
+  <path d="M360 338 V360" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m0)"/>
 
   <!-- api management -->
-  <rect data-layout-parent="vnet" x="68" y="366" width="584" height="54" rx="10" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="api-line" stroke="#5B54A8" stroke-width="1" filter="url(#cardShadow-m0)"/>
-  <circle cx="100" cy="393" r="17" data-fill-role="api-fill" fill="#EFEEF6"/><g transform="translate(90.0,383.0) scale(0.8333)"><path data-stroke-role="api-line" stroke="#5B54A8" d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></g>
-  <text font-size="15" font-weight="700" x="128" y="385" dominant-baseline="central" data-fill-role="api-ink" fill="#322E5C">API Management (APIM)</text>
-  <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="128" y="405" dominant-baseline="central">인증 · rate limit · 정책 · 버전 관리</text>
-  <path d="M360 428 V452" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m0)"/>
+  <rect x="68" y="368" width="584" height="54" rx="10" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="api-line" stroke="#5B54A8" stroke-width="1" filter="url(#cardShadow-m0)"/>
+  <circle cx="100" cy="395" r="17" data-fill-role="api-fill" fill="#EFEEF6"/><g transform="translate(90.0,385.0) scale(0.8333)"><path data-stroke-role="api-line" stroke="#5B54A8" d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></g>
+  <text font-size="15" font-weight="700" x="128" y="387" dominant-baseline="central" data-fill-role="api-ink" fill="#322E5C">API Management (APIM)</text>
+  <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="128" y="407" dominant-baseline="central">인증 · rate limit · 정책 · 버전 관리</text>
+  <path d="M360 430 V452" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m0)"/>
 
   <!-- AKS cluster -->
-  <rect data-layout-parent="vnet" data-layout-container="aks" data-min-pad="32" data-min-visual-pad="12" data-symmetry="xy" data-symmetry-tol="4" data-layout-count="5" x="68" y="460" width="584" height="204" rx="14" data-fill-role="compute-band" fill="#F7FBF9" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
+  <rect x="68" y="460" width="584" height="206" rx="14" data-fill-role="compute-band" fill="#F7FBF9" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
   <text font-size="14" font-weight="700" letter-spacing="0.04em" x="96" y="480" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">AKS 클러스터</text>
 
-  <rect data-layout-parent="aks" data-layout-item="svcrow" data-layout-group="svcrow" data-distribution="equal-gap" data-axis="x" data-group-count="2" data-gap-tol="1" x="100" y="492" width="236" height="44" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
-  <circle cx="126" cy="514" r="14" data-fill-role="compute-fill" fill="#ECF4F1"/><g transform="translate(122.0,506.0) scale(0.6667)"><circle data-stroke-role="compute-line" stroke="#3F8F72" cx="12" cy="5" r="2.5"/><circle data-stroke-role="compute-line" stroke="#3F8F72" cx="5" cy="19" r="2.5"/><circle data-stroke-role="compute-line" stroke="#3F8F72" cx="19" cy="19" r="2.5"/><path data-stroke-role="compute-line" stroke="#3F8F72" d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></g>
-  <text font-size="15" font-weight="700" x="156" y="514" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">인그레스 컨트롤러</text>
-  <path d="M344 514 H372" fill="none" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m0)"/>
+  <rect x="100" y="494" width="236" height="44" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
+  <circle cx="130" cy="516" r="14" data-fill-role="compute-fill" fill="#ECF4F1"/><g transform="translate(122.0,508.0) scale(0.6667)"><circle data-stroke-role="compute-line" stroke="#3F8F72" cx="12" cy="5" r="2.5"/><circle data-stroke-role="compute-line" stroke="#3F8F72" cx="5" cy="19" r="2.5"/><circle data-stroke-role="compute-line" stroke="#3F8F72" cx="19" cy="19" r="2.5"/><path data-stroke-role="compute-line" stroke="#3F8F72" d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></g>
+  <text font-size="15" font-weight="700" x="156" y="516" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">인그레스 컨트롤러</text>
+  <path d="M344 516 H372" fill="none" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m0)"/>
 
-  <rect data-layout-parent="aks" data-layout-item="svcrow" x="384" y="492" width="236" height="44" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
-  <circle cx="126" cy="514" r="14" data-fill-role="compute-fill" fill="#ECF4F1"/><g transform="translate(406.0,506.0) scale(0.6667)"><rect data-stroke-role="compute-line" stroke="#3F8F72" x="4" y="4" width="16" height="7" rx="2"/><rect data-stroke-role="compute-line" stroke="#3F8F72" x="4" y="13" width="16" height="7" rx="2"/><path data-stroke-role="compute-line" stroke="#3F8F72" d="M8 7.5h.01M8 16.5h.01"/></g>
-  <text font-size="15" font-weight="700" x="440" y="514" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">Service (ClusterIP)</text>
+  <rect x="384" y="494" width="236" height="44" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
+  <circle cx="414" cy="516" r="14" data-fill-role="compute-fill" fill="#ECF4F1"/><g transform="translate(406.0,508.0) scale(0.6667)"><rect data-stroke-role="compute-line" stroke="#3F8F72" x="4" y="4" width="16" height="7" rx="2"/><rect data-stroke-role="compute-line" stroke="#3F8F72" x="4" y="13" width="16" height="7" rx="2"/><path data-stroke-role="compute-line" stroke="#3F8F72" d="M8 7.5h.01M8 16.5h.01"/></g>
+  <text font-size="15" font-weight="700" x="440" y="516" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">Service (ClusterIP)</text>
 
   <!-- fan-out to replica pods -->
   <g fill="none" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="2" stroke-linecap="round">
-    <path d="M502 536 V546"/>
-    <path d="M180 546 H540"/>
-    <path d="M180 546 V572" marker-end="url(#ah-m0)"/>
-    <path d="M360 546 V572" marker-end="url(#ah-m0)"/>
-    <path d="M540 546 V572" marker-end="url(#ah-m0)"/>
+    <path d="M502 538 V548"/>
+    <path d="M180 548 H540"/>
+    <path d="M180 548 V574" marker-end="url(#ah-m0)"/>
+    <path d="M360 548 V574" marker-end="url(#ah-m0)"/>
+    <path d="M540 548 V574" marker-end="url(#ah-m0)"/>
   </g>
 
-  <rect data-layout-parent="aks" data-layout-item="pods" data-layout-group="pods" data-distribution="equal-gap" data-axis="x" data-group-count="3" data-gap-tol="1" x="100" y="580" width="160" height="52" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
-  <text font-size="15" font-weight="700" x="180" y="598" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">Pod</text>
-  <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="180" y="617" text-anchor="middle" dominant-baseline="central">레플리카</text>
-  <rect data-layout-parent="aks" data-layout-item="pods" x="280" y="580" width="160" height="52" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
-  <text font-size="15" font-weight="700" x="360" y="598" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">Pod</text>
-  <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="360" y="617" text-anchor="middle" dominant-baseline="central">레플리카</text>
-  <rect data-layout-parent="aks" data-layout-item="pods" x="460" y="580" width="160" height="52" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
-  <text font-size="15" font-weight="700" x="540" y="598" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">Pod</text>
-  <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="540" y="617" text-anchor="middle" dominant-baseline="central">레플리카</text>
+  <rect x="100" y="582" width="160" height="52" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
+  <text font-size="15" font-weight="700" x="180" y="600" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">Pod</text>
+  <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="180" y="619" text-anchor="middle" dominant-baseline="central">레플리카</text>
+  <rect x="280" y="582" width="160" height="52" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
+  <text font-size="15" font-weight="700" x="360" y="600" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">Pod</text>
+  <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="360" y="619" text-anchor="middle" dominant-baseline="central">레플리카</text>
+  <rect x="460" y="582" width="160" height="52" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
+  <text font-size="15" font-weight="700" x="540" y="600" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">Pod</text>
+  <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="540" y="619" text-anchor="middle" dominant-baseline="central">레플리카</text>
 
   <!-- private link to postgres -->
-  <path d="M360 672 V696" fill="none" data-stroke-role="data-line" stroke="#636A75" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round" marker-end="url(#ahD-m0)"/>
+  <path d="M360 674 V696" fill="none" data-stroke-role="data-line" stroke="#636A75" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round" marker-end="url(#ahD-m0)"/>
 
-  <rect data-layout-parent="vnet" x="68" y="704" width="584" height="54" rx="10" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="data-line" stroke="#636A75" stroke-width="1" filter="url(#cardShadow-m0)"/>
+  <rect x="68" y="704" width="584" height="54" rx="10" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="data-line" stroke="#636A75" stroke-width="1" filter="url(#cardShadow-m0)"/>
   <circle cx="100" cy="731" r="17" data-fill-role="data-fill" fill="#F4F5F5"/><g transform="translate(90.0,721.0) scale(0.8333)"><ellipse data-stroke-role="data-line" stroke="#636A75" cx="12" cy="5" rx="7" ry="3"/><path data-stroke-role="data-line" stroke="#636A75" d="M5 5v14c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/><path data-stroke-role="data-line" stroke="#636A75" d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></g>
   <text font-size="15" font-weight="700" x="128" y="723" dominant-baseline="central" data-fill-role="data-ink" fill="#363A40">Azure Database for PostgreSQL</text>
   <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="128" y="743" dominant-baseline="central">Flexible Server · 프라이빗 엔드포인트</text>
@@ -134,73 +134,73 @@
   <rect width="720" height="900" data-fill-role="canvas" fill="#F7F7F5"/>
 
   <!-- header: rail from eyebrowTop(51) to titleBottom(106) -->
-  <g data-layout-role="header-cluster" data-layout-content-top="168" data-layout-breathing="36" data-layout-tolerance="2">
-    <rect data-layout-role="cluster-locator" data-fill-role="focus" x="40" y="48" width="8" height="8" rx="2" fill="#2E6DA4"/>
-    <text data-layout-role="cluster-eyebrow" data-fill-role="muted" x="56" y="56" font-size="14" font-weight="700" letter-spacing="0.10em" fill="#636A75" dominant-baseline="central">REFERENCE TOPOLOGY</text>
-    <text data-layout-role="cluster-h1" data-fill-role="ink" x="40" y="92" font-size="28" font-weight="700" fill="#252B35" dominant-baseline="central">Azure reference topology</text>
-    <text data-layout-role="cluster-subtitle" data-fill-role="muted" x="40" y="124" font-size="14" fill="#636A75" dominant-baseline="central">Request path — Application Gateway → APIM → AKS → PostgreSQL</text>
+  <g>
+    <rect data-fill-role="focus" x="40" y="48" width="8" height="8" rx="2" fill="#2E6DA4"/>
+    <text data-fill-role="muted" x="56" y="56" font-size="14" font-weight="700" letter-spacing="0.10em" fill="#636A75" dominant-baseline="central">REFERENCE TOPOLOGY</text>
+    <text data-fill-role="ink" x="40" y="92" font-size="28" font-weight="700" fill="#252B35" dominant-baseline="central">Azure reference topology</text>
+    <text data-fill-role="muted" x="40" y="124" font-size="14" fill="#636A75" dominant-baseline="central">Request path — Application Gateway → APIM → AKS → PostgreSQL</text>
   </g>
 
   <!-- client -->
   <rect x="210" y="154" width="300" height="46" rx="10" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="1" filter="url(#cardShadow-m1)"/>
   <circle cx="242" cy="177" r="15" data-fill-role="edge-fill" fill="#EAF0F6"/><g transform="translate(233.0,168.0) scale(0.7500)"><circle data-stroke-role="edge-line" stroke="#2E6DA4" cx="12" cy="12" r="8.5"/><path data-stroke-role="edge-line" stroke="#2E6DA4" d="M3.5 12h17"/><path data-stroke-role="edge-line" stroke="#2E6DA4" d="M12 3.5a13 13 0 0 1 0 17 13 13 0 0 1 0-17z"/></g>
   <text font-size="15" font-weight="700" x="266" y="177" dominant-baseline="central" data-fill-role="edge-ink" fill="#193C5A">Internet / client</text>
-  <path d="M360 208 V232" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m1)"/>
+  <path d="M360 208 V234" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m1)"/>
 
   <!-- VNet frame -->
-  <rect data-layout-container="vnet" data-min-pad="32" data-min-visual-pad="12" data-symmetry="xy" data-symmetry-tol="4" data-layout-count="4" x="36" y="240" width="648" height="550" rx="18" data-fill-role="external-fill" fill="#F9F9F9" data-stroke-role="external-line" stroke="#B9BCC1" stroke-width="1.5" stroke-dasharray="7 5"/>
-  <text font-size="14" font-weight="700" letter-spacing="0.04em" x="60" y="260" dominant-baseline="central" data-fill-role="muted" fill="#636A75">Azure VNet</text>
+  <rect x="36" y="242" width="648" height="548" rx="18" data-fill-role="external-fill" fill="#F9F9F9" data-stroke-role="external-line" stroke="#B9BCC1" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <text font-size="14" font-weight="700" letter-spacing="0.04em" x="60" y="262" dominant-baseline="central" data-fill-role="muted" fill="#636A75">Azure VNet</text>
 
   <!-- application gateway -->
-  <rect data-layout-parent="vnet" x="68" y="272" width="584" height="54" rx="10" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="1" filter="url(#cardShadow-m1)"/>
-  <circle cx="100" cy="299" r="17" data-fill-role="edge-fill" fill="#EAF0F6"/><g transform="translate(90.0,289.0) scale(0.8333)"><path data-stroke-role="edge-line" stroke="#2E6DA4" d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path data-stroke-role="edge-line" stroke="#2E6DA4" d="M9 12l2 2 4-4"/></g>
-  <text font-size="15" font-weight="700" x="128" y="291" dominant-baseline="central" data-fill-role="edge-ink" fill="#193C5A">Application Gateway + WAF</text>
-  <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="128" y="311" dominant-baseline="central">public entry · TLS termination · L7 routing</text>
-  <path d="M360 334 V358" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m1)"/>
+  <rect x="68" y="276" width="584" height="54" rx="10" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="1" filter="url(#cardShadow-m1)"/>
+  <circle cx="100" cy="303" r="17" data-fill-role="edge-fill" fill="#EAF0F6"/><g transform="translate(90.0,293.0) scale(0.8333)"><path data-stroke-role="edge-line" stroke="#2E6DA4" d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path data-stroke-role="edge-line" stroke="#2E6DA4" d="M9 12l2 2 4-4"/></g>
+  <text font-size="15" font-weight="700" x="128" y="295" dominant-baseline="central" data-fill-role="edge-ink" fill="#193C5A">Application Gateway + WAF</text>
+  <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="128" y="315" dominant-baseline="central">public entry · TLS termination · L7 routing</text>
+  <path d="M360 338 V360" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m1)"/>
 
   <!-- api management -->
-  <rect data-layout-parent="vnet" x="68" y="366" width="584" height="54" rx="10" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="api-line" stroke="#5B54A8" stroke-width="1" filter="url(#cardShadow-m1)"/>
-  <circle cx="100" cy="393" r="17" data-fill-role="api-fill" fill="#EFEEF6"/><g transform="translate(90.0,383.0) scale(0.8333)"><path data-stroke-role="api-line" stroke="#5B54A8" d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></g>
-  <text font-size="15" font-weight="700" x="128" y="385" dominant-baseline="central" data-fill-role="api-ink" fill="#322E5C">API Management (APIM)</text>
-  <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="128" y="405" dominant-baseline="central">auth · rate limit · policy · versioning</text>
-  <path d="M360 428 V452" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m1)"/>
+  <rect x="68" y="368" width="584" height="54" rx="10" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="api-line" stroke="#5B54A8" stroke-width="1" filter="url(#cardShadow-m1)"/>
+  <circle cx="100" cy="395" r="17" data-fill-role="api-fill" fill="#EFEEF6"/><g transform="translate(90.0,385.0) scale(0.8333)"><path data-stroke-role="api-line" stroke="#5B54A8" d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></g>
+  <text font-size="15" font-weight="700" x="128" y="387" dominant-baseline="central" data-fill-role="api-ink" fill="#322E5C">API Management (APIM)</text>
+  <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="128" y="407" dominant-baseline="central">auth · rate limit · policy · versioning</text>
+  <path d="M360 430 V452" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m1)"/>
 
   <!-- AKS cluster -->
-  <rect data-layout-parent="vnet" data-layout-container="aks" data-min-pad="32" data-min-visual-pad="12" data-symmetry="xy" data-symmetry-tol="4" data-layout-count="5" x="68" y="460" width="584" height="204" rx="14" data-fill-role="compute-band" fill="#F7FBF9" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
+  <rect x="68" y="460" width="584" height="206" rx="14" data-fill-role="compute-band" fill="#F7FBF9" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
   <text font-size="14" font-weight="700" letter-spacing="0.04em" x="96" y="480" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">AKS cluster</text>
 
-  <rect data-layout-parent="aks" data-layout-item="svcrow" data-layout-group="svcrow" data-distribution="equal-gap" data-axis="x" data-group-count="2" data-gap-tol="1" x="100" y="492" width="236" height="44" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
-  <circle cx="126" cy="514" r="14" data-fill-role="compute-fill" fill="#ECF4F1"/><g transform="translate(122.0,506.0) scale(0.6667)"><circle data-stroke-role="compute-line" stroke="#3F8F72" cx="12" cy="5" r="2.5"/><circle data-stroke-role="compute-line" stroke="#3F8F72" cx="5" cy="19" r="2.5"/><circle data-stroke-role="compute-line" stroke="#3F8F72" cx="19" cy="19" r="2.5"/><path data-stroke-role="compute-line" stroke="#3F8F72" d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></g>
-  <text font-size="15" font-weight="700" x="156" y="514" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">Ingress controller</text>
-  <path d="M344 514 H372" fill="none" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m1)"/>
+  <rect x="100" y="494" width="236" height="44" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
+  <circle cx="130" cy="516" r="14" data-fill-role="compute-fill" fill="#ECF4F1"/><g transform="translate(122.0,508.0) scale(0.6667)"><circle data-stroke-role="compute-line" stroke="#3F8F72" cx="12" cy="5" r="2.5"/><circle data-stroke-role="compute-line" stroke="#3F8F72" cx="5" cy="19" r="2.5"/><circle data-stroke-role="compute-line" stroke="#3F8F72" cx="19" cy="19" r="2.5"/><path data-stroke-role="compute-line" stroke="#3F8F72" d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></g>
+  <text font-size="15" font-weight="700" x="156" y="516" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">Ingress controller</text>
+  <path d="M344 516 H372" fill="none" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m1)"/>
 
-  <rect data-layout-parent="aks" data-layout-item="svcrow" x="384" y="492" width="236" height="44" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
-  <circle cx="126" cy="514" r="14" data-fill-role="compute-fill" fill="#ECF4F1"/><g transform="translate(406.0,506.0) scale(0.6667)"><rect data-stroke-role="compute-line" stroke="#3F8F72" x="4" y="4" width="16" height="7" rx="2"/><rect data-stroke-role="compute-line" stroke="#3F8F72" x="4" y="13" width="16" height="7" rx="2"/><path data-stroke-role="compute-line" stroke="#3F8F72" d="M8 7.5h.01M8 16.5h.01"/></g>
-  <text font-size="15" font-weight="700" x="440" y="514" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">Service (ClusterIP)</text>
+  <rect x="384" y="494" width="236" height="44" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
+  <circle cx="414" cy="516" r="14" data-fill-role="compute-fill" fill="#ECF4F1"/><g transform="translate(406.0,508.0) scale(0.6667)"><rect data-stroke-role="compute-line" stroke="#3F8F72" x="4" y="4" width="16" height="7" rx="2"/><rect data-stroke-role="compute-line" stroke="#3F8F72" x="4" y="13" width="16" height="7" rx="2"/><path data-stroke-role="compute-line" stroke="#3F8F72" d="M8 7.5h.01M8 16.5h.01"/></g>
+  <text font-size="15" font-weight="700" x="440" y="516" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">Service (ClusterIP)</text>
 
   <!-- fan-out to replica pods -->
   <g fill="none" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="2" stroke-linecap="round">
-    <path d="M502 536 V546"/>
-    <path d="M180 546 H540"/>
-    <path d="M180 546 V572" marker-end="url(#ah-m1)"/>
-    <path d="M360 546 V572" marker-end="url(#ah-m1)"/>
-    <path d="M540 546 V572" marker-end="url(#ah-m1)"/>
+    <path d="M502 538 V548"/>
+    <path d="M180 548 H540"/>
+    <path d="M180 548 V574" marker-end="url(#ah-m1)"/>
+    <path d="M360 548 V574" marker-end="url(#ah-m1)"/>
+    <path d="M540 548 V574" marker-end="url(#ah-m1)"/>
   </g>
 
-  <rect data-layout-parent="aks" data-layout-item="pods" data-layout-group="pods" data-distribution="equal-gap" data-axis="x" data-group-count="3" data-gap-tol="1" x="100" y="580" width="160" height="52" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
-  <text font-size="15" font-weight="700" x="180" y="598" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">Pod</text>
-  <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="180" y="617" text-anchor="middle" dominant-baseline="central">replica</text>
-  <rect data-layout-parent="aks" data-layout-item="pods" x="280" y="580" width="160" height="52" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
-  <text font-size="15" font-weight="700" x="360" y="598" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">Pod</text>
-  <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="360" y="617" text-anchor="middle" dominant-baseline="central">replica</text>
-  <rect data-layout-parent="aks" data-layout-item="pods" x="460" y="580" width="160" height="52" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
-  <text font-size="15" font-weight="700" x="540" y="598" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">Pod</text>
-  <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="540" y="617" text-anchor="middle" dominant-baseline="central">replica</text>
+  <rect x="100" y="582" width="160" height="52" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
+  <text font-size="15" font-weight="700" x="180" y="600" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">Pod</text>
+  <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="180" y="619" text-anchor="middle" dominant-baseline="central">replica</text>
+  <rect x="280" y="582" width="160" height="52" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
+  <text font-size="15" font-weight="700" x="360" y="600" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">Pod</text>
+  <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="360" y="619" text-anchor="middle" dominant-baseline="central">replica</text>
+  <rect x="460" y="582" width="160" height="52" rx="9" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="compute-line" stroke="#3F8F72" stroke-width="1"/>
+  <text font-size="15" font-weight="700" x="540" y="600" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#234F3F">Pod</text>
+  <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="540" y="619" text-anchor="middle" dominant-baseline="central">replica</text>
 
   <!-- private link to postgres -->
-  <path d="M360 672 V696" fill="none" data-stroke-role="data-line" stroke="#636A75" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round" marker-end="url(#ahD-m1)"/>
+  <path d="M360 674 V696" fill="none" data-stroke-role="data-line" stroke="#636A75" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round" marker-end="url(#ahD-m1)"/>
 
-  <rect data-layout-parent="vnet" x="68" y="704" width="584" height="54" rx="10" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="data-line" stroke="#636A75" stroke-width="1" filter="url(#cardShadow-m1)"/>
+  <rect x="68" y="704" width="584" height="54" rx="10" data-fill-role="surface" fill="#FFFFFF" data-stroke-role="data-line" stroke="#636A75" stroke-width="1" filter="url(#cardShadow-m1)"/>
   <circle cx="100" cy="731" r="17" data-fill-role="data-fill" fill="#F4F5F5"/><g transform="translate(90.0,721.0) scale(0.8333)"><ellipse data-stroke-role="data-line" stroke="#636A75" cx="12" cy="5" rx="7" ry="3"/><path data-stroke-role="data-line" stroke="#636A75" d="M5 5v14c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/><path data-stroke-role="data-line" stroke="#636A75" d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></g>
   <text font-size="15" font-weight="700" x="128" y="723" dominant-baseline="central" data-fill-role="data-ink" fill="#363A40">Azure Database for PostgreSQL</text>
   <text font-size="11.5" data-fill-role="muted" fill="#636A75" x="128" y="743" dominant-baseline="central">Flexible Server · private endpoint</text>
@@ -235,73 +235,73 @@
   <rect width="720" height="900" data-fill-role="canvas" fill="#16191E"/>
 
   <!-- header: rail from eyebrowTop(51) to titleBottom(106) -->
-  <g data-layout-role="header-cluster" data-layout-content-top="168" data-layout-breathing="36" data-layout-tolerance="2">
-    <rect data-layout-role="cluster-locator" data-fill-role="focus" x="40" y="48" width="8" height="8" rx="2" fill="#6FA3D3"/>
-    <text data-layout-role="cluster-eyebrow" data-fill-role="muted" x="56" y="56" font-size="14" font-weight="700" letter-spacing="0.10em" fill="#9EA6B0" dominant-baseline="central">레퍼런스 토폴로지</text>
-    <text data-layout-role="cluster-h1" data-fill-role="ink" x="40" y="92" font-size="28" font-weight="700" fill="#E9ECEF" dominant-baseline="central">Azure 레퍼런스 토폴로지</text>
-    <text data-layout-role="cluster-subtitle" data-fill-role="muted" x="40" y="124" font-size="14" fill="#9EA6B0" dominant-baseline="central">요청 경로 — Application Gateway → APIM → AKS → PostgreSQL</text>
+  <g>
+    <rect data-fill-role="focus" x="40" y="48" width="8" height="8" rx="2" fill="#6FA3D3"/>
+    <text data-fill-role="muted" x="56" y="56" font-size="14" font-weight="700" letter-spacing="0.10em" fill="#9EA6B0" dominant-baseline="central">레퍼런스 토폴로지</text>
+    <text data-fill-role="ink" x="40" y="92" font-size="28" font-weight="700" fill="#E9ECEF" dominant-baseline="central">Azure 레퍼런스 토폴로지</text>
+    <text data-fill-role="muted" x="40" y="124" font-size="14" fill="#9EA6B0" dominant-baseline="central">요청 경로 — Application Gateway → APIM → AKS → PostgreSQL</text>
   </g>
 
   <!-- client -->
   <rect x="210" y="154" width="300" height="46" rx="10" data-fill-role="surface" fill="#20242B" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="1" filter="url(#cardShadow-m2)"/>
   <circle cx="242" cy="177" r="15" data-fill-role="edge-fill" fill="#2A3746"/><g transform="translate(233.0,168.0) scale(0.7500)"><circle data-stroke-role="edge-line" stroke="#6FA3D3" cx="12" cy="12" r="8.5"/><path data-stroke-role="edge-line" stroke="#6FA3D3" d="M3.5 12h17"/><path data-stroke-role="edge-line" stroke="#6FA3D3" d="M12 3.5a13 13 0 0 1 0 17 13 13 0 0 1 0-17z"/></g>
   <text font-size="15" font-weight="700" x="266" y="177" dominant-baseline="central" data-fill-role="edge-ink" fill="#C5DAED">인터넷 / 클라이언트</text>
-  <path d="M360 208 V232" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m2)"/>
+  <path d="M360 208 V234" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m2)"/>
 
   <!-- VNet frame -->
-  <rect data-layout-container="vnet" data-min-pad="32" data-min-visual-pad="12" data-symmetry="xy" data-symmetry-tol="4" data-layout-count="4" x="36" y="240" width="648" height="550" rx="18" data-fill-role="external-fill" fill="#24272D" data-stroke-role="external-line" stroke="#61676E" stroke-width="1.5" stroke-dasharray="7 5"/>
-  <text font-size="14" font-weight="700" letter-spacing="0.04em" x="60" y="260" dominant-baseline="central" data-fill-role="muted" fill="#9EA6B0">Azure VNet</text>
+  <rect x="36" y="242" width="648" height="548" rx="18" data-fill-role="external-fill" fill="#24272D" data-stroke-role="external-line" stroke="#61676E" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <text font-size="14" font-weight="700" letter-spacing="0.04em" x="60" y="262" dominant-baseline="central" data-fill-role="muted" fill="#9EA6B0">Azure VNet</text>
 
   <!-- application gateway -->
-  <rect data-layout-parent="vnet" x="68" y="272" width="584" height="54" rx="10" data-fill-role="surface" fill="#20242B" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="1" filter="url(#cardShadow-m2)"/>
-  <circle cx="100" cy="299" r="17" data-fill-role="edge-fill" fill="#2A3746"/><g transform="translate(90.0,289.0) scale(0.8333)"><path data-stroke-role="edge-line" stroke="#6FA3D3" d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path data-stroke-role="edge-line" stroke="#6FA3D3" d="M9 12l2 2 4-4"/></g>
-  <text font-size="15" font-weight="700" x="128" y="291" dominant-baseline="central" data-fill-role="edge-ink" fill="#C5DAED">Application Gateway + WAF</text>
-  <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="128" y="311" dominant-baseline="central">공개 진입 · TLS 종료 · L7 라우팅</text>
-  <path d="M360 334 V358" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m2)"/>
+  <rect x="68" y="276" width="584" height="54" rx="10" data-fill-role="surface" fill="#20242B" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="1" filter="url(#cardShadow-m2)"/>
+  <circle cx="100" cy="303" r="17" data-fill-role="edge-fill" fill="#2A3746"/><g transform="translate(90.0,293.0) scale(0.8333)"><path data-stroke-role="edge-line" stroke="#6FA3D3" d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path data-stroke-role="edge-line" stroke="#6FA3D3" d="M9 12l2 2 4-4"/></g>
+  <text font-size="15" font-weight="700" x="128" y="295" dominant-baseline="central" data-fill-role="edge-ink" fill="#C5DAED">Application Gateway + WAF</text>
+  <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="128" y="315" dominant-baseline="central">공개 진입 · TLS 종료 · L7 라우팅</text>
+  <path d="M360 338 V360" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m2)"/>
 
   <!-- api management -->
-  <rect data-layout-parent="vnet" x="68" y="366" width="584" height="54" rx="10" data-fill-role="surface" fill="#20242B" data-stroke-role="api-line" stroke="#9490C6" stroke-width="1" filter="url(#cardShadow-m2)"/>
-  <circle cx="100" cy="393" r="17" data-fill-role="api-fill" fill="#323343"/><g transform="translate(90.0,383.0) scale(0.8333)"><path data-stroke-role="api-line" stroke="#9490C6" d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></g>
-  <text font-size="15" font-weight="700" x="128" y="385" dominant-baseline="central" data-fill-role="api-ink" fill="#D4D3E8">API Management (APIM)</text>
-  <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="128" y="405" dominant-baseline="central">인증 · rate limit · 정책 · 버전 관리</text>
-  <path d="M360 428 V452" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m2)"/>
+  <rect x="68" y="368" width="584" height="54" rx="10" data-fill-role="surface" fill="#20242B" data-stroke-role="api-line" stroke="#9490C6" stroke-width="1" filter="url(#cardShadow-m2)"/>
+  <circle cx="100" cy="395" r="17" data-fill-role="api-fill" fill="#323343"/><g transform="translate(90.0,385.0) scale(0.8333)"><path data-stroke-role="api-line" stroke="#9490C6" d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></g>
+  <text font-size="15" font-weight="700" x="128" y="387" dominant-baseline="central" data-fill-role="api-ink" fill="#D4D3E8">API Management (APIM)</text>
+  <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="128" y="407" dominant-baseline="central">인증 · rate limit · 정책 · 버전 관리</text>
+  <path d="M360 430 V452" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m2)"/>
 
   <!-- AKS cluster -->
-  <rect data-layout-parent="vnet" data-layout-container="aks" data-min-pad="32" data-min-visual-pad="12" data-symmetry="xy" data-symmetry-tol="4" data-layout-count="5" x="68" y="460" width="584" height="204" rx="14" data-fill-role="compute-band" fill="#202E2E" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
+  <rect x="68" y="460" width="584" height="206" rx="14" data-fill-role="compute-band" fill="#202E2E" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
   <text font-size="14" font-weight="700" letter-spacing="0.04em" x="96" y="480" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">AKS 클러스터</text>
 
-  <rect data-layout-parent="aks" data-layout-item="svcrow" data-layout-group="svcrow" data-distribution="equal-gap" data-axis="x" data-group-count="2" data-gap-tol="1" x="100" y="492" width="236" height="44" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
-  <circle cx="126" cy="514" r="14" data-fill-role="compute-fill" fill="#263A37"/><g transform="translate(122.0,506.0) scale(0.6667)"><circle data-stroke-role="compute-line" stroke="#5FAE8F" cx="12" cy="5" r="2.5"/><circle data-stroke-role="compute-line" stroke="#5FAE8F" cx="5" cy="19" r="2.5"/><circle data-stroke-role="compute-line" stroke="#5FAE8F" cx="19" cy="19" r="2.5"/><path data-stroke-role="compute-line" stroke="#5FAE8F" d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></g>
-  <text font-size="15" font-weight="700" x="156" y="514" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">인그레스 컨트롤러</text>
-  <path d="M344 514 H372" fill="none" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m2)"/>
+  <rect x="100" y="494" width="236" height="44" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
+  <circle cx="130" cy="516" r="14" data-fill-role="compute-fill" fill="#263A37"/><g transform="translate(122.0,508.0) scale(0.6667)"><circle data-stroke-role="compute-line" stroke="#5FAE8F" cx="12" cy="5" r="2.5"/><circle data-stroke-role="compute-line" stroke="#5FAE8F" cx="5" cy="19" r="2.5"/><circle data-stroke-role="compute-line" stroke="#5FAE8F" cx="19" cy="19" r="2.5"/><path data-stroke-role="compute-line" stroke="#5FAE8F" d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></g>
+  <text font-size="15" font-weight="700" x="156" y="516" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">인그레스 컨트롤러</text>
+  <path d="M344 516 H372" fill="none" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m2)"/>
 
-  <rect data-layout-parent="aks" data-layout-item="svcrow" x="384" y="492" width="236" height="44" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
-  <circle cx="126" cy="514" r="14" data-fill-role="compute-fill" fill="#263A37"/><g transform="translate(406.0,506.0) scale(0.6667)"><rect data-stroke-role="compute-line" stroke="#5FAE8F" x="4" y="4" width="16" height="7" rx="2"/><rect data-stroke-role="compute-line" stroke="#5FAE8F" x="4" y="13" width="16" height="7" rx="2"/><path data-stroke-role="compute-line" stroke="#5FAE8F" d="M8 7.5h.01M8 16.5h.01"/></g>
-  <text font-size="15" font-weight="700" x="440" y="514" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">Service (ClusterIP)</text>
+  <rect x="384" y="494" width="236" height="44" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
+  <circle cx="414" cy="516" r="14" data-fill-role="compute-fill" fill="#263A37"/><g transform="translate(406.0,508.0) scale(0.6667)"><rect data-stroke-role="compute-line" stroke="#5FAE8F" x="4" y="4" width="16" height="7" rx="2"/><rect data-stroke-role="compute-line" stroke="#5FAE8F" x="4" y="13" width="16" height="7" rx="2"/><path data-stroke-role="compute-line" stroke="#5FAE8F" d="M8 7.5h.01M8 16.5h.01"/></g>
+  <text font-size="15" font-weight="700" x="440" y="516" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">Service (ClusterIP)</text>
 
   <!-- fan-out to replica pods -->
   <g fill="none" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="2" stroke-linecap="round">
-    <path d="M502 536 V546"/>
-    <path d="M180 546 H540"/>
-    <path d="M180 546 V572" marker-end="url(#ah-m2)"/>
-    <path d="M360 546 V572" marker-end="url(#ah-m2)"/>
-    <path d="M540 546 V572" marker-end="url(#ah-m2)"/>
+    <path d="M502 538 V548"/>
+    <path d="M180 548 H540"/>
+    <path d="M180 548 V574" marker-end="url(#ah-m2)"/>
+    <path d="M360 548 V574" marker-end="url(#ah-m2)"/>
+    <path d="M540 548 V574" marker-end="url(#ah-m2)"/>
   </g>
 
-  <rect data-layout-parent="aks" data-layout-item="pods" data-layout-group="pods" data-distribution="equal-gap" data-axis="x" data-group-count="3" data-gap-tol="1" x="100" y="580" width="160" height="52" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
-  <text font-size="15" font-weight="700" x="180" y="598" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">Pod</text>
-  <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="180" y="617" text-anchor="middle" dominant-baseline="central">레플리카</text>
-  <rect data-layout-parent="aks" data-layout-item="pods" x="280" y="580" width="160" height="52" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
-  <text font-size="15" font-weight="700" x="360" y="598" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">Pod</text>
-  <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="360" y="617" text-anchor="middle" dominant-baseline="central">레플리카</text>
-  <rect data-layout-parent="aks" data-layout-item="pods" x="460" y="580" width="160" height="52" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
-  <text font-size="15" font-weight="700" x="540" y="598" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">Pod</text>
-  <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="540" y="617" text-anchor="middle" dominant-baseline="central">레플리카</text>
+  <rect x="100" y="582" width="160" height="52" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
+  <text font-size="15" font-weight="700" x="180" y="600" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">Pod</text>
+  <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="180" y="619" text-anchor="middle" dominant-baseline="central">레플리카</text>
+  <rect x="280" y="582" width="160" height="52" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
+  <text font-size="15" font-weight="700" x="360" y="600" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">Pod</text>
+  <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="360" y="619" text-anchor="middle" dominant-baseline="central">레플리카</text>
+  <rect x="460" y="582" width="160" height="52" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
+  <text font-size="15" font-weight="700" x="540" y="600" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">Pod</text>
+  <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="540" y="619" text-anchor="middle" dominant-baseline="central">레플리카</text>
 
   <!-- private link to postgres -->
-  <path d="M360 672 V696" fill="none" data-stroke-role="data-line" stroke="#9EA6B0" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round" marker-end="url(#ahD-m2)"/>
+  <path d="M360 674 V696" fill="none" data-stroke-role="data-line" stroke="#9EA6B0" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round" marker-end="url(#ahD-m2)"/>
 
-  <rect data-layout-parent="vnet" x="68" y="704" width="584" height="54" rx="10" data-fill-role="surface" fill="#20242B" data-stroke-role="data-line" stroke="#9EA6B0" stroke-width="1" filter="url(#cardShadow-m2)"/>
+  <rect x="68" y="704" width="584" height="54" rx="10" data-fill-role="surface" fill="#20242B" data-stroke-role="data-line" stroke="#9EA6B0" stroke-width="1" filter="url(#cardShadow-m2)"/>
   <circle cx="100" cy="731" r="17" data-fill-role="data-fill" fill="#31353B"/><g transform="translate(90.0,721.0) scale(0.8333)"><ellipse data-stroke-role="data-line" stroke="#9EA6B0" cx="12" cy="5" rx="7" ry="3"/><path data-stroke-role="data-line" stroke="#9EA6B0" d="M5 5v14c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/><path data-stroke-role="data-line" stroke="#9EA6B0" d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></g>
   <text font-size="15" font-weight="700" x="128" y="723" dominant-baseline="central" data-fill-role="data-ink" fill="#D8DBDF">Azure Database for PostgreSQL</text>
   <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="128" y="743" dominant-baseline="central">Flexible Server · 프라이빗 엔드포인트</text>
@@ -336,73 +336,73 @@
   <rect width="720" height="900" data-fill-role="canvas" fill="#16191E"/>
 
   <!-- header: rail from eyebrowTop(51) to titleBottom(106) -->
-  <g data-layout-role="header-cluster" data-layout-content-top="168" data-layout-breathing="36" data-layout-tolerance="2">
-    <rect data-layout-role="cluster-locator" data-fill-role="focus" x="40" y="48" width="8" height="8" rx="2" fill="#6FA3D3"/>
-    <text data-layout-role="cluster-eyebrow" data-fill-role="muted" x="56" y="56" font-size="14" font-weight="700" letter-spacing="0.10em" fill="#9EA6B0" dominant-baseline="central">REFERENCE TOPOLOGY</text>
-    <text data-layout-role="cluster-h1" data-fill-role="ink" x="40" y="92" font-size="28" font-weight="700" fill="#E9ECEF" dominant-baseline="central">Azure reference topology</text>
-    <text data-layout-role="cluster-subtitle" data-fill-role="muted" x="40" y="124" font-size="14" fill="#9EA6B0" dominant-baseline="central">Request path — Application Gateway → APIM → AKS → PostgreSQL</text>
+  <g>
+    <rect data-fill-role="focus" x="40" y="48" width="8" height="8" rx="2" fill="#6FA3D3"/>
+    <text data-fill-role="muted" x="56" y="56" font-size="14" font-weight="700" letter-spacing="0.10em" fill="#9EA6B0" dominant-baseline="central">REFERENCE TOPOLOGY</text>
+    <text data-fill-role="ink" x="40" y="92" font-size="28" font-weight="700" fill="#E9ECEF" dominant-baseline="central">Azure reference topology</text>
+    <text data-fill-role="muted" x="40" y="124" font-size="14" fill="#9EA6B0" dominant-baseline="central">Request path — Application Gateway → APIM → AKS → PostgreSQL</text>
   </g>
 
   <!-- client -->
   <rect x="210" y="154" width="300" height="46" rx="10" data-fill-role="surface" fill="#20242B" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="1" filter="url(#cardShadow-m3)"/>
   <circle cx="242" cy="177" r="15" data-fill-role="edge-fill" fill="#2A3746"/><g transform="translate(233.0,168.0) scale(0.7500)"><circle data-stroke-role="edge-line" stroke="#6FA3D3" cx="12" cy="12" r="8.5"/><path data-stroke-role="edge-line" stroke="#6FA3D3" d="M3.5 12h17"/><path data-stroke-role="edge-line" stroke="#6FA3D3" d="M12 3.5a13 13 0 0 1 0 17 13 13 0 0 1 0-17z"/></g>
   <text font-size="15" font-weight="700" x="266" y="177" dominant-baseline="central" data-fill-role="edge-ink" fill="#C5DAED">Internet / client</text>
-  <path d="M360 208 V232" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m3)"/>
+  <path d="M360 208 V234" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m3)"/>
 
   <!-- VNet frame -->
-  <rect data-layout-container="vnet" data-min-pad="32" data-min-visual-pad="12" data-symmetry="xy" data-symmetry-tol="4" data-layout-count="4" x="36" y="240" width="648" height="550" rx="18" data-fill-role="external-fill" fill="#24272D" data-stroke-role="external-line" stroke="#61676E" stroke-width="1.5" stroke-dasharray="7 5"/>
-  <text font-size="14" font-weight="700" letter-spacing="0.04em" x="60" y="260" dominant-baseline="central" data-fill-role="muted" fill="#9EA6B0">Azure VNet</text>
+  <rect x="36" y="242" width="648" height="548" rx="18" data-fill-role="external-fill" fill="#24272D" data-stroke-role="external-line" stroke="#61676E" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <text font-size="14" font-weight="700" letter-spacing="0.04em" x="60" y="262" dominant-baseline="central" data-fill-role="muted" fill="#9EA6B0">Azure VNet</text>
 
   <!-- application gateway -->
-  <rect data-layout-parent="vnet" x="68" y="272" width="584" height="54" rx="10" data-fill-role="surface" fill="#20242B" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="1" filter="url(#cardShadow-m3)"/>
-  <circle cx="100" cy="299" r="17" data-fill-role="edge-fill" fill="#2A3746"/><g transform="translate(90.0,289.0) scale(0.8333)"><path data-stroke-role="edge-line" stroke="#6FA3D3" d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path data-stroke-role="edge-line" stroke="#6FA3D3" d="M9 12l2 2 4-4"/></g>
-  <text font-size="15" font-weight="700" x="128" y="291" dominant-baseline="central" data-fill-role="edge-ink" fill="#C5DAED">Application Gateway + WAF</text>
-  <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="128" y="311" dominant-baseline="central">public entry · TLS termination · L7 routing</text>
-  <path d="M360 334 V358" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m3)"/>
+  <rect x="68" y="276" width="584" height="54" rx="10" data-fill-role="surface" fill="#20242B" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="1" filter="url(#cardShadow-m3)"/>
+  <circle cx="100" cy="303" r="17" data-fill-role="edge-fill" fill="#2A3746"/><g transform="translate(90.0,293.0) scale(0.8333)"><path data-stroke-role="edge-line" stroke="#6FA3D3" d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path data-stroke-role="edge-line" stroke="#6FA3D3" d="M9 12l2 2 4-4"/></g>
+  <text font-size="15" font-weight="700" x="128" y="295" dominant-baseline="central" data-fill-role="edge-ink" fill="#C5DAED">Application Gateway + WAF</text>
+  <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="128" y="315" dominant-baseline="central">public entry · TLS termination · L7 routing</text>
+  <path d="M360 338 V360" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m3)"/>
 
   <!-- api management -->
-  <rect data-layout-parent="vnet" x="68" y="366" width="584" height="54" rx="10" data-fill-role="surface" fill="#20242B" data-stroke-role="api-line" stroke="#9490C6" stroke-width="1" filter="url(#cardShadow-m3)"/>
-  <circle cx="100" cy="393" r="17" data-fill-role="api-fill" fill="#323343"/><g transform="translate(90.0,383.0) scale(0.8333)"><path data-stroke-role="api-line" stroke="#9490C6" d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></g>
-  <text font-size="15" font-weight="700" x="128" y="385" dominant-baseline="central" data-fill-role="api-ink" fill="#D4D3E8">API Management (APIM)</text>
-  <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="128" y="405" dominant-baseline="central">auth · rate limit · policy · versioning</text>
-  <path d="M360 428 V452" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m3)"/>
+  <rect x="68" y="368" width="584" height="54" rx="10" data-fill-role="surface" fill="#20242B" data-stroke-role="api-line" stroke="#9490C6" stroke-width="1" filter="url(#cardShadow-m3)"/>
+  <circle cx="100" cy="395" r="17" data-fill-role="api-fill" fill="#323343"/><g transform="translate(90.0,385.0) scale(0.8333)"><path data-stroke-role="api-line" stroke="#9490C6" d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></g>
+  <text font-size="15" font-weight="700" x="128" y="387" dominant-baseline="central" data-fill-role="api-ink" fill="#D4D3E8">API Management (APIM)</text>
+  <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="128" y="407" dominant-baseline="central">auth · rate limit · policy · versioning</text>
+  <path d="M360 430 V452" fill="none" data-stroke-role="edge-line" stroke="#6FA3D3" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m3)"/>
 
   <!-- AKS cluster -->
-  <rect data-layout-parent="vnet" data-layout-container="aks" data-min-pad="32" data-min-visual-pad="12" data-symmetry="xy" data-symmetry-tol="4" data-layout-count="5" x="68" y="460" width="584" height="204" rx="14" data-fill-role="compute-band" fill="#202E2E" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
+  <rect x="68" y="460" width="584" height="206" rx="14" data-fill-role="compute-band" fill="#202E2E" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
   <text font-size="14" font-weight="700" letter-spacing="0.04em" x="96" y="480" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">AKS cluster</text>
 
-  <rect data-layout-parent="aks" data-layout-item="svcrow" data-layout-group="svcrow" data-distribution="equal-gap" data-axis="x" data-group-count="2" data-gap-tol="1" x="100" y="492" width="236" height="44" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
-  <circle cx="126" cy="514" r="14" data-fill-role="compute-fill" fill="#263A37"/><g transform="translate(122.0,506.0) scale(0.6667)"><circle data-stroke-role="compute-line" stroke="#5FAE8F" cx="12" cy="5" r="2.5"/><circle data-stroke-role="compute-line" stroke="#5FAE8F" cx="5" cy="19" r="2.5"/><circle data-stroke-role="compute-line" stroke="#5FAE8F" cx="19" cy="19" r="2.5"/><path data-stroke-role="compute-line" stroke="#5FAE8F" d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></g>
-  <text font-size="15" font-weight="700" x="156" y="514" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">Ingress controller</text>
-  <path d="M344 514 H372" fill="none" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m3)"/>
+  <rect x="100" y="494" width="236" height="44" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
+  <circle cx="130" cy="516" r="14" data-fill-role="compute-fill" fill="#263A37"/><g transform="translate(122.0,508.0) scale(0.6667)"><circle data-stroke-role="compute-line" stroke="#5FAE8F" cx="12" cy="5" r="2.5"/><circle data-stroke-role="compute-line" stroke="#5FAE8F" cx="5" cy="19" r="2.5"/><circle data-stroke-role="compute-line" stroke="#5FAE8F" cx="19" cy="19" r="2.5"/><path data-stroke-role="compute-line" stroke="#5FAE8F" d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></g>
+  <text font-size="15" font-weight="700" x="156" y="516" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">Ingress controller</text>
+  <path d="M344 516 H372" fill="none" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m3)"/>
 
-  <rect data-layout-parent="aks" data-layout-item="svcrow" x="384" y="492" width="236" height="44" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
-  <circle cx="126" cy="514" r="14" data-fill-role="compute-fill" fill="#263A37"/><g transform="translate(406.0,506.0) scale(0.6667)"><rect data-stroke-role="compute-line" stroke="#5FAE8F" x="4" y="4" width="16" height="7" rx="2"/><rect data-stroke-role="compute-line" stroke="#5FAE8F" x="4" y="13" width="16" height="7" rx="2"/><path data-stroke-role="compute-line" stroke="#5FAE8F" d="M8 7.5h.01M8 16.5h.01"/></g>
-  <text font-size="15" font-weight="700" x="440" y="514" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">Service (ClusterIP)</text>
+  <rect x="384" y="494" width="236" height="44" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
+  <circle cx="414" cy="516" r="14" data-fill-role="compute-fill" fill="#263A37"/><g transform="translate(406.0,508.0) scale(0.6667)"><rect data-stroke-role="compute-line" stroke="#5FAE8F" x="4" y="4" width="16" height="7" rx="2"/><rect data-stroke-role="compute-line" stroke="#5FAE8F" x="4" y="13" width="16" height="7" rx="2"/><path data-stroke-role="compute-line" stroke="#5FAE8F" d="M8 7.5h.01M8 16.5h.01"/></g>
+  <text font-size="15" font-weight="700" x="440" y="516" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">Service (ClusterIP)</text>
 
   <!-- fan-out to replica pods -->
   <g fill="none" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="2" stroke-linecap="round">
-    <path d="M502 536 V546"/>
-    <path d="M180 546 H540"/>
-    <path d="M180 546 V572" marker-end="url(#ah-m3)"/>
-    <path d="M360 546 V572" marker-end="url(#ah-m3)"/>
-    <path d="M540 546 V572" marker-end="url(#ah-m3)"/>
+    <path d="M502 538 V548"/>
+    <path d="M180 548 H540"/>
+    <path d="M180 548 V574" marker-end="url(#ah-m3)"/>
+    <path d="M360 548 V574" marker-end="url(#ah-m3)"/>
+    <path d="M540 548 V574" marker-end="url(#ah-m3)"/>
   </g>
 
-  <rect data-layout-parent="aks" data-layout-item="pods" data-layout-group="pods" data-distribution="equal-gap" data-axis="x" data-group-count="3" data-gap-tol="1" x="100" y="580" width="160" height="52" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
-  <text font-size="15" font-weight="700" x="180" y="598" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">Pod</text>
-  <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="180" y="617" text-anchor="middle" dominant-baseline="central">replica</text>
-  <rect data-layout-parent="aks" data-layout-item="pods" x="280" y="580" width="160" height="52" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
-  <text font-size="15" font-weight="700" x="360" y="598" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">Pod</text>
-  <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="360" y="617" text-anchor="middle" dominant-baseline="central">replica</text>
-  <rect data-layout-parent="aks" data-layout-item="pods" x="460" y="580" width="160" height="52" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
-  <text font-size="15" font-weight="700" x="540" y="598" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">Pod</text>
-  <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="540" y="617" text-anchor="middle" dominant-baseline="central">replica</text>
+  <rect x="100" y="582" width="160" height="52" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
+  <text font-size="15" font-weight="700" x="180" y="600" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">Pod</text>
+  <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="180" y="619" text-anchor="middle" dominant-baseline="central">replica</text>
+  <rect x="280" y="582" width="160" height="52" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
+  <text font-size="15" font-weight="700" x="360" y="600" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">Pod</text>
+  <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="360" y="619" text-anchor="middle" dominant-baseline="central">replica</text>
+  <rect x="460" y="582" width="160" height="52" rx="9" data-fill-role="surface" fill="#20242B" data-stroke-role="compute-line" stroke="#5FAE8F" stroke-width="1"/>
+  <text font-size="15" font-weight="700" x="540" y="600" text-anchor="middle" dominant-baseline="central" data-fill-role="compute-ink" fill="#BFDFD2">Pod</text>
+  <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="540" y="619" text-anchor="middle" dominant-baseline="central">replica</text>
 
   <!-- private link to postgres -->
-  <path d="M360 672 V696" fill="none" data-stroke-role="data-line" stroke="#9EA6B0" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round" marker-end="url(#ahD-m3)"/>
+  <path d="M360 674 V696" fill="none" data-stroke-role="data-line" stroke="#9EA6B0" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round" marker-end="url(#ahD-m3)"/>
 
-  <rect data-layout-parent="vnet" x="68" y="704" width="584" height="54" rx="10" data-fill-role="surface" fill="#20242B" data-stroke-role="data-line" stroke="#9EA6B0" stroke-width="1" filter="url(#cardShadow-m3)"/>
+  <rect x="68" y="704" width="584" height="54" rx="10" data-fill-role="surface" fill="#20242B" data-stroke-role="data-line" stroke="#9EA6B0" stroke-width="1" filter="url(#cardShadow-m3)"/>
   <circle cx="100" cy="731" r="17" data-fill-role="data-fill" fill="#31353B"/><g transform="translate(90.0,721.0) scale(0.8333)"><ellipse data-stroke-role="data-line" stroke="#9EA6B0" cx="12" cy="5" rx="7" ry="3"/><path data-stroke-role="data-line" stroke="#9EA6B0" d="M5 5v14c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/><path data-stroke-role="data-line" stroke="#9EA6B0" d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></g>
   <text font-size="15" font-weight="700" x="128" y="723" dominant-baseline="central" data-fill-role="data-ink" fill="#D8DBDF">Azure Database for PostgreSQL</text>
   <text font-size="11.5" data-fill-role="muted" fill="#9EA6B0" x="128" y="743" dominant-baseline="central">Flexible Server · private endpoint</text>
@@ -441,73 +441,73 @@
   <rect width="720" height="900" data-fill-role="paper" fill="#FAF4EB"/>
 
   <!-- header: rail from eyebrowTop(51) to titleBottom(106) -->
-  <g data-layout-role="header-cluster" data-layout-content-top="168" data-layout-breathing="36" data-layout-tolerance="2">
-    <rect data-layout-role="cluster-locator" data-fill-role="focus" x="40" y="48" width="8" height="8" rx="2" fill="#2E6DA4"/>
-    <text data-layout-role="cluster-eyebrow" data-fill-role="muted" x="56" y="56" font-size="14" font-weight="700" letter-spacing="0.10em" fill="#636A75" dominant-baseline="central">레퍼런스 토폴로지</text>
-    <text data-layout-role="cluster-h1" data-fill-role="ink" x="40" y="92" font-size="28" font-weight="700" fill="#252B35" dominant-baseline="central">Azure 레퍼런스 토폴로지</text>
-    <text data-layout-role="cluster-subtitle" data-fill-role="muted" x="40" y="124" font-size="14" fill="#636A75" dominant-baseline="central">요청 경로 — Application Gateway → APIM → AKS → PostgreSQL</text>
+  <g>
+    <rect data-fill-role="focus" x="40" y="48" width="8" height="8" rx="2" fill="#2E6DA4"/>
+    <text data-fill-role="muted" x="56" y="56" font-size="14" font-weight="700" letter-spacing="0.10em" fill="#636A75" dominant-baseline="central">레퍼런스 토폴로지</text>
+    <text data-fill-role="ink" x="40" y="92" font-size="28" font-weight="700" fill="#252B35" dominant-baseline="central">Azure 레퍼런스 토폴로지</text>
+    <text data-fill-role="muted" x="40" y="124" font-size="14" fill="#636A75" dominant-baseline="central">요청 경로 — Application Gateway → APIM → AKS → PostgreSQL</text>
   </g>
 
   <!-- client -->
   <rect x="210" y="154" width="300" height="46" rx="10" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1" filter="url(#rbox-m4)"/>
   <circle cx="242" cy="177" r="15" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45"/><g transform="translate(233.0,168.0) scale(0.7500)"><circle data-stroke-role="sketch-ink" stroke="#403C34" cx="12" cy="12" r="8.5"/><path data-stroke-role="sketch-ink" stroke="#403C34" d="M3.5 12h17"/><path data-stroke-role="sketch-ink" stroke="#403C34" d="M12 3.5a13 13 0 0 1 0 17 13 13 0 0 1 0-17z"/></g>
   <text font-size="15" font-weight="700" x="266" y="177" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">인터넷 / 클라이언트</text>
-  <path d="M360 208 V232" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m4)" filter="url(#rline-m4)"/>
+  <path d="M360 208 V234" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m4)" filter="url(#rline-m4)"/>
 
   <!-- VNet frame -->
-  <rect data-layout-container="vnet" data-min-pad="32" data-min-visual-pad="12" data-symmetry="xy" data-symmetry-tol="4" data-layout-count="4" x="36" y="240" width="648" height="550" rx="18" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" opacity="0.72" stroke-width="1.5" stroke-dasharray="7 5"/>
-  <text font-size="14" font-weight="700" letter-spacing="0.04em" x="60" y="260" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72">Azure VNet</text>
+  <rect x="36" y="242" width="648" height="548" rx="18" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" opacity="0.72" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <text font-size="14" font-weight="700" letter-spacing="0.04em" x="60" y="262" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72">Azure VNet</text>
 
   <!-- application gateway -->
-  <rect data-layout-parent="vnet" x="68" y="272" width="584" height="54" rx="10" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1" filter="url(#rbox-m4)"/>
-  <circle cx="100" cy="299" r="17" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45"/><g transform="translate(90.0,289.0) scale(0.8333)"><path data-stroke-role="sketch-ink" stroke="#403C34" d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path data-stroke-role="sketch-ink" stroke="#403C34" d="M9 12l2 2 4-4"/></g>
-  <text font-size="15" font-weight="700" x="128" y="291" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Application Gateway + WAF</text>
-  <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="128" y="311" dominant-baseline="central">공개 진입 · TLS 종료 · L7 라우팅</text>
-  <path d="M360 334 V358" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m4)" filter="url(#rline-m4)"/>
+  <rect x="68" y="276" width="584" height="54" rx="10" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1" filter="url(#rbox-m4)"/>
+  <circle cx="100" cy="303" r="17" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45"/><g transform="translate(90.0,293.0) scale(0.8333)"><path data-stroke-role="sketch-ink" stroke="#403C34" d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path data-stroke-role="sketch-ink" stroke="#403C34" d="M9 12l2 2 4-4"/></g>
+  <text font-size="15" font-weight="700" x="128" y="295" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Application Gateway + WAF</text>
+  <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="128" y="315" dominant-baseline="central">공개 진입 · TLS 종료 · L7 라우팅</text>
+  <path d="M360 338 V360" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m4)" filter="url(#rline-m4)"/>
 
   <!-- api management -->
-  <rect data-layout-parent="vnet" x="68" y="366" width="584" height="54" rx="10" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1" filter="url(#rbox-m4)"/>
-  <circle cx="100" cy="393" r="17" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45"/><g transform="translate(90.0,383.0) scale(0.8333)"><path data-stroke-role="sketch-ink" stroke="#403C34" d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></g>
-  <text font-size="15" font-weight="700" x="128" y="385" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">API Management (APIM)</text>
-  <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="128" y="405" dominant-baseline="central">인증 · rate limit · 정책 · 버전 관리</text>
-  <path d="M360 428 V452" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m4)" filter="url(#rline-m4)"/>
+  <rect x="68" y="368" width="584" height="54" rx="10" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1" filter="url(#rbox-m4)"/>
+  <circle cx="100" cy="395" r="17" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45"/><g transform="translate(90.0,385.0) scale(0.8333)"><path data-stroke-role="sketch-ink" stroke="#403C34" d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></g>
+  <text font-size="15" font-weight="700" x="128" y="387" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">API Management (APIM)</text>
+  <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="128" y="407" dominant-baseline="central">인증 · rate limit · 정책 · 버전 관리</text>
+  <path d="M360 430 V452" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m4)" filter="url(#rline-m4)"/>
 
   <!-- AKS cluster -->
-  <rect data-layout-parent="vnet" data-layout-container="aks" data-min-pad="32" data-min-visual-pad="12" data-symmetry="xy" data-symmetry-tol="4" data-layout-count="5" x="68" y="460" width="584" height="204" rx="14" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
+  <rect x="68" y="460" width="584" height="206" rx="14" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
   <text font-size="14" font-weight="700" letter-spacing="0.04em" x="96" y="480" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">AKS 클러스터</text>
 
-  <rect data-layout-parent="aks" data-layout-item="svcrow" data-layout-group="svcrow" data-distribution="equal-gap" data-axis="x" data-group-count="2" data-gap-tol="1" x="100" y="492" width="236" height="44" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
-  <circle cx="126" cy="514" r="14" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45"/><g transform="translate(122.0,506.0) scale(0.6667)"><circle data-stroke-role="sketch-ink" stroke="#403C34" cx="12" cy="5" r="2.5"/><circle data-stroke-role="sketch-ink" stroke="#403C34" cx="5" cy="19" r="2.5"/><circle data-stroke-role="sketch-ink" stroke="#403C34" cx="19" cy="19" r="2.5"/><path data-stroke-role="sketch-ink" stroke="#403C34" d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></g>
-  <text font-size="15" font-weight="700" x="156" y="514" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">인그레스 컨트롤러</text>
-  <path d="M344 514 H372" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m4)" filter="url(#rline-m4)"/>
+  <rect x="100" y="494" width="236" height="44" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
+  <circle cx="130" cy="516" r="14" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45"/><g transform="translate(122.0,508.0) scale(0.6667)"><circle data-stroke-role="sketch-ink" stroke="#403C34" cx="12" cy="5" r="2.5"/><circle data-stroke-role="sketch-ink" stroke="#403C34" cx="5" cy="19" r="2.5"/><circle data-stroke-role="sketch-ink" stroke="#403C34" cx="19" cy="19" r="2.5"/><path data-stroke-role="sketch-ink" stroke="#403C34" d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></g>
+  <text font-size="15" font-weight="700" x="156" y="516" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">인그레스 컨트롤러</text>
+  <path d="M344 516 H372" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m4)" filter="url(#rline-m4)"/>
 
-  <rect data-layout-parent="aks" data-layout-item="svcrow" x="384" y="492" width="236" height="44" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
-  <circle cx="126" cy="514" r="14" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45"/><g transform="translate(406.0,506.0) scale(0.6667)"><rect data-stroke-role="sketch-ink" stroke="#403C34" x="4" y="4" width="16" height="7" rx="2"/><rect data-stroke-role="sketch-ink" stroke="#403C34" x="4" y="13" width="16" height="7" rx="2"/><path data-stroke-role="sketch-ink" stroke="#403C34" d="M8 7.5h.01M8 16.5h.01"/></g>
-  <text font-size="15" font-weight="700" x="440" y="514" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Service (ClusterIP)</text>
+  <rect x="384" y="494" width="236" height="44" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
+  <circle cx="414" cy="516" r="14" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45"/><g transform="translate(406.0,508.0) scale(0.6667)"><rect data-stroke-role="sketch-ink" stroke="#403C34" x="4" y="4" width="16" height="7" rx="2"/><rect data-stroke-role="sketch-ink" stroke="#403C34" x="4" y="13" width="16" height="7" rx="2"/><path data-stroke-role="sketch-ink" stroke="#403C34" d="M8 7.5h.01M8 16.5h.01"/></g>
+  <text font-size="15" font-weight="700" x="440" y="516" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Service (ClusterIP)</text>
 
   <!-- fan-out to replica pods -->
   <g fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2" stroke-linecap="round">
-    <path d="M502 536 V546"/>
-    <path d="M180 546 H540"/>
-    <path d="M180 546 V572" marker-end="url(#ah-m4)"/>
-    <path d="M360 546 V572" marker-end="url(#ah-m4)"/>
-    <path d="M540 546 V572" marker-end="url(#ah-m4)"/>
+    <path d="M502 538 V548"/>
+    <path d="M180 548 H540"/>
+    <path d="M180 548 V574" marker-end="url(#ah-m4)"/>
+    <path d="M360 548 V574" marker-end="url(#ah-m4)"/>
+    <path d="M540 548 V574" marker-end="url(#ah-m4)"/>
   </g>
 
-  <rect data-layout-parent="aks" data-layout-item="pods" data-layout-group="pods" data-distribution="equal-gap" data-axis="x" data-group-count="3" data-gap-tol="1" x="100" y="580" width="160" height="52" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
-  <text font-size="15" font-weight="700" x="180" y="598" text-anchor="middle" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Pod</text>
-  <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="180" y="617" text-anchor="middle" dominant-baseline="central">레플리카</text>
-  <rect data-layout-parent="aks" data-layout-item="pods" x="280" y="580" width="160" height="52" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
-  <text font-size="15" font-weight="700" x="360" y="598" text-anchor="middle" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Pod</text>
-  <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="360" y="617" text-anchor="middle" dominant-baseline="central">레플리카</text>
-  <rect data-layout-parent="aks" data-layout-item="pods" x="460" y="580" width="160" height="52" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
-  <text font-size="15" font-weight="700" x="540" y="598" text-anchor="middle" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Pod</text>
-  <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="540" y="617" text-anchor="middle" dominant-baseline="central">레플리카</text>
+  <rect x="100" y="582" width="160" height="52" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
+  <text font-size="15" font-weight="700" x="180" y="600" text-anchor="middle" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Pod</text>
+  <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="180" y="619" text-anchor="middle" dominant-baseline="central">레플리카</text>
+  <rect x="280" y="582" width="160" height="52" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
+  <text font-size="15" font-weight="700" x="360" y="600" text-anchor="middle" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Pod</text>
+  <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="360" y="619" text-anchor="middle" dominant-baseline="central">레플리카</text>
+  <rect x="460" y="582" width="160" height="52" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
+  <text font-size="15" font-weight="700" x="540" y="600" text-anchor="middle" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Pod</text>
+  <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="540" y="619" text-anchor="middle" dominant-baseline="central">레플리카</text>
 
   <!-- private link to postgres -->
-  <path d="M360 672 V696" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round" marker-end="url(#ahD-m4)" filter="url(#rline-m4)"/>
+  <path d="M360 674 V696" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round" marker-end="url(#ahD-m4)" filter="url(#rline-m4)"/>
 
-  <rect data-layout-parent="vnet" x="68" y="704" width="584" height="54" rx="10" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1" filter="url(#rbox-m4)"/>
+  <rect x="68" y="704" width="584" height="54" rx="10" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1" filter="url(#rbox-m4)"/>
   <circle cx="100" cy="731" r="17" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45"/><g transform="translate(90.0,721.0) scale(0.8333)"><ellipse data-stroke-role="sketch-ink" stroke="#403C34" cx="12" cy="5" rx="7" ry="3"/><path data-stroke-role="sketch-ink" stroke="#403C34" d="M5 5v14c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/><path data-stroke-role="sketch-ink" stroke="#403C34" d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></g>
   <text font-size="15" font-weight="700" x="128" y="723" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Azure Database for PostgreSQL</text>
   <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="128" y="743" dominant-baseline="central">Flexible Server · 프라이빗 엔드포인트</text>
@@ -546,73 +546,73 @@
   <rect width="720" height="900" data-fill-role="paper" fill="#FAF4EB"/>
 
   <!-- header: rail from eyebrowTop(51) to titleBottom(106) -->
-  <g data-layout-role="header-cluster" data-layout-content-top="168" data-layout-breathing="36" data-layout-tolerance="2">
-    <rect data-layout-role="cluster-locator" data-fill-role="focus" x="40" y="48" width="8" height="8" rx="2" fill="#2E6DA4"/>
-    <text data-layout-role="cluster-eyebrow" data-fill-role="muted" x="56" y="56" font-size="14" font-weight="700" letter-spacing="0.10em" fill="#636A75" dominant-baseline="central">REFERENCE TOPOLOGY</text>
-    <text data-layout-role="cluster-h1" data-fill-role="ink" x="40" y="92" font-size="28" font-weight="700" fill="#252B35" dominant-baseline="central">Azure reference topology</text>
-    <text data-layout-role="cluster-subtitle" data-fill-role="muted" x="40" y="124" font-size="14" fill="#636A75" dominant-baseline="central">Request path — Application Gateway → APIM → AKS → PostgreSQL</text>
+  <g>
+    <rect data-fill-role="focus" x="40" y="48" width="8" height="8" rx="2" fill="#2E6DA4"/>
+    <text data-fill-role="muted" x="56" y="56" font-size="14" font-weight="700" letter-spacing="0.10em" fill="#636A75" dominant-baseline="central">REFERENCE TOPOLOGY</text>
+    <text data-fill-role="ink" x="40" y="92" font-size="28" font-weight="700" fill="#252B35" dominant-baseline="central">Azure reference topology</text>
+    <text data-fill-role="muted" x="40" y="124" font-size="14" fill="#636A75" dominant-baseline="central">Request path — Application Gateway → APIM → AKS → PostgreSQL</text>
   </g>
 
   <!-- client -->
   <rect x="210" y="154" width="300" height="46" rx="10" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1" filter="url(#rbox-m5)"/>
   <circle cx="242" cy="177" r="15" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45"/><g transform="translate(233.0,168.0) scale(0.7500)"><circle data-stroke-role="sketch-ink" stroke="#403C34" cx="12" cy="12" r="8.5"/><path data-stroke-role="sketch-ink" stroke="#403C34" d="M3.5 12h17"/><path data-stroke-role="sketch-ink" stroke="#403C34" d="M12 3.5a13 13 0 0 1 0 17 13 13 0 0 1 0-17z"/></g>
   <text font-size="15" font-weight="700" x="266" y="177" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Internet / client</text>
-  <path d="M360 208 V232" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m5)" filter="url(#rline-m5)"/>
+  <path d="M360 208 V234" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m5)" filter="url(#rline-m5)"/>
 
   <!-- VNet frame -->
-  <rect data-layout-container="vnet" data-min-pad="32" data-min-visual-pad="12" data-symmetry="xy" data-symmetry-tol="4" data-layout-count="4" x="36" y="240" width="648" height="550" rx="18" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" opacity="0.72" stroke-width="1.5" stroke-dasharray="7 5"/>
-  <text font-size="14" font-weight="700" letter-spacing="0.04em" x="60" y="260" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72">Azure VNet</text>
+  <rect x="36" y="242" width="648" height="548" rx="18" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" opacity="0.72" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <text font-size="14" font-weight="700" letter-spacing="0.04em" x="60" y="262" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72">Azure VNet</text>
 
   <!-- application gateway -->
-  <rect data-layout-parent="vnet" x="68" y="272" width="584" height="54" rx="10" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1" filter="url(#rbox-m5)"/>
-  <circle cx="100" cy="299" r="17" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45"/><g transform="translate(90.0,289.0) scale(0.8333)"><path data-stroke-role="sketch-ink" stroke="#403C34" d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path data-stroke-role="sketch-ink" stroke="#403C34" d="M9 12l2 2 4-4"/></g>
-  <text font-size="15" font-weight="700" x="128" y="291" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Application Gateway + WAF</text>
-  <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="128" y="311" dominant-baseline="central">public entry · TLS termination · L7 routing</text>
-  <path d="M360 334 V358" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m5)" filter="url(#rline-m5)"/>
+  <rect x="68" y="276" width="584" height="54" rx="10" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1" filter="url(#rbox-m5)"/>
+  <circle cx="100" cy="303" r="17" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45"/><g transform="translate(90.0,293.0) scale(0.8333)"><path data-stroke-role="sketch-ink" stroke="#403C34" d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path data-stroke-role="sketch-ink" stroke="#403C34" d="M9 12l2 2 4-4"/></g>
+  <text font-size="15" font-weight="700" x="128" y="295" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Application Gateway + WAF</text>
+  <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="128" y="315" dominant-baseline="central">public entry · TLS termination · L7 routing</text>
+  <path d="M360 338 V360" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m5)" filter="url(#rline-m5)"/>
 
   <!-- api management -->
-  <rect data-layout-parent="vnet" x="68" y="366" width="584" height="54" rx="10" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1" filter="url(#rbox-m5)"/>
-  <circle cx="100" cy="393" r="17" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45"/><g transform="translate(90.0,383.0) scale(0.8333)"><path data-stroke-role="sketch-ink" stroke="#403C34" d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></g>
-  <text font-size="15" font-weight="700" x="128" y="385" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">API Management (APIM)</text>
-  <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="128" y="405" dominant-baseline="central">auth · rate limit · policy · versioning</text>
-  <path d="M360 428 V452" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m5)" filter="url(#rline-m5)"/>
+  <rect x="68" y="368" width="584" height="54" rx="10" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1" filter="url(#rbox-m5)"/>
+  <circle cx="100" cy="395" r="17" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45"/><g transform="translate(90.0,385.0) scale(0.8333)"><path data-stroke-role="sketch-ink" stroke="#403C34" d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></g>
+  <text font-size="15" font-weight="700" x="128" y="387" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">API Management (APIM)</text>
+  <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="128" y="407" dominant-baseline="central">auth · rate limit · policy · versioning</text>
+  <path d="M360 430 V452" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m5)" filter="url(#rline-m5)"/>
 
   <!-- AKS cluster -->
-  <rect data-layout-parent="vnet" data-layout-container="aks" data-min-pad="32" data-min-visual-pad="12" data-symmetry="xy" data-symmetry-tol="4" data-layout-count="5" x="68" y="460" width="584" height="204" rx="14" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
+  <rect x="68" y="460" width="584" height="206" rx="14" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
   <text font-size="14" font-weight="700" letter-spacing="0.04em" x="96" y="480" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">AKS cluster</text>
 
-  <rect data-layout-parent="aks" data-layout-item="svcrow" data-layout-group="svcrow" data-distribution="equal-gap" data-axis="x" data-group-count="2" data-gap-tol="1" x="100" y="492" width="236" height="44" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
-  <circle cx="126" cy="514" r="14" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45"/><g transform="translate(122.0,506.0) scale(0.6667)"><circle data-stroke-role="sketch-ink" stroke="#403C34" cx="12" cy="5" r="2.5"/><circle data-stroke-role="sketch-ink" stroke="#403C34" cx="5" cy="19" r="2.5"/><circle data-stroke-role="sketch-ink" stroke="#403C34" cx="19" cy="19" r="2.5"/><path data-stroke-role="sketch-ink" stroke="#403C34" d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></g>
-  <text font-size="15" font-weight="700" x="156" y="514" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Ingress controller</text>
-  <path d="M344 514 H372" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m5)" filter="url(#rline-m5)"/>
+  <rect x="100" y="494" width="236" height="44" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
+  <circle cx="130" cy="516" r="14" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45"/><g transform="translate(122.0,508.0) scale(0.6667)"><circle data-stroke-role="sketch-ink" stroke="#403C34" cx="12" cy="5" r="2.5"/><circle data-stroke-role="sketch-ink" stroke="#403C34" cx="5" cy="19" r="2.5"/><circle data-stroke-role="sketch-ink" stroke="#403C34" cx="19" cy="19" r="2.5"/><path data-stroke-role="sketch-ink" stroke="#403C34" d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></g>
+  <text font-size="15" font-weight="700" x="156" y="516" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Ingress controller</text>
+  <path d="M344 516 H372" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-linecap="round" marker-end="url(#ah-m5)" filter="url(#rline-m5)"/>
 
-  <rect data-layout-parent="aks" data-layout-item="svcrow" x="384" y="492" width="236" height="44" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
-  <circle cx="126" cy="514" r="14" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45"/><g transform="translate(406.0,506.0) scale(0.6667)"><rect data-stroke-role="sketch-ink" stroke="#403C34" x="4" y="4" width="16" height="7" rx="2"/><rect data-stroke-role="sketch-ink" stroke="#403C34" x="4" y="13" width="16" height="7" rx="2"/><path data-stroke-role="sketch-ink" stroke="#403C34" d="M8 7.5h.01M8 16.5h.01"/></g>
-  <text font-size="15" font-weight="700" x="440" y="514" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Service (ClusterIP)</text>
+  <rect x="384" y="494" width="236" height="44" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
+  <circle cx="414" cy="516" r="14" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45"/><g transform="translate(406.0,508.0) scale(0.6667)"><rect data-stroke-role="sketch-ink" stroke="#403C34" x="4" y="4" width="16" height="7" rx="2"/><rect data-stroke-role="sketch-ink" stroke="#403C34" x="4" y="13" width="16" height="7" rx="2"/><path data-stroke-role="sketch-ink" stroke="#403C34" d="M8 7.5h.01M8 16.5h.01"/></g>
+  <text font-size="15" font-weight="700" x="440" y="516" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Service (ClusterIP)</text>
 
   <!-- fan-out to replica pods -->
   <g fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2" stroke-linecap="round">
-    <path d="M502 536 V546"/>
-    <path d="M180 546 H540"/>
-    <path d="M180 546 V572" marker-end="url(#ah-m5)"/>
-    <path d="M360 546 V572" marker-end="url(#ah-m5)"/>
-    <path d="M540 546 V572" marker-end="url(#ah-m5)"/>
+    <path d="M502 538 V548"/>
+    <path d="M180 548 H540"/>
+    <path d="M180 548 V574" marker-end="url(#ah-m5)"/>
+    <path d="M360 548 V574" marker-end="url(#ah-m5)"/>
+    <path d="M540 548 V574" marker-end="url(#ah-m5)"/>
   </g>
 
-  <rect data-layout-parent="aks" data-layout-item="pods" data-layout-group="pods" data-distribution="equal-gap" data-axis="x" data-group-count="3" data-gap-tol="1" x="100" y="580" width="160" height="52" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
-  <text font-size="15" font-weight="700" x="180" y="598" text-anchor="middle" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Pod</text>
-  <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="180" y="617" text-anchor="middle" dominant-baseline="central">replica</text>
-  <rect data-layout-parent="aks" data-layout-item="pods" x="280" y="580" width="160" height="52" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
-  <text font-size="15" font-weight="700" x="360" y="598" text-anchor="middle" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Pod</text>
-  <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="360" y="617" text-anchor="middle" dominant-baseline="central">replica</text>
-  <rect data-layout-parent="aks" data-layout-item="pods" x="460" y="580" width="160" height="52" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
-  <text font-size="15" font-weight="700" x="540" y="598" text-anchor="middle" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Pod</text>
-  <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="540" y="617" text-anchor="middle" dominant-baseline="central">replica</text>
+  <rect x="100" y="582" width="160" height="52" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
+  <text font-size="15" font-weight="700" x="180" y="600" text-anchor="middle" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Pod</text>
+  <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="180" y="619" text-anchor="middle" dominant-baseline="central">replica</text>
+  <rect x="280" y="582" width="160" height="52" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
+  <text font-size="15" font-weight="700" x="360" y="600" text-anchor="middle" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Pod</text>
+  <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="360" y="619" text-anchor="middle" dominant-baseline="central">replica</text>
+  <rect x="460" y="582" width="160" height="52" rx="9" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1"/>
+  <text font-size="15" font-weight="700" x="540" y="600" text-anchor="middle" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Pod</text>
+  <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="540" y="619" text-anchor="middle" dominant-baseline="central">replica</text>
 
   <!-- private link to postgres -->
-  <path d="M360 672 V696" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round" marker-end="url(#ahD-m5)" filter="url(#rline-m5)"/>
+  <path d="M360 674 V696" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round" marker-end="url(#ahD-m5)" filter="url(#rline-m5)"/>
 
-  <rect data-layout-parent="vnet" x="68" y="704" width="584" height="54" rx="10" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1" filter="url(#rbox-m5)"/>
+  <rect x="68" y="704" width="584" height="54" rx="10" data-fill-role="paper" fill="#FAF4EB" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="1" filter="url(#rbox-m5)"/>
   <circle cx="100" cy="731" r="17" data-fill-role="highlight" fill="#EFDCA9" opacity="0.45"/><g transform="translate(90.0,721.0) scale(0.8333)"><ellipse data-stroke-role="sketch-ink" stroke="#403C34" cx="12" cy="5" rx="7" ry="3"/><path data-stroke-role="sketch-ink" stroke="#403C34" d="M5 5v14c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/><path data-stroke-role="sketch-ink" stroke="#403C34" d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></g>
   <text font-size="15" font-weight="700" x="128" y="723" dominant-baseline="central" data-fill-role="sketch-ink" fill="#403C34">Azure Database for PostgreSQL</text>
   <text font-size="11.5" data-fill-role="sketch-ink" fill="#403C34" opacity="0.72" x="128" y="743" dominant-baseline="central">Flexible Server · private endpoint</text>

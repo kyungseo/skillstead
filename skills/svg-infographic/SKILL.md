@@ -27,6 +27,7 @@ Nuances: a **simple qualitative** 2×2/3×3 matrix or a status-count badge is fi
 | `scripts/render.mjs` | **Canonical renderer** (Node 18+, stdlib only) — lint gate → browser discovery → 2× render → exact IHDR verification in one entrypoint; works from any shell incl. Windows CMD/PowerShell without Git Bash |
 | `scripts/render.sh` | Thin POSIX/Git-Bash wrapper that delegates to `render.mjs` (adds only the no-Node diagnostics) |
 | `scripts/check-svg.mjs` | Source lint gate (Node 18+, standard library only; no npm install) — the renderer runs it automatically; run it directly while iterating on the SVG source |
+- `scripts/check-layout.mjs` — layout contract guard (container padding/symmetry, equal-gap distribution, atomic card clusters; design-kernel §7). The renderer runs it automatically on layout-annotated SVGs.
 | `scripts/skin.mjs` | Skin profile resolver — `validate`/`resolve`/`registry` over `references/skins/` (palette SSoT); use resolved tokens instead of inventing hex values |
 
 ## 0. Preflight — confirm, then offer to change

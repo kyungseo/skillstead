@@ -300,7 +300,26 @@ outer insets must balance. A request to "move only the third card" on an equal-g
 group is answered by **reflowing the whole group** (start/gap/size) or by
 surfacing the intent change — never by nudging one member.
 
-**7c. No local coordinate patching.** Canonical generators derive geometry from
+**7c. Atomic layout items (clusters).** A card is not one rect: it is its frame plus
+its components — icon background circle, glyph anchor, text anchors. The frame
+declares `data-cluster-id` + `data-cluster-count`; components declare
+`data-cluster`. Every supported component must sit inside the item frame (bounds
+for rect/circle, anchor point for text/g/use) and the declared member count must
+match, fail-closed — moving a frame while leaving its icon circle behind is an
+error, not a pass. Annotation schema is strict: single/double quotes are
+equivalent, required fields (`data-min-pad`, `data-layout-count`,
+`data-group-count`, `data-axis`, `data-distribution`) are enforced, invalid
+numbers are schema errors (never NaN-silenced), and duplicate container/group/
+cluster ids are rejected. Symmetry and receipts carry **both** geometric and
+visual values; the canonical visual-spacing judgement uses the visual safe inset.
+
+**7d. Hard-gate integration.** The canonical renderer runs `check-svg →
+check-layout → browser` fail-closed on any SVG carrying layout annotations; a
+layout-negative source is refused before the browser starts.
+`data-layout-unverified` yields exit 3 — an explicit review state that hard gates
+must never treat as success.
+
+**7e. No local coordinate patching.** Canonical generators derive geometry from
 inputs — parent contentBox (PageFrame receipt), child count/sizes, outer insets,
 gaps, distribution mode, title reservation, connector corridors — and fail closed
 when the budget does not match the contentBox exactly. `check-layout.mjs --json`

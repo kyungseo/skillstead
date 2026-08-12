@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300"><defs><filter id="sh" x="-12%" y="-12%" width="124%" height="124%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.1"/></filter></defs>
-<rect data-layout-container="p" data-min-pad="24" x="20" y="20" width="360" height="260" fill="none" stroke="#888888"/>
-<rect data-layout-parent="p" data-layout-container="n" data-min-pad="16" x="44" y="28" width="312" height="140" fill="none" stroke="#888888"/>
+<rect data-layout-container="p" data-min-pad="24" data-layout-count="1" x="20" y="20" width="360" height="260" fill="none" stroke="#888888"/>
+<rect data-layout-parent="p" data-layout-container="n" data-min-pad="16" data-layout-count="1" x="44" y="28" width="312" height="140" fill="none" stroke="#888888"/>
 <rect data-layout-parent="n" x="64" y="48" width="200" height="60" fill="#EEEEEE"/>
 </svg>

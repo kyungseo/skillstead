@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300"><defs><filter id="sh" x="-12%" y="-12%" width="124%" height="124%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.1"/></filter></defs>
+<rect data-cluster-id="card" data-cluster-count="3" x="220" y="60" width="150" height="60" fill="#EEEEEE" stroke="#888888"/>
+<circle data-cluster="card" cx="60" cy="90" r="14" fill="#DDDDDD"/>
+<g data-cluster="card" transform="translate(232,78)"><path d="M0 0 L10 10" stroke="#333333"/></g>
+<text data-cluster="card" x="260" y="94" font-size="14">Label</text>
+</svg>
