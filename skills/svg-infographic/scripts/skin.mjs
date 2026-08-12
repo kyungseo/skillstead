@@ -392,18 +392,18 @@ function materializeSvg(text, tokens) {
   const out = text.replace(/<[A-Za-z][^>]*>/g, (tag) => {
     if (tag.startsWith("<!") || tag.startsWith("<?")) return tag;
     let t = tag;
-    const isStatic = /data-paint-static\s*=\s*"(true|1)"/.test(t);
+    const isStatic = /data-paint-static\s*=\s*[\"'](true|1)[\"']/.test(t);
     for (const [attr, roleAttr] of [["fill", "data-fill-role"], ["stroke", "data-stroke-role"]]) {
-      const rm = t.match(new RegExp(`${roleAttr}\\s*=\\s*"([A-Za-z0-9-]+)"`));
-      const pm = t.match(new RegExp(`\\b${attr}\\s*=\\s*"([^"]*)"`));
+      const rm = t.match(new RegExp(`${roleAttr}\\s*=\\s*([\"'])([A-Za-z0-9-]+)\\1`));
+      const pm = t.match(new RegExp(`\\b${attr}\\s*=\\s*([\"'])([^\"']*)\\1`));
       if (rm) {
-        const role = rm[1];
+        const role = rm[2];
         const want = tokens[role];
         if (want === undefined) { findings.unknownRoles.push(role); continue; }
         if (pm) {
-          if (pm[1].toUpperCase() === want.toUpperCase()) findings.verified++;
+          if (pm[2].toUpperCase() === want.toUpperCase()) findings.verified++;
           else {
-            findings.mismatches.push({ role, have: pm[1], want });
+            findings.mismatches.push({ role, have: pm[2], want });
             t = t.replace(pm[0], `${attr}="${want}"`);
             findings.updated++;
           }
@@ -412,7 +412,7 @@ function materializeSvg(text, tokens) {
           findings.updated++;
         }
       } else if (pm && !isStatic) {
-        const v = pm[1].trim();
+        const v = pm[2].trim();
         if (v !== "none" && /^#[0-9A-Fa-f]{6}$/.test(v) && tokenValues.has(v.toUpperCase())) {
           findings.unannotated.push({ attr, value: v });
         }
@@ -454,6 +454,8 @@ function main() {
     const { out, findings } = materializeSvg(text, tokens);
     const check = !!mo["--check"];
     const errors = [];
+    const recognized = findings.verified + findings.updated + findings.unknownRoles.length;
+    if (check && recognized === 0) errors.push("zero recognized annotations — not a canonical portable SVG (annotate data-fill-role/data-stroke-role, or this file is the rejected variable-paint form)");
     for (const r of new Set(findings.unknownRoles)) errors.push(`unknown role annotation "${r}" (not in resolver output)`);
     if (check && findings.mismatches.length) for (const m of findings.mismatches) errors.push(`paint mismatch: ${m.role} has ${m.have}, profile resolves ${m.want}`);
     const receipt = {
@@ -462,6 +464,8 @@ function main() {
       ...(ctx.registry ? { registry: { digest: ctx.registry.digest, selectionBasis } } : {}),
       mode, treatment, updated: findings.updated, verified: findings.verified,
       staticKept: findings.staticKept,
+      kernelVersion: "wave0-cp2",
+      sourceDigest: sha(text),
       warnings: findings.unannotated.map((u) => `unannotated canonical hex ${u.value} on ${u.attr} (add a role annotation or data-paint-static)`),
       errors,
       resolvedDigest: sha(JSON.stringify(tokens)),

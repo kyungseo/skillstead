@@ -118,11 +118,26 @@ test("materialize rewrites mismatched paint deterministically (write path, temp 
   const r2 = run(["materialize", f, "--check"]);
   assert.equal(r2.code, 0, "after materialize, check must pass (deterministic roundtrip)");
 });
-test("baseline-red CSS-variable fixture stays red under check semantics", () => {
-  // the rejected form has no annotations, so the materializer cannot verify any
-  // paint — canonical acceptance requires the positive form (annotated direct paint)
+test("baseline-red CSS-variable fixture fails closed under --check (zero annotations)", () => {
   const r = run(["materialize", path.join(FIX, "baseline-red-cssvar.svg"), "--check", "--json"]);
+  assert.equal(r.code, 1);
   const j = JSON.parse(r.out);
   assert.equal(j.verified, 0);
-  assert.equal(j.updated, 0);
+  assert.match(j.errors[0], /zero recognized annotations/);
+});
+test("single-quoted annotations are recognized (positive)", () => {
+  const r = run(["materialize", path.join(FIX, "portable-positive-sq.svg"), "--check", "--json"]);
+  assert.equal(r.code, 0, r.out);
+  assert.ok(JSON.parse(r.out).verified >= 2);
+});
+test("single-quoted annotated mismatch fails closed", () => {
+  const r = run(["materialize", path.join(FIX, "materialize-mismatch-sq.svg"), "--check"]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /paint mismatch: surface/);
+});
+test("materialize receipt carries kernelVersion and sourceDigest", () => {
+  const r = run(["materialize", path.join(FIX, "portable-positive.svg"), "--check", "--json"]);
+  const j = JSON.parse(r.out);
+  assert.equal(j.kernelVersion, "wave0-cp2");
+  assert.match(j.sourceDigest, /^[0-9a-f]{16}$/);
 });
