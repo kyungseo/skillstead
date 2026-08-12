@@ -1,7 +1,8 @@
 # svg-infographic canonical skin profile — SINGLE SOURCE OF TRUTH for palette values.
 # Decision: "Selected canonical skin — Candidate C + Owner neutral-hierarchy adjustment"
-# (2026-08-12). Canonical docs, TypePacks, examples and the contact sheet consume this
-# profile; none of them may re-own these hex values.
+# (2026-08-12). Canonical docs, TypePacks and examples consume this profile; the
+# durable contact sheet is an approved snapshot synchronized with it. None of them
+# may re-own these hex values.
 # Validate/resolve with: node scripts/skin.mjs validate references/skins/current-v1.yaml
 
 schema_version: 1

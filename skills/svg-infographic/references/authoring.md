@@ -100,7 +100,7 @@ The line box is a **source-coordinate model**, not rendered ink measurement. `mi
 
 - **Tokens:** all colors as CSS variables in one `<style>` block (see SKILL.md §3); Chrome headless fully supports SVG CSS custom properties. Colors encode role, not decoration — keep roles, change hex to rebrand.
 - **Dark variant:** override the same variables under `@media (prefers-color-scheme:dark)`. PNG renders light unless forced.
-- **On-focus text:** default to **light (white/near-white) text on a saturated fill** — never dark text on a mid/dark accent. A light-tinted chip may keep dark ink; a saturated fill needs light text. Use an explicit class (`.on-focus{ fill:var(--on-focus) }`) on those labels.
+- **On-focus text:** default to **light (white/near-white) text on a saturated fill** — never dark text on a mid/dark accent. A light-tinted chip may keep dark ink; a saturated fill needs light text. Annotate those labels `data-fill-role="on-focus"` with a direct light fill.
 - **Gotcha — blanket text color rules hide contrast problems.** An inline `fill="#FFFFFF"` usually wins over a global `text{ fill:var(--ink) }` rule in headless Chrome, but inherited text (`<tspan>`, grouped labels, generated variants) can silently lose its on-focus contrast. When the diagram mixes dark body text and light on-focus text, **avoid a blanket `text{fill}` rule entirely** — set ink color per group/class — and always inspect the PNG (aim for an AA-like separation).
 
 ## 7. Icons
@@ -141,7 +141,7 @@ Reusable icon set (drop into `<defs>`; all 24×24, `fill="none" stroke="currentC
 <symbol id="ic-api" viewBox="0 0 24 24"><path d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></symbol>
 ```
 
-Use example: `<circle cx="172" cy="726" r="38" fill="var(--icon-tint)"/><use href="#ic-terminal" x="152" y="706" width="40" height="40" style="color:var(--edge-line)"/>`.
+Use example: `<circle cx="172" cy="726" r="38" data-fill-role="icon-tint" fill="#EAF0F6"/><use href="#ic-terminal" x="152" y="706" width="40" height="40" data-color-role="edge-line" style="color:#2E6DA4"/>`.
 
 Need an icon that isn't in the set? Compose it from the same 24×24 line grammar (stroke 1.8, round caps/joins, `currentColor`) so it matches — don't mix icon families.
 

@@ -1,9 +1,13 @@
 #!/usr/bin/env node
 // skin.mjs — single resolver for svg-infographic skin profiles (Node 18+, stdlib only).
 //
-//   node scripts/skin.mjs validate <profile.yaml> [--json]
-//   node scripts/skin.mjs resolve  <profile.yaml> [--mode light|dark] [--treatment flat|sketch] [--json]
+//   node scripts/skin.mjs validate <profile.yaml|current> [--json]
+//   node scripts/skin.mjs resolve  <profile.yaml|current> [--mode light|dark] [--treatment flat|sketch] [--json]
 //   node scripts/skin.mjs registry [--json]
+//
+// "current" resolves the registry-selected palette. Derivation/overlay are ALWAYS
+// loaded through registry.yaml — the registry is the selection SSoT; switching an
+// approved candidate edits registry.yaml only.
 //
 // The resolver is the only component that interprets profile inheritance, alias
 // mapping and derivation ratios. `validate` and `resolve` share one validation
@@ -124,10 +128,37 @@ function readYaml(p) {
   return { doc: parseYaml(text, p), digest: sha(text) };
 }
 
+const REGISTRY_SLOTS = [
+  ["current.palette", "palette", "current"],
+  ["current.derivation", "derivation", "current"],
+  ["overlays.sketch", "surface-treatment", "current"],
+  ["frozen.legacy", "frozen-allowlist", "frozen"],
+];
+function loadRegistry(errors) {
+  let reg = null, digest = null;
+  try { const r = readYaml(path.join(skinsDir, "registry.yaml")); reg = r.doc; digest = r.digest; }
+  catch { errors.push("registry.yaml not found in references/skins/"); return null; }
+  const get = (dotted) => dotted.split(".").reduce((o, k) => o?.[k], reg);
+  const selected = {};
+  for (const [slot, kind, status] of REGISTRY_SLOTS) {
+    const id = get(slot);
+    if (!id) { errors.push(`registry: missing ${slot} selection`); continue; }
+    try {
+      const { doc } = readYaml(path.join(skinsDir, `${id}.yaml`));
+      if (doc.id !== id) errors.push(`registry: ${slot} -> ${id}.yaml has id "${doc.id}"`);
+      if (doc.kind !== kind) errors.push(`registry: ${slot} -> ${id} kind "${doc.kind}" (expected ${kind})`);
+      if (doc.status !== status) errors.push(`registry: ${slot} -> ${id} status "${doc.status}" (expected ${status})`);
+      selected[slot] = id;
+    } catch { errors.push(`registry: ${slot} -> ${id}.yaml not found`); }
+  }
+  return { reg, digest, selected };
+}
+
 function loadPalette(p, errors) {
   const { doc: prof, digest } = readYaml(p);
   const digestChain = [{ id: prof.id ?? path.basename(p), digest }];
   if (prof.extends) {
+    if (!/^[a-z0-9][a-z0-9.-]*$/.test(String(prof.extends))) { errors.push(`extends: invalid id "${prof.extends}" (kebab-case id within references/skins/ only)`); return { prof, digestChain }; }
     const basePath = path.join(skinsDir, `${prof.extends}.yaml`);
     let base;
     try { base = readYaml(basePath); } catch { errors.push(`extends target not found: ${prof.extends}`); return { prof, digestChain }; }
@@ -144,7 +175,8 @@ function validateIdentity(doc, expectKind, label, errors) {
   if (doc.schema_version !== 1) errors.push(`${label}: schema_version must be 1 (got ${doc.schema_version})`);
   if (!doc.id) errors.push(`${label}: missing id`);
   if (doc.kind !== expectKind) errors.push(`${label}: kind must be "${expectKind}" (got ${doc.kind})`);
-  if (doc.status && !STATUSES.includes(doc.status)) errors.push(`${label}: invalid status ${doc.status}`);
+  if (!doc.status) errors.push(`${label}: missing status`);
+  else if (!STATUSES.includes(doc.status)) errors.push(`${label}: invalid status ${doc.status}`);
 }
 
 function validatePalette(prof, errors, warnings) {
@@ -159,10 +191,12 @@ function validatePalette(prof, errors, warnings) {
     for (const k of Object.keys(t)) if (!ROLES.includes(k)) errors.push(`${mode}: unknown role "${k}" (role add/remove is a kernel migration)`);
   }
   const a = prof.anchors || {};
-  for (const k of ["secondary-light", "secondary-dark"]) {
+  const ANCHOR_KEYS = ["secondary-light", "secondary-dark"];
+  for (const k of ANCHOR_KEYS) {
     if (!a[k]) errors.push(`anchors: missing "${k}"`);
     else if (!hexRe.test(a[k])) errors.push(`anchors.${k}: not a #RRGGBB hex (${a[k]})`);
   }
+  for (const k of Object.keys(a)) if (!ANCHOR_KEYS.includes(k)) errors.push(`anchors: unknown key "${k}"`);
   if (errors.length) return;
   for (const mode of MODES) {
     const t = prof[mode];
@@ -184,7 +218,10 @@ function validateDerivation(deriv, errors) {
   validateIdentity(deriv, "derivation", deriv.id ?? "derivation", errors);
   const srcs = deriv["alias-sources"];
   if (!srcs || typeof srcs !== "object") { errors.push("derivation: missing alias-sources"); return; }
+  const ALIAS_KEYS = ["edge", "api", "compute", "data", "external", "icon"];
+  for (const k of ALIAS_KEYS) if (!(k in srcs)) errors.push(`derivation: missing alias "${k}"`);
   for (const [alias, src] of Object.entries(srcs)) {
+    if (!ALIAS_KEYS.includes(alias)) errors.push(`derivation: unknown alias "${alias}" (exact set: ${ALIAS_KEYS.join("/")})`);
     if (!ALIAS_SOURCES.includes(src)) errors.push(`derivation: alias "${alias}" has invalid source "${src}" (allowed: ${ALIAS_SOURCES.join(", ")})`);
   }
   for (const mode of MODES) {
@@ -207,6 +244,10 @@ function validateOverlay(overlay, errors) {
     if (!t[k]) errors.push(`overlay: missing token "${k}"`);
     else if (!hexRe.test(t[k])) errors.push(`overlay.tokens.${k}: not a #RRGGBB hex (${t[k]})`);
   }
+  for (const k of Object.keys(t)) if (!OVERLAY_TOKENS.includes(k)) errors.push(`overlay: unexpected token "${k}"`);
+  const tr = overlay.treatment;
+  if (!tr) errors.push("overlay: missing treatment");
+  else for (const k of ["rough-box", "rough-line", "handwriting-font"]) if (!tr[k]) errors.push(`overlay: missing treatment "${k}"`);
 }
 
 function validateAllowlist(doc, errors) {
@@ -227,19 +268,25 @@ function buildContext(profilePath, needOverlay) {
   if (prof.kind === "derivation") { validateDerivation(prof, errors); return { prof, digestChain, errors, warnings }; }
   if (prof.kind === "surface-treatment") { validateOverlay(prof, errors); return { prof, digestChain, errors, warnings }; }
   validatePalette(prof, errors, warnings);
-  try {
-    const d = readYaml(path.join(skinsDir, "derivation-v1.yaml"));
-    deriv = d.doc; derivDigest = d.digest;
-    validateDerivation(deriv, errors);
-  } catch (e) { errors.push(`derivation: ${e.message}`); }
-  if (needOverlay) {
+  // derivation/overlay are ALWAYS selected through the registry (selection SSoT)
+  const registry = loadRegistry(errors);
+  if (registry?.selected["current.derivation"]) {
     try {
-      const o = readYaml(path.join(skinsDir, "sketch-overlay-v1.yaml"));
-      overlay = o.doc; overlayDigest = o.digest;
-      validateOverlay(overlay, errors);
-    } catch (e) { errors.push(`overlay: ${e.message}`); }
+      const d = readYaml(path.join(skinsDir, `${registry.selected["current.derivation"]}.yaml`));
+      deriv = d.doc; derivDigest = d.digest;
+      validateDerivation(deriv, errors);
+    } catch (e) { errors.push(`derivation: ${e.message}`); }
   }
-  return { prof, digestChain, deriv, derivDigest, overlay, overlayDigest, errors, warnings };
+  if (needOverlay) {
+    if (registry?.selected["overlays.sketch"]) {
+      try {
+        const o = readYaml(path.join(skinsDir, `${registry.selected["overlays.sketch"]}.yaml`));
+        overlay = o.doc; overlayDigest = o.digest;
+        validateOverlay(overlay, errors);
+      } catch (e) { errors.push(`overlay: ${e.message}`); }
+    } else errors.push("overlay: registry has no overlays.sketch selection");
+  }
+  return { prof, digestChain, deriv, derivDigest, overlay, overlayDigest, registry, errors, warnings };
 }
 
 function resolveTokens(prof, deriv, mode) {
@@ -327,24 +374,27 @@ function contrastMatrix(prof, modes) {
 function main() {
   const [cmd, ...restAll] = process.argv.slice(2);
   if (!cmd || !(cmd in OPTION_SPEC)) fail(2, "usage: skin.mjs validate|resolve <profile.yaml> [options] | registry [--json]");
-  let profileArg = null, rest = restAll;
+  let profileArg = null, rest = restAll, selectionBasis = "explicit-path";
   if (cmd !== "registry") {
     profileArg = restAll[0];
-    if (!profileArg || profileArg.startsWith("--")) fail(2, `${cmd} requires a profile path`);
+    if (!profileArg || profileArg.startsWith("--")) fail(2, `${cmd} requires a profile path or "current"`);
     rest = restAll.slice(1);
+    if (profileArg === "current") {
+      const regErrors = [];
+      const registry = loadRegistry(regErrors);
+      if (regErrors.length || !registry?.selected["current.palette"]) fail(1, regErrors[0] ?? "registry has no current.palette selection");
+      profileArg = path.join(skinsDir, `${registry.selected["current.palette"]}.yaml`);
+      selectionBasis = "registry-current";
+    }
   }
   const opts = parseOptions(cmd, rest);
 
   if (cmd === "registry") {
     const errors = [];
-    let reg = null, regDigest = null;
-    try { const r = readYaml(path.join(skinsDir, "registry.yaml")); reg = r.doc; regDigest = r.digest; }
-    catch { fail(1, "registry.yaml not found in references/skins/"); }
-    const ids = { palette: reg.current?.palette, derivation: reg.current?.derivation, sketch: reg.overlays?.sketch };
-    for (const [slot, id] of Object.entries(ids)) {
-      if (!id) { errors.push(`registry: missing ${slot} selection`); continue; }
-      try { readYaml(path.join(skinsDir, `${id}.yaml`)); } catch { errors.push(`registry: ${slot} -> ${id}.yaml not found`); }
-    }
+    const registry = loadRegistry(errors);
+    if (!registry) fail(1, errors[0]);
+    const { reg, digest: regDigest } = registry;
+    const ids = { palette: reg.current?.palette, derivation: reg.current?.derivation, sketch: reg.overlays?.sketch, legacy: reg.frozen?.legacy };
     // current-uniqueness: at most one status:current per kind, and it must be the registry selection
     const byKind = {};
     for (const f of readdirSync(skinsDir).filter((f) => f.endsWith(".yaml") && f !== "registry.yaml")) {
@@ -380,6 +430,7 @@ function main() {
     profile: { id: ctx.prof.id, kind: ctx.prof.kind, status: ctx.prof.status, digests: ctx.digestChain },
     ...(ctx.derivDigest ? { derivation: { id: ctx.deriv.id, digest: ctx.derivDigest } } : {}),
     ...(ctx.overlayDigest ? { overlay: { id: ctx.overlay.id, digest: ctx.overlayDigest } } : {}),
+    ...(ctx.registry ? { registry: { digest: ctx.registry.digest, selected: ctx.registry.selected, selectionBasis } } : {}),
     errors: ctx.errors,
     warnings: ctx.warnings,
     provenance: { kernel: "wave0-cp2", palette: ctx.prof.id, extension_point: null },

@@ -100,24 +100,19 @@ Pick from the content signal, then **read that archetype's section in `reference
 Read `references/authoring.md` for the detailed rules and the reusable icon set. The render-critical core:
 
 - **Root:** `<svg xmlns viewBox="0 0 W H" width=W height=H role="img" style="font-family:Pretendard,Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">` with `<title>`/`<desc>`. Pretendard is the canonical family for both KO and EN (`references/design-kernel.md` §4); the fallback chain has no dedicated CJK entry, so when Pretendard is missing KO glyphs resolve through the OS cascade — record fallback use in the render receipt, and on Linux install Pretendard (or `fonts-noto-cjk`) if Korean renders as tofu (□).
-- **Color tokens in one `<style>` block** (authoring form) — colors encode role, not decoration. The *distributed* canonical SVG materializes these roles as direct per-shape `fill`/`stroke` with `data-fill-role`/`data-stroke-role` annotations (PPT-oriented portable subset — `references/design-kernel.md` §5; materializer lands with `skin.mjs`):
+- **Direct paint + role annotations** — colors encode role, not decoration, but the canonical SVG is authored in the PPT-oriented portable form from the start (`references/design-kernel.md` §5): every paint-bearing shape carries direct `fill`/`stroke` values plus `data-fill-role`/`data-stroke-role` annotations. Recolor by re-running the `skin.mjs` materializer against a profile, never by hand-editing hex. No `var(--…)`, `currentColor` or paint classes in canonical output:
 
 ```xml
-<style>
-  /* Values below are the resolver output for the current profile — regenerate with
-     `node scripts/skin.mjs resolve references/skins/current-v1.yaml --mode light`.
-     Never invent hex values: the palette SSoT is references/skins/ + skin.mjs
-     (design-kernel.md §3). Roles: canvas/surface/surface-tint/ink/muted/rule/focus/
-     positive/warning/danger/on-focus; aliases: edge/api/compute/data/external/icon. */
-  svg{ --canvas:#F7F7F5; --surface:#FFFFFF; --surface-tint:#E4EDF3; --ink:#252B35;
-    --muted:#636A75; --rule:#DEE0E2; --focus:#2E6DA4; --on-focus:#FFFFFF;
-    --edge-fill:#EAF0F6; --edge-line:#2E6DA4; --edge-ink:#193C5A;      /* entry / network */
-    --api-fill:#EFEEF6;  --api-line:#5B54A8;  --api-ink:#322E5C;       /* app / secondary */
-    --compute-fill:#ECF4F1; --compute-line:#3F8F72; --compute-ink:#234F3F; /* compute / ok */
-    --data-fill:#F4F5F5; --data-line:#636A75; --data-ink:#363A40;      /* data / neutral */
-    --icon-tint:#EAF0F6; --strip:#F7F9FB; }
-  .on-focus{ fill:var(--on-focus) }
-</style>
+<!-- Paint values come from the resolver — get them with
+     `node scripts/skin.mjs resolve current --mode light`. Never invent hex values:
+     the palette SSoT is references/skins/ + registry (design-kernel.md §3).
+     Roles: canvas/surface/surface-tint/ink/muted/rule/focus/positive/warning/
+     danger/on-focus; aliases: edge/api/compute/data/external/icon. -->
+<rect data-fill-role="canvas" fill="#F7F7F5" width="720" height="1020"/>
+<rect data-fill-role="surface" data-stroke-role="edge-line"
+      fill="#FFFFFF" stroke="#2E6DA4" rx="10"/>
+<text data-fill-role="edge-ink" fill="#193C5A">…</text>
+<path data-stroke-role="edge-line" stroke="#2E6DA4" fill="none" …/>
 ```
 
 - **Boxes:** rounded rect `rx="8"` (wide bands `rx="12–22"`), hairline border `stroke-width:1`. Each box = tinted fill + same-family border + same-family text (one semantic color family per box).
@@ -125,9 +120,9 @@ Read `references/authoring.md` for the detailed rules and the reusable icon set.
 - **Layout contracts for repeated structures:** annotate page-title headers, panel headers, and icon-text cards with the opt-in `data-layout-role` contract from `authoring.md` §1/§4/§7. The page-title contract derives the rail from the eyebrow and final title line; a card contract names its actual background rect `card-frame`, so frame, icon, and complete text cluster derive from one center. The source lint then rejects short/floating title rails, divider collisions, and mismatched centers before rendering. Keep unsupported transforms or unusual typography outside this annotation and verify them manually.
 - **Wrapping:** one planned line = one `<tspan x=.. dy=..>`; keep to the §2 text budget. Inside an opt-in layout contract, use plain numeric `y`/`dy` and non-nested `<tspan>` lines so the lint can accumulate the complete vertical line box.
 - **Arrows:** define one `<marker>` arrowhead, use `marker-end`. Solid = sync/request, dashed (`stroke-dasharray="5 4"`) = async/batch/private. The default head is an **open-V stroked marker sized by visible geometry: `visible ≈ markerWidth × 8/12`, aim visible ≈3× the shaft → `markerWidth ≈ 4.5 × shaft`** (sizing table in `authoring.md` §3) — filled triangles only as a deliberate choice with the same visible-extent arithmetic. `markerUnits="userSpaceOnUse"` is **mandatory** on every referenced marker and the lint gate enforces it — the default `markerUnits="strokeWidth"` multiplies the head by the stroke width. Set `refX` so the tip lands on the path endpoint; leave an 8–12px gap between tip and target box **and** keep a visible shaft behind the head; pick each connector's form (standard / compact / curved / transition glyph / reflow) from the corridor budget, and prefer the gentle single-bend curve recipe when boxes sit at different heights (`authoring.md` §3).
-- **On-focus text is light:** any label on a saturated fill uses `class="on-focus"` (`var(--on-focus)`) — never dark text on a mid/dark saturated fill, and never rely on a blanket `text{fill}` rule to sort it out.
+- **On-focus text is light:** any label on a saturated fill carries `data-fill-role="on-focus"` with a direct light fill — never dark text on a mid/dark saturated fill, and never rely on a blanket `text{fill}` rule to sort it out.
 - **Emphasis toolkit:** stroke + soft shadow + a number/status badge + a corner label + a filled icon badge. **No top accent bar on cards** (corner-smear and badge-collision failure modes — details and narrow exception in `authoring.md`).
-- **Icon-first (default on):** a line icon in a soft tinted circle (`r≈34–38`, tint `var(--icon-tint)`) per card/node, icon ~40px via `<use>`, recolor with `style="color:#…"`. Number badge **only when sequence or cross-reference matters** — never icon + redundant number.
+- **Icon-first (default on):** a line icon in a soft tinted circle (`r≈34–38`, `data-fill-role="icon-tint"` + direct fill) per card/node, icon ~40px via `<use>`, recolor with `style="color:#…"`. Number badge **only when sequence or cross-reference matters** — never icon + redundant number.
 
 ## 4. Pre-render checklist (source-level — run before every render)
 
@@ -145,7 +140,7 @@ Hard errors must be fixed before rendering (`render.sh` refuses at exit 5). Warn
 1. **Containment re-check:** the §2 last-edge/bottom-edge arithmetic still holds for what you actually wrote (cards, arrows, badges, labels — including any element you added while authoring). Judge **visual bounds**, not just the fill rect — half the stroke width, shadow spread, and children drawn outside the base rect count; in a padded panel, an edge that merely touches the parent is a fail, not a pass (formula in `authoring.md` §1).
 2. **Text budget:** no `<text>`/`<tspan>` line exceeds its planned chars/line; box labels use `dominant-baseline="central"` with computed `y`. **Pill/badge fit:** every pill/badge background covers its actual label width plus ≥ 14–16px padding per side, and EN/KO shared geometry fits the wider language's label (formula in `authoring.md` §2).
 3. **References resolve:** every `<use href="#id">` matches a defined `<symbol id>`; every `marker-end` references a defined `<marker>`; no dangling `url(#…)`.
-4. **Contrast classes:** every label on a saturated fill carries `class="on-focus"`; no blanket `text{fill}` rule that overrides on-focus labels via inheritance.
+4. **Contrast roles:** every label on a saturated fill carries `data-fill-role="on-focus"` with a direct light fill; no blanket `text{fill}` rule that overrides on-focus labels via inheritance.
 5. **Corner clearance:** badges / status labels / corner icons in the same card corner region have ≥ 20–24px between bounding boxes.
 6. **EN/KO parity:** if generating both, the two variants share identical geometry formulas — only text (and text budget) differs.
 7. **Root sanity:** `viewBox` matches the intended W×H; `<title>`/`<desc>` present; font stack on the root.

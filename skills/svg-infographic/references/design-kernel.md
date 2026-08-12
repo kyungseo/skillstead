@@ -59,10 +59,11 @@ Foundation (11 roles — base 7 + status 3 + on-role 1):
 
 Domain aliases (6): `edge`, `api`, `compute`, `data`, `external`, `icon` — mapped to
 semantic sources and derived deterministically (`skins/derivation-v1.yaml`).
-**Authoring semantics reference roles and aliases** (`var(--focus)`,
-`var(--edge-line)`) — never hand-typed canonical hex values. **Portable resolved SVG
-materializes those roles as direct per-shape `fill`/`stroke` attributes** while
-retaining role annotations for deterministic recoloring (§6).
+**Canonical authoring SVG is itself the portable resolved form**: every
+paint-bearing shape carries direct `fill`/`stroke` values plus role annotations
+(`data-fill-role`/`data-stroke-role`) that keep the semantics recolorable. Roles and
+aliases are the vocabulary of those annotations — hand-typed hex without an
+annotation is a lint violation (§5).
 
 Contrast gates (validated by the resolver, fail-closed): ink/canvas·surface ≥ 7:1,
 ink/surface-tint ≥ 4.5, muted/canvas·surface ≥ 4.5, on-focus/focus ≥ 4.5,
@@ -119,13 +120,15 @@ add/remove is a kernel migration, not a profile edit.
 
 ## 5. Portable resolved output (PPT-oriented)
 
-Authoring semantics and distributed paint are separate layers:
+Canonical authoring SVG **is** the portable resolved SVG — there is no separate
+variable-based source that could accidentally be shipped:
 
 ```text
-skin profile + geometry/role annotations
-                 ↓ resolver/materializer (skin.mjs)
-direct-attribute resolved SVG
-          ├─ canonical PNG render          (same resolved SVG)
+skin profile (registry-selected) + geometry/role annotations
+                 ↓ resolver/materializer (skin.mjs) — fills/updates paint IN PLACE,
+                 ↓ verifying role/value parity against the resolved profile
+canonical SVG (direct per-shape fill/stroke + data-*-role annotations)
+          ├─ canonical PNG render          (same SVG)
           ├─ HTML raw inline               (identical bytes, digest parity)
           └─ PPT import                    (PPT-oriented portable subset)
 ```
@@ -138,22 +141,25 @@ never "PPT compatible", until a real import verification exists.
 
 Contract for distributed canonical SVG:
 
-- Every paint-bearing shape carries **direct `fill`/`stroke` attributes**. Semantic
-  recolor information stays in non-rendering annotations:
-  `data-fill-role="surface"`, `data-stroke-role="rule"`.
+- Every paint-bearing shape carries **direct `fill`/`stroke` attributes from the
+  moment it is authored**. Semantic recolor information stays in non-rendering
+  annotations, e.g. `<rect data-fill-role="surface" data-stroke-role="rule"
+  fill="#FFFFFF" stroke="#DEE0E2"/>`.
 - Portable paint must NOT use: `var(--…)`, `currentColor`, class-dependent
   fill/stroke, external stylesheets or remote fonts, or core paint that exists only
   via group inheritance.
-- `skin.mjs` materializes/recolors from the annotations and verifies: every
+- `skin.mjs` is not a transformer producing a second artifact: it fills or updates
+  the same SVG's paint from the annotations and verifies role/value parity — every
   annotation role exists in resolver output; every direct paint matches the current
   resolved role value; a profile switch replaces all annotated paints
   deterministically; `fill="none"` and explicitly allowed non-token paints
-  (annotated `data-paint-static`) are preserved. Canonical hex in *generated*
-  resolved SVG is not a palette-lint violation; hand-typed canonical hex without a
-  role annotation is.
+  (annotated `data-paint-static`) are preserved. Annotated direct paint matching the
+  profile is never a palette-lint violation; hand-typed hex without a role
+  annotation is. CSS-variable/`currentColor`/paint-class examples survive only in
+  baseline-red fixtures.
 - **Dark mode is a separate resolved artifact** (`diagram.light.svg` /
   `diagram.dark.svg`) — never a `prefers-color-scheme` media query inside one SVG.
-- PNG renders from the same resolved SVG (no separate template). If an HTML artifact
+- PNG and HTML consume this canonical SVG directly (no separate template). If an HTML artifact
   exists it inlines the identical bytes; a `<svg>…</svg>` byte/digest parity fixture
   guards re-serialization drift.
 - Beyond CSS paint, these need their own portability fixtures before any import
