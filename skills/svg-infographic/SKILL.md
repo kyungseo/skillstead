@@ -100,7 +100,7 @@ Pick from the content signal, then **read that archetype's section in `reference
 Read `references/authoring.md` for the detailed rules and the reusable icon set. The render-critical core:
 
 - **Root:** `<svg xmlns viewBox="0 0 W H" width=W height=H role="img" style="font-family:Pretendard,Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">` with `<title>`/`<desc>`. Pretendard is the canonical family for both KO and EN (`references/design-kernel.md` §4); the fallback chain has no dedicated CJK entry, so when Pretendard is missing KO glyphs resolve through the OS cascade — record fallback use in the render receipt, and on Linux install Pretendard (or `fonts-noto-cjk`) if Korean renders as tofu (□).
-- **Color tokens in one `<style>` block** — recolor the whole diagram by editing only this block. Colors encode role, not decoration:
+- **Color tokens in one `<style>` block** (authoring form) — colors encode role, not decoration. The *distributed* canonical SVG materializes these roles as direct per-shape `fill`/`stroke` with `data-fill-role`/`data-stroke-role` annotations (PPT-oriented portable subset — `references/design-kernel.md` §5; materializer lands with `skin.mjs`):
 
 ```xml
 <style>
