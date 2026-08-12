@@ -8,21 +8,26 @@ An **opt-in** visual preset: paper background, Korean-capable handwriting font, 
 
 ## 1. Tokens (sketch palette)
 
-Warm paper, dark warm ink, pastel fills with darker same-family strokes:
+Warm paper, single warm ink, highlighter accent. Canonical values come from the
+sketch overlay profile `references/skins/sketch-overlay-v1.yaml` (resolve with
+`node scripts/skin.mjs resolve references/skins/current-v1.yaml --mode light --treatment sketch`
+— Wave 0 supports sketch in **light mode only**):
 
 ```xml
+<!-- Canonical sketch output uses direct paint + role annotations, like flat
+     (design-kernel §5). Reference values from sketch-overlay-v1:
+     paper #FAF4EB · sketch-ink #403C34 · highlight #EFDCA9 · derived muted #847E71 -->
 <style>
-  text { font-family:'Hand','Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif; fill:#4A4438 }
-  svg { --paper:#FBF7EE; --ink:#4A4438; --muted:#8A8272;
-    --a-f:#EFE6F7; --a-s:#7A5EA8;  /* lavender */
-    --b-f:#E3EEF8; --b-s:#4A7DB5;  /* blue */
-    --c-f:#E4F2E9; --c-s:#4E9268;  /* green */
-    --d-f:#FBF3D9; --d-s:#C0983B;  /* yellow */
-    --e-f:#F8E3E0; --e-s:#B85C4F;  /* red */
-    --f-f:#FAE8DC; --f-s:#C06A3B;  /* orange */
-    --g-f:#ECE7F8; --g-s:#6C58B0;  /* purple */ }
+  text { font-family:'Hand',Pretendard,Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif }
 </style>
+<rect data-fill-role="paper" fill="#FAF4EB" width="1000" height="880"/>
+<text data-fill-role="sketch-ink" fill="#403C34">…</text>
 ```
+
+The multi-hue pastel families (`--a-*` … `--g-*`) of pre-kernel sketch examples are
+**deprecated**: they are the largest measured drift slice in the current gallery.
+New sketch output uses paper + sketch-ink + highlight (plus derived muted); existing
+examples keep their palettes only until the Wave 1 regeneration.
 
 Roles still encode meaning (ok = green, warning = yellow/orange, danger = red). Label ink per box: a darker shade of the box's stroke family.
 
@@ -51,7 +56,7 @@ Roles still encode meaning (ok = green, warning = yellow/orange, danger = red). 
 ```xml
 <marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="11.25" markerHeight="11.25"
   markerUnits="userSpaceOnUse" orient="auto-start-reverse">
-  <path d="M2 2 L10 6 L2 10" fill="none" stroke="#4A4438" stroke-width="2" stroke-linecap="round"/></marker>
+  <path d="M2 2 L10 6 L2 10" fill="none" data-stroke-role="sketch-ink" stroke="#403C34" stroke-width="2" stroke-linecap="round"/></marker>
 ```
 
 - Connectors may use gentle curves (`C`/`Q` paths) — hand-drawn lines aren't strictly orthogonal — but the curve **geometry** follows the flat recipe in `authoring.md` §3 (perpendicular entry/exit, single bend by default, 8–12px arrowhead gap, visible shaft); the sketch preset only adds the rough texture on top.

@@ -24,7 +24,7 @@
 // substituting another renderer and labelling it a Chromium render is
 // forbidden (SKILL.md §5).
 
-import { readFileSync, writeFileSync, copyFileSync, openSync, readSync, closeSync, existsSync, mkdtempSync, mkdirSync, renameSync, rmSync, statSync } from "node:fs";
+import { readFileSync, writeFileSync, copyFileSync, openSync, readSync, closeSync, existsSync, mkdtempSync, mkdirSync, renameSync, rmSync, statSync , realpathSync } from "node:fs";
 import { spawnSync, spawn } from "node:child_process";
 import { setTimeout as delay } from "node:timers/promises";
 import { tmpdir } from "node:os";
@@ -33,6 +33,7 @@ import { pathToFileURL, fileURLToPath } from "node:url";
 import process from "node:process";
 
 import { runCli as runLintCli } from "./check-svg.mjs";
+import { runLayoutCli } from "./check-layout.mjs";
 
 // ---------------------------------------------------------------------------
 // Pure helpers (exported for unit tests)
@@ -323,6 +324,22 @@ export async function main(argv) {
     return 5;
   }
 
+  // --- 1b. layout contract gate (design-kernel §7) -------------------------
+  // layout annotation이 있는 SVG는 check-svg → check-layout → browser 순으로
+  // fail-closed 실행된다. data-layout-unverified(exit 3)는 성공이 아니라 명시적
+  // 검토 상태다 — hard gate에서 통과 처리하지 않는다.
+  if (/data-(layout-(container|parent|item|group|title|unverified)|cluster(-id|-at)?)\s*=/.test(readFileSync(svg, "utf8"))) {
+    const layoutExit = runLayoutCli([svg]);
+    if (layoutExit === 3) {
+      console.error("layout contract: data-layout-unverified participants present — explicit review state, not a pass. Resolve or review them before canonical rendering.");
+      return 5;
+    }
+    if (layoutExit !== 0) {
+      console.error("layout contract failed: fix the padding/gap/cluster errors above (design-kernel section 7), then re-run.");
+      return 5;
+    }
+  }
+
   // --- 2. viewBox ---------------------------------------------------------
   const vb = parseViewBox(readFileSync(svg, "utf8"));
   if (!vb) { console.error(`could not parse viewBox from ${svg}`); return 1; }
@@ -415,6 +432,17 @@ img{display:block;width:${vb.w}px;height:${vb.h}px}
   }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+// Entrypoint guard compares REAL paths so symlinked installs still execute —
+// the previous href comparison silently skipped main() behind a symlink (exit 0
+// with no output), bypassing the hard gate.
+const __isMain = (() => {
+  try {
+    if (!process.argv[1]) return false;
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]);
+  } catch {
+    return import.meta.url === pathToFileURL(process.argv[1] ?? "").href;
+  }
+})();
+if (__isMain) {
   process.exit(await main(process.argv.slice(2)));
 }

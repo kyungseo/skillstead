@@ -1,0 +1,43 @@
+# Frozen allowlist for the preserved v0.8.0 release graphic (examples/svg-infographic/
+# release-announcement). This artifact predates the 11-role kernel, so it is NOT a
+# role palette — it is the exact set of hex values palette validation accepts for the
+# legacy surface. Non-palette lint rules still apply to the artifact. Never extended.
+schema_version: 1
+id: legacy-v0.8
+kind: frozen-allowlist
+extends: null
+status: frozen
+allowed:
+  - "#15559A"
+  - "#172033"
+  - "#178263"
+  - "#25344B"
+  - "#2878D0"
+  - "#49359B"
+  - "#657086"
+  - "#6D55C7"
+  - "#CDE1F6"
+  - "#D2E6F8"
+  - "#D5E7F8"
+  - "#D7CEF8"
+  - "#D7E5F6"
+  - "#D97732"
+  - "#DCE2EC"
+  - "#DCEBFF"
+  - "#DDD5FA"
+  - "#E5DDFB"
+  - "#E5F1FF"
+  - "#E8F6F1"
+  - "#EAF0F7"
+  - "#EAF6FF"
+  - "#EDF7FF"
+  - "#EEE9FF"
+  - "#F2EEFF"
+  - "#F3D8C5"
+  - "#F3F0FF"
+  - "#F4FBFF"
+  - "#F7F8FC"
+  - "#F7F9FF"
+  - "#FFF0E5"
+  - "#FFF5EE"
+  - "#FFFFFF"

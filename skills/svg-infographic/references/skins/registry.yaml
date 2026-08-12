@@ -1,0 +1,11 @@
+# Skin registry — the single place that selects the CURRENT profiles.
+# Switching to a future candidate (e.g. current pointer -> canonical-v2) edits this
+# file only, after owner approval. Version files themselves stay immutable.
+schema_version: 1
+current:
+  palette: current-v1
+  derivation: derivation-v1
+overlays:
+  sketch: sketch-overlay-v1
+frozen:
+  legacy: legacy-v0.8

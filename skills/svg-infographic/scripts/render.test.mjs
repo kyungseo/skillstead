@@ -2,7 +2,7 @@
 // Run with: node --test skills/svg-infographic/scripts/
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { writeFileSync, mkdtempSync, rmSync, existsSync as existsSyncPath, readdirSync } from "node:fs";
+import { writeFileSync, mkdtempSync, rmSync, existsSync as existsSyncPath, readdirSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
@@ -49,6 +49,22 @@ const runCli = (args, env = {}) =>
     encoding: "utf8",
     env: { ...process.env, ...env },
   });
+
+test("layout-negative SVG는 browser 실행 전에 거부된다 (exit 5)", () => {
+  const r = runCli([join(here, "layout-fixtures", "ln-gap-drift.svg")]);
+  assert.equal(r.status, 5, r.stdout + r.stderr);
+  assert.match(r.stdout + r.stderr, /layout contract failed/);
+});
+
+test("data-layout-unverified는 render hard gate에서 성공 처리되지 않는다 (exit 5)", () => {
+  const src = readFileSync(join(here, "layout-fixtures", "ln-transform.svg"), "utf8");
+  const tmp = join(mkdtempSync(join(tmpdir(), "aw-lu-")), "unverified.svg");
+  writeFileSync(tmp, src.replace('data-layout-parent="p" ', 'data-layout-parent="p" data-layout-unverified="manual review" '));
+  const r = runCli([tmp]);
+  rmSync(dirname(tmp), { recursive: true, force: true });
+  assert.equal(r.status, 5, r.stdout + r.stderr);
+  assert.match(r.stdout + r.stderr, /explicit review state, not a pass/);
+});
 
 test("parseViewBox accepts a valid box and rejects invalid ones", () => {
   assert.deepEqual(parseViewBox('<svg viewBox="0 0 600 300">'), { w: 600, h: 300 });

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1020" width="720" height="1020" role="img">
+  <title>micro long copy</title><desc>KO/EN long copy inside contentBox with collapsed optional slots (no eyebrow, no footer)</desc>
+  <g aria-label="long copy">
+    <text data-reading-order="1" data-fill-role="ink" fill="#252B35" x="36" y="160" font-size="15">긴 한국어 본문 줄 — 승인 흐름과 운영 경계를 한 번에 설명하는 문장</text>
+    <text data-reading-order="2" data-fill-role="ink" fill="#252B35" x="36" y="190" font-size="15">A long English body line — one sentence covering approval flow and boundary</text>
+    <text data-reading-order="3" data-fill-role="muted" fill="#636A75" x="36" y="220" font-size="13">보조 설명 — optional slot이 없는 상태의 collapse 검증용</text>
+  </g>
+</svg>

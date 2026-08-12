@@ -285,97 +285,14 @@ test("explicit layout budgets accept two headers and four centered icon-text car
   assert.deepEqual(warnings, []);
 });
 
-test("page-title rail contract accepts one-line and two-line title stacks", () => {
-  const { errors, warnings } = lint("title-rail-valid.svg");
-  assert.deepEqual(errors, []);
-  assert.deepEqual(warnings, []);
-});
 
-test("page-title rail contract rejects a copied fixed height and subtitle intrusion", () => {
-  const { errors } = lint("title-rail-invalid.svg");
-  const layout = errors.filter((f) => f.rule === "E-LAYOUT");
-  assert.equal(layout.length, 2);
-  assert.ok(layout.every((f) => f.message.includes("page-title-header rail budget failed")));
-  assert.ok(layout.some((f) => f.message.includes("final title line")));
-  assert.ok(layout.some((f) => f.message.includes("before the subtitle")));
-});
 
-test("page-title rail contract warns when source geometry cannot be proved", () => {
-  const { errors, warnings } = lint("title-rail-unverified.svg");
-  assert.deepEqual(errors.filter((f) => f.rule === "E-LAYOUT"), []);
-  const layout = warnings.filter((f) => f.rule === "W-LAYOUT");
-  assert.equal(layout.length, 1);
-  assert.match(layout[0].message, /title rail needs plain y\/height/);
-});
 
-test("page-title rail contract rejects negative budget values and a non-positive rail", () => {
-  const source = fixture("title-rail-valid.svg")
-    .replace('data-layout-rail-padding-top="12"', 'data-layout-rail-padding-top="-1"')
-    .replace('height="145"', 'height="0"');
-  const { errors } = lintSvg(source, "title-rail-invalid-contract.svg");
-  const layout = errors.filter((f) => f.rule === "E-LAYOUT");
-  assert.equal(layout.length, 2);
-  assert.ok(layout.some((f) => f.message.includes("non-negative numeric")));
-  assert.ok(layout.some((f) => f.message.includes("height must be greater than zero")));
-});
 
-test("page-title rail contract rejects zero width and warns on unsupported width", () => {
-  const zeroWidth = fixture("title-rail-valid.svg").replace('width="6"', 'width="0"');
-  const { errors: zeroErrors } = lintSvg(zeroWidth, "title-rail-zero-width.svg");
-  assert.ok(zeroErrors.some((f) => f.rule === "E-LAYOUT" && f.message.includes("width must be greater than zero")));
 
-  const percentageWidth = fixture("title-rail-valid.svg").replace('width="6"', 'width="0%"');
-  const { errors, warnings } = lintSvg(percentageWidth, "title-rail-percentage-width.svg");
-  assert.deepEqual(errors.filter((f) => f.rule === "E-LAYOUT"), []);
-  assert.ok(warnings.some((f) => f.rule === "W-LAYOUT" && f.message.includes("plain positive width")));
 
-  const styleWidth = fixture("title-rail-valid.svg").replace('width="6"', 'width="6" style="width:0"');
-  const { errors: styleErrors } = lintSvg(styleWidth, "title-rail-style-width.svg");
-  assert.ok(styleErrors.some((f) => f.rule === "E-LAYOUT" && f.message.includes("width must be greater than zero")));
-});
 
-test("page-title rail geometry uses the same local CSS precedence on every axis", () => {
-  const inlineHeight = fixture("title-rail-valid.svg").replace('height="93" rx="3"', 'height="93" style="height:0" rx="3"');
-  const { errors: inlineErrors } = lintSvg(inlineHeight, "title-rail-inline-height.svg");
-  assert.ok(inlineErrors.some((f) => f.rule === "E-LAYOUT" && f.message.includes("height must be greater than zero")));
 
-  const classHeight = fixture("title-rail-valid.svg")
-    .replace("  <title>", "  <style>.collapsed-rail { height: 0; }</style>\n  <title>")
-    .replace('data-layout-role="title-rail" x="40" y="40"', 'data-layout-role="title-rail" class="collapsed-rail" x="40" y="40"');
-  const { errors: classErrors } = lintSvg(classHeight, "title-rail-class-height.svg");
-  assert.ok(classErrors.some((f) => f.rule === "E-LAYOUT" && f.message.includes("height must be greater than zero")));
-
-  const movedRail = fixture("title-rail-valid.svg")
-    .replace("  <title>", "  <style>.moved-rail { y: 400; }</style>\n  <title>")
-    .replace('data-layout-role="title-rail" x="40" y="40"', 'data-layout-role="title-rail" class="moved-rail" x="40" y="40"');
-  const { errors: movedErrors } = lintSvg(movedRail, "title-rail-class-y.svg");
-  assert.ok(movedErrors.some((f) => f.rule === "E-LAYOUT" && f.message.includes("rail top differs")));
-});
-
-test("root svg geometry rules do not leak into a descendant title rail", () => {
-  const source = fixture("title-rail-valid.svg").replace("  <title>", "  <style>svg { width: 100%; height: 100%; }</style>\n  <title>");
-  const { errors, warnings } = lintSvg(source, "title-rail-root-svg-geometry.svg");
-  assert.deepEqual(errors, []);
-  assert.deepEqual(warnings, []);
-});
-
-test("page-title rail contract counts visual tspan lines, not only title elements", () => {
-  const source = fixture("title-rail-valid.svg").replace(
-    '<text data-layout-role="title-line" x="68" y="110" font-size="46" dominant-baseline="middle">한 줄 제목</text>',
-    '<text data-layout-role="title-line" x="68" y="110" font-size="46" dominant-baseline="middle"><tspan x="68" dy="0">첫 줄</tspan><tspan x="68" dy="52">둘째 줄</tspan><tspan x="68" dy="52">셋째 줄</tspan></text>',
-  );
-  const { errors } = lintSvg(source, "title-rail-three-visual-lines.svg");
-  assert.ok(errors.some((f) => f.rule === "E-LAYOUT" && f.message.includes("found 3")));
-});
-
-test("an oversized page-title tolerance warns without hiding deterministic drift", () => {
-  const source = fixture("title-rail-valid.svg")
-    .replace('data-layout-subtitle-gap="16"', 'data-layout-subtitle-gap="16" data-layout-tolerance="999"')
-    .replace('height="93"', 'height="84"');
-  const { errors, warnings } = lintSvg(source, "title-rail-tolerance.svg");
-  assert.ok(errors.some((f) => f.rule === "E-LAYOUT" && f.message.includes("final title line")));
-  assert.ok(warnings.some((f) => f.rule === "W-LAYOUT" && f.message.includes("tolerance 999px")));
-});
 
 test("explicit layout budgets reject header collisions and card-center drift before rendering", () => {
   const { errors } = lint("layout-budget-invalid.svg");
@@ -423,4 +340,132 @@ test("clean run writes the summary to stdout and nothing to stderr (PowerShell 5
   assert.equal(ok.status, 0);
   assert.match(ok.stdout, /check-svg: 0 error\(s\), 0 warning\(s\)/);
   assert.equal(ok.stderr, "", "a clean run must not touch stderr");
+});
+
+// --- H-C header-cluster contract (canonical — replaces the legacy rail contract) --
+test("header-cluster positive: KO one line with locator and subtitle", () => {
+  const r = lint("header-cluster-ko1.svg");
+  assert.equal(r.errors.length, 0, JSON.stringify(r.errors));
+});
+test("header-cluster positive: KO two lines", () => {
+  assert.equal(lint("header-cluster-ko2.svg").errors.length, 0);
+});
+test("header-cluster positive: subtitle omitted collapses cleanly", () => {
+  assert.equal(lint("header-cluster-nosub.svg").errors.length, 0);
+});
+test("header-cluster positive: eyebrow omitted collapses locator too", () => {
+  assert.equal(lint("header-cluster-collapse.svg").errors.length, 0);
+});
+test("header-cluster negative: locator without eyebrow fails closed", () => {
+  const r = lint("header-cluster-locator-only.svg");
+  assert.ok(r.errors.some((e) => /locator exists without an eyebrow/.test(e.message)));
+});
+test("header-cluster negative: locator outside the derived 0.5-0.7 band", () => {
+  const r = lint("header-cluster-locator-ratio.svg");
+  assert.ok(r.errors.some((e) => /derived band is 0.5–0.7×/.test(e.message)));
+});
+test("header-cluster negative: subtitle intruding into the H1", () => {
+  const r = lint("header-cluster-subtitle-intrude.svg");
+  assert.ok(r.errors.some((e) => /intrudes into the H1 bottom/.test(e.message)));
+});
+test("header-cluster negative: declared breathing budget violated", () => {
+  const r = lint("header-cluster-breathing.svg");
+  assert.ok(r.errors.some((e) => /breathing/.test(e.message)));
+});
+
+// --- CP3C: entrypoint parity, authoring bypass, palette profile matrix ----------
+import { spawnSync as _spawn } from "node:child_process";
+import { symlinkSync, mkdtempSync as _mkdtemp } from "node:fs";
+import { tmpdir as _tmpdir } from "node:os";
+const CLI = join(here, "check-svg.mjs");
+const cli = (args) => { const r = _spawn(process.execPath, args.map((a) => (a.startsWith("--") || a.includes("/") || a.includes("current") || a.includes("legacy") ? a : join(here, "fixtures", a))), { encoding: "utf8" }); return { code: r.status, out: r.stdout + r.stderr }; };
+const cliRaw = (args) => { const r = _spawn(process.execPath, args, { encoding: "utf8" }); return { code: r.status, out: r.stdout + r.stderr }; };
+
+test("entrypoint guard: symlinked check-svg matches direct stdout and exit", () => {
+  const dir = _mkdtemp(join(_tmpdir(), "sym-"));
+  const link = join(dir, "check-svg-link.mjs");
+  symlinkSync(CLI, link);
+  const target = join(here, "fixtures", "missing-marker-units.svg");
+  const direct = cliRaw([CLI, target]);
+  const linked = cliRaw([link, target]);
+  assert.equal(linked.code, direct.code);
+  assert.equal(linked.code, 1, "invalid SVG must stay non-zero through the symlink");
+  assert.equal(linked.out.replaceAll(link, CLI), direct.out);
+});
+test("entrypoint guard: symlinked render.mjs reaches main (usage parity)", () => {
+  const RENDER = join(here, "render.mjs");
+  const dir = _mkdtemp(join(_tmpdir(), "symr-"));
+  const link = join(dir, "render-link.mjs");
+  symlinkSync(RENDER, link);
+  const direct = cliRaw([RENDER]);
+  const linked = cliRaw([link]);
+  assert.equal(linked.code, direct.code);
+  assert.notEqual((linked.out || "").length, 0, "symlinked render must not exit silently");
+});
+test("bypass (a): paint on a defs group fails closed; direct paint passes", () => {
+  const red = cliRaw([CLI, join(here, "fixtures", "bypass-defs-group-paint.svg")]);
+  assert.equal(red.code, 1);
+  assert.match(red.out, /E-BYPASS/);
+  const ok = cliRaw([CLI, join(here, "fixtures", "bypass-defs-group-paint-ok.svg")]);
+  assert.equal(ok.code, 0, ok.out);
+});
+test("bypass (b): font-size on a parent g is surfaced as a warning; own size stays clean", () => {
+  const red = cliRaw([CLI, join(here, "fixtures", "bypass-g-font-size.svg")]);
+  assert.match(red.out, /W-BYPASS/);
+  const ok = cliRaw([CLI, join(here, "fixtures", "bypass-g-font-size-ok.svg")]);
+  assert.ok(!/W-BYPASS/.test(ok.out));
+});
+const SKINFIX = join(here, "skin-fixtures");
+test("palette matrix: baseline-red variable paint is explicitly rejected under current", () => {
+  const r = cliRaw([CLI, "--palette-profile", "current", join(SKINFIX, "baseline-red-cssvar.svg")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-PALETTE.*variable paint.*baseline-red/);
+});
+test("palette matrix: annotated portable positive passes under current (static exempt)", () => {
+  const r = cliRaw([CLI, "--palette-profile", "current", join(SKINFIX, "portable-positive.svg")]);
+  assert.equal(r.code, 0, r.out);
+});
+test("palette matrix: unannotated canonical hex escalates to an error under current", () => {
+  const r = cliRaw([CLI, "--palette-profile", "current", join(SKINFIX, "unannotated-canonical-hex.svg")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-PALETTE.*without a role annotation/);
+});
+test("palette matrix: out-of-profile hex warns (error escalation waits for Wave 1)", () => {
+  const r = cliRaw([CLI, "--palette-profile", "current", join(here, "fixtures", "palette-out-of-profile.svg")]);
+  assert.equal(r.code, 0);
+  assert.match(r.out, /W-PALETTE.*outside the current-v1 profile/);
+});
+test("palette matrix: the frozen legacy graphic passes its own allowlist and rejects foreign hex", () => {
+  const legacy = join(here, "..", "..", "..", "examples", "svg-infographic", "release-announcement", "skillstead-v080-runtime-support.ko.svg");
+  const ok = cliRaw([CLI, "--palette-profile", "legacy-v0.8", legacy]);
+  assert.equal(ok.code, 0, ok.out);
+  const red = cliRaw([CLI, "--palette-profile", "legacy-v0.8", join(SKINFIX, "unannotated-canonical-hex.svg")]);
+  assert.equal(red.code, 1);
+  assert.match(red.out, /outside the frozen legacy/);
+});
+test("palette matrix: an unknown profile fails closed", () => {
+  const r = cliRaw([CLI, "--palette-profile", "nope", join(here, "fixtures", "valid.svg")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /unknown palette profile/);
+});
+test("palette matrix: omitted profile runs no palette checks in Wave 0 (default flips at Wave 1)", () => {
+  const r = cliRaw([CLI, join(SKINFIX, "unannotated-canonical-hex.svg")]);
+  assert.equal(r.code, 0);
+});
+
+// --- E-DUPATTR: malformed-XML duplicate attributes fail closed ------------------
+test("duplicate attribute (double quotes) is an error", () => {
+  const r = lint("dup-attr-double.svg");
+  assert.ok(r.errors.some((e) => e.rule === "E-DUPATTR" && /duplicate attribute "opacity"/.test(e.message)));
+});
+test("duplicate attribute (single quotes) is an error and CLI exits non-zero", () => {
+  const r = cliRaw([CLI, join(here, "fixtures", "dup-attr-single.svg")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-DUPATTR.*duplicate attribute "fill"/);
+});
+test("portable positive fixtures stay clean under the duplicate-attribute rule", () => {
+  for (const f of ["portable-positive.svg", "portable-positive-sq.svg"]) {
+    const r = cliRaw([CLI, join(SKINFIX, f)]);
+    assert.equal(r.code, 0, `${f}: ${r.out}`);
+  }
 });

@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60" width="100" height="60" role="img"><title>bypass a red</title><desc>paint on defs group does not reach use</desc>
+<defs><symbol id="ic-x" viewBox="0 0 24 24"><g stroke="#2E6DA4" fill="none"><path d="M4 4 L20 20"/></g></symbol></defs>
+<use href="#ic-x" x="10" y="10" width="24" height="24"/></svg>

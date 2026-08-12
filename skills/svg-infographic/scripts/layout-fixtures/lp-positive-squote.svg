@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 460" width="600" height="460"><defs><filter id="sh" x="-12%" y="-12%" width="124%" height="124%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.1"/></filter></defs>
+<rect data-layout-container='p' data-min-pad='28' data-min-visual-pad='12' data-symmetry='xy' data-symmetry-tol='4' data-layout-count='1' x="20" y="20" width="560" height="420" fill="none" stroke="#888888" stroke-width="1.5"/>
+<rect data-layout-parent='p' data-layout-container='n' data-min-pad='24' data-symmetry='xy' data-symmetry-tol='4' data-layout-count='3' data-reserve-top='0' x="48" y="48" width="504" height="364" fill="none" stroke="#888888" stroke-width="1"/>
+<rect data-layout-parent='n' data-layout-item='row' data-layout-group='row' data-distribution='equal-gap' data-axis='x' data-group-count='3' data-gap-tol='1' x="72" y="72" width="136" height="316" fill="#EEEEEE" stroke="#888888" stroke-width="1" filter="url(#sh)"/>
+<rect data-layout-parent='n' data-layout-item='row' x="232" y="72" width="136" height="316" fill="#EEEEEE" stroke="#888888" stroke-width="1" filter="url(#sh)"/>
+<rect data-layout-parent='n' data-layout-item='row' x="392" y="72" width="136" height="316" fill="#EEEEEE" stroke="#888888" stroke-width="1" filter="url(#sh)"/>
+</svg>

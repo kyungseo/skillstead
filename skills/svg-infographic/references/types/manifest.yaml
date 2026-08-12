@@ -1,0 +1,37 @@
+# TypePack manifest — single registration point for diagram/infographic types.
+# Adding a type = one TypePack directory + one entry here. Core engine (generic lint,
+# renderer, resolver) is not modified by type additions (post-Wave-0 invariant).
+#
+# Entry schema (locked in Wave 0 CP2):
+#   id:               unique kebab-case
+#   selection_signal: content signals that route a request to this type (the
+#                     selection table is DERIVED from these — no hand-kept copy)
+#   profile:          exact-parametric | constrained-layout | editorial-composition
+#   support:          core | experimental | gated   # charts stay gated until their
+#                                                   # machine verifier + receipt exist;
+#                                                   # gated types must not appear in
+#                                                   # discovery copy or the cookbook
+#   spec:             types/<id>.md                 # must exist — owns local region
+#                                                   # partition, complexity budget,
+#                                                   # degrade ladder, known failures
+#   presets:          supported output presets (PageFrame registry ids, e.g. social-4x5)
+#   orientations:     supported orientations (portrait | landscape | square) — kept
+#                     separate from presets; preset ids never encode orientation
+#   verifier:         null | scripts path           # required for accuracy-bearing types
+#   fixtures:         [] | paths                    # baseline-red/positive pairs
+#   examples:         [] | example ids              # gallery mapping
+#   required_roles:   Foundation roles the type consumes (resolver checks coverage)
+#   optional_aliases: domain aliases the type may consume
+#   canonical_prompt: PROMPT-GALLERY.md#<anchor>    # stable anchor into the Wave 1
+#                                                   # prompt cookbook (semantics reserved)
+#
+# Validation gate: unique ids, referenced paths exist, selection-table 1:1 mapping,
+# positive + duplicate/missing-path negative fixtures. TypePacks declare role
+# requirements only — no hex values, no palette ids.
+#
+# Population happens in Wave 1 (archetype migration) and Wave 2 (structural types).
+# Wave 0 pilots register here when promoted.
+
+schema_version: 1
+
+typepacks: []

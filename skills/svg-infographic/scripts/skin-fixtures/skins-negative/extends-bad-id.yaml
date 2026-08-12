@@ -1,0 +1,5 @@
+schema_version: 1
+id: extends-bad
+kind: palette
+extends: "../../evil"
+status: candidate

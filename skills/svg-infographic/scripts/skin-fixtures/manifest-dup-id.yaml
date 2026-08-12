@@ -1,0 +1,29 @@
+schema_version: 1
+
+typepacks:
+  - id: fixture-topology
+    selection_signal: "fixture-only: layered request/flow topology"
+    profile: constrained-layout
+    support: experimental
+    spec: skin-fixtures/types/fixture-spec.md
+    presets: [social-4x5, presentation-16x9]
+    orientations: [portrait, landscape]
+    verifier: null
+    fixtures: [skin-fixtures/portable-positive.svg]
+    examples: []
+    required_roles: [canvas, surface, ink, muted, rule, focus]
+    optional_aliases: [edge, compute, data]
+    canonical_prompt: PROMPT-GALLERY.md#fixture-topology
+  - id: fixture-topology
+    selection_signal: "duplicate id entry"
+    profile: constrained-layout
+    support: experimental
+    spec: skin-fixtures/types/fixture-spec.md
+    presets: [social-4x5]
+    orientations: [portrait]
+    verifier: null
+    fixtures: []
+    examples: []
+    required_roles: [canvas, ink]
+    optional_aliases: []
+    canonical_prompt: PROMPT-GALLERY.md#fixture-topology-dup

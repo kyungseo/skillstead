@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1020" width="720" height="1020" role="img">
+  <title>micro containment</title><desc>container boundary with two children</desc>
+  <g aria-label="containment">
+    <rect data-reading-order="1" data-fill-role="external-fill" data-stroke-role="external-line" fill="#F9F9F9" stroke="#B9BCC1" x="60" y="180" width="600" height="300" rx="12" stroke-dasharray="6 5"/>
+    <rect data-reading-order="2" data-fill-role="surface" data-stroke-role="compute-line" fill="#FFFFFF" stroke="#3F8F72" x="90" y="220" width="250" height="80" rx="8"/>
+    <rect data-reading-order="3" data-fill-role="surface" data-stroke-role="compute-line" fill="#FFFFFF" stroke="#3F8F72" x="380" y="220" width="250" height="80" rx="8"/>
+  </g>
+</svg>

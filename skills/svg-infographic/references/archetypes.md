@@ -8,11 +8,11 @@ Every archetype uses the same section schema: **Choose when** (content signal) �
 
 This is the default visual language — the gallery look. Apply it unless the user asks for something plainer:
 
-- **Page header:** vertical accent rail (4–6px wide, primary color) at the left of the eyebrow + H1 stack; conclusion-style title; one-line muted subtitle. Compute the rail from the actual one-line/two-line title stack rather than reusing a fixed height (`authoring.md` §1). Header region ≈ 120–150px tall on wide canvases and grows when the title wraps.
+- **Page header (H-C editorial stack):** optional eyebrow row — small `--focus` locator (≈0.6 × eyebrow size, only when the eyebrow exists) + muted eyebrow — then a conclusion-style H1 (1–2 lines), then an optional one-line muted subtitle, then generous breathing room before the first band (design-kernel §6). No vertical rail, box or wash around the header. Header region ≈ 82px (4:5 base) / ≈ 108px (16:9 base) at the B scale anchor and grows only with actual content (absent elements collapse).
 - **Band containers:** each major section sits in a light-tinted rounded panel (`rx 14–22`, very light fill such as `#F4F8FC`, hairline border). Bands stack top→bottom with 32–48px gaps.
-- **Pill section headers:** each band opens with a filled pill (rounded rect, saturated section color, `class="on-accent"` label, optional ①②③ numbering) at the band's top-left, overlapping or just inside the band's top edge.
+- **Pill section headers:** each band opens with a filled pill (rounded rect, saturated section color, label with direct light `fill` + `data-fill-role="on-focus"`, optional ①②③ numbering) at the band's top-left, overlapping or just inside the band's top edge.
 - **White cards:** content cards are white (`#FFFFFF`) on the tinted band, hairline border in the card's semantic color, subtle shadow (`<filter>` soft drop shadow, low opacity). Icon circle left, title + 1–2 body lines right — or icon-top for narrow cards.
-- **Badges:** number badges (filled circle, on-accent numeral) only when sequence matters; status/corner labels as small pills. Keep every corner decoration ≥ 20–24px from its neighbors.
+- **Badges:** number badges (filled circle; numeral with direct light `fill` + `data-fill-role="on-focus"`) only when sequence matters; status/corner labels as small pills. Keep every corner decoration ≥ 20–24px from its neighbors.
 - **Footer row (optional):** 2–4 small summary cards (icon + bold takeaway + caption) or a single muted rule-of-thumb strip, visually lighter than the body bands.
 - **Line styles:** solid = sync/request/normal path; dashed `5 4` = async/private/feedback. Add a small legend whenever both appear.
 

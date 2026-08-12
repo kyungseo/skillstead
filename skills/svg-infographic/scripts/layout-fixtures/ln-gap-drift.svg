@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 180" width="400" height="180"><defs><filter id="sh" x="-12%" y="-12%" width="124%" height="124%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.1"/></filter></defs>
+<rect data-layout-container="p" data-min-pad="20" data-layout-count="3" x="20" y="20" width="360" height="140" fill="none" stroke="#888888"/>
+<rect data-layout-parent="p" data-layout-item="row" data-layout-group="row" data-distribution="equal-gap" data-axis="x" data-group-count="3" data-gap-tol="1" x="40" y="50" width="88" height="80" fill="#EEEEEE"/>
+<rect data-layout-parent="p" data-layout-item="row" x="148" y="50" width="88" height="80" fill="#EEEEEE"/>
+<rect data-layout-parent="p" data-layout-item="row" x="244" y="50" width="88" height="80" fill="#EEEEEE"/>
+</svg>
