@@ -176,9 +176,12 @@ the direct-paint lint/materializer and negative fixtures in CP3; portable pilot
 generation with PNG parity in CP4. If real PPT import verification is not possible
 there, it is recorded as **unverified** and queued as follow-up work.
 
-## 6. PageFrame & layout contract (Wave 0: contract sealed; machine profiles/fixtures land in CP3–CP4)
+## 6. PageFrame & layout contract
 
-**Page regions come before header decoration.** Every output derives from PageFrame:
+**Page regions come before header decoration.** Every output derives from PageFrame —
+machine profile: `skins/pageframe-v1.yaml` (preset registry), computed by
+`node scripts/skin.mjs pageframe <preset> [--h1-lines 1|2] [--eyebrow on|off]
+[--subtitle on|off] [--support none|bottom|side] [--footer on|off] --json`:
 
 ```text
 Canvas → Safe area

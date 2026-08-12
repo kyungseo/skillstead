@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1020" width="720" height="1020" role="img">
+  <title>micro panel grid</title><desc>2x2 panels inside the contentBox</desc>
+  <g aria-label="panel grid">
+    <rect data-reading-order="1" data-fill-role="surface" data-stroke-role="rule" fill="#FFFFFF" stroke="#DEE0E2" x="36" y="160" width="310" height="200" rx="10"/>
+    <rect data-reading-order="2" data-fill-role="surface" data-stroke-role="rule" fill="#FFFFFF" stroke="#DEE0E2" x="374" y="160" width="310" height="200" rx="10"/>
+    <rect data-reading-order="3" data-fill-role="surface" data-stroke-role="rule" fill="#FFFFFF" stroke="#DEE0E2" x="36" y="384" width="310" height="200" rx="10"/>
+    <rect data-reading-order="4" data-fill-role="surface" data-stroke-role="rule" fill="#FFFFFF" stroke="#DEE0E2" x="374" y="384" width="310" height="200" rx="10"/>
+  </g>
+</svg>

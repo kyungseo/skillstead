@@ -338,6 +338,7 @@ const OPTION_SPEC = {
   resolve: { "--mode": true, "--treatment": true, "--json": false },
   registry: { "--json": false },
   materialize: { "--profile": true, "--mode": true, "--treatment": true, "--check": false, "--json": false },
+  pageframe: { "--h1-lines": true, "--eyebrow": true, "--subtitle": true, "--support": true, "--footer": true, "--json": false },
 };
 function parseOptions(cmd, rest) {
   const spec = OPTION_SPEC[cmd];
@@ -423,10 +424,78 @@ function materializeSvg(text, tokens) {
   return { out, findings };
 }
 
+function computePageFrame(P, opts) {
+  const H = P.header, G = P.gaps;
+  const lines = opts.h1Lines, ey = opts.eyebrow, sub = opts.subtitle;
+  // header cluster (top-relative): absent elements collapse with their gaps
+  let h = 0;
+  h += ey ? Math.round(H.eyebrow * 0.85) + Math.round(H.h1 * 1.15) + 6 : Math.round(H.h1 * 0.85) + Math.round(H.h1 * 0.35);
+  h += Math.round(H.h1 * 1.2) * (lines - 1);
+  h += sub ? Math.round(H.subtitle * 1.9) + Math.round(H.subtitle * 0.35) : Math.round(H.h1 * 0.25);
+  const m = P["outer-margin"];
+  const headerTop = m;
+  const headerBottom = m + h;
+  const contentTop = headerBottom + G.breathing;
+  const fluid = P["canvas-height"] === "fluid";
+  const W = P["canvas-width"];
+  let contentBox = { x: m, y: contentTop, w: W - 2 * m, h: null };
+  let supportBox = null, footerBox = null, supportBottom = null;
+  if (opts.support === "side") {
+    contentBox.w -= P.support["side-width"] + P.support["side-gap"];
+    supportBox = { x: m + contentBox.w + P.support["side-gap"], y: contentTop, w: P.support["side-width"], h: null };
+  }
+  if (!fluid) {
+    const Hc = P["canvas-height"];
+    let bottom = Hc - m;
+    if (opts.footer) {
+      footerBox = { x: m, y: Hc - G["footer-safe"] - P["footer-height"], w: W - 2 * m, h: P["footer-height"] };
+      bottom = footerBox.y - G["content-footer-gap"];
+    }
+    if (opts.support === "bottom") {
+      supportBottom = { x: m, y: bottom - P.support["bottom-height"], w: W - 2 * m, h: P.support["bottom-height"] };
+      bottom = supportBottom.y - G["content-gap"];
+    }
+    contentBox.h = bottom - contentTop;
+    if (supportBox) supportBox.h = contentBox.h;
+  }
+  return { headerRegion: { x: m, y: headerTop, w: W - 2 * m, h }, breathing: G.breathing,
+           contentBox, supportBox, supportBottom, footerBox, fluid,
+           footerRule: fluid ? "flows-after-content" : "bottom-safe-aligned" };
+}
+
 function main() {
   const [cmd, ...restAll] = process.argv.slice(2);
   if (!cmd || !(cmd in OPTION_SPEC)) fail(2, "usage: skin.mjs validate|resolve <profile.yaml> [options] | registry [--json]");
   let profileArg = null, rest = restAll, selectionBasis = "explicit-path", svgArg = null;
+  if (cmd === "pageframe") {
+    const preset = restAll[0];
+    if (!preset || preset.startsWith("--")) fail(2, "pageframe requires a preset id");
+    const po = parseOptions("pageframe", restAll.slice(1));
+    const pfPath = path.join(skinsDir, "pageframe-v1.yaml");
+    let pf;
+    try { pf = readYaml(pfPath); } catch { fail(1, "pageframe-v1.yaml not found"); }
+    const errors = [];
+    validateIdentity(pf.doc, "pageframe", "pageframe-v1", errors);
+    const P = pf.doc.presets?.[preset];
+    if (!P) fail(1, `unknown preset "${preset}" (registry: ${Object.keys(pf.doc.presets || {}).join(", ")})`);
+    for (const k of ["orientation", "canvas-width", "outer-margin", "header", "gaps", "arrow"]) if (P[k] === undefined) errors.push(`preset ${preset}: missing "${k}"`);
+    if (errors.length) { for (const e of errors) console.error(`ERROR ${e}`); process.exit(1); }
+    const b = (v, d) => v === undefined ? d : (["on", "true", "1"].includes(v) ? true : ["off", "false", "0"].includes(v) ? false : fail(2, `invalid boolean ${v}`));
+    const h1Lines = Number(po["--h1-lines"] ?? 1);
+    if (![1, 2].includes(h1Lines)) fail(2, "--h1-lines must be 1 or 2");
+    const support = po["--support"] ?? "none";
+    if (!["none", "bottom", "side"].includes(support)) fail(2, `invalid --support ${support}`);
+    const opts = { h1Lines, eyebrow: b(po["--eyebrow"], true), subtitle: b(po["--subtitle"], true), support, footer: b(po["--footer"], false) };
+    const out = computePageFrame(P, opts);
+    const receipt = { schemaVersion: 1, command: "pageframe", kernelVersion: "wave0-cp2",
+      profile: { id: pf.doc.id, digest: pf.digest }, preset, orientation: P.orientation,
+      options: opts, arrow: P.arrow, "scale-band": pf.doc["scale-band"], regions: out, errors: [], warnings: [] };
+    if (po["--json"]) console.log(JSON.stringify(receipt, null, 1));
+    else {
+      console.log(`pageframe ${preset} (${P.orientation}) — header ${out.headerRegion.y}..${out.headerRegion.y + out.headerRegion.h} (${out.headerRegion.h}px), contentBox ${JSON.stringify(out.contentBox)}, footer: ${out.footerRule}`);
+    }
+    process.exit(0);
+  }
   if (cmd === "materialize") {
     svgArg = restAll[0];
     if (!svgArg || svgArg.startsWith("--")) fail(2, "materialize requires an SVG path");

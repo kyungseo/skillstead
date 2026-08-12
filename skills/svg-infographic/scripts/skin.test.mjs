@@ -141,3 +141,82 @@ test("materialize receipt carries kernelVersion and sourceDigest", () => {
   assert.equal(j.kernelVersion, "wave0-cp2");
   assert.match(j.sourceDigest, /^[0-9a-f]{16}$/);
 });
+
+// --- CP3B: pageframe + 4 layout-family micro-fixtures ---------------------------
+function pageframe(args = []) {
+  const r = run(["pageframe", "social-4x5", "--json", ...args]);
+  assert.equal(r.code, 0, r.out);
+  return JSON.parse(r.out);
+}
+test("pageframe reproduces the approved 4:5 header height (82px, B anchor)", () => {
+  const j = pageframe();
+  assert.equal(j.regions.headerRegion.h, 82);
+  assert.equal(j.regions.footerRule, "bottom-safe-aligned");
+});
+test("pageframe collapse: no eyebrow + no subtitle shrinks the header and shifts content up", () => {
+  const base = pageframe();
+  const collapsed = pageframe(["--eyebrow", "off", "--subtitle", "off"]);
+  assert.ok(collapsed.regions.headerRegion.h < base.regions.headerRegion.h - 30);
+  assert.ok(collapsed.regions.contentBox.y < base.regions.contentBox.y);
+});
+test("pageframe side support splits contentBox + supportBox and shrinks width", () => {
+  const j = pageframe(["--support", "side"]);
+  assert.ok(j.regions.supportBox);
+  assert.equal(j.regions.contentBox.w + 16 + 180, 648);
+});
+test("pageframe fluid document flows the footer after content", () => {
+  const r = run(["pageframe", "document-compact", "--json"]);
+  const j = JSON.parse(r.out);
+  assert.equal(j.regions.fluid, true);
+  assert.equal(j.regions.contentBox.h, null);
+  assert.equal(j.regions.footerRule, "flows-after-content");
+});
+test("pageframe rejects an unknown preset", () => {
+  const r = run(["pageframe", "nope"]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /unknown preset/);
+});
+
+const FAMILIES = ["mf-connector.svg", "mf-grid.svg", "mf-nested.svg", "mf-longcopy.svg"];
+function shapes(file) {
+  const text = readFileSync(path.join(FIX, file), "utf8");
+  const out = [];
+  for (const m of text.matchAll(/<(rect|text|path)\b[^>]*data-reading-order="(\d+)"[^>]*>/g)) {
+    const tag = m[0];
+    const g = (a) => { const mm = tag.match(new RegExp(`${a}="([^"]+)"`)); return mm ? mm[1] : null; };
+    out.push({ tag: m[1], order: Number(m[2]), x: Number(g("x")), y: Number(g("y")),
+               w: Number(g("width") ?? 0), h: Number(g("height") ?? 0), d: g("d"), sw: Number(g("stroke-width") ?? 0) });
+  }
+  return { text, els: out };
+}
+test("micro-fixtures: region containment inside the pageframe contentBox", () => {
+  const cb = pageframe().regions.contentBox;
+  for (const f of FAMILIES) {
+    for (const e of shapes(f).els) {
+      if (e.tag === "path") continue;
+      assert.ok(e.x >= cb.x - 0.01 && e.y >= cb.y - 0.01 && e.x + e.w <= cb.x + cb.w + 0.01 && e.y + e.h <= cb.y + cb.h + 0.01,
+        `${f}: element order ${e.order} escapes contentBox`);
+    }
+  }
+});
+test("micro-fixtures: DOM order matches declared reading order", () => {
+  for (const f of FAMILIES) {
+    const orders = shapes(f).els.map((e) => e.order);
+    assert.deepEqual(orders, [...orders].sort((a, b) => a - b), `${f}: DOM order != reading order`);
+  }
+});
+test("micro-fixtures: direct-paint portability (materialize --check passes)", () => {
+  for (const f of FAMILIES) {
+    const r = run(["materialize", path.join(FIX, f), "--check"]);
+    assert.equal(r.code, 0, `${f}: ${r.out}`);
+  }
+});
+test("micro-fixtures: connector shafts and visible heads meet the preset minimums", () => {
+  const arrow = pageframe().arrow;
+  const { text, els } = shapes("mf-connector.svg");
+  for (const e of els.filter((e) => e.tag === "path")) {
+    assert.ok(e.sw >= arrow["min-shaft"], `shaft ${e.sw} below minimum`);
+  }
+  const mw = Number(text.match(/markerWidth="([\d.]+)"/)[1]);
+  assert.ok(mw * 8 / 12 >= arrow["min-visible-head"], "visible head below minimum");
+});

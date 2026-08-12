@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1020" width="720" height="1020" role="img">
+  <title>micro connector-heavy</title><desc>three nodes, two primary arrows inside the social-4x5 contentBox</desc>
+  <defs><marker id="mfah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="11.25" markerHeight="11.25" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M2 2 L10 6 L2 10" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2" stroke-linecap="round"/></marker></defs>
+  <g aria-label="nodes and flow">
+    <rect data-reading-order="1" data-fill-role="surface" data-stroke-role="edge-line" fill="#FFFFFF" stroke="#2E6DA4" x="60" y="200" width="180" height="60" rx="8"/>
+    <path data-reading-order="2" data-stroke-role="edge-line" stroke="#2E6DA4" fill="none" stroke-width="2.5" stroke-linecap="round" marker-end="url(#mfah)" d="M240 230 H320"/>
+    <rect data-reading-order="3" data-fill-role="surface" data-stroke-role="edge-line" fill="#FFFFFF" stroke="#2E6DA4" x="330" y="200" width="180" height="60" rx="8"/>
+    <path data-reading-order="4" data-stroke-role="edge-line" stroke="#2E6DA4" fill="none" stroke-width="2.5" stroke-linecap="round" marker-end="url(#mfah)" d="M420 260 V340"/>
+    <rect data-reading-order="5" data-fill-role="surface" data-stroke-role="edge-line" fill="#FFFFFF" stroke="#2E6DA4" x="330" y="350" width="180" height="60" rx="8"/>
+  </g>
+</svg>

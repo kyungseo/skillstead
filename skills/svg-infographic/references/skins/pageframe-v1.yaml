@@ -1,0 +1,95 @@
+# PageFrame preset registry — machine profile for page-region computation.
+# Consumed by `node scripts/skin.mjs pageframe <preset> [...options]`.
+# Presets never reuse each other's px values; preset ids never encode orientation
+# (orientation is a separate field). Wave 0 verifies social-4x5, presentation-16x9
+# and document-compact; add presets here — the resolver validates the schema.
+#
+# Region model (design-kernel §6): safe area → header(optional eyebrow → H1 1–2
+# lines → optional subtitle; absent elements collapse with their gaps) → breathing
+# → contentBox (→ optional side supportBox splits width) → optional bottom support
+# → content-footer gap → optional footer (fixed canvas: bottom-safe aligned;
+# fluid document: flows after content).
+
+schema_version: 1
+id: pageframe-v1
+kind: pageframe
+extends: null
+status: current
+
+scale-band:
+  min: 0.88
+  max: 1.14
+
+presets:
+  social-4x5:
+    orientation: portrait
+    canvas-width: 720
+    canvas-height: 1020
+    outer-margin: 36
+    header:
+      eyebrow: 14
+      h1: 28
+      subtitle: 14
+    gaps:
+      breathing: 36
+      content-gap: 24
+      content-footer-gap: 16
+      footer-safe: 22
+    support:
+      bottom-height: 50
+      side-width: 180
+      side-gap: 16
+    footer-height: 16
+    arrow:
+      primary-shaft: 2.5
+      secondary-shaft: 2.2
+      min-shaft: 2.2
+      min-visible-head: 6.6
+  presentation-16x9:
+    orientation: landscape
+    canvas-width: 1400
+    canvas-height: 820
+    outer-margin: 48
+    header:
+      eyebrow: 16
+      h1: 42
+      subtitle: 18
+    gaps:
+      breathing: 44
+      content-gap: 28
+      content-footer-gap: 18
+      footer-safe: 24
+    support:
+      bottom-height: 56
+      side-width: 260
+      side-gap: 20
+    footer-height: 18
+    arrow:
+      primary-shaft: 2.8
+      secondary-shaft: 2.5
+      min-shaft: 2.5
+      min-visible-head: 7.5
+  document-compact:
+    orientation: portrait
+    canvas-width: 680
+    canvas-height: fluid
+    outer-margin: 32
+    header:
+      eyebrow: 12
+      h1: 24
+      subtitle: 13
+    gaps:
+      breathing: 30
+      content-gap: 20
+      content-footer-gap: 14
+      footer-safe: 0
+    support:
+      bottom-height: 44
+      side-width: 160
+      side-gap: 14
+    footer-height: 14
+    arrow:
+      primary-shaft: 2.2
+      secondary-shaft: 2.0
+      min-shaft: 2.0
+      min-visible-head: 6.0
