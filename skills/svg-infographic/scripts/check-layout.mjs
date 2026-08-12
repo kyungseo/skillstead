@@ -42,7 +42,7 @@ const num = (v) => (v == null ? null : /^-?\d+(\.\d+)?$/.test(v) ? Number(v) : N
 
 function attrs(tag) {
   const o = {};
-  for (const m of tag.matchAll(/([A-Za-z_:][-A-Za-z0-9_:.]*)=("([^"]*)"|'([^']*)')/g))
+  for (const m of tag.matchAll(/([A-Za-z_:][-A-Za-z0-9_:.]*)\s*=\s*("([^"]*)"|'([^']*)')/g))
     o[m[1]] = m[3] !== undefined ? m[3] : m[4];
   return o;
 }
@@ -102,7 +102,7 @@ export function checkLayoutFile(file) {
     if (a.transform != null && !tm) broken = true;
     if (name === "g" && !self) stack.push({ tx: tm ? Number(tm[1]) : 0, ty: tm ? Number(tm[2]) : 0, broken: a.transform != null && !tm });
     const declared = a["data-layout-container"] || a["data-layout-parent"] || a["data-layout-item"]
-      || a["data-layout-group"] || a["data-cluster-id"] || a["data-cluster"];
+      || a["data-layout-group"] || a["data-cluster-id"] || a["data-cluster"] || a["data-layout-title"];
     if (!declared) continue;
     if (a["data-layout-unverified"] != null) {
       unverified.push({ id: declared, reason: a["data-layout-unverified"] });
@@ -169,6 +169,26 @@ export function checkLayoutFile(file) {
     const frame = { x: c.geom.x, y: c.geom.y, x2: c.geom.x + c.geom.w, y2: c.geom.y + c.geom.h };
     const contentTop = frame.y + reserve; // title reservation excluded from content bounds
     const kids = els.filter((e) => e.a["data-layout-parent"] === id);
+    // title participant: 실측 line-box (중앙 baseline: y ± 0.6×font-size 보수 범위)
+    const titleEl = els.find((e) => e.a["data-layout-title"] === id);
+    let titleBox = null;
+    if (titleEl) {
+      const fs = num(titleEl.a["font-size"]);
+      if (!titleEl.anchor || !Number.isFinite(fs) || fs <= 0) {
+        errors.push(`E-LAYOUT-SCHEMA ${ctx}: title participant must be a text with numeric x/y and font-size`);
+      } else {
+        const central = titleEl.a["dominant-baseline"] === "central";
+        titleBox = { top: central ? titleEl.anchor.y - 0.6 * fs : titleEl.anchor.y - 0.85 * fs,
+                     bottom: central ? titleEl.anchor.y + 0.6 * fs : titleEl.anchor.y + 0.3 * fs };
+        if (reserve <= 0) errors.push(`E-LAYOUT-SCHEMA ${ctx}: a title participant requires data-reserve-top > 0`);
+        if (!("data-title-gap" in c.a)) errors.push(`E-LAYOUT-SCHEMA ${ctx}: a title participant requires data-title-gap (preset minimum title→content gap)`);
+        if (titleBox.bottom > contentTop + 0.5)
+          errors.push(`E-LAYOUT-RESERVE ${ctx}: title visual bottom ${r1(titleBox.bottom)} overflows the reservation (contentTop ${r1(contentTop)}) — enlarge data-reserve-top or move the title up`);
+        if (titleBox.top < frame.y - 0.5)
+          errors.push(`E-LAYOUT-RESERVE ${ctx}: title visual top ${r1(titleBox.top)} escapes the container frame`);
+      }
+    }
+    const titleGapMin = field(c.a, "data-title-gap", errors, ctx, { def: null });
     if (kids.length !== declaredCount)
       errors.push(`E-LAYOUT-COUNT ${ctx}: declared ${declaredCount} children, found ${kids.length} annotated — fail-closed`);
     const geo = { left: [], right: [], top: [], bottom: [] };
@@ -193,10 +213,13 @@ export function checkLayoutFile(file) {
       }
       if (reserve > 0 && k.vis.y < contentTop - 0.5)
         errors.push(`E-LAYOUT-RESERVE ${ctx}/${kid}: visual top ${r1(k.vis.y)} enters the title reservation (content starts at ${r1(contentTop)}) — title and content collide`);
+      if (titleBox && titleGapMin != null && k.vis.y - titleBox.bottom < titleGapMin - 0.05)
+        errors.push(`E-LAYOUT-TITLE-GAP ${ctx}/${kid}: measured title→content visual gap ${r1(k.vis.y - titleBox.bottom)}px < preset minimum ${titleGapMin}px`);
       kidRecs.push({ id: kid, geom: k.geom,
         insets: { geometric: { left: r1(gi.left), right: r1(gi.right), top: r1(gi.top), bottom: r1(gi.bottom) },
                   visual: { left: r1(vi.left), right: r1(vi.right), top: r1(vi.top), bottom: r1(vi.bottom) },
-                  titleAdjustedTop: r1(k.geom.y - contentTop), titleGapVisual: r1(k.vis.y - contentTop) } });
+                  titleAdjustedTop: r1(k.geom.y - contentTop), reserveBoundaryGap: r1(k.vis.y - contentTop),
+                  titleGapVisual: titleBox ? r1(k.vis.y - titleBox.bottom) : null } });
     }
     const bind = (o, side) => o[side].length ? Math.min(...o[side]) : null;
     const sym = {};
@@ -213,7 +236,8 @@ export function checkLayoutFile(file) {
     receipt.containers.push({ id, frame, contentTop: r1(contentTop), reserveTop: reserve, minPad, minVisualPad: visPad,
       bindingInsets: { geometric: { left: r1(bind(geo, "left") ?? -1), right: r1(bind(geo, "right") ?? -1), top: r1(bind(geo, "top") ?? -1), bottom: r1(bind(geo, "bottom") ?? -1) },
                        visual: { left: r1(bind(vis, "left") ?? -1), right: r1(bind(vis, "right") ?? -1), top: r1(bind(vis, "top") ?? -1), bottom: r1(bind(vis, "bottom") ?? -1) } },
-      symmetry: sym, children: kidRecs });
+      symmetry: sym, titleBounds: titleBox ? { top: r1(titleBox.top), bottom: r1(titleBox.bottom) } : null,
+      titleGapMin, children: kidRecs });
   }
 
   // ---- groups (duplicate id = error; distribution/axis/count required) ----
@@ -282,6 +306,7 @@ export function checkLayoutFile(file) {
   for (const [cid, frameEl] of clusters) {
     const ctx = `cluster "${cid}"`;
     const declaredCount = field(frameEl.a, "data-cluster-count", errors, ctx, { required: true });
+    const bindTol = field(frameEl.a, "data-cluster-tol", errors, ctx, { def: 1 });
     const fb = { x: frameEl.geom.x, y: frameEl.geom.y, x2: frameEl.geom.x + frameEl.geom.w, y2: frameEl.geom.y + frameEl.geom.h };
     const members = memberRefs.filter((e) => e.a["data-cluster"] === cid);
     if (declaredCount != null && members.length !== declaredCount)
@@ -289,17 +314,34 @@ export function checkLayoutFile(file) {
     const memberRecs = [];
     for (const mm of members) {
       if (mm.uv) { memberRecs.push({ tag: mm.name, kind: "unverified", inside: null }); continue; }
-      let ok, kind;
+      let ok, kind, ref;
       if (mm.geom) {
         kind = "bounds";
+        ref = { x: mm.geom.x + mm.geom.w / 2, y: mm.geom.y + mm.geom.h / 2 }; // binding 기준: bounds 중심
         ok = mm.geom.x >= fb.x - 0.5 && mm.geom.y >= fb.y - 0.5 && mm.geom.x + mm.geom.w <= fb.x2 + 0.5 && mm.geom.y + mm.geom.h <= fb.y2 + 0.5;
       } else {
         kind = "anchor";
+        ref = mm.anchor;
         ok = mm.anchor.x >= fb.x && mm.anchor.x <= fb.x2 && mm.anchor.y >= fb.y && mm.anchor.y <= fb.y2;
       }
       if (!ok)
         errors.push(`E-LAYOUT-CLUSTER ${ctx}: component <${mm.name}> (${kind} ${JSON.stringify(mm.geom ?? mm.anchor)}) sits outside the item frame ${JSON.stringify(fb)} — the item moved without this component`);
-      memberRecs.push({ tag: mm.name, kind, at: mm.geom ?? mm.anchor, inside: ok });
+      // atomic binding: containment만으로는 frame-only small drift를 못 잡는다 — 선언된 상대 offset과 대조
+      let bind = null;
+      const at = mm.a["data-cluster-at"];
+      if (at == null) {
+        errors.push(`E-LAYOUT-SCHEMA ${ctx}: component <${mm.name}> is missing data-cluster-at="dx,dy" — relative binding must be declared (containment alone is not atomicity)`);
+      } else {
+        const am = String(at).match(/^(-?[\d.]+)\s*,\s*(-?[\d.]+)$/);
+        if (!am) errors.push(`E-LAYOUT-SCHEMA ${ctx}: invalid data-cluster-at "${at}" (expected "dx,dy")`);
+        else {
+          const dx = ref.x - fb.x - Number(am[1]), dy = ref.y - fb.y - Number(am[2]);
+          bind = { declared: [Number(am[1]), Number(am[2])], measured: [r1(ref.x - fb.x), r1(ref.y - fb.y)], delta: [r1(dx), r1(dy)] };
+          if (Math.abs(dx) > bindTol || Math.abs(dy) > bindTol)
+            errors.push(`E-LAYOUT-BINDING ${ctx}: component <${mm.name}> drifted from its declared offset by (${r1(dx)}, ${r1(dy)})px > tol ${bindTol}px — the frame moved without carrying this component (or vice versa)`);
+        }
+      }
+      memberRecs.push({ tag: mm.name, kind, at: mm.geom ?? mm.anchor, inside: ok, binding: bind });
     }
     receipt.clusters.push({ id: cid, frame: fb, declared: declaredCount, found: members.length, members: memberRecs });
   }
@@ -307,6 +349,9 @@ export function checkLayoutFile(file) {
 }
 
 export function runLayoutCli(argv) {
+  const KNOWN = ["--json"];
+  const unknown = argv.filter((a) => a.startsWith("--") && !KNOWN.includes(a));
+  if (unknown.length) { console.error(`unknown option for check-layout: ${unknown.join(" ")} (known: ${KNOWN.join(", ")})`); return 2; }
   const json = argv.includes("--json");
   const files = argv.filter((a) => !a.startsWith("--"));
   if (!files.length) { console.error("usage: check-layout.mjs <svg...> [--json]"); return 2; }

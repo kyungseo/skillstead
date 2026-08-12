@@ -328,7 +328,7 @@ export async function main(argv) {
   // layout annotation이 있는 SVG는 check-svg → check-layout → browser 순으로
   // fail-closed 실행된다. data-layout-unverified(exit 3)는 성공이 아니라 명시적
   // 검토 상태다 — hard gate에서 통과 처리하지 않는다.
-  if (/data-(layout-(container|parent|item|group|unverified)|cluster(-id)?)=/.test(readFileSync(svg, "utf8"))) {
+  if (/data-(layout-(container|parent|item|group|title|unverified)|cluster(-id|-at)?)\s*=/.test(readFileSync(svg, "utf8"))) {
     const layoutExit = runLayoutCli([svg]);
     if (layoutExit === 3) {
       console.error("layout contract: data-layout-unverified participants present — explicit review state, not a pass. Resolve or review them before canonical rendering.");

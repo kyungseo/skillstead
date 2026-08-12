@@ -62,6 +62,40 @@ test("F4 미지원 distribution silent-accept 금지", () => neg("ln-bad-distrib
 test("F5 title reservation과 카드 visual bounds 충돌 검출", () => neg("ln-title-collision.svg", /E-LAYOUT-RESERVE .*enters the title reservation/));
 test("F1 이동한 frame이 icon circle을 두고 가면 error", () => neg("ln-cluster-misplaced.svg", /E-LAYOUT-CLUSTER .*component <circle>.*outside the item frame/));
 test("F1 cluster 구성요소 누락 fail-closed", () => neg("ln-cluster-missing.svg", /E-LAYOUT-COUNT cluster "card": declared 3 components, found 2/));
+test("P1-3 spaced-equals/quote 조합도 동등하게 참여한다 (detection 우회 차단)", () => {
+  const rd = run([path.join(FIX, "lp-positive.svg"), "--json"]);
+  const rs = run([path.join(FIX, "lp-positive-spaced.svg"), "--json"]);
+  assert.equal(rs.code, 0, rs.out);
+  const jd = JSON.parse(rd.out).files[0], js = JSON.parse(rs.out).files[0];
+  assert.equal(js.containers.length, jd.containers.length);
+  assert.deepEqual(js.containers.map((c) => c.bindingInsets), jd.containers.map((c) => c.bindingInsets));
+});
+test("P1-3 spaced-equals annotation의 결함도 여전히 검출된다 (annotation-없음 강등 금지)", () => {
+  const src = fs.readFileSync(path.join(FIX, "ln-gap-drift.svg"), "utf8");
+  const tmp = path.join(FIX, "temp-spaced-neg.svg");
+  fs.writeFileSync(tmp, src.replace(/(data-[a-z-]+)="([^"]*)"/g, "$1 = \"$2\""));
+  const r = run([tmp]);
+  fs.unlinkSync(tmp);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /E-LAYOUT-GAP/);
+});
+test("P1-4 small drift: frame만 이동하고 구성요소가 남으면 binding error", () => neg("ln-cluster-drift.svg", /E-LAYOUT-BINDING .*drifted from its declared offset/));
+test("P1-4 data-cluster-at 미선언은 schema error (containment만으로 원자성 주장 금지)", () => {
+  const src = fs.readFileSync(path.join(FIX, "ln-cluster-drift.svg"), "utf8");
+  const tmp = path.join(FIX, "temp-noat.svg");
+  fs.writeFileSync(tmp, src.replace(/ data-cluster-at="[^"]*"/g, ""));
+  const r = run([tmp]);
+  fs.unlinkSync(tmp);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /missing data-cluster-at/);
+});
+test("P1-2 title이 reservation을 넘으면 error", () => neg("ln-title-overflow.svg", /E-LAYOUT-RESERVE .*title visual bottom .*overflows the reservation/));
+test("P1-2 실측 title→content gap 미달은 error", () => neg("ln-title-gap.svg", /E-LAYOUT-TITLE-GAP .*measured title→content visual gap/));
+test("P2 unknown CLI option은 exit 2", () => {
+  const r = run(["--mdoe", path.join(FIX, "lp-positive.svg")]);
+  assert.equal(r.code, 2);
+  assert.match(r.out, /unknown option for check-layout/);
+});
 test("data-layout-unverified는 exit 3 (명시적 검토 상태, 성공 아님)", () => {
   const p = path.join(FIX, "ln-transform.svg");
   const src = fs.readFileSync(p, "utf8");

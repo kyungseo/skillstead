@@ -302,11 +302,24 @@ surfacing the intent change — never by nudging one member.
 
 **7c. Atomic layout items (clusters).** A card is not one rect: it is its frame plus
 its components — icon background circle, glyph anchor, text anchors. The frame
-declares `data-cluster-id` + `data-cluster-count`; components declare
-`data-cluster`. Every supported component must sit inside the item frame (bounds
-for rect/circle, anchor point for text/g/use) and the declared member count must
-match, fail-closed — moving a frame while leaving its icon circle behind is an
-error, not a pass. Annotation schema is strict: single/double quotes are
+declares `data-cluster-id` + `data-cluster-count` (+ optional `data-cluster-tol`,
+default 1px); components declare `data-cluster` **and** `data-cluster-at="dx,dy"`
+— the expected offset from the frame origin (bounds center for rect/circle,
+anchor point for text/g/use). Atomicity is enforced on three axes, fail-closed:
+containment (component inside the frame), completeness (declared member count
+matches), and **relative binding** (measured offset within tolerance of the
+declared offset) — so a frame that moves 8px while its components stay behind
+fails even though everything is still "inside". A component without a declared
+offset is a schema error: containment alone is never claimed as atomicity.
+Titled containers additionally declare the title as a participant
+(`data-layout-title="<container-id>"` on a text with numeric x/y/font-size): the
+guard computes the title line-box (±0.6×font-size around a central baseline),
+requires it to fit the reservation, and enforces the preset minimum
+`data-title-gap` between the measured title bottom and the first content visual
+top — the receipt reports both the real `titleGapVisual` and the
+`reserveBoundaryGap`. A titled container's y-axis is intentionally asymmetric
+(the title fills the top), so it declares `data-symmetry="x"`; y-symmetry stays
+available for untitled containers. Annotation schema is strict: single/double quotes are
 equivalent, required fields (`data-min-pad`, `data-layout-count`,
 `data-group-count`, `data-axis`, `data-distribution`) are enforced, invalid
 numbers are schema errors (never NaN-silenced), and duplicate container/group/
