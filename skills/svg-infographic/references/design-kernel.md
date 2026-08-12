@@ -267,7 +267,50 @@ into one rounded-card look.
   Ambiguous-order types (matrix/radial/nested/multi-panel) must spec an explicit
   reading-order rule.
 
-## 7. Regeneration & provenance
+## 7. Container & distribution layout contracts (machine guard: `check-layout.mjs`)
+
+Two generic contracts close the recurring failure family "a local coordinate fix
+breaks a layout invariant elsewhere" (tight right/bottom insets, edge-touching
+children, unequal repeated gaps). They apply to canonical output through a
+**provable subset** — annotation-declared participants with numeric rect/circle
+geometry, translate-only transforms, and feDropShadow/feDisplacementMap filters.
+Anything a guard cannot prove on a declared participant is an **error** unless
+explicitly classified `data-layout-unverified="<reason>"` — never a silent pass.
+
+**7a. Padded / nested container contract.** A container (`data-layout-container` +
+`data-min-pad`, optional `data-reserve-top` for a title row, `data-symmetry` +
+tolerance) is judged against each annotated child (`data-layout-parent`) on two
+tiers: the **geometric** inset (rect bounds) must meet the declared min padding,
+and the **visual** bounds (rect + stroke/2 + conservative shadow range:
+`abs(offset) + 3×stdDeviation`, displacement scale) must never touch the parent
+edge and must keep the visual clearance floor (`data-min-visual-pad`, default 8).
+Titled containers compare insets against the reserve-adjusted content top — the
+comparison target is the contentBox, not the raw frame. Declared symmetry axes
+must balance within tolerance; `data-layout-count` pins the child count
+fail-closed. Containers nest: a nested container is checked twice — as a child of
+its parent and as a parent of its own children — and any level failing fails the
+whole artifact.
+
+**7b. Repeated row/column distribution contract.** Repeated items are one layout
+group (`data-layout-group` + `data-distribution` + `data-axis` +
+`data-group-count` + `data-gap-tol`; members carry `data-layout-item`), not a set
+of independent coordinates. Default distribution is `equal-gap`: adjacent visual
+gaps must stay within the gap tolerance, item sizes within 1px, and the first/last
+outer insets must balance. A request to "move only the third card" on an equal-gap
+group is answered by **reflowing the whole group** (start/gap/size) or by
+surfacing the intent change — never by nudging one member.
+
+**7c. No local coordinate patching.** Canonical generators derive geometry from
+inputs — parent contentBox (PageFrame receipt), child count/sizes, outer insets,
+gaps, distribution mode, title reservation, connector corridors — and fail closed
+when the budget does not match the contentBox exactly. `check-layout.mjs --json`
+emits the layout receipt (content bounds, child visual bounds, per-side safe
+padding, adjacent gap list, gap spread, distribution mode, nested results);
+comparing receipts before/after an edit exposes any invariant the edit broke.
+Generalizing the guard beyond annotated rect geometry to semantic region
+annotations is a named follow-up (`svg-infographic-semantic-region-annotation`).
+
+## 8. Regeneration & provenance
 
 - The contact sheet above is a **generated composite evidence artifact**: it mixes
   light/dark/sketch profiles on one canvas for review, so it is *not* an ordinary
