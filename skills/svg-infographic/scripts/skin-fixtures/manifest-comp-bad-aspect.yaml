@@ -11,6 +11,15 @@ typepacks:
     verifier: null
     fixtures: [skin-fixtures/portable-positive.svg]
     examples: []
-    required_roles: [canvas, brand-red]
+    required_roles: [canvas, surface, ink, muted, rule, focus]
     optional_aliases: [edge, compute, data]
     canonical_prompt: PROMPT-GALLERY.md#fixture-topology
+    composition:
+      composable: true
+      min_slot_size: { w: 280, h: 220 }
+      preferred_slot_aspect: { min: 4, max: 2 }
+      variants:
+        - id: compact
+          min_slot_size: { w: 280, h: 160 }
+      ports:
+        - { template: item-anchor, direction: out, kind: reference, cardinality: 0..n }

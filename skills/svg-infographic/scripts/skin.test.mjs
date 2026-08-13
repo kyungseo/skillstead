@@ -307,6 +307,30 @@ test("manifest: duplicate id fails closed", () => {
   assert.equal(r.code, 1);
   assert.match(r.out, /duplicate typepack id/);
 });
+test("manifest v2: composition capability positive", () => {
+  const r = run(["manifest", path.join(FIX, "manifest-comp-positive.yaml")]);
+  assert.equal(r.code, 0, r.out);
+});
+test("manifest v2: composition unknown field 거부", () => {
+  const r = run(["manifest", path.join(FIX, "manifest-comp-unknown.yaml")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /composition unknown field "max_modules"/);
+});
+test("manifest v2: preferred_slot_aspect min>max 거부", () => {
+  const r = run(["manifest", path.join(FIX, "manifest-comp-bad-aspect.yaml")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /preferred_slot_aspect must be \{min, max\}/);
+});
+test("manifest v2: port direction enum 거부", () => {
+  const r = run(["manifest", path.join(FIX, "manifest-comp-bad-port.yaml")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /direction must be out\|in\|bidir/);
+});
+test("manifest v2: v1 manifest는 atomic upgrade 정책으로 거부", () => {
+  const r = run(["manifest", path.join(FIX, "manifest-v1-rejected.yaml")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /schema_version must be 2/);
+});
 test("manifest: missing spec path fails closed", () => {
   const r = run(["manifest", path.join(FIX, "manifest-missing-spec.yaml")]);
   assert.equal(r.code, 1);

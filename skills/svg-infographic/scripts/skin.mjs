@@ -36,6 +36,23 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 // --- minimal YAML subset parser (nested maps, scalars, "- item" lists, comments) ---
+function parseInlineMap(v, file, line) {
+  // flat scalar inline map: { k: v, k2: v2 } — 중첩 없음
+  const out = {};
+  const body = v.slice(1, -1).trim();
+  if (!body) return out;
+  for (const part of body.split(",")) {
+    const m = part.match(/^\s*([A-Za-z0-9_.-]+):\s*(.+?)\s*$/);
+    if (!m) throw new Error(`${file}:${line + 1} unsupported inline map entry: ${part}`);
+    let val = m[2];
+    if (val.startsWith('"') && val.endsWith('"')) val = val.slice(1, -1);
+    else if (/^-?\d+(\.\d+)?$/.test(val)) val = Number(val);
+    else if (val === "true") val = true;
+    else if (val === "false") val = false;
+    out[m[1]] = val;
+  }
+  return out;
+}
 function parseYaml(text, file) {
   const root = {};
   const stack = [{ indent: -1, obj: root }];
@@ -61,6 +78,8 @@ function parseYaml(text, file) {
         else if (v === "null") v = null;
         else if (/^-?\d+(\.\d+)?$/.test(v)) v = Number(v);
         item[km[1]] = v;
+      } else if (rest.startsWith("{") && rest.endsWith("}")) {
+        parent.holder[parent.key].push(parseInlineMap(rest, file, i));
       } else {
         let v = rest;
         if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1);
@@ -82,6 +101,7 @@ function parseYaml(text, file) {
       else if (v === "null") v = null;
       else if (v === "[]") v = [];
       else if (v.startsWith("[") && v.endsWith("]")) v = v.slice(1, -1).split(",").map((x) => x.trim()).filter(Boolean).map((x) => x.startsWith('"') && x.endsWith('"') ? x.slice(1, -1) : x);
+      else if (v.startsWith("{") && v.endsWith("}")) v = parseInlineMap(v, file, i);
       else if (/^-?\d+(\.\d+)?$/.test(v)) v = Number(v);
       parent.obj[key] = v;
     }
@@ -591,7 +611,7 @@ function main() {
     const errors = [];
     let doc, digest;
     try { ({ doc, digest } = readYaml(mPath)); } catch (e) { fail(1, `manifest: ${e.message}`); }
-    if (doc.schema_version !== 1) errors.push(`manifest: schema_version must be 1 (got ${doc.schema_version})`);
+    if (doc.schema_version !== 2) errors.push(`manifest: schema_version must be 2 (atomic package upgrade — v1 manifests are rejected; got ${doc.schema_version})`);
     const packs = doc.typepacks;
     if (!Array.isArray(packs)) errors.push("manifest: typepacks must be an array");
     const ids = new Set();
@@ -614,9 +634,9 @@ function main() {
       // full locked-schema validation (Wave 0 CP2 계약 전체 — CP5-R1B)
       const FIELDS = ["id", "selection_signal", "profile", "support", "spec", "presets",
         "orientations", "verifier", "fixtures", "examples", "required_roles",
-        "optional_aliases", "canonical_prompt"];
+        "optional_aliases", "canonical_prompt", "composition"];
       for (const k of Object.keys(p)) if (!FIELDS.includes(k)) errors.push(`manifest: ${id}: unknown field "${k}" (locked schema: ${FIELDS.join("/")})`);
-      for (const k of FIELDS) if (!(k in p)) errors.push(`manifest: ${id}: missing field "${k}"`);
+      for (const k of FIELDS) if (k !== "composition" && !(k in p)) errors.push(`manifest: ${id}: missing field "${k}"`); // composition은 optional capability (absent => composable: false)
       let pfPresets = [];
       try { pfPresets = Object.keys(readYaml(path.resolve(here, "..", "references", "skins", "pageframe-v1.yaml")).doc.presets || {}); } catch { errors.push("manifest: cannot load pageframe registry for preset validation"); }
       if ("presets" in p) {
@@ -646,6 +666,40 @@ function main() {
         errors.push(`manifest: ${id}: optional_aliases must be an array within ${MANIFEST_ALIASES.join("/")}`);
       if ("canonical_prompt" in p && !/^PROMPT-GALLERY\.md#[a-z0-9][a-z0-9-]*$/.test(String(p.canonical_prompt)))
         errors.push(`manifest: ${id}: canonical_prompt must match PROMPT-GALLERY.md#<kebab-anchor> (semantics reserved)`);
+      // composition capability block (schema v2, optional — absent => composable: false)
+      if ("composition" in p) {
+        const C = p.composition;
+        const CK = ["composable", "min_slot_size", "preferred_slot_aspect", "variants", "ports"];
+        for (const k of Object.keys(C)) if (!CK.includes(k)) errors.push(`manifest: ${id}: composition unknown field "${k}"`);
+        if (typeof C.composable !== "boolean" && C.composable !== "true" && C.composable !== "false")
+          errors.push(`manifest: ${id}: composition.composable must be boolean`);
+        const sizeOk = (o) => o && Number.isFinite(Number(o.w)) && Number(o.w) > 0 && Number.isFinite(Number(o.h)) && Number(o.h) > 0;
+        if (!sizeOk(C.min_slot_size)) errors.push(`manifest: ${id}: composition.min_slot_size must be positive {w, h} (logical px)`);
+        const A = C.preferred_slot_aspect;
+        if (!A || !Number.isFinite(Number(A.min)) || !Number.isFinite(Number(A.max)) || Number(A.min) <= 0 || Number(A.min) > Number(A.max))
+          errors.push(`manifest: ${id}: composition.preferred_slot_aspect must be {min, max} with 0 < min <= max`);
+        if ("variants" in C) {
+          if (!Array.isArray(C.variants)) errors.push(`manifest: ${id}: composition.variants must be a list`);
+          else {
+            const vids = new Set();
+            for (const v of C.variants) {
+              if (!v.id || !/^[a-z0-9][a-z0-9-]*$/.test(String(v.id))) errors.push(`manifest: ${id}: variant id invalid`);
+              else if (vids.has(v.id)) errors.push(`manifest: ${id}: duplicate variant id "${v.id}"`);
+              else vids.add(v.id);
+              if (!sizeOk(v.min_slot_size)) errors.push(`manifest: ${id}: variant "${v.id}" min_slot_size must be positive {w, h}`);
+            }
+          }
+        }
+        if ("ports" in C) {
+          if (!Array.isArray(C.ports)) errors.push(`manifest: ${id}: composition.ports must be a list`);
+          else for (const pt of C.ports) {
+            if (!pt.template || !/^[a-z0-9][a-z0-9-]*$/.test(String(pt.template))) errors.push(`manifest: ${id}: port template id invalid`);
+            if (!["out", "in", "bidir"].includes(pt.direction)) errors.push(`manifest: ${id}: port "${pt.template}" direction must be out|in|bidir`);
+            if (!["flow", "reference"].includes(pt.kind)) errors.push(`manifest: ${id}: port "${pt.template}" kind must be flow|reference`);
+            if (!/^\d+(\.\.(\d+|n))?$|^0\.\.n$/.test(String(pt.cardinality ?? ""))) errors.push(`manifest: ${id}: port "${pt.template}" cardinality must be "n", "n..m" or "0..n"`);
+          }
+        }
+      }
     }
     const receipt = { schemaVersion: 1, command: "manifest", digest, count: (packs || []).length, errors, warnings: [] };
     if (mo["--json"]) console.log(JSON.stringify(receipt, null, 1));
