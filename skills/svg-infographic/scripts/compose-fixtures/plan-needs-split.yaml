@@ -5,8 +5,8 @@ page: { preset: social-4x5, support: none }
 layout_template: vertical-stack
 slots:
   slot-a: { height: 100 }
-  slot-b: { height: 586 }
-slot_gap: 24
+  slot-b: { height: 578 }
+slot_gap: 32
 header:
   eyebrow: "구성 요약"
   h1: "핵심 4가지와 전체 구조"

@@ -375,10 +375,17 @@ function compose(planPath, opts) {
     if (!rcp.sourceDigest) { problems.push(`instance "${inst.instance_id}": fragment receipt missing sourceDigest`); continue; }
     const body = frag.match(/<svg[^>]*>([\s\S]*)<\/svg>\s*$/)[1];
     // text bounds evidence: 방식·입력 digest·내용 digest가 fragment와 묶여야 한다(stale 거부)
-    if (!rcp.textMeasure || rcp.textMeasure.method !== "browser-getBBox") problems.push(`instance "${inst.instance_id}": fragment receipt missing browser text-measure evidence`);
+    const fragTextCount = [...body.matchAll(/<text[\s>]/g)].length;
+    if (fragTextCount === 0) {
+      // text-free fragment 계약: textDigest/textMarkupDigest/textMeasure = null, textBounds = []
+      for (const k of ["textDigest", "textMarkupDigest", "textMeasure"])
+        if (rcp[k] != null) problems.push(`instance "${inst.instance_id}": text-free fragment must record ${k}: null (got ${JSON.stringify(rcp[k])})`);
+      if (!Array.isArray(rcp.textBounds) || rcp.textBounds.length !== 0)
+        problems.push(`instance "${inst.instance_id}": text-free fragment must record textBounds: []`);
+    } else if (!rcp.textMeasure || rcp.textMeasure.method !== "browser-getBBox") problems.push(`instance "${inst.instance_id}": fragment receipt missing browser text-measure evidence`);
     else if (rcp.textMeasure.inputDigest !== fragSha) problems.push(`instance "${inst.instance_id}": text-measure inputDigest ${rcp.textMeasure.inputDigest} != fragment ${fragSha} (stale text evidence)`);
-    if (rcp.textDigest !== textDigestOf(body)) problems.push(`instance "${inst.instance_id}": fragment text content digest mismatch (receipt ${rcp.textDigest}, measured ${textDigestOf(body)})`);
-    if (rcp.textMarkupDigest !== textMarkupDigestOf(body)) problems.push(`instance "${inst.instance_id}": fragment text markup digest mismatch — text placement/typography attributes changed after measurement`);
+    if (fragTextCount > 0 && rcp.textDigest !== textDigestOf(body)) problems.push(`instance "${inst.instance_id}": fragment text content digest mismatch (receipt ${rcp.textDigest}, measured ${textDigestOf(body)})`);
+    if (fragTextCount > 0 && rcp.textMarkupDigest !== textMarkupDigestOf(body)) problems.push(`instance "${inst.instance_id}": fragment text markup digest mismatch — text placement/typography attributes changed after measurement`);
     const meas = measuredBoundsStrict(body, { textBoxes: rcp.textBounds });
     for (const ge of meas.errors) problems.push(`instance "${inst.instance_id}": ${ge}`);
     if (meas.bounds) {
@@ -598,6 +605,14 @@ function verify(svgPath, opts) {
     if (!g) continue;
     const innerBody = g.body.replace(/^<g data-comp-instance[^>]*>/, "");
     const compositeTextCount = [...innerBody.matchAll(/<text[\s>]/g)].length;
+    if (compositeTextCount === 0) {
+      // text-free instance 계약: 정확히 이 null 조합만 허용 (release-blocking P2)
+      const wantNull = { textDigest: inst.textDigest, textMarkupDigest: inst.textMarkupDigest, textMeasure: inst.textMeasure };
+      for (const [k, v] of Object.entries(wantNull))
+        if (v != null) errors.push(`E-COMP-SCHEMA instance "${inst.instance_id}" has no text but "${k}" is ${JSON.stringify(v)} — text-free instances must record null`);
+      if (!Array.isArray(inst.textBounds) || inst.textBounds.length !== 0)
+        errors.push(`E-COMP-SCHEMA instance "${inst.instance_id}" has no text but textBounds is not []`);
+    }
     if (compositeTextCount > 0) {
       // text 보유 instance: evidence 전 필드 필수 — 삭제/공백은 schema error (P1-1)
       const needs = { textDigest: inst.textDigest, textMarkupDigest: inst.textMarkupDigest, textBounds: inst.textBounds, textMeasure: inst.textMeasure };

@@ -4,9 +4,9 @@ id: cards-tree-4x5-en
 page: { preset: social-4x5, support: none }
 layout_template: vertical-stack
 slots:
-  slot-a: { height: 300 }
-  slot-b: { height: 386 }
-slot_gap: 24
+  slot-a: { height: 150 }
+  slot-b: { height: 528 }
+slot_gap: 32
 header:
   eyebrow: "COMPOSITION SUMMARY"
   h1: "Four key points and the overall structure"

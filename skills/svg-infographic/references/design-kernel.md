@@ -365,7 +365,62 @@ comparing receipts before/after an edit exposes any invariant the edit broke.
 Generalizing the guard beyond annotated rect geometry to semantic region
 annotations is a named follow-up (`svg-infographic-semantic-region-annotation`).
 
-## 8. Regeneration & provenance
+## 8. Composition (multi-type scenes)
+
+One page is not limited to one type. A scene may combine TypePacks — summary cards
+over a tree, a timeline beside a comparison, a process with a callout — without
+ever minting a hybrid TypePack. The structure is layered:
+
+```text
+PageFrame            — header / content / support / footer (outer regions, §6)
+└─ Composition layer — content slot split, alignment, gaps, ratios, hierarchy,
+   │                   reading order (owns everything BETWEEN modules)
+   ├─ TypePack A     — topology and intrinsic bounds INSIDE its slot only
+   └─ TypePack B
+```
+
+**Three schemas, three lifetimes** (never mixed): *TypePack Manifest v2* declares
+static capability (`composable`, `min_slot_size`, `preferred_slot_aspect`,
+`allowed_slots`, `variants`, port capability templates); a *Composition Plan v1*
+declares one scene (template, slots, instances with `instance_id`/`module_role`/
+`slot_id`, semantic bindings, connector edges, explicit `reading_order`); a
+*Composition Receipt v1* records what actually happened (resolved slots, selected
+variants, transformed used bounds, actual ports, shared-contract digests, status).
+`scripts/compose.mjs` (`plan` / `compose` / `verify`) executes and enforces all
+three.
+
+Contract highlights, all fail-closed:
+
+- **Bounded composition**: exactly one `primary` + one or two `supporting`
+  modules; nested composition is rejected at the schema level.
+- **Fragment discipline**: a TypePack renders a local-coordinate fragment (no page
+  elements, no transforms of any kind inside); placement is translation-only,
+  scale = 1 — resizing happens through declared variants, never transforms.
+- **Receipts are re-measured, never trusted**: verify recomputes plan digest,
+  slots, bounds (rect/circle/line/absolute-M-L-H-V paths) from the artifact,
+  compares module identities against the live registry digests, and re-measures
+  text in the browser (getBBox + ancestor CTM). Text is unverifiable statically,
+  so fragments carry browser-measured `textBounds` evidence bound to the source
+  digest, plus content and canonical-markup digests; text-free fragments record
+  exactly `textDigest/textMarkupDigest/textMeasure: null, textBounds: []`.
+  Static-only verification (`--no-browser`) exits 3 — bounded, never
+  acceptance-grade.
+- **Shared contracts proven**: every module receipt carries
+  `skinProfileDigest/typographyProfileDigest/pageFrameDigest/kernelVersion/iconSetId`;
+  restriction order is `core < experimental < gated` and the composite takes the
+  **maximum restriction** of its members.
+- **Relationships**: semantic bindings (shared keys shown as numbers/labels) are
+  distinct from visual connector edges (real lines routed between declared ports
+  under the standard connector contract). Prefer bindings; draw lines only when
+  the line itself carries meaning.
+- **Degrade ladder**: supporting-variant reduction → row/column reflow → return
+  `needs-split` (a non-success recommending a separate page). Never shrink type
+  or arrows to force a fit, and never silently drop meaning.
+- **Page budget**: exactly one `cluster-h1` (composition-owned header); module
+  headings stay at section scale; focal/tint/connector aggregates are recorded as
+  measured/advisory values without invented thresholds.
+
+## 9. Regeneration & provenance
 
 - The contact sheet above is a **generated composite evidence artifact**: it mixes
   light/dark/sketch profiles on one canvas for review, so it is *not* an ordinary

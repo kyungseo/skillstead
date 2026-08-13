@@ -23,16 +23,21 @@ const identity = {
   iconSetId: "line-icons-v1",
 };
 
-for (const [dir, stem] of [["fragments", "summary-cards"], ["fragments", "tree"], ["fragments-en", "summary-cards"], ["fragments-en", "tree"]]) {
+for (const [dir, stem] of [["fragments", "summary-cards"], ["fragments", "tree"], ["fragments", "icon-band"], ["fragments-en", "summary-cards"], ["fragments-en", "tree"]]) {
   const svgP = path.join(here, dir, `${stem}.svg`);
   const rcpP = path.join(here, dir, `${stem}.receipt.json`);
   const frag = readFileSync(svgP, "utf8");
   const body = frag.match(/<svg[^>]*>([\s\S]*)<\/svg>\s*$/)[1];
   // text bounds: browser 실측 (정적 파서로 불가)
-  const mt = spawnSync(process.execPath, [path.join(here, "..", "measure-text.mjs"), svgP], { encoding: "utf8" });
-  if (mt.status !== 0) { console.error(`${stem}: text measure failed:\n${mt.stdout}${mt.stderr}`); process.exit(1); }
-  const tm = JSON.parse(mt.stdout);
-  const textBoxes = tm.texts.map((t) => ({ x: t.x, y: t.y, w: t.w, h: t.h }));
+  const hasText = /<text[\s>]/.test(body);
+  let textBoxes = [];
+  let tm = { texts: [] };
+  if (hasText) {
+    const mt = spawnSync(process.execPath, [path.join(here, "..", "measure-text.mjs"), svgP], { encoding: "utf8" });
+    if (mt.status !== 0) { console.error(`${stem}: text measure failed:\n${mt.stdout}${mt.stderr}`); process.exit(1); }
+    tm = JSON.parse(mt.stdout);
+    textBoxes = tm.texts.map((t) => ({ x: t.x, y: t.y, w: t.w, h: t.h }));
+  }
   const meas = measuredBoundsStrict(body, { textBoxes });
   if (meas.errors.length) { console.error(`${stem}: geometry errors:\n  ` + meas.errors.join("\n  ")); process.exit(1); }
   const rcp = JSON.parse(readFileSync(rcpP, "utf8"));
@@ -41,9 +46,9 @@ for (const [dir, stem] of [["fragments", "summary-cards"], ["fragments", "tree"]
   rcp.sourceDigest = sha16(frag);
   rcp.verifier = "compose-fragment-measure-v1";
   rcp.textBounds = textBoxes;
-  rcp.textDigest = textDigestOf(body);
-  rcp.textMarkupDigest = textMarkupDigestOf(body);
-  rcp.textMeasure = { method: "browser-getBBox", inputDigest: sha16(frag), texts: tm.texts.length };
+  rcp.textDigest = hasText ? textDigestOf(body) : null;
+  rcp.textMarkupDigest = hasText ? textMarkupDigestOf(body) : null;
+  rcp.textMeasure = hasText ? { method: "browser-getBBox", inputDigest: sha16(frag), texts: tm.texts.length } : null;
   writeFileSync(rcpP, JSON.stringify(rcp, null, 1));
   console.log(`${dir}/${stem}: usedBounds ${JSON.stringify(rcp.usedBounds)} sourceDigest ${rcp.sourceDigest}`);
 }

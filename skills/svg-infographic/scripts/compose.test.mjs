@@ -299,7 +299,7 @@ test("R2-4: text-measure inputDigest가 fragment와 다르면 stale evidence로 
 
 // ---- 최종 text-geometry binding 재현(R3) ----
 test("R3-1: 내용 동일 + x=900 이동은 markup digest로 거부(정적 계층 단독)", () => {
-  const svg = fs.readFileSync(OUT, "utf8").replace(/<text x="16" y="70"/, '<text x="900" y="70"');
+  const svg = fs.readFileSync(OUT, "utf8").replace(/<text x="14" y="62"/, '<text x="900" y="62"');
   const p = path.join(td, "r31.svg");
   fs.writeFileSync(p, svg);
   const r = run(["verify", p, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M, "--no-browser"]);
@@ -344,7 +344,7 @@ test("R4-1: textMarkupDigest 삭제 + x=900은 nested schema로 거부", () => {
   delete rcp.instances[0].textMarkupDigest;
   const rp = path.join(td, "r41.json");
   fs.writeFileSync(rp, JSON.stringify(rcp));
-  const svg = fs.readFileSync(OUT, "utf8").replace(/<text x="16" y="70"/, '<text x="900" y="70"');
+  const svg = fs.readFileSync(OUT, "utf8").replace(/<text x="14" y="62"/, '<text x="900" y="62"');
   const sp = path.join(td, "r41.svg");
   fs.writeFileSync(sp, svg);
   const r = run(["verify", sp, "--receipt", rp, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M, "--no-browser"]);
@@ -366,4 +366,24 @@ test("R4-3: 기본 verify에서 browser 불가면 hard failure(exit 1)", () => {
 test("R4-4: 기본 verify + browser 측정은 완전 성공(exit 0)", () => {
   const r = run(["verify", OUT, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M]);
   assert.equal(r.code, 0, r.out);
+});
+
+// ---- text-free fragment 계약(P2, release-blocking) ----
+test("P2-1: icon-only fragment는 null 조합 receipt로 전 경로 통과", () => {
+  const o = path.join(td, "ib.svg"), rc = path.join(td, "ib.json");
+  const r = run(["compose", path.join(FIX, "plan-cards-iconband.yaml"), "--fragments", path.join(FIX, "fragments"), ...M, "--out", o, "--receipt", rc]);
+  assert.equal(r.code, 0, r.out);
+  const v = run(["verify", o, "--receipt", rc, "--plan", path.join(FIX, "plan-cards-iconband.yaml"), ...M]);
+  assert.equal(v.code, 0, v.out);
+});
+test("P2-2: text-free fragment가 null 아닌 text evidence를 실으면 거부", () => {
+  const fd = fs.mkdtempSync(path.join(os.tmpdir(), "frag-"));
+  for (const f of fs.readdirSync(path.join(FIX, "fragments"))) fs.copyFileSync(path.join(FIX, "fragments", f), path.join(fd, f));
+  const rp = path.join(fd, "icon-band.receipt.json");
+  const rcp = JSON.parse(fs.readFileSync(rp, "utf8"));
+  rcp.textDigest = "deadbeefdeadbeef";
+  fs.writeFileSync(rp, JSON.stringify(rcp));
+  const r = run(["compose", path.join(FIX, "plan-cards-iconband.yaml"), "--fragments", fd, ...M, "--out", path.join(td, "p22.svg"), "--receipt", path.join(td, "p22.json")]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /text-free fragment must record textDigest: null/);
 });
