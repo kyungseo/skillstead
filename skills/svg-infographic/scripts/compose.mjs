@@ -22,6 +22,7 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { preflight, fixtureOverride, guardPackagePath } from "./preflight-lib.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const skinCli = path.join(here, "skin.mjs");
@@ -371,16 +372,28 @@ export function checkRefs(svg) {
   return errors;
 }
 
+// 자식 CLI(JSON) 실행 — 실패를 조용한 JSON 파손이 아니라 진단으로 드러낸다
+// (자식 preflight 거부·usage 오류 등이 SyntaxError로 둔갑하지 않도록).
+function spawnJson(args, label) {
+  const r = spawnSync(process.execPath, args, { encoding: "utf8" });
+  if (r.status !== 0) {
+    console.error(`  ERROR ${label} failed (exit ${r.status}):\n${(r.stdout ?? "") + (r.stderr ?? "")}`.trimEnd());
+    process.exit(1);
+  }
+  try { return JSON.parse(r.stdout); }
+  catch { console.error(`  ERROR ${label} did not return JSON:\n${(r.stdout ?? "") + (r.stderr ?? "")}`.trimEnd()); process.exit(1); }
+}
+
 // ---------- compose ----------
 function compose(planPath, opts) {
   const { plan, planDigest, errors } = validatePlan(planPath, opts.manifest);
   if (errors.length) { for (const e of errors) console.error(`  ERROR ${e}`); process.exit(1); }
   const fragDir = opts.fragments;
   const h1Lines = Array.isArray(plan.header?.h1) ? plan.header.h1 : [plan.header?.h1 ?? plan.id];
-  const pf = JSON.parse(spawnSync(process.execPath, [skinCli, "pageframe", plan.page.preset,
+  const pf = spawnJson([skinCli, "pageframe", plan.page.preset,
     "--h1-lines", String(h1Lines.length),
     ...(plan.page.support && plan.page.support !== "none" ? ["--support", plan.page.support] : []), "--json"],
-    { encoding: "utf8" }).stdout);
+    "skin.mjs pageframe");
   const cb = pf.regions.contentBox;
   // vertical-stack: slot 예산은 contentBox와 정확히 일치해야 한다 (fail-closed)
   const ha = Number(plan.slots["slot-a"].height), hb = Number(plan.slots["slot-b"].height);
@@ -647,9 +660,9 @@ function verify(svgPath, opts) {
   // slots/page는 Plan+PageFrame에서 재계산해 대조
   if (plan) {
     const h1LinesV = Array.isArray(plan.header?.h1) ? plan.header.h1.length : 1;
-    const pfR = JSON.parse(spawnSync(process.execPath, [skinCli, "pageframe", plan.page.preset,
+    const pfR = spawnJson([skinCli, "pageframe", plan.page.preset,
       "--h1-lines", String(h1LinesV),
-      ...(plan.page.support && plan.page.support !== "none" ? ["--support", plan.page.support] : []), "--json"], { encoding: "utf8" }).stdout);
+      ...(plan.page.support && plan.page.support !== "none" ? ["--support", plan.page.support] : []), "--json"], "skin.mjs pageframe");
     const cbR = pfR.regions.contentBox;
     const ha = Number(plan.slots["slot-a"].height), hb = Number(plan.slots["slot-b"].height), gap = Number(plan.slot_gap ?? 24);
     const expectSlots = { "slot-a": { x: cbR.x, y: cbR.y, w: cbR.w, h: ha }, "slot-b": { x: cbR.x, y: cbR.y + ha + gap, w: cbR.w, h: hb } };
@@ -659,8 +672,8 @@ function verify(svgPath, opts) {
   // live SSoT digest 대조 — 서로 같기만 한 가짜 digest를 거부(R1-P1)
   const live = {};
   try {
-    const rj = JSON.parse(spawnSync(process.execPath, [skinCli, "resolve", "current", "--mode", "light", "--json"], { encoding: "utf8" }).stdout);
-    const pj = JSON.parse(spawnSync(process.execPath, [skinCli, "pageframe", "social-4x5", "--json"], { encoding: "utf8" }).stdout);
+    const rj = spawnJson([skinCli, "resolve", "current", "--mode", "light", "--json"], "skin.mjs resolve");
+    const pj = spawnJson([skinCli, "pageframe", "social-4x5", "--json"], "skin.mjs pageframe");
     live.skinProfileDigest = rj.profile.digests[0].digest;
     live.typographyProfileDigest = rj.typography.profileDigest;
     live.pageFrameDigest = pj.profile.digest;
@@ -814,7 +827,8 @@ function verify(svgPath, opts) {
   for (const [id, n] of seen) if (n > 1) errors.push(`E-COMP-DUPID svg id "${id}" appears ${n} times`);
   // 최종 composite text runtime 재측정 (기본 on — 가장 정직한 binding; 상속 스타일까지 커버)
   if (!opts.noBrowser) {
-    const mtCli = process.env.COMPOSE_TEXT_MEASURE_CLI ?? path.join(here, "measure-text.mjs");
+    // fixture 전용 injection — production 실행에서 값이 있으면 preflight가 거부한다.
+    const mtCli = fixtureOverride("COMPOSE_TEXT_MEASURE_CLI") ?? path.join(here, "measure-text.mjs");
     const mr = spawnSync(process.execPath, [mtCli, svgPath], { encoding: "utf8", timeout: 60000 });
     if (mr.status !== 0) {
       errors.push("E-COMP-TEXT-RUNTIME browser text re-measure unavailable or failed — fail-closed (pass --no-browser only as an explicit environment-bounded downgrade)");
@@ -869,6 +883,7 @@ function isEntrypoint() {
   catch { return import.meta.url === pathToFileURL(process.argv[1] ?? "").href; }
 }
 if (isEntrypoint()) {
+preflight({ entrypointUrl: import.meta.url, consumes: ["COMPOSE_TEXT_MEASURE_CLI"] });
 const argv = process.argv.slice(2);
 const cmd = argv[0];
 const files = argv.slice(1).filter((a) => !a.startsWith("--"));
@@ -877,17 +892,20 @@ const opt = (name, def = null) => {
   return i >= 0 ? argv[i + 1] : def;
 };
 const KNOWN = ["--fragments", "--out", "--receipt", "--plan", "--manifest", "--json", "--no-browser"];
+// package-owned lookup(manifest)은 resolve 시점에 containment 검사 — plan/fragment/
+// out은 사용자 입력이므로 대상이 아니다(입력은 digest로 묶는다).
 for (const a of argv.filter((x) => x.startsWith("--"))) if (!KNOWN.includes(a)) { console.error(`unknown option for compose: ${a}`); process.exit(2); }
 const defaultManifest = path.resolve(here, "..", "references", "types", "manifest.yaml");
+const manifestPath = guardPackagePath(opt("manifest", defaultManifest), "composition manifest");
 if (cmd === "plan") {
-  const { errors } = validatePlan(files[0], opt("manifest", defaultManifest));
+  const { errors } = validatePlan(files[0], manifestPath);
   if (errors.length) { console.log(`plan — ${errors.length} error(s)`); for (const e of errors) console.log(`  ERROR ${e}`); process.exit(1); }
   console.log("plan — 0 error(s)");
   process.exit(0);
 } else if (cmd === "compose") {
-  compose(files[0], { fragments: opt("fragments"), out: opt("out"), receipt: opt("receipt"), manifest: opt("manifest", defaultManifest) });
+  compose(files[0], { fragments: opt("fragments"), out: opt("out"), receipt: opt("receipt"), manifest: manifestPath });
 } else if (cmd === "verify") {
-  verify(files[0], { receipt: opt("receipt"), plan: opt("plan"), manifest: opt("manifest", defaultManifest), json: argv.includes("--json"), noBrowser: argv.includes("--no-browser") });
+  verify(files[0], { receipt: opt("receipt"), plan: opt("plan"), manifest: manifestPath, json: argv.includes("--json"), noBrowser: argv.includes("--no-browser") });
 } else {
   console.error("usage: compose.mjs plan|compose|verify ...");
   process.exit(2);

@@ -35,6 +35,7 @@
 import { readFileSync , realpathSync } from "node:fs";
 import { pathToFileURL, fileURLToPath } from "node:url";
 import { allowedPaintSet } from "./skin.mjs";
+import { preflight } from "./preflight-lib.mjs";
 import process from "node:process";
 
 // ---------------------------------------------------------------------------
@@ -1326,5 +1327,6 @@ const __isMain = (() => {
   }
 })();
 if (__isMain) {
+  preflight({ entrypointUrl: import.meta.url });
   process.exit(runCli(process.argv.slice(2)));
 }

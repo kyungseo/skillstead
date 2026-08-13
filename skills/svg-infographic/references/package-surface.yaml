@@ -1,0 +1,93 @@
+# package-surface — 이 package의 파일 membership SSoT (Wave 1 CP0 계약).
+#
+# 왜 manifest인가: digest 경계를 코드 내부 glob으로 두면 "무엇이 규범 표면인가"가
+# 구현에 숨는다. 이 파일이 분류의 단일 근거이고, 분류되지 않은 파일이 하나라도
+# 있으면 preflight가 fail-closed로 거부한다(누락 시 조용히 빠지는 경로 없음).
+#
+# 세 digest는 목적이 다르며 서로 섞지 않는다:
+#   runtimeSurfaceDigest      동작·agent 판단에 영향을 주는 표면 (tests/fixtures/
+#                             generated evidence 제외)
+#   verificationSurfaceDigest tests·fixtures — acceptance 연결 전용
+#   packageTreeDigest         설치·staging에 복사되는 전체 tree — 원본↔사본 동일성 전용
+#
+# digest receipt 자체는 이 tree 안에 만들지 않는다(자기참조 금지). detached
+# evidence 또는 CI artifact로만 저장한다.
+
+schema_version: 1
+surface_revision: 1
+
+canonicalization:
+  version: 1
+  digest: sha256
+  path_encoding: utf8-relative-posix
+  ordering: codepoint-sort-on-relative-path
+  framing: path-NUL-bytelength-NUL-bytes
+  excluded: absolute-path-mtime-mode-symlink
+
+digest_sets:
+  runtimeSurfaceDigest: [production-entrypoint, production-shim, production-lib, normative-doc, profile, asset]
+  verificationSurfaceDigest: [verification]
+  packageTreeDigest: [production-entrypoint, production-shim, production-lib, normative-doc, profile, asset, evidence, doc, verification]
+
+entries:
+  # --- production surface ---------------------------------------------------
+  - { path: scripts/preflight.mjs, kind: production-entrypoint }
+  - { path: scripts/skin.mjs, kind: production-entrypoint }
+  - { path: scripts/check-svg.mjs, kind: production-entrypoint }
+  - { path: scripts/check-layout.mjs, kind: production-entrypoint }
+  - { path: scripts/render.mjs, kind: production-entrypoint }
+  - { path: scripts/compose.mjs, kind: production-entrypoint }
+  - { path: scripts/measure-text.mjs, kind: production-entrypoint }
+  - { path: scripts/font-probe.mjs, kind: production-entrypoint }
+  - { path: scripts/render.sh, kind: production-shim }
+  - { path: scripts/preflight-lib.mjs, kind: production-lib }
+
+  # --- normative docs (agent 판단 표면) --------------------------------------
+  - { path: SKILL.md, kind: normative-doc }
+  - { path: references/design-kernel.md, kind: normative-doc }
+  - { path: references/authoring.md, kind: normative-doc }
+  - { path: references/archetypes.md, kind: normative-doc }
+  - { path: references/sketch.md, kind: normative-doc }
+  - { path: references/legacy/page-title-rail.md, kind: normative-doc }
+
+  # --- profiles / registries -------------------------------------------------
+  - { path: references/package-surface.yaml, kind: profile }
+  - { path: references/skins/registry.yaml, kind: profile }
+  - { path: references/skins/current-v1.yaml, kind: profile }
+  - { path: references/skins/derivation-v1.yaml, kind: profile }
+  - { path: references/skins/sketch-overlay-v1.yaml, kind: profile }
+  - { path: references/skins/pageframe-v1.yaml, kind: profile }
+  - { path: references/skins/legacy-v0.8.yaml, kind: profile }
+  - { path: references/typography/typography-v1.yaml, kind: profile }
+  - { path: references/types/manifest.yaml, kind: profile }
+
+  # --- bundled assets (license evidence 포함) ---------------------------------
+  - { path: assets/fonts/HiMelody-Regular.ttf, kind: asset }
+  - { path: assets/fonts/HiMelody-OFL.txt, kind: asset }
+
+  # --- generated evidence (runtime 아님) --------------------------------------
+  - { path: references/media/canonical-skin-contact-sheet.svg, kind: evidence }
+  - { path: references/media/canonical-skin-contact-sheet.png, kind: evidence }
+
+  # --- human docs ------------------------------------------------------------
+  - { path: README.md, kind: doc }
+  - { path: README.ko.md, kind: doc }
+  - { path: CHANGELOG.md, kind: doc }
+  - { path: LICENSE.txt, kind: doc }
+  - { path: assets/fonts/README.md, kind: doc }
+  - { path: references/media/README.md, kind: doc }
+
+  # --- verification surface --------------------------------------------------
+  - { path: scripts/preflight.test.mjs, kind: verification }
+  - { path: scripts/skin.test.mjs, kind: verification }
+  - { path: scripts/check-svg.test.mjs, kind: verification }
+  - { path: scripts/check-layout.test.mjs, kind: verification }
+  - { path: scripts/render.test.mjs, kind: verification }
+  - { path: scripts/compose.test.mjs, kind: verification }
+  - { path: scripts/font-probe.test.mjs, kind: verification }
+  - { tree: scripts/testing, kind: verification }
+  - { tree: scripts/legacy, kind: verification }
+  - { tree: scripts/fixtures, kind: verification }
+  - { tree: scripts/skin-fixtures, kind: verification }
+  - { tree: scripts/layout-fixtures, kind: verification }
+  - { tree: scripts/compose-fixtures, kind: verification }

@@ -10,6 +10,9 @@ import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { pathToFileURL, fileURLToPath } from "node:url";
 import { resolveBrowser } from "./render.mjs";
+import { preflight } from "./preflight-lib.mjs";
+
+preflight({ entrypointUrl: import.meta.url });
 
 const args = process.argv.slice(2);
 const svgPath = args.find((a) => !a.startsWith("--"));

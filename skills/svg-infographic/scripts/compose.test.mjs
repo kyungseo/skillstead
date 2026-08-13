@@ -357,7 +357,9 @@ test("R4-2: --no-browser는 clean artifact에서도 bounded non-success(exit 3)"
   assert.match(r.out, /static-only .*bounded, not acceptance-grade/);
 });
 test("R4-3: 기본 verify에서 browser 불가면 hard failure(exit 1)", () => {
-  const r0 = spawnSync(process.execPath, [path.join(here, "compose.mjs"), "verify", OUT,
+  // 측정기 부재 재현은 fixture 진입점으로 주입한다 — production 실행에서 같은 override는
+  // preflight가 거부한다(preflight.test.mjs N5).
+  const r0 = spawnSync(process.execPath, [path.join(here, "testing", "run-cli.mjs"), path.join(here, "compose.mjs"), "verify", OUT,
     "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M],
     { encoding: "utf8", env: { ...process.env, COMPOSE_TEXT_MEASURE_CLI: path.join(td, "no-such-cli.mjs") } });
   assert.equal(r0.status, 1, r0.stdout + r0.stderr);

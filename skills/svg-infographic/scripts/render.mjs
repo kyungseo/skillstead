@@ -34,6 +34,7 @@ import process from "node:process";
 
 import { runCli as runLintCli } from "./check-svg.mjs";
 import { runLayoutCli } from "./check-layout.mjs";
+import { preflight } from "./preflight-lib.mjs";
 
 // ---------------------------------------------------------------------------
 // Pure helpers (exported for unit tests)
@@ -458,5 +459,6 @@ const __isMain = (() => {
   }
 })();
 if (__isMain) {
+  preflight({ entrypointUrl: import.meta.url });
   process.exit(await main(process.argv.slice(2)));
 }

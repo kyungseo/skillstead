@@ -471,3 +471,38 @@ Contract highlights, all fail-closed:
 - Resolver receipts reserve the provenance identity shared by future SVG
   `<metadata>`, sidecar receipts and PNG `iTXt`: kernel version, palette id/version,
   mode, treatment, source digest, resolved-token digest.
+
+### Package surface, preflight and provenance
+
+- **Membership is declared, not inferred.** `references/package-surface.yaml`
+  classifies every file in the package and is the single source for three
+  *separate* digests: `runtimeSurfaceDigest` (what changes behaviour and agent
+  judgement — SKILL, production scripts, kernel/profiles/manifest, bundled
+  assets), `verificationSurfaceDigest` (tests and fixtures), `packageTreeDigest`
+  (the exact installed tree, used only to prove a staging copy is identical).
+  Never merge them: a fixture edit must not move the runtime identity, and a
+  runtime edit must not hide inside a tree hash. An unclassified file is an
+  error, not a default.
+- Digests are full `sha256:<64 hex>` over sorted relative paths with explicit
+  framing (`path + NUL + byte length + NUL + bytes`); absolute paths, mtimes and
+  modes are excluded, and the package tree carries no symlinks. The older
+  16-hex profile identities stay as compatibility identifiers — they are not
+  package or source integrity evidence.
+- **Preflight runs inside every production entrypoint, on every invocation.** The
+  expected skill root is derived from the *working repository* (`git rev-parse
+  --show-toplevel` of the current directory + `skills/svg-infographic`), never
+  from the location of the running script — otherwise a stale installed copy
+  validates itself. The running entrypoint, package-owned lookups (registry,
+  profiles, manifests, bundled assets) and any inherited expected-root
+  environment value are all checked against it; user inputs (SVG/plan/output
+  paths) and the browser executable are deliberately outside that boundary.
+  Package-owned redirection through environment variables is refused in
+  production and exists only behind the fixture entrypoint.
+- **Artifact provenance never contains its own commit.** A receipt committed to
+  the repository records `sourceHeadCommit`, `runtimeSurfaceDigest`, `repoDirty`
+  / `runtimeSurfaceDirty`, the producer (`generator` + generator digest, or
+  `agent-authored` + prompt/input digests + authoring contract — never both) and
+  a **logical** `skillRoot` locator rather than a local path. The commit that was
+  actually tested is recorded separately, by a clean CI acceptance receipt
+  outside the package. Digest receipts are detached evidence — writing one inside
+  the hashed package is refused.

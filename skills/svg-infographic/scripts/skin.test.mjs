@@ -17,8 +17,18 @@ const FIX = path.join(here, "skin-fixtures");
 const NEG = path.join(FIX, "skins-negative");
 const CUR = path.join(here, "..", "references", "skins", "current-v1.yaml");
 
+const RUNCLI = path.join(here, "testing", "run-cli.mjs");
+// package 밖 임시 profile을 검증 대상으로 넘기는 fixture — production 실행에서는
+// CLI로 전달된 profile 경로도 containment 대상이다(preflight.test.mjs N3 계열).
+const runFixture = (args, env = {}) => {
+  const r = spawnSync(process.execPath, [RUNCLI, SKIN, ...args], { encoding: "utf8", env: { ...process.env, ...env } });
+  return { code: r.status, out: r.stdout + r.stderr };
+};
 function run(args, env = {}) {
-  const r = spawnSync(process.execPath, [SKIN, ...args], { encoding: "utf8", env: { ...process.env, ...env } });
+  // package-owned lookup을 fixture 트리로 돌리는 negative는 fixture 진입점을 통한다.
+  // production 실행에서 같은 override는 preflight가 거부한다(preflight.test.mjs N4).
+  const argv = "SKIN_SKINS_DIR" in env ? [RUNCLI, SKIN, ...args] : [SKIN, ...args];
+  const r = spawnSync(process.execPath, argv, { encoding: "utf8", env: { ...process.env, ...env } });
   return { code: r.status, out: r.stdout + r.stderr };
 }
 
@@ -393,7 +403,7 @@ test("typography: bundled asset의 digest mismatch는 error", () => {
   let r;
   try {
     fs.writeFileSync(tmp, base.replace(/digest: [0-9a-f]{64}/, "digest: " + "f".repeat(64)));
-    r = run(["typography", tmp]);
+    r = runFixture(["typography", tmp]);
   } finally { fs.rmSync(td, { recursive: true, force: true }); }
   assert.equal(r.code, 1);
   assert.match(r.out, /asset digest mismatch/);
