@@ -6,6 +6,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const FIX = path.join(here, "compose-fixtures");
@@ -231,4 +233,66 @@ test("R1-6: single quote·spaced·xlink·복수 ARIA namespace rewrite + danglin
   assert.equal(checkRefs(out).length, 0, JSON.stringify(checkRefs(out)));
   const dangling = checkRefs(out.replace(/<rect id="inst1-r-one"[^>]*\/>/, ""));
   assert.ok(dangling.some((e) => e.includes('dangling reference "#inst1-r-one"')), JSON.stringify(dangling));
+});
+
+// ---- CP1 geometry correction 재현(R2) ----
+test("R2-1: fragment 내부 nested translate는 fail-closed", () => {
+  const svg = fs.readFileSync(OUT, "utf8").replace(/<g data-comp-entity="cards-1-card-1">/, '<g data-comp-entity="cards-1-card-1" transform="translate(900,0)">');
+  const p = path.join(td, "r21.svg");
+  fs.writeFileSync(p, svg);
+  const r = run(["verify", p, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /E-COMP-UNVERIFIED-GEOM .*transform .*fail-closed/);
+});
+test("R2-2a: composite text를 긴 문자열로 교체하면 content digest로 거부", () => {
+  const svg = fs.readFileSync(OUT, "utf8").replace(">핵심 1<", ">이 텍스트는 측정 이후에 몰래 바뀐 매우 매우 매우 매우 매우 매우 긴 한국어 문자열입니다 overflowing far beyond the page<");
+  const p = path.join(td, "r22a.svg");
+  fs.writeFileSync(p, svg);
+  const r = run(["verify", p, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /E-COMP-RECEIPT-TEXT .*text was altered after measurement/);
+});
+test("R2-2b: 긴 KO/EN 텍스트 fragment는 정직한 browser 측정으로 spill이 잡힌다 (browser)", () => {
+  const fd = fs.mkdtempSync(path.join(os.tmpdir(), "frag-"));
+  for (const f of fs.readdirSync(path.join(FIX, "fragments"))) fs.copyFileSync(path.join(FIX, "fragments", f), path.join(fd, f));
+  const sp = path.join(fd, "summary-cards.svg");
+  fs.writeFileSync(sp, fs.readFileSync(sp, "utf8").replace(">핵심 1<", ">이 카드 제목은 슬롯 오른쪽 경계를 한참 넘어가는 매우 긴 한국어와 English mixed 문자열입니다 and it keeps going<"));
+  // 정직 재측정: measure-text로 textBounds·digest·sourceDigest 갱신
+  const mt = spawnSync(process.execPath, [path.join(here, "measure-text.mjs"), sp], { encoding: "utf8", timeout: 60000 });
+  assert.equal(mt.status, 0, mt.stdout + mt.stderr);
+  const tm = JSON.parse(mt.stdout);
+  const rcpP = path.join(fd, "summary-cards.receipt.json");
+  const rcp = JSON.parse(fs.readFileSync(rcpP, "utf8"));
+  const frag = fs.readFileSync(sp, "utf8");
+  const crypto = require("node:crypto");
+  const sha16 = (b) => crypto.createHash("sha256").update(b).digest("hex").slice(0, 16);
+  rcp.textBounds = tm.texts.map((x) => ({ x: x.x, y: x.y, w: x.w, h: x.h }));
+  rcp.sourceDigest = sha16(frag);
+  rcp.textMeasure = { method: "browser-getBBox", inputDigest: sha16(frag), texts: tm.texts.length };
+  // textDigest·usedBounds도 정직 갱신
+  const body = frag.match(/<svg[^>]*>([\s\S]*)<\/svg>\s*$/)[1];
+  const texts = [...body.matchAll(/<text[^>]*>([\s\S]*?)<\/text>/g)].map((m) => m[1].replace(/<[^>]+>/g, "").trim());
+  rcp.textDigest = sha16(texts.join("\u0001"));
+  const maxX = Math.max(...rcp.textBounds.map((b) => b.x + b.w), rcp.usedBounds.x + rcp.usedBounds.w);
+  rcp.usedBounds.w = maxX - rcp.usedBounds.x;
+  fs.writeFileSync(rcpP, JSON.stringify(rcp));
+  const r = run(["compose", path.join(FIX, "plan-cards-tree.yaml"), "--fragments", fd, ...M, "--out", path.join(td, "r22b.svg"), "--receipt", path.join(td, "r22b.json")]);
+  assert.notEqual(r.code, 0, r.out);   // 폭 초과 → needs-split(3) — 어느 쪽이든 non-zero
+  assert.match(r.out, /needs-split|invalid/);
+});
+test("R2-3: 정상 KO/EN text fragment는 evidence와 함께 통과", () => {
+  // 대표 fixture 자체가 KO 텍스트 + browser 측정 evidence 경로 — verify 재확인
+  const r = run(["verify", OUT, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M]);
+  assert.equal(r.code, 0, r.out);
+});
+test("R2-4: text-measure inputDigest가 fragment와 다르면 stale evidence로 거부", () => {
+  const fd = fs.mkdtempSync(path.join(os.tmpdir(), "frag-"));
+  for (const f of fs.readdirSync(path.join(FIX, "fragments"))) fs.copyFileSync(path.join(FIX, "fragments", f), path.join(fd, f));
+  const rcpP = path.join(fd, "tree.receipt.json");
+  const rcp = JSON.parse(fs.readFileSync(rcpP, "utf8"));
+  rcp.textMeasure.inputDigest = "beefbeefbeefbeef";
+  fs.writeFileSync(rcpP, JSON.stringify(rcp));
+  const r = run(["compose", path.join(FIX, "plan-cards-tree.yaml"), "--fragments", fd, ...M, "--out", path.join(td, "r24.svg"), "--receipt", path.join(td, "r24.json")]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /stale text evidence/);
 });

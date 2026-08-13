@@ -200,12 +200,14 @@ export function validatePlan(planPath, manifestPath) {
 }
 
 // ---------- geometry helpers (provable subset: rect/circle + stroke/2) ----------
-// CP1 지원 geometry: rect, circle, line, path(M/L/H/V 절대좌표), text/tspan(anchor
-// point — bounds가 아닌 보수적 포함점). 그 외(곡선 C/Q/A, use, image, filter, defs,
-// marker 참조, non-translate transform 등)는 조용히 제외하지 않고 명시적 오류다.
-export function measuredBoundsStrict(svgBody) {
+// CP1 지원 geometry: rect, circle, line, path(M/L/H/V 절대좌표). text/tspan은 정적
+// 파서로 증명 불가 — browser 측정 bounds(evidence)를 opts.textBoxes로 받아 union하며,
+// evidence 없이 text가 존재하면 명시적 오류다. fragment 내부의 transform은 종류를
+// 불문하고 fail-closed다(instance wrapper의 translate는 caller가 벗겨서 전달).
+export function measuredBoundsStrict(svgBody, opts = {}) {
   let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
   const errors = [];
+  let textCount = 0;
   const attrs = (raw) => Object.fromEntries([...raw.matchAll(/([A-Za-z:-]+)\s*=\s*("([^"]*)"|'([^']*)')/g)].map((mm) => [mm[1], mm[3] ?? mm[4]]));
   const take = (bx1, by1, bx2, by2, sw) => {
     x1 = Math.min(x1, bx1 - sw); y1 = Math.min(y1, by1 - sw);
@@ -215,8 +217,8 @@ export function measuredBoundsStrict(svgBody) {
     const [, close, name, raw] = m;
     if (close) continue;
     const a = attrs(raw);
-    if (a.transform != null && !/^\s*translate\(\s*-?[\d.]+[ ,]\s*-?[\d.]+\s*\)\s*$/.test(a.transform)) {
-      errors.push(`unsupported transform "${a.transform}" on <${name}>`); continue;
+    if (a.transform != null) {
+      errors.push(`transform "${a.transform}" on <${name}> — any transform inside a fragment is outside the CP1 provable subset (fail-closed)`); continue;
     }
     if (a.filter != null) { errors.push(`filter on <${name}> has no provable visual range in a fragment`); continue; }
     const sw = (Number(a["stroke-width"]) || 0) / 2;
@@ -245,16 +247,31 @@ export function measuredBoundsStrict(svgBody) {
         seen = true;
       }
       if (!seen && d.trim()) errors.push(`unparsable path "${d.slice(0, 40)}…"`);
-    } else if (name === "text" || name === "tspan") {
-      if (a.x != null && a.y != null) take(Number(a.x), Number(a.y), Number(a.x), Number(a.y), 0);
+    } else if (name === "text") {
+      textCount++;
+    } else if (name === "tspan") {
+      // text 하위 — text 단위 evidence로 커버
     } else if (["g", "title", "desc"].includes(name)) {
-      // 허용 컨테이너/메타 — translate는 위에서 검사됨(중첩 translate 누적은 fragment 계약 밖)
+      // 허용 컨테이너/메타 (transform은 위에서 전면 거부)
     } else {
       errors.push(`<${name}> is outside the CP1 provable fragment subset`);
     }
   }
-  return { bounds: Number.isFinite(x1) ? { x: x1, y: y1, w: x2 - x1, h: y2 - y1 } : null, errors };
+  // text evidence 대조: 존재하는 text 수와 측정 evidence 수가 일치해야 하며,
+  // evidence가 없으면 unverified 명시 실패다
+  const boxes = opts.textBoxes ?? null;
+  if (textCount > 0 && !boxes) errors.push(`${textCount} text element(s) without measured bounds evidence — text is unverifiable statically (provide browser-measured textBounds)`);
+  if (boxes) {
+    if (boxes.length !== textCount) errors.push(`text evidence count ${boxes.length} != text elements ${textCount}`);
+    for (const b of boxes) take(Number(b.x), Number(b.y), Number(b.x) + Number(b.w), Number(b.y) + Number(b.h), 0);
+  }
+  return { bounds: Number.isFinite(x1) ? { x: x1, y: y1, w: x2 - x1, h: y2 - y1 } : null, errors, textCount };
 }
+export const textDigestOf = (body) => {
+  const texts = [...body.matchAll(/<text[^>]*>([\s\S]*?)<\/text>/g)]
+    .map((m) => m[1].replace(/<[^>]+>/g, "").trim());
+  return createHash("sha256").update(texts.join("\u0001")).digest("hex").slice(0, 16);
+};
 const round1 = (v) => Math.round(v * 10) / 10;
 
 export function namespaceBody(body, prefix) {
@@ -340,7 +357,11 @@ function compose(planPath, opts) {
     if (rcp.sourceDigest && rcp.sourceDigest !== fragSha) { problems.push(`instance "${inst.instance_id}": fragment sourceDigest mismatch (receipt ${rcp.sourceDigest}, file ${fragSha})`); continue; }
     if (!rcp.sourceDigest) { problems.push(`instance "${inst.instance_id}": fragment receipt missing sourceDigest`); continue; }
     const body = frag.match(/<svg[^>]*>([\s\S]*)<\/svg>\s*$/)[1];
-    const meas = measuredBoundsStrict(body);
+    // text bounds evidence: 방식·입력 digest·내용 digest가 fragment와 묶여야 한다(stale 거부)
+    if (!rcp.textMeasure || rcp.textMeasure.method !== "browser-getBBox") problems.push(`instance "${inst.instance_id}": fragment receipt missing browser text-measure evidence`);
+    else if (rcp.textMeasure.inputDigest !== fragSha) problems.push(`instance "${inst.instance_id}": text-measure inputDigest ${rcp.textMeasure.inputDigest} != fragment ${fragSha} (stale text evidence)`);
+    if (rcp.textDigest !== textDigestOf(body)) problems.push(`instance "${inst.instance_id}": fragment text content digest mismatch (receipt ${rcp.textDigest}, measured ${textDigestOf(body)})`);
+    const meas = measuredBoundsStrict(body, { textBoxes: rcp.textBounds });
     for (const ge of meas.errors) problems.push(`instance "${inst.instance_id}": ${ge}`);
     if (meas.bounds) {
       const rb = rcp.usedBounds;
@@ -390,6 +411,8 @@ function compose(planPath, opts) {
       usedBounds: { x: round1(rcp.usedBounds.x + dx), y: round1(rcp.usedBounds.y + dy), w: rcp.usedBounds.w, h: rcp.usedBounds.h },
       ports: (rcp.ports ?? []).map((p) => ({ ...p, anchor: { x: round1(p.anchor.x + dx), y: round1(p.anchor.y + dy) } })),
       entities: rcp.entities ?? [], identity: rcp.identity,
+      textDigest: rcp.textDigest,
+      textBounds: (rcp.textBounds ?? []).map((b) => ({ x: round1(b.x + dx), y: round1(b.y + dy), w: b.w, h: b.h })),
       degrade: variant === "base" ? null : { selectedVariant: variant, lost: rcp.degradeLost ?? "variant-declared reduction (see fragment receipt)" } });
   }
   // semantic binding: endpoint entity가 실제 fragment receipt entities에 존재해야 한다(R1-P2)
@@ -544,7 +567,13 @@ function verify(svgPath, opts) {
   for (const inst of receipt.instances ?? []) {
     const g = groups[inst.instance_id];
     if (!g) continue;
-    const mm2 = measuredBoundsStrict(g.body);
+    const innerBody = g.body.replace(/^<g data-comp-instance[^>]*>/, "");
+    // composite text 내용이 fragment evidence와 일치해야 한다 (조작·교체 거부)
+    if (inst.textDigest && textDigestOf(innerBody) !== inst.textDigest)
+      errors.push(`E-COMP-RECEIPT-TEXT instance "${inst.instance_id}" text content digest ${textDigestOf(innerBody)} != receipt ${inst.textDigest} — text was altered after measurement`);
+    // textBounds는 이미 전역 좌표(compose가 translate 반영) — local 합산을 위해 역변환
+    const localTextBoxes = (inst.textBounds ?? []).map((b) => ({ x: b.x - g.dx, y: b.y - g.dy, w: b.w, h: b.h }));
+    const mm2 = measuredBoundsStrict(innerBody, { textBoxes: localTextBoxes });
     for (const ge of mm2.errors) errors.push(`E-COMP-UNVERIFIED-GEOM instance "${inst.instance_id}": ${ge}`);
     const local = mm2.bounds;
     if (!local) { errors.push(`E-COMP-UNMEASURABLE instance "${inst.instance_id}" has no provable geometry`); continue; }

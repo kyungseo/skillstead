@@ -90,5 +90,67 @@
   "iconSetId": "line-icons-v1"
  },
  "sourceDigest": "d75c31613a5c5bea",
- "verifier": "compose-fragment-measure-v1"
+ "verifier": "compose-fragment-measure-v1",
+ "textBounds": [
+  {
+   "x": 294.2,
+   "y": 17.5,
+   "w": 59.6,
+   "h": 19
+  },
+  {
+   "x": 21.6,
+   "y": 194,
+   "w": 4.9,
+   "h": 16
+  },
+  {
+   "x": 14,
+   "y": 220.5,
+   "w": 54.3,
+   "h": 15
+  },
+  {
+   "x": 186.5,
+   "y": 194,
+   "w": 7,
+   "h": 16
+  },
+  {
+   "x": 180,
+   "y": 220.5,
+   "w": 56.5,
+   "h": 15
+  },
+  {
+   "x": 352.5,
+   "y": 194,
+   "w": 7,
+   "h": 16
+  },
+  {
+   "x": 346,
+   "y": 220.5,
+   "w": 56.5,
+   "h": 15
+  },
+  {
+   "x": 518.2,
+   "y": 194,
+   "w": 7.6,
+   "h": 16
+  },
+  {
+   "x": 512,
+   "y": 220.5,
+   "w": 56.8,
+   "h": 15
+  }
+ ],
+ "textDigest": "27098a2ce2f93e12",
+ "textMeasure": {
+  "method": "browser-getBBox",
+  "inputDigest": "d75c31613a5c5bea",
+  "texts": 9
+ }
 }

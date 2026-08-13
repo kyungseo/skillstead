@@ -7,7 +7,7 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { measuredBoundsStrict } from "../compose.mjs";
+import { measuredBoundsStrict, textDigestOf } from "../compose.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const skinCli = path.join(here, "..", "skin.mjs");
@@ -28,13 +28,21 @@ for (const stem of ["summary-cards", "tree"]) {
   const rcpP = path.join(here, "fragments", `${stem}.receipt.json`);
   const frag = readFileSync(svgP, "utf8");
   const body = frag.match(/<svg[^>]*>([\s\S]*)<\/svg>\s*$/)[1];
-  const meas = measuredBoundsStrict(body);
+  // text bounds: browser 실측 (정적 파서로 불가)
+  const mt = spawnSync(process.execPath, [path.join(here, "..", "measure-text.mjs"), svgP], { encoding: "utf8" });
+  if (mt.status !== 0) { console.error(`${stem}: text measure failed:\n${mt.stdout}${mt.stderr}`); process.exit(1); }
+  const tm = JSON.parse(mt.stdout);
+  const textBoxes = tm.texts.map((t) => ({ x: t.x, y: t.y, w: t.w, h: t.h }));
+  const meas = measuredBoundsStrict(body, { textBoxes });
   if (meas.errors.length) { console.error(`${stem}: geometry errors:\n  ` + meas.errors.join("\n  ")); process.exit(1); }
   const rcp = JSON.parse(readFileSync(rcpP, "utf8"));
   rcp.usedBounds = { x: meas.bounds.x, y: meas.bounds.y, w: meas.bounds.w, h: meas.bounds.h };
   rcp.identity = identity;
   rcp.sourceDigest = sha16(frag);
   rcp.verifier = "compose-fragment-measure-v1";
+  rcp.textBounds = textBoxes;
+  rcp.textDigest = textDigestOf(body);
+  rcp.textMeasure = { method: "browser-getBBox", inputDigest: sha16(frag), texts: tm.texts.length };
   writeFileSync(rcpP, JSON.stringify(rcp, null, 1));
   console.log(`${stem}: usedBounds ${JSON.stringify(rcp.usedBounds)} sourceDigest ${rcp.sourceDigest}`);
 }
