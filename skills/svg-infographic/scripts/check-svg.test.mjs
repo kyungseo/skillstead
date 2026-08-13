@@ -372,6 +372,27 @@ test("header-cluster negative: declared breathing budget violated", () => {
   const r = lint("header-cluster-breathing.svg");
   assert.ok(r.errors.some((e) => /breathing/.test(e.message)));
 });
+// --- title-keyline (H-C K2): H1 line-box 파생 산식 fail-closed -------------
+test("title-keyline positive: computed title-only keyline (one line)", () => {
+  const r = lint("header-cluster-keyline-ko1.svg");
+  assert.equal(r.errors.length, 0, JSON.stringify(r.errors));
+});
+test("title-keyline positive: keyline follows the two-line H1 line-box", () => {
+  const r = lint("header-cluster-keyline-2line.svg");
+  assert.equal(r.errors.length, 0, JSON.stringify(r.errors));
+});
+test("title-keyline negative: keyline and square locator double-marked", () => {
+  const r = lint("header-cluster-keyline-double.svg");
+  assert.ok(r.errors.some((e) => /keyline replaces the square locator/.test(e.message)));
+});
+test("title-keyline negative: legacy rail span over eyebrow~subtitle", () => {
+  const r = lint("header-cluster-keyline-rail.svg");
+  assert.ok(r.errors.some((e) => /derives from the H1 line-box only/.test(e.message)));
+});
+test("title-keyline negative: hand-tuned asymmetric pads", () => {
+  const r = lint("header-cluster-keyline-asym.svg");
+  assert.ok(r.errors.some((e) => /pads are asymmetric/.test(e.message)));
+});
 
 // --- entrypoint parity, authoring bypass, palette profile matrix ----------
 import { spawnSync as _spawn } from "node:child_process";

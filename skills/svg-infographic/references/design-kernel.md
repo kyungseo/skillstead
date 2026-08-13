@@ -235,16 +235,38 @@ Canvas → Safe area
 
 ### Header composition (owner-approved 2026-08-12)
 
-- **Canonical: H-C refined** — editorial stack. Optional eyebrow row with a small
-  blue locator (square, `rx 2`, size ≈ 0.6 × eyebrow font-size, `--focus`; eyebrow
-  text itself is `--muted`), then H1 (Pretendard, 1–2 lines), then optional muted
-  subtitle, then generous breathing room before the diagram. The locator exists
-  **only when the eyebrow exists**. No box, no wash, no full-width underline.
-- **Minimal variant: H-B** — the same stack without the locator.
+- **Canonical: H-C refined with the computed title-keyline (K2, owner-approved
+  2026-08-13)** — editorial stack: optional `--muted` eyebrow row, then H1
+  (Pretendard, 1–2 lines) with a restrained `--focus` vertical keyline at its
+  left, then optional muted subtitle, then generous breathing room before the
+  diagram. No box, no wash, no full-width underline.
+- **Marker-label-row primitive**: the locator and eyebrow form an atomic row —
+  `markerCenterY = labelLineCenterY` (an 8px locator against a central-baseline
+  eyebrow at y sits at y − 4). The same primitive, annotated
+  `data-layout-role="marker-label-row"` and lint-enforced within the layout
+  tolerance, applies to any small marker + single-line KO/EN label pair (legend
+  keys, callouts, section labels); a multi-line label aligns the marker to the
+  **first** line center. Optical correction, if ever needed, becomes a shared
+  token — per-file nudges are forbidden.
+- **Title-keyline formula (canonical default)** — the keyline derives from the
+  **H1 line-box only**: top = `titleTop − pad`, bottom = `titleBottom + pad` for
+  1- and 2-line titles alike; width/gap/pad are PageFrame scale-profile tokens
+  (`keyline-*-mult` × H1 size), never fixed heights or per-string nudges. With a
+  keyline the square locator is **never double-marked**, and the eyebrow/H1/
+  subtitle text starts align on one line. This is *not* the rejected rail: it
+  never spans the eyebrow~subtitle stack, and lint fails it closed (span, pad
+  symmetry, alignment). Two-line titles recompute the contentBox
+  (`--h1-lines 2`), keeping slot budgets fail-closed.
+- **Square-locator variant (alternative)** — the same stack with a small blue
+  locator (square, `rx 2`, size ≈ 0.6 × eyebrow font-size, `--focus`) in front
+  of the eyebrow instead of the keyline; the locator exists **only when the
+  eyebrow exists**. Not the default — select it explicitly.
+- **Minimal variant: H-B** — the same stack without any accent.
 - **Rejected: the vertical accent rail** (unstable length/boundary across 1–2-line
-  titles; ambiguous representative scope). Never regenerate it in new output;
-  legacy examples keep it only until the catalog regeneration. H-D open-callout
-  variants live in review evidence only.
+  titles; ambiguous representative scope — the computed title-keyline above is
+  the bounded redesign of that instinct, not its return). Never regenerate the
+  rail in new output; legacy examples keep it only until the catalog
+  regeneration. H-D open-callout variants live in review evidence only.
 - Decoration derives from the computed header cluster bounds — it never owns its
   own coordinates.
 
@@ -365,7 +387,78 @@ comparing receipts before/after an edit exposes any invariant the edit broke.
 Generalizing the guard beyond annotated rect geometry to semantic region
 annotations is a named follow-up (`svg-infographic-semantic-region-annotation`).
 
-## 8. Regeneration & provenance
+## 8. Composition (multi-type scenes)
+
+One page is not limited to one type. A scene may combine TypePacks — summary cards
+over a tree, a timeline beside a comparison, a process with a callout — without
+ever minting a hybrid TypePack. The structure is layered:
+
+```text
+PageFrame            — header / content / support / footer (outer regions, §6)
+└─ Composition layer — content slot split, alignment, gaps, ratios, hierarchy,
+   │                   reading order (owns everything BETWEEN modules)
+   ├─ TypePack A     — topology and intrinsic bounds INSIDE its slot only
+   └─ TypePack B
+```
+
+**Three schemas, three lifetimes** (never mixed): *TypePack Manifest v2* declares
+static capability (`composable`, `min_slot_size`, `preferred_slot_aspect`,
+`allowed_slots`, `variants`, port capability templates); a *Composition Plan v1*
+declares one scene (template, slots, instances with `instance_id`/`module_role`/
+`slot_id`, semantic bindings, connector edges, explicit `reading_order`); a
+*Composition Receipt v1* records what actually happened (resolved slots, selected
+variants, transformed used bounds, actual ports, shared-contract digests, status).
+`scripts/compose.mjs` (`plan` / `compose` / `verify`) executes and enforces all
+three.
+
+Contract highlights, all fail-closed:
+
+- **Bounded composition**: exactly one `primary` + one or two `supporting`
+  modules; nested composition is rejected at the schema level.
+- **Fragment discipline**: a TypePack renders a local-coordinate fragment (no page
+  elements, no transforms of any kind inside); placement is translation-only,
+  scale = 1 — resizing happens through declared variants, never transforms.
+- **Receipts are re-measured, never trusted**: verify recomputes plan digest,
+  slots, bounds (rect/circle/line/absolute-M-L-H-V paths) from the artifact,
+  compares module identities against the live registry digests, and re-measures
+  text in the browser (getBBox + ancestor CTM). Text is unverifiable statically,
+  so fragments carry browser-measured `textBounds` evidence bound to the source
+  digest, plus content and canonical-markup digests; text-free fragments record
+  exactly `textDigest/textMarkupDigest/textMeasure: null, textBounds: []`.
+  Static-only verification (`--no-browser`) exits 3 — bounded, never
+  acceptance-grade.
+- **Shared contracts proven**: every module receipt carries
+  `skinProfileDigest/typographyProfileDigest/pageFrameDigest/kernelVersion/iconSetId`;
+  restriction order is `core < experimental < gated` and the composite takes the
+  **maximum restriction** of its members.
+- **Relationships**: semantic bindings (shared keys shown as numbers/labels) are
+  distinct from visual connector edges (real lines routed between declared ports
+  under the standard connector contract). Prefer bindings; draw lines only when
+  the line itself carries meaning.
+- **Degrade ladder**: supporting-variant reduction → row/column reflow → return
+  `needs-split` (a non-success recommending a separate page). Never shrink type
+  or arrows to force a fit, and never silently drop meaning.
+- **Page budget**: exactly one `cluster-h1` (composition-owned header); module
+  headings stay at section scale; focal/tint/connector aggregates are recorded as
+  measured/advisory values without invented thresholds.
+- **Residual space**: after placement the receipt records `contentFlowBounds`
+  (union of all instance bounds) and the top/bottom residual inside the
+  contentBox. The composition must first select the largest fitting declared
+  variant per slot **within the TypePack's declared rhythm band**
+  (spacious/expanded rhythms live in TypePack variants — never raw coordinate
+  patches or enlarged type/arrows); any remaining page-bottom residual must be
+  **explicitly declared** in the plan (`residual_disposition: {bottom, reason}`)
+  and match the measurement, or the compose is a non-success. Large dead space
+  never passes silently — but honest declared breathing beats a stretched fill.
+- **Visual-rhythm band**: relation density and readability outrank dead-space
+  minimisation. A TypePack that owns internal connectors declares
+  `composition.rhythm.connector_run_band {min, max}`; a variant whose connector
+  runs leave the band is **not eligible for automatic selection** (residual must
+  never be absorbed by elongating connectors), and verify re-measures the runs
+  in the final SVG (`E-COMP-RHYTHM`). If no band-legal variant can fill the
+  slot further, declare the remaining bottom breathing instead.
+
+## 9. Regeneration & provenance
 
 - The contact sheet above is a **generated composite evidence artifact**: it mixes
   light/dark/sketch profiles on one canvas for review, so it is *not* an ordinary

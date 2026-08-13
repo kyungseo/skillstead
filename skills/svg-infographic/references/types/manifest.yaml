@@ -22,8 +22,28 @@
 #   examples:         [] | example ids              # gallery mapping
 #   required_roles:   Foundation roles the type consumes (resolver checks coverage)
 #   optional_aliases: domain aliases the type may consume
-#   canonical_prompt: PROMPT-GALLERY.md#<anchor>    # stable anchor into the the catalog regeneration
-#                                                   # prompt cookbook (semantics reserved)
+#   canonical_prompt: PROMPT-GALLERY.md#<anchor>    # stable anchor into the prompt
+#                                                   # cookbook (semantics reserved)
+#   composition:      OPTIONAL capability block (schema v2). Absent => the TypePack
+#                     is composable: false. Fields:
+#     composable: true|false
+#     min_slot_size: { w, h }        # logical px, the inner content area the
+#                                    # fragment's intrinsic bounds must fit (slot
+#                                    # padding excluded, scale profile applied later)
+#     preferred_slot_aspect: { min, max }   # slot(=할당 영역) aspect range — page
+#                                    # aspect는 presets/orientations가 소유
+#     allowed_slots: [top, bottom]   # template 위치 enum(top/middle/bottom/side) —
+#                                    # plan의 slot binding이 이 범위를 벗어나면 거부
+#     variants: [ { id, min_slot_size: {w,h} } ]  # composition이 선택하는 local
+#                                    # degrade variants (의미 축약은 receipt에 기록)
+#     ports: [ { template, direction: out|in|bidir, kind: flow|reference,
+#                cardinality: "n" | "n..m" | "0..n" } ]  # capability만 — 실제
+#                                    # port는 instance receipt가 산출
+#
+# Schema upgrade policy (v1 -> v2, atomic package upgrade): the validator and every
+# manifest in the package move to v2 in the same commit — mixed versions are
+# rejected fail-closed. Existing TypePacks migrate without a composition block and
+# are therefore composable: false until they opt in.
 #
 # Validation gate: unique ids, referenced paths exist, selection-table 1:1 mapping,
 # positive + duplicate/missing-path negative fixtures. TypePacks declare role
@@ -32,6 +52,6 @@
 # Population happens as the archetype catalog migrates to TypePacks; pilots
 # register here only when promoted.
 
-schema_version: 1
+schema_version: 2
 
 typepacks: []

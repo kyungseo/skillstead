@@ -1,0 +1,26 @@
+schema_version: 2
+
+typepacks:
+  - id: fixture-topology
+    selection_signal: "fixture-only: layered request/flow topology"
+    profile: constrained-layout
+    support: experimental
+    spec: skin-fixtures/types/fixture-spec.md
+    presets: [social-4x5, presentation-16x9]
+    orientations: [portrait, landscape]
+    verifier: null
+    fixtures: [skin-fixtures/portable-positive.svg]
+    examples: []
+    required_roles: [canvas, surface, ink, muted, rule, focus]
+    optional_aliases: [edge, compute, data]
+    canonical_prompt: PROMPT-GALLERY.md#fixture-topology
+    composition:
+      composable: true
+      min_slot_size: { w: 280, h: 220 }
+      preferred_slot_aspect: { min: 1.2, max: 3.5 }
+      allowed_slots: [top, bottom]
+      variants:
+        - id: compact
+          min_slot_size: { w: 280, h: 160 }
+      ports:
+        - { template: item-anchor, direction: sideways, kind: reference, cardinality: 0..n }

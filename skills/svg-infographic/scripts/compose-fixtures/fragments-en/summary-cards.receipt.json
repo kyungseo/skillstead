@@ -1,0 +1,174 @@
+{
+ "schemaVersion": 1,
+ "kind": "typepack-fragment",
+ "typepack": "summary-cards",
+ "variant": "base",
+ "intrinsicBounds": {
+  "w": 648,
+  "h": 260
+ },
+ "usedBounds": {
+  "x": -0.5,
+  "y": -0.5,
+  "w": 648,
+  "h": 125
+ },
+ "ports": [
+  {
+   "id": "item-1",
+   "template": "item-anchor",
+   "entity_id": "card-1",
+   "direction": "out",
+   "kind": "reference",
+   "anchor": {
+    "x": 74.5,
+    "y": 124.5
+   },
+   "normal": {
+    "x": 0,
+    "y": 1
+   }
+  },
+  {
+   "id": "item-2",
+   "template": "item-anchor",
+   "entity_id": "card-2",
+   "direction": "out",
+   "kind": "reference",
+   "anchor": {
+    "x": 240.5,
+    "y": 124.5
+   },
+   "normal": {
+    "x": 0,
+    "y": 1
+   }
+  },
+  {
+   "id": "item-3",
+   "template": "item-anchor",
+   "entity_id": "card-3",
+   "direction": "out",
+   "kind": "reference",
+   "anchor": {
+    "x": 406.5,
+    "y": 124.5
+   },
+   "normal": {
+    "x": 0,
+    "y": 1
+   }
+  },
+  {
+   "id": "item-4",
+   "template": "item-anchor",
+   "entity_id": "card-4",
+   "direction": "out",
+   "kind": "reference",
+   "anchor": {
+    "x": 572.5,
+    "y": 124.5
+   },
+   "normal": {
+    "x": 0,
+    "y": 1
+   }
+  }
+ ],
+ "entities": [
+  "card-1",
+  "card-2",
+  "card-3",
+  "card-4"
+ ],
+ "identity": {
+  "skinProfileDigest": "d02498fd9e0a2efe",
+  "typographyProfileDigest": "6d3109f3a64e1813",
+  "pageFrameDigest": "f4edd624bbe296d4",
+  "kernelVersion": "kernel-v1",
+  "iconSetId": "line-icons-v1"
+ },
+ "sourceDigest": "bd3c4d11f7fa182d",
+ "verifier": "compose-fragment-measure-v1",
+ "textBounds": [
+  {
+   "x": 22.7,
+   "y": 20,
+   "w": 6.6,
+   "h": 16
+  },
+  {
+   "x": 14,
+   "y": 52.5,
+   "w": 50,
+   "h": 19
+  },
+  {
+   "x": 14,
+   "y": 84.5,
+   "w": 84.3,
+   "h": 15
+  },
+  {
+   "x": 187.7,
+   "y": 20,
+   "w": 8.5,
+   "h": 16
+  },
+  {
+   "x": 180,
+   "y": 52.5,
+   "w": 52.3,
+   "h": 19
+  },
+  {
+   "x": 180,
+   "y": 84.5,
+   "w": 86.2,
+   "h": 15
+  },
+  {
+   "x": 353.5,
+   "y": 20,
+   "w": 9,
+   "h": 16
+  },
+  {
+   "x": 346,
+   "y": 52.5,
+   "w": 52.8,
+   "h": 19
+  },
+  {
+   "x": 346,
+   "y": 84.5,
+   "w": 86.5,
+   "h": 15
+  },
+  {
+   "x": 519.4,
+   "y": 20,
+   "w": 9.2,
+   "h": 16
+  },
+  {
+   "x": 512,
+   "y": 52.5,
+   "w": 53.1,
+   "h": 19
+  },
+  {
+   "x": 512,
+   "y": 84.5,
+   "w": 86.6,
+   "h": 15
+  }
+ ],
+ "textDigest": "e9331057e3ef4033",
+ "textMeasure": {
+  "method": "browser-getBBox",
+  "inputDigest": "bd3c4d11f7fa182d",
+  "texts": 12
+ },
+ "textMarkupDigest": "0c0aa97707b26089"
+}

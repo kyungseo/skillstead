@@ -1,0 +1,35 @@
+{
+ "schemaVersion": 1,
+ "kind": "typepack-fragment",
+ "typepack": "icon-band",
+ "variant": "base",
+ "intrinsicBounds": {
+  "w": 648,
+  "h": 120
+ },
+ "usedBounds": {
+  "x": 52,
+  "y": 32,
+  "w": 544,
+  "h": 56
+ },
+ "ports": [],
+ "entities": [
+  "icon-1",
+  "icon-2",
+  "icon-3"
+ ],
+ "identity": {
+  "skinProfileDigest": "d02498fd9e0a2efe",
+  "typographyProfileDigest": "6d3109f3a64e1813",
+  "pageFrameDigest": "f4edd624bbe296d4",
+  "kernelVersion": "kernel-v1",
+  "iconSetId": "line-icons-v1"
+ },
+ "sourceDigest": "8dce3c0ee6c030d2",
+ "verifier": "compose-fragment-measure-v1",
+ "textDigest": null,
+ "textMarkupDigest": null,
+ "textBounds": [],
+ "textMeasure": null
+}

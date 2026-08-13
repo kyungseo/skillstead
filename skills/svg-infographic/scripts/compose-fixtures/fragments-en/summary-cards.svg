@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 648 132" width="648" height="132" role="img" style="font-family:Pretendard,Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+<title>summary-cards fragment</title>
+<desc>4-card content-fit summary row (local coordinates, fragment contract).</desc>
+<g data-comp-entity="card-1">
+  <rect x="0" y="0" width="149" height="124" rx="12" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface" data-stroke-role="rule"/>
+  <circle cx="26" cy="28" r="13" fill="#E4EDF3" data-fill-role="surface-tint"/>
+  <text x="26" y="28" font-size="14" font-weight="700" fill="#2E6DA4" data-fill-role="focus" text-anchor="middle" dominant-baseline="central">1</text>
+  <text x="14" y="62" font-size="16" font-weight="700" fill="#252B35" data-fill-role="ink" dominant-baseline="central">Point 1</text>
+  <text x="14" y="92" font-size="12.5" fill="#636A75" data-fill-role="muted" dominant-baseline="central">Summary line 1</text>
+</g>
+<g data-comp-entity="card-2">
+  <rect x="166" y="0" width="149" height="124" rx="12" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface" data-stroke-role="rule"/>
+  <circle cx="192" cy="28" r="13" fill="#E4EDF3" data-fill-role="surface-tint"/>
+  <text x="192" y="28" font-size="14" font-weight="700" fill="#2E6DA4" data-fill-role="focus" text-anchor="middle" dominant-baseline="central">2</text>
+  <text x="180" y="62" font-size="16" font-weight="700" fill="#252B35" data-fill-role="ink" dominant-baseline="central">Point 2</text>
+  <text x="180" y="92" font-size="12.5" fill="#636A75" data-fill-role="muted" dominant-baseline="central">Summary line 2</text>
+</g>
+<g data-comp-entity="card-3">
+  <rect x="332" y="0" width="149" height="124" rx="12" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface" data-stroke-role="rule"/>
+  <circle cx="358" cy="28" r="13" fill="#E4EDF3" data-fill-role="surface-tint"/>
+  <text x="358" y="28" font-size="14" font-weight="700" fill="#2E6DA4" data-fill-role="focus" text-anchor="middle" dominant-baseline="central">3</text>
+  <text x="346" y="62" font-size="16" font-weight="700" fill="#252B35" data-fill-role="ink" dominant-baseline="central">Point 3</text>
+  <text x="346" y="92" font-size="12.5" fill="#636A75" data-fill-role="muted" dominant-baseline="central">Summary line 3</text>
+</g>
+<g data-comp-entity="card-4">
+  <rect x="498" y="0" width="149" height="124" rx="12" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface" data-stroke-role="rule"/>
+  <circle cx="524" cy="28" r="13" fill="#E4EDF3" data-fill-role="surface-tint"/>
+  <text x="524" y="28" font-size="14" font-weight="700" fill="#2E6DA4" data-fill-role="focus" text-anchor="middle" dominant-baseline="central">4</text>
+  <text x="512" y="62" font-size="16" font-weight="700" fill="#252B35" data-fill-role="ink" dominant-baseline="central">Point 4</text>
+  <text x="512" y="92" font-size="12.5" fill="#636A75" data-fill-role="muted" dominant-baseline="central">Summary line 4</text>
+</g>
+</svg>

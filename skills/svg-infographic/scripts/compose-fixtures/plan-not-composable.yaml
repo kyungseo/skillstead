@@ -1,0 +1,36 @@
+schema_version: 1
+kind: composition-plan
+id: cards-tree-4x5
+page: { preset: social-4x5, support: none }
+layout_template: vertical-stack
+slots:
+  slot-a: { height: 150 }
+  slot-b: { height: 528 }
+slot_gap: 32
+header:
+  eyebrow: "구성 요약"
+  h1: "핵심 4가지와 전체 구조"
+  subtitle: "상단 카드가 하단 트리의 번호와 대응합니다"
+instances:
+  - { instance_id: cards-1, typepack: summary-cards, module_role: primary, slot_id: slot-a }
+  - { instance_id: tree-1, typepack: not-composable, module_role: supporting, slot_id: slot-b }
+semantic_bindings:
+  - key: item-1
+    endpoints:
+      - { instance_id: cards-1, entity_id: card-1 }
+      - { instance_id: tree-1, entity_id: leaf-1 }
+  - key: item-2
+    endpoints:
+      - { instance_id: cards-1, entity_id: card-2 }
+      - { instance_id: tree-1, entity_id: leaf-2 }
+  - key: item-3
+    endpoints:
+      - { instance_id: cards-1, entity_id: card-3 }
+      - { instance_id: tree-1, entity_id: leaf-3 }
+  - key: item-4
+    endpoints:
+      - { instance_id: cards-1, entity_id: card-4 }
+      - { instance_id: tree-1, entity_id: leaf-4 }
+connector_edges: []
+reading_order: [cards-1, tree-1]
+traversal: explicit

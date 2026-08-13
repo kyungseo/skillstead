@@ -713,20 +713,53 @@ export function lintSvg(source, filename = "input.svg") {
       if (violations.length) {
         add(errors, group.line, "E-LAYOUT", `page-title-header rail budget failed: ${violations.join("; ")}`, "derive rail y/height from the eyebrow and final title line before rendering (SKILL.md §2, authoring.md §1)");
       }
+    } else if (role === "marker-label-row") {
+      // 공통 primitive (design-kernel §6 파생): marker(rect|circle) + 단일행 label을
+      // 하나의 atomic row로 취급 — markerCenterY = labelLineCenterY. eyebrow 외에도
+      // legend·callout·section label의 작은 marker+label 조합에 재사용한다.
+      const kids = group.children ?? [];
+      const marker = kids.find((k) => k.tag === "rect" || k.tag === "circle");
+      const label = kids.find((k) => k.tag === "text");
+      const tolRaw = px(group.attrs["data-layout-tolerance"]);
+      const tol = tolRaw === undefined || tolRaw < 0 || tolRaw > 8 ? 2 : tolRaw;
+      if (!marker || !label) {
+        add(errors, group.line, "E-LAYOUT", "marker-label-row requires exactly one rect/circle marker and one text label as direct children", "restructure the row or remove the annotation (design-kernel §6)");
+      } else if (label.attrs["dominant-baseline"] !== "central") {
+        add(errors, group.line, "E-LAYOUT", "marker-label-row label must use dominant-baseline=\"central\" — centering is provable only against the line center", "set dominant-baseline=central on the label (design-kernel §6)");
+      } else {
+        let mc;
+        if (marker.tag === "rect") {
+          const my = px(marker.attrs.y), mh = px(marker.attrs.height);
+          mc = my !== undefined && mh !== undefined ? my + mh / 2 : undefined;
+        } else {
+          mc = px(marker.attrs.cy);
+        }
+        const ly = px(label.attrs.y);
+        if (mc === undefined || ly === undefined) {
+          add(warnings, group.line, "W-LAYOUT", "marker-label-row geometry is unverified (need numeric marker y/height|cy and label y)", "use plain numeric geometry (design-kernel §6)");
+        } else if (Math.abs(mc - ly) > tol) {
+          add(errors, group.line, "E-LAYOUT", `marker-label-row misaligned: marker center ${round1(mc)} vs label line center ${round1(ly)} (>${tol}px) — markerCenterY must equal labelLineCenterY`, "derive the marker y from the label line center; per-file nudges are forbidden (design-kernel §6)");
+        }
+      }
     } else if (role === "header-cluster") {
       // H-C editorial stack contract (design-kernel §6): optional eyebrow row with a
       // derived --focus locator → H1 (1–2 lines) → optional subtitle. Locator exists
       // only with the eyebrow and derives from it (≈0.6×, accepted band 0.5–0.7).
       const gt = resolveTransform(group);
       const locators = descendantsWithRole(group, ["cluster-locator"]);
+      const keylines = descendantsWithRole(group, ["cluster-keyline"]);
       const eyebrows = descendantsWithRole(group, ["cluster-eyebrow"]);
       const h1s = descendantsWithRole(group, ["cluster-h1"]);
       const subtitles = descendantsWithRole(group, ["cluster-subtitle"]);
       const toleranceRaw = group.attrs["data-layout-tolerance"];
       const parsedTolerance = px(toleranceRaw);
       const tolerance = toleranceRaw === undefined || parsedTolerance === undefined || parsedTolerance < 0 || parsedTolerance > 8 ? 2 : parsedTolerance;
-      if (h1s.length < 1 || locators.length > 1 || eyebrows.length > 1 || subtitles.length > 1) {
-        add(errors, group.line, "E-LAYOUT", "header-cluster contract requires at least one cluster-h1 and at most one cluster-locator/cluster-eyebrow/cluster-subtitle", "complete the header-cluster roles or remove the annotation (design-kernel §6)");
+      if (h1s.length < 1 || locators.length > 1 || keylines.length > 1 || eyebrows.length > 1 || subtitles.length > 1) {
+        add(errors, group.line, "E-LAYOUT", "header-cluster contract requires at least one cluster-h1 and at most one cluster-locator/cluster-keyline/cluster-eyebrow/cluster-subtitle", "complete the header-cluster roles or remove the annotation (design-kernel §6)");
+        continue;
+      }
+      if (locators.length === 1 && keylines.length === 1) {
+        add(errors, group.line, "E-LAYOUT", "header-cluster carries both a cluster-keyline and a cluster-locator — the keyline replaces the square locator, never doubles it", "keep exactly one header accent (design-kernel §6)");
         continue;
       }
       if (locators.length === 1 && eyebrows.length === 0) {
@@ -750,7 +783,8 @@ export function lintSvg(source, filename = "input.svg") {
         continue;
       }
       const violations = [];
-      const h1X = px(h1s[0].attrs.x);
+      // 2줄 H1은 x가 tspan에 있다 — 첫 tspan의 시작선을 H1 left edge로 삼는다
+      const h1X = px(h1s[0].attrs.x ?? h1s[0].children.find((c) => c.tag === "tspan")?.attrs.x);
       if (locators.length === 1) {
         const loc = locators[0];
         if (loc.tag !== "rect") violations.push("cluster-locator must be a rect");
@@ -767,6 +801,40 @@ export function lintSvg(source, filename = "input.svg") {
         const eyX = px(eyebrows[0].attrs.x);
         if (locX !== undefined && h1X !== undefined && Math.abs(locX - h1X) > tolerance) violations.push(`locator x ${round1(locX)} is not aligned with the H1 left edge ${round1(h1X)}`);
         if (locX !== undefined && eyX !== undefined && (eyX - (locX + locW) < 4 || eyX - (locX + locW) > 14)) violations.push(`eyebrow starts ${round1(eyX - (locX + locW))}px after the locator; expected a 4–14px gap`);
+        // marker-label-row 산식: markerCenterY = labelLineCenterY (파일별 수기 보정 금지)
+        const locY = px(localGeometryProp(loc, "y", rules));
+        const eyY = px(eyebrows[0].attrs.y);
+        const eyCentral = eyebrows[0].attrs["dominant-baseline"] === "central";
+        if (locY !== undefined && eyY !== undefined) {
+          if (!eyCentral) violations.push("locator/eyebrow centering is provable only with dominant-baseline=\"central\" on the eyebrow");
+          else {
+            const dc = Math.abs((locY + locH / 2) - eyY);
+            if (dc > tolerance) violations.push(`locator center ${round1(locY + locH / 2)} is ${round1(dc)}px off the eyebrow line center ${round1(eyY)} — markerCenterY must equal labelLineCenterY`);
+          }
+        }
+      }
+      if (keylines.length === 1) {
+        // title-keyline 산식(design-kernel §6): 세로 keyline은 H1 line-box에서만
+        // 파생한다 — top = titleTop − pad, bottom = titleBottom + pad(동일 pad),
+        // eyebrow~subtitle 전체를 감싸는 구형 rail 복원 금지, 텍스트 시작선 단일 정렬.
+        const key = keylines[0];
+        if (key.tag !== "rect") violations.push("cluster-keyline must be a rect");
+        const ky = px(localGeometryProp(key, "y", rules));
+        const kh = px(localGeometryProp(key, "height", rules));
+        const kx = px(localGeometryProp(key, "x", rules));
+        const kw = px(localGeometryProp(key, "width", rules));
+        if (ky === undefined || kh === undefined || kx === undefined || kw === undefined) {
+          add(warnings, group.line, "W-LAYOUT", "header-cluster keyline geometry is unverified (need plain numeric x/y/width/height)", "use plain numeric geometry (design-kernel §6)");
+          continue;
+        }
+        const padTop = h1Box.top - ky, padBottom = (ky + kh) - h1Box.bottom;
+        if (padTop < -tolerance || padBottom < -tolerance) violations.push(`keyline ${round1(ky)}..${round1(ky + kh)} does not cover the H1 line-box ${round1(h1Box.top)}..${round1(h1Box.bottom)}`);
+        if (Math.abs(padTop - padBottom) > tolerance) violations.push(`keyline pads are asymmetric (top ${round1(padTop)}px vs bottom ${round1(padBottom)}px) — both ends derive from the H1 line-box with one pad`);
+        if (eyebrowBox && ky < eyebrowBox.bottom - tolerance) violations.push(`keyline top ${round1(ky)} reaches the eyebrow (bottom ${round1(eyebrowBox.bottom)}) — the keyline derives from the H1 line-box only, not the eyebrow~subtitle stack`);
+        if (subtitleBox && ky + kh > subtitleBox.top + tolerance) violations.push(`keyline bottom ${round1(ky + kh)} reaches the subtitle (top ${round1(subtitleBox.top)}) — the keyline derives from the H1 line-box only`);
+        if (h1X !== undefined && kx + kw >= h1X) violations.push(`keyline right edge ${round1(kx + kw)} is not left of the text start line ${round1(h1X)}`);
+        const eyX2 = eyebrows.length ? px(eyebrows[0].attrs.x) : undefined;
+        if (eyX2 !== undefined && h1X !== undefined && Math.abs(eyX2 - h1X) > tolerance) violations.push(`eyebrow x ${round1(eyX2)} is not on the single text start line ${round1(h1X)} — keyline mode aligns eyebrow/H1/subtitle starts`);
       }
       if (eyebrowBox && eyebrowBox.bottom > h1Box.top + tolerance) violations.push(`eyebrow bottom ${round1(eyebrowBox.bottom)} intrudes into the H1 top ${round1(h1Box.top)}`);
       if (subtitleBox) {

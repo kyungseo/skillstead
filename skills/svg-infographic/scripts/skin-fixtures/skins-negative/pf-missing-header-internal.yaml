@@ -63,6 +63,9 @@ presets:
       h1-descent-mult: 0.25
       subtitle-gap-mult: 1.9
       subtitle-descent-mult: 0.35
+      keyline-width-mult: 0.14
+      keyline-gap-mult: 0.43
+      keyline-pad-mult: 0.25
     gaps:
       breathing: 44
       content-gap: 28
@@ -96,6 +99,9 @@ presets:
       h1-descent-mult: 0.25
       subtitle-gap-mult: 1.9
       subtitle-descent-mult: 0.35
+      keyline-width-mult: 0.14
+      keyline-gap-mult: 0.43
+      keyline-pad-mult: 0.25
     gaps:
       breathing: 30
       content-gap: 20

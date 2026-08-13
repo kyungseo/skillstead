@@ -1,0 +1,82 @@
+schema_version: 2
+
+typepacks:
+  - id: summary-cards
+    selection_signal: "핵심 항목 3~4개를 카드로 요약"
+    profile: constrained-layout
+    support: experimental
+    spec: compose-fixtures/specs/summary-cards.md
+    presets: [social-4x5]
+    orientations: [portrait]
+    verifier: null
+    fixtures: []
+    examples: []
+    required_roles: [canvas, surface, ink, muted, rule, focus]
+    optional_aliases: []
+    canonical_prompt: PROMPT-GALLERY.md#summary-cards
+    composition:
+      composable: true
+      min_slot_size: { w: 640, h: 240 }
+      preferred_slot_aspect: { min: 1.8, max: 3.2 }
+      allowed_slots: [top, middle]
+      variants:
+        - id: compact
+          min_slot_size: { w: 640, h: 180 }
+      ports:
+        - { template: item-anchor, direction: out, kind: reference, cardinality: "4" }
+  - id: tree
+    selection_signal: "항목 사이의 계층/파생 관계"
+    profile: constrained-layout
+    support: experimental
+    spec: compose-fixtures/specs/tree.md
+    presets: [social-4x5]
+    orientations: [portrait]
+    verifier: null
+    fixtures: []
+    examples: []
+    required_roles: [canvas, surface, ink, muted, rule, focus]
+    optional_aliases: []
+    canonical_prompt: PROMPT-GALLERY.md#tree
+    composition:
+      composable: true
+      min_slot_size: { w: 640, h: 300 }
+      preferred_slot_aspect: { min: 1.2, max: 2.4 }
+      allowed_slots: [bottom, middle]
+      variants:
+        - id: spacious
+          min_slot_size: { w: 640, h: 390 }
+      rhythm:
+        connector_run_band: { min: 56, max: 108 }
+      ports:
+        - { template: leaf-anchor, direction: in, kind: reference, cardinality: 0..n }
+  - id: not-composable
+    selection_signal: "composition 미지원 typepack"
+    profile: constrained-layout
+    support: experimental
+    spec: compose-fixtures/specs/summary-cards.md
+    presets: [social-4x5]
+    orientations: [portrait]
+    verifier: null
+    fixtures: []
+    examples: []
+    required_roles: [canvas, ink]
+    optional_aliases: []
+    canonical_prompt: PROMPT-GALLERY.md#not-composable
+  - id: icon-band
+    selection_signal: "텍스트 없는 아이콘 밴드 (micro-fixture)"
+    profile: constrained-layout
+    support: experimental
+    spec: compose-fixtures/specs/summary-cards.md
+    presets: [social-4x5]
+    orientations: [portrait]
+    verifier: null
+    fixtures: []
+    examples: []
+    required_roles: [canvas, surface, focus]
+    optional_aliases: []
+    canonical_prompt: PROMPT-GALLERY.md#icon-band
+    composition:
+      composable: true
+      min_slot_size: { w: 640, h: 100 }
+      preferred_slot_aspect: { min: 3.0, max: 8.0 }
+      allowed_slots: [top, bottom]

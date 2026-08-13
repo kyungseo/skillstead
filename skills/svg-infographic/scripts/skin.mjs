@@ -36,6 +36,23 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 // --- minimal YAML subset parser (nested maps, scalars, "- item" lists, comments) ---
+function parseInlineMap(v, file, line) {
+  // flat scalar inline map: { k: v, k2: v2 } — 중첩 없음
+  const out = {};
+  const body = v.slice(1, -1).trim();
+  if (!body) return out;
+  for (const part of body.split(",")) {
+    const m = part.match(/^\s*([A-Za-z0-9_.-]+):\s*(.+?)\s*$/);
+    if (!m) throw new Error(`${file}:${line + 1} unsupported inline map entry: ${part}`);
+    let val = m[2];
+    if (val.startsWith('"') && val.endsWith('"')) val = val.slice(1, -1);
+    else if (/^-?\d+(\.\d+)?$/.test(val)) val = Number(val);
+    else if (val === "true") val = true;
+    else if (val === "false") val = false;
+    out[m[1]] = val;
+  }
+  return out;
+}
 function parseYaml(text, file) {
   const root = {};
   const stack = [{ indent: -1, obj: root }];
@@ -61,6 +78,8 @@ function parseYaml(text, file) {
         else if (v === "null") v = null;
         else if (/^-?\d+(\.\d+)?$/.test(v)) v = Number(v);
         item[km[1]] = v;
+      } else if (rest.startsWith("{") && rest.endsWith("}")) {
+        parent.holder[parent.key].push(parseInlineMap(rest, file, i));
       } else {
         let v = rest;
         if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1);
@@ -82,6 +101,7 @@ function parseYaml(text, file) {
       else if (v === "null") v = null;
       else if (v === "[]") v = [];
       else if (v.startsWith("[") && v.endsWith("]")) v = v.slice(1, -1).split(",").map((x) => x.trim()).filter(Boolean).map((x) => x.startsWith('"') && x.endsWith('"') ? x.slice(1, -1) : x);
+      else if (v.startsWith("{") && v.endsWith("}")) v = parseInlineMap(v, file, i);
       else if (/^-?\d+(\.\d+)?$/.test(v)) v = Number(v);
       parent.obj[key] = v;
     }
@@ -506,7 +526,8 @@ function materializeSvg(text, tokens) {
 
 const PF_HEADER = ["eyebrow", "h1", "subtitle"];
 const PF_HI = ["ascent-mult", "eyebrow-row-mult", "eyebrow-gap", "collapsed-top-mult",
-  "h1-line-mult", "h1-descent-mult", "subtitle-gap-mult", "subtitle-descent-mult"];
+  "h1-line-mult", "h1-descent-mult", "subtitle-gap-mult", "subtitle-descent-mult",
+  "keyline-width-mult", "keyline-gap-mult", "keyline-pad-mult"];
 const PF_GAPS = ["breathing", "content-gap", "content-footer-gap", "footer-safe"];
 const PF_SUPPORT = ["bottom-height", "side-width", "side-gap"];
 const PF_ARROW = ["primary-shaft", "secondary-shaft", "min-shaft", "min-visible-head"];
@@ -638,10 +659,19 @@ function main() {
     const out = computePageFrame(P, opts);
     if (!out.fluid && (out.contentBox.h == null || out.contentBox.h <= 0)) fail(1, `preset ${preset}: computed contentBox height is not positive (${out.contentBox.h}) — canvas too small for the requested regions`);
     if (out.contentBox.w <= 0) fail(1, `preset ${preset}: computed contentBox width is not positive (${out.contentBox.w})`);
+    // headerScale: 파일별 수기 상수가 아니라 profile에서 파생된 header 지표 —
+    // title-keyline 등 header treatment는 이 값만 소비한다
+    const HIm = P["header-internal"];
+    const headerScale = {
+      eyebrow: P.header.eyebrow, h1: P.header.h1, subtitle: P.header.subtitle,
+      h1LinePitch: Math.round(P.header.h1 * HIm["h1-line-mult"]),
+      keyline: { width: Math.round(P.header.h1 * HIm["keyline-width-mult"]),
+                 gap: Math.round(P.header.h1 * HIm["keyline-gap-mult"]),
+                 pad: Math.round(P.header.h1 * HIm["keyline-pad-mult"]) } };
     const receipt = { schemaVersion: 1, command: "pageframe", kernelVersion: "kernel-v1",
       profile: { id: pf.doc.id, digest: pf.digest }, preset, orientation: P.orientation,
       canvas: { width: P["canvas-width"], height: P["canvas-height"] },
-      options: opts, arrow: P.arrow, "scale-band": pf.doc["scale-band"], regions: out, errors: [], warnings: [] };
+      options: opts, arrow: P.arrow, "scale-band": pf.doc["scale-band"], headerScale, regions: out, errors: [], warnings: [] };
     if (po["--json"]) console.log(JSON.stringify(receipt, null, 1));
     else {
       console.log(`pageframe ${preset} (${P.orientation}) — header ${out.headerRegion.y}..${out.headerRegion.y + out.headerRegion.h} (${out.headerRegion.h}px), contentBox ${JSON.stringify(out.contentBox)}, footer: ${out.footerRule}`);
@@ -764,7 +794,7 @@ function main() {
     const errors = [];
     let doc, digest;
     try { ({ doc, digest } = readYaml(mPath)); } catch (e) { fail(1, `manifest: ${e.message}`); }
-    if (doc.schema_version !== 1) errors.push(`manifest: schema_version must be 1 (got ${doc.schema_version})`);
+    if (doc.schema_version !== 2) errors.push(`manifest: schema_version must be 2 (atomic package upgrade — v1 manifests are rejected; got ${doc.schema_version})`);
     const packs = doc.typepacks;
     if (!Array.isArray(packs)) errors.push("manifest: typepacks must be an array");
     const ids = new Set();
@@ -787,9 +817,9 @@ function main() {
       // full locked-schema validation (kernel 계약 전체)
       const FIELDS = ["id", "selection_signal", "profile", "support", "spec", "presets",
         "orientations", "verifier", "fixtures", "examples", "required_roles",
-        "optional_aliases", "canonical_prompt"];
+        "optional_aliases", "canonical_prompt", "composition"];
       for (const k of Object.keys(p)) if (!FIELDS.includes(k)) errors.push(`manifest: ${id}: unknown field "${k}" (locked schema: ${FIELDS.join("/")})`);
-      for (const k of FIELDS) if (!(k in p)) errors.push(`manifest: ${id}: missing field "${k}"`);
+      for (const k of FIELDS) if (k !== "composition" && !(k in p)) errors.push(`manifest: ${id}: missing field "${k}"`); // composition은 optional capability (absent => composable: false)
       let pfPresets = [];
       try { pfPresets = Object.keys(readYaml(path.resolve(here, "..", "references", "skins", "pageframe-v1.yaml")).doc.presets || {}); } catch { errors.push("manifest: cannot load pageframe registry for preset validation"); }
       if ("presets" in p) {
@@ -819,6 +849,53 @@ function main() {
         errors.push(`manifest: ${id}: optional_aliases must be an array within ${MANIFEST_ALIASES.join("/")}`);
       if ("canonical_prompt" in p && !/^PROMPT-GALLERY\.md#[a-z0-9][a-z0-9-]*$/.test(String(p.canonical_prompt)))
         errors.push(`manifest: ${id}: canonical_prompt must match PROMPT-GALLERY.md#<kebab-anchor> (semantics reserved)`);
+      // composition capability block (schema v2, optional — absent => composable: false)
+      if ("composition" in p) {
+        const C = p.composition;
+        const CK = ["composable", "min_slot_size", "preferred_slot_aspect", "allowed_slots", "variants", "ports", "rhythm"];
+        for (const k of Object.keys(C)) if (!CK.includes(k)) errors.push(`manifest: ${id}: composition unknown field "${k}"`);
+        if (typeof C.composable !== "boolean" && C.composable !== "true" && C.composable !== "false")
+          errors.push(`manifest: ${id}: composition.composable must be boolean`);
+        const sizeOk = (o) => o && Number.isFinite(Number(o.w)) && Number(o.w) > 0 && Number.isFinite(Number(o.h)) && Number(o.h) > 0;
+        if (!sizeOk(C.min_slot_size)) errors.push(`manifest: ${id}: composition.min_slot_size must be positive {w, h} (logical px)`);
+        const A = C.preferred_slot_aspect;
+        if (!A || !Number.isFinite(Number(A.min)) || !Number.isFinite(Number(A.max)) || Number(A.min) <= 0 || Number(A.min) > Number(A.max))
+          errors.push(`manifest: ${id}: composition.preferred_slot_aspect must be {min, max} with 0 < min <= max`);
+        if ("allowed_slots" in C) {
+          if (!Array.isArray(C.allowed_slots) || C.allowed_slots.length === 0 || C.allowed_slots.some((x) => !["top", "middle", "bottom", "side"].includes(x)))
+            errors.push(`manifest: ${id}: composition.allowed_slots must be a non-empty list within top/middle/bottom/side`);
+        }
+        if ("variants" in C) {
+          if (!Array.isArray(C.variants)) errors.push(`manifest: ${id}: composition.variants must be a list`);
+          else {
+            const vids = new Set();
+            for (const v of C.variants) {
+              if (!v.id || !/^[a-z0-9][a-z0-9-]*$/.test(String(v.id))) errors.push(`manifest: ${id}: variant id invalid`);
+              else if (vids.has(v.id)) errors.push(`manifest: ${id}: duplicate variant id "${v.id}"`);
+              else vids.add(v.id);
+              if (!sizeOk(v.min_slot_size)) errors.push(`manifest: ${id}: variant "${v.id}" min_slot_size must be positive {w, h}`);
+            }
+          }
+        }
+        if ("rhythm" in C) {
+          // TypePack 소유 visual-rhythm band — residual을 connector 신장으로 흡수하는
+          // variant를 금지하는 선언(연장 상한은 pack이 정하고 compose/verify가 강제)
+          const RK2 = ["connector_run_band"];
+          for (const k of Object.keys(C.rhythm ?? {})) if (!RK2.includes(k)) errors.push(`manifest: ${id}: composition.rhythm unknown field "${k}"`);
+          const B = C.rhythm?.connector_run_band;
+          if (!B || !Number.isFinite(Number(B.min)) || !Number.isFinite(Number(B.max)) || Number(B.min) <= 0 || Number(B.min) > Number(B.max))
+            errors.push(`manifest: ${id}: composition.rhythm.connector_run_band must be {min, max} with 0 < min <= max`);
+        }
+        if ("ports" in C) {
+          if (!Array.isArray(C.ports)) errors.push(`manifest: ${id}: composition.ports must be a list`);
+          else for (const pt of C.ports) {
+            if (!pt.template || !/^[a-z0-9][a-z0-9-]*$/.test(String(pt.template))) errors.push(`manifest: ${id}: port template id invalid`);
+            if (!["out", "in", "bidir"].includes(pt.direction)) errors.push(`manifest: ${id}: port "${pt.template}" direction must be out|in|bidir`);
+            if (!["flow", "reference"].includes(pt.kind)) errors.push(`manifest: ${id}: port "${pt.template}" kind must be flow|reference`);
+            if (!/^\d+(\.\.(\d+|n))?$|^0\.\.n$/.test(String(pt.cardinality ?? ""))) errors.push(`manifest: ${id}: port "${pt.template}" cardinality must be "n", "n..m" or "0..n"`);
+          }
+        }
+      }
     }
     const receipt = { schemaVersion: 1, command: "manifest", digest, count: (packs || []).length, errors, warnings: [] };
     if (mo["--json"]) console.log(JSON.stringify(receipt, null, 1));
