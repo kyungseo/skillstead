@@ -121,3 +121,114 @@ test("verify: H1 단일성 page budget gate", () => {
   assert.equal(r.code, 1);
   assert.match(r.out, /E-COMP-H1/);
 });
+
+// ---- CP1 중간 리뷰 요구 재현(R1) ----
+test("R1-1a: forged planDigest는 재계산 대조로 거부", () => {
+  const rcp = JSON.parse(fs.readFileSync(RCP, "utf8"));
+  rcp.planDigest = "0000000000000000";
+  const p = path.join(td, "r1a.json");
+  fs.writeFileSync(p, JSON.stringify(rcp));
+  const r = run(["verify", OUT, "--receipt", p, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-COMP-FORGED receipt planDigest/);
+});
+test("R1-1b: 전 instance에 동일한 가짜 digest를 넣어도 live 대조로 거부", () => {
+  const rcp = JSON.parse(fs.readFileSync(RCP, "utf8"));
+  for (const i of rcp.instances) i.identity.typographyProfileDigest = "feedfeedfeedfeed";
+  const p = path.join(td, "r1b.json");
+  fs.writeFileSync(p, JSON.stringify(rcp));
+  const r = run(["verify", OUT, "--receipt", p, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-COMP-LIVE .*typographyProfileDigest .*!= live registry/);
+});
+test("R1-2a: receipt에서 instance 행 삭제는 plan 대조로 거부", () => {
+  const rcp = JSON.parse(fs.readFileSync(RCP, "utf8"));
+  rcp.instances = rcp.instances.slice(0, 1);
+  const p = path.join(td, "r2a.json");
+  fs.writeFileSync(p, JSON.stringify(rcp));
+  const r = run(["verify", OUT, "--receipt", p, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-COMP-MISSING receipt drops instance/);
+});
+test("R1-2b: receipt status/problems가 clean이 아니면 거부", () => {
+  const rcp = JSON.parse(fs.readFileSync(RCP, "utf8"));
+  rcp.problems = ["smuggled"];
+  const p = path.join(td, "r2b.json");
+  fs.writeFileSync(p, JSON.stringify(rcp));
+  const r = run(["verify", OUT, "--receipt", p, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-COMP-STATUS/);
+});
+test("R1-3: ghost semantic entity는 compose에서 거부", () => {
+  const r = run(["compose", path.join(FIX, "plan-ghost-entity.yaml"), "--fragments", path.join(FIX, "fragments"), ...M, "--out", path.join(td, "r3.svg"), "--receipt", path.join(td, "r3.json")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /ghost endpoint/);
+});
+test("R1-3b: 선언된 binding 완전성에서 한 쌍이 빠지면 거부", () => {
+  const r = run(["compose", path.join(FIX, "plan-missing-binding.yaml"), "--fragments", path.join(FIX, "fragments"), ...M, "--out", path.join(td, "r3b.svg"), "--receipt", path.join(td, "r3b.json")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /binding coverage: .*is not bound/);
+});
+test("R1-4a: slot 밖으로 뻗는 path는 재측정으로 거부", () => {
+  const svg = fs.readFileSync(OUT, "utf8").replace('<g data-comp-instance="tree-1"', '<g data-comp-instance="tree-1"').replace(/(<g data-comp-instance="tree-1"[^>]*>)/, '$1<path d="M10 10 L900 900" stroke="#B45A50" stroke-width="8" fill="none"/>');
+  const p = path.join(td, "r4a.svg");
+  fs.writeFileSync(p, svg);
+  const r = run(["verify", p, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-COMP-RECEIPT|E-COMP-BOUNDS/);
+});
+test("R1-4b: 미지원 geometry(곡선)는 silent 제외가 아니라 명시 실패", () => {
+  const svg = fs.readFileSync(OUT, "utf8").replace(/(<g data-comp-instance="tree-1"[^>]*>)/, '$1<path d="M10 10 C 40 40 60 60 90 90" stroke="#636A75" fill="none"/>');
+  const p = path.join(td, "r4b.svg");
+  fs.writeFileSync(p, svg);
+  const r = run(["verify", p, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-COMP-UNVERIFIED-GEOM/);
+});
+test("R1-5a: 미선언 capability template의 actual port는 거부", () => {
+  const fd = fs.mkdtempSync(path.join(os.tmpdir(), "frag-"));
+  for (const f of fs.readdirSync(path.join(FIX, "fragments"))) fs.copyFileSync(path.join(FIX, "fragments", f), path.join(fd, f));
+  const rp = path.join(fd, "summary-cards.receipt.json");
+  const rcp = JSON.parse(fs.readFileSync(rp, "utf8"));
+  rcp.ports[0].template = "ghost-template";
+  fs.writeFileSync(rp, JSON.stringify(rcp));
+  const r = run(["compose", path.join(FIX, "plan-cards-tree.yaml"), "--fragments", fd, ...M, "--out", path.join(td, "r5a.svg"), "--receipt", path.join(td, "r5a.json")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /undeclared capability template/);
+});
+test("R1-5b: capability cardinality(정확히 4) 위반은 거부", () => {
+  const fd = fs.mkdtempSync(path.join(os.tmpdir(), "frag-"));
+  for (const f of fs.readdirSync(path.join(FIX, "fragments"))) fs.copyFileSync(path.join(FIX, "fragments", f), path.join(fd, f));
+  const rp = path.join(fd, "summary-cards.receipt.json");
+  const rcp = JSON.parse(fs.readFileSync(rp, "utf8"));
+  rcp.ports = rcp.ports.slice(0, 3);
+  fs.writeFileSync(rp, JSON.stringify(rcp));
+  const r = run(["compose", path.join(FIX, "plan-cards-tree.yaml"), "--fragments", fd, ...M, "--out", path.join(td, "r5b.svg"), "--receipt", path.join(td, "r5b.json")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /cardinality is "4"/);
+});
+test("R1-5c: fragment sourceDigest mismatch(stale receipt)는 거부", () => {
+  const fd = fs.mkdtempSync(path.join(os.tmpdir(), "frag-"));
+  for (const f of fs.readdirSync(path.join(FIX, "fragments"))) fs.copyFileSync(path.join(FIX, "fragments", f), path.join(fd, f));
+  const sp = path.join(fd, "tree.svg");
+  fs.writeFileSync(sp, fs.readFileSync(sp, "utf8") + "<!-- mutated -->");
+  const r = run(["compose", path.join(FIX, "plan-cards-tree.yaml"), "--fragments", fd, ...M, "--out", path.join(td, "r5c.svg"), "--receipt", path.join(td, "r5c.json")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /sourceDigest mismatch/);
+});
+
+// ---- namespace adversarial (R1-P5) ----
+test("R1-6: single quote·spaced·xlink·복수 ARIA namespace rewrite + dangling 검사", async () => {
+  const { namespaceBody, checkRefs } = await import("./compose.mjs");
+  const adv = `<defs><clipPath id = 'clip-x'><rect width="10" height="10"/></clipPath></defs>
+<g clip-path="url(#clip-x)"><rect id='r-one' width="5" height="5" fill="#FFFFFF"/>
+<use xlink:href='#r-one'/><text aria-labelledby='r-one clip-x' x="1" y="1">t</text></g>`;
+  const out = namespaceBody(adv, "inst1");
+  assert.match(out, /id="inst1-clip-x"/);
+  assert.match(out, /url\(#inst1-clip-x\)/);
+  assert.match(out, /xlink:href="#inst1-r-one"/);
+  assert.match(out, /aria-labelledby="inst1-r-one inst1-clip-x"/);
+  assert.equal(checkRefs(out).length, 0, JSON.stringify(checkRefs(out)));
+  const dangling = checkRefs(out.replace(/<rect id="inst1-r-one"[^>]*\/>/, ""));
+  assert.ok(dangling.some((e) => e.includes('dangling reference "#inst1-r-one"')), JSON.stringify(dangling));
+});

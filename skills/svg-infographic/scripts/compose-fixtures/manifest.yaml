@@ -23,7 +23,7 @@ typepacks:
         - id: compact
           min_slot_size: { w: 640, h: 180 }
       ports:
-        - { template: item-anchor, direction: out, kind: reference, cardinality: 0..n }
+        - { template: item-anchor, direction: out, kind: reference, cardinality: "4" }
   - id: tree
     selection_signal: "항목 사이의 계층/파생 관계"
     profile: constrained-layout

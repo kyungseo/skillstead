@@ -127,7 +127,7 @@ export function validatePlan(planPath, manifestPath) {
   try { ({ doc: plan, digest: planDigest } = readYamlFile(planPath)); }
   catch (e) { return { errors: [`plan: unreadable: ${e.message}`] }; }
   const PK = ["schema_version", "kind", "id", "page", "layout_template", "slots", "slot_gap",
-    "header", "instances", "semantic_bindings", "connector_edges", "reading_order", "traversal"];
+    "header", "instances", "semantic_bindings", "binding_complete_over", "connector_edges", "reading_order", "traversal"];
   for (const k of Object.keys(plan)) if (!PK.includes(k)) errors.push(`plan: unknown field "${k}"`);
   if (plan.schema_version !== 1) errors.push(`plan: schema_version must be 1 (got ${plan.schema_version})`);
   if (plan.kind !== "composition-plan") errors.push(`plan: kind must be "composition-plan"`);
@@ -200,37 +200,97 @@ export function validatePlan(planPath, manifestPath) {
 }
 
 // ---------- geometry helpers (provable subset: rect/circle + stroke/2) ----------
-function measuredBounds(svgBody) {
+// CP1 지원 geometry: rect, circle, line, path(M/L/H/V 절대좌표), text/tspan(anchor
+// point — bounds가 아닌 보수적 포함점). 그 외(곡선 C/Q/A, use, image, filter, defs,
+// marker 참조, non-translate transform 등)는 조용히 제외하지 않고 명시적 오류다.
+export function measuredBoundsStrict(svgBody) {
   let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
-  for (const m of svgBody.matchAll(/<(rect|circle)((?:[^>"']|"[^"]*"|'[^']*')*?)\/?>/g)) {
-    const a = Object.fromEntries([...m[2].matchAll(/([A-Za-z-]+)\s*=\s*"([^"]*)"/g)].map((mm) => [mm[1], mm[2]]));
-    const sw = (Number(a["stroke-width"]) || 0) / 2;
-    let bx1, by1, bx2, by2;
-    if (m[1] === "rect") {
-      bx1 = Number(a.x || 0); by1 = Number(a.y || 0);
-      bx2 = bx1 + Number(a.width || 0); by2 = by1 + Number(a.height || 0);
-    } else {
-      const cx = Number(a.cx || 0), cy = Number(a.cy || 0), r = Number(a.r || 0);
-      bx1 = cx - r; by1 = cy - r; bx2 = cx + r; by2 = cy + r;
-    }
+  const errors = [];
+  const attrs = (raw) => Object.fromEntries([...raw.matchAll(/([A-Za-z:-]+)\s*=\s*("([^"]*)"|'([^']*)')/g)].map((mm) => [mm[1], mm[3] ?? mm[4]]));
+  const take = (bx1, by1, bx2, by2, sw) => {
     x1 = Math.min(x1, bx1 - sw); y1 = Math.min(y1, by1 - sw);
     x2 = Math.max(x2, bx2 + sw); y2 = Math.max(y2, by2 + sw);
+  };
+  for (const m of svgBody.matchAll(/<(\/?)([A-Za-z][A-Za-z0-9-]*)((?:[^>"']|"[^"]*"|'[^']*')*?)(\/?)>/g)) {
+    const [, close, name, raw] = m;
+    if (close) continue;
+    const a = attrs(raw);
+    if (a.transform != null && !/^\s*translate\(\s*-?[\d.]+[ ,]\s*-?[\d.]+\s*\)\s*$/.test(a.transform)) {
+      errors.push(`unsupported transform "${a.transform}" on <${name}>`); continue;
+    }
+    if (a.filter != null) { errors.push(`filter on <${name}> has no provable visual range in a fragment`); continue; }
+    const sw = (Number(a["stroke-width"]) || 0) / 2;
+    if (name === "rect") {
+      take(Number(a.x || 0), Number(a.y || 0), Number(a.x || 0) + Number(a.width || 0), Number(a.y || 0) + Number(a.height || 0), sw);
+    } else if (name === "circle") {
+      const cx = Number(a.cx || 0), cy = Number(a.cy || 0), r = Number(a.r || 0);
+      take(cx - r, cy - r, cx + r, cy + r, sw);
+    } else if (name === "line") {
+      take(Math.min(Number(a.x1 || 0), Number(a.x2 || 0)), Math.min(Number(a.y1 || 0), Number(a.y2 || 0)),
+           Math.max(Number(a.x1 || 0), Number(a.x2 || 0)), Math.max(Number(a.y1 || 0), Number(a.y2 || 0)), sw);
+    } else if (name === "path") {
+      const d = a.d ?? "";
+      if (/[^MLHVmlhv0-9 .,-]/.test(d.replace(/\s+/g, " "))) { errors.push(`unsupported path commands in "${d.slice(0, 40)}…" (CP1 subset: absolute M/L/H/V)`); continue; }
+      if (/[mlhv]/.test(d)) { errors.push(`relative path commands are outside the CP1 provable subset ("${d.slice(0, 40)}…")`); continue; }
+      let px = 0, py = 0, seen = false;
+      const toks = d.match(/[MLHV]|-?[\d.]+/g) ?? [];
+      for (let i = 0; i < toks.length; i++) {
+        const t = toks[i];
+        if (t === "M" || t === "L") { px = Number(toks[++i]); py = Number(toks[++i]); }
+        else if (t === "H") { px = Number(toks[++i]); }
+        else if (t === "V") { py = Number(toks[++i]); }
+        else continue;
+        if (!Number.isFinite(px) || !Number.isFinite(py)) { errors.push(`non-finite path coordinate in "${d.slice(0, 40)}…"`); break; }
+        take(px, py, px, py, sw);
+        seen = true;
+      }
+      if (!seen && d.trim()) errors.push(`unparsable path "${d.slice(0, 40)}…"`);
+    } else if (name === "text" || name === "tspan") {
+      if (a.x != null && a.y != null) take(Number(a.x), Number(a.y), Number(a.x), Number(a.y), 0);
+    } else if (["g", "title", "desc"].includes(name)) {
+      // 허용 컨테이너/메타 — translate는 위에서 검사됨(중첩 translate 누적은 fragment 계약 밖)
+    } else {
+      errors.push(`<${name}> is outside the CP1 provable fragment subset`);
+    }
   }
-  if (!Number.isFinite(x1)) return null;
-  return { x: x1, y: y1, w: x2 - x1, h: y2 - y1 };
+  return { bounds: Number.isFinite(x1) ? { x: x1, y: y1, w: x2 - x1, h: y2 - y1 } : null, errors };
 }
 const round1 = (v) => Math.round(v * 10) / 10;
 
-function namespaceBody(body, prefix) {
-  for (const idm of new Set([...body.matchAll(/id\s*=\s*"([A-Za-z0-9_-]+)"/g)].map((m) => m[1]))) {
-    body = body.replaceAll(`id="${idm}"`, `id="${prefix}-${idm}"`)
-      .replaceAll(`url(#${idm})`, `url(#${prefix}-${idm})`)
-      .replaceAll(`href="#${idm}"`, `href="#${prefix}-${idm}"`)
-      .replaceAll(`aria-labelledby="${idm}"`, `aria-labelledby="${prefix}-${idm}"`);
-  }
-  body = body.replace(/data-(layout-container|layout-parent|layout-item|layout-group|cluster-id|cluster|layout-title|comp-entity)\s*=\s*"([^"]+)"/g,
-    (mm, k, v) => `data-${k}="${prefix}-${v}"`);
+export function namespaceBody(body, prefix) {
+  const ids = new Set([...body.matchAll(/\bid\s*=\s*("([A-Za-z0-9_-]+)"|'([A-Za-z0-9_-]+)')/g)].map((m) => m[2] ?? m[3]));
+  const ren = (id) => `${prefix}-${id}`;
+  // id 선언 (양쪽 quote·spaced =)
+  body = body.replace(/\bid\s*=\s*("([A-Za-z0-9_-]+)"|'([A-Za-z0-9_-]+)')/g, (mm, q, d, sq) => `id="${ren(d ?? sq)}"`);
+  // url(#…)
+  body = body.replace(/url\(#([A-Za-z0-9_-]+)\)/g, (mm, id) => ids.has(id) ? `url(#${ren(id)})` : mm);
+  // href / xlink:href
+  body = body.replace(/\b(xlink:href|href)\s*=\s*("#([A-Za-z0-9_-]+)"|'#([A-Za-z0-9_-]+)')/g,
+    (mm, attr, q, d, sq) => { const id = d ?? sq; return ids.has(id) ? `${attr}="#${ren(id)}"` : mm; });
+  // 복수 ID ARIA references
+  body = body.replace(/\b(aria-labelledby|aria-describedby)\s*=\s*("([^"]*)"|'([^']*)')/g,
+    (mm, attr, q, d, sq) => `${attr}="${(d ?? sq).split(/\s+/).filter(Boolean).map((id) => ids.has(id) ? ren(id) : id).join(" ")}"`);
+  // layout/cluster/port/entity 참조 계열 (quote·spacing 중립)
+  body = body.replace(/data-(layout-container|layout-parent|layout-item|layout-group|cluster-id|cluster|layout-title|comp-entity|comp-port)\s*=\s*("([^"]+)"|'([^']+)')/g,
+    (mm, k, q, d, sq) => `data-${k}="${prefix}-${d ?? sq}"`);
   return body;
+}
+// rewrite 이후: dangling reference와 duplicate id는 조립 오류다
+export function checkRefs(svg) {
+  const errors = [];
+  const ids = new Map();
+  for (const m of svg.matchAll(/\bid\s*=\s*("([A-Za-z0-9_-]+)"|'([A-Za-z0-9_-]+)')/g)) {
+    const id = m[2] ?? m[3];
+    ids.set(id, (ids.get(id) ?? 0) + 1);
+  }
+  for (const [id, n] of ids) if (n > 1) errors.push(`duplicate id "${id}" (${n}x)`);
+  const refs = [];
+  for (const m of svg.matchAll(/url\(#([A-Za-z0-9_-]+)\)/g)) refs.push(m[1]);
+  for (const m of svg.matchAll(/\b(?:xlink:href|href)\s*=\s*(?:"#([A-Za-z0-9_-]+)"|'#([A-Za-z0-9_-]+)')/g)) refs.push(m[1] ?? m[2]);
+  for (const m of svg.matchAll(/\b(?:aria-labelledby|aria-describedby)\s*=\s*(?:"([^"]*)"|'([^']*)')/g))
+    for (const id of (m[1] ?? m[2]).split(/\s+/).filter(Boolean)) refs.push(id);
+  for (const r of refs) if (!ids.has(r)) errors.push(`dangling reference "#${r}"`);
+  return errors;
 }
 
 // ---------- compose ----------
@@ -273,9 +333,53 @@ function compose(planPath, opts) {
       continue;
     }
     const { variant, frag, rcp } = chosen;
-    // fragment는 page 요소를 포함하면 안 된다 (fragment contract)
-    if (/data-layout-role\s*=\s*"header-cluster"|<svg[^>]*data-treatment/.test(frag) === false) { /* fragment root는 중립 — treatment는 composite가 소유 */ }
+    // fragment 계약: page 요소(header-cluster 등) 금지
+    if (/data-layout-role\s*=\s*["']header-cluster["']/.test(frag)) { problems.push(`instance "${inst.instance_id}": fragment contains page header elements — fragments own only their local topology`); continue; }
+    // receipt 무결성: sourceDigest 대조 + usedBounds 재측정 대조 (stale/조작 receipt 차단)
+    const fragSha = createHash("sha256").update(frag).digest("hex").slice(0, 16);
+    if (rcp.sourceDigest && rcp.sourceDigest !== fragSha) { problems.push(`instance "${inst.instance_id}": fragment sourceDigest mismatch (receipt ${rcp.sourceDigest}, file ${fragSha})`); continue; }
+    if (!rcp.sourceDigest) { problems.push(`instance "${inst.instance_id}": fragment receipt missing sourceDigest`); continue; }
     const body = frag.match(/<svg[^>]*>([\s\S]*)<\/svg>\s*$/)[1];
+    const meas = measuredBoundsStrict(body);
+    for (const ge of meas.errors) problems.push(`instance "${inst.instance_id}": ${ge}`);
+    if (meas.bounds) {
+      const rb = rcp.usedBounds;
+      if (Math.abs(meas.bounds.x - rb.x) > 1 || Math.abs(meas.bounds.y - rb.y) > 1 || Math.abs(meas.bounds.w - rb.w) > 1 || Math.abs(meas.bounds.h - rb.h) > 1)
+        problems.push(`instance "${inst.instance_id}": fragment receipt usedBounds ${JSON.stringify(rb)} != measured ${JSON.stringify(meas.bounds)}`);
+    }
+    // port 계약 완결(R1-P4): capability 대조·유일성·cardinality·anchor·normal
+    const packsForPorts = loadManifest(opts.manifest, []);
+    const caps = packsForPorts?.[inst.typepack]?.composition?.ports ?? [];
+    const capByTemplate = Object.fromEntries(caps.map((c) => [c.template, c]));
+    const portIds = new Set();
+    const byTemplate = {};
+    for (const p of rcp.ports ?? []) {
+      if (portIds.has(p.id)) problems.push(`instance "${inst.instance_id}": duplicate port id "${p.id}"`);
+      portIds.add(p.id);
+      const cap = capByTemplate[p.template];
+      if (!cap) { problems.push(`instance "${inst.instance_id}": port "${p.id}" uses undeclared capability template "${p.template}"`); continue; }
+      if (p.direction !== cap.direction) problems.push(`instance "${inst.instance_id}": port "${p.id}" direction ${p.direction} != capability ${cap.direction}`);
+      if (p.kind !== cap.kind) problems.push(`instance "${inst.instance_id}": port "${p.id}" kind ${p.kind} != capability ${cap.kind}`);
+      if (!Number.isFinite(p.anchor?.x) || !Number.isFinite(p.anchor?.y)) problems.push(`instance "${inst.instance_id}": port "${p.id}" anchor is not finite`);
+      else {
+        const rb = rcp.usedBounds;
+        if (p.anchor.x < rb.x - 2 || p.anchor.x > rb.x + rb.w + 2 || p.anchor.y < rb.y - 2 || p.anchor.y > rb.y + rb.h + 2)
+          problems.push(`instance "${inst.instance_id}": port "${p.id}" anchor sits outside usedBounds`);
+      }
+      const nx = p.normal?.x ?? NaN, ny = p.normal?.y ?? NaN;
+      if (!((Math.abs(nx) === 1 && ny === 0) || (nx === 0 && Math.abs(ny) === 1)))
+        problems.push(`instance "${inst.instance_id}": port "${p.id}" normal must be a unit axis vector`);
+      (byTemplate[p.template] ??= []).push(p);
+    }
+    for (const [tpl, cap] of Object.entries(capByTemplate)) {
+      const n = (byTemplate[tpl] ?? []).length;
+      const card = String(cap.cardinality);
+      let ok = true;
+      if (card === "0..n") ok = true;
+      else if (/^\d+$/.test(card)) ok = n === Number(card);
+      else { const [lo, hi] = card.split(".."); ok = n >= Number(lo) && (hi === "n" || n <= Number(hi)); }
+      if (!ok) problems.push(`instance "${inst.instance_id}": template "${tpl}" has ${n} actual port(s) but capability cardinality is "${card}"`);
+    }
     // translation-only 배치: 수평 중앙, 상단 정렬
     const dx = round1(slot.x + (slot.w - rcp.usedBounds.w) / 2 - rcp.usedBounds.x);
     const dy = round1(slot.y - rcp.usedBounds.y);
@@ -287,6 +391,23 @@ function compose(planPath, opts) {
       ports: (rcp.ports ?? []).map((p) => ({ ...p, anchor: { x: round1(p.anchor.x + dx), y: round1(p.anchor.y + dy) } })),
       entities: rcp.entities ?? [], identity: rcp.identity,
       degrade: variant === "base" ? null : { selectedVariant: variant, lost: rcp.degradeLost ?? "variant-declared reduction (see fragment receipt)" } });
+  }
+  // semantic binding: endpoint entity가 실제 fragment receipt entities에 존재해야 한다(R1-P2)
+  const entByInstance = Object.fromEntries(recInstances.map((r) => [r.instance_id, new Set(r.entities)]));
+  for (const b of plan.semantic_bindings ?? []) {
+    for (const e of b.endpoints ?? []) {
+      const set = entByInstance[e.instance_id];
+      if (set && !set.has(e.entity_id))
+        problems.push(`binding "${b.key}": entity "${e.entity_id}" does not exist in instance "${e.instance_id}" (ghost endpoint)`);
+    }
+  }
+  // 선언된 완전성: binding_complete_over에 오른 instance는 전 entity가 최소 1개 binding에 참여
+  for (const covId of plan.binding_complete_over ?? []) {
+    const set = entByInstance[covId];
+    if (!set) continue;
+    const bound = new Set((plan.semantic_bindings ?? []).flatMap((b) => b.endpoints.filter((e) => e.instance_id === covId).map((e) => e.entity_id)));
+    for (const ent of set) if (!bound.has(ent) && ent !== "root")
+      problems.push(`binding coverage: entity "${ent}" of "${covId}" is not bound — declared complete coverage is missing a pair`);
   }
   // identity 동일성 (instance 간)
   const idents = recInstances.map((r) => JSON.stringify(r.identity));
@@ -305,8 +426,17 @@ function compose(planPath, opts) {
     if (gapTop < 8 + 12 + 8) problems.push(`connector corridor ${round1(gapTop)}px cannot satisfy tip gap 8 + visible shaft 12 + gap 8`);
     edges.push({ from: { ...e.from, anchor: from.anchor }, to: { ...e.to, anchor: to.anchor },
       d: `M${from.anchor.x} ${from.anchor.y + 8} V${to.anchor.y - 8}` });
-    bodies.push(`<path d="M${from.anchor.x} ${from.anchor.y + 8} V${to.anchor.y - 8}" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" marker-end="url(#comp-ah)"/>`);
+    bodies.push(`<g data-comp-connectors="true"><path d="M${from.anchor.x} ${from.anchor.y + 8} V${to.anchor.y - 8}" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" marker-end="url(#comp-ah)"/></g>`);
   }
+  // 한 port는 CP1에서 edge 1개까지만 사용한다
+  const usedPorts = new Map();
+  for (const e of plan.connector_edges ?? []) {
+    for (const end of ["from", "to"]) {
+      const key = `${e[end].instance_id}#${e[end].port}`;
+      usedPorts.set(key, (usedPorts.get(key) ?? 0) + 1);
+    }
+  }
+  for (const [key, n] of usedPorts) if (n > 1) problems.push(`port ${key} participates in ${n} edges (CP1 limit: 1)`);
   if (problems.length && status === "ok") status = "invalid";
   const hdr = plan.header ?? {};
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${pf.canvas.width} ${pf.canvas.height}" width="${pf.canvas.width}" height="${pf.canvas.height}" role="img"
@@ -326,12 +456,14 @@ function compose(planPath, opts) {
   </g>
   ${bodies.join("\n  ")}
 </svg>`;
+  // namespace rewrite 이후 dangling reference·duplicate id는 조립 실패다 (최종 SVG 기준)
+  for (const re of checkRefs(svg)) { problems.push(`assembly: ${re}`); if (status === "ok") status = "invalid"; }
   const receipt = { schemaVersion: 1, kind: "composition-receipt", planId: plan.id, planDigest,
     layoutTemplate: plan.layout_template, page: { preset: plan.page.preset, canvas: pf.canvas },
     resolvedSlots: slotRects, slotGap: gap, instances: recInstances, connectorEdges: edges,
     semanticBindings: plan.semantic_bindings ?? [], readingOrder: plan.reading_order,
     identityConsistent, status, problems,
-    budget: { h1Count: 1, note: "focal/tint/connector 집계는 measured/advisory — threshold 미정의(계약)" } };
+    budget: { h1Count: 1, h1ScaleTexts: 1, note: "focal/tint/connector 집계는 measured/advisory — threshold 미정의(계약)" } };
   if (opts.receipt) writeFileSync(opts.receipt, JSON.stringify(receipt, null, 1));
   if (status === "ok" && opts.out) writeFileSync(opts.out, svg.replace(/[ \t]+$/gm, ""));
   console.log(`compose ${plan.id} — status=${status}, instances=${recInstances.length}/${plan.instances.length}${problems.length ? `\n  ` + problems.join("\n  ") : ""}`);
@@ -343,8 +475,49 @@ function verify(svgPath, opts) {
   const errors = [];
   const svg = readFileSync(svgPath, "utf8");
   const receipt = JSON.parse(readFileSync(opts.receipt, "utf8"));
-  const { plan, errors: pErr } = validatePlan(opts.plan, opts.manifest);
+  const { plan, planDigest: livePlanDigest, errors: pErr } = validatePlan(opts.plan, opts.manifest);
   errors.push(...pErr);
+  // Receipt v1 strict schema — receipt의 어떤 필드도 무검증 신뢰하지 않는다(R1-P1)
+  const RK = ["schemaVersion", "kind", "planId", "planDigest", "layoutTemplate", "page", "resolvedSlots",
+    "slotGap", "instances", "connectorEdges", "semanticBindings", "readingOrder", "identityConsistent",
+    "status", "problems", "budget"];
+  for (const k of Object.keys(receipt)) if (!RK.includes(k)) errors.push(`E-COMP-SCHEMA receipt unknown field "${k}"`);
+  for (const k of RK) if (!(k in receipt)) errors.push(`E-COMP-SCHEMA receipt missing field "${k}"`);
+  if (receipt.schemaVersion !== 1 || receipt.kind !== "composition-receipt") errors.push("E-COMP-SCHEMA receipt identity invalid");
+  if (receipt.status !== "ok" || (receipt.problems ?? []).length) errors.push(`E-COMP-STATUS receipt status "${receipt.status}" with ${receipt.problems?.length ?? 0} problem(s) — only clean ok passes verify`);
+  // planDigest는 plan 파일에서 재계산해 대조
+  if (receipt.planDigest !== livePlanDigest) errors.push(`E-COMP-FORGED receipt planDigest ${receipt.planDigest} != recomputed ${livePlanDigest}`);
+  // slots/page는 Plan+PageFrame에서 재계산해 대조
+  if (plan) {
+    const pfR = JSON.parse(spawnSync(process.execPath, [skinCli, "pageframe", plan.page.preset,
+      ...(plan.page.support && plan.page.support !== "none" ? ["--support", plan.page.support] : []), "--json"], { encoding: "utf8" }).stdout);
+    const cbR = pfR.regions.contentBox;
+    const ha = Number(plan.slots["slot-a"].height), hb = Number(plan.slots["slot-b"].height), gap = Number(plan.slot_gap ?? 24);
+    const expectSlots = { "slot-a": { x: cbR.x, y: cbR.y, w: cbR.w, h: ha }, "slot-b": { x: cbR.x, y: cbR.y + ha + gap, w: cbR.w, h: hb } };
+    if (JSON.stringify(expectSlots) !== JSON.stringify(receipt.resolvedSlots)) errors.push("E-COMP-FORGED receipt resolvedSlots != recomputed from plan + pageframe");
+    if (JSON.stringify(pfR.canvas) !== JSON.stringify(receipt.page?.canvas)) errors.push("E-COMP-FORGED receipt page.canvas != pageframe receipt");
+  }
+  // live SSoT digest 대조 — 서로 같기만 한 가짜 digest를 거부(R1-P1)
+  const live = {};
+  try {
+    const rj = JSON.parse(spawnSync(process.execPath, [skinCli, "resolve", "current", "--mode", "light", "--json"], { encoding: "utf8" }).stdout);
+    const pj = JSON.parse(spawnSync(process.execPath, [skinCli, "pageframe", "social-4x5", "--json"], { encoding: "utf8" }).stdout);
+    live.skinProfileDigest = rj.profile.digests[0].digest;
+    live.typographyProfileDigest = rj.typography.profileDigest;
+    live.pageFrameDigest = pj.profile.digest;
+    live.kernelVersion = rj.provenance.kernel;
+  } catch { errors.push("E-COMP-LIVE unable to load live registry digests — fail-closed"); }
+  for (const inst of receipt.instances ?? []) {
+    for (const [k, v] of Object.entries(live)) {
+      if (inst.identity?.[k] !== v)
+        errors.push(`E-COMP-LIVE instance "${inst.instance_id}" ${k} "${inst.identity?.[k]}" != live registry "${v}"`);
+    }
+  }
+  // receipt instance 집합 = plan 집합 (svg 집합 대조는 아래 domOrder 검사와 합쳐 3-way)
+  const rIds = (receipt.instances ?? []).map((r) => r.instance_id);
+  const pIds = (plan?.instances ?? []).map((i) => i.instance_id);
+  for (const id of pIds) if (!rIds.includes(id)) errors.push(`E-COMP-MISSING receipt drops instance "${id}" declared in the plan`);
+  for (const id of rIds) if (!pIds.includes(id)) errors.push(`E-COMP-EXTRA receipt contains undeclared instance "${id}"`);
   // instance group 추출 + DOM 순서
   const domOrder = [];
   const groups = {};
@@ -352,8 +525,11 @@ function verify(svgPath, opts) {
   let m2;
   const idxs = [];
   while ((m2 = re.exec(svg))) { domOrder.push(m2[1]); idxs.push({ id: m2[1], slot: m2[2], dx: Number(m2[3]), dy: Number(m2[4]), start: m2.index }); }
+  // slice 경계: 다음 comp group(instance 또는 connectors) 또는 문서 끝
+  const boundaries = [...svg.matchAll(/<g data-comp-(?:instance|connectors)/g)].map((b) => b.index);
   for (let i = 0; i < idxs.length; i++) {
-    const end = i + 1 < idxs.length ? idxs[i + 1].start : svg.length;
+    const nb = boundaries.find((b) => b > idxs[i].start);
+    const end = nb ?? svg.length;
     groups[idxs[i].id] = { ...idxs[i], body: svg.slice(idxs[i].start, end) };
   }
   // translation-only 강제: instance transform에 scale/rotate가 섞이면 거부
@@ -368,7 +544,9 @@ function verify(svgPath, opts) {
   for (const inst of receipt.instances ?? []) {
     const g = groups[inst.instance_id];
     if (!g) continue;
-    const local = measuredBounds(g.body);
+    const mm2 = measuredBoundsStrict(g.body);
+    for (const ge of mm2.errors) errors.push(`E-COMP-UNVERIFIED-GEOM instance "${inst.instance_id}": ${ge}`);
+    const local = mm2.bounds;
     if (!local) { errors.push(`E-COMP-UNMEASURABLE instance "${inst.instance_id}" has no provable geometry`); continue; }
     const meas = { x: round1(local.x + 0), y: round1(local.y + 0), w: round1(local.w), h: round1(local.h) };
     // group body 좌표는 로컬(fragment) 좌표 + translate — 측정에 translate 반영
@@ -393,6 +571,14 @@ function verify(svgPath, opts) {
     if (JSON.stringify(domOrder) !== JSON.stringify(ro))
       errors.push(`E-COMP-ORDER DOM order [${domOrder.join(", ")}] != declared reading_order [${ro.join(", ")}]`);
   }
+  // entity 집합: 최종 SVG의 data-comp-entity가 receipt entities와 1:1 (R1-P2)
+  for (const inst of receipt.instances ?? []) {
+    const g = groups[inst.instance_id];
+    if (!g) continue;
+    const found = new Set([...g.body.matchAll(/data-comp-entity\s*=\s*(?:"([^"]+)"|'([^']+)')/g)].map((mm) => (mm[1] ?? mm[2]).replace(`${inst.instance_id}-`, "")));
+    for (const ent of inst.entities ?? []) if (!found.has(ent)) errors.push(`E-COMP-ENTITY instance "${inst.instance_id}" entity "${ent}" missing from the composite`);
+    for (const ent of found) if (!(inst.entities ?? []).includes(ent)) errors.push(`E-COMP-ENTITY composite carries undeclared entity "${ent}" in "${inst.instance_id}"`);
+  }
   // identity 동일성
   if (receipt.identityConsistent === false) errors.push("E-COMP-IDENTITY receipt reports inconsistent module identities");
   const idents = (receipt.instances ?? []).map((r) => JSON.stringify(r.identity));
@@ -401,9 +587,19 @@ function verify(svgPath, opts) {
   const seen = new Map();
   for (const mm of svg.matchAll(/id\s*=\s*"([A-Za-z0-9_-]+)"/g)) seen.set(mm[1], (seen.get(mm[1]) ?? 0) + 1);
   for (const [id, n] of seen) if (n > 1) errors.push(`E-COMP-DUPID svg id "${id}" appears ${n} times`);
-  // page budget machine gate: H1(>=28px) 정확히 1 — header 소유
-  const h1s = [...svg.matchAll(/<text[^>]*font-size="(2[89]|[3-9]\d)"/g)].length;
-  if (h1s !== 1) errors.push(`E-COMP-H1 composite must carry exactly one H1-scale text (found ${h1s}) — module headings stay at section scale`);
+  // page budget machine gate(R1-P2p): semantic role 기반 H1 정확히 1 — header 소유
+  const roleH1 = [...svg.matchAll(/data-layout-role\s*=\s*["']cluster-h1["']/g)].length;
+  if (roleH1 !== 1) errors.push(`E-COMP-H1 composite must carry exactly one cluster-h1 role (found ${roleH1})`);
+  for (const [iid, g] of Object.entries(groups)) {
+    if (/data-layout-role\s*=\s*["'](cluster-h1|page-title-header)["']/.test(g.body))
+      errors.push(`E-COMP-H1 instance "${iid}" carries a page-heading role — module headings stay at section scale`);
+  }
+  // 보조 측정(advisory): H1급 font-size 텍스트 수 — 판정이 아니라 기록
+  const h1Scale = [...svg.matchAll(/<text[^>]*font-size\s*=\s*["'](2[89]|[3-9]\d)/g)].length;
+  if (roleH1 === 1 && h1Scale > 1) errors.push(`E-COMP-H1 ${h1Scale - 1} module text(s) at H1 scale (>=28px) compete with the page H1 — keep module headings at section scale`);
+  // budget receipt 필수 field
+  const BK = ["h1Count", "h1ScaleTexts", "note"];
+  for (const k of BK) if (!(k in (receipt.budget ?? {}))) errors.push(`E-COMP-SCHEMA receipt.budget missing "${k}"`);
   const receiptOut = { schemaVersion: 1, command: "compose-verify", file: path.basename(svgPath), instances: domOrder.length, errors };
   if (opts.json) console.log(JSON.stringify(receiptOut, null, 1));
   else {
@@ -413,7 +609,14 @@ function verify(svgPath, opts) {
   process.exit(errors.length ? 1 : 0);
 }
 
-// ---------- CLI ----------
+// ---------- CLI (entrypoint guard: import 시 실행 금지 — realpath parity) ----------
+import { realpathSync } from "node:fs";
+function isEntrypoint() {
+  if (!process.argv[1]) return false;
+  try { return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]); }
+  catch { return import.meta.url === pathToFileURL(process.argv[1] ?? "").href; }
+}
+if (isEntrypoint()) {
 const argv = process.argv.slice(2);
 const cmd = argv[0];
 const files = argv.slice(1).filter((a) => !a.startsWith("--"));
@@ -436,4 +639,5 @@ if (cmd === "plan") {
 } else {
   console.error("usage: compose.mjs plan|compose|verify ...");
   process.exit(2);
+}
 }

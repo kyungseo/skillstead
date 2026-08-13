@@ -10,8 +10,8 @@
  "usedBounds": {
   "x": -0.5,
   "y": -0.5,
-  "w": 648.0,
-  "h": 241.0
+  "w": 648,
+  "h": 241
  },
  "ports": [
   {
@@ -82,10 +82,12 @@
   "card-4"
  ],
  "identity": {
-  "skinProfileDigest": "cfx-skin-0001",
-  "typographyProfileDigest": "cfx-typo-0001",
-  "pageFrameDigest": "cfx-pf-0001",
+  "skinProfileDigest": "d02498fd9e0a2efe",
+  "typographyProfileDigest": "6d3109f3a64e1813",
+  "pageFrameDigest": "97bc89b12ce77045",
   "kernelVersion": "kernel-v1",
   "iconSetId": "line-icons-v1"
- }
+ },
+ "sourceDigest": "8be6cf45ab4c3719",
+ "verifier": "compose-fragment-measure-v1"
 }

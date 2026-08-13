@@ -17,7 +17,7 @@ instances:
 semantic_bindings:
   - key: item-1
     endpoints:
-      - { instance_id: cards-1, entity_id: card-1 }
+      - { instance_id: cards-1, entity_id: ghost-card }
       - { instance_id: tree-1, entity_id: leaf-1 }
   - key: item-2
     endpoints:

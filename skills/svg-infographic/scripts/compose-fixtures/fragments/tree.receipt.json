@@ -10,7 +10,7 @@
  "usedBounds": {
   "x": -0.5,
   "y": -0.75,
-  "w": 648.0,
+  "w": 648,
   "h": 245.25
  },
  "ports": [
@@ -83,10 +83,12 @@
   "leaf-4"
  ],
  "identity": {
-  "skinProfileDigest": "cfx-skin-0001",
-  "typographyProfileDigest": "cfx-typo-0001",
-  "pageFrameDigest": "cfx-pf-0001",
+  "skinProfileDigest": "d02498fd9e0a2efe",
+  "typographyProfileDigest": "6d3109f3a64e1813",
+  "pageFrameDigest": "97bc89b12ce77045",
   "kernelVersion": "kernel-v1",
   "iconSetId": "line-icons-v1"
- }
+ },
+ "sourceDigest": "d75c31613a5c5bea",
+ "verifier": "compose-fragment-measure-v1"
 }

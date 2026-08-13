@@ -27,10 +27,6 @@ semantic_bindings:
     endpoints:
       - { instance_id: cards-1, entity_id: card-3 }
       - { instance_id: tree-1, entity_id: leaf-3 }
-  - key: item-4
-    endpoints:
-      - { instance_id: cards-1, entity_id: card-4 }
-      - { instance_id: tree-1, entity_id: leaf-4 }
 binding_complete_over: [cards-1, tree-1]
 connector_edges: []
 reading_order: [cards-1, tree-1]
