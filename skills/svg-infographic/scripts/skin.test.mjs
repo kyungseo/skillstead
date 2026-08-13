@@ -278,7 +278,7 @@ test("R1-7: manifest row 순서를 뒤집어도 selection view는 동일하다",
   const text = readManifest(pkg);
   const head = text.slice(0, text.indexOf("  - id: "));
   const entries = text.slice(text.indexOf("  - id: ")).split(/(?=^  - id: )/m).filter(Boolean);
-  assert.equal(entries.length, 2, "vertical slice는 2종이다");
+  assert.ok(entries.length >= 2, `등록 TypePack이 ${entries.length}종이다`);
   writeManifest(pkg, head + entries.reverse().join(""));
   const reordered = runIn(pkg, ["selection"]);
   assert.equal(reordered.code, 0, reordered.out);
@@ -508,6 +508,68 @@ test("R1-5b: 등록된 TypePack의 legacy archetype section이 되살아나면 �
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /is not the canonical tombstone/);
   drop(pkg);
+});
+
+// --- CP1B: 카탈로그 전수 이행 -------------------------------------------------
+test("CP1B: 9종 archetype이 모두 TypePack으로 등록되고 selection view에 노출된다", () => {
+  const m = run(["manifest", "--json"]);
+  assert.equal(m.code, 0, m.out);
+  const j = JSON.parse(m.out);
+  assert.equal(j.errors.length, 0, JSON.stringify(j.errors));
+  assert.equal(j.count, 9, "archetype 9종이 모두 등록되어야 한다");
+  const sel = JSON.parse(run(["selection", "--check", "--json"]).out);
+  assert.equal(sel.registered, 9);
+  assert.equal(sel.shown, 9);
+  assert.equal(sel.driftedBefore, false);
+  const view = fs.readFileSync(path.join(here, "..", "references", "types", "selection.md"), "utf8");
+  for (const id of ["approval-gate", "before-after", "cards-kpi-grid", "decision-matrix", "layer-stack",
+                    "nested-scope", "process-flow", "roadmap-timeline", "topology-component"])
+    assert.match(view, new RegExp(`\\\`${id}\\\``), `${id} 행이 있어야 한다`);
+});
+
+test("CP1B: archetypes.md의 per-type section은 모두 tombstone이다", () => {
+  const arch = fs.readFileSync(path.join(here, "..", "references", "archetypes.md"), "utf8");
+  const blocks = arch.split(/^## /m).slice(1);
+  const shared = blocks.filter((b) => !/Migrated to TypePack/.test(b)).map((b) => b.split("\n")[0].trim());
+  assert.deepEqual(shared, ["Premium base recipe (applies to every archetype)"],
+    "cross-type 공통 recipe 외에는 per-type normative section이 남으면 안 된다");
+});
+
+test("tombstones 명령은 canonical template에서 재생성하고 drift를 잡는다", () => {
+  assert.equal(run(["tombstones", "--check"]).code, 0);
+  // --write는 개발 모드가 필요하므로 소유 repository로 만든 임시 package에서 검증한다
+  const repo = mkdtempSync(path.join(tmpdir(), "tsdev-"));
+  spawnSync("git", ["init", "-q", repo], { encoding: "utf8" });
+  fs.mkdirSync(path.join(repo, "skills"), { recursive: true });
+  const pkg = path.join(repo, "skills", "svg-infographic");
+  assert.equal(spawnSync("cp", ["-R", path.join(here, ".."), pkg], { encoding: "utf8" }).status, 0);
+  spawnSync("chmod", ["-R", "u+w", pkg], { encoding: "utf8" });
+  spawnSync("git", ["add", "-A"], { cwd: repo, encoding: "utf8" });
+  const ap = path.join(pkg, "references", "archetypes.md");
+  fs.writeFileSync(ap, fs.readFileSync(ap, "utf8").replace(
+    "routing: [`types/selection.md`](types/selection.md).",
+    "routing: [`types/selection.md`](types/selection.md).\n\nExtra prose."));
+  const drift = runIn(pkg, ["tombstones", "--check"]);
+  assert.equal(drift.code, 1, drift.out);
+  assert.match(drift.out, /do not match the canonical template/);
+  // 재생성하면 manifest closure까지 통과한다
+  const w = runIn(pkg, ["tombstones", "--write"], { SVGINFO_EXECUTION_MODE: "source-development" });
+  assert.equal(w.code, 0, w.out);
+  assert.equal(runIn(pkg, ["manifest"]).code, 0, runIn(pkg, ["manifest"]).out);
+  fs.rmSync(repo, { recursive: true, force: true });
+});
+
+test("tombstones --write도 개발 모드에서만 허용된다", () => {
+  const r = run(["tombstones", "--write"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /requires source-development execution/);
+});
+
+test("topology annex를 선언한 TypePack은 필수 하위 절을 모두 갖춘다", () => {
+  const spec = fs.readFileSync(path.join(here, "..", "references", "types", "specs", "topology-component.md"), "utf8");
+  for (const sub of ["Entity identity", "Edge kind and direction", "Cardinality", "Cycle policy",
+                     "Traversal and reading order", "Topology verifier and receipt boundary"])
+    assert.match(spec, new RegExp(`^### ${sub}$`, "m"), sub);
 });
 
 // --- pageframe fail-closed schema + fluid two-phase -------------------------------

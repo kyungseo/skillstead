@@ -22,7 +22,7 @@ Nuances: a **simple qualitative** 2×2/3×3 matrix or a status-count badge is fi
 | --- | --- |
 | `references/design-kernel.md` | **Before choosing colors, tokens or typography** — the canonical skin contract: 11-role token model, domain aliases, versioned profiles + `skin.mjs` resolver, typography profile SSoT(`references/typography/`), approved contact sheet |
 | `references/types/selection.md` | **Before choosing a type** — the generated routing view: content signal → TypePack → its spec (derived from the TypePack manifest; migrated types only) |
-| `references/archetypes.md` | **Only for a type that has not been migrated yet** — its layout skeleton, premium recipe, and per-type checks. A migrated type keeps a pointer tombstone here and its rules live in the TypePack spec; never apply both |
+| `references/archetypes.md` | **For the cross-type premium base recipe** (the default visual language). Every per-type rule set has moved to its TypePack spec; the per-archetype sections here are pointer tombstones only |
 | `references/authoring.md` | **Always, before writing SVG** — detailed geometry/connector/panel/emphasis/color rules and the full icon set; also the manual render fallback |
 | `references/sketch.md` | Only when the user asks for a hand-drawn / sketchnote / 손글씨 feel — the opt-in sketch preset (paper, handwriting font, rough filters, highlighter) |
 | `scripts/render.mjs` | **Canonical renderer** (Node 18+, stdlib only) — lint gate → browser discovery → 2× render → exact IHDR verification in one entrypoint; works from any shell incl. Windows CMD/PowerShell without Git Bash |

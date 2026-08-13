@@ -437,6 +437,13 @@ function resolveTokens(prof, deriv, mode) {
 }
 
 // --- strict CLI parsing -------------------------------------------------------
+// tombstone 본문은 코드가 소유하는 결정적 문자열이다 — 검사와 생성이 같은 template을
+// 쓰므로 문구를 바꿔도 문서와 검사가 어긋나지 않는다(skin.mjs tombstones --write).
+function canonicalTombstone(title, tid) {
+  return `## ${title}\n\n**Migrated to TypePack \`${tid}\`.** Rules: [\`types/specs/${tid}.md\`](types/specs/${tid}.md) ·\n` +
+    `routing: [\`types/selection.md\`](types/selection.md).\n`;
+}
+
 const OPTION_SPEC = {
   validate: { "--json": false },
   resolve: { "--mode": true, "--treatment": true, "--json": false },
@@ -444,6 +451,7 @@ const OPTION_SPEC = {
   materialize: { "--profile": true, "--mode": true, "--treatment": true, "--check": false, "--json": false },
   manifest: { "--json": false },
   selection: { "--check": false, "--write": false, "--json": false },
+  tombstones: { "--check": false, "--write": false, "--json": false },
   typography: { "--json": false },
   "typography-check": { "--json": false },
   pageframe: { "--h1-lines": true, "--eyebrow": true, "--subtitle": true, "--support": true, "--footer": true, "--content-height": true, "--json": false },
@@ -686,6 +694,44 @@ function main() {
       console.log(`pageframe ${preset} (${P.orientation}) — header ${out.headerRegion.y}..${out.headerRegion.y + out.headerRegion.h} (${out.headerRegion.h}px), contentBox ${JSON.stringify(out.contentBox)}, footer: ${out.footerRule}`);
     }
     process.exit(0);
+  }
+  if (cmd === "tombstones") {
+    // migrated archetype section을 canonical template에서 재생성한다 — 7종 이행에서
+    // 손으로 같은 문구를 복제하지 않게 하고, 문구 변경도 한 곳에서 이뤄지게 한다.
+    const to = parseOptions("tombstones", restAll);
+    const mPath = path.resolve(here, "..", "references", "types", "manifest.yaml");
+    const archPath = path.resolve(here, "..", "references", "archetypes.md");
+    const errors = [];
+    let doc, arch;
+    try { ({ doc } = readYaml(mPath)); } catch (e) { fail(1, `tombstones: ${e.message}`); }
+    try { arch = readFileSync(archPath, "utf8"); } catch (e) { fail(1, `tombstones: ${e.message}`); }
+    const claims = (doc.typepacks ?? []).filter((p) => p.legacy_section).map((p) => [String(p.legacy_section), String(p.id)]);
+    const parts = arch.split(/^## /m);
+    const head = parts[0];
+    const secs = parts.slice(1).map((b) => ({ title: b.split("\n")[0].trim(), body: "## " + b }));
+    let changed = 0;
+    for (const [title, id] of claims) {
+      const sec = secs.find((x) => x.title === title);
+      if (!sec) { errors.push(`tombstones: legacy_section "${title}" (${id}) not found in archetypes.md`); continue; }
+      const want = canonicalTombstone(title, id);
+      const trailing = sec.body.endsWith("\n\n") ? "\n" : "";
+      const next = want + trailing;
+      if (sec.body.trim() !== want.trim()) { sec.body = next; changed++; }
+    }
+    const out = head + secs.map((x) => x.body).join("");
+    if (to["--write"]) {
+      if (state()?.mode !== "source-development")
+        fail(1, "tombstones --write requires source-development execution (run it from the repository that owns the package)");
+      if (!errors.length && changed) writeFileSync(archPath, out);
+    } else if (to["--check"] && changed) {
+      errors.push(`tombstones: ${changed} migrated section(s) do not match the canonical template (regenerate with --write)`);
+    }
+    const receipt = { schemaVersion: 1, command: "tombstones", kernelVersion: "kernel-v1",
+      claimed: claims.length, changed, errors, warnings: [] };
+    if (to["--json"]) console.log(JSON.stringify(receipt, null, 1));
+    else console.log(`tombstones — ${claims.length} claimed, ${changed} ${to["--write"] ? "regenerated" : "out of date"}, ${errors.length} error(s)`);
+    for (const e of errors) console.error(`ERROR ${e}`);
+    process.exit(errors.length ? 1 : 0);
   }
   if (cmd === "selection") {
     // selection table은 손으로 유지하는 사본이 아니라 manifest에서 **파생된 view**다.
@@ -1086,10 +1132,6 @@ function main() {
         }
       }
     }
-    // tombstone 본문은 코드가 소유하는 결정적 문자열이다 — 문서와 검사가 어긋날 수 없다.
-    const canonicalTombstone = (title, tid) =>
-      `## ${title}\n\n**Migrated to TypePack \`${tid}\`.** Rules: [\`types/specs/${tid}.md\`](types/specs/${tid}.md) ·\n` +
-      `routing: [\`types/selection.md\`](types/selection.md).\n`;
     // ---- registration closure: manifest가 등록 invariant를 완결적으로 소유한다 ----
     // inventory·legacy closure는 **package의 canonical registry**에만 적용한다.
     // 임의 YAML을 schema 검증용으로 넘긴 경우(부정 fixture 등)에는 대상이 아니다.
