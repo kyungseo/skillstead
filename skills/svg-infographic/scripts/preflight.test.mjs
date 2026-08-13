@@ -1,7 +1,9 @@
-// preflight.test.mjs — repo-local 소비 계약의 negative 실효성 (Wave 1 CP0).
+// preflight.test.mjs — package 소비 경계의 실효성 (Wave 1 CP0).
 //
 // negative는 개인 설치 경로(~/.claude/skills 등)를 fixture로 고정하지 않는다 —
-// 임시 외부 root와 nested symlink로 동일한 구조를 재현한다(사용자·호스트 독립).
+// 임시 외부 root·설치 사본·nested symlink로 동일한 구조를 재현한다(호스트 독립).
+// 정적 검사(import closure·binding coverage)는 보조 증거이고, acceptance 증거는
+// 아래의 **실행** negative다.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
@@ -9,95 +11,199 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { provenance, verifyProvenance, PREFLIGHT_EXIT, digestFiles, runPreflight } from "./preflight-lib.mjs";
+import {
+  provenance, verifyProvenance, PREFLIGHT_EXIT, digestFiles, runPreflight, RECEIPT_SCHEMA,
+} from "./preflight-lib.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(here, "..");            // skills/svg-infographic
 const CLI = path.join(here, "preflight.mjs");
-const RUNCLI = path.join(here, "testing", "run-cli.mjs");
 
 const run = (args, opts = {}) => {
-  // 각 spawn은 독립 호출이다 — 이 테스트 프로세스가 자식에게 물려주는 expected root
-  // 상속(정상 pipeline 전용 경로)이 negative 판정을 가리지 않도록 명시적으로 지운다.
+  // 각 spawn은 독립 호출이다 — 이 테스트 프로세스가 자식에게 물려주는 expected root·
+  // mode 상속(정상 pipeline 전용 경로)이 판정을 가리지 않도록 지운다.
+  // opts.env에는 이 테스트가 **명시적으로 세운 값만** 넣는다(process.env를 통째로
+  // 넘기면 아래 상속 차단이 무력화되어 다른 테스트의 상태가 판정을 오염시킨다).
   const env = { ...process.env, ...(opts.env ?? {}) };
-  if (!(opts.env && "SVGINFO_EXPECTED_SKILL_ROOT" in opts.env)) delete env.SVGINFO_EXPECTED_SKILL_ROOT;
+  for (const k of ["SVGINFO_EXPECTED_SKILL_ROOT", "SVGINFO_EXECUTION_MODE"])
+    if (!(opts.env && k in opts.env)) delete env[k];
   const r = spawnSync(process.execPath, args, { encoding: "utf8", cwd: here, ...opts, env });
   return { code: r.status, out: (r.stdout ?? "") + (r.stderr ?? "") };
 };
+const copyPackage = (dst) => {
+  fs.mkdirSync(path.dirname(dst), { recursive: true });
+  assert.equal(spawnSync("cp", ["-R", ROOT, dst], { encoding: "utf8" }).status, 0);
+  return dst;
+};
+const tmp = (tag) => fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), `w1-${tag}-`)));
 
-// 임시 git repository에 package 사본을 만든다 — "정상처럼 보이지만 다른 root"를
-// 재현하기 위한 도구이며, 사본을 변조해 각 negative를 만든다.
-function tempPackage() {
-  const repo = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "w1-repo-")));
+// 이 package를 소유하는 임시 repository (source-development 문맥 재현)
+function sourceRepo() {
+  const repo = tmp("srcrepo");
   spawnSync("git", ["init", "-q", repo], { encoding: "utf8" });
-  const skills = path.join(repo, "skills");
-  fs.mkdirSync(skills, { recursive: true });
-  const pkg = path.join(skills, "svg-infographic");
-  const cp = spawnSync("cp", ["-R", ROOT, pkg], { encoding: "utf8" });
-  assert.equal(cp.status, 0, cp.stderr);
-  return { repo, pkg };
+  return { repo, pkg: copyPackage(path.join(repo, "skills", "svg-infographic")) };
 }
-const inPkg = (pkg, ...rel) => path.join(pkg, ...rel);
+// 설치된 package + 이를 소유하지 않는 consumer 작업 디렉터리 (installed-runtime 문맥)
+function installed({ git = true, staged = false } = {}) {
+  const base = tmp("consumer");
+  const project = path.join(base, "project");
+  fs.mkdirSync(project, { recursive: true });
+  if (git) spawnSync("git", ["init", "-q", project], { encoding: "utf8" });
+  const pkg = staged
+    ? copyPackage(path.join(project, ".claude", "skills", "svg-infographic"))
+    : copyPackage(path.join(base, "vendor", "svg-infographic"));
+  return { project, pkg };
+}
 
-// ---- positive ----------------------------------------------------------
-test("positive: 정상 worktree에서 preflight가 통과하고 세 digest를 산출한다", () => {
+// ---- positive: 두 실행 모드 ------------------------------------------------
+test("positive(source-development): 소유 repository에서 preflight 통과 + 세 digest", () => {
   const r = run([CLI, "--json"]);
   assert.equal(r.code, 0, r.out);
   const j = JSON.parse(r.out);
+  assert.equal(j.executionMode, "source-development");
   for (const k of ["runtimeSurfaceDigest", "packageTreeDigest", "verificationSurfaceDigest"])
-    assert.match(j.digests[k], /^sha256:[0-9a-f]{64}$/, `${k} must be a full sha256`);
-  assert.notEqual(j.digests.runtimeSurfaceDigest, j.digests.packageTreeDigest, "digest 경계가 분리되어야 한다");
+    assert.match(j.digests[k], /^sha256:[0-9a-f]{64}$/);
+  assert.notEqual(j.digests.runtimeSurfaceDigest, j.digests.packageTreeDigest);
   assert.equal(j.errors.length, 0, JSON.stringify(j.errors));
 });
 
-test("positive: manifest에서 파생한 전 production entrypoint가 preflight 위반 없이 기동한다", () => {
+test("positive(installed-runtime): 일반 consumer repository에서 설치 package가 정상 실행된다", () => {
+  const { project, pkg } = installed();
+  const r = run([path.join(pkg, "scripts", "preflight.mjs"), "--json"], { cwd: project });
+  assert.equal(r.code, 0, r.out);
+  const j = JSON.parse(r.out);
+  assert.equal(j.executionMode, "installed-runtime");
+  assert.equal(j.errors.length, 0, JSON.stringify(j.errors));
+  // 실제 소비 경로(registry 해석)도 동작해야 한다
+  const s = run([path.join(pkg, "scripts", "skin.mjs"), "registry"], { cwd: project });
+  assert.equal(s.code, 0, s.out);
+  assert.match(s.out, /palette=current-v1/);
+});
+
+test("positive(installed-runtime): project-scope .claude/skills staged package 실행", () => {
+  const { project, pkg } = installed({ staged: true });
+  const r = run([path.join(pkg, "scripts", "skin.mjs"), "pageframe", "social-4x5", "--json"], { cwd: project });
+  assert.equal(r.code, 0, r.out);
+  assert.equal(JSON.parse(r.out).preset, "social-4x5");
+});
+
+test("positive(installed-runtime): git repository가 아닌 작업 디렉터리에서도 실행된다", () => {
+  const { project, pkg } = installed({ git: false });
+  const r = run([path.join(pkg, "scripts", "preflight.mjs"), "--json"], { cwd: project });
+  assert.equal(r.code, 0, r.out);
+  assert.equal(JSON.parse(r.out).executionMode, "installed-runtime");
+});
+
+test("installed-runtime에서 source-development 강제는 거부된다(Wave acceptance 경계)", () => {
+  const { project, pkg } = installed();
+  const r = run([path.join(pkg, "scripts", "preflight.mjs"), "--require-mode", "source-development"], { cwd: project });
+  assert.equal(r.code, PREFLIGHT_EXIT, r.out);
+  assert.match(r.out, /source-development was required/);
+  assert.equal(run([CLI, "--require-mode", "source-development"]).code, 0, "소유 repository에서는 통과");
+});
+
+// ---- stale entrypoint: 개발 문맥에서 외부 사본 거부 --------------------------
+test("N1: 개발 문맥에서 외부/stale entrypoint는 자기 package로 자기 자신을 정당화하지 못한다", () => {
+  const { pkg } = installed();   // 정상적으로 구성된 외부 사본
+  const r = run([path.join(pkg, "scripts", "preflight.mjs")], { cwd: here });
+  assert.equal(r.code, PREFLIGHT_EXIT, r.out);
+  assert.match(r.out, /running entrypoint is outside the package owned by this working repository/);
+});
+
+test("N1b: 상속 env로 root·mode를 바꿔칠 수 없다", () => {
+  const { pkg } = installed();
+  const r = run([CLI], { env: { SVGINFO_EXPECTED_SKILL_ROOT: pkg } });
+  assert.equal(r.code, PREFLIGHT_EXIT, r.out);
+  assert.match(r.out, /disagrees with the resolved package/);
+  const m = run([CLI], { env: { SVGINFO_EXECUTION_MODE: "installed-runtime" } });
+  assert.equal(m.code, PREFLIGHT_EXIT, m.out);
+  assert.match(m.out, /disagrees with the resolved execution mode/);
+});
+
+test("N1c: package root를 찾을 수 없는 실행은 fail-closed", () => {
+  const dir = tmp("bare");
+  fs.copyFileSync(path.join(here, "preflight.mjs"), path.join(dir, "preflight.mjs"));
+  fs.copyFileSync(path.join(here, "preflight-lib.mjs"), path.join(dir, "preflight-lib.mjs"));
+  const r = run([path.join(dir, "preflight.mjs")], { cwd: dir });
+  assert.equal(r.code, PREFLIGHT_EXIT, r.out);
+  assert.match(r.out, /cannot locate the package root/);
+});
+
+// ---- CP0-R1-F4: 실행 기반 entrypoint coverage -------------------------------
+test("F4: manifest가 선언한 모든 production entrypoint의 외부 사본은 usage 파싱 전에 거부된다", () => {
   const st = runPreflight({ cwd: here });
   const entrypoints = [...st.kinds.entries()]
     .filter(([f, k]) => k === "production-entrypoint" && f.endsWith(".mjs")).map(([f]) => f);
-  assert.ok(entrypoints.length >= 8, `manifest가 production entrypoint를 ${entrypoints.length}개만 선언한다`);
+  assert.ok(entrypoints.length >= 8, `production entrypoint ${entrypoints.length}개만 선언됨`);
+  const { pkg } = installed();
+  for (const rel of entrypoints) {
+    // cwd는 소유 repository, 실행 파일은 외부 사본 — 인자 없이도 preflight가 먼저 막아야 한다
+    const r = run([path.join(pkg, rel)], { cwd: here });
+    assert.equal(r.code, PREFLIGHT_EXIT, `${rel}: ${r.out}`);
+    assert.match(r.out, /entrypoint is outside the package/, rel);
+  }
+  // 대조군: 같은 entrypoint를 자기 repository에서 실행하면 preflight로 죽지 않는다
   for (const rel of entrypoints) {
     const r = run([path.join(ROOT, rel)]);
     assert.ok(!r.out.includes("preflight:"), `${rel}: ${r.out}`);
-    assert.notEqual(r.code, PREFLIGHT_EXIT, `${rel} must not fail preflight in its own worktree`);
   }
 });
 
-// ---- N1 / N6: expected root는 실행 파일이 아니라 작업 repository가 정한다 -----
-test("N1: 외부 root의 stale entrypoint는 자기 package로 자기 자신을 정당화하지 못한다", () => {
-  const { pkg } = tempPackage();
-  // cwd는 정상 Wave 1 worktree, 실행 파일만 외부 사본 — 자기 내부 일관성으로 통과하면 안 된다
-  const r = run([path.join(pkg, "scripts", "preflight.mjs")], { cwd: here });
-  assert.equal(r.code, PREFLIGHT_EXIT, r.out);
-  assert.match(r.out, /running entrypoint is outside the expected skill root/);
+test("F4: production shim의 외부 사본도 bound entrypoint까지 도달해 거부된다", () => {
+  const { pkg } = installed();
+  const r = spawnSync("bash", [path.join(pkg, "scripts", "render.sh"), "x.svg"], { encoding: "utf8", cwd: here });
+  assert.equal(r.status, PREFLIGHT_EXIT, r.stdout + r.stderr);
+  assert.match(r.stdout + r.stderr, /entrypoint is outside the package/);
 });
 
-test("N1b: 외부 사본은 자기 repository에서 실행할 때만 통과한다(대조군)", () => {
-  const { repo, pkg } = tempPackage();
-  const r = run([path.join(pkg, "scripts", "preflight.mjs")], { cwd: path.join(pkg, "scripts") });
-  assert.equal(r.code, 0, r.out);
-  assert.ok(fs.existsSync(path.join(repo, ".git")));
+test("F4: import closure는 side-effect·export-from·비정적 dynamic import를 잡는다", () => {
+  const cases = [
+    ['import "left-pad";\n', /bare import "left-pad"/],
+    ['export { x } from "left-pad";\n', /bare import "left-pad"/],
+    ['const n = "x"; await import(n);\n', /non-literal dynamic import/],
+    ['import y from "../../../../outside.mjs";\n', /escapes the package/],
+    ['import z from "./no-such-module.mjs";\n', /does not resolve to a file/],
+  ];
+  for (const [snippet, re] of cases) {
+    const { repo, pkg } = sourceRepo();
+    const victim = path.join(pkg, "scripts", "check-layout.mjs");
+    fs.writeFileSync(victim, snippet + fs.readFileSync(victim, "utf8"));
+    const r = run([path.join(pkg, "scripts", "preflight.mjs")], { cwd: path.join(pkg, "scripts") });
+    assert.equal(r.code, PREFLIGHT_EXIT, `${snippet}: ${r.out}`);
+    assert.match(r.out, re, snippet);
+    fs.rmSync(repo, { recursive: true, force: true });
+  }
 });
 
-test("N1c: SVGINFO_EXPECTED_SKILL_ROOT로 expected root를 바꿔칠 수 없다", () => {
-  const { pkg } = tempPackage();
-  const r = run([CLI], { env: { ...process.env, SVGINFO_EXPECTED_SKILL_ROOT: pkg } });
-  assert.equal(r.code, PREFLIGHT_EXIT, r.out);
-  assert.match(r.out, /disagrees with the working repository/);
+// ---- CP0-R1-F2: shipped 표면에 fixture 우회 진입점이 없다 --------------------
+test("F2: package에는 containment를 끄는 fixture runner가 존재하지 않는다", () => {
+  assert.ok(!fs.existsSync(path.join(here, "testing")), "shipped package에 fixture runner가 있으면 안 된다");
+  const lib = fs.readFileSync(path.join(here, "preflight-lib.mjs"), "utf8");
+  for (const sym of ["enableFixtureMode", "isFixtureMode", "fixtureOverride"])
+    assert.ok(!lib.includes(sym), `preflight-lib은 ${sym}을 노출하면 안 된다`);
 });
 
-test("N1d: git repository 밖에서는 fail-closed", () => {
-  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "w1-norepo-")));
-  const r = run([CLI], { cwd: dir });
-  assert.equal(r.code, PREFLIGHT_EXIT, r.out);
-  assert.match(r.out, /not inside a git repository/);
+test("F2: package 밖 profile 디렉터리 지정은 두 모드 모두에서 거부된다", () => {
+  const outside = tmp("skins");
+  for (const f of fs.readdirSync(path.join(ROOT, "references", "skins")))
+    fs.copyFileSync(path.join(ROOT, "references", "skins", f), path.join(outside, f));
+  const dev = run([path.join(here, "skin.mjs"), "registry"], { env: { SKIN_SKINS_DIR: outside } });
+  assert.equal(dev.code, PREFLIGHT_EXIT, dev.out);
+  assert.match(dev.out, /resolves outside the skill package/);
+
+  const { project, pkg } = installed();
+  const inst = run([path.join(pkg, "scripts", "skin.mjs"), "registry"],
+    { cwd: project, env: { SKIN_SKINS_DIR: outside } });
+  assert.equal(inst.code, PREFLIGHT_EXIT, inst.out);
+  assert.match(inst.out, /resolves outside the skill package/);
 });
 
-// ---- N2: package 내부 파일이 외부 symlink ---------------------------------
+// ---- package 무결성 ---------------------------------------------------------
 test("N2: package 내부의 외부 symlink는 거부된다", () => {
-  const { pkg } = tempPackage();
-  const outside = path.join(path.dirname(path.dirname(pkg)), "outside-design-kernel.md");
+  const { repo, pkg } = sourceRepo();
+  const outside = path.join(repo, "outside-design-kernel.md");
   fs.writeFileSync(outside, "# outside\n");
-  const victim = inPkg(pkg, "references", "design-kernel.md");
+  const victim = path.join(pkg, "references", "design-kernel.md");
   fs.rmSync(victim);
   fs.symlinkSync(outside, victim);
   const r = run([path.join(pkg, "scripts", "preflight.mjs")], { cwd: path.join(pkg, "scripts") });
@@ -105,71 +211,48 @@ test("N2: package 내부의 외부 symlink는 거부된다", () => {
   assert.match(r.out, /package tree contains a symlink: references\/design-kernel\.md/);
 });
 
-// ---- N3: registry indirect pointer escape ---------------------------------
 test("N3: registry가 가리키는 profile이 package를 벗어나면 거부된다", () => {
-  const { repo, pkg } = tempPackage();
+  const { repo, pkg } = sourceRepo();
   fs.writeFileSync(path.join(repo, "evil.yaml"), "schema_version: 1\nid: evil\nkind: palette\n");
-  const regP = inPkg(pkg, "references", "skins", "registry.yaml");
-  const reg = fs.readFileSync(regP, "utf8").replace(/current-v1/g, "../../../../evil");
-  fs.writeFileSync(regP, reg);
+  const regP = path.join(pkg, "references", "skins", "registry.yaml");
+  fs.writeFileSync(regP, fs.readFileSync(regP, "utf8").replace(/current-v1/g, "../../../../evil"));
   const r = run([path.join(pkg, "scripts", "skin.mjs"), "registry"], { cwd: path.join(pkg, "scripts") });
   assert.equal(r.code, PREFLIGHT_EXIT, r.out);
   assert.match(r.out, /resolves outside the skill package/);
 });
 
-// ---- N4 / N5: production override 거부 ------------------------------------
-test("N4: production 실행에서 SKIN_SKINS_DIR override는 거부된다", () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "w1-skins-"));
-  const r = run([path.join(here, "skin.mjs"), "registry"], { env: { ...process.env, SKIN_SKINS_DIR: dir } });
+test("N4: package-surface가 분류하지 않은 production 파일은 fail-closed", () => {
+  const { pkg } = sourceRepo();
+  fs.writeFileSync(path.join(pkg, "scripts", "rogue.mjs"), "export const x = 1;\n");
+  const r = run([path.join(pkg, "scripts", "preflight.mjs")], { cwd: path.join(pkg, "scripts") });
   assert.equal(r.code, PREFLIGHT_EXIT, r.out);
-  assert.match(r.out, /SKIN_SKINS_DIR is set/);
+  assert.match(r.out, /does not classify 1 file\(s\): scripts\/rogue\.mjs/);
 });
 
-test("N5: production 실행에서 COMPOSE_TEXT_MEASURE_CLI override는 거부된다", () => {
-  const r = run([path.join(here, "compose.mjs"), "plan", path.join(here, "compose-fixtures", "plan-cards-tree.yaml")],
-    { env: { ...process.env, COMPOSE_TEXT_MEASURE_CLI: "/bin/echo" } });
-  assert.equal(r.code, PREFLIGHT_EXIT, r.out);
-  assert.match(r.out, /COMPOSE_TEXT_MEASURE_CLI is set/);
-});
-
-test("N4b: 같은 override가 fixture 진입점에서는 주입된다(대조군)", () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "w1-skins-"));
-  for (const f of ["registry.yaml", "current-v1.yaml", "derivation-v1.yaml", "sketch-overlay-v1.yaml", "legacy-v0.8.yaml"])
-    fs.copyFileSync(path.join(ROOT, "references", "skins", f), path.join(dir, f));
-  const r = run([RUNCLI, path.join(here, "skin.mjs"), "registry"], { env: { ...process.env, SKIN_SKINS_DIR: dir } });
-  assert.notEqual(r.code, PREFLIGHT_EXIT, r.out);
-});
-
-// ---- N7: staging 사본 동일성 ----------------------------------------------
-function staging() {
-  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "w1-staging-")));
-  const dst = path.join(dir, "svg-infographic");
-  assert.equal(spawnSync("cp", ["-R", ROOT, dst], { encoding: "utf8" }).status, 0);
-  return dst;
-}
-test("N7: staging 사본의 누락·추가·변조·내부 symlink는 동일성 주장을 막는다", () => {
-  const ok = staging();
+// ---- staging 동일성 ---------------------------------------------------------
+test("N5: staging 사본의 누락·추가·변조·내부 symlink는 동일성 주장을 막는다", () => {
+  const ok = copyPackage(path.join(tmp("stg"), "svg-infographic"));
   assert.equal(run([CLI, "--staging", ok]).code, 0, "동일한 사본은 통과해야 한다");
 
-  const missing = staging();
+  const missing = copyPackage(path.join(tmp("stg"), "svg-infographic"));
   fs.rmSync(path.join(missing, "references", "sketch.md"));
   let r = run([CLI, "--staging", missing]);
   assert.equal(r.code, PREFLIGHT_EXIT);
   assert.match(r.out, /staging copy .*differs|declares missing file/);
 
-  const extra = staging();
+  const extra = copyPackage(path.join(tmp("stg"), "svg-infographic"));
   fs.writeFileSync(path.join(extra, "references", "extra.md"), "x\n");
   r = run([CLI, "--staging", extra]);
   assert.equal(r.code, PREFLIGHT_EXIT);
   assert.match(r.out, /staging copy|does not classify/);
 
-  const altered = staging();
+  const altered = copyPackage(path.join(tmp("stg"), "svg-infographic"));
   fs.appendFileSync(path.join(altered, "SKILL.md"), "\n<!-- drift -->\n");
   r = run([CLI, "--staging", altered]);
   assert.equal(r.code, PREFLIGHT_EXIT);
   assert.match(r.out, /packageTreeDigest differs/);
 
-  const linked = staging();
+  const linked = copyPackage(path.join(tmp("stg"), "svg-infographic"));
   const target = path.join(linked, "references", "authoring.md");
   fs.rmSync(target);
   fs.symlinkSync(path.join(ROOT, "references", "authoring.md"), target);
@@ -178,105 +261,124 @@ test("N7: staging 사본의 누락·추가·변조·내부 symlink는 동일성 
   assert.match(r.out, /symlink/);
 });
 
-// ---- N8 / N9: 분류 누락과 import closure ----------------------------------
-test("N8: package-surface가 분류하지 않은 production 파일은 fail-closed", () => {
-  const { pkg } = tempPackage();
-  fs.writeFileSync(inPkg(pkg, "scripts", "rogue.mjs"), "export const x = 1;\n");
-  const r = run([path.join(pkg, "scripts", "preflight.mjs")], { cwd: path.join(pkg, "scripts") });
+// ---- CP0-R1-F3: receipt/provenance 위조 -------------------------------------
+const receiptOf = () => {
+  const p = path.join(tmp("rcpt"), "preflight.receipt.json");
+  assert.equal(run([CLI, "--receipt", p]).code, 0);
+  return p;
+};
+
+test("F3: identity receipt는 schema identity로 판별되고 relabel로 검사를 건너뛸 수 없다", () => {
+  const p = receiptOf();
+  assert.equal(run([CLI, "--verify-receipt", p]).code, 0, "동일 package에서는 통과");
+  const doc = JSON.parse(fs.readFileSync(p, "utf8"));
+  assert.equal(doc.schema.name, RECEIPT_SCHEMA.name);
+
+  // artifact receipt를 preflight로 relabel → schema identity 불일치로 거부
+  const relabeled = path.join(tmp("rcpt"), "relabeled.json");
+  fs.writeFileSync(relabeled, JSON.stringify({ command: "preflight", digests: { runtimeSurfaceDigest: doc.digests.runtimeSurfaceDigest } }));
+  const r = run([CLI, "--verify-receipt", relabeled]);
   assert.equal(r.code, PREFLIGHT_EXIT, r.out);
-  assert.match(r.out, /does not classify 1 file\(s\): scripts\/rogue\.mjs/);
+  assert.match(r.out, /E-RCPT-SCHEMA receipt carries neither/);
 });
 
-test("N9: production 코드의 bare import와 package 밖 relative import는 거부된다", () => {
-  const { pkg } = tempPackage();
-  const victim = inPkg(pkg, "scripts", "check-layout.mjs");
-  fs.writeFileSync(victim, 'import pad from "left-pad";\n' + fs.readFileSync(victim, "utf8"));
-  let r = run([path.join(pkg, "scripts", "preflight.mjs")], { cwd: path.join(pkg, "scripts") });
-  assert.equal(r.code, PREFLIGHT_EXIT, r.out);
-  assert.match(r.out, /bare import "left-pad"/);
-
-  const { pkg: pkg2 } = tempPackage();
-  const victim2 = inPkg(pkg2, "scripts", "check-layout.mjs");
-  fs.writeFileSync(victim2, 'import x from "../../../../outside.mjs";\n' + fs.readFileSync(victim2, "utf8"));
-  r = run([path.join(pkg2, "scripts", "preflight.mjs")], { cwd: path.join(pkg2, "scripts") });
-  assert.equal(r.code, PREFLIGHT_EXIT, r.out);
-  assert.match(r.out, /escapes the package/);
+test("F3: identity receipt의 package·revision·digest 개수·길이 위조를 잡는다", () => {
+  const base = JSON.parse(fs.readFileSync(receiptOf(), "utf8"));
+  const cases = [
+    [(d) => { d.package.id = "other"; }, /E-RCPT-PACKAGE package\.id/],
+    [(d) => { d.package.surfaceRevision = 999; }, /E-RCPT-PACKAGE surfaceRevision/],
+    [(d) => { d.digests.runtimeSurfaceDigest = "sha256:abc"; }, /must be sha256:<64 hex>/],
+    [(d) => { delete d.digests.packageTreeDigest; }, /must carry exactly/],
+    [(d) => { d.errors = []; }, /unknown field "errors"/],
+    [(d) => { d.fileCount = 1; }, /E-RCPT-FILES/],
+    [(d) => { d.canonicalization.framing = "concat"; }, /E-RCPT-CANON/],
+    [(d) => { d.executionMode = "whatever"; }, /E-RCPT-MODE/],
+  ];
+  for (const [mutate, re] of cases) {
+    const doc = JSON.parse(JSON.stringify(base));
+    mutate(doc);
+    const p = path.join(tmp("rcpt"), "m.json");
+    fs.writeFileSync(p, JSON.stringify(doc));
+    const r = run([CLI, "--verify-receipt", p]);
+    assert.equal(r.code, PREFLIGHT_EXIT, `${re}: ${r.out}`);
+    assert.match(r.out, re);
+  }
 });
 
-// ---- N10: provenance 위조 --------------------------------------------------
-test("N10: 위조된 provenance/digest는 재계산으로 거부된다", () => {
-  const rec = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "w1-rec-")), "preflight.receipt.json");
-  assert.equal(run([CLI, "--receipt", rec]).code, 0);
-  const doc = JSON.parse(fs.readFileSync(rec, "utf8"));
-  doc.digests.runtimeSurfaceDigest = "sha256:" + "0".repeat(64);
-  doc.provenance = provenance({ producer: { kind: "generator", generatorDigest: "sha256:" + "a".repeat(64) }, cwd: here });
-  fs.writeFileSync(rec, JSON.stringify(doc));
-  const r = run([CLI, "--verify-receipt", rec]);
-  assert.equal(r.code, PREFLIGHT_EXIT, r.out);
-  assert.match(r.out, /E-PROV-DIGEST runtimeSurfaceDigest/);
+test("F3: provenance의 commit·producer·mode·input 위조를 잡는다", () => {
+  const good = provenance({
+    producer: { kind: "generator", generatorDigest: "sha256:" + "a".repeat(64) },
+    inputs: [{ role: "source", digest: "sha256:" + "b".repeat(64) }], cwd: here,
+  });
+  assert.deepEqual(verifyProvenance(good, { cwd: here }), []);
+  const bad = (mutate, re) => {
+    const doc = JSON.parse(JSON.stringify(good));
+    mutate(doc);
+    const errs = verifyProvenance(doc, { cwd: here });
+    assert.ok(errs.some((e) => re.test(e)), `${re} not raised: ${JSON.stringify(errs)}`);
+  };
+  bad((d) => { d.source.headCommit = "forged"; }, /E-PROV-SOURCE source\.headCommit/);
+  bad((d) => { d.package.id = "other"; }, /E-PROV-PACKAGE/);
+  bad((d) => { d.package.surfaceRevision = 99; }, /E-PROV-PACKAGE surfaceRevision/);
+  bad((d) => { d.producer.generatorDigest = "not-a-digest"; }, /E-PROV-PRODUCER/);
+  bad((d) => { d.producer.kind = "agent-authored"; }, /E-PROV-PRODUCER/);
+  bad((d) => { d.inputs[0].digest = "sha256:short"; }, /E-PROV-DIGEST every input digest/);
+  bad((d) => { d.runtimeSurfaceDigest = "sha256:" + "0".repeat(64); }, /E-PROV-DIGEST runtimeSurfaceDigest/);
+  bad((d) => { d.executionMode = "installed-runtime"; }, /E-PROV-MODE/);
+  bad((d) => { d.schema.version = 2; }, /E-PROV-SCHEMA/);
+  bad((d) => { delete d.source; }, /missing field "source"/);
+  bad((d) => { d.extra = 1; }, /unknown field "extra"/);
+  bad((d) => { d.inputs[0].path = ROOT; }, /unknown field "path"|E-PROV-PATH/);
 });
 
-test("N10b: provenance 없는 artifact receipt는 거부된다(삭제로 우회 불가)", () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "w1-rec2-"));
-  const rec = path.join(dir, "artifact.receipt.json");
-  fs.writeFileSync(rec, JSON.stringify({ command: "compose", digests: {} }));
-  const r = run([CLI, "--verify-receipt", rec]);
-  assert.equal(r.code, PREFLIGHT_EXIT, r.out);
-  assert.match(r.out, /E-PROV-MISSING artifact receipt has no provenance block/);
+test("F3: provenance producer union — 필수·금지 필드 전건", () => {
+  assert.throws(() => provenance({ producer: { kind: "hand-wave" }, cwd: here }), /producer\.kind/);
+  assert.throws(() => provenance({ producer: { kind: "generator" }, cwd: here }), /generatorDigest as sha256/);
+  assert.throws(() => provenance({ producer: { kind: "agent-authored", authoringContract: "x" }, cwd: here }), /promptDigest or inputDigest/);
+  assert.throws(() => provenance({ producer: { kind: "agent-authored", promptDigest: "sha256:" + "c".repeat(64), authoringContract: "x", generatorDigest: "g" }, cwd: here }), /unknown field "generatorDigest"/);
+  const authored = provenance({ producer: { kind: "agent-authored", promptDigest: "sha256:" + "c".repeat(64), authoringContract: "svg-infographic/authoring@kernel-v1" }, cwd: here });
+  assert.deepEqual(verifyProvenance(authored, { cwd: here }), []);
+  assert.equal(typeof authored.source, "object");
+  assert.ok(!("testedCommit" in authored), "testedCommit은 clean CI acceptance receipt 전용");
 });
 
-test("preflight identity receipt는 provenance 없이도 digest 재계산으로 검증된다", () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "w1-rec3-"));
-  const rec = path.join(dir, "preflight.receipt.json");
-  assert.equal(run([CLI, "--receipt", rec]).code, 0);
-  assert.equal(run([CLI, "--verify-receipt", rec]).code, 0, "동일 트리에서는 통과");
-  const doc = JSON.parse(fs.readFileSync(rec, "utf8"));
-  doc.digests.packageTreeDigest = "sha256:" + "1".repeat(64);
-  fs.writeFileSync(rec, JSON.stringify(doc));
-  const r = run([CLI, "--verify-receipt", rec]);
+test("F3: 검사 실패 상태에서는 receipt를 만들지 않는다", () => {
+  const { pkg } = sourceRepo();
+  fs.writeFileSync(path.join(pkg, "scripts", "rogue.mjs"), "export const x = 1;\n");
+  const out = path.join(tmp("rcpt"), "should-not-exist.json");
+  const r = run([path.join(pkg, "scripts", "preflight.mjs"), "--receipt", out], { cwd: path.join(pkg, "scripts") });
   assert.equal(r.code, PREFLIGHT_EXIT, r.out);
-  assert.match(r.out, /packageTreeDigest/);
+  assert.ok(!fs.existsSync(out), "실패 상태의 receipt가 남으면 나중에 통과 증거로 오용된다");
 });
 
 test("digest receipt는 hashed package 안에 쓰지 못한다(자기참조 금지)", () => {
-  const r = run([CLI, "--receipt", path.join(ROOT, "references", "preflight.receipt.json")]);
+  const inside = path.join(ROOT, "references", "preflight.receipt.json");
+  const r = run([CLI, "--receipt", inside]);
   assert.equal(r.code, PREFLIGHT_EXIT, r.out);
   assert.match(r.out, /refusing to write a digest receipt inside the hashed package/);
-  assert.ok(!fs.existsSync(path.join(ROOT, "references", "preflight.receipt.json")));
+  assert.ok(!fs.existsSync(inside));
 });
 
-// ---- provenance schema -----------------------------------------------------
-test("provenance: generator/agent-authored union과 logical locator", () => {
-  const gen = provenance({ producer: { kind: "generator", generatorDigest: "sha256:" + "b".repeat(64) }, cwd: here });
-  assert.equal(gen.skillRoot, "skills/svg-infographic");
-  assert.equal(gen.sourceHeadCommit?.length, 40);
-  assert.match(gen.runtimeSurfaceDigest, /^sha256:[0-9a-f]{64}$/);
-  assert.equal(typeof gen.repoDirty, "boolean");
-  assert.equal(typeof gen.runtimeSurfaceDirty, "boolean");
-  assert.ok(!("testedCommit" in gen), "testedCommit은 clean CI acceptance receipt 전용");
-  assert.equal(verifyProvenance(gen, { cwd: here }).length, 0);
-
-  const authored = provenance({ producer: { kind: "agent-authored", promptDigest: "sha256:" + "c".repeat(64), authoringContract: "svg-infographic/authoring@kernel-v1" }, cwd: here });
-  assert.equal(verifyProvenance(authored, { cwd: here }).length, 0);
-
-  assert.throws(() => provenance({ producer: { kind: "agent-authored", authoringContract: "x" }, cwd: here }), /promptDigest or input digests/);
-  assert.throws(() => provenance({ producer: { kind: "agent-authored", promptDigest: "p", authoringContract: "x", generatorDigest: "g" }, cwd: here }), /must not carry a generatorDigest/);
-  assert.throws(() => provenance({ producer: { kind: "hand-wave" }, cwd: here }), /producer\.kind/);
-});
-
-test("provenance verifier는 절대 local path 유출을 잡는다", () => {
-  const p = provenance({ producer: { kind: "generator", generatorDigest: "sha256:" + "d".repeat(64) }, cwd: here });
-  const leaked = { ...p, inputs: [{ role: "source", path: ROOT }] };
-  assert.ok(verifyProvenance(leaked, { cwd: here }).some((e) => e.startsWith("E-PROV-PATH")));
-});
-
-// ---- digest canonicalization ----------------------------------------------
 test("digest framing은 경로 경계 혼동에 취약하지 않다", () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "w1-frame-"));
+  const dir = tmp("frame");
   fs.mkdirSync(path.join(dir, "a"));
   fs.writeFileSync(path.join(dir, "a", "b"), "x");
   fs.writeFileSync(path.join(dir, "ab"), "x");
-  const one = digestFiles(dir, ["a/b"]);
-  const two = digestFiles(dir, ["ab"]);
-  assert.notEqual(one, two, "path와 내용 경계가 섞이면 안 된다");
+  assert.notEqual(digestFiles(dir, ["a/b"]), digestFiles(dir, ["ab"]));
+});
+
+test("installed-runtime provenance는 source identity를 주장하지 않는다", () => {
+  const { project, pkg } = installed();
+  const script = path.join(project, "prov.mjs");
+  fs.writeFileSync(script, `
+import { provenance, verifyProvenance } from ${JSON.stringify(path.join(pkg, "scripts", "preflight-lib.mjs"))};
+const p = provenance({ producer: { kind: "generator", generatorDigest: "sha256:" + "a".repeat(64) } });
+console.log(JSON.stringify({ mode: p.executionMode, source: p.source, errors: verifyProvenance(p) }));
+`);
+  const r = run([script], { cwd: project });
+  assert.equal(r.code, 0, r.out);
+  const j = JSON.parse(r.out);
+  assert.equal(j.mode, "installed-runtime");
+  assert.equal(j.source, null);
+  assert.deepEqual(j.errors, []);
 });

@@ -22,7 +22,7 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { preflight, fixtureOverride, guardPackagePath } from "./preflight-lib.mjs";
+import { preflight, guardPackagePath } from "./preflight-lib.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const skinCli = path.join(here, "skin.mjs");
@@ -827,8 +827,7 @@ function verify(svgPath, opts) {
   for (const [id, n] of seen) if (n > 1) errors.push(`E-COMP-DUPID svg id "${id}" appears ${n} times`);
   // 최종 composite text runtime 재측정 (기본 on — 가장 정직한 binding; 상속 스타일까지 커버)
   if (!opts.noBrowser) {
-    // fixture 전용 injection — production 실행에서 값이 있으면 preflight가 거부한다.
-    const mtCli = fixtureOverride("COMPOSE_TEXT_MEASURE_CLI") ?? path.join(here, "measure-text.mjs");
+    const mtCli = path.join(here, "measure-text.mjs");
     const mr = spawnSync(process.execPath, [mtCli, svgPath], { encoding: "utf8", timeout: 60000 });
     if (mr.status !== 0) {
       errors.push("E-COMP-TEXT-RUNTIME browser text re-measure unavailable or failed — fail-closed (pass --no-browser only as an explicit environment-bounded downgrade)");
@@ -883,7 +882,7 @@ function isEntrypoint() {
   catch { return import.meta.url === pathToFileURL(process.argv[1] ?? "").href; }
 }
 if (isEntrypoint()) {
-preflight({ entrypointUrl: import.meta.url, consumes: ["COMPOSE_TEXT_MEASURE_CLI"] });
+preflight({ entrypointUrl: import.meta.url });
 const argv = process.argv.slice(2);
 const cmd = argv[0];
 const files = argv.slice(1).filter((a) => !a.startsWith("--"));

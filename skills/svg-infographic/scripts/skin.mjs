@@ -34,7 +34,7 @@ const await_import_fs = () => ({ writeFileSync });
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { preflight, fixtureOverride, guardPackagePath } from "./preflight-lib.mjs";
+import { preflight, guardPackagePath } from "./preflight-lib.mjs";
 
 // --- minimal YAML subset parser (nested maps, scalars, "- item" lists, comments) ---
 function parseInlineMap(v, file, line) {
@@ -166,11 +166,11 @@ const OVERLAY_TOKENS = ["paper", "sketch-ink", "highlight"];
 const STATUSES = ["candidate", "current", "frozen", "deprecated"];
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-// SKIN_SKINS_DIR: negative-fixture isolation, fixture 진입점 전용 injection.
-// production 실행에서 이 값이 설정돼 있으면 preflight가 거부한다(주석이 아니라 gate).
-const skinsDirOverride = fixtureOverride("SKIN_SKINS_DIR");
-const skinsDir = skinsDirOverride
-  ? path.resolve(skinsDirOverride)
+// SKIN_SKINS_DIR: 대체 profile 디렉터리(부정 fixture 등). 값이 무엇이든 파일을 읽는
+// 시점에 containment 검사를 통과해야 하므로 package 밖을 가리킬 수 없다 — 주석이
+// 아니라 gate가 경계를 강제한다.
+const skinsDir = process.env.SKIN_SKINS_DIR
+  ? path.resolve(process.env.SKIN_SKINS_DIR)
   : path.resolve(here, "..", "references", "skins");
 const sha = (buf) => createHash("sha256").update(buf).digest("hex").slice(0, 16);
 
@@ -635,7 +635,7 @@ function computePageFrame(P, opts) {
 }
 
 function main() {
-  preflight({ entrypointUrl: import.meta.url, consumes: ["SKIN_SKINS_DIR"] });
+  preflight({ entrypointUrl: import.meta.url });
   const [cmd, ...restAll] = process.argv.slice(2);
   if (!cmd || !(cmd in OPTION_SPEC)) fail(2, "usage: skin.mjs validate|resolve <profile.yaml> [options] | registry [--json]");
   let profileArg = null, rest = restAll, selectionBasis = "explicit-path", svgArg = null;

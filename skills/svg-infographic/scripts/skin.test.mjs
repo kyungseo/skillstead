@@ -17,18 +17,25 @@ const FIX = path.join(here, "skin-fixtures");
 const NEG = path.join(FIX, "skins-negative");
 const CUR = path.join(here, "..", "references", "skins", "current-v1.yaml");
 
-const RUNCLI = path.join(here, "testing", "run-cli.mjs");
-// package 밖 임시 profile을 검증 대상으로 넘기는 fixture — production 실행에서는
-// CLI로 전달된 profile 경로도 containment 대상이다(preflight.test.mjs N3 계열).
-const runFixture = (args, env = {}) => {
-  const r = spawnSync(process.execPath, [RUNCLI, SKIN, ...args], { encoding: "utf8", env: { ...process.env, ...env } });
-  return { code: r.status, out: r.stdout + r.stderr };
-};
 function run(args, env = {}) {
-  // package-owned lookup을 fixture 트리로 돌리는 negative는 fixture 진입점을 통한다.
-  // production 실행에서 같은 override는 preflight가 거부한다(preflight.test.mjs N4).
-  const argv = "SKIN_SKINS_DIR" in env ? [RUNCLI, SKIN, ...args] : [SKIN, ...args];
-  const r = spawnSync(process.execPath, argv, { encoding: "utf8", env: { ...process.env, ...env } });
+  const r = spawnSync(process.execPath, [SKIN, ...args], { encoding: "utf8", env: { ...process.env, ...env } });
+  return { code: r.status, out: r.stdout + r.stderr };
+}
+// package 안에서 profile 집합을 바꿔 끼워야 하는 negative는 **package 사본**을 만들어
+// 그 사본의 entrypoint를 자기 root에서 실행한다 — containment를 끄지 않고도 동일한
+// 결함 상황을 재현한다(shipped 표면에 fixture 우회 경로를 두지 않기 위함).
+function pkgCopy() {
+  const dir = mkdtempSync(path.join(tmpdir(), "skinpkg-"));
+  const pkg = path.join(dir, "svg-infographic");
+  const r = spawnSync("cp", ["-R", path.join(here, ".."), pkg], { encoding: "utf8" });
+  assert.equal(r.status, 0, r.stderr);
+  return pkg;
+}
+function runIn(pkg, args, env = {}) {
+  const e = { ...process.env, ...env };
+  delete e.SVGINFO_EXPECTED_SKILL_ROOT; delete e.SVGINFO_EXECUTION_MODE;
+  const r = spawnSync(process.execPath, [path.join(pkg, "scripts", "skin.mjs"), ...args],
+    { encoding: "utf8", cwd: path.join(pkg, "scripts"), env: e });
   return { code: r.status, out: r.stdout + r.stderr };
 }
 
@@ -53,6 +60,8 @@ test("dark + sketch is an unsupported combination", () => {
 });
 
 // --- profile negatives (SKIN_SKINS_DIR isolation) ------------------------------
+// negative profile 집합은 이미 package 안(scripts/skin-fixtures/skins-negative)에 있으므로
+// 그대로 가리켜도 containment를 통과한다 — package 밖으로 나가는 경로만 거부된다.
 const neg = (file, re, extraEnv = {}) => {
   const r = run(["validate", path.join(NEG, file)], { SKIN_SKINS_DIR: NEG, ...extraEnv });
   assert.equal(r.code, 1, r.out);
@@ -67,16 +76,16 @@ test("derivation ratio out of [0,1] is rejected", () => neg("ratio-oob.yaml", /o
 test("overlay missing a required token is rejected", () => neg("overlay-missing-token.yaml", /missing token "highlight"/));
 test("overlay with an unexpected token is rejected", () => neg("overlay-unexpected-token.yaml", /unexpected token "glitter"/));
 test("palette validation fails when the sibling derivation is defective", () => {
-  // registry in NEG selects derivation-v1 (valid); point a copy at the broken one
-  const dir = mkdtempSync(path.join(tmpdir(), "skins-"));
-  for (const f of ["current-v1.yaml", "sketch-overlay-v1.yaml", "legacy-v0.8.yaml"]) copyFileSync(path.join(NEG, f), path.join(dir, f));
-  copyFileSync(path.join(NEG, "bad-alias-target.yaml"), path.join(dir, "derivation-v1.yaml"));
-  writeFileSync(path.join(dir, "derivation-v1.yaml"),
+  // package 사본의 negative 트리 안에서만 profile을 바꾼다(트리 전체가 분류돼 있어
+  // 파일 추가·교체가 분류 gate를 깨지 않는다).
+  const pkg = pkgCopy();
+  const skins = path.join(pkg, "scripts", "skin-fixtures", "skins-negative");
+  writeFileSync(path.join(skins, "derivation-v1.yaml"),
     readFileSync(path.join(NEG, "bad-alias-target.yaml"), "utf8").replace("id: bad-alias-target", "id: derivation-v1"));
-  writeFileSync(path.join(dir, "registry.yaml"), readFileSync(path.join(NEG, "registry.yaml"), "utf8"));
-  const r = run(["validate", path.join(dir, "current-v1.yaml")], { SKIN_SKINS_DIR: dir });
-  assert.equal(r.code, 1);
+  const r = runIn(pkg, ["validate", path.join(skins, "current-v1.yaml")], { SKIN_SKINS_DIR: skins });
+  assert.equal(r.code, 1, r.out);
   assert.match(r.out, /invalid source/);
+  fs.rmSync(path.dirname(pkg), { recursive: true, force: true });
 });
 
 // --- registry ------------------------------------------------------------------
@@ -235,11 +244,12 @@ test("micro-fixtures: connector shafts and visible heads meet the preset minimum
 
 // --- pageframe fail-closed schema + fluid two-phase -------------------------------
 function pfNeg(file, args, re) {
-  const dir = mkdtempSync(path.join(tmpdir(), "pf-"));
-  copyFileSync(path.join(NEG, file), path.join(dir, "pageframe-v1.yaml"));
-  const r = run(["pageframe", "social-4x5", ...args], { SKIN_SKINS_DIR: dir });
+  const pkg = pkgCopy();
+  copyFileSync(path.join(NEG, file), path.join(pkg, "references", "skins", "pageframe-v1.yaml"));
+  const r = runIn(pkg, ["pageframe", "social-4x5", ...args]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, re);
+  fs.rmSync(path.dirname(pkg), { recursive: true, force: true });
 }
 test("pageframe rejects a non-numeric header size", () => pfNeg("pf-bad-number.yaml", [], /header\.h1 must be a positive number/));
 test("pageframe rejects a missing gap subfield", () => pfNeg("pf-missing-subfield.yaml", [], /gaps\.breathing must be a positive number/));
@@ -397,16 +407,13 @@ test("typography: bundled인데 license.evidence 누락은 error(F8)", () => {
   assert.match(r.out, /bundled asset requires license.evidence/);
 });
 test("typography: bundled asset의 digest mismatch는 error", () => {
-  const base = fs.readFileSync(path.join(here, "..", "references", "typography", "typography-v1.yaml"), "utf8");
-  const td = fs.mkdtempSync(path.join(os.tmpdir(), "typo-fixture-"));
-  const tmp = path.join(td, "temp-digest.yaml");
-  let r;
-  try {
-    fs.writeFileSync(tmp, base.replace(/digest: [0-9a-f]{64}/, "digest: " + "f".repeat(64)));
-    r = runFixture(["typography", tmp]);
-  } finally { fs.rmSync(td, { recursive: true, force: true }); }
-  assert.equal(r.code, 1);
+  const pkg = pkgCopy();
+  const tp = path.join(pkg, "references", "typography", "typography-v1.yaml");
+  fs.writeFileSync(tp, fs.readFileSync(tp, "utf8").replace(/digest: [0-9a-f]{64}/, "digest: " + "f".repeat(64)));
+  const r = runIn(pkg, ["typography", tp]);
+  assert.equal(r.code, 1, r.out);
   assert.match(r.out, /asset digest mismatch/);
+  fs.rmSync(path.dirname(pkg), { recursive: true, force: true });
 });
 
 // --- TypePack manifest validator -----------------------------------------

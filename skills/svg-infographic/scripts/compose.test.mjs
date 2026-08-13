@@ -357,13 +357,22 @@ test("R4-2: --no-browser는 clean artifact에서도 bounded non-success(exit 3)"
   assert.match(r.out, /static-only .*bounded, not acceptance-grade/);
 });
 test("R4-3: 기본 verify에서 browser 불가면 hard failure(exit 1)", () => {
-  // 측정기 부재 재현은 fixture 진입점으로 주입한다 — production 실행에서 같은 override는
-  // preflight가 거부한다(preflight.test.mjs N5).
-  const r0 = spawnSync(process.execPath, [path.join(here, "testing", "run-cli.mjs"), path.join(here, "compose.mjs"), "verify", OUT,
-    "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M],
-    { encoding: "utf8", env: { ...process.env, COMPOSE_TEXT_MEASURE_CLI: path.join(td, "no-such-cli.mjs") } });
+  // 측정기 부재는 env override가 아니라 **package 사본에서 측정기 자체를 고장내어**
+  // 재현한다 — production 경로에 주입 스위치를 두지 않기 위해서다(CP0-R1-F2).
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "compose-pkg-"));
+  const pkg = path.join(dir, "svg-infographic");
+  assert.equal(spawnSync("cp", ["-R", path.join(here, ".."), pkg], { encoding: "utf8" }).status, 0);
+  fs.writeFileSync(path.join(pkg, "scripts", "measure-text.mjs"),
+    'console.error("measure-text: browser unavailable in this environment");\nprocess.exit(6);\n');
+  const env = { ...process.env };
+  delete env.SVGINFO_EXPECTED_SKILL_ROOT; delete env.SVGINFO_EXECUTION_MODE;
+  const r0 = spawnSync(process.execPath, [path.join(pkg, "scripts", "compose.mjs"), "verify", OUT,
+    "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"),
+    "--manifest", path.join(pkg, "scripts", "compose-fixtures", "manifest.yaml")],
+    { encoding: "utf8", cwd: path.join(pkg, "scripts"), env });
   assert.equal(r0.status, 1, r0.stdout + r0.stderr);
   assert.match(r0.stdout, /E-COMP-TEXT-RUNTIME browser text re-measure unavailable/);
+  fs.rmSync(dir, { recursive: true, force: true });
 });
 test("R4-4: 기본 verify + browser 측정은 완전 성공(exit 0)", () => {
   const r = run(["verify", OUT, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M]);

@@ -488,21 +488,37 @@ Contract highlights, all fail-closed:
   modes are excluded, and the package tree carries no symlinks. The older
   16-hex profile identities stay as compatibility identifiers — they are not
   package or source integrity evidence.
-- **Preflight runs inside every production entrypoint, on every invocation.** The
-  expected skill root is derived from the *working repository* (`git rev-parse
-  --show-toplevel` of the current directory + `skills/svg-infographic`), never
-  from the location of the running script — otherwise a stale installed copy
-  validates itself. The running entrypoint, package-owned lookups (registry,
-  profiles, manifests, bundled assets) and any inherited expected-root
-  environment value are all checked against it; user inputs (SVG/plan/output
-  paths) and the browser executable are deliberately outside that boundary.
-  Package-owned redirection through environment variables is refused in
-  production and exists only behind the fixture entrypoint.
+- **Preflight runs inside every production entrypoint, on every invocation**, in
+  one of two execution modes — development rules must never make an installed
+  skill unusable:
+  - `source-development` — the working repository owns the package (its git root
+    has `skills/svg-infographic`). The expected root comes from that repository,
+    never from the location of the running script, and an entrypoint outside it
+    is refused, so a stale installed copy cannot validate itself. Wave
+    regeneration and acceptance artifacts require this mode.
+  - `installed-runtime` — the package is installed and used from an arbitrary
+    project (global, `.claude`/`.codex` staged, vendored, or no git at all). The
+    package root is found from the running entrypoint, no repository is assumed,
+    and provenance records installed package identity **without** claiming any
+    source commit.
+  The mode is never selectable downwards: a caller may require the stricter mode,
+  and inherited root/mode environment values are compared rather than trusted.
+  Package-owned lookups (registry, profiles, manifests, bundled assets) must
+  resolve inside the package in both modes — an out-of-package profile directory
+  is refused even when named through an environment variable, and no shipped
+  entrypoint can switch that boundary off. User inputs (SVG/plan/output paths)
+  and the browser executable are deliberately outside the boundary.
 - **Artifact provenance never contains its own commit.** A receipt committed to
-  the repository records `sourceHeadCommit`, `runtimeSurfaceDigest`, `repoDirty`
-  / `runtimeSurfaceDirty`, the producer (`generator` + generator digest, or
+  the repository records the execution mode, package id/surface revision,
+  `runtimeSurfaceDigest`, the producer (`generator` + generator digest, or
   `agent-authored` + prompt/input digests + authoring contract — never both) and
-  a **logical** `skillRoot` locator rather than a local path. The commit that was
-  actually tested is recorded separately, by a clean CI acceptance receipt
-  outside the package. Digest receipts are detached evidence — writing one inside
-  the hashed package is refused.
+  a **logical** `skillRoot` locator rather than a local path. Source identity
+  (`headCommit`, `repoDirty`, `runtimeSurfaceDirty`) appears only in
+  source-development provenance and is **informational evidence**, not a verified
+  claim: the verifier recomputes what can be recomputed (digests, package
+  identity, producer shape) and validates the rest for form only. The commit that
+  was actually tested is recorded separately, by a clean CI acceptance receipt
+  outside the package. Receipt kind is decided by schema identity, not by a
+  label, so a receipt cannot be relabelled past verification; digest receipts are
+  detached evidence and writing one inside the hashed package — or writing one at
+  all while checks are failing — is refused.

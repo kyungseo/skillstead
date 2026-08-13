@@ -5,8 +5,8 @@
 # 있으면 preflight가 fail-closed로 거부한다(누락 시 조용히 빠지는 경로 없음).
 #
 # 세 digest는 목적이 다르며 서로 섞지 않는다:
-#   runtimeSurfaceDigest      동작·agent 판단에 영향을 주는 표면 (tests/fixtures/
-#                             generated evidence 제외)
+#   runtimeSurfaceDigest      동작·agent 판단에 영향을 주는 표면 (tests/fixtures 제외).
+#                             design-kernel이 규범으로 참조하는 승인 asset은 포함한다.
 #   verificationSurfaceDigest tests·fixtures — acceptance 연결 전용
 #   packageTreeDigest         설치·staging에 복사되는 전체 tree — 원본↔사본 동일성 전용
 #
@@ -14,7 +14,7 @@
 # evidence 또는 CI artifact로만 저장한다.
 
 schema_version: 1
-surface_revision: 1
+surface_revision: 2
 
 canonicalization:
   version: 1
@@ -27,7 +27,7 @@ canonicalization:
 digest_sets:
   runtimeSurfaceDigest: [production-entrypoint, production-shim, production-lib, normative-doc, profile, asset]
   verificationSurfaceDigest: [verification]
-  packageTreeDigest: [production-entrypoint, production-shim, production-lib, normative-doc, profile, asset, evidence, doc, verification]
+  packageTreeDigest: [production-entrypoint, production-shim, production-lib, normative-doc, profile, asset, doc, verification]
 
 entries:
   # --- production surface ---------------------------------------------------
@@ -65,9 +65,10 @@ entries:
   - { path: assets/fonts/HiMelody-Regular.ttf, kind: asset }
   - { path: assets/fonts/HiMelody-OFL.txt, kind: asset }
 
-  # --- generated evidence (runtime 아님) --------------------------------------
-  - { path: references/media/canonical-skin-contact-sheet.svg, kind: evidence }
-  - { path: references/media/canonical-skin-contact-sheet.png, kind: evidence }
+  # --- approved canonical reference: design-kernel이 규범으로 embed·link하므로
+  #     agent 판단에 영향을 준다 — evidence가 아니라 runtime asset이다.
+  - { path: references/media/canonical-skin-contact-sheet.svg, kind: asset }
+  - { path: references/media/canonical-skin-contact-sheet.png, kind: asset }
 
   # --- human docs ------------------------------------------------------------
   - { path: README.md, kind: doc }
@@ -85,7 +86,6 @@ entries:
   - { path: scripts/render.test.mjs, kind: verification }
   - { path: scripts/compose.test.mjs, kind: verification }
   - { path: scripts/font-probe.test.mjs, kind: verification }
-  - { tree: scripts/testing, kind: verification }
   - { tree: scripts/legacy, kind: verification }
   - { tree: scripts/fixtures, kind: verification }
   - { tree: scripts/skin-fixtures, kind: verification }
