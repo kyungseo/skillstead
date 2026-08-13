@@ -9,6 +9,7 @@ typepacks:
     presets: [social-4x5]
     orientations: [portrait]
     verifier: null
+    receipt_schema: null
     fixtures: []
     examples: []
     required_roles: [canvas, surface, ink, muted, rule, focus]
@@ -16,6 +17,7 @@ typepacks:
     canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#summary-cards }
     annexes: []
     gate: null
+    migration_origin: new
     legacy_section: null
     composition:
       composable: true
@@ -35,6 +37,7 @@ typepacks:
     presets: [social-4x5]
     orientations: [portrait]
     verifier: null
+    receipt_schema: null
     fixtures: []
     examples: []
     required_roles: [canvas, surface, ink, muted, rule, focus]
@@ -42,6 +45,7 @@ typepacks:
     canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#tree }
     annexes: []
     gate: null
+    migration_origin: new
     legacy_section: null
     composition:
       composable: true
@@ -63,6 +67,7 @@ typepacks:
     presets: [social-4x5]
     orientations: [portrait]
     verifier: null
+    receipt_schema: null
     fixtures: []
     examples: []
     required_roles: [canvas, ink]
@@ -70,6 +75,7 @@ typepacks:
     canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#not-composable }
     annexes: []
     gate: null
+    migration_origin: new
     legacy_section: null
   - id: icon-band
     selection_signal: "텍스트 없는 아이콘 밴드 (micro-fixture)"
@@ -79,6 +85,7 @@ typepacks:
     presets: [social-4x5]
     orientations: [portrait]
     verifier: null
+    receipt_schema: null
     fixtures: []
     examples: []
     required_roles: [canvas, surface, focus]
@@ -86,6 +93,7 @@ typepacks:
     canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#icon-band }
     annexes: []
     gate: null
+    migration_origin: new
     legacy_section: null
     composition:
       composable: true

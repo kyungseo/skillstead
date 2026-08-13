@@ -30,8 +30,19 @@
 #                                                   # only (the gallery does not exist
 #                                                   # yet); bound = the target file and
 #                                                   # anchor must exist (fail-closed)
-#   annexes:          [] | [topology|data-accuracy] # profile-specific spec annexes the
-#                                                   # spec must also carry
+#   receipt_schema:   null | path                   # required for accuracy-bearing types
+#                                                   # (exact-parametric or data-accuracy)
+#   fixtures:         [{ id, kind, preset, path }]  # kind: positive | baseline-red; path is
+#                                                   # an in-package .svg/.json; core needs a
+#                                                   # positive per preset + one baseline-red
+#   examples:         [{ id, gallery_anchor }]      # core requires the anchor to resolve in
+#                                                   # a real gallery file
+#   annexes:          [] | [topology|data-accuracy] # profile-specific spec annexes; each
+#                                                   # declared annex needs its full subsection
+#                                                   # set in the spec (heading alone fails)
+#   migration_origin: legacy | new                  # legacy => legacy_section required and
+#                                                   # its archetypes.md section must be the
+#                                                   # canonical tombstone; new => null
 #   gate:             null | { reason, release }    # required when support: gated —
 #                                                   # gated types are withheld from the
 #                                                   # routable view but stay auditable
@@ -86,6 +97,7 @@ typepacks:
     presets: [social-4x5, presentation-16x9]
     orientations: [portrait, landscape]
     verifier: null
+    receipt_schema: null
     fixtures: []
     examples: []
     required_roles: [canvas, surface, ink, muted, rule, focus]
@@ -93,6 +105,7 @@ typepacks:
     canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#cards-kpi-grid }
     annexes: []
     gate: null
+    migration_origin: legacy
     legacy_section: "Cards / KPI stat grid"
     composition:
       composable: true
@@ -112,6 +125,7 @@ typepacks:
     presets: [social-4x5, presentation-16x9]
     orientations: [portrait, landscape]
     verifier: null
+    receipt_schema: null
     fixtures: []
     examples: []
     required_roles: [canvas, surface, ink, muted, rule, focus]
@@ -119,4 +133,5 @@ typepacks:
     canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#layer-stack }
     annexes: []
     gate: null
+    migration_origin: legacy
     legacy_section: "Layer stack"

@@ -357,7 +357,92 @@ test("R1-3: promotion evidence 없는 core 승격은 거부된다", () => {
   const r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /requires at least one registered example/);
-  assert.match(r.out, /requires registered fixtures/);
+  assert.match(r.out, /requires a positive fixture for preset/);
+  assert.match(r.out, /requires at least one baseline-red fixture/);
+  drop(pkg);
+});
+
+test("R1B-1: 가짜 gallery id·비fixture 파일로는 core 승격이 불가능하다", () => {
+  const pkg = pkgCopy();
+  writeManifest(pkg, readManifest(pkg)
+    .replace("    support: experimental\n    spec: types/specs/cards-kpi-grid.md",
+             "    support: core\n    spec: types/specs/cards-kpi-grid.md")
+    .replace("    examples: []\n    required_roles: [canvas, surface, ink, muted, rule, focus]\n    optional_aliases: []\n    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#cards-kpi-grid }",
+             "    examples:\n      - { id: fake-gallery-id, gallery_anchor: PROMPT-GALLERY.md#fake-gallery-id }\n    required_roles: [canvas, surface, ink, muted, rule, focus]\n    optional_aliases: []\n    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#cards-kpi-grid }")
+    .replace("    fixtures: []\n    examples:", "    fixtures:\n      - { id: fake-fx, kind: positive, preset: social-4x5, path: types/specs/cards-kpi-grid.md }\n    examples:"));
+  const r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /must point at an \.svg artifact or \.json receipt/, "spec 문서를 fixture로 쓸 수 없다");
+  assert.match(r.out, /does not exist — "core" requires a real gallery entry/, "가짜 gallery id는 증거가 아니다");
+  drop(pkg);
+});
+
+test("R1B-2: 지원 preset의 positive·baseline-red 증거 누락은 core를 막는다", () => {
+  const pkg = pkgCopy();
+  const svg = "scripts/skin-fixtures/portable-positive.svg";
+  writeManifest(pkg, readManifest(pkg)
+    .replace("    support: experimental\n    spec: types/specs/layer-stack.md",
+             "    support: core\n    spec: types/specs/layer-stack.md")
+    .replace("    verifier: null\n    receipt_schema: null\n    fixtures: []\n    examples: []\n    required_roles: [canvas, surface, ink, muted, rule, focus]\n    optional_aliases: []\n    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#layer-stack }",
+             `    verifier: null\n    receipt_schema: null\n    fixtures:\n      - {{ id: ls-social, kind: positive, preset: social-4x5, path: ${svg} }}\n    examples:\n      - {{ id: ls-ex, gallery_anchor: PROMPT-GALLERY.md#layer-stack }}\n    required_roles: [canvas, surface, ink, muted, rule, focus]\n    optional_aliases: []\n    canonical_prompt: {{ status: reserved, anchor: PROMPT-GALLERY.md#layer-stack }}`.replace(/{{/g, "{").replace(/}}/g, "}")));
+  const r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /requires a positive fixture for preset "presentation-16x9"/, "선언한 preset 전부에 positive가 필요하다");
+  assert.match(r.out, /requires at least one baseline-red fixture/);
+  drop(pkg);
+});
+
+test("R1B-3: heading만 있는 annex는 거부된다", () => {
+  const pkg = pkgCopy();
+  writeManifest(pkg, readManifest(pkg).replace("    annexes: []\n    gate: null\n    migration_origin: legacy\n    legacy_section: \"Layer stack\"",
+    "    annexes: [topology]\n    gate: null\n    migration_origin: legacy\n    legacy_section: \"Layer stack\""));
+  const spec = path.join(typesOf(pkg), "specs", "layer-stack.md");
+  fs.appendFileSync(spec, "\n## A1. Topology contract\n");
+  const r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /topology annex is missing "### Entity identity"/);
+  assert.match(r.out, /topology annex is missing "### Cycle policy"/);
+  drop(pkg);
+});
+
+test("R1B-4: data-accuracy annex는 verifier와 receipt schema 없이 거부된다", () => {
+  const pkg = pkgCopy();
+  writeManifest(pkg, readManifest(pkg).replace("    annexes: []\n    gate: null\n    migration_origin: legacy\n    legacy_section: \"Layer stack\"",
+    "    annexes: [data-accuracy]\n    gate: null\n    migration_origin: legacy\n    legacy_section: \"Layer stack\""));
+  const r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /requires a machine verifier/);
+  assert.match(r.out, /requires a receipt_schema locator/);
+  drop(pkg);
+});
+
+test("R1B-5: legacy_section null 우회와 tombstone 규칙 문장 추가는 거부된다", () => {
+  // (1) legacy origin인데 legacy_section을 비우면 거부
+  let pkg = pkgCopy();
+  writeManifest(pkg, readManifest(pkg).replace('legacy_section: "Layer stack"', "legacy_section: null"));
+  let r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /migration_origin "legacy" requires legacy_section/);
+  drop(pkg);
+
+  // (2) origin을 new로 바꿔 검사를 빠져나가면 주인 없는 tombstone이 남는다
+  pkg = pkgCopy();
+  writeManifest(pkg, readManifest(pkg)
+    .replace("    migration_origin: legacy\n    legacy_section: \"Layer stack\"", "    migration_origin: new\n    legacy_section: null"));
+  r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /no typepack claims it via legacy_section/);
+  drop(pkg);
+
+  // (3) tombstone에 규칙 문장을 덧붙이면 canonical body 불일치로 거부
+  pkg = pkgCopy();
+  const ap = path.join(pkg, "references", "archetypes.md");
+  fs.writeFileSync(ap, fs.readFileSync(ap, "utf8").replace(
+    "routing: [`types/selection.md`](types/selection.md).",
+    "routing: [`types/selection.md`](types/selection.md).\n\nBands stay 72–110px tall and gaps stay equal."));
+  r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /is not the canonical tombstone/);
   drop(pkg);
 });
 
@@ -370,8 +455,8 @@ test("R1-4: gated TypePack은 라우팅에서 빠지되 id·사유·해제 조�
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /gated typepacks require gate/);
   // gate를 채우면 통과하고, view에는 audit 행으로만 남는다
-  writeManifest(pkg, readManifest(pkg).replace("    gate: null\n    legacy_section: \"Layer stack\"",
-    "    gate: { reason: \"machine verifier 미완\", release: \"verifier + receipt schema 확정 시\" }\n    legacy_section: \"Layer stack\""));
+  writeManifest(pkg, readManifest(pkg).replace("    gate: null\n    migration_origin: legacy\n    legacy_section: \"Layer stack\"",
+    "    gate: { reason: \"machine verifier 미완\", release: \"verifier + receipt schema 확정 시\" }\n    migration_origin: legacy\n    legacy_section: \"Layer stack\""));
   assert.equal(runIn(pkg, ["manifest"]).code, 0, runIn(pkg, ["manifest"]).out);
   const view = runIn(pkg, ["selection"]);
   assert.equal(view.code, 0, view.out);
@@ -421,7 +506,7 @@ test("R1-5b: 등록된 TypePack의 legacy archetype section이 되살아나면 �
     "**Migrated to TypePack `layer-stack`.**", "**Skeleton:** legacy rules are back"));
   const r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
-  assert.match(r.out, /still a rival normative section|still carries legacy recipe/);
+  assert.match(r.out, /is not the canonical tombstone/);
   drop(pkg);
 });
 

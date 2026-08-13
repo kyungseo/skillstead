@@ -9,13 +9,16 @@ typepacks:
     presets: [social-4x5, presentation-16x9]
     orientations: [portrait, landscape]
     verifier: null
-    fixtures: [skin-fixtures/portable-positive.svg]
+    receipt_schema: null
+    fixtures:
+      - { id: fx-1, kind: positive, preset: social-4x5, path: skin-fixtures/portable-positive.svg }
     examples: []
     required_roles: [canvas, surface, ink, muted, rule, focus]
     optional_aliases: [edge, compute, data]
     canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#fixture-topology }
     annexes: []
     gate: null
+    migration_origin: new
     legacy_section: null
   - id: fixture-topology
     selection_signal: "duplicate id entry"
@@ -25,6 +28,7 @@ typepacks:
     presets: [social-4x5]
     orientations: [portrait]
     verifier: null
+    receipt_schema: null
     fixtures: []
     examples: []
     required_roles: [canvas, ink]
@@ -32,4 +36,5 @@ typepacks:
     canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#fixture-topology-dup }
     annexes: []
     gate: null
+    migration_origin: new
     legacy_section: null

@@ -9,11 +9,14 @@ typepacks:
     presets: [social-4x5, presentation-16x9]
     orientations: [portrait, landscape]
     verifier: null
-    fixtures: [skin-fixtures/portable-positive.svg]
+    receipt_schema: null
+    fixtures:
+      - { id: fx-1, kind: positive, preset: social-4x5, path: skin-fixtures/portable-positive.svg }
     examples: []
     required_roles: [canvas, brand-red]
     optional_aliases: [edge, compute, data]
     canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#fixture-topology }
     annexes: []
     gate: null
+    migration_origin: new
     legacy_section: null

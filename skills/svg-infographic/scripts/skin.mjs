@@ -35,7 +35,7 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
-import { preflight, guardPackagePath, state } from "./preflight-lib.mjs";
+import { preflight, guardPackagePath, state, isUnder } from "./preflight-lib.mjs";
 
 // --- minimal YAML subset parser (nested maps, scalars, "- item" lists, comments) ---
 function parseInlineMap(v, file, line) {
@@ -890,7 +890,7 @@ function main() {
     if (doc.schema_version !== 2) errors.push(`manifest: schema_version must be 2 (atomic package upgrade — v1 manifests are rejected; got ${doc.schema_version})`);
     const packs = doc.typepacks;
     if (!Array.isArray(packs)) errors.push("manifest: typepacks must be an array");
-    const ids = new Set();
+    const ids = new Set(), fixtureIds = new Set(), exampleIds = new Set();
     const PROFILES = ["exact-parametric", "constrained-layout", "editorial-composition"];
     const SUPPORTS = ["core", "experimental", "gated"];
     for (const p of packs || []) {
@@ -909,9 +909,9 @@ function main() {
       if (!p.selection_signal) errors.push(`manifest: ${id}: missing selection_signal`);
       // full locked-schema validation (kernel 계약 전체)
       const FIELDS = ["id", "selection_signal", "profile", "support", "spec", "presets",
-        "orientations", "verifier", "fixtures", "examples", "required_roles",
-        "optional_aliases", "canonical_prompt", "annexes", "gate", "legacy_section",
-        "composition"];
+        "orientations", "verifier", "receipt_schema", "fixtures", "examples",
+        "required_roles", "optional_aliases", "canonical_prompt", "annexes", "gate",
+        "migration_origin", "legacy_section", "composition"];
       for (const k of Object.keys(p)) if (!FIELDS.includes(k)) errors.push(`manifest: ${id}: unknown field "${k}" (locked schema: ${FIELDS.join("/")})`);
       for (const k of FIELDS) if (k !== "composition" && !(k in p)) errors.push(`manifest: ${id}: missing field "${k}"`); // composition은 optional capability (absent => composable: false)
       let pfPresets = [];
@@ -929,11 +929,38 @@ function main() {
         try { readFileSync(path.resolve(path.dirname(mPath), "..", String(p.verifier))); } catch { errors.push(`manifest: ${id}: verifier path not found (${p.verifier})`); }
       }
       if ("fixtures" in p) {
+        // fixture는 경로 문자열이 아니라 증거 entry다 — 종류·preset·확장자까지 고정해야
+        // "core 승격 = 아무 파일 경로 하나"가 되지 않는다.
         if (!Array.isArray(p.fixtures)) errors.push(`manifest: ${id}: fixtures must be an array`);
-        else for (const f of p.fixtures) { try { readFileSync(path.resolve(path.dirname(mPath), "..", String(f))); } catch { errors.push(`manifest: ${id}: fixture path not found (${f})`); } }
+        else for (const f of p.fixtures) {
+          if (!f || typeof f !== "object") { errors.push(`manifest: ${id}: fixture must be { id, kind, preset, path }`); continue; }
+          for (const k of Object.keys(f)) if (!["id", "kind", "preset", "path"].includes(k)) errors.push(`manifest: ${id}: fixture unknown field "${k}"`);
+          if (!f.id || !/^[a-z0-9][a-z0-9-]*$/.test(String(f.id))) errors.push(`manifest: ${id}: invalid fixture id "${f.id}"`);
+          else if (fixtureIds.has(f.id)) errors.push(`manifest: ${id}: duplicate fixture id "${f.id}"`);
+          else fixtureIds.add(f.id);
+          if (!["positive", "baseline-red"].includes(f.kind)) errors.push(`manifest: ${id}: fixture "${f.id}" kind must be positive|baseline-red`);
+          if (Array.isArray(p.presets) && !p.presets.includes(f.preset)) errors.push(`manifest: ${id}: fixture "${f.id}" preset "${f.preset}" is not one of this typepack's presets`);
+          const fp = String(f.path ?? "");
+          if (!/\.(svg|json)$/.test(fp)) errors.push(`manifest: ${id}: fixture "${f.id}" must point at an .svg artifact or .json receipt (got "${fp}")`);
+          const abs = path.resolve(path.dirname(mPath), "..", fp);
+          if (!isUnder(abs, path.resolve(here, ".."))) errors.push(`manifest: ${id}: fixture "${f.id}" path escapes the package`);
+          else { try { readFileSync(abs); } catch { errors.push(`manifest: ${id}: fixture path not found (${fp})`); } }
+        }
       }
-      if ("examples" in p && (!Array.isArray(p.examples) || p.examples.some((e) => !/^[a-z0-9][a-z0-9-]*$/.test(String(e)))))
-        errors.push(`manifest: ${id}: examples must be an array of kebab-case gallery ids`);
+      // example은 실제 gallery anchor와 연결되는 증거다 — core 승격은 그 연결이
+      // 실제로 해소될 때만 가능하다(아래 promotion 검사).
+      if ("examples" in p) {
+        if (!Array.isArray(p.examples)) errors.push(`manifest: ${id}: examples must be an array`);
+        else for (const ex of p.examples) {
+          if (!ex || typeof ex !== "object") { errors.push(`manifest: ${id}: example must be { id, gallery_anchor }`); continue; }
+          for (const k of Object.keys(ex)) if (!["id", "gallery_anchor"].includes(k)) errors.push(`manifest: ${id}: example unknown field "${k}"`);
+          if (!ex.id || !/^[a-z0-9][a-z0-9-]*$/.test(String(ex.id))) errors.push(`manifest: ${id}: invalid example id "${ex.id}"`);
+          else if (exampleIds.has(ex.id)) errors.push(`manifest: ${id}: duplicate example id "${ex.id}"`);
+          else exampleIds.add(ex.id);
+          if (!/^[A-Za-z0-9._-]+\.md#[a-z0-9][a-z0-9-]*$/.test(String(ex.gallery_anchor ?? "")))
+            errors.push(`manifest: ${id}: example "${ex.id}" gallery_anchor must match <file>.md#<kebab-anchor>`);
+        }
+      }
       if ("required_roles" in p) {
         if (!Array.isArray(p.required_roles) || p.required_roles.length === 0) errors.push(`manifest: ${id}: required_roles must be a non-empty array`);
         else for (const r of p.required_roles) if (!ROLES.includes(r)) errors.push(`manifest: ${id}: unknown role "${r}" (Foundation roles: ${ROLES.join("/")})`);
@@ -969,14 +996,47 @@ function main() {
       } else if (p.gate !== null) errors.push(`manifest: ${id}: gate must be null unless support is gated`);
       if (!(p.legacy_section === null || typeof p.legacy_section === "string"))
         errors.push(`manifest: ${id}: legacy_section must be null or the archetypes.md heading it replaces`);
-      // 승격 증거: core는 문자열만 바꿔서 얻을 수 없다
+      // migration origin: Wave 1의 기존 archetype 이행 타입은 legacy section을 반드시 명시한다
+      if (!["legacy", "new"].includes(p.migration_origin)) errors.push(`manifest: ${id}: migration_origin must be legacy|new`);
+      else if (p.migration_origin === "legacy" && !p.legacy_section)
+        errors.push(`manifest: ${id}: migration_origin "legacy" requires legacy_section (the archetypes.md heading it replaces)`);
+      else if (p.migration_origin === "new" && p.legacy_section !== null)
+        errors.push(`manifest: ${id}: migration_origin "new" must not claim a legacy_section`);
+      // 정확성을 주장하는 표면은 verifier와 receipt schema locator가 함께 있어야 한다
+      const accuracyBearing = p.profile === "exact-parametric" || (p.annexes ?? []).includes("data-accuracy");
+      if (p.receipt_schema !== null && p.receipt_schema !== undefined) {
+        const rp = path.resolve(path.dirname(mPath), "..", String(p.receipt_schema));
+        if (!isUnder(rp, path.resolve(here, ".."))) errors.push(`manifest: ${id}: receipt_schema escapes the package`);
+        else { try { readFileSync(rp); } catch { errors.push(`manifest: ${id}: receipt_schema not found (${p.receipt_schema})`); } }
+      }
+      if (accuracyBearing) {
+        if (!p.verifier) errors.push(`manifest: ${id}: an accuracy-bearing typepack (exact-parametric or data-accuracy annex) requires a machine verifier`);
+        if (!p.receipt_schema) errors.push(`manifest: ${id}: an accuracy-bearing typepack requires a receipt_schema locator`);
+      }
+      // 승격 증거: core는 문자열이나 아무 경로로 얻을 수 없다
       if (p.support === "core") {
-        if (!Array.isArray(p.examples) || p.examples.length === 0)
-          errors.push(`manifest: ${id}: support "core" requires at least one registered example (promotion evidence)`);
-        if (!Array.isArray(p.fixtures) || p.fixtures.length === 0)
-          errors.push(`manifest: ${id}: support "core" requires registered fixtures (promotion evidence)`);
-        if (p.profile === "exact-parametric" && !p.verifier)
-          errors.push(`manifest: ${id}: an exact-parametric type needs a machine verifier before it may claim "core"`);
+        const exs = Array.isArray(p.examples) ? p.examples : [];
+        if (exs.length === 0) errors.push(`manifest: ${id}: support "core" requires at least one registered example (promotion evidence)`);
+        for (const ex of exs) {
+          // example은 실제 gallery anchor로 해소돼야 한다 — 존재하지 않는 id는 증거가 아니다
+          const gm = /^([A-Za-z0-9._-]+\.md)#([a-z0-9][a-z0-9-]*)$/.exec(String(ex?.gallery_anchor ?? ""));
+          if (!gm) { errors.push(`manifest: ${id}: example "${ex?.id}" cannot support "core" without a resolvable gallery_anchor`); continue; }
+          const gp = path.resolve(path.dirname(mPath), "..", gm[1]);
+          let text = null;
+          try { text = readFileSync(gp, "utf8"); } catch { errors.push(`manifest: ${id}: example "${ex.id}" points at ${gm[1]}, which does not exist — "core" requires a real gallery entry`); }
+          if (text !== null) {
+            const slug = (t) => t.toLowerCase().replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-");
+            const heads = [...text.matchAll(/^#{1,6}\s+(.+)$/gm)].map((h) => slug(h[1]));
+            if (!heads.includes(gm[2])) errors.push(`manifest: ${id}: example "${ex.id}" anchor "#${gm[2]}" is not in ${gm[1]}`);
+          }
+        }
+        const fxs = Array.isArray(p.fixtures) ? p.fixtures : [];
+        for (const pr of (Array.isArray(p.presets) ? p.presets : [])) {
+          if (!fxs.some((f) => f?.kind === "positive" && f?.preset === pr))
+            errors.push(`manifest: ${id}: support "core" requires a positive fixture for preset "${pr}"`);
+        }
+        if (!fxs.some((f) => f?.kind === "baseline-red"))
+          errors.push(`manifest: ${id}: support "core" requires at least one baseline-red fixture`);
       }
       // composition capability block (schema v2, optional — absent => composable: false)
       if ("composition" in p) {
@@ -1026,6 +1086,10 @@ function main() {
         }
       }
     }
+    // tombstone 본문은 코드가 소유하는 결정적 문자열이다 — 문서와 검사가 어긋날 수 없다.
+    const canonicalTombstone = (title, tid) =>
+      `## ${title}\n\n**Migrated to TypePack \`${tid}\`.** Rules: [\`types/specs/${tid}.md\`](types/specs/${tid}.md) ·\n` +
+      `routing: [\`types/selection.md\`](types/selection.md).\n`;
     // ---- registration closure: manifest가 등록 invariant를 완결적으로 소유한다 ----
     // inventory·legacy closure는 **package의 canonical registry**에만 적용한다.
     // 임의 YAML을 schema 검증용으로 넘긴 경우(부정 fixture 등)에는 대상이 아니다.
@@ -1041,6 +1105,12 @@ function main() {
       "9. Anti-patterns and known failures",
     ];
     const ANNEX_SECTIONS = { topology: "A1. Topology contract", "data-accuracy": "A2. Data accuracy contract" };
+    const ANNEX_SUBSECTIONS = {
+      topology: ["Entity identity", "Edge kind and direction", "Cardinality", "Cycle policy",
+                 "Traversal and reading order", "Topology verifier and receipt boundary"],
+      "data-accuracy": ["Source data and input digest", "Scale and domain", "Visual encoding",
+                        "Rounding and tolerance", "Verifier", "Accuracy receipt schema"],
+    };
     const specSeen = new Map(), anchorSeen = new Map(), legacySeen = new Map();
     for (const p of packs || []) {
       const id = p.id;
@@ -1068,9 +1138,32 @@ function main() {
       if (Number(meta.spec_schema_version) !== 1) errors.push(`manifest: ${id}: spec_schema_version must be 1 (got ${meta.spec_schema_version})`);
       if (meta.typepack_id !== id) errors.push(`manifest: ${id}: spec declares typepack_id "${meta.typepack_id}" — spec and manifest identity must match`);
       if (meta.profile !== p.profile) errors.push(`manifest: ${id}: spec declares profile "${meta.profile}" but the manifest says "${p.profile}"`);
+      // 제목 존재만으로는 계약이 아니다 — 각 절은 실제 본문을 가져야 하고,
+      // annex는 필수 하위 절까지 갖춰야 한다(heading 한 줄 추가로 충족 불가).
+      const sectionBody = (level, title) => {
+        const re = new RegExp(`^#{${level}}\\s+${title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*$`, "m");
+        const m = re.exec(text);
+        if (!m) return null;
+        const rest = text.slice(m.index + m[0].length);
+        const nxt = new RegExp(`^#{1,${level}}\\s`, "m").exec(rest);
+        return (nxt ? rest.slice(0, nxt.index) : rest).replace(/\s/g, "");
+      };
+      const MIN_BODY = 16;
       const heads = [...text.matchAll(/^##\s+(.+)$/gm)].map((m) => m[1].trim());
-      for (const want of REQUIRED_SECTIONS) if (!heads.includes(want)) errors.push(`manifest: ${id}: spec is missing required section "${want}"`);
-      for (const ax of p.annexes ?? []) if (!heads.includes(ANNEX_SECTIONS[ax])) errors.push(`manifest: ${id}: spec declares the ${ax} annex but has no "${ANNEX_SECTIONS[ax]}" section`);
+      for (const want of REQUIRED_SECTIONS) {
+        if (!heads.includes(want)) { errors.push(`manifest: ${id}: spec is missing required section "${want}"`); continue; }
+        const body = sectionBody(2, want);
+        if ((body?.length ?? 0) < MIN_BODY) errors.push(`manifest: ${id}: spec section "${want}" has no substantive body`);
+      }
+      for (const ax of p.annexes ?? []) {
+        const title = ANNEX_SECTIONS[ax];
+        if (!heads.includes(title)) { errors.push(`manifest: ${id}: spec declares the ${ax} annex but has no "${title}" section`); continue; }
+        for (const sub of ANNEX_SUBSECTIONS[ax]) {
+          const body = sectionBody(3, sub);
+          if (body === null) { errors.push(`manifest: ${id}: ${ax} annex is missing "### ${sub}"`); continue; }
+          if (body.length < MIN_BODY) errors.push(`manifest: ${id}: ${ax} annex subsection "${sub}" has no substantive body`);
+        }
+      }
     }
     // inventory closure: specs 트리와 manifest는 정확히 1:1이다 (orphan spec 금지)
     if (isCanonical) {
@@ -1085,13 +1178,20 @@ function main() {
       try { arch = readFileSync(path.resolve(path.dirname(mPath), "..", "archetypes.md"), "utf8"); } catch { errors.push("manifest: archetypes.md not readable for legacy closure"); }
       if (arch !== null) {
         const secs = arch.split(/^## /m).slice(1).map((b) => ({ title: b.split("\n")[0].trim(), body: b }));
+        // tombstone은 keyword 유무가 아니라 **결정적 canonical body**와 정확히 일치해야 한다.
+        // 추가 규칙 문장을 덧붙이는 우회를 막는다.
         for (const [title, id] of legacySeen) {
           const sec = secs.find((x) => x.title === title);
           if (!sec) { errors.push(`manifest: ${id}: legacy_section "${title}" not found in archetypes.md`); continue; }
-          if (!/Migrated to TypePack/.test(sec.body))
-            errors.push(`manifest: ${id}: archetypes.md "${title}" is still a rival normative section — replace it with a "Migrated to TypePack" pointer`);
-          if (/\*\*Recipe:\*\*|\*\*Checks:\*\*|\*\*Skeleton:\*\*/.test(sec.body))
-            errors.push(`manifest: ${id}: archetypes.md "${title}" still carries legacy recipe/checks — the TypePack spec owns them now`);
+          const want = canonicalTombstone(title, id).trim();
+          if (sec.body.replace(/^/, "## ").trim() !== want)
+            errors.push(`manifest: ${id}: archetypes.md "${title}" is not the canonical tombstone — it must contain only the TypePack pointer (no extra rules); regenerate it exactly as:\n${want}`);
+        }
+        // 주인 없는 tombstone 금지: legacy_section을 null로 돌려 검사를 빠져나갈 수 없다
+        for (const sec of secs) {
+          if (!/Migrated to TypePack/.test(sec.body)) continue;
+          if (!legacySeen.has(sec.title))
+            errors.push(`manifest: archetypes.md "${sec.title}" is a tombstone but no typepack claims it via legacy_section — an unclaimed tombstone means the migration record was dropped`);
         }
       }
     }

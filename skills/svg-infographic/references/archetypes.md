@@ -25,11 +25,8 @@ This is the default visual language — the gallery look. Apply it unless the us
 
 ## Layer stack
 
-**Migrated to TypePack `layer-stack`.** The selection signal, input contract,
-layout formulas, degrade ladder and checks live in
-[`types/specs/layer-stack.md`](types/specs/layer-stack.md); routing is in
-[`types/selection.md`](types/selection.md). Nothing in this file is normative
-for this type any more — do not re-apply the old recipe alongside the spec.
+**Migrated to TypePack `layer-stack`.** Rules: [`types/specs/layer-stack.md`](types/specs/layer-stack.md) ·
+routing: [`types/selection.md`](types/selection.md).
 
 ## Nested / onion
 
@@ -148,11 +145,8 @@ Two **equal-height, equal-width** panels with a 32–48px gutter; optional cente
 
 ## Cards / KPI stat grid
 
-**Migrated to TypePack `cards-kpi-grid`.** The selection signal, input contract,
-layout formulas, degrade ladder and checks live in
-[`types/specs/cards-kpi-grid.md`](types/specs/cards-kpi-grid.md); routing is in
-[`types/selection.md`](types/selection.md). Nothing in this file is normative
-for this type any more — do not re-apply the old recipe alongside the spec.
+**Migrated to TypePack `cards-kpi-grid`.** Rules: [`types/specs/cards-kpi-grid.md`](types/specs/cards-kpi-grid.md) ·
+routing: [`types/selection.md`](types/selection.md).
 
 ## Decision / risk matrix
 
