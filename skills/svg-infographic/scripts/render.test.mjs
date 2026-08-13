@@ -50,6 +50,18 @@ const runCli = (args, env = {}) =>
     env: { ...process.env, ...env },
   });
 
+test("typography-negative SVG는 browser 실행 전에 거부된다 (exit 5)", () => {
+  const r = runCli([join(here, "skin-fixtures", "typography", "tf-wrapper-lost.svg")]);
+  assert.equal(r.status, 5, r.stdout + r.stderr);
+  assert.match(r.stdout + r.stderr, /typography contract failed/);
+});
+
+test("single-quote sketch root도 renderer typography gate가 거부한다 (exit 5)", () => {
+  const r = runCli([join(here, "skin-fixtures", "typography", "tf-sq-sketch-root.svg")]);
+  assert.equal(r.status, 5, r.stdout + r.stderr);
+  assert.match(r.stdout + r.stderr, /typography contract failed/);
+});
+
 test("layout-negative SVG는 browser 실행 전에 거부된다 (exit 5)", () => {
   const r = runCli([join(here, "layout-fixtures", "ln-gap-drift.svg")]);
   assert.equal(r.status, 5, r.stdout + r.stderr);

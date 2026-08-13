@@ -3,7 +3,7 @@
 **Do not use for new output.** This composition was rejected on 2026-08-12
 (unstable length/boundary across 1–2-line titles; ambiguous representative scope).
 It is preserved solely so pre-kernel gallery examples keep passing their opt-in
-lint contract until the Wave 1 regeneration replaces them. New headers follow the
+lint contract until the catalog regeneration replaces them. New headers follow the
 H-C editorial stack (design-kernel §6).
 
 - Page-title accent rail follows the title stack. Never copy a fixed rail height from a one-line title into a two-line title. With centered-baseline text, compute `eyebrowTop = eyebrowY − eyebrowFontSize/2`, `titleBottom = max(titleLineY + titleFontSize/2)`, `railY = eyebrowTop − railTopPad`, and `railH = titleBottom + railBottomPad − railY`. Keep `subtitleTop − railBottom ≥ subtitleGap`. For the premium one-line/two-line header, opt into the source check:

@@ -373,7 +373,7 @@ test("header-cluster negative: declared breathing budget violated", () => {
   assert.ok(r.errors.some((e) => /breathing/.test(e.message)));
 });
 
-// --- CP3C: entrypoint parity, authoring bypass, palette profile matrix ----------
+// --- entrypoint parity, authoring bypass, palette profile matrix ----------
 import { spawnSync as _spawn } from "node:child_process";
 import { symlinkSync, mkdtempSync as _mkdtemp } from "node:fs";
 import { tmpdir as _tmpdir } from "node:os";

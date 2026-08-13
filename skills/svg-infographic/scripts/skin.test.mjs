@@ -1,4 +1,4 @@
-// skin.mjs test suite — CP3A: materializer parity + schema/profile negative fixtures.
+// skin.mjs test suite — materializer parity + schema/profile negative fixtures.
 // Durable fixtures live in scripts/skin-fixtures/ (skins-negative/ mirrors the real
 // profiles plus deliberate defects and is consumed via the SKIN_SKINS_DIR override).
 import { test } from "node:test";
@@ -7,6 +7,8 @@ import { spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync, mkdtempSync, copyFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import fs from "node:fs";
+import os from "node:os";
 import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -138,11 +140,11 @@ test("single-quoted annotated mismatch fails closed", () => {
 test("materialize receipt carries kernelVersion and sourceDigest", () => {
   const r = run(["materialize", path.join(FIX, "portable-positive.svg"), "--check", "--json"]);
   const j = JSON.parse(r.out);
-  assert.equal(j.kernelVersion, "wave0-cp2");
+  assert.equal(j.kernelVersion, "kernel-v1");
   assert.match(j.sourceDigest, /^[0-9a-f]{16}$/);
 });
 
-// --- CP3B: pageframe + 4 layout-family micro-fixtures ---------------------------
+// --- pageframe + 4 layout-family micro-fixtures -----------------------------------
 function pageframe(args = []) {
   const r = run(["pageframe", "social-4x5", "--json", ...args]);
   assert.equal(r.code, 0, r.out);
@@ -221,7 +223,7 @@ test("micro-fixtures: connector shafts and visible heads meet the preset minimum
   assert.ok(mw * 8 / 12 >= arrow["min-visible-head"], "visible head below minimum");
 });
 
-// --- CP3C-B: pageframe fail-closed schema + fluid two-phase ---------------------
+// --- pageframe fail-closed schema + fluid two-phase -------------------------------
 function pfNeg(file, args, re) {
   const dir = mkdtempSync(path.join(tmpdir(), "pf-"));
   copyFileSync(path.join(NEG, file), path.join(dir, "pageframe-v1.yaml"));
@@ -283,7 +285,121 @@ test("pageframe regions never overlap (content/support/footer non-overlap fixtur
   }
 });
 
-// --- CP5-R1-F3: TypePack manifest validator ------------------------------------
+// --- typography profile SSoT -----------------------------------------------------
+test("typography: canonical profile validates (fail-closed schema)", () => {
+  const r = run(["typography"]);
+  assert.equal(r.code, 0, r.out);
+});
+test("typography: registry가 current.typography를 선택한다", () => {
+  const r = run(["registry", "--json"]);
+  assert.equal(JSON.parse(r.out).errors.length, 0, r.out);
+});
+test("typography: synthetic 허용 시도는 거부", () => {
+  const r = run(["typography", path.join(FIX, "typography", "typo-synthetic.yaml")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /synthetic must be "forbidden"/);
+});
+test("typography: 비수치 weight 거부", () => {
+  const r = run(["typography", path.join(FIX, "typography", "typo-bad-weight.yaml")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /weights must be a non-empty list of numeric weights/);
+});
+test("typography: unknown field 거부", () => {
+  const r = run(["typography", path.join(FIX, "typography", "typo-unknown-field.yaml")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /unknown field "letter-spacing"/);
+});
+test("typography: locale 누락 거부", () => {
+  const r = run(["typography", path.join(FIX, "typography", "typo-missing-locale.yaml")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /missing locale "en"/);
+});
+test("typography: resolve receipt에 결정적 stack이 동봉된다", () => {
+  const r = run(["resolve", "current", "--mode", "light", "--treatment", "sketch", "--json"]);
+  const j = JSON.parse(r.out);
+  assert.equal(j.typography.stack, '"Hi Melody", Pretendard, sans-serif');
+  assert.equal(j.typography.weightPolicy, "normalize-400");
+  assert.equal(j.typography.synthetic, "forbidden");
+  assert.ok(j.typography.profileDigest);
+  const r2 = run(["resolve", "current", "--mode", "light", "--json"]);
+  assert.equal(JSON.parse(r2.out).typography.stack.startsWith("Pretendard, Inter"), true);
+});
+
+// --- typography-check (composite wrapper 유실 방지) -----------------------
+const TFIX = path.join(FIX, "typography");
+test("typography-check: positive (alias 유지 + 명시적 secondary + weight 400)", () => {
+  const r = run(["typography-check", path.join(TFIX, "tf-positive.svg")]);
+  assert.equal(r.code, 0, r.out);
+});
+test("typography-check: wrapper font-family 유실은 fail-closed", () => {
+  const r = run(["typography-check", path.join(TFIX, "tf-wrapper-lost.svg")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-TYPO-LOST .*wrapper lost the typography alias/);
+});
+test("typography-check: regular-only face에 weight 700은 error", () => {
+  const r = run(["typography-check", path.join(TFIX, "tf-weight-700.svg")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-TYPO-WEIGHT .*synthetic weights are forbidden/);
+});
+test("typography-check: annotation 없는 secondary fallback은 error", () => {
+  const r = run(["typography-check", path.join(TFIX, "tf-secondary-unannotated.svg")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-TYPO-LOST/);
+});
+test("typography-check: remote font src는 error", () => {
+  const r = run(["typography-check", path.join(TFIX, "tf-remote-font.svg")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-TYPO-REMOTE/);
+});
+test("typography-check: 상위 g 상속 weight 700도 검출(F2)", () => {
+  const r = run(["typography-check", path.join(TFIX, "tf-inherited-weight.svg")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-TYPO-WEIGHT .*inherited cascade included/);
+});
+test("typography-check: spaced/single-quote scope도 인식되어 유실 검출(F2)", () => {
+  const r = run(["typography-check", path.join(TFIX, "tf-single-quote-scope.svg")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-TYPO-LOST/);
+});
+test("typography-check: spaced double-quote 정상 조합은 통과(F2 동등성)", () => {
+  const r = run(["typography-check", path.join(TFIX, "tf-spaced-scope-ok.svg")]);
+  assert.equal(r.code, 0, r.out);
+});
+test("typography-check: marker 존재 + scope text 0은 fail-closed(F2)", () => {
+  const td = fs.mkdtempSync(path.join(os.tmpdir(), "typo-empty-"));
+  const tmp = path.join(td, "empty.svg");
+  let r;
+  try {
+    fs.writeFileSync(tmp, '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" data-treatment="sketch"><rect width="10" height="10" fill="#FAF4EB"/></svg>');
+    r = run(["typography-check", tmp]);
+  } finally { fs.rmSync(td, { recursive: true, force: true }); }
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-TYPO-EMPTY/);
+});
+test("typography-check: single-quote root sketch도 gate 대상(R1B2-1)", () => {
+  const r = run(["typography-check", path.join(TFIX, "tf-sq-sketch-root.svg")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-TYPO-LOST|E-TYPO-WEIGHT/);
+});
+test("typography: bundled인데 license.evidence 누락은 error(F8)", () => {
+  const r = run(["typography", path.join(TFIX, "typo-missing-license-evidence.yaml")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /bundled asset requires license.evidence/);
+});
+test("typography: bundled asset의 digest mismatch는 error", () => {
+  const base = fs.readFileSync(path.join(here, "..", "references", "typography", "typography-v1.yaml"), "utf8");
+  const td = fs.mkdtempSync(path.join(os.tmpdir(), "typo-fixture-"));
+  const tmp = path.join(td, "temp-digest.yaml");
+  let r;
+  try {
+    fs.writeFileSync(tmp, base.replace(/digest: [0-9a-f]{64}/, "digest: " + "f".repeat(64)));
+    r = run(["typography", tmp]);
+  } finally { fs.rmSync(td, { recursive: true, force: true }); }
+  assert.equal(r.code, 1);
+  assert.match(r.out, /asset digest mismatch/);
+});
+
+// --- TypePack manifest validator -----------------------------------------
 test("manifest: shipped (empty) manifest validates", () => {
   const r = run(["manifest"]);
   assert.equal(r.code, 0, r.out);
