@@ -13,7 +13,10 @@ typepacks:
     examples: []
     required_roles: [canvas, surface, ink, muted, rule, focus]
     optional_aliases: [edge, compute, data]
-    canonical_prompt: PROMPT-GALLERY.md#fixture-topology
+    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#fixture-topology }
+    annexes: []
+    gate: null
+    legacy_section: null
   - id: fixture-topology
     selection_signal: "duplicate id entry"
     profile: constrained-layout
@@ -26,4 +29,7 @@ typepacks:
     examples: []
     required_roles: [canvas, ink]
     optional_aliases: []
-    canonical_prompt: PROMPT-GALLERY.md#fixture-topology-dup
+    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#fixture-topology-dup }
+    annexes: []
+    gate: null
+    legacy_section: null

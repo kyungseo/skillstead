@@ -1,12 +1,12 @@
 ---
 spec_schema_version: 1
-typepack_id: fixture-topology
+typepack_id: icon-band
 profile: constrained-layout
 ---
 
-# TypePack: fixture-topology
+# icon-band TypePack (fixture)
 
-Fixture-only TypePack used by the manifest schema tests.
+텍스트 없는 아이콘 밴드 fragment (fixture).
 
 ## 1. Identity and selection
 fixture-only.

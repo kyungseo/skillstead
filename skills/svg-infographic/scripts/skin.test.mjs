@@ -29,11 +29,14 @@ function pkgCopy() {
   const pkg = path.join(dir, "svg-infographic");
   const r = spawnSync("cp", ["-R", path.join(here, ".."), pkg], { encoding: "utf8" });
   assert.equal(r.status, 0, r.stderr);
+  // source checkout이 read-only여도 사본은 변조 가능해야 한다(테스트는 source를 만지지 않는다)
+  spawnSync("chmod", ["-R", "u+w", pkg], { encoding: "utf8" });
   return pkg;
 }
 function runIn(pkg, args, env = {}) {
+  // 상속된 root/mode는 지우되, 테스트가 **명시적으로 준** 값은 보존한다.
   const e = { ...process.env, ...env };
-  delete e.SVGINFO_EXPECTED_SKILL_ROOT; delete e.SVGINFO_EXECUTION_MODE;
+  for (const k of ["SVGINFO_EXPECTED_SKILL_ROOT", "SVGINFO_EXECUTION_MODE"]) if (!(k in env)) delete e[k];
   const r = spawnSync(process.execPath, [path.join(pkg, "scripts", "skin.mjs"), ...args],
     { encoding: "utf8", cwd: path.join(pkg, "scripts"), env: e });
   return { code: r.status, out: r.stdout + r.stderr };
@@ -132,6 +135,7 @@ test("materialize rewrites mismatched paint deterministically (write path, temp 
   const dir = mkdtempSync(path.join(tmpdir(), "mat-"));
   const f = path.join(dir, "m.svg");
   copyFileSync(path.join(FIX, "materialize-mismatch.svg"), f);
+  fs.chmodSync(f, 0o644);   // read-only checkout에서 복사해도 쓰기 가능해야 한다
   const r = run(["materialize", f, "--json"]);
   assert.equal(r.code, 0, r.out);
   const after = readFileSync(f, "utf8");
@@ -242,65 +246,183 @@ test("micro-fixtures: connector shafts and visible heads meet the preset minimum
   assert.ok(mw * 8 / 12 >= arrow["min-visible-head"], "visible head below minimum");
 });
 
-// --- TypePack manifest + derived selection view (Wave 1 CP1A) ---------------
-test("selection view는 manifest에서 파생되고 drift는 --check가 잡는다", () => {
-  const view = path.join(here, "..", "references", "types", "selection.md");
+// --- TypePack registration closure + derived selection view (Wave 1 CP1A) ----
+// 이 블록은 **source tree를 절대 수정하지 않는다** — 변조가 필요한 재현은 package
+// 사본에서 수행한다(read-only checkout에서도 suite가 통과해야 한다).
+const typesOf = (pkg) => path.join(pkg, "references", "types");
+const readManifest = (pkg) => fs.readFileSync(path.join(typesOf(pkg), "manifest.yaml"), "utf8");
+const writeManifest = (pkg, text) => fs.writeFileSync(path.join(typesOf(pkg), "manifest.yaml"), text);
+const drop = (pkg) => fs.rmSync(path.dirname(pkg), { recursive: true, force: true });
+
+test("selection view는 manifest에서 파생되고 drift는 --check가 잡는다(사본에서 변조)", () => {
   const ok = run(["selection", "--check", "--json"]);
   assert.equal(ok.code, 0, ok.out);
   const j = JSON.parse(ok.out);
-  assert.equal(j.drifted, false);
-  assert.ok(j.registered >= 2 && j.shown === j.registered - j.gated);
+  assert.equal(j.driftedBefore, false);
+  assert.equal(j.driftedAfter, false);
+  assert.equal(j.shown, j.registered - j.gated);
 
-  const before = fs.readFileSync(view, "utf8");
-  try {
-    fs.writeFileSync(view, before.replace(/constrained-layout/, "editorial-composition"));
-    const drift = run(["selection", "--check"]);
-    assert.equal(drift.code, 1, drift.out);
-    assert.match(drift.out, /out of date with the manifest/);
-  } finally { fs.writeFileSync(view, before); }
+  const pkg = pkgCopy();
+  const view = path.join(typesOf(pkg), "selection.md");
+  fs.writeFileSync(view, fs.readFileSync(view, "utf8").replace("constrained-layout", "editorial-composition"));
+  const drift = runIn(pkg, ["selection", "--check"]);
+  assert.equal(drift.code, 1, drift.out);
+  assert.match(drift.out, /out of date with the manifest/);
+  drop(pkg);
 });
 
-test("selection view는 결정적이다(manifest 순서와 무관)", () => {
-  const a = run(["selection"]);
-  const b = run(["selection"]);
-  assert.equal(a.code, 0, a.out);
-  assert.equal(a.out, b.out, "같은 manifest는 같은 view를 낳아야 한다");
-  assert.match(a.out, /GENERATED VIEW — do not edit by hand/);
+test("R1-7: manifest row 순서를 뒤집어도 selection view는 동일하다", () => {
+  const base = run(["selection"]);
+  assert.equal(base.code, 0, base.out);
+  const pkg = pkgCopy();
+  const text = readManifest(pkg);
+  const head = text.slice(0, text.indexOf("  - id: "));
+  const entries = text.slice(text.indexOf("  - id: ")).split(/(?=^  - id: )/m).filter(Boolean);
+  assert.equal(entries.length, 2, "vertical slice는 2종이다");
+  writeManifest(pkg, head + entries.reverse().join(""));
+  const reordered = runIn(pkg, ["selection"]);
+  assert.equal(reordered.code, 0, reordered.out);
+  assert.equal(reordered.out, base.out, "정렬 기준이 manifest 순서와 무관해야 한다");
+  drop(pkg);
 });
 
-test("selection --write는 개발 모드에서만 허용된다", () => {
-  const r = run(["selection", "--write"]);
-  assert.equal(r.code, 1, r.out);
-  assert.match(r.out, /requires source-development execution/);
+test("R1-6: selection --write는 개발 모드에서만 허용되고, write 후 --check가 통과한다", () => {
+  const denied = run(["selection", "--write"]);
+  assert.equal(denied.code, 1, denied.out);
+  assert.match(denied.out, /requires source-development execution/);
+
+  // 소유 repository로 만든 임시 package에서 실제 write → check 왕복
+  const repo = mkdtempSync(path.join(tmpdir(), "seldev-"));
+  spawnSync("git", ["init", "-q", repo], { encoding: "utf8" });
+  fs.mkdirSync(path.join(repo, "skills"), { recursive: true });
+  const pkg = path.join(repo, "skills", "svg-infographic");
+  assert.equal(spawnSync("cp", ["-R", path.join(here, ".."), pkg], { encoding: "utf8" }).status, 0);
+  spawnSync("chmod", ["-R", "u+w", pkg], { encoding: "utf8" });
+  spawnSync("git", ["add", "-A"], { cwd: repo, encoding: "utf8" });
+  const view = path.join(typesOf(pkg), "selection.md");
+  fs.writeFileSync(view, "stale\n");
+  const env = { SVGINFO_EXECUTION_MODE: "source-development" };
+  const w = runIn(pkg, ["selection", "--write", "--json"], env);
+  assert.equal(w.code, 0, w.out);
+  const j = JSON.parse(w.out);
+  assert.equal(j.driftedBefore, true);
+  assert.equal(j.wrote, true);
+  assert.equal(j.driftedAfter, false, "write 후에도 drift가 남으면 안 된다");
+  assert.equal(runIn(pkg, ["selection", "--check"]).code, 0, "write 직후 check는 통과해야 한다");
+  fs.rmSync(repo, { recursive: true, force: true });
 });
 
-test("manifest: 등록된 TypePack의 spec 경로와 anchor 유일성", () => {
+test("manifest: 등록된 TypePack의 spec identity·섹션·inventory closure", () => {
   const m = run(["manifest", "--json"]);
   assert.equal(m.code, 0, m.out);
   assert.equal(JSON.parse(m.out).errors.length, 0);
-  const doc = readFileSync(path.join(here, "..", "references", "types", "manifest.yaml"), "utf8");
-  const anchors = [...doc.matchAll(/canonical_prompt:\s*(\S+)/g)].map((x) => x[1]);
-  assert.equal(new Set(anchors).size, anchors.length, "canonical_prompt anchor는 유일해야 한다");
-  for (const id of ["cards-kpi-grid", "layer-stack"])
-    assert.ok(fs.existsSync(path.join(here, "..", "references", "types", `${id}.md`)), `${id} spec이 있어야 한다`);
+  for (const id of ["cards-kpi-grid", "layer-stack"]) {
+    const spec = fs.readFileSync(path.join(here, "..", "references", "types", "specs", `${id}.md`), "utf8");
+    assert.match(spec, new RegExp(`typepack_id: ${id}`));
+    for (const n of [1, 2, 3, 4, 5, 6, 7, 8, 9]) assert.match(spec, new RegExp(`^## ${n}\\. `, "m"), `${id} §${n}`);
+  }
 });
 
-test("manifest negative: 중복 anchor·없는 spec·빈 selection_signal은 거부된다", () => {
-  const pkg = pkgCopy();
-  const mp = path.join(pkg, "references", "types", "manifest.yaml");
-  const base = fs.readFileSync(mp, "utf8");
+test("R1-1·R1-2: 중복 spec 경로·identity 불일치·빈 spec·orphan spec은 거부된다", () => {
   const cases = [
-    [base.replace("PROMPT-GALLERY.md#layer-stack", "PROMPT-GALLERY.md#cards-kpi-grid"), /duplicate canonical_prompt anchor/, ["selection", "--check"]],
-    [base.replace("spec: types/layer-stack.md", "spec: types/no-such-type.md"), /spec path not found/, ["manifest"]],
-    [base.replace(/selection_signal: "아래 층[^"]*"/, 'selection_signal: ""'), /missing selection_signal/, ["manifest"]],
+    ["duplicate spec path", (pkg) => writeManifest(pkg, readManifest(pkg).replace("types/specs/layer-stack.md", "types/specs/cards-kpi-grid.md")), /is already claimed by/],
+    ["identity mismatch", (pkg) => {
+      const f = path.join(typesOf(pkg), "specs", "layer-stack.md");
+      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace("typepack_id: layer-stack", "typepack_id: something-else"));
+    }, /spec declares typepack_id/],
+    ["profile mismatch", (pkg) => {
+      const f = path.join(typesOf(pkg), "specs", "layer-stack.md");
+      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace("profile: constrained-layout", "profile: exact-parametric"));
+    }, /spec declares profile/],
+    ["empty spec", (pkg) => fs.writeFileSync(path.join(typesOf(pkg), "specs", "layer-stack.md"), ""), /missing its identity frontmatter/],
+    ["missing section", (pkg) => {
+      const f = path.join(typesOf(pkg), "specs", "layer-stack.md");
+      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace("## 3. Semantic model and invariants", "## 3. Something else"));
+    }, /missing required section "3\. Semantic model/],
+    ["orphan spec", (pkg) => fs.writeFileSync(path.join(typesOf(pkg), "specs", "ghost-type.md"), "---\nspec_schema_version: 1\n---\n"), /orphan spec "types\/specs\/ghost-type\.md"/],
   ];
-  for (const [content, re, args] of cases) {
-    fs.writeFileSync(mp, content);
-    const r = runIn(pkg, args);
-    assert.equal(r.code, 1, `${re}: ${r.out}`);
-    assert.match(r.out, re);
+  for (const [label, mutate, re] of cases) {
+    const pkg = pkgCopy();
+    mutate(pkg);
+    const r = runIn(pkg, ["manifest"]);
+    assert.equal(r.code, 1, `${label}: ${r.out}`);
+    assert.match(r.out, re, label);
+    drop(pkg);
   }
-  fs.rmSync(path.dirname(pkg), { recursive: true, force: true });
+});
+
+test("R1-3: promotion evidence 없는 core 승격은 거부된다", () => {
+  const pkg = pkgCopy();
+  writeManifest(pkg, readManifest(pkg).replace("support: experimental", "support: core"));
+  const r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /requires at least one registered example/);
+  assert.match(r.out, /requires registered fixtures/);
+  drop(pkg);
+});
+
+test("R1-4: gated TypePack은 라우팅에서 빠지되 id·사유·해제 조건이 남는다", () => {
+  const pkg = pkgCopy();
+  // gate 없이 gated로 바꾸면 거부
+  writeManifest(pkg, readManifest(pkg).replace("    support: experimental\n    spec: types/specs/layer-stack.md",
+    "    support: gated\n    spec: types/specs/layer-stack.md"));
+  let r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /gated typepacks require gate/);
+  // gate를 채우면 통과하고, view에는 audit 행으로만 남는다
+  writeManifest(pkg, readManifest(pkg).replace("    gate: null\n    legacy_section: \"Layer stack\"",
+    "    gate: { reason: \"machine verifier 미완\", release: \"verifier + receipt schema 확정 시\" }\n    legacy_section: \"Layer stack\""));
+  assert.equal(runIn(pkg, ["manifest"]).code, 0, runIn(pkg, ["manifest"]).out);
+  const view = runIn(pkg, ["selection"]);
+  assert.equal(view.code, 0, view.out);
+  assert.doesNotMatch(view.out.split("## Registered but not routable")[0], /layer-stack/,
+    "gated 타입은 라우팅 표에 없어야 한다");
+  assert.match(view.out, /Registered but not routable/);
+  assert.match(view.out, /layer-stack.*machine verifier 미완.*verifier \+ receipt schema/s);
+  drop(pkg);
+});
+
+test("R1-5: canonical prompt는 reserved→bound 전이를 요구하고 bound 대상 부재를 거부한다", () => {
+  const pkg = pkgCopy();
+  writeManifest(pkg, readManifest(pkg).replace("{ status: reserved, anchor: PROMPT-GALLERY.md#layer-stack }",
+    "{ status: bound, anchor: PROMPT-GALLERY.md#layer-stack }"));
+  let r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /bound but PROMPT-GALLERY\.md does not exist/);
+  // 파일은 있으나 anchor가 없으면 여전히 거부.
+  // 파일 추가와 package membership 등록은 같은 변경에서 이뤄져야 한다(CP3 원자 확장 계약).
+  fs.writeFileSync(path.join(pkg, "references", "PROMPT-GALLERY.md"), "# Prompt gallery\n\n## other anchor\n");
+  const surf = path.join(pkg, "references", "package-surface.yaml");
+  fs.writeFileSync(surf, fs.readFileSync(surf, "utf8").replace(
+    "  - { path: references/types/selection.md, kind: normative-doc }",
+    "  - { path: references/types/selection.md, kind: normative-doc }\n  - { path: references/PROMPT-GALLERY.md, kind: normative-doc }"));
+  r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /anchor "#layer-stack" not found/);
+  // anchor가 있으면 통과
+  fs.appendFileSync(path.join(pkg, "references", "PROMPT-GALLERY.md"), "\n## layer stack\n");
+  assert.equal(runIn(pkg, ["manifest"]).code, 0, runIn(pkg, ["manifest"]).out);
+  drop(pkg);
+});
+
+test("중복 canonical_prompt anchor는 manifest validator가 직접 잡는다", () => {
+  const pkg = pkgCopy();
+  writeManifest(pkg, readManifest(pkg).replace("PROMPT-GALLERY.md#layer-stack", "PROMPT-GALLERY.md#cards-kpi-grid"));
+  const r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /duplicate canonical_prompt anchor/);
+  drop(pkg);
+});
+
+test("R1-5b: 등록된 TypePack의 legacy archetype section이 되살아나면 거부된다", () => {
+  const pkg = pkgCopy();
+  const ap = path.join(pkg, "references", "archetypes.md");
+  fs.writeFileSync(ap, fs.readFileSync(ap, "utf8").replace(
+    "**Migrated to TypePack `layer-stack`.**", "**Skeleton:** legacy rules are back"));
+  const r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /still a rival normative section|still carries legacy recipe/);
+  drop(pkg);
 });
 
 // --- pageframe fail-closed schema + fluid two-phase -------------------------------

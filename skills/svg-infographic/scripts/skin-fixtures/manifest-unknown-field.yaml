@@ -14,4 +14,7 @@ typepacks:
     required_roles: [canvas, surface, ink, muted, rule, focus]
     optional_aliases: [edge, compute, data]
     palette_hex: "#FF0000"
-    canonical_prompt: PROMPT-GALLERY.md#fixture-topology
+    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#fixture-topology }
+    annexes: []
+    gate: null
+    legacy_section: null

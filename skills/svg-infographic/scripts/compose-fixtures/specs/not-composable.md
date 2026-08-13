@@ -1,12 +1,12 @@
 ---
 spec_schema_version: 1
-typepack_id: fixture-topology
+typepack_id: not-composable
 profile: constrained-layout
 ---
 
-# TypePack: fixture-topology
+# not-composable TypePack (fixture)
 
-Fixture-only TypePack used by the manifest schema tests.
+composition 미지원 TypePack (fixture).
 
 ## 1. Identity and selection
 fixture-only.

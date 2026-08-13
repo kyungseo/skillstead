@@ -713,7 +713,14 @@ function main() {
     const esc = (v) => String(v).replace(/\|/g, "\\|");
     // spec 링크는 view 파일 위치 기준 상대경로여야 한다(manifest의 spec은 references/ 기준)
     const specHref = (spec) => path.relative(path.dirname(viewPath), path.resolve(here, "..", "references", String(spec))).split(path.sep).join("/");
-    const rows = shown.map((p) => `| ${esc(p.selection_signal)} | \`${p.id}\` | ${p.profile} | ${p.support} | [spec](${specHref(p.spec)}) | \`${p.canonical_prompt}\` |`);
+    // experimental은 preview다 — core와 같은 안정성으로 읽히지 않게 표시한다.
+    const maturity = (p) => p.support === "core" ? "core" : "experimental (preview)";
+    const promptCell = (p) => p.canonical_prompt?.status === "bound"
+      ? `\`${p.canonical_prompt.anchor}\``
+      : `\`${p.canonical_prompt?.anchor}\` (reserved)`;
+    const rows = shown.map((p) => `| ${esc(p.selection_signal)} | \`${p.id}\` | ${p.profile} | ${maturity(p)} | [spec](${specHref(p.spec)}) | ${promptCell(p)} |`);
+    const gatedRows = packs.filter((p) => p.support === "gated")
+      .map((p) => `| \`${p.id}\` | ${esc(p.gate?.reason ?? "—")} | ${esc(p.gate?.release ?? "—")} |`);
     const view = [
       "<!-- GENERATED VIEW — do not edit by hand.",
       "     Source of truth: references/types/manifest.yaml (`selection_signal`).",
@@ -723,29 +730,41 @@ function main() {
       "# TypePack selection",
       "",
       "무엇을 보여줄지에서 시작해 TypePack을 고른다. 각 행의 spec이 그 타입의 입력 계약·",
-      "레이아웃 수식·검증 체크리스트를 소유한다.",
+      "레이아웃 수식·검증 체크리스트를 소유한다. `experimental (preview)`는 example과",
+      "검증 증거가 아직 등록되지 않은 상태이므로 `core`와 같은 안정성으로 읽지 않는다.",
       "",
-      "| 내용 신호 | TypePack | profile | support | spec | canonical prompt |",
+      "| 내용 신호 | TypePack | profile | maturity | spec | canonical prompt |",
       "| --- | --- | --- | --- | --- | --- |",
       ...rows,
       "",
-      `등록된 TypePack ${packs.length}개 중 ${shown.length}개를 노출한다` +
-        (gated ? ` (gated ${gated}개는 machine verifier와 receipt가 준비될 때까지 discovery copy에서 제외).` : "."),
+      "## Registered but not routable",
+      "",
+      gated
+        ? "아래 TypePack은 등록되어 있으나 라우팅 대상이 아니다. 감사 가능하도록 사유와 해제 조건을 남긴다."
+        : "현재 없음. (gated TypePack은 라우팅에서 빠지되 여기에 사유와 해제 조건이 남는다.)",
+      "",
+      ...(gated ? ["| TypePack | gate reason | release condition |", "| --- | --- | --- |", ...gatedRows, ""] : []),
+      `등록된 TypePack ${packs.length}개 중 ${shown.length}개가 라우팅 대상이다.`,
       "",
     ].join("\n");
-    const current = (() => { try { return readFileSync(viewPath, "utf8"); } catch { return null; } })();
-    const drifted = current !== view;
+    const readView = () => { try { return readFileSync(viewPath, "utf8"); } catch { return null; } };
+    const current = readView();
+    const driftedBefore = current !== view;
+    let wrote = false;
     if (so["--write"]) {
       // 생성 view를 package에 쓰는 것은 개발 작업이다 — 설치 실행에서는 허용하지 않는다.
       if (state()?.mode !== "source-development")
         fail(1, "selection --write requires source-development execution (run it from the repository that owns the package)");
-      if (!errors.length) writeFileSync(viewPath, view);
+      if (!errors.length) { writeFileSync(viewPath, view); wrote = true; }
     } else if (so["--check"]) {
       if (current === null) errors.push("selection: references/types/selection.md is missing — regenerate it with --write");
-      else if (drifted) errors.push("selection: references/types/selection.md is out of date with the manifest (regenerate with --write)");
+      else if (driftedBefore) errors.push("selection: references/types/selection.md is out of date with the manifest (regenerate with --write)");
     }
+    // drift 상태는 쓰기 전/후를 구분한다 — 동기화에 성공했는데 drifted가 남으면 안 된다.
+    const driftedAfter = readView() !== view;
     const receipt = { schemaVersion: 1, command: "selection", kernelVersion: "kernel-v1",
-      registered: packs.length, shown: shown.length, gated, drifted, errors, warnings: [] };
+      registered: packs.length, shown: shown.length, gated,
+      driftedBefore, wrote, driftedAfter, errors, warnings: [] };
     if (so["--json"]) console.log(JSON.stringify(receipt, null, 1));
     else if (so["--check"] || so["--write"]) console.log(`selection — ${packs.length} registered, ${shown.length} shown, ${errors.length} error(s)`);
     else process.stdout.write(view);
@@ -891,7 +910,8 @@ function main() {
       // full locked-schema validation (kernel 계약 전체)
       const FIELDS = ["id", "selection_signal", "profile", "support", "spec", "presets",
         "orientations", "verifier", "fixtures", "examples", "required_roles",
-        "optional_aliases", "canonical_prompt", "composition"];
+        "optional_aliases", "canonical_prompt", "annexes", "gate", "legacy_section",
+        "composition"];
       for (const k of Object.keys(p)) if (!FIELDS.includes(k)) errors.push(`manifest: ${id}: unknown field "${k}" (locked schema: ${FIELDS.join("/")})`);
       for (const k of FIELDS) if (k !== "composition" && !(k in p)) errors.push(`manifest: ${id}: missing field "${k}"`); // composition은 optional capability (absent => composable: false)
       let pfPresets = [];
@@ -921,8 +941,43 @@ function main() {
       const MANIFEST_ALIASES = ["edge", "api", "compute", "data", "external", "icon"];
       if ("optional_aliases" in p && (!Array.isArray(p.optional_aliases) || p.optional_aliases.some((a) => !MANIFEST_ALIASES.includes(a))))
         errors.push(`manifest: ${id}: optional_aliases must be an array within ${MANIFEST_ALIASES.join("/")}`);
-      if ("canonical_prompt" in p && !/^PROMPT-GALLERY\.md#[a-z0-9][a-z0-9-]*$/.test(String(p.canonical_prompt)))
-        errors.push(`manifest: ${id}: canonical_prompt must match PROMPT-GALLERY.md#<kebab-anchor> (semantics reserved)`);
+      // canonical_prompt: reserved(형식·유일성만) | bound(실제 파일·anchor 존재 요구)
+      const cp = p.canonical_prompt;
+      if (!cp || typeof cp !== "object") errors.push(`manifest: ${id}: canonical_prompt must be { status, anchor }`);
+      else {
+        for (const k of Object.keys(cp)) if (!["status", "anchor"].includes(k)) errors.push(`manifest: ${id}: canonical_prompt unknown field "${k}"`);
+        if (!["reserved", "bound"].includes(cp.status)) errors.push(`manifest: ${id}: canonical_prompt.status must be reserved|bound`);
+        const am = /^([A-Za-z0-9._-]+\.md)#([a-z0-9][a-z0-9-]*)$/.exec(String(cp.anchor ?? ""));
+        if (!am) errors.push(`manifest: ${id}: canonical_prompt.anchor must match <file>.md#<kebab-anchor>`);
+        else if (cp.status === "bound") {
+          // bound는 연결 완료 주장이다 — 대상 파일과 anchor가 실제로 있어야 한다
+          const target = path.resolve(path.dirname(mPath), "..", am[1]);
+          let text = null;
+          try { text = readFileSync(target, "utf8"); } catch { errors.push(`manifest: ${id}: canonical_prompt is bound but ${am[1]} does not exist in the package`); }
+          if (text !== null) {
+            const slug = (t) => t.toLowerCase().replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-");
+            const heads = [...text.matchAll(/^#{1,6}\s+(.+)$/gm)].map((h) => slug(h[1]));
+            if (!heads.includes(am[2])) errors.push(`manifest: ${id}: canonical_prompt anchor "#${am[2]}" not found in ${am[1]}`);
+          }
+        }
+      }
+      if (!Array.isArray(p.annexes) || p.annexes.some((x) => !["topology", "data-accuracy"].includes(x)))
+        errors.push(`manifest: ${id}: annexes must be a list within topology/data-accuracy`);
+      if (p.support === "gated") {
+        if (!p.gate || typeof p.gate !== "object" || !p.gate.reason || !p.gate.release)
+          errors.push(`manifest: ${id}: gated typepacks require gate: { reason, release } so the registration stays auditable`);
+      } else if (p.gate !== null) errors.push(`manifest: ${id}: gate must be null unless support is gated`);
+      if (!(p.legacy_section === null || typeof p.legacy_section === "string"))
+        errors.push(`manifest: ${id}: legacy_section must be null or the archetypes.md heading it replaces`);
+      // 승격 증거: core는 문자열만 바꿔서 얻을 수 없다
+      if (p.support === "core") {
+        if (!Array.isArray(p.examples) || p.examples.length === 0)
+          errors.push(`manifest: ${id}: support "core" requires at least one registered example (promotion evidence)`);
+        if (!Array.isArray(p.fixtures) || p.fixtures.length === 0)
+          errors.push(`manifest: ${id}: support "core" requires registered fixtures (promotion evidence)`);
+        if (p.profile === "exact-parametric" && !p.verifier)
+          errors.push(`manifest: ${id}: an exact-parametric type needs a machine verifier before it may claim "core"`);
+      }
       // composition capability block (schema v2, optional — absent => composable: false)
       if ("composition" in p) {
         const C = p.composition;
@@ -968,6 +1023,75 @@ function main() {
             if (!["flow", "reference"].includes(pt.kind)) errors.push(`manifest: ${id}: port "${pt.template}" kind must be flow|reference`);
             if (!/^\d+(\.\.(\d+|n))?$|^0\.\.n$/.test(String(pt.cardinality ?? ""))) errors.push(`manifest: ${id}: port "${pt.template}" cardinality must be "n", "n..m" or "0..n"`);
           }
+        }
+      }
+    }
+    // ---- registration closure: manifest가 등록 invariant를 완결적으로 소유한다 ----
+    // inventory·legacy closure는 **package의 canonical registry**에만 적용한다.
+    // 임의 YAML을 schema 검증용으로 넘긴 경우(부정 fixture 등)에는 대상이 아니다.
+    const canonicalManifest = path.resolve(here, "..", "references", "types", "manifest.yaml");
+    const isCanonical = path.resolve(mPath) === canonicalManifest;
+    const specsDir = path.resolve(path.dirname(mPath), "specs");
+    const REQUIRED_SECTIONS = [
+      "1. Identity and selection", "2. Input schema and budget",
+      "3. Semantic model and invariants", "4. Intrinsic fit and variant contract",
+      "5. Layout, encoding and connector rules", "6. Degrade ladder",
+      "7. Verifier, receipt and fixture contract",
+      "8. Reading order, accessibility and locale",
+      "9. Anti-patterns and known failures",
+    ];
+    const ANNEX_SECTIONS = { topology: "A1. Topology contract", "data-accuracy": "A2. Data accuracy contract" };
+    const specSeen = new Map(), anchorSeen = new Map(), legacySeen = new Map();
+    for (const p of packs || []) {
+      const id = p.id;
+      // spec path 유일성 — 두 TypePack이 같은 spec을 가리킬 수 없다
+      if (p.spec) {
+        if (specSeen.has(p.spec)) errors.push(`manifest: ${id}: spec "${p.spec}" is already claimed by "${specSeen.get(p.spec)}" (spec paths are 1:1)`);
+        else specSeen.set(p.spec, id);
+      }
+      const anchor = p.canonical_prompt?.anchor;
+      if (anchor) {
+        if (anchorSeen.has(anchor)) errors.push(`manifest: ${id}: duplicate canonical_prompt anchor "${anchor}" (also "${anchorSeen.get(anchor)}")`);
+        else anchorSeen.set(anchor, id);
+      }
+      if (p.legacy_section) {
+        if (legacySeen.has(p.legacy_section)) errors.push(`manifest: ${id}: legacy_section "${p.legacy_section}" is already claimed by "${legacySeen.get(p.legacy_section)}"`);
+        else legacySeen.set(p.legacy_section, id);
+      }
+      // spec identity + 필수 절 완결성
+      if (!p.spec) continue;
+      let text = null;
+      try { text = readFileSync(path.resolve(path.dirname(mPath), "..", String(p.spec)), "utf8"); } catch { continue; }
+      const fm = /^---\n([\s\S]*?)\n---/.exec(text);
+      if (!fm) { errors.push(`manifest: ${id}: spec is missing its identity frontmatter (spec_schema_version/typepack_id/profile)`); continue; }
+      const meta = Object.fromEntries([...fm[1].matchAll(/^([a-z_]+):\s*(.+)$/gm)].map((m) => [m[1], m[2].trim()]));
+      if (Number(meta.spec_schema_version) !== 1) errors.push(`manifest: ${id}: spec_schema_version must be 1 (got ${meta.spec_schema_version})`);
+      if (meta.typepack_id !== id) errors.push(`manifest: ${id}: spec declares typepack_id "${meta.typepack_id}" — spec and manifest identity must match`);
+      if (meta.profile !== p.profile) errors.push(`manifest: ${id}: spec declares profile "${meta.profile}" but the manifest says "${p.profile}"`);
+      const heads = [...text.matchAll(/^##\s+(.+)$/gm)].map((m) => m[1].trim());
+      for (const want of REQUIRED_SECTIONS) if (!heads.includes(want)) errors.push(`manifest: ${id}: spec is missing required section "${want}"`);
+      for (const ax of p.annexes ?? []) if (!heads.includes(ANNEX_SECTIONS[ax])) errors.push(`manifest: ${id}: spec declares the ${ax} annex but has no "${ANNEX_SECTIONS[ax]}" section`);
+    }
+    // inventory closure: specs 트리와 manifest는 정확히 1:1이다 (orphan spec 금지)
+    if (isCanonical) {
+      let specFiles = [];
+      try { specFiles = readdirSync(specsDir).filter((f) => f.endsWith(".md")).sort(); } catch { errors.push("manifest: types/specs directory is missing"); }
+      const declared = new Set([...specSeen.keys()].map((sp) => path.basename(String(sp))));
+      for (const f of specFiles) if (!declared.has(f)) errors.push(`manifest: orphan spec "types/specs/${f}" is not registered by any typepack`);
+    }
+    // legacy 이중 규범 금지: 등록된 TypePack의 archetype section은 pointer tombstone이어야 한다
+    if (isCanonical && legacySeen.size) {
+      let arch = null;
+      try { arch = readFileSync(path.resolve(path.dirname(mPath), "..", "archetypes.md"), "utf8"); } catch { errors.push("manifest: archetypes.md not readable for legacy closure"); }
+      if (arch !== null) {
+        const secs = arch.split(/^## /m).slice(1).map((b) => ({ title: b.split("\n")[0].trim(), body: b }));
+        for (const [title, id] of legacySeen) {
+          const sec = secs.find((x) => x.title === title);
+          if (!sec) { errors.push(`manifest: ${id}: legacy_section "${title}" not found in archetypes.md`); continue; }
+          if (!/Migrated to TypePack/.test(sec.body))
+            errors.push(`manifest: ${id}: archetypes.md "${title}" is still a rival normative section — replace it with a "Migrated to TypePack" pointer`);
+          if (/\*\*Recipe:\*\*|\*\*Checks:\*\*|\*\*Skeleton:\*\*/.test(sec.body))
+            errors.push(`manifest: ${id}: archetypes.md "${title}" still carries legacy recipe/checks — the TypePack spec owns them now`);
         }
       }
     }

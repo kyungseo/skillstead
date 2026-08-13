@@ -13,7 +13,10 @@ typepacks:
     examples: []
     required_roles: [canvas, surface, ink, muted, rule, focus]
     optional_aliases: [edge, compute, data]
-    canonical_prompt: PROMPT-GALLERY.md#fixture-topology
+    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#fixture-topology }
+    annexes: []
+    gate: null
+    legacy_section: null
     composition:
       composable: true
       min_slot_size: { w: 280, h: 220 }

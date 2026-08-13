@@ -14,7 +14,7 @@
 # evidence 또는 CI artifact로만 저장한다.
 
 schema_version: 1
-surface_revision: 3
+surface_revision: 4
 
 canonicalization:
   version: 1
@@ -49,10 +49,11 @@ entries:
   - { path: references/archetypes.md, kind: normative-doc }
   - { path: references/sketch.md, kind: normative-doc }
   - { path: references/legacy/page-title-rail.md, kind: normative-doc }
-  # TypePack spec + 그 spec에서 파생·검증되는 selection view (라우팅 판단 표면)
+  # 파생·검증되는 selection view (라우팅 판단 표면)
   - { path: references/types/selection.md, kind: normative-doc }
-  - { path: references/types/cards-kpi-grid.md, kind: normative-doc }
-  - { path: references/types/layer-stack.md, kind: normative-doc }
+  # TypePack spec은 트리로 한 번만 분류한다 — 타입 추가는 spec 파일 1개 + manifest 1행이며
+  # 이 파일을 매번 고치지 않는다. 트리와 manifest의 1:1 closure는 manifest validator가 소유한다.
+  - { tree: references/types/specs, kind: normative-doc }
 
   # --- profiles / registries -------------------------------------------------
   - { path: references/package-surface.yaml, kind: profile }

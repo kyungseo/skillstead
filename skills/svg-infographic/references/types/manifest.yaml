@@ -11,9 +11,12 @@
 #                                                   # machine verifier + receipt exist;
 #                                                   # gated types must not appear in
 #                                                   # discovery copy or the cookbook
-#   spec:             types/<id>.md                 # must exist — owns local region
-#                                                   # partition, complexity budget,
-#                                                   # degrade ladder, known failures
+#   spec:             types/specs/<id>.md           # 1:1 with this entry — the spec's
+#                                                   # frontmatter (spec_schema_version /
+#                                                   # typepack_id / profile) must match,
+#                                                   # sections 1–9 must be complete, the
+#                                                   # path must be unique, and the specs
+#                                                   # tree must have no orphan file
 #   presets:          supported output presets (PageFrame registry ids, e.g. social-4x5)
 #   orientations:     supported orientations (portrait | landscape | square) — kept
 #                     separate from presets; preset ids never encode orientation
@@ -22,8 +25,19 @@
 #   examples:         [] | example ids              # gallery mapping
 #   required_roles:   Foundation roles the type consumes (resolver checks coverage)
 #   optional_aliases: domain aliases the type may consume
-#   canonical_prompt: PROMPT-GALLERY.md#<anchor>    # stable anchor into the prompt
-#                                                   # cookbook (semantics reserved)
+#   canonical_prompt: { status, anchor }            # status: reserved | bound.
+#                                                   # reserved = anchor format+uniqueness
+#                                                   # only (the gallery does not exist
+#                                                   # yet); bound = the target file and
+#                                                   # anchor must exist (fail-closed)
+#   annexes:          [] | [topology|data-accuracy] # profile-specific spec annexes the
+#                                                   # spec must also carry
+#   gate:             null | { reason, release }    # required when support: gated —
+#                                                   # gated types are withheld from the
+#                                                   # routable view but stay auditable
+#   legacy_section:   null | "<archetypes heading>" # the legacy section this TypePack
+#                                                   # replaces; that section must be a
+#                                                   # pointer tombstone, not a rival rule
 #   composition:      OPTIONAL capability block (schema v2). Absent => the TypePack
 #                     is composable: false. Fields:
 #     composable: true|false
@@ -45,9 +59,14 @@
 # rejected fail-closed. Existing TypePacks migrate without a composition block and
 # are therefore composable: false until they opt in.
 #
-# Validation gate: unique ids, referenced paths exist, selection-table 1:1 mapping,
-# positive + duplicate/missing-path negative fixtures. TypePacks declare role
-# requirements only — no hex values, no palette ids.
+# Validation gate: unique ids, spec identity/section/inventory closure, unique prompt
+# anchors with their reserved|bound state, promotion evidence for `core`, gate reason
+# for `gated`, legacy tombstone closure, and the derived selection view. TypePacks
+# declare role requirements only — no hex values, no palette ids.
+#
+# Promotion: `experimental` is a preview state. `core` additionally requires at least
+# one registered example and profile-appropriate verification evidence (fixtures for
+# every profile; a machine verifier as well for exact-parametric / data-accuracy).
 #
 # Population happens as the archetype catalog migrates to TypePacks; pilots
 # register here only when promoted.
@@ -63,7 +82,7 @@ typepacks:
     selection_signal: "핵심 항목·수치 몇 개를 동등한 카드로 요약 (feature highlight·원칙·상태 카운트·역량 요약; 데이터 정확성을 주장하는 chart가 아님)"
     profile: constrained-layout
     support: experimental
-    spec: types/cards-kpi-grid.md
+    spec: types/specs/cards-kpi-grid.md
     presets: [social-4x5, presentation-16x9]
     orientations: [portrait, landscape]
     verifier: null
@@ -71,7 +90,10 @@ typepacks:
     examples: []
     required_roles: [canvas, surface, ink, muted, rule, focus]
     optional_aliases: []
-    canonical_prompt: PROMPT-GALLERY.md#cards-kpi-grid
+    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#cards-kpi-grid }
+    annexes: []
+    gate: null
+    legacy_section: "Cards / KPI stat grid"
     composition:
       composable: true
       min_slot_size: { w: 640, h: 240 }
@@ -86,7 +108,7 @@ typepacks:
     selection_signal: "아래 층을 기반으로 쌓이거나 추상화하는 계층 구조 (플랫폼 스택·런타임 계층·역량 모델)"
     profile: constrained-layout
     support: experimental
-    spec: types/layer-stack.md
+    spec: types/specs/layer-stack.md
     presets: [social-4x5, presentation-16x9]
     orientations: [portrait, landscape]
     verifier: null
@@ -94,4 +116,7 @@ typepacks:
     examples: []
     required_roles: [canvas, surface, ink, muted, rule, focus]
     optional_aliases: []
-    canonical_prompt: PROMPT-GALLERY.md#layer-stack
+    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#layer-stack }
+    annexes: []
+    gate: null
+    legacy_section: "Layer stack"

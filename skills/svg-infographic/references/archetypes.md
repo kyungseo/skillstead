@@ -17,30 +17,19 @@ This is the default visual language — the gallery look. Apply it unless the us
 - **Line styles:** solid = sync/request/normal path; dashed `5 4` = async/private/feedback. Add a small legend whenever both appear.
 
 > **Migration note (Wave 1).** The catalog is moving to TypePacks one type at a
-> time: a migrated type has a spec under `references/types/` and a row in the
-> generated `references/types/selection.md`. Where a type exists in both places,
-> the TypePack spec is authoritative and this section stays as the legacy summary
-> until it is removed.
+> time. A migrated type keeps only a **pointer tombstone** here — its rules live in
+> `references/types/specs/<id>.md` and it is routed by the generated
+> `references/types/selection.md`. This file stays normative **only for types that
+> have not been migrated yet**; a registered TypePack may never have a rival rule
+> set here, and the manifest validator fails closed if one reappears.
 
 ## Layer stack
 
-**Choose when:** layered capability — each layer builds on or abstracts the one below (platform stacks, runtime layers, org capability models).
-
-**Skeleton:**
-
-```
-[ header ]
-[ band: Layer 4  (top = most user-facing) ]
-[ band: Layer 3 ]
-[ band: Layer 2 ]
-[ band: Layer 1  (bottom = foundation) ]
-```
-
-Full-width horizontal bands, equal height (72–110px), stacked with a consistent 16–24px gap. Layer label left or centered; 2–4 white chips/cards inside each band for the layer's components.
-
-**Recipe:** one color family per layer (fill/line/ink from the same family); optional light→saturated progression toward the most important layer; a short annotation column on the right if layers need one-line descriptions.
-
-**Checks:** all bands exactly equal width and x-position; equal gaps; chips inside a band don't overflow the band's right edge (run the last-edge formula per band); layer order actually encodes the dependency direction (state it in the subtitle if not obvious).
+**Migrated to TypePack `layer-stack`.** The selection signal, input contract,
+layout formulas, degrade ladder and checks live in
+[`types/specs/layer-stack.md`](types/specs/layer-stack.md); routing is in
+[`types/selection.md`](types/selection.md). Nothing in this file is normative
+for this type any more — do not re-apply the old recipe alongside the spec.
 
 ## Nested / onion
 
@@ -159,21 +148,11 @@ Two **equal-height, equal-width** panels with a 32–48px gutter; optional cente
 
 ## Cards / KPI stat grid
 
-**Choose when:** a few headline items or numbers — feature highlights, principles, status counts, capability summary. (A grid of qualitative items — **not** a data-accurate chart.)
-
-**Skeleton:**
-
-```
-[ header ]
-[ [card] [card] [card] ]
-[ [card] [card] [card] ]   (2×N grid)
-```
-
-2×N (or 1×N for ≤4 items) grid of equal cards: icon circle + title + one-line description; KPI variant: big numeral + label + caption.
-
-**Recipe:** icon-first white cards; a number badge only if the cards form a sequence; KPI numerals in the card's family ink at ~2× card-title size; keep one card emphasized at most.
-
-**Checks:** grid arithmetic both directions (last-edge formula for columns *and* rows); all cards identical size; text budget per card respected (headline ≤ 2 lines, body ≤ 2 lines); icon and full text cluster share one computed vertical center, not separate nudges; repeated cards use the opt-in `icon-text-card` source contract from `authoring.md` §7.
+**Migrated to TypePack `cards-kpi-grid`.** The selection signal, input contract,
+layout formulas, degrade ladder and checks live in
+[`types/specs/cards-kpi-grid.md`](types/specs/cards-kpi-grid.md); routing is in
+[`types/selection.md`](types/selection.md). Nothing in this file is normative
+for this type any more — do not re-apply the old recipe alongside the spec.
 
 ## Decision / risk matrix
 
