@@ -212,6 +212,10 @@ function loadTypography(errors, overridePath = null) {
     const Li = cfg.license ?? {};
     if (typeof Li.id !== "string" || !Li.id.trim()) errors.push(`typography: ${t}: license.id required`);
     if (!Array.isArray(Li.rfn)) errors.push(`typography: ${t}: license.rfn must be a list (empty when no Reserved Font Name is declared)`);
+    if (A.policy === "bundled") {
+      if (typeof Li.evidence !== "string" || !Li.evidence.trim()) errors.push(`typography: ${t}: bundled asset requires license.evidence path`);
+      else { try { readFileSync(path.resolve(skinsDir, "..", "..", Li.evidence)); } catch { errors.push(`typography: ${t}: license.evidence not found at ${Li.evidence}`); } }
+    }
   }
   return { doc, digest };
 }
@@ -634,7 +638,7 @@ function main() {
     const out = computePageFrame(P, opts);
     if (!out.fluid && (out.contentBox.h == null || out.contentBox.h <= 0)) fail(1, `preset ${preset}: computed contentBox height is not positive (${out.contentBox.h}) — canvas too small for the requested regions`);
     if (out.contentBox.w <= 0) fail(1, `preset ${preset}: computed contentBox width is not positive (${out.contentBox.w})`);
-    const receipt = { schemaVersion: 1, command: "pageframe", kernelVersion: "wave0-cp2",
+    const receipt = { schemaVersion: 1, command: "pageframe", kernelVersion: "kernel-v1",
       profile: { id: pf.doc.id, digest: pf.digest }, preset, orientation: P.orientation,
       canvas: { width: P["canvas-width"], height: P["canvas-height"] },
       options: opts, arrow: P.arrow, "scale-band": pf.doc["scale-band"], regions: out, errors: [], warnings: [] };
@@ -649,7 +653,7 @@ function main() {
     const to = parseOptions("typography", tArg ? restAll.slice(1) : restAll);
     const errors = [];
     const typo = loadTypography(errors, tArg);
-    const receipt = { schemaVersion: 1, command: "typography", kernelVersion: "wave0-cp2",
+    const receipt = { schemaVersion: 1, command: "typography", kernelVersion: "kernel-v1",
       profileDigest: typo?.digest ?? null,
       treatments: typo && !errors.length ? Object.fromEntries(Object.entries(typo.doc.treatments).map(([t, cfg]) => [t, {
         ko: cfg.locales.ko.face, en: cfg.locales.en.face,
@@ -694,13 +698,17 @@ function main() {
       }
       const rootSketch = /<svg[^>]*data-treatment\s*=\s*"sketch"/.test(src);
       const firstFam = (v) => String(v).split(",")[0].trim().replace(/^['"]|['"]$/g, "");
-      const famOf = (tag) => {
-        const a = tag.match(/font-family\s*=\s*("([^"]*)"|'([^']*)')/);
-        if (a) return a[2] ?? a[3];
-        const st = tag.match(/style\s*=\s*("([^"]*)"|'([^']*)')/);
-        const inStyle = (st?.[2] ?? st?.[3])?.match(/font-family:\s*([^;"}]+)/);
-        return inStyle ? inStyle[1] : null;
+      const attrOf = (tag, name) => {
+        const a = tag.match(new RegExp(name + "\\s*=\\s*(\"([^\"]*)\"|'([^']*)')"));
+        return a ? (a[2] ?? a[3]) : null;
       };
+      const styleOf = (tag, prop) => {
+        const st = attrOf(tag, "style");
+        const m2 = st?.match(new RegExp(prop + ":\\s*([^;\"}]+)"));
+        return m2 ? m2[1].trim() : null;
+      };
+      const famOf = (tag) => attrOf(tag, "font-family") ?? styleOf(tag, "font-family");
+      const weightOf = (tag) => attrOf(tag, "font-weight") ?? styleOf(tag, "font-weight");
       // stack: [ {scope, family} ] — g/svg 진입 시 push
       const stack = [];
       let texts = 0;
@@ -708,15 +716,19 @@ function main() {
         const [, close, name, attrs, self] = m;
         if (close) { if (["g", "svg", "text"].includes(name)) stack.pop(); continue; }
         const fam = famOf(m[0]);
-        const scopeAttr = m[0].match(/data-typography-scope\s*=\s*"([^"]+)"/)?.[1]
+        const scopeAttr = attrOf(m[0], "data-typography-scope")
           ?? (name === "svg" && rootSketch ? (embedded[0] ?? sk.locales.ko.face) : null);
-        const frame = { scope: scopeAttr ?? stack.at(-1)?.scope ?? null, family: fam ? firstFam(fam) : stack.at(-1)?.family ?? null };
+        // F2: weight도 상속 stack으로 계산 (상위 g의 style/attr 700 상속 검출)
+        const w0 = weightOf(m[0]);
+        const frame = { scope: scopeAttr ?? stack.at(-1)?.scope ?? null,
+                        family: fam ? firstFam(fam) : stack.at(-1)?.family ?? null,
+                        weight: w0 ?? stack.at(-1)?.weight ?? null };
         if (!self && ["g", "svg", "text"].includes(name)) stack.push(frame);
         if (name !== "text" && name !== "tspan") continue;
         const inScope = frame.scope != null;
         if (!inScope) continue;
         texts++;
-        const secondary = /data-typography-role\s*=\s*"secondary"/.test(m[0]);
+        const secondary = attrOf(m[0], "data-typography-role") === "secondary";
         const eff = frame.family;
         if (secondary) {
           if (!eff || firstFam(eff) !== firstFam(secondaryHead))
@@ -724,11 +736,14 @@ function main() {
         } else if (!eff || eff !== frame.scope) {
           errors.push(`E-TYPO-LOST <${name}> in scope "${frame.scope}" resolves to "${eff ?? "(document default)"}" — the wrapper lost the typography alias (silent fallback)`);
         } else {
-          const w = m[0].match(/font-weight\s*=\s*"(\d+)"/)?.[1];
-          if (w && !allowedWeights.has(Number(w)))
-            errors.push(`E-TYPO-WEIGHT <${name}> uses weight ${w} but the sketch face supports [${[...allowedWeights].join(", ")}] — synthetic weights are forbidden`);
+          const w = frame.weight;
+          if (w != null && !allowedWeights.has(Number(w)))
+            errors.push(`E-TYPO-WEIGHT <${name}> resolves to weight ${w} (inherited cascade included) but the sketch face supports [${[...allowedWeights].join(", ")}] — synthetic weights are forbidden`);
         }
       }
+      const hasMarkers = rootSketch || /data-typography-(scope|role)\s*=/.test(src);
+      if (hasMarkers && texts === 0)
+        errors.push("E-TYPO-EMPTY typography markers present but no scoped text was recognized — malformed annotation must not degrade to \"nothing to check\"");
       total += errors.length;
       receipts.push({ file: path.basename(file), embeddedFamilies: embedded, rootSketchScope: rootSketch,
         textsChecked: texts, evidenceLevel: "computed-cascade (static) — not rendered-face proof", errors });
@@ -848,7 +863,7 @@ function main() {
       ...(ctx.registry ? { registry: { digest: ctx.registry.digest, selectionBasis } } : {}),
       mode, treatment, updated: findings.updated, verified: findings.verified,
       staticKept: findings.staticKept,
-      kernelVersion: "wave0-cp2",
+      kernelVersion: "kernel-v1",
       sourceDigest: sha(text),
       warnings: findings.unannotated.map((u) => `unannotated canonical hex ${u.value} on ${u.attr} (add a role annotation or data-paint-static)`),
       errors,
@@ -924,7 +939,7 @@ function main() {
     ...(ctx.registry ? { registry: { digest: ctx.registry.digest, selected: ctx.registry.selected, selectionBasis } } : {}),
     errors: ctx.errors,
     warnings: ctx.warnings,
-    provenance: { kernel: "wave0-cp2", palette: ctx.prof.id, extension_point: null },
+    provenance: { kernel: "kernel-v1", palette: ctx.prof.id, extension_point: null },
   };
   if (cmd === "validate") {
     if (!ctx.errors.length && ctx.prof.kind === "palette") receipt.contrast = contrastMatrix(ctx.prof, MODES);

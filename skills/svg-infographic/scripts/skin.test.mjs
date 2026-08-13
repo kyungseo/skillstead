@@ -8,6 +8,7 @@ import { readFileSync, writeFileSync, mkdtempSync, copyFileSync } from "node:fs"
 import { tmpdir } from "node:os";
 import path from "node:path";
 import fs from "node:fs";
+import os from "node:os";
 import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -139,7 +140,7 @@ test("single-quoted annotated mismatch fails closed", () => {
 test("materialize receipt carries kernelVersion and sourceDigest", () => {
   const r = run(["materialize", path.join(FIX, "portable-positive.svg"), "--check", "--json"]);
   const j = JSON.parse(r.out);
-  assert.equal(j.kernelVersion, "wave0-cp2");
+  assert.equal(j.kernelVersion, "kernel-v1");
   assert.match(j.sourceDigest, /^[0-9a-f]{16}$/);
 });
 
@@ -350,12 +351,45 @@ test("typography-check: remote font src는 error", () => {
   assert.equal(r.code, 1);
   assert.match(r.out, /E-TYPO-REMOTE/);
 });
+test("typography-check: 상위 g 상속 weight 700도 검출(F2)", () => {
+  const r = run(["typography-check", path.join(TFIX, "tf-inherited-weight.svg")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-TYPO-WEIGHT .*inherited cascade included/);
+});
+test("typography-check: spaced/single-quote scope도 인식되어 유실 검출(F2)", () => {
+  const r = run(["typography-check", path.join(TFIX, "tf-single-quote-scope.svg")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-TYPO-LOST/);
+});
+test("typography-check: spaced double-quote 정상 조합은 통과(F2 동등성)", () => {
+  const r = run(["typography-check", path.join(TFIX, "tf-spaced-scope-ok.svg")]);
+  assert.equal(r.code, 0, r.out);
+});
+test("typography-check: marker 존재 + scope text 0은 fail-closed(F2)", () => {
+  const td = fs.mkdtempSync(path.join(os.tmpdir(), "typo-empty-"));
+  const tmp = path.join(td, "empty.svg");
+  let r;
+  try {
+    fs.writeFileSync(tmp, '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" data-treatment="sketch"><rect width="10" height="10" fill="#FAF4EB"/></svg>');
+    r = run(["typography-check", tmp]);
+  } finally { fs.rmSync(td, { recursive: true, force: true }); }
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-TYPO-EMPTY/);
+});
+test("typography: bundled인데 license.evidence 누락은 error(F8)", () => {
+  const r = run(["typography", path.join(TFIX, "typo-missing-license-evidence.yaml")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /bundled asset requires license.evidence/);
+});
 test("typography: bundled asset의 digest mismatch는 error", () => {
   const base = fs.readFileSync(path.join(here, "..", "references", "typography", "typography-v1.yaml"), "utf8");
-  const tmp = path.join(TFIX, "temp-digest.yaml");
-  fs.writeFileSync(tmp, base.replace(/digest: [0-9a-f]{64}/, "digest: " + "f".repeat(64)));
-  const r = run(["typography", tmp]);
-  fs.unlinkSync(tmp);
+  const td = fs.mkdtempSync(path.join(os.tmpdir(), "typo-fixture-"));
+  const tmp = path.join(td, "temp-digest.yaml");
+  let r;
+  try {
+    fs.writeFileSync(tmp, base.replace(/digest: [0-9a-f]{64}/, "digest: " + "f".repeat(64)));
+    r = run(["typography", tmp]);
+  } finally { fs.rmSync(td, { recursive: true, force: true }); }
   assert.equal(r.code, 1);
   assert.match(r.out, /asset digest mismatch/);
 });

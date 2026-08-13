@@ -5,7 +5,7 @@ and connector rules stay in `authoring.md`; archetype recipes stay in `archetype
 This file owns **identity**: what makes any two outputs read as one product.
 
 Approved canonical skin (decision provenance: *Selected canonical skin — Candidate C +
-Owner neutral-hierarchy adjustment*, 2026-08-12):
+approved neutral-hierarchy adjustment*, design review 2026-08-12):
 
 ![Approved svg-infographic canonical skin](media/canonical-skin-contact-sheet.png)
 
@@ -94,7 +94,7 @@ node scripts/skin.mjs registry
 
 Resolution model: `palette × mode × treatment` without duplicate definitions, with
 a receipt (profile digests, resolved-token digest, selected-mode contrast matrix).
-Wave 0 supported combinations — anything else is rejected fail-closed:
+Supported combinations — anything else is rejected fail-closed:
 
 | treatment | light | dark |
 | --- | --- | --- |
@@ -110,7 +110,7 @@ add/remove is a kernel migration, not a profile edit.
 Typography는 palette/treatment와 독립된 축으로, family/face/weight/style·fallback·
 synthetic 정책·asset/embed 정책·license를 **typography profile**이 단일 소유한다
 (registry `current.typography` 선택; 크기·행간은 PageFrame scale band 소유 유지).
-sketch face는 audition으로 **Hi Melody**가 선정됐다(2026-08-13, Owner) — regular
+sketch face는 audition으로 **Hi Melody**가 선정됐다(design review, 2026-08-13) — regular
 단일 face, role weight 400 정규화, shipped sketch 산출물은 glyph subset embed
 (`assets/fonts/` 원본 + license). `skin.mjs typography-check`가 최종 산출물(단독·
 composite 모두)의 effective font cascade를 fail-closed 검증하고, `font-probe.mjs`가
@@ -185,9 +185,9 @@ Contract for distributed canonical SVG:
   `currentColor`) vs **positive** (same geometry, per-shape direct paint) —
   canonical artifacts use the positive form.
 
-Delivery: the contract and annotation schema land in Wave 0 CP2 (this section);
-the direct-paint lint/materializer and negative fixtures in CP3; portable pilot
-generation with PNG parity in CP4. If real PPT import verification is not possible
+Delivery: the contract and annotation schema land first (this section); then the
+direct-paint lint/materializer with negative fixtures; then portable pilot
+generation with PNG parity. If real PPT import verification is not possible
 there, it is recorded as **unverified** and queued as follow-up work.
 
 ## 6. PageFrame & layout contract
@@ -240,7 +240,7 @@ Canvas → Safe area
 - **Minimal variant: H-B** — the same stack without the locator.
 - **Rejected: the vertical accent rail** (unstable length/boundary across 1–2-line
   titles; ambiguous representative scope). Never regenerate it in new output;
-  legacy examples keep it only until the Wave 1 regeneration. H-D open-callout
+  legacy examples keep it only until the catalog regeneration. H-D open-callout
   variants live in review evidence only.
 - Decoration derives from the computed header cluster bounds — it never owns its
   own coordinates.
@@ -368,8 +368,8 @@ annotations is a named follow-up (`svg-infographic-semantic-region-annotation`).
   light/dark/sketch profiles on one canvas for review, so it is *not* an ordinary
   canonical-output surface and is not linted under a single `--palette-profile`
   (its pilots are linted individually under their own profiles). It is regenerated
-  from resolver output + materializer-verified pilots (generator lineage: Work
-  FEAT-20260812-001 evidence); package-local automatic regeneration
+  from resolver output + materializer-verified pilots (generator lineage: design review
+  evidence); package-local automatic regeneration
   (`skin.mjs contact-sheet`) stays **reserved** and the recolor/contact-sheet
   contract items stay **partial** until it lands.
 - Resolver receipts reserve the provenance identity shared by future SVG

@@ -324,6 +324,20 @@ export async function main(argv) {
     return 5;
   }
 
+  // --- 1a2. typography contract gate (typography SSoT) ----------------------
+  // sketch/typography annotation이 있는 SVG는 browser 실행 전에 typography-check를
+  // fail-closed로 통과해야 한다 — canonical renderer만 실행해도 must-fix가 우회되지
+  // 않는다. (runtime font-probe는 별도 명령 — 정적 gate가 이 단계의 계약이다.)
+  if (/data-treatment\s*=\s*["']sketch["']|data-typography-(scope|role)\s*=/.test(readFileSync(svg, "utf8"))) {
+    const skinCli = new URL("./skin.mjs", import.meta.url).pathname;
+    const tr = spawnSync(process.execPath, [skinCli, "typography-check", svg], { encoding: "utf8" });
+    if (tr.stdout) process.stdout.write(tr.stdout);
+    if (tr.status !== 0) {
+      console.error("typography contract failed: fix the effective-font errors above (design-kernel section 4), then re-run.");
+      return 5;
+    }
+  }
+
   // --- 1b. layout contract gate (design-kernel §7) -------------------------
   // layout annotation이 있는 SVG는 check-svg → check-layout → browser 순으로
   // fail-closed 실행된다. data-layout-unverified(exit 3)는 성공이 아니라 명시적

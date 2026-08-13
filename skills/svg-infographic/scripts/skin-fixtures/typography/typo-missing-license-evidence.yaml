@@ -29,7 +29,7 @@ treatments:
       id: OFL-1.1
       rfn: []
   sketch:
-    # Selected 2026-08-13 (typography audition, design review): Hi Melody —
+    # Selected 2026-08-13 (typography audition, Owner decision): Hi Melody —
     # single canonical sketch face. Poor Story stays a readability-oriented
     # validated alternative in audition evidence only (no package asset).
     locales:
@@ -52,5 +52,4 @@ treatments:
       embed: subset
     license:
       id: OFL-1.1
-      evidence: assets/fonts/HiMelody-OFL.txt
       rfn: []

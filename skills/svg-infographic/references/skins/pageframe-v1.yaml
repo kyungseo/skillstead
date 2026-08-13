@@ -1,7 +1,7 @@
 # PageFrame preset registry — machine profile for page-region computation.
 # Consumed by `node scripts/skin.mjs pageframe <preset> [...options]`.
 # Presets never reuse each other's px values; preset ids never encode orientation
-# (orientation is a separate field). Wave 0 verifies social-4x5, presentation-16x9
+# (orientation is a separate field). Currently verified: social-4x5, presentation-16x9
 # and document-compact; add presets here — the resolver validates the schema.
 #
 # Region model (design-kernel §6): safe area → header(optional eyebrow → H1 1–2

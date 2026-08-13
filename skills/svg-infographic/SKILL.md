@@ -20,7 +20,7 @@ Nuances: a **simple qualitative** 2×2/3×3 matrix or a status-count badge is fi
 
 | File | When to read |
 | --- | --- |
-| `references/design-kernel.md` | **Before choosing colors, tokens or typography** — the canonical skin contract: 11-role token model, domain aliases, versioned profiles + `skin.mjs` resolver, canonical Pretendard typography, approved contact sheet |
+| `references/design-kernel.md` | **Before choosing colors, tokens or typography** — the canonical skin contract: 11-role token model, domain aliases, versioned profiles + `skin.mjs` resolver, typography profile SSoT(`references/typography/`), approved contact sheet |
 | `references/archetypes.md` | **Always, before the layout pass** — the chosen archetype's layout skeleton, premium recipe, and per-type checks |
 | `references/authoring.md` | **Always, before writing SVG** — detailed geometry/connector/panel/emphasis/color rules and the full icon set; also the manual render fallback |
 | `references/sketch.md` | Only when the user asks for a hand-drawn / sketchnote / 손글씨 feel — the opt-in sketch preset (paper, handwriting font, rough filters, highlighter) |
@@ -28,6 +28,8 @@ Nuances: a **simple qualitative** 2×2/3×3 matrix or a status-count badge is fi
 | `scripts/render.sh` | Thin POSIX/Git-Bash wrapper that delegates to `render.mjs` (adds only the no-Node diagnostics) |
 | `scripts/check-svg.mjs` | Source lint gate (Node 18+, standard library only; no npm install) — the renderer runs it automatically; run it directly while iterating on the SVG source |
 - `scripts/check-layout.mjs` — layout contract guard (container padding/symmetry, equal-gap distribution, atomic card clusters; design-kernel §7). The renderer runs it automatically on layout-annotated SVGs.
+- `scripts/skin.mjs typography-check` — effective-font cascade guard (wrapper 유실·상속 weight·미annotation secondary·remote font; 최종 파일 자체를 검사 — 단독·composite 동일). The renderer runs it automatically on sketch/typography-annotated SVGs.
+- `scripts/font-probe.mjs` — browser runtime font receipt (FontFaceSet load + computed family/weight of scoped KO/EN samples; evidence level: computed+load, NOT rendered-face proof).
 | `scripts/skin.mjs` | Skin profile resolver — `validate`/`resolve`/`registry` over `references/skins/` (palette SSoT); use resolved tokens instead of inventing hex values |
 
 ## 0. Preflight — confirm, then offer to change
@@ -100,7 +102,7 @@ Pick from the content signal, then **read that archetype's section in `reference
 
 Read `references/authoring.md` for the detailed rules and the reusable icon set. The render-critical core:
 
-- **Root:** `<svg xmlns viewBox="0 0 W H" width=W height=H role="img" style="font-family:Pretendard,Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">` with `<title>`/`<desc>`. Pretendard is the canonical family for both KO and EN (`references/design-kernel.md` §4); the fallback chain has no dedicated CJK entry, so when Pretendard is missing KO glyphs resolve through the OS cascade — font-availability receipt is reserved (follow-up `svg-infographic-font-availability-receipt`) — verify tofu visually; on Linux install Pretendard (or `fonts-noto-cjk`) if Korean renders as tofu (□).
+- **Root:** `<svg xmlns viewBox="0 0 W H" width=W height=H role="img" style="font-family:...">` with `<title>`/`<desc>` — the family comes from the **typography profile SSoT** (`references/typography/typography-v1.yaml`, `skin.mjs resolve` receipt의 `typography.stack`). flat = Pretendard + normalized fallback stack(KO/EN 공용, system); sketch = **Hi Melody** glyph subset을 `@font-face` data URI로 embed(중립 alias, weight 400 고정, bundled asset `assets/fonts/`). 최종 산출물은 `skin.mjs typography-check`(정적 cascade — renderer가 sketch/typography 표기 감지 시 hard gate로 자동 실행)와 필요 시 `scripts/font-probe.mjs`(runtime load/computed receipt — rendered-face 증명 아님을 명시)로 검증한다. Linux에서 flat KO가 tofu(□)면 Pretendard 또는 `fonts-noto-cjk` 설치.
 - **Direct paint + role annotations** — colors encode role, not decoration, but the canonical SVG is authored in the PPT-oriented portable form from the start (`references/design-kernel.md` §5): every paint-bearing shape carries direct `fill`/`stroke` values plus `data-fill-role`/`data-stroke-role` annotations. Recolor by re-running the `skin.mjs` materializer against a profile, never by hand-editing hex. No `var(--…)`, `currentColor` or paint classes in canonical output:
 
 ```xml
@@ -190,7 +192,7 @@ Keep wrapper/intermediate files in the session scratchpad, not the repo. In nati
 ## 6. Defaults to state (and let the user change)
 
 - Style: muted technical · light background · icons = soft circular bg + line icon. Opt-in alternative: **sketch preset** (tidy hand-drawn — paper, Korean handwriting font, rough strokes; see `references/sketch.md`) when the user asks for that feel
-- Font stack: Pretendard, Apple SD Gothic Neo, Malgun Gothic, Noto Sans KR, sans-serif (covers macOS/Windows/Linux CJK)
+- Font: typography profile SSoT를 따른다 — flat: Pretendard + normalized fallback(system), sketch: Hi Melody subset embed(weight 400). profile 밖 stack을 임의 선언하지 않는다
 - Changeable: brand color, ratio (docs vs 4:5 social), dark mode (a separate direct-paint artifact re-materialized from the profile — `diagram.dark.svg`; never a media query in one SVG), icon style, Korean/English, SVG-only vs SVG+PNG
 - Optional attribution/footer layer: **off by default.** On request, add a small footer strip (source, author, or date) as its own bottom layer — a labeled footer, not a watermark laid over the content.
 

@@ -2,8 +2,8 @@
 
 ## HiMelody-Regular.ttf — canonical sketch handwriting face
 
-- Selected: 2026-08-13 (typography audition, Owner decision — planning provenance:
-  private planning repo Work FEAT-20260812-002)
+- Selected: 2026-08-13 (typography audition — design review; candidates and rationale
+  are preserved in the review evidence)
 - License: SIL OFL 1.1 (`HiMelody-OFL.txt`) — no Reserved Font Name declaration,
   so subsets may keep a derived name; we still use a neutral deterministic internal
   alias in embedded subsets.
