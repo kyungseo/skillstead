@@ -35,9 +35,18 @@ Ordered steps or handoffs.
 
 ## 4. Intrinsic fit and variant contract
 
-- Main row fits when `n × nodeMin + (n − 1) × arrowRun ≤ regionW` with `nodeMin` keeping two text lines; otherwise steps are merged or demoted (§6) — nodes are never shrunk below the floor.
-- Tall canvases (4:5) may run top → bottom; the same floor applies to the vertical axis.
-- Swimlane is a declared variant of the same type, not a separate TypePack; it requires one extra lane-label gutter.
+Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 region에 들어가는지
+판정하고, 들어가지 않으면 §6 ladder로 내려간다. 글자·간격을 줄여 억지로 맞추지 않는다.
+
+**수식 변수는 이 문서가 아니라 manifest의 `fit` 블록이 소유한다**(`references/types/manifest.yaml`,
+해당 TypePack의 `fit.cardinality` / `fit.params` / `fit.footprint`). 문서에 상수를 다시
+적으면 두 벌이 어긋나므로, 여기서는 배치 종류와 판정 경계만 적는다.
+
+- 배치: row(가로) / column(세로)
+- 판정: `fit.footprint`가 params에서 계산되고, `fit.feasibility`가 **실제 PageFrame
+  contentBox**(preset별 live receipt)와 대조돼 `fits` 또는 `needs-split`으로 확정된다.
+  manifest validator가 두 계산을 모두 재수행하므로 선언만으로 통과할 수 없다.
+- 경계: **4:5 portrait에서 5단계는 가로로 성립하지 않는다** — 가로 압축이 아니라 top→bottom(column)으로 배치한다. 16:9은 가로 5단계가 성립한다.
 
 ## 5. Layout, encoding and connector rules
 

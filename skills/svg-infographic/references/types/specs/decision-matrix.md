@@ -35,9 +35,18 @@ Options placed by two qualitative axes.
 
 ## 4. Intrinsic fit and variant contract
 
-- Fit requires each cell to hold name + trait at the floor **and** keep the corner-decoration budget: badge, status label and corner icon need ≥ 20–24px between bounding boxes.
-- Axis label gutters are reserved outside the panel block before cells are sized; when the remaining block cannot meet the cell floor, §6 applies.
-- 3×3 is a declared variant of the same type with a tighter per-cell budget (no examples).
+Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 region에 들어가는지
+판정하고, 들어가지 않으면 §6 ladder로 내려간다. 글자·간격을 줄여 억지로 맞추지 않는다.
+
+**수식 변수는 이 문서가 아니라 manifest의 `fit` 블록이 소유한다**(`references/types/manifest.yaml`,
+해당 TypePack의 `fit.cardinality` / `fit.params` / `fit.footprint`). 문서에 상수를 다시
+적으면 두 벌이 어긋나므로, 여기서는 배치 종류와 판정 경계만 적는다.
+
+- 배치: grid 2×2 / 3×3 + axis gutter
+- 판정: `fit.footprint`가 params에서 계산되고, `fit.feasibility`가 **실제 PageFrame
+  contentBox**(preset별 live receipt)와 대조돼 `fits` 또는 `needs-split`으로 확정된다.
+  manifest validator가 두 계산을 모두 재수행하므로 선언만으로 통과할 수 없다.
+- 경계: 축 gutter를 제외한 뒤에도 2×2와 3×3이 두 preset에서 성립한다. corner decoration 간격은 cell floor에 포함된 예산이다.
 
 ## 5. Layout, encoding and connector rules
 
@@ -62,7 +71,10 @@ Options placed by two qualitative axes.
 
 ## 8. Reading order, accessibility and locale
 
-- Reading order is declared (default: bottom-left → bottom-right → top-left → top-right for 2×2) and must match DOM order.
+- Reading order는 선언값이며 DOM 순서와 일치해야 한다. **기본값은 DOM 친화적인 top-row-first**
+  (top-left → top-right → bottom-left → bottom-right)다. 축 의미상 아래 행부터 읽어야 하는
+  경우(예: 저위험 → 고위험 상승)에는 입력이 그 순서를 **명시적으로 선언**해야 하며, 암묵적
+  기본값으로 두지 않는다.
 - Severity is never colour-only: the cell trait states it.
 - KO and EN budgets are per script; corner decorations are budgeted per script too.
 

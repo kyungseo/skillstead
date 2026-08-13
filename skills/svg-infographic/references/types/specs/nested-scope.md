@@ -36,9 +36,18 @@ Five or more rings is a degrade input (§6): merge rings or split the artifact.
 
 ## 4. Intrinsic fit and variant contract
 
-- Ring inset is uniform and computed: `inset = clamp(40, (min(regionW, regionH) − coreMin) / (2 × (n − 1)), 70)`.
-- Fit requires the innermost core to keep `coreMin = 120 × 120` and every ring's visible top strip to be at least `labelLine + 2 × pad` tall; when either floor fails the type does not fit and §6 applies — insets are never shrunk below 40.
-- No variants are declared in Wave 1; the ladder goes to merge/split instead.
+Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 region에 들어가는지
+판정하고, 들어가지 않으면 §6 ladder로 내려간다. 글자·간격을 줄여 억지로 맞추지 않는다.
+
+**수식 변수는 이 문서가 아니라 manifest의 `fit` 블록이 소유한다**(`references/types/manifest.yaml`,
+해당 TypePack의 `fit.cardinality` / `fit.params` / `fit.footprint`). 문서에 상수를 다시
+적으면 두 벌이 어긋나므로, 여기서는 배치 종류와 판정 경계만 적는다.
+
+- 배치: concentric
+- 판정: `fit.footprint`가 params에서 계산되고, `fit.feasibility`가 **실제 PageFrame
+  contentBox**(preset별 live receipt)와 대조돼 `fits` 또는 `needs-split`으로 확정된다.
+  manifest validator가 두 계산을 모두 재수행하므로 선언만으로 통과할 수 없다.
+- 경계: 4겹까지 두 preset에서 성립한다. inset은 균등하며 core 최소 크기를 침범하지 않는다.
 
 ## 5. Layout, encoding and connector rules
 

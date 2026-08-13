@@ -105,6 +105,15 @@ typepacks:
     gate: null
     migration_origin: legacy
     legacy_section: "Cards / KPI stat grid"
+    fit:
+      cardinality: { min: 3, canonical: 4, max: 6 }
+      params: { itemMinW: 132, itemMinH: 104, gapX: 16, gapY: 16 }
+      footprint:
+        - { count: 4, layout: row, w: 576, h: 104 }
+        - { count: 6, layout: grid, cols: 2, w: 280, h: 344 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 6, layout: grid, result: fits }
+        - { preset: presentation-16x9, orientation: landscape, count: 6, layout: grid, result: fits }
     composition:
       composable: true
       min_slot_size: { w: 640, h: 240 }
@@ -133,6 +142,14 @@ typepacks:
     gate: null
     migration_origin: legacy
     legacy_section: "Layer stack"
+    fit:
+      cardinality: { min: 3, canonical: 4, max: 5 }
+      params: { itemMinW: 520, itemMinH: 72, gapX: 20, gapY: 20 }
+      footprint:
+        - { count: 5, layout: column, w: 520, h: 440 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 5, layout: column, result: fits }
+        - { preset: presentation-16x9, orientation: landscape, count: 5, layout: column, result: fits }
   - id: nested-scope
     selection_signal: "포함·범위 관계 — 안쪽이 바깥쪽 안에 산다 (신뢰 zone·scope ring·platform → app → feature)"
     profile: constrained-layout
@@ -151,6 +168,14 @@ typepacks:
     gate: null
     migration_origin: legacy
     legacy_section: "Nested / onion"
+    fit:
+      cardinality: { min: 3, canonical: 3, max: 4 }
+      params: { itemMinW: 120, itemMinH: 120, inset: 40, gapX: 0, gapY: 0 }
+      footprint:
+        - { count: 4, layout: concentric, w: 360, h: 360 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 4, layout: concentric, result: fits }
+        - { preset: presentation-16x9, orientation: landscape, count: 4, layout: concentric, result: fits }
   - id: topology-component
     selection_signal: "시스템·컴포넌트와 그 연결 — 요청 경로·클라우드/네트워크 zone·시스템 경계가 있는 서비스 아키텍처"
     profile: editorial-composition
@@ -169,6 +194,14 @@ typepacks:
     gate: null
     migration_origin: legacy
     legacy_section: "Topology / component"
+    fit:
+      cardinality: { min: 2, canonical: 3, max: 4 }
+      params: { itemMinW: 140, itemMinH: 96, gapX: 16, gapY: 24 }
+      footprint:
+        - { count: 4, layout: grid, cols: 4, w: 608, h: 96 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 4, layout: grid, result: fits }
+        - { preset: presentation-16x9, orientation: landscape, count: 4, layout: grid, result: fits }
   - id: process-flow
     selection_signal: "순서 있는 단계나 인계 — 프로세스·파이프라인·데이터 흐름·리뷰 루프"
     profile: constrained-layout
@@ -187,6 +220,17 @@ typepacks:
     gate: null
     migration_origin: legacy
     legacy_section: "Flow"
+    fit:
+      cardinality: { min: 3, canonical: 4, max: 5 }
+      params: { itemMinW: 132, itemMinH: 88, gapX: 44, gapY: 36 }
+      footprint:
+        - { count: 5, layout: row, w: 836, h: 88 }
+        - { count: 5, layout: column, w: 132, h: 584 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 5, layout: row, result: needs-split }
+        - { preset: social-4x5, orientation: portrait, count: 5, layout: column, result: fits }
+        - { preset: presentation-16x9, orientation: landscape, count: 5, layout: row, result: fits }
+        - { preset: presentation-16x9, orientation: landscape, count: 5, layout: column, result: fits }
   - id: approval-gate
     selection_signal: "승인 gate·체크포인트가 하나 있는 단순 요청 경로 (a→b→c; 전체 sequence diagram은 범위 밖)"
     profile: constrained-layout
@@ -205,6 +249,14 @@ typepacks:
     gate: null
     migration_origin: legacy
     legacy_section: "Approval / sequence-lite"
+    fit:
+      cardinality: { min: 3, canonical: 3, max: 4 }
+      params: { itemMinW: 140, itemMinH: 88, gapX: 56, gapY: 56 }
+      footprint:
+        - { count: 4, layout: row, extraW: 0, extraH: 40, w: 728, h: 128 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 4, layout: row, result: needs-split }
+        - { preset: presentation-16x9, orientation: landscape, count: 4, layout: row, result: fits }
   - id: before-after
     selection_signal: "이전과 이후 — 마이그레이션·현대화·리팩터 결과·트레이드오프 비교"
     profile: constrained-layout
@@ -223,6 +275,14 @@ typepacks:
     gate: null
     migration_origin: legacy
     legacy_section: "Before / after"
+    fit:
+      cardinality: { min: 2, canonical: 2, max: 2 }
+      params: { itemMinW: 260, itemMinH: 320, gapX: 32, gapY: 32 }
+      footprint:
+        - { count: 2, layout: row, w: 552, h: 320 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 2, layout: row, result: fits }
+        - { preset: presentation-16x9, orientation: landscape, count: 2, layout: row, result: fits }
   - id: roadmap-timeline
     selection_signal: "시간·단계 — 제품 phase·마일스톤·롤아웃 wave·시점별 상태 (균등 간격이며 기간 비례를 주장하지 않음)"
     profile: constrained-layout
@@ -241,6 +301,14 @@ typepacks:
     gate: null
     migration_origin: legacy
     legacy_section: "Roadmap / timeline"
+    fit:
+      cardinality: { min: 3, canonical: 4, max: 5 }
+      params: { itemMinW: 132, itemMinH: 112, gapX: 20, gapY: 20 }
+      footprint:
+        - { count: 5, layout: row, extraW: 48, extraH: 56, w: 788, h: 168 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 5, layout: row, result: needs-split }
+        - { preset: presentation-16x9, orientation: landscape, count: 5, layout: row, result: fits }
   - id: decision-matrix
     selection_signal: "두 정성 축으로 배치하는 옵션·항목 — 2×2 우선순위/결정 사분면·3×3 리스크 격자"
     profile: constrained-layout
@@ -259,3 +327,12 @@ typepacks:
     gate: null
     migration_origin: legacy
     legacy_section: "Decision / risk matrix"
+    fit:
+      cardinality: { min: 4, canonical: 4, max: 9 }
+      params: { itemMinW: 180, itemMinH: 150, gapX: 16, gapY: 16 }
+      footprint:
+        - { count: 4, layout: grid, cols: 2, extraW: 56, extraH: 44, w: 432, h: 360 }
+        - { count: 9, layout: grid, cols: 3, extraW: 56, extraH: 44, w: 628, h: 526 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 9, layout: grid, result: fits }
+        - { preset: presentation-16x9, orientation: landscape, count: 9, layout: grid, result: fits }

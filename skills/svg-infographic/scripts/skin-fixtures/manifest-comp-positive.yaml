@@ -20,6 +20,14 @@ typepacks:
     gate: null
     migration_origin: new
     legacy_section: null
+    fit:
+      cardinality: { min: 1, canonical: 1, max: 1 }
+      params: { itemMinW: 100, itemMinH: 60, gapX: 0, gapY: 0 }
+      footprint:
+        - { count: 1, layout: row, w: 100, h: 60 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 1, layout: row, result: fits }
+        - { preset: presentation-16x9, orientation: landscape, count: 1, layout: row, result: fits }
     composition:
       composable: true
       min_slot_size: { w: 280, h: 220 }

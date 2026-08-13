@@ -49,20 +49,18 @@ promote the extras out of the grid — never shrink the card below the §4 floor
 
 ## 4. Intrinsic fit and variant contract
 
-Fit is decided **before** layout: given `n` items and the assigned region, the type
-either fits, selects a declared variant, or degrades (§6). It never resolves
-overflow by shrinking type or padding.
+Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 region에 들어가는지
+판정하고, 들어가지 않으면 §6 ladder로 내려간다. 글자·간격을 줄여 억지로 맞추지 않는다.
 
-| Variant | Min slot (w × h) | Fits | Meaning kept |
-| --- | --- | --- | --- |
-| `base` | 640 × 240 | `n ≤ 4` one row; `n = 5–6` two rows | title + body + icon |
-| `compact` | 640 × 180 | `n ≤ 4` one row; `n = 5–6` **only without bodies** | title (+ icon); bodies dropped |
+**수식 변수는 이 문서가 아니라 manifest의 `fit` 블록이 소유한다**(`references/types/manifest.yaml`,
+해당 TypePack의 `fit.cardinality` / `fit.params` / `fit.footprint`). 문서에 상수를 다시
+적으면 두 벌이 어긋나므로, 여기서는 배치 종류와 판정 경계만 적는다.
 
-Floors that decide that table: card inner height ≥ 72 (title only) or ≥ 104
-(title + body); title ≥ 13px, body ≥ 12.5px, icon circle ≥ 20px diameter; two-row
-layouts require `2 × cardH + gapY ≤ regionH`. At `n = 5–6` with bodies the 180px
-compact slot violates the text floor before the card floor — the fit check fails
-and §6 applies rather than the layout being attempted.
+- 배치: row(n ≤ 4) / grid 2열(n = 5–6)
+- 판정: `fit.footprint`가 params에서 계산되고, `fit.feasibility`가 **실제 PageFrame
+  contentBox**(preset별 live receipt)와 대조돼 `fits` 또는 `needs-split`으로 확정된다.
+  manifest validator가 두 계산을 모두 재수행하므로 선언만으로 통과할 수 없다.
+- 경계: 두 preset 모두 최대 6장까지 성립한다. compact variant는 body를 버리는 축약이지 floor를 낮추는 수단이 아니다.
 
 ## 5. Layout, encoding and connector rules
 

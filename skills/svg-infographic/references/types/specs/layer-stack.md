@@ -45,22 +45,18 @@ the artifact rather than shrinking the band height.
 
 ## 4. Intrinsic fit and variant contract
 
-Fit is decided **before** clamping. With `n` layers, gap token `g` and the floor
-`bandMin = 72`:
+Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 region에 들어가는지
+판정하고, 들어가지 않으면 §6 ladder로 내려간다. 글자·간격을 줄여 억지로 맞추지 않는다.
 
-- required height `H_req = n × bandMin + (n − 1) × g`
-- if `H_req > regionH` the type does **not** fit — §6 applies (merge layers or
-  `needs-split`). It must not clamp a band up to the floor and overflow the region.
-- otherwise `bandHeight = min(110, (regionH − (n − 1) × g) / n)`, identical for
-  every band; leftover height stays as declared residual, it is not absorbed by
-  stretching one band.
+**수식 변수는 이 문서가 아니라 manifest의 `fit` 블록이 소유한다**(`references/types/manifest.yaml`,
+해당 TypePack의 `fit.cardinality` / `fit.params` / `fit.footprint`). 문서에 상수를 다시
+적으면 두 벌이 어긋나므로, 여기서는 배치 종류와 판정 경계만 적는다.
 
-| Variant | Min slot (w × h) | Fits | Meaning kept |
-| --- | --- | --- | --- |
-| `base` | 640 × (n × 72 + (n − 1) × g) | 3–5 layers with chips | labels + chips (+ notes) |
-
-No `compact` variant is declared: below the band floor the chips stop being
-readable, so the ladder goes to merge/split instead.
+- 배치: column
+- 판정: `fit.footprint`가 params에서 계산되고, `fit.feasibility`가 **실제 PageFrame
+  contentBox**(preset별 live receipt)와 대조돼 `fits` 또는 `needs-split`으로 확정된다.
+  manifest validator가 두 계산을 모두 재수행하므로 선언만으로 통과할 수 없다.
+- 경계: 5개 층까지 두 preset에서 성립한다. clamp는 feasibility 판정 **이후**에만 적용한다 — 필요한 높이가 region을 넘으면 clamp가 아니라 §6이다.
 
 ## 5. Layout, encoding and connector rules
 

@@ -936,7 +936,17 @@ function main() {
     if (doc.schema_version !== 2) errors.push(`manifest: schema_version must be 2 (atomic package upgrade — v1 manifests are rejected; got ${doc.schema_version})`);
     const packs = doc.typepacks;
     if (!Array.isArray(packs)) errors.push("manifest: typepacks must be an array");
-    const ids = new Set(), fixtureIds = new Set(), exampleIds = new Set();
+    const ids = new Set(), fixtureIds = new Set(), exampleIds = new Set(), fixturePaths = new Set();
+    // live PageFrame receipt를 preset별로 한 번만 계산해 재사용한다(문서 상수 복사 금지)
+    const pfCache = new Map();
+    const pageframeFor = (preset) => {
+      if (pfCache.has(preset)) return pfCache.get(preset);
+      const r = spawnSync(process.execPath, [fileURLToPath(import.meta.url), "pageframe", preset, "--json"], { encoding: "utf8" });
+      let j = null;
+      try { j = JSON.parse(r.stdout); } catch { j = null; }
+      pfCache.set(preset, j);
+      return j;
+    };
     const PROFILES = ["exact-parametric", "constrained-layout", "editorial-composition"];
     const SUPPORTS = ["core", "experimental", "gated"];
     for (const p of packs || []) {
@@ -957,7 +967,7 @@ function main() {
       const FIELDS = ["id", "selection_signal", "profile", "support", "spec", "presets",
         "orientations", "verifier", "receipt_schema", "fixtures", "examples",
         "required_roles", "optional_aliases", "canonical_prompt", "annexes", "gate",
-        "migration_origin", "legacy_section", "composition"];
+        "migration_origin", "legacy_section", "fit", "composition"];
       for (const k of Object.keys(p)) if (!FIELDS.includes(k)) errors.push(`manifest: ${id}: unknown field "${k}" (locked schema: ${FIELDS.join("/")})`);
       for (const k of FIELDS) if (k !== "composition" && !(k in p)) errors.push(`manifest: ${id}: missing field "${k}"`); // composition은 optional capability (absent => composable: false)
       let pfPresets = [];
@@ -991,6 +1001,11 @@ function main() {
           const abs = path.resolve(path.dirname(mPath), "..", fp);
           if (!isUnder(abs, path.resolve(here, ".."))) errors.push(`manifest: ${id}: fixture "${f.id}" path escapes the package`);
           else { try { readFileSync(abs); } catch { errors.push(`manifest: ${id}: fixture path not found (${fp})`); } }
+          // 같은 artifact를 positive와 baseline-red로, 또는 여러 preset으로 재사용하면
+          // 증거가 아니라 등록 metadata가 된다.
+          const fkey = `${id}::${fp}`;
+          if (fixturePaths.has(fkey)) errors.push(`manifest: ${id}: fixture artifact "${fp}" is registered more than once — one artifact proves one (kind, preset) claim`);
+          else fixturePaths.add(fkey);
         }
       }
       // example은 실제 gallery anchor와 연결되는 증거다 — core 승격은 그 연결이
@@ -1003,8 +1018,10 @@ function main() {
           if (!ex.id || !/^[a-z0-9][a-z0-9-]*$/.test(String(ex.id))) errors.push(`manifest: ${id}: invalid example id "${ex.id}"`);
           else if (exampleIds.has(ex.id)) errors.push(`manifest: ${id}: duplicate example id "${ex.id}"`);
           else exampleIds.add(ex.id);
-          if (!/^[A-Za-z0-9._-]+\.md#[a-z0-9][a-z0-9-]*$/.test(String(ex.gallery_anchor ?? "")))
-            errors.push(`manifest: ${id}: example "${ex.id}" gallery_anchor must match <file>.md#<kebab-anchor>`);
+          // gallery locator는 canonical gallery 파일로 제한한다 — 아무 문서의 heading을
+          // example 증거로 등록하는 경로를 막는다.
+          if (!/^PROMPT-GALLERY\.md#[a-z0-9][a-z0-9-]*$/.test(String(ex.gallery_anchor ?? "")))
+            errors.push(`manifest: ${id}: example "${ex.id}" gallery_anchor must be PROMPT-GALLERY.md#<kebab-anchor> (the canonical gallery is the only example registry)`);
         }
       }
       if ("required_roles" in p) {
@@ -1042,6 +1059,68 @@ function main() {
       } else if (p.gate !== null) errors.push(`manifest: ${id}: gate must be null unless support is gated`);
       if (!(p.legacy_section === null || typeof p.legacy_section === "string"))
         errors.push(`manifest: ${id}: legacy_section must be null or the archetypes.md heading it replaces`);
+      // ---- fit 계약: 수식 변수는 문서 산문이 아니라 여기(SSoT)에 있고, feasibility는
+      // 선언값이 아니라 **live PageFrame contentBox로 재계산**해 대조한다.
+      const fit = p.fit;
+      if (!fit || typeof fit !== "object") errors.push(`manifest: ${id}: fit block is required (cardinality/params/footprint/feasibility)`);
+      else {
+        for (const k of Object.keys(fit)) if (!["cardinality", "params", "footprint", "feasibility"].includes(k))
+          errors.push(`manifest: ${id}: fit unknown field "${k}"`);
+        const card = fit.cardinality ?? {};
+        for (const k of ["min", "canonical", "max"]) if (!Number.isFinite(Number(card[k]))) errors.push(`manifest: ${id}: fit.cardinality.${k} must be a number`);
+        if (Number(card.min) > Number(card.canonical) || Number(card.canonical) > Number(card.max))
+          errors.push(`manifest: ${id}: fit.cardinality must satisfy min <= canonical <= max`);
+        const prm = fit.params ?? {};
+        for (const [k, v] of Object.entries(prm)) if (!Number.isFinite(Number(v))) errors.push(`manifest: ${id}: fit.params.${k} must be a number (got ${v})`);
+        const need = (n) => { if (!Number.isFinite(Number(prm[n]))) { errors.push(`manifest: ${id}: fit.params.${n} is required by the declared layouts`); return NaN; } return Number(prm[n]); };
+        const compute = (fp) => {
+          const n = Number(fp.count), ex = { w: Number(fp.extraW ?? 0), h: Number(fp.extraH ?? 0) };
+          const iw = need("itemMinW"), ih = need("itemMinH");
+          const gx = Number(prm.gapX ?? prm.gap ?? 0), gy = Number(prm.gapY ?? prm.gap ?? 0);
+          if (fp.layout === "row") return { w: n * iw + (n - 1) * gx + Number(ex.w ?? 0), h: ih + Number(ex.h ?? 0) };
+          if (fp.layout === "column") return { w: iw + Number(ex.w ?? 0), h: n * ih + (n - 1) * gy + Number(ex.h ?? 0) };
+          if (fp.layout === "grid") {
+            const cols = Number(fp.cols), rows = Math.ceil(n / cols);
+            return { w: cols * iw + (cols - 1) * gx + Number(ex.w ?? 0), h: rows * ih + (rows - 1) * gy + Number(ex.h ?? 0) };
+          }
+          if (fp.layout === "concentric") {
+            const inset = need("inset");
+            return { w: iw + 2 * (n - 1) * inset + Number(ex.w ?? 0), h: ih + 2 * (n - 1) * inset + Number(ex.h ?? 0) };
+          }
+          errors.push(`manifest: ${id}: fit footprint layout "${fp.layout}" is not one of row/column/grid/concentric`);
+          return null;
+        };
+        const byCount = new Map();
+        for (const fp of fit.footprint ?? []) {
+          for (const k of Object.keys(fp)) if (!["count", "layout", "cols", "extraW", "extraH", "w", "h"].includes(k)) errors.push(`manifest: ${id}: fit.footprint unknown field "${k}"`);
+          const got = compute(fp);
+          if (!got) continue;
+          if (Math.round(got.w) !== Number(fp.w) || Math.round(got.h) !== Number(fp.h))
+            errors.push(`manifest: ${id}: fit.footprint(count ${fp.count}, ${fp.layout}) declares ${fp.w}×${fp.h} but the params compute ${Math.round(got.w)}×${Math.round(got.h)}`);
+          byCount.set(`${fp.count}:${fp.layout}`, { ...fp, ...got });
+        }
+        if (!(fit.footprint ?? []).some((fp) => Number(fp.count) === Number(card.max)))
+          errors.push(`manifest: ${id}: fit.footprint must cover the maximum cardinality (${card.max})`);
+        // feasibility: 선언 결과를 live contentBox로 재계산해 대조한다(문서 상수 재복사 금지)
+        const seen = new Set();
+        for (const fs of fit.feasibility ?? []) {
+          for (const k of Object.keys(fs)) if (!["preset", "orientation", "count", "layout", "result"].includes(k)) errors.push(`manifest: ${id}: fit.feasibility unknown field "${k}"`);
+          if (!["fits", "needs-split"].includes(fs.result)) errors.push(`manifest: ${id}: fit.feasibility result must be fits|needs-split`);
+          if (Array.isArray(p.presets) && !p.presets.includes(fs.preset)) errors.push(`manifest: ${id}: fit.feasibility preset "${fs.preset}" is not declared by this typepack`);
+          seen.add(`${fs.preset}:${fs.count}`);
+          const fp = byCount.get(`${fs.count}:${fs.layout}`);
+          if (!fp) { errors.push(`manifest: ${id}: fit.feasibility(count ${fs.count}, ${fs.layout}) has no matching footprint`); continue; }
+          const pf = pageframeFor(fs.preset);
+          if (!pf) { errors.push(`manifest: ${id}: cannot resolve PageFrame contentBox for "${fs.preset}"`); continue; }
+          const cb = pf.regions.contentBox;
+          const fits = fp.w <= cb.w && fp.h <= cb.h;
+          const want = fits ? "fits" : "needs-split";
+          if (fs.result !== want)
+            errors.push(`manifest: ${id}: fit.feasibility(${fs.preset}, count ${fs.count}) declares "${fs.result}" but ${Math.round(fp.w)}×${Math.round(fp.h)} against contentBox ${cb.w}×${cb.h} computes "${want}"`);
+        }
+        for (const pr of (Array.isArray(p.presets) ? p.presets : []))
+          if (!seen.has(`${pr}:${card.max}`)) errors.push(`manifest: ${id}: fit.feasibility must cover preset "${pr}" at the maximum cardinality (${card.max})`);
+      }
       // migration origin: Wave 1의 기존 archetype 이행 타입은 legacy section을 반드시 명시한다
       if (!["legacy", "new"].includes(p.migration_origin)) errors.push(`manifest: ${id}: migration_origin must be legacy|new`);
       else if (p.migration_origin === "legacy" && !p.legacy_section)
@@ -1049,15 +1128,19 @@ function main() {
       else if (p.migration_origin === "new" && p.legacy_section !== null)
         errors.push(`manifest: ${id}: migration_origin "new" must not claim a legacy_section`);
       // 정확성을 주장하는 표면은 verifier와 receipt schema locator가 함께 있어야 한다
-      const accuracyBearing = p.profile === "exact-parametric" || (p.annexes ?? []).includes("data-accuracy");
+      // 의미 주장(정확성·위상)을 하는 표면은 verifier와 receipt schema locator를 함께 요구한다.
+      // topology annex도 같은 gate를 받는다 — spec의 "core는 verifier 이후" 문구와 validator가
+      // 어긋나 있으면 계약이 아니라 문구다.
+      const semanticBearing = p.profile === "exact-parametric" || (p.annexes ?? []).some((a2) => ["data-accuracy", "topology"].includes(a2));
+      const accuracyBearing = semanticBearing;
       if (p.receipt_schema !== null && p.receipt_schema !== undefined) {
         const rp = path.resolve(path.dirname(mPath), "..", String(p.receipt_schema));
         if (!isUnder(rp, path.resolve(here, ".."))) errors.push(`manifest: ${id}: receipt_schema escapes the package`);
         else { try { readFileSync(rp); } catch { errors.push(`manifest: ${id}: receipt_schema not found (${p.receipt_schema})`); } }
       }
-      if (accuracyBearing) {
-        if (!p.verifier) errors.push(`manifest: ${id}: an accuracy-bearing typepack (exact-parametric or data-accuracy annex) requires a machine verifier`);
-        if (!p.receipt_schema) errors.push(`manifest: ${id}: an accuracy-bearing typepack requires a receipt_schema locator`);
+      if (accuracyBearing && p.support === "core") {
+        if (!p.verifier) errors.push(`manifest: ${id}: a semantic-claim typepack (exact-parametric, data-accuracy or topology annex) requires a machine verifier before it may claim "core"`);
+        if (!p.receipt_schema) errors.push(`manifest: ${id}: a semantic-claim typepack requires a receipt_schema locator before it may claim "core"`);
       }
       // 승격 증거: core는 문자열이나 아무 경로로 얻을 수 없다
       if (p.support === "core") {

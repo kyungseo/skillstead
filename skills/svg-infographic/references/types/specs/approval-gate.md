@@ -34,8 +34,18 @@ A simple request path with one approval gate.
 
 ## 4. Intrinsic fit and variant contract
 
-- Fit requires the single row to hold 3–4 node cards at the text floor plus two arrow runs, and the gate pill to sit above the guarded arrow without overlapping either neighbouring card.
-- No variants are declared in Wave 1; if the content grows, the type changes (§6) rather than degrading.
+Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 region에 들어가는지
+판정하고, 들어가지 않으면 §6 ladder로 내려간다. 글자·간격을 줄여 억지로 맞추지 않는다.
+
+**수식 변수는 이 문서가 아니라 manifest의 `fit` 블록이 소유한다**(`references/types/manifest.yaml`,
+해당 TypePack의 `fit.cardinality` / `fit.params` / `fit.footprint`). 문서에 상수를 다시
+적으면 두 벌이 어긋나므로, 여기서는 배치 종류와 판정 경계만 적는다.
+
+- 배치: row + gate pill clearance
+- 판정: `fit.footprint`가 params에서 계산되고, `fit.feasibility`가 **실제 PageFrame
+  contentBox**(preset별 live receipt)와 대조돼 `fits` 또는 `needs-split`으로 확정된다.
+  manifest validator가 두 계산을 모두 재수행하므로 선언만으로 통과할 수 없다.
+- 경계: **4:5 portrait에서 4노드는 성립하지 않는다**(needs-split). 4:5은 3노드가 상한이고, 16:9은 4노드까지 성립한다.
 
 ## 5. Layout, encoding and connector rules
 

@@ -34,8 +34,18 @@ Old versus new, side by side.
 
 ## 4. Intrinsic fit and variant contract
 
-- Fit requires `2 × panelW + gutter ≤ regionW` with `gutter ≥ 24` (target 32–48) and each panel keeping its slot floors; the taller panel sets the shared height and the shorter one is **padded**, never trimmed.
-- When the mirrored slot count cannot fit at the floor, §6 applies; panels are never made unequal to fit.
+Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 region에 들어가는지
+판정하고, 들어가지 않으면 §6 ladder로 내려간다. 글자·간격을 줄여 억지로 맞추지 않는다.
+
+**수식 변수는 이 문서가 아니라 manifest의 `fit` 블록이 소유한다**(`references/types/manifest.yaml`,
+해당 TypePack의 `fit.cardinality` / `fit.params` / `fit.footprint`). 문서에 상수를 다시
+적으면 두 벌이 어긋나므로, 여기서는 배치 종류와 판정 경계만 적는다.
+
+- 배치: row(패널 2개)
+- 판정: `fit.footprint`가 params에서 계산되고, `fit.feasibility`가 **실제 PageFrame
+  contentBox**(preset별 live receipt)와 대조돼 `fits` 또는 `needs-split`으로 확정된다.
+  manifest validator가 두 계산을 모두 재수행하므로 선언만으로 통과할 수 없다.
+- 경계: 두 패널과 gutter가 두 preset에서 성립한다. 높이는 긴 쪽이 정하고 짧은 쪽을 **패딩**한다.
 
 ## 5. Layout, encoding and connector rules
 

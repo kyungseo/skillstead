@@ -35,9 +35,18 @@ Phases or milestones over time.
 
 ## 4. Intrinsic fit and variant contract
 
-- Interval is computed, not spaced by label width: `x_i = start + i × interval`, `interval = (axisW − 2 × endPad) / (n − 1)`.
-- Fit requires each milestone card to keep its floor within `interval − cardGap`; when it cannot, cards alternate above/below the axis, and if that still fails §6 applies.
-- Alternating placement is a declared variant of the same type.
+Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 region에 들어가는지
+판정하고, 들어가지 않으면 §6 ladder로 내려간다. 글자·간격을 줄여 억지로 맞추지 않는다.
+
+**수식 변수는 이 문서가 아니라 manifest의 `fit` 블록이 소유한다**(`references/types/manifest.yaml`,
+해당 TypePack의 `fit.cardinality` / `fit.params` / `fit.footprint`). 문서에 상수를 다시
+적으면 두 벌이 어긋나므로, 여기서는 배치 종류와 판정 경계만 적는다.
+
+- 배치: row(axis band 포함)
+- 판정: `fit.footprint`가 params에서 계산되고, `fit.feasibility`가 **실제 PageFrame
+  contentBox**(preset별 live receipt)와 대조돼 `fits` 또는 `needs-split`으로 확정된다.
+  manifest validator가 두 계산을 모두 재수행하므로 선언만으로 통과할 수 없다.
+- 경계: **4:5 portrait에서 5 phase는 성립하지 않는다**(needs-split) — 4:5의 상한은 4 phase다. 16:9은 5 phase가 성립한다. 간격은 계산값이며 label 폭으로 띄우지 않는다.
 
 ## 5. Layout, encoding and connector rules
 

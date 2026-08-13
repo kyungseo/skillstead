@@ -405,10 +405,12 @@ test("R1B-3: heading만 있는 annex는 거부된다", () => {
   drop(pkg);
 });
 
-test("R1B-4: data-accuracy annex는 verifier와 receipt schema 없이 거부된다", () => {
+test("R1B-4: data-accuracy annex는 core 승격 시 verifier와 receipt schema를 요구한다", () => {
   const pkg = pkgCopy();
-  writeManifest(pkg, readManifest(pkg).replace("    annexes: []\n    gate: null\n    migration_origin: legacy\n    legacy_section: \"Layer stack\"",
-    "    annexes: [data-accuracy]\n    gate: null\n    migration_origin: legacy\n    legacy_section: \"Layer stack\""));
+  writeManifest(pkg, readManifest(pkg)
+    .replace("    annexes: []\n    gate: null\n    migration_origin: legacy\n    legacy_section: \"Layer stack\"",
+      "    annexes: [data-accuracy]\n    gate: null\n    migration_origin: legacy\n    legacy_section: \"Layer stack\"")
+    .replace(/(- id: layer-stack[\s\S]*?)support: experimental/, "$1support: core"));
   const r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /requires a machine verifier/);
@@ -570,6 +572,86 @@ test("topology annex를 선언한 TypePack은 필수 하위 절을 모두 갖춘
   for (const sub of ["Entity identity", "Edge kind and direction", "Cardinality", "Cycle policy",
                      "Traversal and reading order", "Topology verifier and receipt boundary"])
     assert.match(spec, new RegExp(`^### ${sub}$`, "m"), sub);
+});
+
+// --- CP1B-R1: fit 계약 실행 가능성과 증거 결합 --------------------------------
+test("R1-1·R1-2: fit footprint는 params에서 재계산되고 feasibility는 live contentBox와 대조된다", () => {
+  const m = JSON.parse(run(["manifest", "--json"]).out);
+  assert.equal(m.errors.length, 0, JSON.stringify(m.errors));
+  // 선언된 footprint 수치를 흔들면 params 재계산이 잡아야 한다
+  let pkg = pkgCopy();
+  writeManifest(pkg, readManifest(pkg).replace(/w: 576, h: 104/, "w: 500, h: 104"));
+  let r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /declares 500×104 but the params compute 576×104/);
+  drop(pkg);
+
+  // feasibility 결과를 뒤집으면 live contentBox 재계산이 잡아야 한다
+  pkg = pkgCopy();
+  writeManifest(pkg, readManifest(pkg).replace(
+    "{ preset: social-4x5, orientation: portrait, count: 5, layout: row, result: needs-split }",
+    "{ preset: social-4x5, orientation: portrait, count: 5, layout: row, result: fits }"));
+  r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /declares "fits" but .* computes "needs-split"/);
+  drop(pkg);
+});
+
+test("R1-2b: 모든 TypePack이 선언 preset의 최대 cardinality feasibility를 갖는다", () => {
+  const doc = fs.readFileSync(path.join(here, "..", "references", "types", "manifest.yaml"), "utf8");
+  const blocks = doc.split(/^  - id: /m).slice(1);
+  assert.equal(blocks.length, 9, `등록 TypePack 수 ${blocks.length}`);
+  for (const b of blocks) {
+    const id = b.split("\n")[0].trim();
+    assert.match(b, /fit:/, `${id}: fit 블록 필요`);
+    for (const preset of ["social-4x5", "presentation-16x9"])
+      assert.ok(b.includes(`preset: ${preset}`), `${id}: ${preset} feasibility 필요`);
+  }
+  // 커버리지 누락은 거부된다
+  const pkg = pkgCopy();
+  writeManifest(pkg, readManifest(pkg).replace(
+    /        - \{ preset: presentation-16x9, orientation: landscape, count: 6, layout: grid, result: fits \}\n/, ""));
+  const r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /must cover preset "presentation-16x9" at the maximum cardinality/);
+  drop(pkg);
+});
+
+test("R1-4: topology annex를 선언한 TypePack은 verifier·receipt 없이 core가 될 수 없다", () => {
+  const pkg = pkgCopy();
+  writeManifest(pkg, readManifest(pkg).replace(
+    "  - id: topology-component\n    selection_signal:", "  - id: topology-component\n    selection_signal:")
+    .replace(/(- id: topology-component[\s\S]*?)support: experimental/, "$1support: core"));
+  const r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /semantic-claim typepack .* requires a machine verifier/);
+  assert.match(r.out, /requires a receipt_schema locator/);
+  drop(pkg);
+});
+
+test("R1-5: unrelated gallery heading·재사용 artifact로는 core 증거가 되지 않는다", () => {
+  const pkg = pkgCopy();
+  const svg = "scripts/skin-fixtures/portable-positive.svg";
+  writeManifest(pkg, readManifest(pkg)
+    .replace(/(- id: cards-kpi-grid[\s\S]*?)support: experimental/, "$1support: core")
+    .replace(/(- id: cards-kpi-grid[\s\S]*?)    fixtures: \[\]\n    examples: \[\]/,
+      `$1    fixtures:\n      - {{ id: fx-a, kind: positive, preset: social-4x5, path: ${svg} }}\n      - {{ id: fx-b, kind: baseline-red, preset: social-4x5, path: ${svg} }}\n    examples:\n      - {{ id: ex-a, gallery_anchor: archetypes.md#layer-stack }}`
+        .replace(/{{/g, "{").replace(/}}/g, "}")));
+  const r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /gallery_anchor must be PROMPT-GALLERY\.md/, "아무 문서의 heading은 example 증거가 아니다");
+  assert.match(r.out, /is registered more than once — one artifact proves one/, "같은 artifact를 두 역할로 재사용할 수 없다");
+  drop(pkg);
+});
+
+test("R1-3·R1-6: topology spec은 machine/manual 책임을 나누고 edge 축을 분리한다", () => {
+  const spec = fs.readFileSync(path.join(here, "..", "references", "types", "specs", "topology-component.md"), "utf8");
+  assert.match(spec, /\*\*Machine \(generic lint/);
+  assert.match(spec, /\*\*Visual \/ manual/);
+  assert.match(spec, /edge crossing 없음 — 현재는 육안 확인/);
+  for (const axis of ["kind: request \\| dependency", "delivery: sync \\| async", "visibility: public \\| private"])
+    assert.match(spec, new RegExp(axis), axis);
+  assert.match(spec, /선 스타일은 이 셋에서 파생된다/);
 });
 
 // --- pageframe fail-closed schema + fluid two-phase -------------------------------
