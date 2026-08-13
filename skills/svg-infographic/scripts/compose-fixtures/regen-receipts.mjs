@@ -7,7 +7,7 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { measuredBoundsStrict, textDigestOf } from "../compose.mjs";
+import { measuredBoundsStrict, textDigestOf, textMarkupDigestOf } from "../compose.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const skinCli = path.join(here, "..", "skin.mjs");
@@ -23,9 +23,9 @@ const identity = {
   iconSetId: "line-icons-v1",
 };
 
-for (const stem of ["summary-cards", "tree"]) {
-  const svgP = path.join(here, "fragments", `${stem}.svg`);
-  const rcpP = path.join(here, "fragments", `${stem}.receipt.json`);
+for (const [dir, stem] of [["fragments", "summary-cards"], ["fragments", "tree"], ["fragments-en", "summary-cards"], ["fragments-en", "tree"]]) {
+  const svgP = path.join(here, dir, `${stem}.svg`);
+  const rcpP = path.join(here, dir, `${stem}.receipt.json`);
   const frag = readFileSync(svgP, "utf8");
   const body = frag.match(/<svg[^>]*>([\s\S]*)<\/svg>\s*$/)[1];
   // text bounds: browser 실측 (정적 파서로 불가)
@@ -42,7 +42,8 @@ for (const stem of ["summary-cards", "tree"]) {
   rcp.verifier = "compose-fragment-measure-v1";
   rcp.textBounds = textBoxes;
   rcp.textDigest = textDigestOf(body);
+  rcp.textMarkupDigest = textMarkupDigestOf(body);
   rcp.textMeasure = { method: "browser-getBBox", inputDigest: sha16(frag), texts: tm.texts.length };
   writeFileSync(rcpP, JSON.stringify(rcp, null, 1));
-  console.log(`${stem}: usedBounds ${JSON.stringify(rcp.usedBounds)} sourceDigest ${rcp.sourceDigest}`);
+  console.log(`${dir}/${stem}: usedBounds ${JSON.stringify(rcp.usedBounds)} sourceDigest ${rcp.sourceDigest}`);
 }

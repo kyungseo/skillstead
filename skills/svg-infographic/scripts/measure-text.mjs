@@ -27,10 +27,22 @@ ${svg}
   const out = { texts: [] };
   try {
     await document.fonts.ready;
+    const svgRoot = document.querySelector("svg");
     for (const t of document.querySelectorAll("svg text")) {
       const b = t.getBBox();
-      out.texts.push({ content: t.textContent, x: Math.round(b.x * 10) / 10, y: Math.round(b.y * 10) / 10,
-                       w: Math.round(b.width * 10) / 10, h: Math.round(b.height * 10) / 10 });
+      // ancestor CTM 반영 global bounds (root 좌표계)
+      const m = t.getCTM();
+      const pts = [[b.x, b.y], [b.x + b.width, b.y], [b.x, b.y + b.height], [b.x + b.width, b.y + b.height]]
+        .map(([px, py]) => [m.a * px + m.c * py + m.e, m.b * px + m.d * py + m.f]);
+      const gx = Math.min(...pts.map((p) => p[0])), gy = Math.min(...pts.map((p) => p[1]));
+      const gx2 = Math.max(...pts.map((p) => p[0])), gy2 = Math.max(...pts.map((p) => p[1]));
+      const inst = t.closest("[data-comp-instance]");
+      out.texts.push({ content: t.textContent,
+                       instance: inst ? inst.getAttribute("data-comp-instance") : null,
+                       x: Math.round(b.x * 10) / 10, y: Math.round(b.y * 10) / 10,
+                       w: Math.round(b.width * 10) / 10, h: Math.round(b.height * 10) / 10,
+                       gx: Math.round(gx * 10) / 10, gy: Math.round(gy * 10) / 10,
+                       gw: Math.round((gx2 - gx) * 10) / 10, gh: Math.round((gy2 - gy) * 10) / 10 });
     }
   } catch (e) { out.error = String(e); }
   document.getElementById("mt-out").textContent = JSON.stringify(out);

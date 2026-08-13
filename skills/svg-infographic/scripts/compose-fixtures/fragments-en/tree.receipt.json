@@ -89,13 +89,13 @@
   "kernelVersion": "kernel-v1",
   "iconSetId": "line-icons-v1"
  },
- "sourceDigest": "52168714a4e3d400",
+ "sourceDigest": "ffad5cddac02420e",
  "verifier": "compose-fragment-measure-v1",
  "textBounds": [
   {
-   "x": 294.5,
+   "x": 260.6,
    "y": 17.5,
-   "w": 59,
+   "w": 126.8,
    "h": 19
   },
   {
@@ -107,7 +107,7 @@
   {
    "x": 14,
    "y": 220.5,
-   "w": 55,
+   "w": 79.2,
    "h": 15
   },
   {
@@ -119,7 +119,7 @@
   {
    "x": 180,
    "y": 220.5,
-   "w": 56.8,
+   "w": 81.1,
    "h": 15
   },
   {
@@ -131,7 +131,7 @@
   {
    "x": 346,
    "y": 220.5,
-   "w": 57.2,
+   "w": 81.5,
    "h": 15
   },
   {
@@ -143,15 +143,15 @@
   {
    "x": 512,
    "y": 220.5,
-   "w": 57.3,
+   "w": 81.6,
    "h": 15
   }
  ],
- "textDigest": "27098a2ce2f93e12",
+ "textDigest": "9c5c2b2f269831c2",
  "textMeasure": {
   "method": "browser-getBBox",
-  "inputDigest": "52168714a4e3d400",
+  "inputDigest": "ffad5cddac02420e",
   "texts": 9
  },
- "textMarkupDigest": "e6de3ffc26995fe8"
+ "textMarkupDigest": "69cc2e45854976c2"
 }

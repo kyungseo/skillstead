@@ -88,7 +88,7 @@
   "kernelVersion": "kernel-v1",
   "iconSetId": "line-icons-v1"
  },
- "sourceDigest": "cf6ad59ed1065aa1",
+ "sourceDigest": "5fbb412c22f5ccb9",
  "verifier": "compose-fragment-measure-v1",
  "textBounds": [
   {
@@ -100,13 +100,13 @@
   {
    "x": 16,
    "y": 60.5,
-   "w": 38.8,
+   "w": 50,
    "h": 19
   },
   {
    "x": 16,
    "y": 90.5,
-   "w": 65.8,
+   "w": 84.3,
    "h": 15
   },
   {
@@ -118,13 +118,13 @@
   {
    "x": 182,
    "y": 60.5,
-   "w": 41.1,
+   "w": 52.3,
    "h": 19
   },
   {
    "x": 182,
    "y": 90.5,
-   "w": 67.6,
+   "w": 86.2,
    "h": 15
   },
   {
@@ -136,13 +136,13 @@
   {
    "x": 348,
    "y": 60.5,
-   "w": 41.6,
+   "w": 52.8,
    "h": 19
   },
   {
    "x": 348,
    "y": 90.5,
-   "w": 68,
+   "w": 86.5,
    "h": 15
   },
   {
@@ -154,21 +154,21 @@
   {
    "x": 514,
    "y": 60.5,
-   "w": 41.9,
+   "w": 53.1,
    "h": 19
   },
   {
    "x": 514,
    "y": 90.5,
-   "w": 68.1,
+   "w": 86.6,
    "h": 15
   }
  ],
- "textDigest": "7f605afe07f9b372",
+ "textDigest": "e9331057e3ef4033",
  "textMeasure": {
   "method": "browser-getBBox",
-  "inputDigest": "cf6ad59ed1065aa1",
+  "inputDigest": "5fbb412c22f5ccb9",
   "texts": 12
  },
- "textMarkupDigest": "cf7727b8e728bf3e"
+ "textMarkupDigest": "be112314fd7ebd4c"
 }

@@ -280,8 +280,8 @@ test("R2-2b: 긴 KO/EN 텍스트 fragment는 정직한 browser 측정으로 spil
   assert.notEqual(r.code, 0, r.out);   // 폭 초과 → needs-split(3) — 어느 쪽이든 non-zero
   assert.match(r.out, /needs-split|invalid/);
 });
-test("R2-3: 정상 KO/EN text fragment는 evidence와 함께 통과", () => {
-  // 대표 fixture 자체가 KO 텍스트 + browser 측정 evidence 경로 — verify 재확인
+test("R2-3: 정상 KO text fragment는 evidence와 함께 통과", () => {
+  // KO 대표 fixture — browser rebind 포함 verify
   const r = run(["verify", OUT, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M]);
   assert.equal(r.code, 0, r.out);
 });
@@ -295,4 +295,45 @@ test("R2-4: text-measure inputDigest가 fragment와 다르면 stale evidence로 
   const r = run(["compose", path.join(FIX, "plan-cards-tree.yaml"), "--fragments", fd, ...M, "--out", path.join(td, "r24.svg"), "--receipt", path.join(td, "r24.json")]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /stale text evidence/);
+});
+
+// ---- 최종 text-geometry binding 재현(R3) ----
+test("R3-1: 내용 동일 + x=900 이동은 markup digest로 거부(정적 계층 단독)", () => {
+  const svg = fs.readFileSync(OUT, "utf8").replace(/<text x="16" y="70"/, '<text x="900" y="70"');
+  const p = path.join(td, "r31.svg");
+  fs.writeFileSync(p, svg);
+  const r = run(["verify", p, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M, "--no-browser"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /E-COMP-RECEIPT-TEXT .*text markup digest mismatch/);
+});
+test("R3-2: 내용 동일 + font-size 확대는 markup digest로 거부", () => {
+  const svg = fs.readFileSync(OUT, "utf8").replace('font-size="16"', 'font-size="34"');
+  const p = path.join(td, "r32.svg");
+  fs.writeFileSync(p, svg);
+  const r = run(["verify", p, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M, "--no-browser"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /E-COMP-RECEIPT-TEXT .*text markup digest mismatch/);
+});
+test("R3-3: tspan dx/dy 주입은 markup digest로 거부", () => {
+  const svg = fs.readFileSync(OUT, "utf8").replace(">핵심 1<", '><tspan dx="500">핵심 1</tspan><');
+  const p = path.join(td, "r33.svg");
+  fs.writeFileSync(p, svg);
+  const r = run(["verify", p, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M, "--no-browser"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /E-COMP-RECEIPT-TEXT/);
+});
+test("R3-4: 상속 typography 변경(상위 g style)은 browser 재측정으로 거부", () => {
+  const svg = fs.readFileSync(OUT, "utf8").replace(/<g data-comp-entity="cards-1-card-1">/, '<g data-comp-entity="cards-1-card-1" style="letter-spacing:8px">');
+  const p = path.join(td, "r34.svg");
+  fs.writeFileSync(p, svg);
+  const r = run(["verify", p, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /E-COMP-TEXT-RUNTIME .*drift beyond tolerance/);
+});
+test("R3-5: 정상 EN composite는 browser rebind 포함 전 경로 통과", () => {
+  const o = path.join(td, "en.svg"), rc = path.join(td, "en.json");
+  const r = run(["compose", path.join(FIX, "plan-cards-tree-en.yaml"), "--fragments", path.join(FIX, "fragments-en"), ...M, "--out", o, "--receipt", rc]);
+  assert.equal(r.code, 0, r.out);
+  const v = run(["verify", o, "--receipt", rc, "--plan", path.join(FIX, "plan-cards-tree-en.yaml"), ...M]);
+  assert.equal(v.code, 0, v.out);
 });

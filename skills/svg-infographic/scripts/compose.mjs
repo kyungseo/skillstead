@@ -267,6 +267,23 @@ export function measuredBoundsStrict(svgBody, opts = {}) {
   }
   return { bounds: Number.isFinite(x1) ? { x: x1, y: y1, w: x2 - x1, h: y2 - y1 } : null, errors, textCount };
 }
+export const textMarkupDigestOf = (body) => {
+  const canon = [...body.matchAll(/<text((?:[^>"']|"[^"]*"|'[^']*')*?)>([\s\S]*?)<\/text>/g)].map((m) => {
+    const attrs = [...m[1].matchAll(/([A-Za-z:-]+)\s*=\s*("([^"]*)"|'([^']*)')/g)]
+      .map((a) => [a[1], a[3] ?? a[4]])
+      .filter(([k]) => !k.startsWith("data-"))   // namespace prefix 차이는 배치가 아님
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([k, v]) => `${k}=${v}`).join(";");
+    const inner = m[2].replace(/<tspan((?:[^>"']|"[^"]*"|'[^']*')*?)>/g, (mm, raw) => {
+      const ta = [...raw.matchAll(/([A-Za-z:-]+)\s*=\s*("([^"]*)"|'([^']*)')/g)]
+        .map((a) => [a[1], a[3] ?? a[4]]).filter(([k]) => !k.startsWith("data-"))
+        .sort((a, b) => a[0].localeCompare(b[0])).map(([k, v]) => `${k}=${v}`).join(";");
+      return `<tspan ${ta}>`;
+    });
+    return `${attrs}|${inner}`;
+  });
+  return createHash("sha256").update(canon.join("\u0001")).digest("hex").slice(0, 16);
+};
 export const textDigestOf = (body) => {
   const texts = [...body.matchAll(/<text[^>]*>([\s\S]*?)<\/text>/g)]
     .map((m) => m[1].replace(/<[^>]+>/g, "").trim());
@@ -361,6 +378,7 @@ function compose(planPath, opts) {
     if (!rcp.textMeasure || rcp.textMeasure.method !== "browser-getBBox") problems.push(`instance "${inst.instance_id}": fragment receipt missing browser text-measure evidence`);
     else if (rcp.textMeasure.inputDigest !== fragSha) problems.push(`instance "${inst.instance_id}": text-measure inputDigest ${rcp.textMeasure.inputDigest} != fragment ${fragSha} (stale text evidence)`);
     if (rcp.textDigest !== textDigestOf(body)) problems.push(`instance "${inst.instance_id}": fragment text content digest mismatch (receipt ${rcp.textDigest}, measured ${textDigestOf(body)})`);
+    if (rcp.textMarkupDigest !== textMarkupDigestOf(body)) problems.push(`instance "${inst.instance_id}": fragment text markup digest mismatch — text placement/typography attributes changed after measurement`);
     const meas = measuredBoundsStrict(body, { textBoxes: rcp.textBounds });
     for (const ge of meas.errors) problems.push(`instance "${inst.instance_id}": ${ge}`);
     if (meas.bounds) {
@@ -412,6 +430,7 @@ function compose(planPath, opts) {
       ports: (rcp.ports ?? []).map((p) => ({ ...p, anchor: { x: round1(p.anchor.x + dx), y: round1(p.anchor.y + dy) } })),
       entities: rcp.entities ?? [], identity: rcp.identity,
       textDigest: rcp.textDigest,
+      textMarkupDigest: rcp.textMarkupDigest,
       textBounds: (rcp.textBounds ?? []).map((b) => ({ x: round1(b.x + dx), y: round1(b.y + dy), w: b.w, h: b.h })),
       degrade: variant === "base" ? null : { selectedVariant: variant, lost: rcp.degradeLost ?? "variant-declared reduction (see fragment receipt)" } });
   }
@@ -571,6 +590,8 @@ function verify(svgPath, opts) {
     // composite text 내용이 fragment evidence와 일치해야 한다 (조작·교체 거부)
     if (inst.textDigest && textDigestOf(innerBody) !== inst.textDigest)
       errors.push(`E-COMP-RECEIPT-TEXT instance "${inst.instance_id}" text content digest ${textDigestOf(innerBody)} != receipt ${inst.textDigest} — text was altered after measurement`);
+    if (inst.textMarkupDigest && textMarkupDigestOf(innerBody) !== inst.textMarkupDigest)
+      errors.push(`E-COMP-RECEIPT-TEXT instance "${inst.instance_id}" text markup digest mismatch — text placement/typography changed after measurement (x/y/font/anchor/tspan)`);
     // textBounds는 이미 전역 좌표(compose가 translate 반영) — local 합산을 위해 역변환
     const localTextBoxes = (inst.textBounds ?? []).map((b) => ({ x: b.x - g.dx, y: b.y - g.dy, w: b.w, h: b.h }));
     const mm2 = measuredBoundsStrict(innerBody, { textBoxes: localTextBoxes });
@@ -616,6 +637,33 @@ function verify(svgPath, opts) {
   const seen = new Map();
   for (const mm of svg.matchAll(/id\s*=\s*"([A-Za-z0-9_-]+)"/g)) seen.set(mm[1], (seen.get(mm[1]) ?? 0) + 1);
   for (const [id, n] of seen) if (n > 1) errors.push(`E-COMP-DUPID svg id "${id}" appears ${n} times`);
+  // 최종 composite text runtime 재측정 (기본 on — 가장 정직한 binding; 상속 스타일까지 커버)
+  if (!opts.noBrowser) {
+    const mtCli = path.join(here, "measure-text.mjs");
+    const mr = spawnSync(process.execPath, [mtCli, svgPath], { encoding: "utf8", timeout: 60000 });
+    if (mr.status !== 0) {
+      errors.push("E-COMP-TEXT-RUNTIME browser text re-measure unavailable or failed — fail-closed (pass --no-browser only as an explicit environment-bounded downgrade)");
+    } else {
+      try {
+        const tm = JSON.parse(mr.stdout);
+        for (const inst of receipt.instances ?? []) {
+          const mine = tm.texts.filter((t) => t.instance === inst.instance_id);
+          const rb = inst.textBounds ?? [];
+          if (mine.length !== rb.length) {
+            errors.push(`E-COMP-TEXT-RUNTIME instance "${inst.instance_id}" has ${mine.length} rendered text(s) but receipt records ${rb.length}`);
+            continue;
+          }
+          for (let i = 0; i < mine.length; i++) {
+            const a = mine[i], b = rb[i];
+            if (Math.abs(a.gx - b.x) > 2 || Math.abs(a.gy - b.y) > 2 || Math.abs(a.gw - b.w) > 2 || Math.abs(a.gh - b.h) > 2)
+              errors.push(`E-COMP-TEXT-RUNTIME instance "${inst.instance_id}" text[${i}] rendered ${JSON.stringify({ x: a.gx, y: a.gy, w: a.gw, h: a.gh })} != receipt ${JSON.stringify(b)} — placement/typography drift beyond tolerance`);
+          }
+        }
+      } catch { errors.push("E-COMP-TEXT-RUNTIME unparseable browser measurement"); }
+    }
+  } else {
+    errors.length; // 명시적 downgrade — receipt에 기록
+  }
   // page budget machine gate(R1-P2p): semantic role 기반 H1 정확히 1 — header 소유
   const roleH1 = [...svg.matchAll(/data-layout-role\s*=\s*["']cluster-h1["']/g)].length;
   if (roleH1 !== 1) errors.push(`E-COMP-H1 composite must carry exactly one cluster-h1 role (found ${roleH1})`);
@@ -629,7 +677,8 @@ function verify(svgPath, opts) {
   // budget receipt 필수 field
   const BK = ["h1Count", "h1ScaleTexts", "note"];
   for (const k of BK) if (!(k in (receipt.budget ?? {}))) errors.push(`E-COMP-SCHEMA receipt.budget missing "${k}"`);
-  const receiptOut = { schemaVersion: 1, command: "compose-verify", file: path.basename(svgPath), instances: domOrder.length, errors };
+  const receiptOut = { schemaVersion: 1, command: "compose-verify", file: path.basename(svgPath), instances: domOrder.length,
+    textRuntime: opts.noBrowser ? "environment-bounded: static digests only (browser re-measure skipped by explicit flag)" : "browser re-measured", errors };
   if (opts.json) console.log(JSON.stringify(receiptOut, null, 1));
   else {
     console.log(`verify ${path.basename(svgPath)} — instances ${domOrder.length}, ${errors.length} error(s)`);
@@ -653,7 +702,7 @@ const opt = (name, def = null) => {
   const i = argv.indexOf(`--${name}`);
   return i >= 0 ? argv[i + 1] : def;
 };
-const KNOWN = ["--fragments", "--out", "--receipt", "--plan", "--manifest", "--json"];
+const KNOWN = ["--fragments", "--out", "--receipt", "--plan", "--manifest", "--json", "--no-browser"];
 for (const a of argv.filter((x) => x.startsWith("--"))) if (!KNOWN.includes(a)) { console.error(`unknown option for compose: ${a}`); process.exit(2); }
 const defaultManifest = path.resolve(here, "..", "references", "types", "manifest.yaml");
 if (cmd === "plan") {
@@ -664,7 +713,7 @@ if (cmd === "plan") {
 } else if (cmd === "compose") {
   compose(files[0], { fragments: opt("fragments"), out: opt("out"), receipt: opt("receipt"), manifest: opt("manifest", defaultManifest) });
 } else if (cmd === "verify") {
-  verify(files[0], { receipt: opt("receipt"), plan: opt("plan"), manifest: opt("manifest", defaultManifest), json: argv.includes("--json") });
+  verify(files[0], { receipt: opt("receipt"), plan: opt("plan"), manifest: opt("manifest", defaultManifest), json: argv.includes("--json"), noBrowser: argv.includes("--no-browser") });
 } else {
   console.error("usage: compose.mjs plan|compose|verify ...");
   process.exit(2);

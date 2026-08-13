@@ -1,0 +1,37 @@
+schema_version: 1
+kind: composition-plan
+id: cards-tree-4x5-en
+page: { preset: social-4x5, support: none }
+layout_template: vertical-stack
+slots:
+  slot-a: { height: 300 }
+  slot-b: { height: 386 }
+slot_gap: 24
+header:
+  eyebrow: "COMPOSITION SUMMARY"
+  h1: "Four key points and the overall structure"
+  subtitle: "Top cards map to the numbered tree below"
+instances:
+  - { instance_id: cards-1, typepack: summary-cards, module_role: primary, slot_id: slot-a }
+  - { instance_id: tree-1, typepack: tree, module_role: supporting, slot_id: slot-b }
+semantic_bindings:
+  - key: item-1
+    endpoints:
+      - { instance_id: cards-1, entity_id: card-1 }
+      - { instance_id: tree-1, entity_id: leaf-1 }
+  - key: item-2
+    endpoints:
+      - { instance_id: cards-1, entity_id: card-2 }
+      - { instance_id: tree-1, entity_id: leaf-2 }
+  - key: item-3
+    endpoints:
+      - { instance_id: cards-1, entity_id: card-3 }
+      - { instance_id: tree-1, entity_id: leaf-3 }
+  - key: item-4
+    endpoints:
+      - { instance_id: cards-1, entity_id: card-4 }
+      - { instance_id: tree-1, entity_id: leaf-4 }
+binding_complete_over: [cards-1, tree-1]
+connector_edges: []
+reading_order: [cards-1, tree-1]
+traversal: explicit
