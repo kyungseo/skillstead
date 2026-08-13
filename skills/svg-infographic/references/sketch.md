@@ -76,7 +76,7 @@ pyftsubset assets/fonts/HiMelody-Regular.ttf --text-file=used-chars.txt \
 # 4. verify: node scripts/skin.mjs typography-check out.svg  (renderer도 자동 실행)
 ```
 
-- No `fonttools` available → full embed is acceptable for a one-off, but **warn the user about the ~4MB SVG** and note the PNG is the shareable artifact.
+- No `fonttools` available → **do not silently fall back to a full embed** (the bundled TTF is ~12MB; a full embed is a ~16MB SVG and nonconforming). Offer to set up the subset tool (`pip install fonttools`) or propose the flat treatment instead.
 - **Subset gotcha (add to pre-render checklist for sketch):** the subset contains only the glyphs present at subset time. **Any text edit requires re-subsetting**, or the new characters render as tofu. When verifying the PNG, check every label — a missing glyph looks exactly like the CJK-tofu failure.
 - EN/KO variants: subset each variant's own text (or one union subset for both).
 
@@ -102,5 +102,5 @@ On top of the standard §7 quality bar:
 - every glyph renders (subset completeness — check *each* label on the PNG)
 - rough displacement didn't clip at any filter region edge
 - highlighter sits under, not over, its text; label ink still reads on pastel fills
-- file size reported to the user (subset SVG tens-of-KB vs full-embed ~4MB)
+- file size reported to the user (conforming subset SVG is tens of KB; a full embed would be ~16MB and is forbidden)
 - OFL license notice recorded where the asset ships (example README / provenance)

@@ -12,10 +12,9 @@ approved neutral-hierarchy adjustment*, design review 2026-08-12):
 [Editable SVG](media/canonical-skin-contact-sheet.svg) — both files are an **approved
 snapshot, synchronized with the `current-v1` profile**. They are not the palette
 source of truth (§3), and they become regenerated profile consumers once the recolor
-pipeline (`skin.mjs contact-sheet`, reserved) lands. The snapshot SVG references a
-sketch slots embed the canonical handwriting subset (`@font-face` data URI, per the
-typography profile); the
-PNG carries the approved rendering.
+pipeline (`skin.mjs contact-sheet`, reserved) lands. In the snapshot SVG the sketch
+slots embed the canonical handwriting subset as an `@font-face` data URI (per the
+typography profile contract); the PNG carries the approved rendering.
 
 ## 1. Design kernel
 
@@ -118,9 +117,11 @@ composite 모두)의 effective font cascade를 fail-closed 검증하고, `font-p
 runtime receipt(computed family + FontFaceSet load check — rendered-face 증명 아님을
 명시)를 남긴다.
 
-- Canonical family for **both KO and EN**: **Pretendard**.
-- Fallback chain: `Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`.
-  No remote font loading (Google Fonts included) — outputs stay self-contained.
+- **flat** (KO/EN 공용): **Pretendard**, fallback `Inter, -apple-system,
+  BlinkMacSystemFont, "Segoe UI", sans-serif` (system fonts — no embed).
+- **sketch** (KO/EN 공용): **embedded Hi Melody subset**, weight **400** 고정,
+  fallback `Pretendard, sans-serif` (명시적 secondary role에서만).
+- No remote font loading (Google Fonts included) — outputs stay self-contained.
 - The fallback chain carries no dedicated CJK entry: when Pretendard is unavailable,
   KO glyphs resolve through the OS cascade (flat treatment only — sketch embeds its
   subset). Effective-font verification is implemented: `skin.mjs typography-check`
