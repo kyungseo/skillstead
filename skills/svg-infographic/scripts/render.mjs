@@ -329,7 +329,7 @@ export async function main(argv) {
   // fail-closed로 통과해야 한다 — canonical renderer만 실행해도 must-fix가 우회되지
   // 않는다. (runtime font-probe는 별도 명령 — 정적 gate가 이 단계의 계약이다.)
   if (/data-treatment\s*=\s*["']sketch["']|data-typography-(scope|role)\s*=/.test(readFileSync(svg, "utf8"))) {
-    const skinCli = new URL("./skin.mjs", import.meta.url).pathname;
+    const skinCli = fileURLToPath(new URL("./skin.mjs", import.meta.url));
     const tr = spawnSync(process.execPath, [skinCli, "typography-check", svg], { encoding: "utf8" });
     if (tr.stdout) process.stdout.write(tr.stdout);
     if (tr.status !== 0) {

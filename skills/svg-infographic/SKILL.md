@@ -212,4 +212,4 @@ If a check fails: fix the SVG source, re-run §4, re-render. Track which §4 ite
 
 ## 8. Output & handoff
 
-Save both the **SVG** (editable source of truth) and the **PNG** (2× export for slides/docs/social). The renderer uses locally installed fonts, so Korean/CJK falls back to the platform default (Apple SD Gothic Neo on macOS, Malgun Gothic on Windows, Noto Sans KR on Linux) — verify no tofu in the PNG.
+Save both the **SVG** (editable source of truth) and the **PNG** (2× export for slides/docs/social). For the **flat** treatment the renderer uses locally installed fonts (KO/CJK falls back to the platform default — Apple SD Gothic Neo on macOS, Malgun Gothic on Windows, Noto Sans KR on Linux); **sketch** artifacts embed their handwriting subset, so they render identically everywhere. Verify no tofu in the PNG either way.

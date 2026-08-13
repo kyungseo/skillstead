@@ -13,7 +13,8 @@ approved neutral-hierarchy adjustment*, design review 2026-08-12):
 snapshot, synchronized with the `current-v1` profile**. They are not the palette
 source of truth (§3), and they become regenerated profile consumers once the recolor
 pipeline (`skin.mjs contact-sheet`, reserved) lands. The snapshot SVG references a
-locally installed handwriting font for its sketch slot (no `@font-face` embed); the
+sketch slots embed the canonical handwriting subset (`@font-face` data URI, per the
+typography profile); the
 PNG carries the approved rendering.
 
 ## 1. Design kernel
@@ -121,16 +122,17 @@ runtime receipt(computed family + FontFaceSet load check — rendered-face 증�
 - Fallback chain: `Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`.
   No remote font loading (Google Fonts included) — outputs stay self-contained.
 - The fallback chain carries no dedicated CJK entry: when Pretendard is unavailable,
-  KO glyphs resolve through the OS cascade. A font-availability/fallback entry in the
-  render receipt is **reserved — not yet implemented** (named follow-up
-  `svg-infographic-font-availability-receipt`, scheduled with the typography-profile
-  SSoT before the sketch typography audition); until it lands, verify tofu/fallback
-  visually in the 2× PNG. KO/EN fixtures verify wrapping, containment and geometry
-  parity.
+  KO glyphs resolve through the OS cascade (flat treatment only — sketch embeds its
+  subset). Effective-font verification is implemented: `skin.mjs typography-check`
+  (static cascade, renderer hard gate) and `scripts/font-probe.mjs` (runtime
+  FontFaceSet load + computed family receipt — not rendered-face proof). Verify
+  tofu visually in the 2× PNG as the glyph-level complement. KO/EN fixtures verify
+  wrapping, containment and geometry parity.
 - A locally bundled Inter may later become an *optional typography profile*, kept
   separate from palette profiles. Until then typography does not fork.
 - Shipped sketch artifacts subset-embed an OFL handwriting font (`sketch.md`); review
-  snapshots that merely reference a locally installed font must say so.
+  snapshots must embed the profile subset — a snapshot that merely references a
+  locally installed font is nonconforming and must be regenerated.
 
 ## 5. Portable resolved output (PPT-oriented)
 

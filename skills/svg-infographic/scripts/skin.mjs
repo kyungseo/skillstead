@@ -11,7 +11,7 @@
 // data-stroke-role annotations IN PLACE (same SVG — no second artifact) and
 // verifies role/value parity. --check verifies only (no write): unknown role or
 // paint/value mismatch exits 1; hand-typed canonical hex without an annotation is
-// reported as a warning (palette lint escalates it in CP3C). data-paint-static
+// reported as a warning (palette lint escalation is a later gate). data-paint-static
 // marks allowed non-token paint; fill="none" is always preserved.
 //
 // "current" resolves the registry-selected palette. Derivation/overlay are ALWAYS
@@ -669,7 +669,7 @@ function main() {
     process.exit(errors.length ? 1 : 0);
   }
   if (cmd === "typography-check") {
-    // 정적 effective-font 검증 (CP3 must-fix — composite wrapper font 유실 차단).
+    // 정적 effective-font 검증 (composite wrapper font 유실 차단).
     // 규칙: sketch scope(root data-treatment="sketch" 또는 wrapper data-typography-scope)
     // 안의 모든 text/tspan은 (a) scope family로 해석되거나 (b) 명시적 secondary
     // annotation을 가져야 한다. 단독 pre-gate 결과로 composite 검사를 대체할 수 없다 —
@@ -696,7 +696,9 @@ function main() {
         if (!/src:\s*url\(data:/.test(m[1])) errors.push(`E-TYPO-REMOTE @font-face "${fam}" src is not a data: URI — remote fonts are forbidden`);
         embedded.push(fam);
       }
-      const rootSketch = /<svg[^>]*data-treatment\s*=\s*"sketch"/.test(src);
+      const rootTag = src.match(/<svg[^>]*>/)?.[0] ?? "";
+      const rootSketch = (rootTag.match(/data-treatment\s*=\s*("([^"]*)"|'([^']*)')/)?.[2]
+        ?? rootTag.match(/data-treatment\s*=\s*("([^"]*)"|'([^']*)')/)?.[3]) === "sketch";
       const firstFam = (v) => String(v).split(",")[0].trim().replace(/^['"]|['"]$/g, "");
       const attrOf = (tag, name) => {
         const a = tag.match(new RegExp(name + "\\s*=\\s*(\"([^\"]*)\"|'([^']*)')"));
@@ -782,7 +784,7 @@ function main() {
         try { readFileSync(specPath); } catch { errors.push(`manifest: ${id}: spec path not found (${p.spec})`); }
       }
       if (!p.selection_signal) errors.push(`manifest: ${id}: missing selection_signal`);
-      // full locked-schema validation (Wave 0 CP2 계약 전체 — CP5-R1B)
+      // full locked-schema validation (kernel 계약 전체)
       const FIELDS = ["id", "selection_signal", "profile", "support", "spec", "presets",
         "orientations", "verifier", "fixtures", "examples", "required_roles",
         "optional_aliases", "canonical_prompt"];
@@ -1001,7 +1003,7 @@ export function allowedPaintSet(profileId) {
 }
 
 // entrypoint guard: run main() based on real paths so symlinked installs still execute
-// (silent-pass hardening for all scripts completes in CP3).
+// (silent-pass hardening applies to all scripts).
 try {
   const argvReal = realpathSync(process.argv[1]);
   const selfReal = realpathSync(fileURLToPath(import.meta.url));

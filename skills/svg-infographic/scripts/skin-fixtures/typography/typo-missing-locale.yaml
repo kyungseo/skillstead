@@ -25,8 +25,7 @@ treatments:
       id: OFL-1.1
       rfn: []
   sketch:
-    # sketch face is under audition (FEAT-20260812-002) — baseline Nanum Pen Script
-    # holds the slot until the owner selection lands (CP3 updates face + asset).
+    # negative-fixture copy of the canonical profile (sketch face slot)
     locales:
       ko:
         face: Nanum Pen Script

@@ -18,7 +18,7 @@
 // Usage:  node check-svg.mjs file.svg [more.svg …]
 // Exit:   0 when no hard errors (warnings allowed) · 1 hard errors · 2 usage
 //
-// Design constraints (FEAT-20260723-002 owner decisions):
+// Design constraints (approved design decisions):
 //   - Node 18+ standard library only; no npm dependency.
 //   - Only deterministic/high-confidence findings are hard errors.
 //   - Text measurement is an estimate: per-script average glyph widths with a

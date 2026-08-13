@@ -65,7 +65,7 @@ Roles still encode meaning (ok = green, warning = yellow/orange, danger = red). 
 
 No platform ships a Korean handwriting font, so the SVG must embed one as a base64 `@font-face` data URI. The canonical sketch face is owned by the **typography profile SSoT** (`references/typography/typography-v1.yaml`): **Hi Melody** (OFL-1.1, no Reserved Font Name), bundled at `assets/fonts/HiMelody-Regular.ttf` with its license — no download needed for authoring. Embed a **glyph subset** under the neutral internal alias (`HiMelody-Subset`), keep every text role at **weight 400** (regular-only face — synthetic bold is forbidden and `typography-check` rejects it), and wrap glyphs the face does not cover in an explicit `<tspan data-typography-role="secondary" font-family="Pretendard, sans-serif">` — silent fallback fails the render gate.
 
-**Subset before embedding whenever possible.** A full Korean TTF is ~3MB (≈4MB SVG). Subsetting to the glyphs actually used yields tens of KB:
+**Subset before embedding — always.** The bundled Hi Melody TTF is ~12MB (a full-font embed would be a ~16MB SVG and is forbidden). Subsetting to the glyphs actually used yields tens of KB:
 
 ```bash
 # 1. the canonical face ships with the skill (license: assets/fonts/HiMelody-OFL.txt)

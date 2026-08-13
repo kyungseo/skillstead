@@ -14,7 +14,8 @@ canonical skin.
   normative contrast from the validate receipt, and provenance digests, all
   consumed from `current-v1` through `skin.mjs`. The PNG is a canonical-renderer
   (`scripts/render.mjs`) 2× output; the SVG is the editable source. Sketch slots
-  reference a locally installed handwriting font (no `@font-face` embed) — the PNG
+  embed the canonical handwriting subset as an `@font-face` data URI (typography
+  profile contract) — the PNG
   carries the approved rendering.
 - Regeneration: from the profile via the recolor pipeline (a `skin.mjs contact-sheet`
   subcommand is reserved); generator lineage for this edition is preserved in Work

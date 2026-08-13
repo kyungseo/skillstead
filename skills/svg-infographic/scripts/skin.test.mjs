@@ -1,4 +1,4 @@
-// skin.mjs test suite — CP3A: materializer parity + schema/profile negative fixtures.
+// skin.mjs test suite — materializer parity + schema/profile negative fixtures.
 // Durable fixtures live in scripts/skin-fixtures/ (skins-negative/ mirrors the real
 // profiles plus deliberate defects and is consumed via the SKIN_SKINS_DIR override).
 import { test } from "node:test";
@@ -144,7 +144,7 @@ test("materialize receipt carries kernelVersion and sourceDigest", () => {
   assert.match(j.sourceDigest, /^[0-9a-f]{16}$/);
 });
 
-// --- CP3B: pageframe + 4 layout-family micro-fixtures ---------------------------
+// --- pageframe + 4 layout-family micro-fixtures -----------------------------------
 function pageframe(args = []) {
   const r = run(["pageframe", "social-4x5", "--json", ...args]);
   assert.equal(r.code, 0, r.out);
@@ -223,7 +223,7 @@ test("micro-fixtures: connector shafts and visible heads meet the preset minimum
   assert.ok(mw * 8 / 12 >= arrow["min-visible-head"], "visible head below minimum");
 });
 
-// --- CP3C-B: pageframe fail-closed schema + fluid two-phase ---------------------
+// --- pageframe fail-closed schema + fluid two-phase -------------------------------
 function pfNeg(file, args, re) {
   const dir = mkdtempSync(path.join(tmpdir(), "pf-"));
   copyFileSync(path.join(NEG, file), path.join(dir, "pageframe-v1.yaml"));
@@ -285,7 +285,7 @@ test("pageframe regions never overlap (content/support/footer non-overlap fixtur
   }
 });
 
-// --- FEAT-20260812-002 CP2: typography profile SSoT ----------------------------
+// --- typography profile SSoT -----------------------------------------------------
 test("typography: canonical profile validates (fail-closed schema)", () => {
   const r = run(["typography"]);
   assert.equal(r.code, 0, r.out);
@@ -325,7 +325,7 @@ test("typography: resolve receipt에 결정적 stack이 동봉된다", () => {
   assert.equal(JSON.parse(r2.out).typography.stack.startsWith("Pretendard, Inter"), true);
 });
 
-// --- FEAT-20260812-002 CP3: typography-check (composite wrapper 유실 must-fix) ---
+// --- typography-check (composite wrapper 유실 방지) -----------------------
 const TFIX = path.join(FIX, "typography");
 test("typography-check: positive (alias 유지 + 명시적 secondary + weight 400)", () => {
   const r = run(["typography-check", path.join(TFIX, "tf-positive.svg")]);
@@ -376,6 +376,11 @@ test("typography-check: marker 존재 + scope text 0은 fail-closed(F2)", () => 
   assert.equal(r.code, 1);
   assert.match(r.out, /E-TYPO-EMPTY/);
 });
+test("typography-check: single-quote root sketch도 gate 대상(R1B2-1)", () => {
+  const r = run(["typography-check", path.join(TFIX, "tf-sq-sketch-root.svg")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-TYPO-LOST|E-TYPO-WEIGHT/);
+});
 test("typography: bundled인데 license.evidence 누락은 error(F8)", () => {
   const r = run(["typography", path.join(TFIX, "typo-missing-license-evidence.yaml")]);
   assert.equal(r.code, 1);
@@ -394,7 +399,7 @@ test("typography: bundled asset의 digest mismatch는 error", () => {
   assert.match(r.out, /asset digest mismatch/);
 });
 
-// --- CP5-R1-F3: TypePack manifest validator ------------------------------------
+// --- TypePack manifest validator -----------------------------------------
 test("manifest: shipped (empty) manifest validates", () => {
   const r = run(["manifest"]);
   assert.equal(r.code, 0, r.out);

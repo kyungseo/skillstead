@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// font-probe.mjs — browser runtime font receipt (CP3 must-fix, FEAT-20260812-002).
+// font-probe.mjs — browser runtime font receipt (typography contract).
 //
 // document.fonts.ready 이후 각 embedded @font-face alias에 대해:
 //   - FontFaceSet.check(alias) — 선택 asset의 load 상태
@@ -15,7 +15,7 @@ import { readFileSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { pathToFileURL } from "node:url";
+import { pathToFileURL, fileURLToPath } from "node:url";
 import { resolveBrowser } from "./render.mjs";
 
 const args = process.argv.slice(2);
@@ -31,10 +31,24 @@ if (hasMarkers && families.length === 0) {
   process.exit(1);
 }
 // expected weight는 profile SSoT에서 (sketch)
-const skinCli = new URL("./skin.mjs", import.meta.url).pathname;
-const tp = spawnSync(process.execPath, [skinCli, "typography", "--json"], { encoding: "utf8" });
-let expectedWeights = [400];
-try { expectedWeights = JSON.parse(tp.stdout).treatments.sketch.weights.map(Number); } catch {}
+const skinCli = fileURLToPath(new URL("./skin.mjs", import.meta.url));
+// profile SSoT 로드는 fail-closed — 명령 실패·JSON 파손·필수 필드 누락 시 즉시 실패
+const profileJsonArgIdx = args.indexOf("--profile-json");
+let profileRaw;
+if (profileJsonArgIdx >= 0) {
+  try { profileRaw = readFileSync(path.resolve(args[profileJsonArgIdx + 1]), "utf8"); }
+  catch { console.error("font-probe: --profile-json path unreadable"); process.exit(1); }
+} else {
+  const tp = spawnSync(process.execPath, [skinCli, "typography", "--json"], { encoding: "utf8" });
+  if (tp.status !== 0) { console.error(`font-probe: typography profile command failed (exit ${tp.status})`); process.exit(1); }
+  profileRaw = tp.stdout;
+}
+let expectedWeights;
+try {
+  const w = JSON.parse(profileRaw).treatments.sketch.weights;
+  if (!Array.isArray(w) || !w.length) throw new Error("weights missing");
+  expectedWeights = w.map(Number);
+} catch (e) { console.error(`font-probe: typography profile unusable (${e.message ?? e}) — fail-closed`); process.exit(1); }
 const browser = resolveBrowser();
 if (!browser) { console.error("font-probe: no Chromium-based browser found"); process.exit(6); }
 
@@ -56,8 +70,10 @@ ${svg}
     const scopeRoots = [...document.querySelectorAll("[data-typography-scope]")];
     const rootSvg = document.querySelector("svg[data-treatment='sketch']");
     if (rootSvg) scopeRoots.push(rootSvg);
+    // primary 표본: secondary role(자신/조상)인 텍스트 제외 — 내부에 secondary tspan을
+    // 품은 텍스트는 primary 표본으로 유효(computed는 text 요소 기준)
     const texts = scopeRoots.flatMap((r) => [...r.querySelectorAll("text")])
-      .filter((t) => !t.closest("[data-typography-role='secondary']") && !t.querySelector("[data-typography-role='secondary']") || true);
+      .filter((t) => !t.closest("[data-typography-role='secondary']"));
     const scoped = texts.filter((t) => t.textContent.trim());
     const ko = scoped.find((t) => /[\\uAC00-\\uD7A3]/.test(t.textContent));
     const en = scoped.find((t) => /[A-Za-z]{3,}/.test(t.textContent) && !/[\\uAC00-\\uD7A3]/.test(t.textContent));
@@ -102,7 +118,14 @@ for (const f of families) {
   if (!c) problems.push(`missing FontFaceSet.check result for "${f}"`);
   else if (!(c.loadCheckKo && c.loadCheckEn)) problems.push(`FontFaceSet.check failed for "${f}" (ko=${c?.loadCheckKo}, en=${c?.loadCheckEn})`);
 }
-if (hasMarkers && !probe.scopedTextCount) problems.push("no scoped text found — samples must come from typography scopes, not sheet chrome");
+if (hasMarkers && !probe.scopedTextCount) problems.push("no scoped primary text found — samples must come from typography scopes, not sheet chrome (secondary-only scope is not evidence)");
+// 계약: KO와 EN 대표 표본 각각 최소 1개 (KO-only/EN-only는 반쪽 증거)
+if (hasMarkers && probe.scopedTextCount) {
+  for (const loc of ["ko", "en"]) {
+    if (!(probe.samples ?? []).some((smp) => smp.locale === loc))
+      problems.push(`no scoped ${loc.toUpperCase()} sample — the receipt requires one KO and one EN representative`);
+  }
+}
 for (const smp of probe.samples ?? []) {
   const expected = smp.expectedAlias || families[0];
   if (expected && firstFam(smp.computedFamily) !== expected)
