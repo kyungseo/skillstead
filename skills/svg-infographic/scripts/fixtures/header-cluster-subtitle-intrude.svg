@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" width="720" height="300" role="img"><title>hc subtitle intrude</title><desc>negative — subtitle intrudes into H1</desc>
 <g data-layout-role="header-cluster" data-layout-content-top="168" data-layout-breathing="36" data-layout-tolerance="2">
-  <rect data-layout-role="cluster-locator" x="40" y="48" width="8" height="8" rx="2" fill="#2E6DA4"/>
+  <rect data-layout-role="cluster-locator" x="40" y="52" width="8" height="8" rx="2" fill="#2E6DA4"/>
   <text data-layout-role="cluster-eyebrow" x="56" y="56" font-size="14" fill="#636A75" dominant-baseline="central">레퍼런스 토폴로지</text>
   <text data-layout-role="cluster-h1" x="40" y="92" font-size="28" fill="#252B35" dominant-baseline="central">Azure 레퍼런스 토폴로지</text>
   <text data-layout-role="cluster-subtitle" x="40" y="103" font-size="14" fill="#636A75" dominant-baseline="central">요청 경로 — 게이트웨이에서 데이터베이스까지</text>

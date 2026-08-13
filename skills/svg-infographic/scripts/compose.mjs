@@ -127,7 +127,7 @@ export function validatePlan(planPath, manifestPath) {
   try { ({ doc: plan, digest: planDigest } = readYamlFile(planPath)); }
   catch (e) { return { errors: [`plan: unreadable: ${e.message}`] }; }
   const PK = ["schema_version", "kind", "id", "page", "layout_template", "slots", "slot_gap",
-    "header", "instances", "semantic_bindings", "binding_complete_over", "connector_edges", "reading_order", "traversal"];
+    "header", "instances", "semantic_bindings", "binding_complete_over", "connector_edges", "reading_order", "traversal", "residual_disposition"];
   for (const k of Object.keys(plan)) if (!PK.includes(k)) errors.push(`plan: unknown field "${k}"`);
   if (plan.schema_version !== 1) errors.push(`plan: schema_version must be 1 (got ${plan.schema_version})`);
   if (plan.kind !== "composition-plan") errors.push(`plan: kind must be "composition-plan"`);
@@ -353,13 +353,17 @@ function compose(planPath, opts) {
     const tryVariants = [inst.variant ?? "base"];
     const packs = loadManifest(opts.manifest, []);
     for (const v of packs?.[inst.typepack]?.composition?.variants ?? []) if (!tryVariants.includes(v.id)) tryVariants.push(v.id);
+    // 잔여 공간 정책(1/2): slot에 맞는 variant 중 가장 채우는 것(usedBounds.h 최대)을
+    // 선택한다 — raw 좌표 patch나 글자/화살표 확대가 아니라 선언된 variant로 해결
     let chosen = null;
     for (const variant of tryVariants) {
       const stem = variant === "base" ? inst.typepack : `${inst.typepack}.${variant}`;
       const svgP = path.join(fragDir, `${stem}.svg`), rcpP = path.join(fragDir, `${stem}.receipt.json`);
       let frag, rcp;
       try { frag = readFileSync(svgP, "utf8"); rcp = JSON.parse(readFileSync(rcpP, "utf8")); } catch { continue; }
-      if (rcp.usedBounds.w <= slot.w && rcp.usedBounds.h <= slot.h) { chosen = { variant, frag, rcp, svgP }; break; }
+      if (rcp.usedBounds.w <= slot.w && rcp.usedBounds.h <= slot.h) {
+        if (!chosen || rcp.usedBounds.h > chosen.rcp.usedBounds.h) chosen = { variant, frag, rcp, svgP };
+      }
     }
     if (!chosen) {
       status = "needs-split";
@@ -499,18 +503,41 @@ function compose(planPath, opts) {
   </defs>
   <rect data-fill-role="canvas" fill="#F7F7F5" width="${pf.canvas.width}" height="${pf.canvas.height}"/>
   <g data-layout-role="header-cluster" data-layout-content-top="${cb.y + 14}" data-layout-breathing="36" data-layout-tolerance="2">
-    ${hdr.eyebrow ? `<rect data-layout-role="cluster-locator" data-fill-role="focus" x="40" y="48" width="8" height="8" rx="2" fill="#2E6DA4"/>
+    ${hdr.eyebrow ? `<rect data-layout-role="cluster-locator" data-fill-role="focus" x="40" y="52" width="8" height="8" rx="2" fill="#2E6DA4"/>
     <text data-layout-role="cluster-eyebrow" data-fill-role="muted" x="56" y="56" font-size="14" font-weight="700" letter-spacing="0.10em" fill="#636A75" dominant-baseline="central">${hdr.eyebrow}</text>` : ""}
     <text data-layout-role="cluster-h1" data-fill-role="ink" x="40" y="92" font-size="28" font-weight="700" fill="#252B35" dominant-baseline="central">${hdr.h1 ?? plan.id}</text>
     ${hdr.subtitle ? `<text data-layout-role="cluster-subtitle" data-fill-role="muted" x="40" y="124" font-size="14" fill="#636A75" dominant-baseline="central">${hdr.subtitle}</text>` : ""}
   </g>
   ${bodies.join("\n  ")}
 </svg>`;
+  // 잔여 공간 정책(2): 최종 배치 후 contentFlowBounds와 contentBox residual을 기록하고,
+  // page 하단 잔여는 plan의 명시적 residual_disposition 선언과 일치해야 한다 —
+  // 임계값 발명 없이 "채울 수 있는 만큼 채우고, 남는 것은 선언한다"
+  let contentFlowBounds = null, residual = null;
+  if (recInstances.length) {
+    const xs1 = Math.min(...recInstances.map((r) => r.usedBounds.x));
+    const ys1 = Math.min(...recInstances.map((r) => r.usedBounds.y));
+    const xs2 = Math.max(...recInstances.map((r) => r.usedBounds.x + r.usedBounds.w));
+    const ys2 = Math.max(...recInstances.map((r) => r.usedBounds.y + r.usedBounds.h));
+    contentFlowBounds = { x: round1(xs1), y: round1(ys1), w: round1(xs2 - xs1), h: round1(ys2 - ys1) };
+    residual = { top: round1(Math.max(0, ys1 - cb.y)), bottom: round1(Math.max(0, cb.y + cb.h - ys2)) };
+    const disp = plan.residual_disposition ?? null;
+    if (residual.bottom > 2) {
+      if (!disp || !Number.isFinite(Number(disp.bottom)))
+        problems.push(`page bottom residual ${residual.bottom}px is undeclared — declare residual_disposition {bottom, reason} (with the largest fitting variants already selected) or split the page`);
+      else if (Math.abs(Number(disp.bottom) - residual.bottom) > 2)
+        problems.push(`declared residual_disposition.bottom ${disp.bottom}px != measured ${residual.bottom}px`);
+      else if (!disp.reason) problems.push("residual_disposition requires a reason (e.g. bottom breathing for the 4:5 social posture)");
+    }
+    if (problems.length && status === "ok") status = "invalid";
+  }
   // namespace rewrite 이후 dangling reference·duplicate id는 조립 실패다 (최종 SVG 기준)
   for (const re of checkRefs(svg)) { problems.push(`assembly: ${re}`); if (status === "ok") status = "invalid"; }
   const receipt = { schemaVersion: 1, kind: "composition-receipt", planId: plan.id, planDigest,
     layoutTemplate: plan.layout_template, page: { preset: plan.page.preset, canvas: pf.canvas },
-    resolvedSlots: slotRects, slotGap: gap, instances: recInstances, connectorEdges: edges,
+    resolvedSlots: slotRects, slotGap: gap, contentFlowBounds, residual,
+    residualDisposition: plan.residual_disposition ?? null,
+    instances: recInstances, connectorEdges: edges,
     semanticBindings: plan.semantic_bindings ?? [], readingOrder: plan.reading_order,
     identityConsistent, status, problems,
     budget: { h1Count: 1, h1ScaleTexts: 1, note: "focal/tint/connector 집계는 measured/advisory — threshold 미정의(계약)" } };
@@ -529,8 +556,8 @@ function verify(svgPath, opts) {
   errors.push(...pErr);
   // Receipt v1 strict schema — receipt의 어떤 필드도 무검증 신뢰하지 않는다(R1-P1)
   const RK = ["schemaVersion", "kind", "planId", "planDigest", "layoutTemplate", "page", "resolvedSlots",
-    "slotGap", "instances", "connectorEdges", "semanticBindings", "readingOrder", "identityConsistent",
-    "status", "problems", "budget"];
+    "slotGap", "contentFlowBounds", "residual", "residualDisposition", "instances", "connectorEdges",
+    "semanticBindings", "readingOrder", "identityConsistent", "status", "problems", "budget"];
   for (const k of Object.keys(receipt)) if (!RK.includes(k)) errors.push(`E-COMP-SCHEMA receipt unknown field "${k}"`);
   for (const k of RK) if (!(k in receipt)) errors.push(`E-COMP-SCHEMA receipt missing field "${k}"`);
   if (receipt.schemaVersion !== 1 || receipt.kind !== "composition-receipt") errors.push("E-COMP-SCHEMA receipt identity invalid");
@@ -646,6 +673,27 @@ function verify(svgPath, opts) {
     const slot = receipt.resolvedSlots[inst.slot_id];
     if (tx.x < slot.x - 0.5 || tx.y < slot.y - 0.5 || tx.x + tx.w > slot.x + slot.w + 0.5 || tx.y + tx.h > slot.y + slot.h + 0.5)
       errors.push(`E-COMP-BOUNDS instance "${inst.instance_id}" used bounds escape slot ${inst.slot_id}`);
+  }
+  // contentFlowBounds/residual 재계산 대조 (조작 방지) + disposition 정책
+  if (receipt.instances?.length && plan) {
+    const xs1 = Math.min(...receipt.instances.map((r) => r.usedBounds.x));
+    const ys1 = Math.min(...receipt.instances.map((r) => r.usedBounds.y));
+    const xs2 = Math.max(...receipt.instances.map((r) => r.usedBounds.x + r.usedBounds.w));
+    const ys2 = Math.max(...receipt.instances.map((r) => r.usedBounds.y + r.usedBounds.h));
+    const cbAll = Object.values(receipt.resolvedSlots ?? {});
+    const cbTop = Math.min(...cbAll.map((s2) => s2.y));
+    const cbBottom = Math.max(...cbAll.map((s2) => s2.y + s2.h));
+    const expFlow = { x: round1(xs1), y: round1(ys1), w: round1(xs2 - xs1), h: round1(ys2 - ys1) };
+    if (JSON.stringify(expFlow) !== JSON.stringify(receipt.contentFlowBounds))
+      errors.push("E-COMP-FORGED receipt contentFlowBounds != recomputed union of instance bounds");
+    const expResidual = { top: round1(Math.max(0, ys1 - cbTop)), bottom: round1(Math.max(0, cbBottom - ys2)) };
+    if (JSON.stringify(expResidual) !== JSON.stringify(receipt.residual))
+      errors.push("E-COMP-FORGED receipt residual != recomputed from contentFlowBounds/contentBox");
+    if (expResidual.bottom > 2) {
+      const disp = receipt.residualDisposition;
+      if (!disp || !Number.isFinite(Number(disp.bottom)) || Math.abs(Number(disp.bottom) - expResidual.bottom) > 2 || !disp.reason)
+        errors.push(`E-COMP-RESIDUAL page bottom residual ${expResidual.bottom}px lacks a matching explicit residual_disposition — large dead space must never pass silently`);
+    }
   }
   // slot 간 overlap 금지
   const sr = Object.entries(receipt.resolvedSlots ?? {});

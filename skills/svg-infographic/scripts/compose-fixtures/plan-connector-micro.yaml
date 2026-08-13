@@ -34,5 +34,8 @@ semantic_bindings:
 connector_edges:
   - from: { instance_id: cards-1, port: item-1 }
     to: { instance_id: tree-1, port: leaf-1 }
+residual_disposition:
+  bottom: 67
+  reason: "4:5 social posture bottom breathing after the largest fitting variants"
 reading_order: [cards-1, tree-1]
 traversal: explicit

@@ -1,6 +1,6 @@
 schema_version: 1
 kind: composition-plan
-id: cards-tree-4x5-en
+id: cards-tree-4x5
 page: { preset: social-4x5, support: none }
 layout_template: vertical-stack
 slots:
@@ -8,9 +8,9 @@ slots:
   slot-b: { height: 528 }
 slot_gap: 32
 header:
-  eyebrow: "COMPOSITION SUMMARY"
-  h1: "Four key points and the overall structure"
-  subtitle: "Top cards map to the numbered tree below"
+  eyebrow: "구성 요약"
+  h1: "핵심 4가지와 전체 구조"
+  subtitle: "상단 카드가 하단 트리의 번호와 대응합니다"
 instances:
   - { instance_id: cards-1, typepack: summary-cards, module_role: primary, slot_id: slot-a }
   - { instance_id: tree-1, typepack: tree, module_role: supporting, slot_id: slot-b }
@@ -33,8 +33,5 @@ semantic_bindings:
       - { instance_id: tree-1, entity_id: leaf-4 }
 binding_complete_over: [cards-1, tree-1]
 connector_edges: []
-residual_disposition:
-  bottom: 67
-  reason: "4:5 social posture bottom breathing after the largest fitting variants"
 reading_order: [cards-1, tree-1]
 traversal: explicit

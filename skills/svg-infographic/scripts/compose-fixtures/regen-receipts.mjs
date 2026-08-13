@@ -23,7 +23,7 @@ const identity = {
   iconSetId: "line-icons-v1",
 };
 
-for (const [dir, stem] of [["fragments", "summary-cards"], ["fragments", "tree"], ["fragments", "icon-band"], ["fragments-en", "summary-cards"], ["fragments-en", "tree"]]) {
+for (const [dir, stem] of [["fragments", "summary-cards"], ["fragments", "tree"], ["fragments", "tree.spacious"], ["fragments", "icon-band"], ["fragments-en", "summary-cards"], ["fragments-en", "tree"], ["fragments-en", "tree.spacious"]]) {
   const svgP = path.join(here, dir, `${stem}.svg`);
   const rcpP = path.join(here, dir, `${stem}.receipt.json`);
   const frag = readFileSync(svgP, "utf8");

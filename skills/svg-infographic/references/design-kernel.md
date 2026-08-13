@@ -240,6 +240,14 @@ Canvas → Safe area
   text itself is `--muted`), then H1 (Pretendard, 1–2 lines), then optional muted
   subtitle, then generous breathing room before the diagram. The locator exists
   **only when the eyebrow exists**. No box, no wash, no full-width underline.
+- **Marker-label-row primitive**: the locator and eyebrow form an atomic row —
+  `markerCenterY = labelLineCenterY` (an 8px locator against a central-baseline
+  eyebrow at y sits at y − 4). The same primitive, annotated
+  `data-layout-role="marker-label-row"` and lint-enforced within the layout
+  tolerance, applies to any small marker + single-line KO/EN label pair (legend
+  keys, callouts, section labels); a multi-line label aligns the marker to the
+  **first** line center. Optical correction, if ever needed, becomes a shared
+  token — per-file nudges are forbidden.
 - **Minimal variant: H-B** — the same stack without the locator.
 - **Rejected: the vertical accent rail** (unstable length/boundary across 1–2-line
   titles; ambiguous representative scope). Never regenerate it in new output;
@@ -419,6 +427,14 @@ Contract highlights, all fail-closed:
 - **Page budget**: exactly one `cluster-h1` (composition-owned header); module
   headings stay at section scale; focal/tint/connector aggregates are recorded as
   measured/advisory values without invented thresholds.
+- **Residual space**: after placement the receipt records `contentFlowBounds`
+  (union of all instance bounds) and the top/bottom residual inside the
+  contentBox. The composition must first select the **largest fitting declared
+  variant** per slot (spacious/expanded rhythms live in TypePack variants — never
+  raw coordinate patches or enlarged type/arrows); any remaining page-bottom
+  residual must be **explicitly declared** in the plan
+  (`residual_disposition: {bottom, reason}`) and match the measurement, or the
+  compose is a non-success. Large dead space never passes silently.
 
 ## 9. Regeneration & provenance
 

@@ -713,6 +713,34 @@ export function lintSvg(source, filename = "input.svg") {
       if (violations.length) {
         add(errors, group.line, "E-LAYOUT", `page-title-header rail budget failed: ${violations.join("; ")}`, "derive rail y/height from the eyebrow and final title line before rendering (SKILL.md §2, authoring.md §1)");
       }
+    } else if (role === "marker-label-row") {
+      // 공통 primitive (design-kernel §6 파생): marker(rect|circle) + 단일행 label을
+      // 하나의 atomic row로 취급 — markerCenterY = labelLineCenterY. eyebrow 외에도
+      // legend·callout·section label의 작은 marker+label 조합에 재사용한다.
+      const kids = group.children ?? [];
+      const marker = kids.find((k) => k.tag === "rect" || k.tag === "circle");
+      const label = kids.find((k) => k.tag === "text");
+      const tolRaw = px(group.attrs["data-layout-tolerance"]);
+      const tol = tolRaw === undefined || tolRaw < 0 || tolRaw > 8 ? 2 : tolRaw;
+      if (!marker || !label) {
+        add(errors, group.line, "E-LAYOUT", "marker-label-row requires exactly one rect/circle marker and one text label as direct children", "restructure the row or remove the annotation (design-kernel §6)");
+      } else if (label.attrs["dominant-baseline"] !== "central") {
+        add(errors, group.line, "E-LAYOUT", "marker-label-row label must use dominant-baseline=\"central\" — centering is provable only against the line center", "set dominant-baseline=central on the label (design-kernel §6)");
+      } else {
+        let mc;
+        if (marker.tag === "rect") {
+          const my = px(marker.attrs.y), mh = px(marker.attrs.height);
+          mc = my !== undefined && mh !== undefined ? my + mh / 2 : undefined;
+        } else {
+          mc = px(marker.attrs.cy);
+        }
+        const ly = px(label.attrs.y);
+        if (mc === undefined || ly === undefined) {
+          add(warnings, group.line, "W-LAYOUT", "marker-label-row geometry is unverified (need numeric marker y/height|cy and label y)", "use plain numeric geometry (design-kernel §6)");
+        } else if (Math.abs(mc - ly) > tol) {
+          add(errors, group.line, "E-LAYOUT", `marker-label-row misaligned: marker center ${round1(mc)} vs label line center ${round1(ly)} (>${tol}px) — markerCenterY must equal labelLineCenterY`, "derive the marker y from the label line center; per-file nudges are forbidden (design-kernel §6)");
+        }
+      }
     } else if (role === "header-cluster") {
       // H-C editorial stack contract (design-kernel §6): optional eyebrow row with a
       // derived --focus locator → H1 (1–2 lines) → optional subtitle. Locator exists
@@ -767,6 +795,17 @@ export function lintSvg(source, filename = "input.svg") {
         const eyX = px(eyebrows[0].attrs.x);
         if (locX !== undefined && h1X !== undefined && Math.abs(locX - h1X) > tolerance) violations.push(`locator x ${round1(locX)} is not aligned with the H1 left edge ${round1(h1X)}`);
         if (locX !== undefined && eyX !== undefined && (eyX - (locX + locW) < 4 || eyX - (locX + locW) > 14)) violations.push(`eyebrow starts ${round1(eyX - (locX + locW))}px after the locator; expected a 4–14px gap`);
+        // marker-label-row 산식: markerCenterY = labelLineCenterY (파일별 수기 보정 금지)
+        const locY = px(localGeometryProp(loc, "y", rules));
+        const eyY = px(eyebrows[0].attrs.y);
+        const eyCentral = eyebrows[0].attrs["dominant-baseline"] === "central";
+        if (locY !== undefined && eyY !== undefined) {
+          if (!eyCentral) violations.push("locator/eyebrow centering is provable only with dominant-baseline=\"central\" on the eyebrow");
+          else {
+            const dc = Math.abs((locY + locH / 2) - eyY);
+            if (dc > tolerance) violations.push(`locator center ${round1(locY + locH / 2)} is ${round1(dc)}px off the eyebrow line center ${round1(eyY)} — markerCenterY must equal labelLineCenterY`);
+          }
+        }
       }
       if (eyebrowBox && eyebrowBox.bottom > h1Box.top + tolerance) violations.push(`eyebrow bottom ${round1(eyebrowBox.bottom)} intrudes into the H1 top ${round1(h1Box.top)}`);
       if (subtitleBox) {

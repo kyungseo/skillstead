@@ -212,7 +212,7 @@ test("R1-5b: capability cardinality(정확히 4) 위반은 거부", () => {
 test("R1-5c: fragment sourceDigest mismatch(stale receipt)는 거부", () => {
   const fd = fs.mkdtempSync(path.join(os.tmpdir(), "frag-"));
   for (const f of fs.readdirSync(path.join(FIX, "fragments"))) fs.copyFileSync(path.join(FIX, "fragments", f), path.join(fd, f));
-  const sp = path.join(fd, "tree.svg");
+  const sp = path.join(fd, "tree.spacious.svg");   // 최대-채움 정책으로 선택되는 variant를 변조
   fs.writeFileSync(sp, fs.readFileSync(sp, "utf8") + "<!-- mutated -->");
   const r = run(["compose", path.join(FIX, "plan-cards-tree.yaml"), "--fragments", fd, ...M, "--out", path.join(td, "r5c.svg"), "--receipt", path.join(td, "r5c.json")]);
   assert.equal(r.code, 1);
@@ -288,7 +288,7 @@ test("R2-3: 정상 KO text fragment는 evidence와 함께 통과", () => {
 test("R2-4: text-measure inputDigest가 fragment와 다르면 stale evidence로 거부", () => {
   const fd = fs.mkdtempSync(path.join(os.tmpdir(), "frag-"));
   for (const f of fs.readdirSync(path.join(FIX, "fragments"))) fs.copyFileSync(path.join(FIX, "fragments", f), path.join(fd, f));
-  const rcpP = path.join(fd, "tree.receipt.json");
+  const rcpP = path.join(fd, "tree.spacious.receipt.json");   // 최대-채움 정책이 선택하는 variant
   const rcp = JSON.parse(fs.readFileSync(rcpP, "utf8"));
   rcp.textMeasure.inputDigest = "beefbeefbeefbeef";
   fs.writeFileSync(rcpP, JSON.stringify(rcp));
@@ -386,4 +386,33 @@ test("P2-2: text-free fragment가 null 아닌 text evidence를 실으면 거부"
   const r = run(["compose", path.join(FIX, "plan-cards-iconband.yaml"), "--fragments", fd, ...M, "--out", path.join(td, "p22.svg"), "--receipt", path.join(td, "p22.json")]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /text-free fragment must record textDigest: null/);
+});
+
+// ---- residual-space 계약(R5) ----
+test("R5-1: 최대-채움 variant 자동 선택(spacious)과 residual receipt", () => {
+  const rcp = JSON.parse(fs.readFileSync(RCP, "utf8"));
+  const tree = rcp.instances.find((i) => i.instance_id === "tree-1");
+  assert.equal(tree.variant, "spacious");
+  assert.ok(rcp.contentFlowBounds && rcp.residual);
+  assert.ok(Math.abs(rcp.residual.bottom - 67) <= 2, JSON.stringify(rcp.residual));
+});
+test("R5-2: 선언 없는 page bottom residual은 non-success", () => {
+  const r = run(["compose", path.join(FIX, "plan-residual-undeclared.yaml"), "--fragments", path.join(FIX, "fragments"), ...M, "--out", path.join(td, "r52.svg"), "--receipt", path.join(td, "r52.json")]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /residual .*undeclared/);
+});
+test("R5-3: forged contentFlowBounds/residual은 재계산으로 거부", () => {
+  const rcp = JSON.parse(fs.readFileSync(RCP, "utf8"));
+  rcp.residual = { top: 0, bottom: 0 };
+  const p = path.join(td, "r53.json");
+  fs.writeFileSync(p, JSON.stringify(rcp));
+  const r = run(["verify", OUT, "--receipt", p, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M, "--no-browser"]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-COMP-FORGED receipt residual/);
+});
+
+// ---- marker-label-row primitive(P2) ----
+test("P2-3: compose header locator는 eyebrow line center에 정렬(52/56)", () => {
+  const svg = fs.readFileSync(OUT, "utf8");
+  assert.match(svg, /cluster-locator[^>]*y="52"/);
 });

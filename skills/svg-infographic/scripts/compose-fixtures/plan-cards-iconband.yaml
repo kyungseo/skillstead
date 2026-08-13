@@ -17,5 +17,8 @@ instances:
 semantic_bindings: []
 binding_complete_over: []
 connector_edges: []
+residual_disposition:
+  bottom: 472
+  reason: "icon-band micro-fixture — declared large bottom residual (contract demonstration)"
 reading_order: [cards-1, icons-1]
 traversal: explicit
