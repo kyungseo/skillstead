@@ -13,6 +13,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   provenance, verifyProvenance, PREFLIGHT_EXIT, digestFiles, runPreflight, RECEIPT_SCHEMA,
+  PROVENANCE_EVIDENCE,
 } from "./preflight-lib.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -56,8 +57,10 @@ function installed({ git = true, staged = false } = {}) {
 }
 
 // ---- positive: 두 실행 모드 ------------------------------------------------
-test("positive(source-development): 소유 repository에서 preflight 통과 + 세 digest", () => {
-  const r = run([CLI, "--json"]);
+test("positive(source-development): canonical runner의 명시 opt-in에서만 개발 모드가 된다", () => {
+  assert.equal(JSON.parse(run([CLI, "--json"]).out).executionMode, "installed-runtime",
+    "기본값은 언제나 installed-runtime이어야 한다");
+  const r = run([CLI, "--require-mode", "source-development", "--json"]);
   assert.equal(r.code, 0, r.out);
   const j = JSON.parse(r.out);
   assert.equal(j.executionMode, "source-development");
@@ -94,18 +97,41 @@ test("positive(installed-runtime): git repository가 아닌 작업 디렉터리�
   assert.equal(JSON.parse(r.out).executionMode, "installed-runtime");
 });
 
-test("installed-runtime에서 source-development 강제는 거부된다(Wave acceptance 경계)", () => {
+test("F1: 설치 문맥에서 source-development 강제는 거부된다(Wave acceptance 경계)", () => {
   const { project, pkg } = installed();
   const r = run([path.join(pkg, "scripts", "preflight.mjs"), "--require-mode", "source-development"], { cwd: project });
   assert.equal(r.code, PREFLIGHT_EXIT, r.out);
-  assert.match(r.out, /source-development was required/);
+  assert.match(r.out, /does not carry skills\/svg-infographic|not inside a git repository/);
   assert.equal(run([CLI, "--require-mode", "source-development"]).code, 0, "소유 repository에서는 통과");
 });
 
+test("F1: 우연히 skills/svg-infographic을 가진 consumer repo는 개발 모드를 주장할 수 없다", () => {
+  // package를 그대로 복사해 둔 임의 repository — 디렉터리 존재만으로는 소유 증거가 아니다
+  const { repo, pkg } = sourceRepo();
+  const cwd = path.join(pkg, "scripts");
+  const dflt = run([path.join(pkg, "scripts", "preflight.mjs"), "--json"], { cwd });
+  assert.equal(dflt.code, 0, dflt.out);
+  assert.equal(JSON.parse(dflt.out).executionMode, "installed-runtime", "기본값은 설치 런타임");
+  const forced = run([path.join(pkg, "scripts", "preflight.mjs"), "--require-mode", "source-development"], { cwd });
+  assert.equal(forced.code, PREFLIGHT_EXIT, forced.out);
+  assert.match(forced.out, /not in the git index/);
+  // env로 요청해도 같은 소유 증거를 요구한다
+  const viaEnv = run([path.join(pkg, "scripts", "preflight.mjs")], { cwd, env: { SVGINFO_EXECUTION_MODE: "source-development" } });
+  assert.equal(viaEnv.code, PREFLIGHT_EXIT, viaEnv.out);
+  assert.ok(fs.existsSync(path.join(repo, ".git")));
+});
+
+test("F1: expected repository identity가 어긋나면 개발 모드는 거부된다", () => {
+  const other = tmp("otherrepo");
+  const r = run([CLI, "--require-mode", "source-development"], { env: { SVGINFO_EXPECTED_REPO_ROOT: other } });
+  assert.equal(r.code, PREFLIGHT_EXIT, r.out);
+  assert.match(r.out, /SVGINFO_EXPECTED_REPO_ROOT disagrees/);
+});
+
 // ---- stale entrypoint: 개발 문맥에서 외부 사본 거부 --------------------------
-test("N1: 개발 문맥에서 외부/stale entrypoint는 자기 package로 자기 자신을 정당화하지 못한다", () => {
+test("N1: 개발 모드에서 외부/stale entrypoint는 자기 package로 자기 자신을 정당화하지 못한다", () => {
   const { pkg } = installed();   // 정상적으로 구성된 외부 사본
-  const r = run([path.join(pkg, "scripts", "preflight.mjs")], { cwd: here });
+  const r = run([path.join(pkg, "scripts", "preflight.mjs"), "--require-mode", "source-development"], { cwd: here });
   assert.equal(r.code, PREFLIGHT_EXIT, r.out);
   assert.match(r.out, /running entrypoint is outside the package owned by this working repository/);
 });
@@ -115,9 +141,10 @@ test("N1b: 상속 env로 root·mode를 바꿔칠 수 없다", () => {
   const r = run([CLI], { env: { SVGINFO_EXPECTED_SKILL_ROOT: pkg } });
   assert.equal(r.code, PREFLIGHT_EXIT, r.out);
   assert.match(r.out, /disagrees with the resolved package/);
-  const m = run([CLI], { env: { SVGINFO_EXECUTION_MODE: "installed-runtime" } });
+  // mode env는 "요청"이며 요청된 모드도 소유 증거를 다시 통과해야 한다
+  const m = run([CLI], { env: { SVGINFO_EXECUTION_MODE: "nonsense" } });
   assert.equal(m.code, PREFLIGHT_EXIT, m.out);
-  assert.match(m.out, /disagrees with the resolved execution mode/);
+  assert.match(m.out, /unknown execution mode/);
 });
 
 test("N1c: package root를 찾을 수 없는 실행은 fail-closed", () => {
@@ -137,8 +164,8 @@ test("F4: manifest가 선언한 모든 production entrypoint의 외부 사본은
   assert.ok(entrypoints.length >= 8, `production entrypoint ${entrypoints.length}개만 선언됨`);
   const { pkg } = installed();
   for (const rel of entrypoints) {
-    // cwd는 소유 repository, 실행 파일은 외부 사본 — 인자 없이도 preflight가 먼저 막아야 한다
-    const r = run([path.join(pkg, rel)], { cwd: here });
+    // canonical runner 문맥(개발 모드 요청) + 외부 사본 — 인자 파싱 전에 막아야 한다
+    const r = run([path.join(pkg, rel)], { cwd: here, env: { SVGINFO_EXECUTION_MODE: "source-development" } });
     assert.equal(r.code, PREFLIGHT_EXIT, `${rel}: ${r.out}`);
     assert.match(r.out, /entrypoint is outside the package/, rel);
   }
@@ -151,7 +178,9 @@ test("F4: manifest가 선언한 모든 production entrypoint의 외부 사본은
 
 test("F4: production shim의 외부 사본도 bound entrypoint까지 도달해 거부된다", () => {
   const { pkg } = installed();
-  const r = spawnSync("bash", [path.join(pkg, "scripts", "render.sh"), "x.svg"], { encoding: "utf8", cwd: here });
+  const env = { ...process.env, SVGINFO_EXECUTION_MODE: "source-development" };
+  delete env.SVGINFO_EXPECTED_SKILL_ROOT;
+  const r = spawnSync("bash", [path.join(pkg, "scripts", "render.sh"), "x.svg"], { encoding: "utf8", cwd: here, env });
   assert.equal(r.status, PREFLIGHT_EXIT, r.stdout + r.stderr);
   assert.match(r.stdout + r.stderr, /entrypoint is outside the package/);
 });
@@ -161,6 +190,10 @@ test("F4: import closure는 side-effect·export-from·비정적 dynamic import�
     ['import "left-pad";\n', /bare import "left-pad"/],
     ['export { x } from "left-pad";\n', /bare import "left-pad"/],
     ['const n = "x"; await import(n);\n', /non-literal dynamic import/],
+    ['const n = "x"; await import (n);\n', /non-literal dynamic import/],
+    ['const n = "x"; await import/*gap*/(n);\n', /non-literal dynamic import/],
+    ['const n = "x"; await import\n  (n);\n', /non-literal dynamic import/],
+    ['await import ("left-pad");\n', /bare import "left-pad"/],
     ['import y from "../../../../outside.mjs";\n', /escapes the package/],
     ['import z from "./no-such-module.mjs";\n', /does not resolve to a file/],
   ];
@@ -262,9 +295,9 @@ test("N5: staging 사본의 누락·추가·변조·내부 symlink는 동일성 
 });
 
 // ---- CP0-R1-F3: receipt/provenance 위조 -------------------------------------
-const receiptOf = () => {
+const receiptOf = (extra = []) => {
   const p = path.join(tmp("rcpt"), "preflight.receipt.json");
-  assert.equal(run([CLI, "--receipt", p]).code, 0);
+  assert.equal(run([CLI, "--receipt", p, ...extra]).code, 0);
   return p;
 };
 
@@ -292,7 +325,7 @@ test("F3: identity receipt의 package·revision·digest 개수·길이 위조를
     [(d) => { d.errors = []; }, /unknown field "errors"/],
     [(d) => { d.fileCount = 1; }, /E-RCPT-FILES/],
     [(d) => { d.canonicalization.framing = "concat"; }, /E-RCPT-CANON/],
-    [(d) => { d.executionMode = "whatever"; }, /E-RCPT-MODE/],
+    [(d) => { d.executionMode = "whatever"; }, /E-RCPT-MODE unknown/],
   ];
   for (const [mutate, re] of cases) {
     const doc = JSON.parse(JSON.stringify(base));
@@ -305,7 +338,39 @@ test("F3: identity receipt의 package·revision·digest 개수·길이 위조를
   }
 });
 
-test("F3: provenance의 commit·producer·mode·input 위조를 잡는다", () => {
+test("F2: enum에 속하는 다른 execution mode로 바꾼 receipt도 거부된다", () => {
+  // source-development에서 만든 receipt를 installed-runtime으로 바꾸면 두 값 모두
+  // 유효하지만 주장 자체가 달라진다 — 현재 실행 모드와 대조해야 한다.
+  const p = receiptOf(["--require-mode", "source-development"]);
+  const doc = JSON.parse(fs.readFileSync(p, "utf8"));
+  assert.equal(doc.executionMode, "source-development");
+  assert.equal(run([CLI, "--verify-receipt", p, "--require-mode", "source-development"]).code, 0, "같은 모드에서는 통과");
+  doc.executionMode = "installed-runtime";
+  const swapped = path.join(tmp("rcpt"), "swapped.json");
+  fs.writeFileSync(swapped, JSON.stringify(doc));
+  const r = run([CLI, "--verify-receipt", swapped, "--require-mode", "source-development"]);
+  assert.equal(r.code, PREFLIGHT_EXIT, r.out);
+  assert.match(r.out, /E-RCPT-MODE receipt executionMode .*!= current/);
+});
+
+test("F3: provenance evidence level은 실제 검증 수준과 일치한다", () => {
+  // producer·inputs·browser는 형식만 확인하므로 recomputed로 분류하지 않는다.
+  assert.deepEqual(PROVENANCE_EVIDENCE.recomputed,
+    ["executionMode", "skillRoot", "package", "runtimeSurfaceDigest"]);
+  assert.ok(PROVENANCE_EVIDENCE.shapeValidated.includes("producer"));
+  assert.ok(PROVENANCE_EVIDENCE.shapeValidated.includes("inputs"));
+  assert.ok(PROVENANCE_EVIDENCE.shapeValidated.includes("browser"));
+  assert.deepEqual(PROVENANCE_EVIDENCE.informational, ["source"]);
+  // 형식이 올바른 다른 digest는 통과한다 — 이것이 shapeValidated의 의미다
+  const p = provenance({ producer: { kind: "generator", generatorDigest: "sha256:" + "a".repeat(64) }, cwd: here });
+  const swapped = { ...p, producer: { kind: "generator", generatorDigest: "sha256:" + "e".repeat(64) } };
+  assert.deepEqual(verifyProvenance(swapped, { cwd: here }), [],
+    "원본 locator 없이는 generator digest를 재계산할 수 없다(shapeValidated)");
+});
+
+test("F3: provenance의 commit 형식·producer·mode·input 위조를 잡는다", () => {
+  // source 블록은 개발 모드에서만 존재한다 — 이 검사는 canonical runner 문맥을 쓴다
+  runPreflight({ cwd: here, requireMode: "source-development" });
   const good = provenance({
     producer: { kind: "generator", generatorDigest: "sha256:" + "a".repeat(64) },
     inputs: [{ role: "source", digest: "sha256:" + "b".repeat(64) }], cwd: here,
@@ -317,6 +382,8 @@ test("F3: provenance의 commit·producer·mode·input 위조를 잡는다", () =
     const errs = verifyProvenance(doc, { cwd: here });
     assert.ok(errs.some((e) => re.test(e)), `${re} not raised: ${JSON.stringify(errs)}`);
   };
+  // source는 informational이므로 "다른 40-hex commit"은 검출 대상이 아니다 —
+  // 여기서 잡는 것은 commit **형식** 위반이다(계약과 일치).
   bad((d) => { d.source.headCommit = "forged"; }, /E-PROV-SOURCE source\.headCommit/);
   bad((d) => { d.package.id = "other"; }, /E-PROV-PACKAGE/);
   bad((d) => { d.package.surfaceRevision = 99; }, /E-PROV-PACKAGE surfaceRevision/);
@@ -332,6 +399,7 @@ test("F3: provenance의 commit·producer·mode·input 위조를 잡는다", () =
 });
 
 test("F3: provenance producer union — 필수·금지 필드 전건", () => {
+  runPreflight({ cwd: here, requireMode: "source-development" });
   assert.throws(() => provenance({ producer: { kind: "hand-wave" }, cwd: here }), /producer\.kind/);
   assert.throws(() => provenance({ producer: { kind: "generator" }, cwd: here }), /generatorDigest as sha256/);
   assert.throws(() => provenance({ producer: { kind: "agent-authored", authoringContract: "x" }, cwd: here }), /promptDigest or inputDigest/);
@@ -343,6 +411,7 @@ test("F3: provenance producer union — 필수·금지 필드 전건", () => {
 });
 
 test("F3: 검사 실패 상태에서는 receipt를 만들지 않는다", () => {
+  runPreflight({ cwd: here });   // 모듈 상태를 기본 모드로 되돌린다
   const { pkg } = sourceRepo();
   fs.writeFileSync(path.join(pkg, "scripts", "rogue.mjs"), "export const x = 1;\n");
   const out = path.join(tmp("rcpt"), "should-not-exist.json");

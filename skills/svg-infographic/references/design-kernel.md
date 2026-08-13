@@ -491,18 +491,26 @@ Contract highlights, all fail-closed:
 - **Preflight runs inside every production entrypoint, on every invocation**, in
   one of two execution modes — development rules must never make an installed
   skill unusable:
-  - `source-development` — the working repository owns the package (its git root
-    has `skills/svg-infographic`). The expected root comes from that repository,
-    never from the location of the running script, and an entrypoint outside it
-    is refused, so a stale installed copy cannot validate itself. Wave
-    regeneration and acceptance artifacts require this mode.
+  - `source-development` — **never the default and never inferred from a
+    directory layout**: it must be requested explicitly (the canonical Wave
+    runner's `--require-mode`, or a mode passed to a child process) *and* the
+    working repository must prove ownership — it carries the package, the
+    running entrypoint is that package, and the package identity file is tracked
+    in its git index. A copied-but-untracked package cannot claim this mode. An
+    entrypoint outside the owned package is refused, so a stale installed copy
+    cannot validate itself. Wave regeneration and acceptance artifacts require
+    this mode; CI may additionally pin the expected repository identity.
   - `installed-runtime` — the package is installed and used from an arbitrary
     project (global, `.claude`/`.codex` staged, vendored, or no git at all). The
     package root is found from the running entrypoint, no repository is assumed,
     and provenance records installed package identity **without** claiming any
     source commit.
-  The mode is never selectable downwards: a caller may require the stricter mode,
-  and inherited root/mode environment values are compared rather than trusted.
+  The default is always `installed-runtime`; a caller may *request* the stricter
+  mode, and both the request and any inherited root are re-verified rather than
+  trusted. **Installed runtime supports the complete package tree only** — a
+  trimmed distribution with tests/fixtures removed is currently unsupported and
+  fails classification rather than silently degrading; supporting it would need
+  its own distribution profile and package tree digest.
   Package-owned lookups (registry, profiles, manifests, bundled assets) must
   resolve inside the package in both modes — an out-of-package profile directory
   is refused even when named through an environment variable, and no shipped
@@ -515,8 +523,13 @@ Contract highlights, all fail-closed:
   a **logical** `skillRoot` locator rather than a local path. Source identity
   (`headCommit`, `repoDirty`, `runtimeSurfaceDirty`) appears only in
   source-development provenance and is **informational evidence**, not a verified
-  claim: the verifier recomputes what can be recomputed (digests, package
-  identity, producer shape) and validates the rest for form only. The commit that
+  claim. Evidence separates into three levels: **recomputed** (execution mode,
+  skill/package identity, surface revision, runtime surface digest),
+  **shape-validated** (producer union, digest formats, browser and source block
+  structure — a correctly-shaped but different digest passes here) and
+  **informational** (source commit and dirty flags). A producer, input or browser
+  claim is only promoted to recomputed by an artifact-specific verifier that
+  holds the original locator and bytes. The commit that
   was actually tested is recorded separately, by a clean CI acceptance receipt
   outside the package. Receipt kind is decided by schema identity, not by a
   label, so a receipt cannot be relabelled past verification; digest receipts are

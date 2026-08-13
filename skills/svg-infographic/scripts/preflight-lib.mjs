@@ -26,6 +26,7 @@ export const SKILL_LOCATOR = "skills/svg-infographic";
 export const PACKAGE_ID = "svg-infographic";
 export const EXPECTED_ROOT_ENV = "SVGINFO_EXPECTED_SKILL_ROOT";
 export const EXECUTION_MODE_ENV = "SVGINFO_EXECUTION_MODE";
+export const EXPECTED_REPO_ENV = "SVGINFO_EXPECTED_REPO_ROOT";
 export const MODES = ["source-development", "installed-runtime"];
 const SURFACE_MANIFEST = ["references", "package-surface.yaml"];
 export const DIGEST_RE = /^sha256:[0-9a-f]{64}$/;
@@ -175,7 +176,8 @@ export function importClosure(skillRoot, kinds) {
     const specs = [];
     for (const m of src.matchAll(/(?:^|\n)\s*(?:import|export)\s[^;]*?from\s*["']([^"']+)["']/g)) specs.push(m[1]);
     for (const m of src.matchAll(/(?:^|\n)\s*import\s*["']([^"']+)["']\s*;?/g)) specs.push(m[1]);   // side-effect import
-    for (const m of src.matchAll(/\bimport\(\s*([^)]*)\)/g)) {
+    // `import (x)`·`import/*c*/(x)`·줄바꿈 변형까지 잡는다(주석은 앞서 공백으로 치환됨).
+    for (const m of src.matchAll(/\bimport\s*\(\s*([^)]*)\)/g)) {
       const arg = m[1].trim();
       const lit = arg.match(/^["']([^"']+)["']$/);
       if (lit) specs.push(lit[1]);
@@ -211,50 +213,63 @@ export function findPackageRoot(entryReal) {
   return null;
 }
 
+// 기본값은 항상 installed-runtime이다. source-development는 **명시적 opt-in**이며
+// (canonical Wave runner의 --require-mode 또는 자식에게 전달된 mode), opt-in이라도
+// 아래 소유 증거를 모두 만족할 때만 성립한다 — 디렉터리에 package를 복사해 둔 임의
+// repository가 Wave acceptance 모드를 주장하지 못하게 한다(CP0-R1B-F1).
 export function resolveExecution({ entrypointUrl, cwd = process.cwd(), requireMode = null } = {}) {
-  if (requireMode && !MODES.includes(requireMode)) fail(`unknown required execution mode "${requireMode}"`);
+  const requested = requireMode ?? process.env[EXECUTION_MODE_ENV] ?? null;
+  if (requested && !MODES.includes(requested)) fail(`unknown execution mode "${requested}"`);
   // entrypoint를 주지 않은 라이브러리 호출(생성 script가 provenance를 만드는 경우 등)에는
   // 이 파일 자신이 기준이다 — 실행 중인 코드가 어느 package의 것인지는 그것으로 정해진다.
   const entry = realpathSync(fileURLToPath(entrypointUrl ?? import.meta.url));
-  const repoRoot = gitRoot(cwd);
-  const candidate = repoRoot ? path.join(repoRoot, ...SKILL_LOCATOR.split("/")) : null;
-  const sourceRoot = candidate && existsSync(path.join(candidate, ...SURFACE_MANIFEST)) ? realpathSync(candidate) : null;
+  const installedRoot = findPackageRoot(entry);
+  if (!installedRoot) fail(`cannot locate the package root from the running entrypoint — a package must contain ${SURFACE_MANIFEST.join("/")}`);
 
-  let ctx;
-  if (sourceRoot) {
-    // 작업 repository가 이 package를 소유한다 — 개발 모드로 고정하고 실행 중인
-    // entrypoint가 그 package인지 대조한다(외부·stale 사본 거부).
-    if (entry && !isUnder(entry, sourceRoot))
+  let ctx = { mode: "installed-runtime", skillRoot: installedRoot, repoRoot: null };
+  if (requested === "source-development") {
+    const repoRoot = gitRoot(cwd);
+    if (!repoRoot) fail(`source-development was requested but the working directory is not inside a git repository (cwd ${cwd})`);
+    const candidate = path.join(repoRoot, ...SKILL_LOCATOR.split("/"));
+    if (!existsSync(path.join(candidate, ...SURFACE_MANIFEST)))
+      fail(`source-development was requested but the working repository does not carry ${SKILL_LOCATOR} (repo ${repoRoot})`);
+    const sourceRoot = realpathSync(candidate);
+    if (!isUnder(entry, sourceRoot))
       fail(`the running entrypoint is outside the package owned by this working repository — entrypoint ${entry}, expected under ${sourceRoot} (a stale or copied installation cannot validate itself)`);
+    if (sourceRoot !== installedRoot)
+      fail(`the running package (${installedRoot}) is not the package owned by this working repository (${sourceRoot})`);
+    // 소유 증거: package identity 파일이 이 repository에 **추적되고 있어야** 한다.
+    // 단순히 복사해 둔 디렉터리는 source-development를 주장할 수 없다.
+    const tracked = spawnSync("git", ["ls-files", "--error-unmatch", "--", `${SKILL_LOCATOR}/${SURFACE_MANIFEST.join("/")}`],
+      { cwd: repoRoot, encoding: "utf8" });
+    if (tracked.status !== 0)
+      fail(`source-development requires ${SKILL_LOCATOR} to be tracked source of this repository — ${SURFACE_MANIFEST.join("/")} is not in the git index of ${repoRoot}`);
+    const expectedRepo = process.env[EXPECTED_REPO_ENV];
+    if (expectedRepo) {
+      let real;
+      try { real = realpathSync(expectedRepo); } catch { fail(`${EXPECTED_REPO_ENV} points at a missing path`); }
+      if (real !== repoRoot) fail(`${EXPECTED_REPO_ENV} disagrees with the working repository (expected ${real}, resolved ${repoRoot})`);
+    }
     ctx = { mode: "source-development", skillRoot: sourceRoot, repoRoot };
-  } else {
-    if (requireMode === "source-development")
-      fail(`source-development was required but the working directory is not inside a repository that owns ${SKILL_LOCATOR} (cwd ${cwd})`);
-    const pkg = entry ? findPackageRoot(entry) : null;
-    if (!pkg) fail(`cannot locate the package root from the running entrypoint — an installed package must contain ${SURFACE_MANIFEST.join("/")}`);
-    ctx = { mode: "installed-runtime", skillRoot: pkg, repoRoot: null };
   }
   if (requireMode && ctx.mode !== requireMode)
     fail(`this operation requires ${requireMode} execution but resolved ${ctx.mode}`);
 
-  // 상속값은 신뢰가 아니라 대조 대상이다 — env로 root나 모드를 바꿔칠 수 없다.
+  // 상속된 expected root는 신뢰가 아니라 대조 대상이다.
   const inheritedRoot = process.env[EXPECTED_ROOT_ENV];
   if (inheritedRoot) {
     let real;
     try { real = realpathSync(inheritedRoot); } catch { fail(`${EXPECTED_ROOT_ENV} points at a missing path`); }
     if (real !== ctx.skillRoot) fail(`${EXPECTED_ROOT_ENV} disagrees with the resolved package (inherited ${real}, resolved ${ctx.skillRoot})`);
   }
-  const inheritedMode = process.env[EXECUTION_MODE_ENV];
-  if (inheritedMode && inheritedMode !== ctx.mode)
-    fail(`${EXECUTION_MODE_ENV} disagrees with the resolved execution mode (inherited ${inheritedMode}, resolved ${ctx.mode})`);
-  return ctx;
+  return { ...ctx, requestedMode: requested };
 }
 
 // ---------- main entry: 매 실행 재검증 ----------
 let current = null;
 
 export function runPreflight({ entrypointUrl, cwd = process.cwd(), requireMode = null } = {}) {
-  const { mode, skillRoot, repoRoot } = resolveExecution({ entrypointUrl, cwd, requireMode });
+  const { mode, skillRoot, repoRoot, requestedMode } = resolveExecution({ entrypointUrl, cwd, requireMode });
   const manifest = loadSurfaceManifest(skillRoot);
   const files = walkPackage(skillRoot);
   const { kinds, unclassified, ambiguous, missing } = classify(files, manifest);
@@ -265,7 +280,7 @@ export function runPreflight({ entrypointUrl, cwd = process.cwd(), requireMode =
   const runtimeSurfaceDigest = digestFiles(skillRoot, [...kinds.entries()].filter(([, k]) => runtimeKinds.includes(k)).map(([f]) => f));
   process.env[EXPECTED_ROOT_ENV] = skillRoot;
   process.env[EXECUTION_MODE_ENV] = mode;
-  current = { mode, repoRoot, skillRoot, manifest, kinds, files, runtimeSurfaceDigest };
+  current = { mode, requestedMode, repoRoot, skillRoot, manifest, kinds, files, runtimeSurfaceDigest };
   return current;
 }
 
@@ -310,8 +325,15 @@ export function guardPackagePath(target, label) {
 export const PROVENANCE_SCHEMA = { name: "svg-infographic-provenance", version: 1, canonicalization: 1 };
 export const RECEIPT_SCHEMA = { name: "svg-infographic-preflight-receipt", version: 1 };
 export const PROVENANCE_FIELDS = ["schema", "executionMode", "skillRoot", "package", "runtimeSurfaceDigest", "source", "producer", "inputs", "browser"];
+// 검증 수준을 실제 검사에 맞춰 3단으로 나눈다 — verifier가 형식만 본 값을
+// "verified"로 부르지 않는다(CP0-R1B-F3).
 export const PROVENANCE_EVIDENCE = {
-  verified: ["schema", "executionMode", "skillRoot", "package", "runtimeSurfaceDigest", "producer", "inputs", "browser"],
+  // 현재 package에서 다시 계산해 대조한 값
+  recomputed: ["executionMode", "skillRoot", "package", "runtimeSurfaceDigest"],
+  // 형태·union 규칙만 확인한 값 (원본 locator를 받은 artifact verifier가 digest를
+  // 재계산할 때만 recomputed로 승격된다)
+  shapeValidated: ["schema", "producer", "inputs", "browser"],
+  // 실행 시점 기록 — 재계산 불가능하며 검증된 주장이 아니다
   informational: ["source"],
 };
 
@@ -433,6 +455,8 @@ export function verifyIdentityReceipt(doc, { cwd = process.cwd() } = {}) {
   if (Number(doc.package?.surfaceRevision) !== Number(st.manifest.surface_revision))
     errors.push(`E-RCPT-PACKAGE surfaceRevision ${doc.package?.surfaceRevision} != current ${st.manifest.surface_revision}`);
   if (!MODES.includes(doc.executionMode)) errors.push(`E-RCPT-MODE unknown executionMode "${doc.executionMode}"`);
+  else if (doc.executionMode !== st.mode)
+    errors.push(`E-RCPT-MODE receipt executionMode "${doc.executionMode}" != current "${st.mode}" — a valid-but-different mode is still a different claim`);
   if (JSON.stringify(doc.canonicalization ?? {}) !== JSON.stringify(st.manifest.canonicalization))
     errors.push("E-RCPT-CANON canonicalization differs from the current package-surface manifest");
   const expected = digestSets(st.skillRoot, st.kinds, st.manifest);
