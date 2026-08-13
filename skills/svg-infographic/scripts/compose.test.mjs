@@ -337,3 +337,33 @@ test("R3-5: 정상 EN composite는 browser rebind 포함 전 경로 통과", () 
   const v = run(["verify", o, "--receipt", rc, "--plan", path.join(FIX, "plan-cards-tree-en.yaml"), ...M]);
   assert.equal(v.code, 0, v.out);
 });
+
+// ---- fail-closed 보정 재현(R4) ----
+test("R4-1: textMarkupDigest 삭제 + x=900은 nested schema로 거부", () => {
+  const rcp = JSON.parse(fs.readFileSync(RCP, "utf8"));
+  delete rcp.instances[0].textMarkupDigest;
+  const rp = path.join(td, "r41.json");
+  fs.writeFileSync(rp, JSON.stringify(rcp));
+  const svg = fs.readFileSync(OUT, "utf8").replace(/<text x="16" y="70"/, '<text x="900" y="70"');
+  const sp = path.join(td, "r41.svg");
+  fs.writeFileSync(sp, svg);
+  const r = run(["verify", sp, "--receipt", rp, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M, "--no-browser"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /E-COMP-SCHEMA instance "cards-1" missing field "textMarkupDigest"/);
+});
+test("R4-2: --no-browser는 clean artifact에서도 bounded non-success(exit 3)", () => {
+  const r = run(["verify", OUT, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M, "--no-browser"]);
+  assert.equal(r.code, 3, r.out);
+  assert.match(r.out, /static-only .*bounded, not acceptance-grade/);
+});
+test("R4-3: 기본 verify에서 browser 불가면 hard failure(exit 1)", () => {
+  const r0 = spawnSync(process.execPath, [path.join(here, "compose.mjs"), "verify", OUT,
+    "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M],
+    { encoding: "utf8", env: { ...process.env, COMPOSE_TEXT_MEASURE_CLI: path.join(td, "no-such-cli.mjs") } });
+  assert.equal(r0.status, 1, r0.stdout + r0.stderr);
+  assert.match(r0.stdout, /E-COMP-TEXT-RUNTIME browser text re-measure unavailable/);
+});
+test("R4-4: 기본 verify + browser 측정은 완전 성공(exit 0)", () => {
+  const r = run(["verify", OUT, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M]);
+  assert.equal(r.code, 0, r.out);
+});

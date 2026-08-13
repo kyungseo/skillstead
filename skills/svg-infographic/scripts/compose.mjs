@@ -431,6 +431,7 @@ function compose(planPath, opts) {
       entities: rcp.entities ?? [], identity: rcp.identity,
       textDigest: rcp.textDigest,
       textMarkupDigest: rcp.textMarkupDigest,
+      textMeasure: rcp.textMeasure ?? null,
       textBounds: (rcp.textBounds ?? []).map((b) => ({ x: round1(b.x + dx), y: round1(b.y + dy), w: b.w, h: b.h })),
       degrade: variant === "base" ? null : { selectedVariant: variant, lost: rcp.degradeLost ?? "variant-declared reduction (see fragment receipt)" } });
   }
@@ -555,6 +556,15 @@ function verify(svgPath, opts) {
         errors.push(`E-COMP-LIVE instance "${inst.instance_id}" ${k} "${inst.identity?.[k]}" != live registry "${v}"`);
     }
   }
+  // instance receipt nested strict schema (P1-1) — 필드 삭제로 검사를 무력화할 수 없다
+  const IK = ["instance_id", "typepack", "variant", "module_role", "slot_id", "translate",
+    "usedBounds", "ports", "entities", "identity", "degrade", "textDigest", "textMarkupDigest",
+    "textBounds", "textMeasure"];
+  for (const inst of receipt.instances ?? []) {
+    const ctx = `instance "${inst.instance_id ?? "?"}"`;
+    for (const k of Object.keys(inst)) if (!IK.includes(k)) errors.push(`E-COMP-SCHEMA ${ctx} unknown field "${k}"`);
+    for (const k of IK) if (!(k in inst)) errors.push(`E-COMP-SCHEMA ${ctx} missing field "${k}"`);
+  }
   // receipt instance 집합 = plan 집합 (svg 집합 대조는 아래 domOrder 검사와 합쳐 3-way)
   const rIds = (receipt.instances ?? []).map((r) => r.instance_id);
   const pIds = (plan?.instances ?? []).map((i) => i.instance_id);
@@ -587,7 +597,21 @@ function verify(svgPath, opts) {
     const g = groups[inst.instance_id];
     if (!g) continue;
     const innerBody = g.body.replace(/^<g data-comp-instance[^>]*>/, "");
-    // composite text 내용이 fragment evidence와 일치해야 한다 (조작·교체 거부)
+    const compositeTextCount = [...innerBody.matchAll(/<text[\s>]/g)].length;
+    if (compositeTextCount > 0) {
+      // text 보유 instance: evidence 전 필드 필수 — 삭제/공백은 schema error (P1-1)
+      const needs = { textDigest: inst.textDigest, textMarkupDigest: inst.textMarkupDigest, textBounds: inst.textBounds, textMeasure: inst.textMeasure };
+      for (const [k, v] of Object.entries(needs))
+        if (v == null || v === "" || (Array.isArray(v) && v.length === 0))
+          errors.push(`E-COMP-SCHEMA instance "${inst.instance_id}" has ${compositeTextCount} text(s) but "${k}" evidence is missing/empty`);
+      if (inst.textMeasure && (inst.textMeasure.method !== "browser-getBBox" || !inst.textMeasure.inputDigest))
+        errors.push(`E-COMP-SCHEMA instance "${inst.instance_id}" textMeasure must record method browser-getBBox and inputDigest`);
+      if (Array.isArray(inst.textBounds) && inst.textBounds.length !== compositeTextCount)
+        errors.push(`E-COMP-SCHEMA instance "${inst.instance_id}" textBounds count ${inst.textBounds.length} != composite text count ${compositeTextCount}`);
+      if (inst.textMeasure?.texts != null && inst.textMeasure.texts !== compositeTextCount)
+        errors.push(`E-COMP-SCHEMA instance "${inst.instance_id}" textMeasure.texts ${inst.textMeasure.texts} != composite text count ${compositeTextCount}`);
+    }
+    // composite text 내용·배치가 evidence와 일치해야 한다 (조작·교체 거부)
     if (inst.textDigest && textDigestOf(innerBody) !== inst.textDigest)
       errors.push(`E-COMP-RECEIPT-TEXT instance "${inst.instance_id}" text content digest ${textDigestOf(innerBody)} != receipt ${inst.textDigest} — text was altered after measurement`);
     if (inst.textMarkupDigest && textMarkupDigestOf(innerBody) !== inst.textMarkupDigest)
@@ -639,7 +663,7 @@ function verify(svgPath, opts) {
   for (const [id, n] of seen) if (n > 1) errors.push(`E-COMP-DUPID svg id "${id}" appears ${n} times`);
   // 최종 composite text runtime 재측정 (기본 on — 가장 정직한 binding; 상속 스타일까지 커버)
   if (!opts.noBrowser) {
-    const mtCli = path.join(here, "measure-text.mjs");
+    const mtCli = process.env.COMPOSE_TEXT_MEASURE_CLI ?? path.join(here, "measure-text.mjs");
     const mr = spawnSync(process.execPath, [mtCli, svgPath], { encoding: "utf8", timeout: 60000 });
     if (mr.status !== 0) {
       errors.push("E-COMP-TEXT-RUNTIME browser text re-measure unavailable or failed — fail-closed (pass --no-browser only as an explicit environment-bounded downgrade)");
@@ -661,8 +685,6 @@ function verify(svgPath, opts) {
         }
       } catch { errors.push("E-COMP-TEXT-RUNTIME unparseable browser measurement"); }
     }
-  } else {
-    errors.length; // 명시적 downgrade — receipt에 기록
   }
   // page budget machine gate(R1-P2p): semantic role 기반 H1 정확히 1 — header 소유
   const roleH1 = [...svg.matchAll(/data-layout-role\s*=\s*["']cluster-h1["']/g)].length;
@@ -678,13 +700,14 @@ function verify(svgPath, opts) {
   const BK = ["h1Count", "h1ScaleTexts", "note"];
   for (const k of BK) if (!(k in (receipt.budget ?? {}))) errors.push(`E-COMP-SCHEMA receipt.budget missing "${k}"`);
   const receiptOut = { schemaVersion: 1, command: "compose-verify", file: path.basename(svgPath), instances: domOrder.length,
-    textRuntime: opts.noBrowser ? "environment-bounded: static digests only (browser re-measure skipped by explicit flag)" : "browser re-measured", errors };
+    textRuntime: opts.noBrowser ? "static-only (explicit --no-browser) — NOT full verification" : "browser re-measured", errors };
   if (opts.json) console.log(JSON.stringify(receiptOut, null, 1));
   else {
-    console.log(`verify ${path.basename(svgPath)} — instances ${domOrder.length}, ${errors.length} error(s)`);
+    console.log(`verify ${path.basename(svgPath)} — instances ${domOrder.length}, ${errors.length} error(s)${opts.noBrowser ? " [static-only — bounded, not acceptance-grade]" : ""}`);
     for (const e of errors) console.log(`  ERROR ${e}`);
   }
-  process.exit(errors.length ? 1 : 0);
+  // exit 계약: 0 = 완전 검증 성공(browser 포함) · 1 = 오류 · 3 = static-only bounded(비성공)
+  process.exit(errors.length ? 1 : opts.noBrowser ? 3 : 0);
 }
 
 // ---------- CLI (entrypoint guard: import 시 실행 금지 — realpath parity) ----------
