@@ -1,0 +1,92 @@
+{
+ "schemaVersion": 1,
+ "kind": "typepack-fragment",
+ "typepack": "tree",
+ "variant": "base",
+ "intrinsicBounds": {
+  "w": 648,
+  "h": 340
+ },
+ "usedBounds": {
+  "x": -0.5,
+  "y": -0.75,
+  "w": 648.0,
+  "h": 245.25
+ },
+ "ports": [
+  {
+   "id": "leaf-1",
+   "template": "leaf-anchor",
+   "entity_id": "leaf-1",
+   "direction": "in",
+   "kind": "reference",
+   "anchor": {
+    "x": 74.5,
+    "y": 179.5
+   },
+   "normal": {
+    "x": 0,
+    "y": -1
+   }
+  },
+  {
+   "id": "leaf-2",
+   "template": "leaf-anchor",
+   "entity_id": "leaf-2",
+   "direction": "in",
+   "kind": "reference",
+   "anchor": {
+    "x": 240.5,
+    "y": 179.5
+   },
+   "normal": {
+    "x": 0,
+    "y": -1
+   }
+  },
+  {
+   "id": "leaf-3",
+   "template": "leaf-anchor",
+   "entity_id": "leaf-3",
+   "direction": "in",
+   "kind": "reference",
+   "anchor": {
+    "x": 406.5,
+    "y": 179.5
+   },
+   "normal": {
+    "x": 0,
+    "y": -1
+   }
+  },
+  {
+   "id": "leaf-4",
+   "template": "leaf-anchor",
+   "entity_id": "leaf-4",
+   "direction": "in",
+   "kind": "reference",
+   "anchor": {
+    "x": 572.5,
+    "y": 179.5
+   },
+   "normal": {
+    "x": 0,
+    "y": -1
+   }
+  }
+ ],
+ "entities": [
+  "root",
+  "leaf-1",
+  "leaf-2",
+  "leaf-3",
+  "leaf-4"
+ ],
+ "identity": {
+  "skinProfileDigest": "cfx-skin-0001",
+  "typographyProfileDigest": "cfx-typo-0001",
+  "pageFrameDigest": "cfx-pf-0001",
+  "kernelVersion": "kernel-v1",
+  "iconSetId": "line-icons-v1"
+ }
+}

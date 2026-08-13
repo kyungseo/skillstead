@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 648 340" width="648" height="340" role="img">
+<title>tree fragment</title>
+<desc>1-root 4-leaf hierarchy (local coordinates, fragment contract).</desc>
+<g data-comp-entity="root">
+  <rect x="224" y="0" width="200" height="54" rx="12" fill="#FFFFFF" stroke="#2E6DA4" stroke-width="1.5" data-fill-role="surface" data-stroke-role="focus"/>
+  <text x="324" y="27" font-size="16" font-weight="700" fill="#252B35" data-fill-role="ink" text-anchor="middle" dominant-baseline="central">전체 구조</text>
+</g>
+<path d="M75 118 H573" fill="none" stroke="#636A75" stroke-width="1.5" data-stroke-role="muted"/>
+<path d="M324 62 V110 M75.0 118 V172" fill="none" stroke="#636A75" stroke-width="1.5" data-stroke-role="muted"/>
+<g data-comp-entity="leaf-1">
+  <rect x="0" y="180" width="149" height="64" rx="10" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface" data-stroke-role="rule"/>
+  <circle cx="24" cy="202" r="12" fill="#E4EDF3" data-fill-role="surface-tint"/>
+  <text x="24" y="202" font-size="13" font-weight="700" fill="#2E6DA4" data-fill-role="focus" text-anchor="middle" dominant-baseline="central">1</text>
+  <text x="14" y="228" font-size="12.5" fill="#252B35" data-fill-role="ink" dominant-baseline="central">파생 항목 1</text>
+</g>
+<path d="M324 62 V110 M241.0 118 V172" fill="none" stroke="#636A75" stroke-width="1.5" data-stroke-role="muted"/>
+<g data-comp-entity="leaf-2">
+  <rect x="166" y="180" width="149" height="64" rx="10" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface" data-stroke-role="rule"/>
+  <circle cx="190" cy="202" r="12" fill="#E4EDF3" data-fill-role="surface-tint"/>
+  <text x="190" y="202" font-size="13" font-weight="700" fill="#2E6DA4" data-fill-role="focus" text-anchor="middle" dominant-baseline="central">2</text>
+  <text x="180" y="228" font-size="12.5" fill="#252B35" data-fill-role="ink" dominant-baseline="central">파생 항목 2</text>
+</g>
+<path d="M324 62 V110 M407.0 118 V172" fill="none" stroke="#636A75" stroke-width="1.5" data-stroke-role="muted"/>
+<g data-comp-entity="leaf-3">
+  <rect x="332" y="180" width="149" height="64" rx="10" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface" data-stroke-role="rule"/>
+  <circle cx="356" cy="202" r="12" fill="#E4EDF3" data-fill-role="surface-tint"/>
+  <text x="356" y="202" font-size="13" font-weight="700" fill="#2E6DA4" data-fill-role="focus" text-anchor="middle" dominant-baseline="central">3</text>
+  <text x="346" y="228" font-size="12.5" fill="#252B35" data-fill-role="ink" dominant-baseline="central">파생 항목 3</text>
+</g>
+<path d="M324 62 V110 M573.0 118 V172" fill="none" stroke="#636A75" stroke-width="1.5" data-stroke-role="muted"/>
+<g data-comp-entity="leaf-4">
+  <rect x="498" y="180" width="149" height="64" rx="10" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface" data-stroke-role="rule"/>
+  <circle cx="522" cy="202" r="12" fill="#E4EDF3" data-fill-role="surface-tint"/>
+  <text x="522" y="202" font-size="13" font-weight="700" fill="#2E6DA4" data-fill-role="focus" text-anchor="middle" dominant-baseline="central">4</text>
+  <text x="512" y="228" font-size="12.5" fill="#252B35" data-fill-role="ink" dominant-baseline="central">파생 항목 4</text>
+</g>
+</svg>

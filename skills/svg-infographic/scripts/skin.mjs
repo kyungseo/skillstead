@@ -842,7 +842,7 @@ function main() {
       // composition capability block (schema v2, optional — absent => composable: false)
       if ("composition" in p) {
         const C = p.composition;
-        const CK = ["composable", "min_slot_size", "preferred_slot_aspect", "variants", "ports"];
+        const CK = ["composable", "min_slot_size", "preferred_slot_aspect", "allowed_slots", "variants", "ports"];
         for (const k of Object.keys(C)) if (!CK.includes(k)) errors.push(`manifest: ${id}: composition unknown field "${k}"`);
         if (typeof C.composable !== "boolean" && C.composable !== "true" && C.composable !== "false")
           errors.push(`manifest: ${id}: composition.composable must be boolean`);
@@ -851,6 +851,10 @@ function main() {
         const A = C.preferred_slot_aspect;
         if (!A || !Number.isFinite(Number(A.min)) || !Number.isFinite(Number(A.max)) || Number(A.min) <= 0 || Number(A.min) > Number(A.max))
           errors.push(`manifest: ${id}: composition.preferred_slot_aspect must be {min, max} with 0 < min <= max`);
+        if ("allowed_slots" in C) {
+          if (!Array.isArray(C.allowed_slots) || C.allowed_slots.length === 0 || C.allowed_slots.some((x) => !["top", "middle", "bottom", "side"].includes(x)))
+            errors.push(`manifest: ${id}: composition.allowed_slots must be a non-empty list within top/middle/bottom/side`);
+        }
         if ("variants" in C) {
           if (!Array.isArray(C.variants)) errors.push(`manifest: ${id}: composition.variants must be a list`);
           else {

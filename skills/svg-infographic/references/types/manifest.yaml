@@ -32,6 +32,8 @@
 #                                    # padding excluded, scale profile applied later)
 #     preferred_slot_aspect: { min, max }   # slot(=할당 영역) aspect range — page
 #                                    # aspect는 presets/orientations가 소유
+#     allowed_slots: [top, bottom]   # template 위치 enum(top/middle/bottom/side) —
+#                                    # plan의 slot binding이 이 범위를 벗어나면 거부
 #     variants: [ { id, min_slot_size: {w,h} } ]  # composition이 선택하는 local
 #                                    # degrade variants (의미 축약은 receipt에 기록)
 #     ports: [ { template, direction: out|in|bidir, kind: flow|reference,

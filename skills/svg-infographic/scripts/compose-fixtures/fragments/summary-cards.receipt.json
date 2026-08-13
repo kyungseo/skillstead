@@ -1,0 +1,91 @@
+{
+ "schemaVersion": 1,
+ "kind": "typepack-fragment",
+ "typepack": "summary-cards",
+ "variant": "base",
+ "intrinsicBounds": {
+  "w": 648,
+  "h": 260
+ },
+ "usedBounds": {
+  "x": -0.5,
+  "y": -0.5,
+  "w": 648.0,
+  "h": 241.0
+ },
+ "ports": [
+  {
+   "id": "item-1",
+   "template": "item-anchor",
+   "entity_id": "card-1",
+   "direction": "out",
+   "kind": "reference",
+   "anchor": {
+    "x": 74.5,
+    "y": 240.5
+   },
+   "normal": {
+    "x": 0,
+    "y": 1
+   }
+  },
+  {
+   "id": "item-2",
+   "template": "item-anchor",
+   "entity_id": "card-2",
+   "direction": "out",
+   "kind": "reference",
+   "anchor": {
+    "x": 240.5,
+    "y": 240.5
+   },
+   "normal": {
+    "x": 0,
+    "y": 1
+   }
+  },
+  {
+   "id": "item-3",
+   "template": "item-anchor",
+   "entity_id": "card-3",
+   "direction": "out",
+   "kind": "reference",
+   "anchor": {
+    "x": 406.5,
+    "y": 240.5
+   },
+   "normal": {
+    "x": 0,
+    "y": 1
+   }
+  },
+  {
+   "id": "item-4",
+   "template": "item-anchor",
+   "entity_id": "card-4",
+   "direction": "out",
+   "kind": "reference",
+   "anchor": {
+    "x": 572.5,
+    "y": 240.5
+   },
+   "normal": {
+    "x": 0,
+    "y": 1
+   }
+  }
+ ],
+ "entities": [
+  "card-1",
+  "card-2",
+  "card-3",
+  "card-4"
+ ],
+ "identity": {
+  "skinProfileDigest": "cfx-skin-0001",
+  "typographyProfileDigest": "cfx-typo-0001",
+  "pageFrameDigest": "cfx-pf-0001",
+  "kernelVersion": "kernel-v1",
+  "iconSetId": "line-icons-v1"
+ }
+}

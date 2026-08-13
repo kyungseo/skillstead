@@ -19,6 +19,7 @@ typepacks:
       max_modules: 3
       min_slot_size: { w: 280, h: 220 }
       preferred_slot_aspect: { min: 1.2, max: 3.5 }
+      allowed_slots: [top, bottom]
       variants:
         - id: compact
           min_slot_size: { w: 280, h: 160 }

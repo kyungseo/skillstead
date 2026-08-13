@@ -18,6 +18,7 @@ typepacks:
       composable: true
       min_slot_size: { w: 280, h: 220 }
       preferred_slot_aspect: { min: 4, max: 2 }
+      allowed_slots: [top, bottom]
       variants:
         - id: compact
           min_slot_size: { w: 280, h: 160 }
