@@ -331,10 +331,10 @@ export const PROVENANCE_EVIDENCE = {
   // 현재 package에서 다시 계산해 대조한 값
   recomputed: ["executionMode", "skillRoot", "package", "runtimeSurfaceDigest"],
   // 형태·union 규칙만 확인한 값 (원본 locator를 받은 artifact verifier가 digest를
-  // 재계산할 때만 recomputed로 승격된다)
-  shapeValidated: ["schema", "producer", "inputs", "browser"],
-  // 실행 시점 기록 — 재계산 불가능하며 검증된 주장이 아니다
-  informational: ["source"],
+  // 재계산할 때만 recomputed로 승격된다). source 블록도 **구조**는 검사한다.
+  shapeValidated: ["schema", "producer", "inputs", "browser", "source.structure"],
+  // 실행 시점 기록 — 재계산 불가능하며 authenticity claim이 아니다
+  informational: ["source.values"],
 };
 
 function git(args, cwd) {

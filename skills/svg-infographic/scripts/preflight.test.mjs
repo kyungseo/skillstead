@@ -360,7 +360,9 @@ test("F3: provenance evidence level은 실제 검증 수준과 일치한다", ()
   assert.ok(PROVENANCE_EVIDENCE.shapeValidated.includes("producer"));
   assert.ok(PROVENANCE_EVIDENCE.shapeValidated.includes("inputs"));
   assert.ok(PROVENANCE_EVIDENCE.shapeValidated.includes("browser"));
-  assert.deepEqual(PROVENANCE_EVIDENCE.informational, ["source"]);
+  assert.deepEqual(PROVENANCE_EVIDENCE.informational, ["source.values"]);
+  assert.ok(PROVENANCE_EVIDENCE.shapeValidated.includes("source.structure"),
+    "source 블록의 구조는 검사하고, 값만 informational이다");
   // 형식이 올바른 다른 digest는 통과한다 — 이것이 shapeValidated의 의미다
   const p = provenance({ producer: { kind: "generator", generatorDigest: "sha256:" + "a".repeat(64) }, cwd: here });
   const swapped = { ...p, producer: { kind: "generator", generatorDigest: "sha256:" + "e".repeat(64) } };

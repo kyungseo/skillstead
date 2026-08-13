@@ -525,9 +525,9 @@ Contract highlights, all fail-closed:
   source-development provenance and is **informational evidence**, not a verified
   claim. Evidence separates into three levels: **recomputed** (execution mode,
   skill/package identity, surface revision, runtime surface digest),
-  **shape-validated** (producer union, digest formats, browser and source block
-  structure — a correctly-shaped but different digest passes here) and
-  **informational** (source commit and dirty flags). A producer, input or browser
+  **shape-validated** (producer union, digest formats, browser structure, and the
+  *structure* of the source block — a correctly-shaped but different digest
+  passes here) and **informational** (the source commit and dirty *values*). A producer, input or browser
   claim is only promoted to recomputed by an artifact-specific verifier that
   holds the original locator and bytes. The commit that
   was actually tested is recorded separately, by a clean CI acceptance receipt
