@@ -196,6 +196,19 @@ function loadTypography(errors, overridePath = null) {
     const A = cfg.asset ?? {};
     if (!["system", "bundled", "bundled-on-selection"].includes(A.policy)) errors.push(`typography: ${t}: asset.policy must be system|bundled|bundled-on-selection`);
     if (!["none", "subset"].includes(A.embed)) errors.push(`typography: ${t}: asset.embed must be none|subset`);
+    for (const k of Object.keys(A)) if (!["policy", "embed", "path", "source", "digest"].includes(k)) errors.push(`typography: ${t}: asset unknown field "${k}"`);
+    if (A.policy === "bundled") {
+      const ap = A.path ? path.resolve(skinsDir, "..", "..", String(A.path)) : null;
+      if (!ap) errors.push(`typography: ${t}: bundled asset requires path`);
+      else {
+        try {
+          const buf = readFileSync(ap);
+          const d = createHash("sha256").update(buf).digest("hex");
+          if (A.digest && d !== A.digest) errors.push(`typography: ${t}: asset digest mismatch — file ${d.slice(0, 16)}…, declared ${String(A.digest).slice(0, 16)}…`);
+        } catch { errors.push(`typography: ${t}: bundled asset not found at ${A.path}`); }
+        if (!A.digest) errors.push(`typography: ${t}: bundled asset requires digest`);
+      }
+    }
     const Li = cfg.license ?? {};
     if (typeof Li.id !== "string" || !Li.id.trim()) errors.push(`typography: ${t}: license.id required`);
     if (!Array.isArray(Li.rfn)) errors.push(`typography: ${t}: license.rfn must be a list (empty when no Reserved Font Name is declared)`);
@@ -400,6 +413,7 @@ const OPTION_SPEC = {
   materialize: { "--profile": true, "--mode": true, "--treatment": true, "--check": false, "--json": false },
   manifest: { "--json": false },
   typography: { "--json": false },
+  "typography-check": { "--json": false },
   pageframe: { "--h1-lines": true, "--eyebrow": true, "--subtitle": true, "--support": true, "--footer": true, "--content-height": true, "--json": false },
 };
 function parseOptions(cmd, rest) {
@@ -649,6 +663,82 @@ function main() {
       for (const e of errors) console.log(`  ERROR ${e}`);
     }
     process.exit(errors.length ? 1 : 0);
+  }
+  if (cmd === "typography-check") {
+    // 정적 effective-font 검증 (CP3 must-fix — composite wrapper font 유실 차단).
+    // 규칙: sketch scope(root data-treatment="sketch" 또는 wrapper data-typography-scope)
+    // 안의 모든 text/tspan은 (a) scope family로 해석되거나 (b) 명시적 secondary
+    // annotation을 가져야 한다. 단독 pre-gate 결과로 composite 검사를 대체할 수 없다 —
+    // 이 명령은 최종 파일 자체를 검사한다. 증거 수준: computed cascade (rendered-face
+    // proof 아님 — runtime 확인은 font-probe.mjs가 별도 수준으로 기록).
+    const files = restAll.filter((a) => !a.startsWith("--"));
+    const tco = parseOptions("typography-check", restAll.filter((a) => a.startsWith("--")));
+    if (!files.length) fail(2, "typography-check requires at least one SVG path");
+    const perrs = [];
+    const typo = loadTypography(perrs);
+    if (perrs.length) fail(1, perrs[0]);
+    const sk = typo.doc.treatments.sketch;
+    const allowedWeights = new Set(sk.locales.ko.weights.map(Number));
+    const secondaryHead = sk.fallback[0];
+    let total = 0;
+    const receipts = [];
+    for (const file of files) {
+      const src = readFileSync(path.resolve(file), "utf8");
+      const errors = [];
+      const embedded = [];
+      for (const m of src.matchAll(/@font-face\s*{([^}]*)}/g)) {
+        const fam = m[1].match(/font-family:\s*'([^']+)'/)?.[1];
+        if (!fam) { errors.push("E-TYPO-FACE @font-face without a quoted font-family"); continue; }
+        if (!/src:\s*url\(data:/.test(m[1])) errors.push(`E-TYPO-REMOTE @font-face "${fam}" src is not a data: URI — remote fonts are forbidden`);
+        embedded.push(fam);
+      }
+      const rootSketch = /<svg[^>]*data-treatment\s*=\s*"sketch"/.test(src);
+      const firstFam = (v) => String(v).split(",")[0].trim().replace(/^['"]|['"]$/g, "");
+      const famOf = (tag) => {
+        const a = tag.match(/font-family\s*=\s*("([^"]*)"|'([^']*)')/);
+        if (a) return a[2] ?? a[3];
+        const st = tag.match(/style\s*=\s*("([^"]*)"|'([^']*)')/);
+        const inStyle = (st?.[2] ?? st?.[3])?.match(/font-family:\s*([^;"}]+)/);
+        return inStyle ? inStyle[1] : null;
+      };
+      // stack: [ {scope, family} ] — g/svg 진입 시 push
+      const stack = [];
+      let texts = 0;
+      for (const m of src.matchAll(/<(\/?)([A-Za-z][A-Za-z0-9-]*)((?:[^>"']|"[^"]*"|'[^']*')*?)(\/?)>/g)) {
+        const [, close, name, attrs, self] = m;
+        if (close) { if (["g", "svg", "text"].includes(name)) stack.pop(); continue; }
+        const fam = famOf(m[0]);
+        const scopeAttr = m[0].match(/data-typography-scope\s*=\s*"([^"]+)"/)?.[1]
+          ?? (name === "svg" && rootSketch ? (embedded[0] ?? sk.locales.ko.face) : null);
+        const frame = { scope: scopeAttr ?? stack.at(-1)?.scope ?? null, family: fam ? firstFam(fam) : stack.at(-1)?.family ?? null };
+        if (!self && ["g", "svg", "text"].includes(name)) stack.push(frame);
+        if (name !== "text" && name !== "tspan") continue;
+        const inScope = frame.scope != null;
+        if (!inScope) continue;
+        texts++;
+        const secondary = /data-typography-role\s*=\s*"secondary"/.test(m[0]);
+        const eff = frame.family;
+        if (secondary) {
+          if (!eff || firstFam(eff) !== firstFam(secondaryHead))
+            errors.push(`E-TYPO-SECONDARY <${name}> annotated secondary must resolve to "${secondaryHead}" (got "${eff}")`);
+        } else if (!eff || eff !== frame.scope) {
+          errors.push(`E-TYPO-LOST <${name}> in scope "${frame.scope}" resolves to "${eff ?? "(document default)"}" — the wrapper lost the typography alias (silent fallback)`);
+        } else {
+          const w = m[0].match(/font-weight\s*=\s*"(\d+)"/)?.[1];
+          if (w && !allowedWeights.has(Number(w)))
+            errors.push(`E-TYPO-WEIGHT <${name}> uses weight ${w} but the sketch face supports [${[...allowedWeights].join(", ")}] — synthetic weights are forbidden`);
+        }
+      }
+      total += errors.length;
+      receipts.push({ file: path.basename(file), embeddedFamilies: embedded, rootSketchScope: rootSketch,
+        textsChecked: texts, evidenceLevel: "computed-cascade (static) — not rendered-face proof", errors });
+      if (!tco["--json"]) {
+        console.log(`${path.basename(file)} — scope texts ${texts}, embedded [${embedded.join(", ")}], ${errors.length} error(s)`);
+        for (const e of errors) console.log(`  ERROR ${e}`);
+      }
+    }
+    if (tco["--json"]) console.log(JSON.stringify({ schemaVersion: 1, command: "typography-check", profileDigest: typo.digest, files: receipts, errors: total }, null, 1));
+    process.exit(total ? 1 : 0);
   }
   if (cmd === "manifest") {
     const arg = restAll[0] && !restAll[0].startsWith("--") ? restAll[0] : null;

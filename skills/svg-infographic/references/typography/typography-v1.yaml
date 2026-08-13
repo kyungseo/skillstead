@@ -29,23 +29,28 @@ treatments:
       id: OFL-1.1
       rfn: []
   sketch:
-    # sketch face is under audition (FEAT-20260812-002) — baseline Nanum Pen Script
-    # holds the slot until the owner selection lands (CP3 updates face + asset).
+    # Selected 2026-08-13 (typography audition, Owner decision): Hi Melody —
+    # single canonical sketch face. Poor Story stays a readability-oriented
+    # validated alternative in audition evidence only (no package asset).
     locales:
       ko:
-        face: Nanum Pen Script
+        face: Hi Melody
         weights: [400]
         styles: [normal]
       en:
-        face: Nanum Pen Script
+        face: Hi Melody
         weights: [400]
         styles: [normal]
     fallback: [Pretendard, sans-serif]
     synthetic: forbidden
     weight-policy: normalize-400
     asset:
-      policy: bundled-on-selection
+      policy: bundled
+      path: assets/fonts/HiMelody-Regular.ttf
+      source: google/fonts@038b637da7b3fd956a4ed93ffc607c3d5e4ce172
+      digest: 360d2c0a880918aa48328d1d9219f5390788d09a1c9353e12b471de018673ae6
       embed: subset
     license:
       id: OFL-1.1
-      rfn: [Nanum, Naver Nanum, NanumGothic, Naver]
+      evidence: assets/fonts/HiMelody-OFL.txt
+      rfn: []

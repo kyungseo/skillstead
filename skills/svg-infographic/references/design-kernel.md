@@ -105,7 +105,17 @@ Candidate palettes use `status: candidate` and a single shallow `extends`; the
 `current` pointer moves only in `registry.yaml` after owner approval. Role
 add/remove is a kernel migration, not a profile edit.
 
-## 4. Typography (canonical, owner-approved 2026-08-12)
+## 4. Typography (canonical — SSoT: `references/typography/typography-v1.yaml`)
+
+Typography는 palette/treatment와 독립된 축으로, family/face/weight/style·fallback·
+synthetic 정책·asset/embed 정책·license를 **typography profile**이 단일 소유한다
+(registry `current.typography` 선택; 크기·행간은 PageFrame scale band 소유 유지).
+sketch face는 audition으로 **Hi Melody**가 선정됐다(2026-08-13, Owner) — regular
+단일 face, role weight 400 정규화, shipped sketch 산출물은 glyph subset embed
+(`assets/fonts/` 원본 + license). `skin.mjs typography-check`가 최종 산출물(단독·
+composite 모두)의 effective font cascade를 fail-closed 검증하고, `font-probe.mjs`가
+runtime receipt(computed family + FontFaceSet load check — rendered-face 증명 아님을
+명시)를 남긴다.
 
 - Canonical family for **both KO and EN**: **Pretendard**.
 - Fallback chain: `Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`.

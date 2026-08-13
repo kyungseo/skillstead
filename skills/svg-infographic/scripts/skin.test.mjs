@@ -7,6 +7,7 @@ import { spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync, mkdtempSync, copyFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -315,12 +316,48 @@ test("typography: locale 누락 거부", () => {
 test("typography: resolve receipt에 결정적 stack이 동봉된다", () => {
   const r = run(["resolve", "current", "--mode", "light", "--treatment", "sketch", "--json"]);
   const j = JSON.parse(r.out);
-  assert.equal(j.typography.stack, '"Nanum Pen Script", Pretendard, sans-serif');
+  assert.equal(j.typography.stack, '"Hi Melody", Pretendard, sans-serif');
   assert.equal(j.typography.weightPolicy, "normalize-400");
   assert.equal(j.typography.synthetic, "forbidden");
   assert.ok(j.typography.profileDigest);
   const r2 = run(["resolve", "current", "--mode", "light", "--json"]);
   assert.equal(JSON.parse(r2.out).typography.stack.startsWith("Pretendard, Inter"), true);
+});
+
+// --- FEAT-20260812-002 CP3: typography-check (composite wrapper 유실 must-fix) ---
+const TFIX = path.join(FIX, "typography");
+test("typography-check: positive (alias 유지 + 명시적 secondary + weight 400)", () => {
+  const r = run(["typography-check", path.join(TFIX, "tf-positive.svg")]);
+  assert.equal(r.code, 0, r.out);
+});
+test("typography-check: wrapper font-family 유실은 fail-closed", () => {
+  const r = run(["typography-check", path.join(TFIX, "tf-wrapper-lost.svg")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-TYPO-LOST .*wrapper lost the typography alias/);
+});
+test("typography-check: regular-only face에 weight 700은 error", () => {
+  const r = run(["typography-check", path.join(TFIX, "tf-weight-700.svg")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-TYPO-WEIGHT .*synthetic weights are forbidden/);
+});
+test("typography-check: annotation 없는 secondary fallback은 error", () => {
+  const r = run(["typography-check", path.join(TFIX, "tf-secondary-unannotated.svg")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-TYPO-LOST/);
+});
+test("typography-check: remote font src는 error", () => {
+  const r = run(["typography-check", path.join(TFIX, "tf-remote-font.svg")]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /E-TYPO-REMOTE/);
+});
+test("typography: bundled asset의 digest mismatch는 error", () => {
+  const base = fs.readFileSync(path.join(here, "..", "references", "typography", "typography-v1.yaml"), "utf8");
+  const tmp = path.join(TFIX, "temp-digest.yaml");
+  fs.writeFileSync(tmp, base.replace(/digest: [0-9a-f]{64}/, "digest: " + "f".repeat(64)));
+  const r = run(["typography", tmp]);
+  fs.unlinkSync(tmp);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /asset digest mismatch/);
 });
 
 // --- CP5-R1-F3: TypePack manifest validator ------------------------------------

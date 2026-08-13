@@ -23,4 +23,4 @@ treatment:
   # authoring E-FILTERBOUNDS).
   rough-box: "feTurbulence fractalNoise baseFrequency=0.045 numOctaves=3 + feDisplacementMap scale=3"
   rough-line: "feTurbulence fractalNoise baseFrequency=0.09 numOctaves=2 + feDisplacementMap scale=3"
-  handwriting-font: "OFL handwriting font (Nanum Pen Script default). Shipped sketch artifacts must subset-embed it (references/sketch.md); review artifacts that merely reference a locally installed font must say so."
+  handwriting-font: "OWNED BY the typography profile SSoT (references/typography/typography-v1.yaml, registry current.typography) — this overlay no longer names a face. Shipped sketch artifacts subset-embed the profile face per that contract."

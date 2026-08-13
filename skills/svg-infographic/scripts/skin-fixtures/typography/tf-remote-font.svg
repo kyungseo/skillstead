@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" width="200" height="100" data-treatment="sketch">
+<defs><style>@font-face{font-family:'HiMelody-Subset';src:url(https://example.com/f.woff2)}</style></defs>
+<g style="font-family:'HiMelody-Subset'"><text x="10" y="30">원격 로드</text></g>
+</svg>
