@@ -191,12 +191,56 @@ export function validatePlan(planPath, manifestPath) {
       if (!ref?.port) errors.push(`plan: connector edge ${end} missing port id`);
     }
   }
+  // header — h1은 1~2줄(문자열 또는 문자열 목록), style은 header treatment 선택
+  const hdrV = plan.header ?? {};
+  const HK = ["eyebrow", "h1", "subtitle", "style"];
+  for (const k of Object.keys(hdrV)) if (!HK.includes(k)) errors.push(`plan: header unknown field "${k}"`);
+  if (Array.isArray(hdrV.h1) && (hdrV.h1.length < 1 || hdrV.h1.length > 2 || hdrV.h1.some((l) => typeof l !== "string" || !l)))
+    errors.push("plan: header.h1 as a list must hold 1..2 non-empty lines");
+  if (hdrV.style !== undefined && !["locator", "title-keyline"].includes(hdrV.style))
+    errors.push(`plan: header.style must be locator|title-keyline (got "${hdrV.style}")`);
   // reading order — instance 집합과 정확히 일치
   const ro = plan.reading_order ?? [];
   if (ro.length !== ids.size || ro.some((r) => !ids.has(r)) || new Set(ro).size !== ro.length)
     errors.push(`plan: reading_order must list every instance exactly once`);
   if (!["explicit", "row-major", "column-major"].includes(plan.traversal)) errors.push(`plan: traversal must be explicit|row-major|column-major`);
   return { plan, planDigest, errors };
+}
+
+// ---------- rhythm: module connector run 실측 ----------
+// data-stroke-role="muted" path의 세로 run 길이(절대 V 세그먼트, provable subset).
+// TypePack이 rhythm.connector_run_band를 선언하면 compose(variant 선택)와
+// verify(최종 SVG 재측정)가 각각 대조한다 — residual을 connector 신장으로 흡수하는
+// 것을 금지하는 계약(dead space 최소화보다 관계 밀도·가독성이 우선).
+export function connectorRunsOf(svgBody) {
+  const runs = [];
+  for (const m of svgBody.matchAll(/<path((?:[^>"']|"[^"]*"|'[^']*')*?)\/?>/g)) {
+    const raw = m[1];
+    if (!/data-stroke-role\s*=\s*["']muted["']/.test(raw)) continue;
+    const dm = raw.match(/\sd\s*=\s*(?:"([^"]*)"|'([^']*)')/);
+    if (!dm) continue;
+    const cmds = (dm[1] ?? dm[2]).match(/[A-Za-z][^A-Za-z]*/g) ?? [];
+    let x = 0, y = 0;
+    for (const c of cmds) {
+      const op = c[0];
+      const nums = (c.slice(1).trim().match(/-?[\d.]+/g) ?? []).map(Number);
+      if (op === "M" || op === "L") {
+        for (let i = 0; i + 1 < nums.length; i += 2) {
+          if (op === "L" && nums[i] === x && nums[i + 1] !== y) runs.push(Math.abs(nums[i + 1] - y));
+          x = nums[i]; y = nums[i + 1];
+        }
+      } else if (op === "V") { for (const v of nums) { runs.push(Math.abs(v - y)); y = v; } }
+      else if (op === "H") { for (const v of nums) x = v; }
+      // 그 외 op는 measuredBoundsStrict가 provable subset 밖으로 이미 거부한다
+    }
+  }
+  return runs;
+}
+
+export function bandViolations(runs, band) {
+  if (!band) return [];
+  const min = Number(band.min), max = Number(band.max);
+  return runs.filter((r) => r < min - 0.5 || r > max + 0.5);
 }
 
 // ---------- geometry helpers (provable subset: rect/circle + stroke/2) ----------
@@ -332,7 +376,9 @@ function compose(planPath, opts) {
   const { plan, planDigest, errors } = validatePlan(planPath, opts.manifest);
   if (errors.length) { for (const e of errors) console.error(`  ERROR ${e}`); process.exit(1); }
   const fragDir = opts.fragments;
+  const h1Lines = Array.isArray(plan.header?.h1) ? plan.header.h1 : [plan.header?.h1 ?? plan.id];
   const pf = JSON.parse(spawnSync(process.execPath, [skinCli, "pageframe", plan.page.preset,
+    "--h1-lines", String(h1Lines.length),
     ...(plan.page.support && plan.page.support !== "none" ? ["--support", plan.page.support] : []), "--json"],
     { encoding: "utf8" }).stdout);
   const cb = pf.regions.contentBox;
@@ -353,21 +399,31 @@ function compose(planPath, opts) {
     const tryVariants = [inst.variant ?? "base"];
     const packs = loadManifest(opts.manifest, []);
     for (const v of packs?.[inst.typepack]?.composition?.variants ?? []) if (!tryVariants.includes(v.id)) tryVariants.push(v.id);
-    // 잔여 공간 정책(1/2): slot에 맞는 variant 중 가장 채우는 것(usedBounds.h 최대)을
-    // 선택한다 — raw 좌표 patch나 글자/화살표 확대가 아니라 선언된 variant로 해결
+    // 잔여 공간 정책(1/2): 단순 면적 최대화가 아니라 TypePack이 선언한 rhythm band
+    // 안에서 slot을 가장 채우는 variant를 선택한다 — connector 신장으로 residual을
+    // 흡수하는 variant는 선택 자격이 없고, raw 좌표 patch·글자/화살표 확대도 금지.
+    // 합법적으로 더 채울 수 없으면 남는 공간은 residual_disposition으로 정직하게 선언한다.
+    const band = packs?.[inst.typepack]?.composition?.rhythm?.connector_run_band ?? null;
     let chosen = null;
+    const rhythmRejected = [];
     for (const variant of tryVariants) {
       const stem = variant === "base" ? inst.typepack : `${inst.typepack}.${variant}`;
       const svgP = path.join(fragDir, `${stem}.svg`), rcpP = path.join(fragDir, `${stem}.receipt.json`);
       let frag, rcp;
       try { frag = readFileSync(svgP, "utf8"); rcp = JSON.parse(readFileSync(rcpP, "utf8")); } catch { continue; }
+      if (band) {
+        // 변조/비정형 fragment는 body 추출이 실패할 수 있다 — band 검사는 전체 문서로
+        // 수행해도 동일하고(connector는 svg 안에만 있다), 무결성은 sourceDigest가 잡는다
+        const bad = bandViolations(connectorRunsOf(frag.match(/<svg[^>]*>([\s\S]*)<\/svg>/)?.[1] ?? frag), band);
+        if (bad.length) { rhythmRejected.push(`${variant} (connector run ${round1(bad[0])}px outside ${band.min}..${band.max})`); continue; }
+      }
       if (rcp.usedBounds.w <= slot.w && rcp.usedBounds.h <= slot.h) {
         if (!chosen || rcp.usedBounds.h > chosen.rcp.usedBounds.h) chosen = { variant, frag, rcp, svgP };
       }
     }
     if (!chosen) {
       status = "needs-split";
-      problems.push(`instance "${inst.instance_id}": no declared variant fits slot ${inst.slot_id} (${slotRects[inst.slot_id].w}x${slotRects[inst.slot_id].h}) — recommend splitting into a separate page`);
+      problems.push(`instance "${inst.instance_id}": no declared variant fits slot ${inst.slot_id} (${slotRects[inst.slot_id].w}x${slotRects[inst.slot_id].h})${rhythmRejected.length ? ` — rhythm-band ineligible: ${rhythmRejected.join(", ")}` : ""} — recommend splitting into a separate page`);
       continue;
     }
     const { variant, frag, rcp } = chosen;
@@ -493,9 +549,32 @@ function compose(planPath, opts) {
   for (const [key, n] of usedPorts) if (n > 1) problems.push(`port ${key} participates in ${n} edges (CP1 limit: 1)`);
   if (problems.length && status === "ok") status = "invalid";
   const hdr = plan.header ?? {};
+  // header treatment: 좌표 상수가 아니라 pageframe headerScale에서 파생한다.
+  // - locator(기본): eyebrow 앞 square locator, marker-label-row 산식(중앙 일치)
+  // - title-keyline: H1 line-box에서만 파생한 세로 keyline. locator와 중복 표시 금지,
+  //   eyebrow/H1/subtitle 텍스트 시작선은 하나로 정렬, gap/pad/width는 scale profile 소유
+  const hs = pf.headerScale;
+  const hStyle = hdr.style ?? "locator";
+  const textX = 40, h1Y = 92;
+  const h1YLast = h1Y + (h1Lines.length - 1) * hs.h1LinePitch;
+  const subtitleY = 124 + (h1Lines.length - 1) * hs.h1LinePitch;
+  const h1Markup = h1Lines.length === 1
+    ? `<text data-layout-role="cluster-h1" data-fill-role="ink" x="${textX}" y="${h1Y}" font-size="${hs.h1}" font-weight="700" fill="#252B35" dominant-baseline="central">${h1Lines[0]}</text>`
+    : `<text data-layout-role="cluster-h1" data-fill-role="ink" font-size="${hs.h1}" font-weight="700" fill="#252B35" dominant-baseline="central"><tspan x="${textX}" y="${h1Y}">${h1Lines[0]}</tspan><tspan x="${textX}" y="${h1Y + hs.h1LinePitch}">${h1Lines[1]}</tspan></text>`;
+  const kl = hs.keyline;
+  const klTop = h1Y - hs.h1 / 2 - kl.pad, klBottom = h1YLast + hs.h1 / 2 + kl.pad;
+  const eyebrowMarkup = hdr.eyebrow
+    ? (hStyle === "title-keyline"
+      ? `<text data-layout-role="cluster-eyebrow" data-fill-role="muted" x="${textX}" y="56" font-size="${hs.eyebrow}" font-weight="700" letter-spacing="0.10em" fill="#636A75" dominant-baseline="central">${hdr.eyebrow}</text>`
+      : `<rect data-layout-role="cluster-locator" data-fill-role="focus" x="${textX}" y="52" width="8" height="8" rx="2" fill="#2E6DA4"/>
+    <text data-layout-role="cluster-eyebrow" data-fill-role="muted" x="${textX + 16}" y="56" font-size="${hs.eyebrow}" font-weight="700" letter-spacing="0.10em" fill="#636A75" dominant-baseline="central">${hdr.eyebrow}</text>`)
+    : "";
+  const keylineMarkup = hStyle === "title-keyline"
+    ? `<rect data-layout-role="cluster-keyline" data-fill-role="focus" x="${textX - kl.gap - kl.width}" y="${klTop}" width="${kl.width}" height="${round1(klBottom - klTop)}" rx="${kl.width / 2}" fill="#2E6DA4"/>
+    ` : "";
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${pf.canvas.width} ${pf.canvas.height}" width="${pf.canvas.width}" height="${pf.canvas.height}" role="img"
   style="font-family:Pretendard,Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
-  <title>${hdr.h1 ?? plan.id}</title>
+  <title>${h1Lines.join(" ")}</title>
   <desc>Composite scene (${plan.layout_template}): ${plan.instances.map((i) => i.typepack).join(" + ")}.</desc>
   <defs>
     <marker id="comp-ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="11.25" markerHeight="11.25" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
@@ -503,10 +582,9 @@ function compose(planPath, opts) {
   </defs>
   <rect data-fill-role="canvas" fill="#F7F7F5" width="${pf.canvas.width}" height="${pf.canvas.height}"/>
   <g data-layout-role="header-cluster" data-layout-content-top="${cb.y + 14}" data-layout-breathing="36" data-layout-tolerance="2">
-    ${hdr.eyebrow ? `<rect data-layout-role="cluster-locator" data-fill-role="focus" x="40" y="52" width="8" height="8" rx="2" fill="#2E6DA4"/>
-    <text data-layout-role="cluster-eyebrow" data-fill-role="muted" x="56" y="56" font-size="14" font-weight="700" letter-spacing="0.10em" fill="#636A75" dominant-baseline="central">${hdr.eyebrow}</text>` : ""}
-    <text data-layout-role="cluster-h1" data-fill-role="ink" x="40" y="92" font-size="28" font-weight="700" fill="#252B35" dominant-baseline="central">${hdr.h1 ?? plan.id}</text>
-    ${hdr.subtitle ? `<text data-layout-role="cluster-subtitle" data-fill-role="muted" x="40" y="124" font-size="14" fill="#636A75" dominant-baseline="central">${hdr.subtitle}</text>` : ""}
+    ${keylineMarkup}${eyebrowMarkup ? `${eyebrowMarkup}
+    ` : ""}${h1Markup}
+    ${hdr.subtitle ? `<text data-layout-role="cluster-subtitle" data-fill-role="muted" x="${textX}" y="${subtitleY}" font-size="${hs.subtitle}" fill="#636A75" dominant-baseline="central">${hdr.subtitle}</text>` : ""}
   </g>
   ${bodies.join("\n  ")}
 </svg>`;
@@ -554,6 +632,7 @@ function verify(svgPath, opts) {
   const receipt = JSON.parse(readFileSync(opts.receipt, "utf8"));
   const { plan, planDigest: livePlanDigest, errors: pErr } = validatePlan(opts.plan, opts.manifest);
   errors.push(...pErr);
+  const packsV = opts.manifest ? loadManifest(opts.manifest, []) : null;
   // Receipt v1 strict schema — receipt의 어떤 필드도 무검증 신뢰하지 않는다(R1-P1)
   const RK = ["schemaVersion", "kind", "planId", "planDigest", "layoutTemplate", "page", "resolvedSlots",
     "slotGap", "contentFlowBounds", "residual", "residualDisposition", "instances", "connectorEdges",
@@ -566,7 +645,9 @@ function verify(svgPath, opts) {
   if (receipt.planDigest !== livePlanDigest) errors.push(`E-COMP-FORGED receipt planDigest ${receipt.planDigest} != recomputed ${livePlanDigest}`);
   // slots/page는 Plan+PageFrame에서 재계산해 대조
   if (plan) {
+    const h1LinesV = Array.isArray(plan.header?.h1) ? plan.header.h1.length : 1;
     const pfR = JSON.parse(spawnSync(process.execPath, [skinCli, "pageframe", plan.page.preset,
+      "--h1-lines", String(h1LinesV),
       ...(plan.page.support && plan.page.support !== "none" ? ["--support", plan.page.support] : []), "--json"], { encoding: "utf8" }).stdout);
     const cbR = pfR.regions.contentBox;
     const ha = Number(plan.slots["slot-a"].height), hb = Number(plan.slots["slot-b"].height), gap = Number(plan.slot_gap ?? 24);
@@ -673,6 +754,12 @@ function verify(svgPath, opts) {
     const slot = receipt.resolvedSlots[inst.slot_id];
     if (tx.x < slot.x - 0.5 || tx.y < slot.y - 0.5 || tx.x + tx.w > slot.x + slot.w + 0.5 || tx.y + tx.h > slot.y + slot.h + 0.5)
       errors.push(`E-COMP-BOUNDS instance "${inst.instance_id}" used bounds escape slot ${inst.slot_id}`);
+    // rhythm band: 최종 SVG에서 connector run 재측정 — pack 조회는 plan(typepack) 기준
+    // (receipt typepack 위조로 band를 우회할 수 없다)
+    const planTp = (plan?.instances ?? []).find((pi) => pi.instance_id === inst.instance_id)?.typepack;
+    const bandV = packsV?.[planTp]?.composition?.rhythm?.connector_run_band ?? null;
+    if (bandV) for (const r of bandViolations(connectorRunsOf(innerBody), bandV))
+      errors.push(`E-COMP-RHYTHM instance "${inst.instance_id}" connector run ${round1(r)}px outside declared band ${bandV.min}..${bandV.max} — residual must not be absorbed by stretching connector runs`);
   }
   // contentFlowBounds/residual 재계산 대조 (조작 방지) + disposition 정책
   if (receipt.instances?.length && plan) {

@@ -526,7 +526,8 @@ function materializeSvg(text, tokens) {
 
 const PF_HEADER = ["eyebrow", "h1", "subtitle"];
 const PF_HI = ["ascent-mult", "eyebrow-row-mult", "eyebrow-gap", "collapsed-top-mult",
-  "h1-line-mult", "h1-descent-mult", "subtitle-gap-mult", "subtitle-descent-mult"];
+  "h1-line-mult", "h1-descent-mult", "subtitle-gap-mult", "subtitle-descent-mult",
+  "keyline-width-mult", "keyline-gap-mult", "keyline-pad-mult"];
 const PF_GAPS = ["breathing", "content-gap", "content-footer-gap", "footer-safe"];
 const PF_SUPPORT = ["bottom-height", "side-width", "side-gap"];
 const PF_ARROW = ["primary-shaft", "secondary-shaft", "min-shaft", "min-visible-head"];
@@ -658,10 +659,19 @@ function main() {
     const out = computePageFrame(P, opts);
     if (!out.fluid && (out.contentBox.h == null || out.contentBox.h <= 0)) fail(1, `preset ${preset}: computed contentBox height is not positive (${out.contentBox.h}) — canvas too small for the requested regions`);
     if (out.contentBox.w <= 0) fail(1, `preset ${preset}: computed contentBox width is not positive (${out.contentBox.w})`);
+    // headerScale: 파일별 수기 상수가 아니라 profile에서 파생된 header 지표 —
+    // title-keyline 등 header treatment는 이 값만 소비한다
+    const HIm = P["header-internal"];
+    const headerScale = {
+      eyebrow: P.header.eyebrow, h1: P.header.h1, subtitle: P.header.subtitle,
+      h1LinePitch: Math.round(P.header.h1 * HIm["h1-line-mult"]),
+      keyline: { width: Math.round(P.header.h1 * HIm["keyline-width-mult"]),
+                 gap: Math.round(P.header.h1 * HIm["keyline-gap-mult"]),
+                 pad: Math.round(P.header.h1 * HIm["keyline-pad-mult"]) } };
     const receipt = { schemaVersion: 1, command: "pageframe", kernelVersion: "kernel-v1",
       profile: { id: pf.doc.id, digest: pf.digest }, preset, orientation: P.orientation,
       canvas: { width: P["canvas-width"], height: P["canvas-height"] },
-      options: opts, arrow: P.arrow, "scale-band": pf.doc["scale-band"], regions: out, errors: [], warnings: [] };
+      options: opts, arrow: P.arrow, "scale-band": pf.doc["scale-band"], headerScale, regions: out, errors: [], warnings: [] };
     if (po["--json"]) console.log(JSON.stringify(receipt, null, 1));
     else {
       console.log(`pageframe ${preset} (${P.orientation}) — header ${out.headerRegion.y}..${out.headerRegion.y + out.headerRegion.h} (${out.headerRegion.h}px), contentBox ${JSON.stringify(out.contentBox)}, footer: ${out.footerRule}`);
@@ -842,7 +852,7 @@ function main() {
       // composition capability block (schema v2, optional — absent => composable: false)
       if ("composition" in p) {
         const C = p.composition;
-        const CK = ["composable", "min_slot_size", "preferred_slot_aspect", "allowed_slots", "variants", "ports"];
+        const CK = ["composable", "min_slot_size", "preferred_slot_aspect", "allowed_slots", "variants", "ports", "rhythm"];
         for (const k of Object.keys(C)) if (!CK.includes(k)) errors.push(`manifest: ${id}: composition unknown field "${k}"`);
         if (typeof C.composable !== "boolean" && C.composable !== "true" && C.composable !== "false")
           errors.push(`manifest: ${id}: composition.composable must be boolean`);
@@ -866,6 +876,15 @@ function main() {
               if (!sizeOk(v.min_slot_size)) errors.push(`manifest: ${id}: variant "${v.id}" min_slot_size must be positive {w, h}`);
             }
           }
+        }
+        if ("rhythm" in C) {
+          // TypePack 소유 visual-rhythm band — residual을 connector 신장으로 흡수하는
+          // variant를 금지하는 선언(연장 상한은 pack이 정하고 compose/verify가 강제)
+          const RK2 = ["connector_run_band"];
+          for (const k of Object.keys(C.rhythm ?? {})) if (!RK2.includes(k)) errors.push(`manifest: ${id}: composition.rhythm unknown field "${k}"`);
+          const B = C.rhythm?.connector_run_band;
+          if (!B || !Number.isFinite(Number(B.min)) || !Number.isFinite(Number(B.max)) || Number(B.min) <= 0 || Number(B.min) > Number(B.max))
+            errors.push(`manifest: ${id}: composition.rhythm.connector_run_band must be {min, max} with 0 < min <= max`);
         }
         if ("ports" in C) {
           if (!Array.isArray(C.ports)) errors.push(`manifest: ${id}: composition.ports must be a list`);

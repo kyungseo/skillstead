@@ -11,7 +11,7 @@
   "x": -0.5,
   "y": -0.75,
   "w": 648,
-  "h": 461.25
+  "h": 385.25
  },
  "ports": [
   {
@@ -85,11 +85,11 @@
  "identity": {
   "skinProfileDigest": "d02498fd9e0a2efe",
   "typographyProfileDigest": "6d3109f3a64e1813",
-  "pageFrameDigest": "97bc89b12ce77045",
+  "pageFrameDigest": "f4edd624bbe296d4",
   "kernelVersion": "kernel-v1",
   "iconSetId": "line-icons-v1"
  },
- "sourceDigest": "83eafdb57f7ce46e",
+ "sourceDigest": "3a4e2e7b5c79f3c9",
  "verifier": "compose-fragment-measure-v1",
  "textBounds": [
   {
@@ -100,73 +100,73 @@
   },
   {
    "x": 22.7,
-   "y": 362,
+   "y": 292,
    "w": 6.6,
    "h": 16
   },
   {
    "x": 14,
-   "y": 398.5,
+   "y": 326.5,
    "w": 40.7,
    "h": 15
   },
   {
    "x": 14,
-   "y": 426.5,
+   "y": 352.5,
    "w": 79.2,
    "h": 15
   },
   {
    "x": 187.7,
-   "y": 362,
+   "y": 292,
    "w": 8.5,
    "h": 16
   },
   {
    "x": 180,
-   "y": 398.5,
+   "y": 326.5,
    "w": 42.5,
    "h": 15
   },
   {
    "x": 180,
-   "y": 426.5,
+   "y": 352.5,
    "w": 81.1,
    "h": 15
   },
   {
    "x": 353.5,
-   "y": 362,
+   "y": 292,
    "w": 9,
    "h": 16
   },
   {
    "x": 346,
-   "y": 398.5,
+   "y": 326.5,
    "w": 42.9,
    "h": 15
   },
   {
    "x": 346,
-   "y": 426.5,
+   "y": 352.5,
    "w": 81.5,
    "h": 15
   },
   {
    "x": 519.4,
-   "y": 362,
+   "y": 292,
    "w": 9.2,
    "h": 16
   },
   {
    "x": 512,
-   "y": 398.5,
+   "y": 326.5,
    "w": 43.1,
    "h": 15
   },
   {
    "x": 512,
-   "y": 426.5,
+   "y": 352.5,
    "w": 81.6,
    "h": 15
   }
@@ -174,8 +174,8 @@
  "textDigest": "94ef5b424fb8080e",
  "textMeasure": {
   "method": "browser-getBBox",
-  "inputDigest": "83eafdb57f7ce46e",
+  "inputDigest": "3a4e2e7b5c79f3c9",
   "texts": 13
  },
- "textMarkupDigest": "bdf76524222fcbad"
+ "textMarkupDigest": "a8c99bef9040c4c8"
 }

@@ -747,14 +747,19 @@ export function lintSvg(source, filename = "input.svg") {
       // only with the eyebrow and derives from it (≈0.6×, accepted band 0.5–0.7).
       const gt = resolveTransform(group);
       const locators = descendantsWithRole(group, ["cluster-locator"]);
+      const keylines = descendantsWithRole(group, ["cluster-keyline"]);
       const eyebrows = descendantsWithRole(group, ["cluster-eyebrow"]);
       const h1s = descendantsWithRole(group, ["cluster-h1"]);
       const subtitles = descendantsWithRole(group, ["cluster-subtitle"]);
       const toleranceRaw = group.attrs["data-layout-tolerance"];
       const parsedTolerance = px(toleranceRaw);
       const tolerance = toleranceRaw === undefined || parsedTolerance === undefined || parsedTolerance < 0 || parsedTolerance > 8 ? 2 : parsedTolerance;
-      if (h1s.length < 1 || locators.length > 1 || eyebrows.length > 1 || subtitles.length > 1) {
-        add(errors, group.line, "E-LAYOUT", "header-cluster contract requires at least one cluster-h1 and at most one cluster-locator/cluster-eyebrow/cluster-subtitle", "complete the header-cluster roles or remove the annotation (design-kernel §6)");
+      if (h1s.length < 1 || locators.length > 1 || keylines.length > 1 || eyebrows.length > 1 || subtitles.length > 1) {
+        add(errors, group.line, "E-LAYOUT", "header-cluster contract requires at least one cluster-h1 and at most one cluster-locator/cluster-keyline/cluster-eyebrow/cluster-subtitle", "complete the header-cluster roles or remove the annotation (design-kernel §6)");
+        continue;
+      }
+      if (locators.length === 1 && keylines.length === 1) {
+        add(errors, group.line, "E-LAYOUT", "header-cluster carries both a cluster-keyline and a cluster-locator — the keyline replaces the square locator, never doubles it", "keep exactly one header accent (design-kernel §6)");
         continue;
       }
       if (locators.length === 1 && eyebrows.length === 0) {
@@ -778,7 +783,8 @@ export function lintSvg(source, filename = "input.svg") {
         continue;
       }
       const violations = [];
-      const h1X = px(h1s[0].attrs.x);
+      // 2줄 H1은 x가 tspan에 있다 — 첫 tspan의 시작선을 H1 left edge로 삼는다
+      const h1X = px(h1s[0].attrs.x ?? h1s[0].children.find((c) => c.tag === "tspan")?.attrs.x);
       if (locators.length === 1) {
         const loc = locators[0];
         if (loc.tag !== "rect") violations.push("cluster-locator must be a rect");
@@ -806,6 +812,29 @@ export function lintSvg(source, filename = "input.svg") {
             if (dc > tolerance) violations.push(`locator center ${round1(locY + locH / 2)} is ${round1(dc)}px off the eyebrow line center ${round1(eyY)} — markerCenterY must equal labelLineCenterY`);
           }
         }
+      }
+      if (keylines.length === 1) {
+        // title-keyline 산식(design-kernel §6): 세로 keyline은 H1 line-box에서만
+        // 파생한다 — top = titleTop − pad, bottom = titleBottom + pad(동일 pad),
+        // eyebrow~subtitle 전체를 감싸는 구형 rail 복원 금지, 텍스트 시작선 단일 정렬.
+        const key = keylines[0];
+        if (key.tag !== "rect") violations.push("cluster-keyline must be a rect");
+        const ky = px(localGeometryProp(key, "y", rules));
+        const kh = px(localGeometryProp(key, "height", rules));
+        const kx = px(localGeometryProp(key, "x", rules));
+        const kw = px(localGeometryProp(key, "width", rules));
+        if (ky === undefined || kh === undefined || kx === undefined || kw === undefined) {
+          add(warnings, group.line, "W-LAYOUT", "header-cluster keyline geometry is unverified (need plain numeric x/y/width/height)", "use plain numeric geometry (design-kernel §6)");
+          continue;
+        }
+        const padTop = h1Box.top - ky, padBottom = (ky + kh) - h1Box.bottom;
+        if (padTop < -tolerance || padBottom < -tolerance) violations.push(`keyline ${round1(ky)}..${round1(ky + kh)} does not cover the H1 line-box ${round1(h1Box.top)}..${round1(h1Box.bottom)}`);
+        if (Math.abs(padTop - padBottom) > tolerance) violations.push(`keyline pads are asymmetric (top ${round1(padTop)}px vs bottom ${round1(padBottom)}px) — both ends derive from the H1 line-box with one pad`);
+        if (eyebrowBox && ky < eyebrowBox.bottom - tolerance) violations.push(`keyline top ${round1(ky)} reaches the eyebrow (bottom ${round1(eyebrowBox.bottom)}) — the keyline derives from the H1 line-box only, not the eyebrow~subtitle stack`);
+        if (subtitleBox && ky + kh > subtitleBox.top + tolerance) violations.push(`keyline bottom ${round1(ky + kh)} reaches the subtitle (top ${round1(subtitleBox.top)}) — the keyline derives from the H1 line-box only`);
+        if (h1X !== undefined && kx + kw >= h1X) violations.push(`keyline right edge ${round1(kx + kw)} is not left of the text start line ${round1(h1X)}`);
+        const eyX2 = eyebrows.length ? px(eyebrows[0].attrs.x) : undefined;
+        if (eyX2 !== undefined && h1X !== undefined && Math.abs(eyX2 - h1X) > tolerance) violations.push(`eyebrow x ${round1(eyX2)} is not on the single text start line ${round1(h1X)} — keyline mode aligns eyebrow/H1/subtitle starts`);
       }
       if (eyebrowBox && eyebrowBox.bottom > h1Box.top + tolerance) violations.push(`eyebrow bottom ${round1(eyebrowBox.bottom)} intrudes into the H1 top ${round1(h1Box.top)}`);
       if (subtitleBox) {

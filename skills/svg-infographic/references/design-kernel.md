@@ -249,10 +249,22 @@ Canvas → Safe area
   **first** line center. Optical correction, if ever needed, becomes a shared
   token — per-file nudges are forbidden.
 - **Minimal variant: H-B** — the same stack without the locator.
+- **Title-keyline variant (K2, under design review as the next default)** — the
+  H-C stack with a restrained vertical keyline left of the title instead of the
+  square locator. The keyline derives from the **H1 line-box only**: top =
+  `titleTop − pad`, bottom = `titleBottom + pad` for 1- and 2-line titles alike;
+  width/gap/pad are PageFrame scale-profile tokens (`keyline-*-mult` × H1 size),
+  never fixed heights or per-string nudges. With a keyline the square locator is
+  **never double-marked**, and the eyebrow/H1/subtitle text starts align on one
+  line. This is *not* the rejected rail: it never spans the eyebrow~subtitle
+  stack, and lint fails it closed (span, pad symmetry, alignment). The
+  marker-label-row primitive stays canonical for legend keys, callouts and
+  section labels regardless of the header treatment.
 - **Rejected: the vertical accent rail** (unstable length/boundary across 1–2-line
-  titles; ambiguous representative scope). Never regenerate it in new output;
-  legacy examples keep it only until the catalog regeneration. H-D open-callout
-  variants live in review evidence only.
+  titles; ambiguous representative scope — the computed title-keyline above is
+  the bounded redesign of that instinct, not its return). Never regenerate the
+  rail in new output; legacy examples keep it only until the catalog
+  regeneration. H-D open-callout variants live in review evidence only.
 - Decoration derives from the computed header cluster bounds — it never owns its
   own coordinates.
 
@@ -429,12 +441,20 @@ Contract highlights, all fail-closed:
   measured/advisory values without invented thresholds.
 - **Residual space**: after placement the receipt records `contentFlowBounds`
   (union of all instance bounds) and the top/bottom residual inside the
-  contentBox. The composition must first select the **largest fitting declared
-  variant** per slot (spacious/expanded rhythms live in TypePack variants — never
-  raw coordinate patches or enlarged type/arrows); any remaining page-bottom
-  residual must be **explicitly declared** in the plan
-  (`residual_disposition: {bottom, reason}`) and match the measurement, or the
-  compose is a non-success. Large dead space never passes silently.
+  contentBox. The composition must first select the largest fitting declared
+  variant per slot **within the TypePack's declared rhythm band**
+  (spacious/expanded rhythms live in TypePack variants — never raw coordinate
+  patches or enlarged type/arrows); any remaining page-bottom residual must be
+  **explicitly declared** in the plan (`residual_disposition: {bottom, reason}`)
+  and match the measurement, or the compose is a non-success. Large dead space
+  never passes silently — but honest declared breathing beats a stretched fill.
+- **Visual-rhythm band**: relation density and readability outrank dead-space
+  minimisation. A TypePack that owns internal connectors declares
+  `composition.rhythm.connector_run_band {min, max}`; a variant whose connector
+  runs leave the band is **not eligible for automatic selection** (residual must
+  never be absorbed by elongating connectors), and verify re-measures the runs
+  in the final SVG (`E-COMP-RHYTHM`). If no band-legal variant can fill the
+  slot further, declare the remaining bottom breathing instead.
 
 ## 9. Regeneration & provenance
 

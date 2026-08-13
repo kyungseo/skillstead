@@ -44,7 +44,9 @@ typepacks:
       allowed_slots: [bottom, middle]
       variants:
         - id: spacious
-          min_slot_size: { w: 640, h: 465 }
+          min_slot_size: { w: 640, h: 390 }
+      rhythm:
+        connector_run_band: { min: 56, max: 108 }
       ports:
         - { template: leaf-anchor, direction: in, kind: reference, cardinality: 0..n }
   - id: not-composable

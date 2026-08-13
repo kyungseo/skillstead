@@ -389,12 +389,35 @@ test("P2-2: text-free fragment가 null 아닌 text evidence를 실으면 거부"
 });
 
 // ---- residual-space 계약(R5) ----
-test("R5-1: 최대-채움 variant 자동 선택(spacious)과 residual receipt", () => {
+test("R5-1: rhythm band 안 최대-채움 variant 자동 선택(spacious)과 residual receipt", () => {
   const rcp = JSON.parse(fs.readFileSync(RCP, "utf8"));
   const tree = rcp.instances.find((i) => i.instance_id === "tree-1");
   assert.equal(tree.variant, "spacious");
   assert.ok(rcp.contentFlowBounds && rcp.residual);
-  assert.ok(Math.abs(rcp.residual.bottom - 67) <= 2, JSON.stringify(rcp.residual));
+  assert.ok(Math.abs(rcp.residual.bottom - 143) <= 2, JSON.stringify(rcp.residual));
+});
+// ---- visual-rhythm band 계약(P1B) ----
+test("P1B-1: connector run이 band를 벗어난 variant는 자동 선택 자격이 없다", () => {
+  const fd = fs.mkdtempSync(path.join(os.tmpdir(), "frag-"));
+  for (const f of fs.readdirSync(path.join(FIX, "fragments"))) fs.copyFileSync(path.join(FIX, "fragments", f), path.join(fd, f));
+  const sp = path.join(fd, "tree.spacious.svg");
+  // drop run 96 -> 152 (base와 receipt는 그대로) — band 56..108 위반이라 base로 후퇴하고,
+  // base의 residual은 선언값과 어긋나므로 정직하게 non-success가 된다
+  fs.writeFileSync(sp, fs.readFileSync(sp, "utf8").replaceAll(" 168 V264", " 168 V320"));
+  const rc = path.join(td, "p1b1.json");
+  const r = run(["compose", path.join(FIX, "plan-cards-tree.yaml"), "--fragments", fd, ...M, "--out", path.join(td, "p1b1.svg"), "--receipt", rc]);
+  assert.equal(r.code, 1, r.out);
+  const rcp = JSON.parse(fs.readFileSync(rc, "utf8"));
+  assert.equal(rcp.instances.find((i) => i.instance_id === "tree-1").variant, "base");
+  assert.match(r.out, /residual_disposition\.bottom 143px != measured/);
+});
+test("P1B-2: 최종 SVG의 connector 신장은 verify 재측정으로 거부(E-COMP-RHYTHM)", () => {
+  const svg = fs.readFileSync(OUT, "utf8").replace("V264", "V320");
+  const p = path.join(td, "p1b2.svg");
+  fs.writeFileSync(p, svg);
+  const r = run(["verify", p, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M, "--no-browser"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /E-COMP-RHYTHM .*connector run 152px outside declared band 56\.\.108/);
 });
 test("R5-2: 선언 없는 page bottom residual은 non-success", () => {
   const r = run(["compose", path.join(FIX, "plan-residual-undeclared.yaml"), "--fragments", path.join(FIX, "fragments"), ...M, "--out", path.join(td, "r52.svg"), "--receipt", path.join(td, "r52.json")]);
@@ -415,4 +438,50 @@ test("R5-3: forged contentFlowBounds/residual은 재계산으로 거부", () => 
 test("P2-3: compose header locator는 eyebrow line center에 정렬(52/56)", () => {
   const svg = fs.readFileSync(OUT, "utf8");
   assert.match(svg, /cluster-locator[^>]*y="52"/);
+});
+
+// ---- title-keyline header treatment(P3) ----
+const mkPlan = (name, mut) => {
+  const src = fs.readFileSync(path.join(FIX, "plan-cards-tree.yaml"), "utf8");
+  const p = path.join(td, name);
+  fs.writeFileSync(p, mut(src));
+  return p;
+};
+test("P3-1: title-keyline은 H1 line-box에서 파생되고 locator를 대체한다 (browser verify)", () => {
+  const p = mkPlan("k2-1.yaml", (s2) => s2.replace("header:\n", "header:\n  style: title-keyline\n"));
+  const o = path.join(td, "k2-1.svg"), rc = path.join(td, "k2-1.json");
+  const r = run(["compose", p, "--fragments", path.join(FIX, "fragments"), ...M, "--out", o, "--receipt", rc]);
+  assert.equal(r.code, 0, r.out);
+  const svg = fs.readFileSync(o, "utf8");
+  // pageframe headerScale 파생: width 4, gap 12(x=24), pad 7(y=71, h=42)
+  assert.match(svg, /cluster-keyline[^>]*x="24" y="71" width="4" height="42"/);
+  assert.doesNotMatch(svg, /cluster-locator/);
+  assert.match(svg, /cluster-eyebrow[^>]*x="40"/);
+  const v = run(["verify", o, "--receipt", rc, "--plan", p, ...M]);
+  assert.equal(v.code, 0, v.out);
+});
+test("P3-2: 2줄 H1 — keyline이 두 line-box를 덮고 slot 예산은 pageframe --h1-lines 2와 일치", () => {
+  const p = mkPlan("k2-2.yaml", (s2) => s2
+    .replace("header:\n", "header:\n  style: title-keyline\n")
+    .replace('h1: "핵심 4가지와 전체 구조"', 'h1:\n    - "핵심 4가지 요약과"\n    - "전체 구조의 대응 관계"')
+    .replace("slot-b: { height: 528 }", "slot-b: { height: 494 }")
+    .replace("bottom: 143", "bottom: 109"));
+  const o = path.join(td, "k2-2.svg"), rc = path.join(td, "k2-2.json");
+  const r = run(["compose", p, "--fragments", path.join(FIX, "fragments"), ...M, "--out", o, "--receipt", rc]);
+  assert.equal(r.code, 0, r.out);
+  const svg = fs.readFileSync(o, "utf8");
+  assert.match(svg, /cluster-keyline[^>]*x="24" y="71" width="4" height="76"/);
+  assert.equal([...svg.matchAll(/<tspan x="40"/g)].length, 2);
+  const rcp = JSON.parse(fs.readFileSync(rc, "utf8"));
+  assert.equal(rcp.resolvedSlots["slot-a"].y, 188);
+});
+test("P3-3: 2줄 초과 h1과 미지정 header style은 plan에서 거부", () => {
+  const p3 = mkPlan("k2-bad.yaml", (s2) => s2.replace('h1: "핵심 4가지와 전체 구조"', 'h1:\n    - "one"\n    - "two"\n    - "three"'));
+  const r = run(["plan", p3, ...M]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /header\.h1 as a list must hold 1\.\.2/);
+  const p4 = mkPlan("k2-bad2.yaml", (s2) => s2.replace("header:\n", "header:\n  style: fancy-rail\n"));
+  const r2 = run(["plan", p4, ...M]);
+  assert.equal(r2.code, 1);
+  assert.match(r2.out, /header\.style must be locator\|title-keyline/);
 });
