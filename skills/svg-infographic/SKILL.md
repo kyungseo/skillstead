@@ -21,7 +21,8 @@ Nuances: a **simple qualitative** 2×2/3×3 matrix or a status-count badge is fi
 | File | When to read |
 | --- | --- |
 | `references/design-kernel.md` | **Before choosing colors, tokens or typography** — the canonical skin contract: 11-role token model, domain aliases, versioned profiles + `skin.mjs` resolver, typography profile SSoT(`references/typography/`), approved contact sheet |
-| `references/archetypes.md` | **Always, before the layout pass** — the chosen archetype's layout skeleton, premium recipe, and per-type checks |
+| `references/types/selection.md` | **Before choosing a type** — the generated routing view: content signal → TypePack → its spec (derived from the TypePack manifest; migrated types only) |
+| `references/archetypes.md` | **Always, before the layout pass** — the chosen archetype's layout skeleton, premium recipe, and per-type checks (types not yet migrated to TypePacks) |
 | `references/authoring.md` | **Always, before writing SVG** — detailed geometry/connector/panel/emphasis/color rules and the full icon set; also the manual render fallback |
 | `references/sketch.md` | Only when the user asks for a hand-drawn / sketchnote / 손글씨 feel — the opt-in sketch preset (paper, handwriting font, rough filters, highlighter) |
 | `scripts/render.mjs` | **Canonical renderer** (Node 18+, stdlib only) — lint gate → browser discovery → 2× render → exact IHDR verification in one entrypoint; works from any shell incl. Windows CMD/PowerShell without Git Bash |
@@ -71,7 +72,7 @@ If Node 18+ is missing:
 
 ## 1. Pick an archetype (shape first)
 
-Pick from the content signal, then **read that archetype's section in `references/archetypes.md`** — it has the layout skeleton, the premium recipe, and the checks that prevent that type's common failures.
+Pick from the content signal. For a **migrated TypePack**, `references/types/selection.md` routes the signal to its spec, and that spec owns the input contract, the layout formulas and the checks. For types not yet migrated, read that archetype's section in `references/archetypes.md` — it has the layout skeleton, the premium recipe, and the checks that prevent that type's common failures. Both surfaces describe the same catalog during the migration; the TypePack spec wins where a type appears in both.
 
 | Content signal | Archetype |
 | --- | --- |

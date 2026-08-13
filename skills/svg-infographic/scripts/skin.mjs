@@ -34,7 +34,8 @@ const await_import_fs = () => ({ writeFileSync });
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { preflight, guardPackagePath } from "./preflight-lib.mjs";
+import { spawnSync } from "node:child_process";
+import { preflight, guardPackagePath, state } from "./preflight-lib.mjs";
 
 // --- minimal YAML subset parser (nested maps, scalars, "- item" lists, comments) ---
 function parseInlineMap(v, file, line) {
@@ -442,6 +443,7 @@ const OPTION_SPEC = {
   registry: { "--json": false },
   materialize: { "--profile": true, "--mode": true, "--treatment": true, "--check": false, "--json": false },
   manifest: { "--json": false },
+  selection: { "--check": false, "--write": false, "--json": false },
   typography: { "--json": false },
   "typography-check": { "--json": false },
   pageframe: { "--h1-lines": true, "--eyebrow": true, "--subtitle": true, "--support": true, "--footer": true, "--content-height": true, "--json": false },
@@ -637,7 +639,7 @@ function computePageFrame(P, opts) {
 function main() {
   preflight({ entrypointUrl: import.meta.url });
   const [cmd, ...restAll] = process.argv.slice(2);
-  if (!cmd || !(cmd in OPTION_SPEC)) fail(2, "usage: skin.mjs validate|resolve <profile.yaml> [options] | registry [--json]");
+  if (!cmd || !(cmd in OPTION_SPEC)) fail(2, "usage: skin.mjs validate|resolve <profile.yaml> [options] | registry|manifest|selection [--json]");
   let profileArg = null, rest = restAll, selectionBasis = "explicit-path", svgArg = null;
   if (cmd === "pageframe") {
     const preset = restAll[0];
@@ -684,6 +686,71 @@ function main() {
       console.log(`pageframe ${preset} (${P.orientation}) — header ${out.headerRegion.y}..${out.headerRegion.y + out.headerRegion.h} (${out.headerRegion.h}px), contentBox ${JSON.stringify(out.contentBox)}, footer: ${out.footerRule}`);
     }
     process.exit(0);
+  }
+  if (cmd === "selection") {
+    // selection table은 손으로 유지하는 사본이 아니라 manifest에서 **파생된 view**다.
+    // manifest의 selection_signal이 SSoT이고, 이 명령이 view를 생성(--write)하거나
+    // 커밋된 view가 manifest와 어긋났는지 검증(--check)한다.
+    const so = parseOptions("selection", restAll);
+    const mPath = path.resolve(here, "..", "references", "types", "manifest.yaml");
+    const viewPath = path.resolve(here, "..", "references", "types", "selection.md");
+    const errors = [];
+    let doc;
+    try { ({ doc } = readYaml(mPath)); } catch (e) { fail(1, `selection: ${e.message}`); }
+    const mr = spawnSync(process.execPath, [fileURLToPath(import.meta.url), "manifest", "--json"], { encoding: "utf8" });
+    let mj = null;
+    try { mj = JSON.parse(mr.stdout); } catch { errors.push("selection: manifest validation did not return JSON"); }
+    if (mj && mj.errors.length) errors.push(`selection: manifest is invalid (${mj.errors.length} error(s)) — fix the manifest before deriving the view`);
+    const packs = (doc.typepacks ?? []).slice().sort((a, b) => String(a.id).localeCompare(String(b.id)));
+    // 라우팅 view는 discovery copy다 — gated type은 노출하지 않고 개수만 남긴다.
+    const shown = packs.filter((p) => p.support !== "gated");
+    const gated = packs.length - shown.length;
+    const anchors = new Set();
+    for (const p of packs) {
+      if (anchors.has(p.canonical_prompt)) errors.push(`selection: duplicate canonical_prompt anchor "${p.canonical_prompt}"`);
+      anchors.add(p.canonical_prompt);
+    }
+    const esc = (v) => String(v).replace(/\|/g, "\\|");
+    // spec 링크는 view 파일 위치 기준 상대경로여야 한다(manifest의 spec은 references/ 기준)
+    const specHref = (spec) => path.relative(path.dirname(viewPath), path.resolve(here, "..", "references", String(spec))).split(path.sep).join("/");
+    const rows = shown.map((p) => `| ${esc(p.selection_signal)} | \`${p.id}\` | ${p.profile} | ${p.support} | [spec](${specHref(p.spec)}) | \`${p.canonical_prompt}\` |`);
+    const view = [
+      "<!-- GENERATED VIEW — do not edit by hand.",
+      "     Source of truth: references/types/manifest.yaml (`selection_signal`).",
+      "     Regenerate with `node scripts/skin.mjs selection --write`;",
+      "     `node scripts/skin.mjs selection --check` fails when this file drifts. -->",
+      "",
+      "# TypePack selection",
+      "",
+      "무엇을 보여줄지에서 시작해 TypePack을 고른다. 각 행의 spec이 그 타입의 입력 계약·",
+      "레이아웃 수식·검증 체크리스트를 소유한다.",
+      "",
+      "| 내용 신호 | TypePack | profile | support | spec | canonical prompt |",
+      "| --- | --- | --- | --- | --- | --- |",
+      ...rows,
+      "",
+      `등록된 TypePack ${packs.length}개 중 ${shown.length}개를 노출한다` +
+        (gated ? ` (gated ${gated}개는 machine verifier와 receipt가 준비될 때까지 discovery copy에서 제외).` : "."),
+      "",
+    ].join("\n");
+    const current = (() => { try { return readFileSync(viewPath, "utf8"); } catch { return null; } })();
+    const drifted = current !== view;
+    if (so["--write"]) {
+      // 생성 view를 package에 쓰는 것은 개발 작업이다 — 설치 실행에서는 허용하지 않는다.
+      if (state()?.mode !== "source-development")
+        fail(1, "selection --write requires source-development execution (run it from the repository that owns the package)");
+      if (!errors.length) writeFileSync(viewPath, view);
+    } else if (so["--check"]) {
+      if (current === null) errors.push("selection: references/types/selection.md is missing — regenerate it with --write");
+      else if (drifted) errors.push("selection: references/types/selection.md is out of date with the manifest (regenerate with --write)");
+    }
+    const receipt = { schemaVersion: 1, command: "selection", kernelVersion: "kernel-v1",
+      registered: packs.length, shown: shown.length, gated, drifted, errors, warnings: [] };
+    if (so["--json"]) console.log(JSON.stringify(receipt, null, 1));
+    else if (so["--check"] || so["--write"]) console.log(`selection — ${packs.length} registered, ${shown.length} shown, ${errors.length} error(s)`);
+    else process.stdout.write(view);
+    for (const e of errors) console.error(`ERROR ${e}`);
+    process.exit(errors.length ? 1 : 0);
   }
   if (cmd === "typography") {
     const tArg = restAll[0] && !restAll[0].startsWith("--") ? restAll[0] : null;

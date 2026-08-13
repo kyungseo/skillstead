@@ -242,6 +242,67 @@ test("micro-fixtures: connector shafts and visible heads meet the preset minimum
   assert.ok(mw * 8 / 12 >= arrow["min-visible-head"], "visible head below minimum");
 });
 
+// --- TypePack manifest + derived selection view (Wave 1 CP1A) ---------------
+test("selection view는 manifest에서 파생되고 drift는 --check가 잡는다", () => {
+  const view = path.join(here, "..", "references", "types", "selection.md");
+  const ok = run(["selection", "--check", "--json"]);
+  assert.equal(ok.code, 0, ok.out);
+  const j = JSON.parse(ok.out);
+  assert.equal(j.drifted, false);
+  assert.ok(j.registered >= 2 && j.shown === j.registered - j.gated);
+
+  const before = fs.readFileSync(view, "utf8");
+  try {
+    fs.writeFileSync(view, before.replace(/constrained-layout/, "editorial-composition"));
+    const drift = run(["selection", "--check"]);
+    assert.equal(drift.code, 1, drift.out);
+    assert.match(drift.out, /out of date with the manifest/);
+  } finally { fs.writeFileSync(view, before); }
+});
+
+test("selection view는 결정적이다(manifest 순서와 무관)", () => {
+  const a = run(["selection"]);
+  const b = run(["selection"]);
+  assert.equal(a.code, 0, a.out);
+  assert.equal(a.out, b.out, "같은 manifest는 같은 view를 낳아야 한다");
+  assert.match(a.out, /GENERATED VIEW — do not edit by hand/);
+});
+
+test("selection --write는 개발 모드에서만 허용된다", () => {
+  const r = run(["selection", "--write"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /requires source-development execution/);
+});
+
+test("manifest: 등록된 TypePack의 spec 경로와 anchor 유일성", () => {
+  const m = run(["manifest", "--json"]);
+  assert.equal(m.code, 0, m.out);
+  assert.equal(JSON.parse(m.out).errors.length, 0);
+  const doc = readFileSync(path.join(here, "..", "references", "types", "manifest.yaml"), "utf8");
+  const anchors = [...doc.matchAll(/canonical_prompt:\s*(\S+)/g)].map((x) => x[1]);
+  assert.equal(new Set(anchors).size, anchors.length, "canonical_prompt anchor는 유일해야 한다");
+  for (const id of ["cards-kpi-grid", "layer-stack"])
+    assert.ok(fs.existsSync(path.join(here, "..", "references", "types", `${id}.md`)), `${id} spec이 있어야 한다`);
+});
+
+test("manifest negative: 중복 anchor·없는 spec·빈 selection_signal은 거부된다", () => {
+  const pkg = pkgCopy();
+  const mp = path.join(pkg, "references", "types", "manifest.yaml");
+  const base = fs.readFileSync(mp, "utf8");
+  const cases = [
+    [base.replace("PROMPT-GALLERY.md#layer-stack", "PROMPT-GALLERY.md#cards-kpi-grid"), /duplicate canonical_prompt anchor/, ["selection", "--check"]],
+    [base.replace("spec: types/layer-stack.md", "spec: types/no-such-type.md"), /spec path not found/, ["manifest"]],
+    [base.replace(/selection_signal: "아래 층[^"]*"/, 'selection_signal: ""'), /missing selection_signal/, ["manifest"]],
+  ];
+  for (const [content, re, args] of cases) {
+    fs.writeFileSync(mp, content);
+    const r = runIn(pkg, args);
+    assert.equal(r.code, 1, `${re}: ${r.out}`);
+    assert.match(r.out, re);
+  }
+  fs.rmSync(path.dirname(pkg), { recursive: true, force: true });
+});
+
 // --- pageframe fail-closed schema + fluid two-phase -------------------------------
 function pfNeg(file, args, re) {
   const pkg = pkgCopy();

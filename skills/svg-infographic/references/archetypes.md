@@ -16,6 +16,12 @@ This is the default visual language — the gallery look. Apply it unless the us
 - **Footer row (optional):** 2–4 small summary cards (icon + bold takeaway + caption) or a single muted rule-of-thumb strip, visually lighter than the body bands.
 - **Line styles:** solid = sync/request/normal path; dashed `5 4` = async/private/feedback. Add a small legend whenever both appear.
 
+> **Migration note (Wave 1).** The catalog is moving to TypePacks one type at a
+> time: a migrated type has a spec under `references/types/` and a row in the
+> generated `references/types/selection.md`. Where a type exists in both places,
+> the TypePack spec is authoritative and this section stays as the legacy summary
+> until it is removed.
+
 ## Layer stack
 
 **Choose when:** layered capability — each layer builds on or abstracts the one below (platform stacks, runtime layers, org capability models).

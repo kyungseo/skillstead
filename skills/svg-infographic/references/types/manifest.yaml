@@ -54,4 +54,44 @@
 
 schema_version: 2
 
-typepacks: []
+# Wave 1 migration in progress: the archetype catalog moves here one TypePack at a
+# time. `support` stays `experimental` until a type has its examples and fixtures;
+# `gated` types are registered but withheld from discovery copy.
+
+typepacks:
+  - id: cards-kpi-grid
+    selection_signal: "핵심 항목·수치 몇 개를 동등한 카드로 요약 (feature highlight·원칙·상태 카운트·역량 요약; 데이터 정확성을 주장하는 chart가 아님)"
+    profile: constrained-layout
+    support: experimental
+    spec: types/cards-kpi-grid.md
+    presets: [social-4x5, presentation-16x9]
+    orientations: [portrait, landscape]
+    verifier: null
+    fixtures: []
+    examples: []
+    required_roles: [canvas, surface, ink, muted, rule, focus]
+    optional_aliases: []
+    canonical_prompt: PROMPT-GALLERY.md#cards-kpi-grid
+    composition:
+      composable: true
+      min_slot_size: { w: 640, h: 240 }
+      preferred_slot_aspect: { min: 1.8, max: 3.2 }
+      allowed_slots: [top, middle]
+      variants:
+        - id: compact
+          min_slot_size: { w: 640, h: 180 }
+      ports:
+        - { template: item-anchor, direction: out, kind: reference, cardinality: 0..n }
+  - id: layer-stack
+    selection_signal: "아래 층을 기반으로 쌓이거나 추상화하는 계층 구조 (플랫폼 스택·런타임 계층·역량 모델)"
+    profile: constrained-layout
+    support: experimental
+    spec: types/layer-stack.md
+    presets: [social-4x5, presentation-16x9]
+    orientations: [portrait, landscape]
+    verifier: null
+    fixtures: []
+    examples: []
+    required_roles: [canvas, surface, ink, muted, rule, focus]
+    optional_aliases: []
+    canonical_prompt: PROMPT-GALLERY.md#layer-stack
