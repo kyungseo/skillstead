@@ -11,7 +11,7 @@
 // data-stroke-role annotations IN PLACE (same SVG — no second artifact) and
 // verifies role/value parity. --check verifies only (no write): unknown role or
 // paint/value mismatch exits 1; hand-typed canonical hex without an annotation is
-// reported as a warning (palette lint escalates it in CP3C). data-paint-static
+// reported as a warning (palette lint escalation is a later gate). data-paint-static
 // marks allowed non-token paint; fill="none" is always preserved.
 //
 // "current" resolves the registry-selected palette. Derivation/overlay are ALWAYS
@@ -177,22 +177,84 @@ function readYaml(p) {
 }
 
 const REGISTRY_SLOTS = [
-  ["current.palette", "palette", "current"],
-  ["current.derivation", "derivation", "current"],
-  ["overlays.sketch", "surface-treatment", "current"],
-  ["frozen.legacy", "frozen-allowlist", "frozen"],
+  ["current.palette", "palette", "current", null],
+  ["current.derivation", "derivation", "current", null],
+  ["current.typography", "typography", "current", "typography"],
+  ["overlays.sketch", "surface-treatment", "current", null],
+  ["frozen.legacy", "frozen-allowlist", "frozen", null],
 ];
+const TYPO_TREATMENTS = ["flat", "sketch"];
+const TYPO_LOCALES = ["ko", "en"];
+function loadTypography(errors, overridePath = null) {
+  const p = overridePath ? path.resolve(overridePath) : path.resolve(skinsDir, "..", "typography", "typography-v1.yaml");
+  let doc, digest;
+  try { ({ doc, digest } = readYaml(p)); } catch { errors.push("typography: typography-v1.yaml not found in references/typography/"); return null; }
+  validateIdentity(doc, "typography", "typography-v1", errors);
+  if (doc["remote-fonts"] !== "forbidden") errors.push('typography: remote-fonts must be "forbidden"');
+  const ROOT = ["schema_version", "id", "kind", "extends", "status", "remote-fonts", "treatments"];
+  for (const k of Object.keys(doc)) if (!ROOT.includes(k)) errors.push(`typography: unknown field "${k}"`);
+  const T = doc.treatments ?? {};
+  for (const t of TYPO_TREATMENTS) if (!(t in T)) errors.push(`typography: missing treatment "${t}"`);
+  for (const [t, cfg] of Object.entries(T)) {
+    if (!TYPO_TREATMENTS.includes(t)) { errors.push(`typography: unknown treatment "${t}"`); continue; }
+    const TK = ["locales", "fallback", "synthetic", "weight-policy", "asset", "license"];
+    for (const k of Object.keys(cfg)) if (!TK.includes(k)) errors.push(`typography: ${t}: unknown field "${k}"`);
+    if (cfg.synthetic !== "forbidden") errors.push(`typography: ${t}: synthetic must be "forbidden" (synthetic bold/italic is never allowed)`);
+    if ("weight-policy" in cfg && cfg["weight-policy"] !== "normalize-400") errors.push(`typography: ${t}: unknown weight-policy "${cfg["weight-policy"]}"`);
+    if (!Array.isArray(cfg.fallback) || cfg.fallback.length === 0 || cfg.fallback.some((f) => typeof f !== "string" || !f.trim()))
+      errors.push(`typography: ${t}: fallback must be a non-empty family list`);
+    for (const loc of TYPO_LOCALES) {
+      const L = cfg.locales?.[loc];
+      if (!L) { errors.push(`typography: ${t}: missing locale "${loc}"`); continue; }
+      for (const k of Object.keys(L)) if (!["face", "weights", "styles"].includes(k)) errors.push(`typography: ${t}.${loc}: unknown field "${k}"`);
+      if (typeof L.face !== "string" || !L.face.trim()) errors.push(`typography: ${t}.${loc}: face must be a non-empty string`);
+      if (!Array.isArray(L.weights) || L.weights.length === 0 || L.weights.some((w) => !Number.isFinite(Number(w)) || Number(w) < 1 || Number(w) > 1000))
+        errors.push(`typography: ${t}.${loc}: weights must be a non-empty list of numeric weights`);
+      if (!Array.isArray(L.styles) || L.styles.some((st) => !["normal", "italic"].includes(st)))
+        errors.push(`typography: ${t}.${loc}: styles must be within normal/italic`);
+    }
+    const A = cfg.asset ?? {};
+    if (!["system", "bundled", "bundled-on-selection"].includes(A.policy)) errors.push(`typography: ${t}: asset.policy must be system|bundled|bundled-on-selection`);
+    if (!["none", "subset"].includes(A.embed)) errors.push(`typography: ${t}: asset.embed must be none|subset`);
+    for (const k of Object.keys(A)) if (!["policy", "embed", "path", "source", "digest"].includes(k)) errors.push(`typography: ${t}: asset unknown field "${k}"`);
+    if (A.policy === "bundled") {
+      const ap = A.path ? path.resolve(skinsDir, "..", "..", String(A.path)) : null;
+      if (!ap) errors.push(`typography: ${t}: bundled asset requires path`);
+      else {
+        try {
+          const buf = readFileSync(ap);
+          const d = createHash("sha256").update(buf).digest("hex");
+          if (A.digest && d !== A.digest) errors.push(`typography: ${t}: asset digest mismatch — file ${d.slice(0, 16)}…, declared ${String(A.digest).slice(0, 16)}…`);
+        } catch { errors.push(`typography: ${t}: bundled asset not found at ${A.path}`); }
+        if (!A.digest) errors.push(`typography: ${t}: bundled asset requires digest`);
+      }
+    }
+    const Li = cfg.license ?? {};
+    if (typeof Li.id !== "string" || !Li.id.trim()) errors.push(`typography: ${t}: license.id required`);
+    if (!Array.isArray(Li.rfn)) errors.push(`typography: ${t}: license.rfn must be a list (empty when no Reserved Font Name is declared)`);
+    if (A.policy === "bundled") {
+      if (typeof Li.evidence !== "string" || !Li.evidence.trim()) errors.push(`typography: ${t}: bundled asset requires license.evidence path`);
+      else { try { readFileSync(path.resolve(skinsDir, "..", "..", Li.evidence)); } catch { errors.push(`typography: ${t}: license.evidence not found at ${Li.evidence}`); } }
+    }
+  }
+  return { doc, digest };
+}
+// 결정적 stack 직렬화 — face + fallback을 CSS 규칙(공백 포함 family만 quote)으로
+function serializeStack(face, fallback) {
+  return [face, ...fallback].map((f) => /[ ]/.test(f) && !f.startsWith("-") ? `"${f}"` : f).join(", ");
+}
 function loadRegistry(errors) {
   let reg = null, digest = null;
   try { const r = readYaml(path.join(skinsDir, "registry.yaml")); reg = r.doc; digest = r.digest; }
   catch { errors.push("registry.yaml not found in references/skins/"); return null; }
   const get = (dotted) => dotted.split(".").reduce((o, k) => o?.[k], reg);
   const selected = {};
-  for (const [slot, kind, status] of REGISTRY_SLOTS) {
+  for (const [slot, kind, status, sub] of REGISTRY_SLOTS) {
     const id = get(slot);
     if (!id) { errors.push(`registry: missing ${slot} selection`); continue; }
+    const dir = sub ? path.resolve(skinsDir, "..", sub) : skinsDir;
     try {
-      const { doc } = readYaml(path.join(skinsDir, `${id}.yaml`));
+      const { doc } = readYaml(path.join(dir, `${id}.yaml`));
       if (doc.id !== id) errors.push(`registry: ${slot} -> ${id}.yaml has id "${doc.id}"`);
       if (doc.kind !== kind) errors.push(`registry: ${slot} -> ${id} kind "${doc.kind}" (expected ${kind})`);
       if (doc.status !== status) errors.push(`registry: ${slot} -> ${id} status "${doc.status}" (expected ${status})`);
@@ -374,6 +436,8 @@ const OPTION_SPEC = {
   registry: { "--json": false },
   materialize: { "--profile": true, "--mode": true, "--treatment": true, "--check": false, "--json": false },
   manifest: { "--json": false },
+  typography: { "--json": false },
+  "typography-check": { "--json": false },
   pageframe: { "--h1-lines": true, "--eyebrow": true, "--subtitle": true, "--support": true, "--footer": true, "--content-height": true, "--json": false },
 };
 function parseOptions(cmd, rest) {
@@ -594,7 +658,7 @@ function main() {
     const out = computePageFrame(P, opts);
     if (!out.fluid && (out.contentBox.h == null || out.contentBox.h <= 0)) fail(1, `preset ${preset}: computed contentBox height is not positive (${out.contentBox.h}) — canvas too small for the requested regions`);
     if (out.contentBox.w <= 0) fail(1, `preset ${preset}: computed contentBox width is not positive (${out.contentBox.w})`);
-    const receipt = { schemaVersion: 1, command: "pageframe", kernelVersion: "wave0-cp2",
+    const receipt = { schemaVersion: 1, command: "pageframe", kernelVersion: "kernel-v1",
       profile: { id: pf.doc.id, digest: pf.digest }, preset, orientation: P.orientation,
       canvas: { width: P["canvas-width"], height: P["canvas-height"] },
       options: opts, arrow: P.arrow, "scale-band": pf.doc["scale-band"], regions: out, errors: [], warnings: [] };
@@ -603,6 +667,115 @@ function main() {
       console.log(`pageframe ${preset} (${P.orientation}) — header ${out.headerRegion.y}..${out.headerRegion.y + out.headerRegion.h} (${out.headerRegion.h}px), contentBox ${JSON.stringify(out.contentBox)}, footer: ${out.footerRule}`);
     }
     process.exit(0);
+  }
+  if (cmd === "typography") {
+    const tArg = restAll[0] && !restAll[0].startsWith("--") ? restAll[0] : null;
+    const to = parseOptions("typography", tArg ? restAll.slice(1) : restAll);
+    const errors = [];
+    const typo = loadTypography(errors, tArg);
+    const receipt = { schemaVersion: 1, command: "typography", kernelVersion: "kernel-v1",
+      profileDigest: typo?.digest ?? null,
+      treatments: typo && !errors.length ? Object.fromEntries(Object.entries(typo.doc.treatments).map(([t, cfg]) => [t, {
+        ko: cfg.locales.ko.face, en: cfg.locales.en.face,
+        weights: cfg.locales.ko.weights, weightPolicy: cfg["weight-policy"] ?? null,
+        stack: serializeStack(cfg.locales.ko.face, cfg.fallback),
+        asset: cfg.asset, rfn: cfg.license.rfn }])) : null,
+      errors, warnings: [] };
+    if (to["--json"]) console.log(JSON.stringify(receipt, null, 1));
+    else {
+      console.log(`typography — ${errors.length} error(s)` + (receipt.treatments ? ` · flat=${receipt.treatments.flat.ko} sketch=${receipt.treatments.sketch.ko}` : ""));
+      for (const e of errors) console.log(`  ERROR ${e}`);
+    }
+    process.exit(errors.length ? 1 : 0);
+  }
+  if (cmd === "typography-check") {
+    // 정적 effective-font 검증 (composite wrapper font 유실 차단).
+    // 규칙: sketch scope(root data-treatment="sketch" 또는 wrapper data-typography-scope)
+    // 안의 모든 text/tspan은 (a) scope family로 해석되거나 (b) 명시적 secondary
+    // annotation을 가져야 한다. 단독 pre-gate 결과로 composite 검사를 대체할 수 없다 —
+    // 이 명령은 최종 파일 자체를 검사한다. 증거 수준: computed cascade (rendered-face
+    // proof 아님 — runtime 확인은 font-probe.mjs가 별도 수준으로 기록).
+    const files = restAll.filter((a) => !a.startsWith("--"));
+    const tco = parseOptions("typography-check", restAll.filter((a) => a.startsWith("--")));
+    if (!files.length) fail(2, "typography-check requires at least one SVG path");
+    const perrs = [];
+    const typo = loadTypography(perrs);
+    if (perrs.length) fail(1, perrs[0]);
+    const sk = typo.doc.treatments.sketch;
+    const allowedWeights = new Set(sk.locales.ko.weights.map(Number));
+    const secondaryHead = sk.fallback[0];
+    let total = 0;
+    const receipts = [];
+    for (const file of files) {
+      const src = readFileSync(path.resolve(file), "utf8");
+      const errors = [];
+      const embedded = [];
+      for (const m of src.matchAll(/@font-face\s*{([^}]*)}/g)) {
+        const fam = m[1].match(/font-family:\s*'([^']+)'/)?.[1];
+        if (!fam) { errors.push("E-TYPO-FACE @font-face without a quoted font-family"); continue; }
+        if (!/src:\s*url\(data:/.test(m[1])) errors.push(`E-TYPO-REMOTE @font-face "${fam}" src is not a data: URI — remote fonts are forbidden`);
+        embedded.push(fam);
+      }
+      const rootTag = src.match(/<svg[^>]*>/)?.[0] ?? "";
+      const rootSketch = (rootTag.match(/data-treatment\s*=\s*("([^"]*)"|'([^']*)')/)?.[2]
+        ?? rootTag.match(/data-treatment\s*=\s*("([^"]*)"|'([^']*)')/)?.[3]) === "sketch";
+      const firstFam = (v) => String(v).split(",")[0].trim().replace(/^['"]|['"]$/g, "");
+      const attrOf = (tag, name) => {
+        const a = tag.match(new RegExp(name + "\\s*=\\s*(\"([^\"]*)\"|'([^']*)')"));
+        return a ? (a[2] ?? a[3]) : null;
+      };
+      const styleOf = (tag, prop) => {
+        const st = attrOf(tag, "style");
+        const m2 = st?.match(new RegExp(prop + ":\\s*([^;\"}]+)"));
+        return m2 ? m2[1].trim() : null;
+      };
+      const famOf = (tag) => attrOf(tag, "font-family") ?? styleOf(tag, "font-family");
+      const weightOf = (tag) => attrOf(tag, "font-weight") ?? styleOf(tag, "font-weight");
+      // stack: [ {scope, family} ] — g/svg 진입 시 push
+      const stack = [];
+      let texts = 0;
+      for (const m of src.matchAll(/<(\/?)([A-Za-z][A-Za-z0-9-]*)((?:[^>"']|"[^"]*"|'[^']*')*?)(\/?)>/g)) {
+        const [, close, name, attrs, self] = m;
+        if (close) { if (["g", "svg", "text"].includes(name)) stack.pop(); continue; }
+        const fam = famOf(m[0]);
+        const scopeAttr = attrOf(m[0], "data-typography-scope")
+          ?? (name === "svg" && rootSketch ? (embedded[0] ?? sk.locales.ko.face) : null);
+        // F2: weight도 상속 stack으로 계산 (상위 g의 style/attr 700 상속 검출)
+        const w0 = weightOf(m[0]);
+        const frame = { scope: scopeAttr ?? stack.at(-1)?.scope ?? null,
+                        family: fam ? firstFam(fam) : stack.at(-1)?.family ?? null,
+                        weight: w0 ?? stack.at(-1)?.weight ?? null };
+        if (!self && ["g", "svg", "text"].includes(name)) stack.push(frame);
+        if (name !== "text" && name !== "tspan") continue;
+        const inScope = frame.scope != null;
+        if (!inScope) continue;
+        texts++;
+        const secondary = attrOf(m[0], "data-typography-role") === "secondary";
+        const eff = frame.family;
+        if (secondary) {
+          if (!eff || firstFam(eff) !== firstFam(secondaryHead))
+            errors.push(`E-TYPO-SECONDARY <${name}> annotated secondary must resolve to "${secondaryHead}" (got "${eff}")`);
+        } else if (!eff || eff !== frame.scope) {
+          errors.push(`E-TYPO-LOST <${name}> in scope "${frame.scope}" resolves to "${eff ?? "(document default)"}" — the wrapper lost the typography alias (silent fallback)`);
+        } else {
+          const w = frame.weight;
+          if (w != null && !allowedWeights.has(Number(w)))
+            errors.push(`E-TYPO-WEIGHT <${name}> resolves to weight ${w} (inherited cascade included) but the sketch face supports [${[...allowedWeights].join(", ")}] — synthetic weights are forbidden`);
+        }
+      }
+      const hasMarkers = rootSketch || /data-typography-(scope|role)\s*=/.test(src);
+      if (hasMarkers && texts === 0)
+        errors.push("E-TYPO-EMPTY typography markers present but no scoped text was recognized — malformed annotation must not degrade to \"nothing to check\"");
+      total += errors.length;
+      receipts.push({ file: path.basename(file), embeddedFamilies: embedded, rootSketchScope: rootSketch,
+        textsChecked: texts, evidenceLevel: "computed-cascade (static) — not rendered-face proof", errors });
+      if (!tco["--json"]) {
+        console.log(`${path.basename(file)} — scope texts ${texts}, embedded [${embedded.join(", ")}], ${errors.length} error(s)`);
+        for (const e of errors) console.log(`  ERROR ${e}`);
+      }
+    }
+    if (tco["--json"]) console.log(JSON.stringify({ schemaVersion: 1, command: "typography-check", profileDigest: typo.digest, files: receipts, errors: total }, null, 1));
+    process.exit(total ? 1 : 0);
   }
   if (cmd === "manifest") {
     const arg = restAll[0] && !restAll[0].startsWith("--") ? restAll[0] : null;
@@ -631,7 +804,7 @@ function main() {
         try { readFileSync(specPath); } catch { errors.push(`manifest: ${id}: spec path not found (${p.spec})`); }
       }
       if (!p.selection_signal) errors.push(`manifest: ${id}: missing selection_signal`);
-      // full locked-schema validation (Wave 0 CP2 계약 전체 — CP5-R1B)
+      // full locked-schema validation (kernel 계약 전체)
       const FIELDS = ["id", "selection_signal", "profile", "support", "spec", "presets",
         "orientations", "verifier", "fixtures", "examples", "required_roles",
         "optional_aliases", "canonical_prompt", "composition"];
@@ -746,7 +919,7 @@ function main() {
       ...(ctx.registry ? { registry: { digest: ctx.registry.digest, selectionBasis } } : {}),
       mode, treatment, updated: findings.updated, verified: findings.verified,
       staticKept: findings.staticKept,
-      kernelVersion: "wave0-cp2",
+      kernelVersion: "kernel-v1",
       sourceDigest: sha(text),
       warnings: findings.unannotated.map((u) => `unannotated canonical hex ${u.value} on ${u.attr} (add a role annotation or data-paint-static)`),
       errors,
@@ -822,7 +995,7 @@ function main() {
     ...(ctx.registry ? { registry: { digest: ctx.registry.digest, selected: ctx.registry.selected, selectionBasis } } : {}),
     errors: ctx.errors,
     warnings: ctx.warnings,
-    provenance: { kernel: "wave0-cp2", palette: ctx.prof.id, extension_point: null },
+    provenance: { kernel: "kernel-v1", palette: ctx.prof.id, extension_point: null },
   };
   if (cmd === "validate") {
     if (!ctx.errors.length && ctx.prof.kind === "palette") receipt.contrast = contrastMatrix(ctx.prof, MODES);
@@ -841,6 +1014,16 @@ function main() {
   receipt.contrast = contrastMatrix(ctx.prof, [mode]); // always in the resolve receipt
   receipt.tokens = tokens;
   receipt.resolvedDigest = sha(JSON.stringify(tokens));
+  // typography는 독립 축이지만 소비자가 한 번에 받도록 resolve receipt에 동봉한다
+  const typoErrors = [];
+  const typo = loadTypography(typoErrors);
+  if (typoErrors.length) { receipt.errors.push(...typoErrors); printReceipt(receipt, opts["--json"]); process.exit(1); }
+  const tcfg = typo.doc.treatments[treatment];
+  receipt.typography = { profileDigest: typo.digest, treatment,
+    locales: { ko: tcfg.locales.ko, en: tcfg.locales.en },
+    fallback: tcfg.fallback, weightPolicy: tcfg["weight-policy"] ?? null,
+    synthetic: tcfg.synthetic,
+    stack: serializeStack(tcfg.locales.ko.face, tcfg.fallback) };
   printReceipt(receipt, opts["--json"]);
   process.exit(0);
 }
@@ -874,7 +1057,7 @@ export function allowedPaintSet(profileId) {
 }
 
 // entrypoint guard: run main() based on real paths so symlinked installs still execute
-// (silent-pass hardening for all scripts completes in CP3).
+// (silent-pass hardening applies to all scripts).
 try {
   const argvReal = realpathSync(process.argv[1]);
   const selfReal = realpathSync(fileURLToPath(import.meta.url));

@@ -1,8 +1,8 @@
 # TypePack manifest — single registration point for diagram/infographic types.
 # Adding a type = one TypePack directory + one entry here. Core engine (generic lint,
-# renderer, resolver) is not modified by type additions (post-Wave-0 invariant).
+# renderer, resolver) is not modified by type additions (kernel invariant).
 #
-# Entry schema (locked in Wave 0 CP2):
+# Entry schema (locked with the design kernel, 2026-08):
 #   id:               unique kebab-case
 #   selection_signal: content signals that route a request to this type (the
 #                     selection table is DERIVED from these — no hand-kept copy)
@@ -47,8 +47,8 @@
 # positive + duplicate/missing-path negative fixtures. TypePacks declare role
 # requirements only — no hex values, no palette ids.
 #
-# Population happens in Wave 1 (archetype migration) and Wave 2 (structural types).
-# Wave 0 pilots register here when promoted.
+# Population happens as the archetype catalog migrates to TypePacks; pilots
+# register here only when promoted.
 
 schema_version: 2
 

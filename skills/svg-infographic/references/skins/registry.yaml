@@ -5,6 +5,7 @@ schema_version: 1
 current:
   palette: current-v1
   derivation: derivation-v1
+  typography: typography-v1
 overlays:
   sketch: sketch-overlay-v1
 frozen:

@@ -11,7 +11,7 @@ An **opt-in** visual preset: paper background, Korean-capable handwriting font, 
 Warm paper, single warm ink, highlighter accent. Canonical values come from the
 sketch overlay profile `references/skins/sketch-overlay-v1.yaml` (resolve with
 `node scripts/skin.mjs resolve references/skins/current-v1.yaml --mode light --treatment sketch`
-— Wave 0 supports sketch in **light mode only**):
+— the kernel supports sketch in **light mode only**):
 
 ```xml
 <!-- Canonical sketch output uses direct paint + role annotations, like flat
@@ -27,7 +27,7 @@ sketch overlay profile `references/skins/sketch-overlay-v1.yaml` (resolve with
 The multi-hue pastel families (`--a-*` … `--g-*`) of pre-kernel sketch examples are
 **deprecated**: they are the largest measured drift slice in the current gallery.
 New sketch output uses paper + sketch-ink + highlight (plus derived muted); existing
-examples keep their palettes only until the Wave 1 regeneration.
+examples keep their palettes only until the catalog regeneration.
 
 Roles still encode meaning (ok = green, warning = yellow/orange, danger = red). Label ink per box: a darker shade of the box's stroke family.
 
@@ -63,21 +63,20 @@ Roles still encode meaning (ok = green, warning = yellow/orange, danger = red). 
 
 ## 3. Handwriting font (embed, don't assume)
 
-No platform ships a Korean handwriting font, so the SVG must embed one as a base64 `@font-face` data URI. Use an **OFL-licensed** font — default **Nanum Pen Script** (round, legible); alternatives: Gaegu, Hi Melody.
+No platform ships a Korean handwriting font, so the SVG must embed one as a base64 `@font-face` data URI. The canonical sketch face is owned by the **typography profile SSoT** (`references/typography/typography-v1.yaml`): **Hi Melody** (OFL-1.1, no Reserved Font Name), bundled at `assets/fonts/HiMelody-Regular.ttf` with its license — no download needed for authoring. Embed a **glyph subset** under the neutral internal alias (`HiMelody-Subset`), keep every text role at **weight 400** (regular-only face — synthetic bold is forbidden and `typography-check` rejects it), and wrap glyphs the face does not cover in an explicit `<tspan data-typography-role="secondary" font-family="Pretendard, sans-serif">` — silent fallback fails the render gate.
 
-**Subset before embedding whenever possible.** A full Korean TTF is ~3MB (≈4MB SVG). Subsetting to the glyphs actually used yields tens of KB:
+**Subset before embedding — always.** The bundled Hi Melody TTF is ~12MB (a full-font embed would be a ~16MB SVG and is forbidden). Subsetting to the glyphs actually used yields tens of KB:
 
 ```bash
-# 1. get the font (OFL — keep the license notice in your provenance/README)
-curl -sL -o /tmp/NanumPenScript.ttf \
-  "https://github.com/google/fonts/raw/main/ofl/nanumpenscript/NanumPenScript-Regular.ttf"
+# 1. the canonical face ships with the skill (license: assets/fonts/HiMelody-OFL.txt)
 # 2. collect the exact text used in the SVG, then subset (needs fonttools: pip install fonttools)
-pyftsubset /tmp/NanumPenScript.ttf --text-file=used-chars.txt \
-  --output-file=hand-subset.ttf --layout-features='*' --hinting
-# 3. base64-embed hand-subset.ttf in the <style> @font-face
+pyftsubset assets/fonts/HiMelody-Regular.ttf --text-file=used-chars.txt \
+  --flavor=woff2 --output-file=hand-subset.woff2 --layout-features='*' --hinting
+# 3. base64-embed hand-subset.woff2 as @font-face { font-family:'HiMelody-Subset'; ... }
+# 4. verify: node scripts/skin.mjs typography-check out.svg  (renderer도 자동 실행)
 ```
 
-- No `fonttools` available → full embed is acceptable for a one-off, but **warn the user about the ~4MB SVG** and note the PNG is the shareable artifact.
+- No `fonttools` available → **do not silently fall back to a full embed** (the bundled TTF is ~12MB; a full embed is a ~16MB SVG and nonconforming). Offer to set up the subset tool (`pip install fonttools`) or propose the flat treatment instead.
 - **Subset gotcha (add to pre-render checklist for sketch):** the subset contains only the glyphs present at subset time. **Any text edit requires re-subsetting**, or the new characters render as tofu. When verifying the PNG, check every label — a missing glyph looks exactly like the CJK-tofu failure.
 - EN/KO variants: subset each variant's own text (or one union subset for both).
 
@@ -103,5 +102,5 @@ On top of the standard §7 quality bar:
 - every glyph renders (subset completeness — check *each* label on the PNG)
 - rough displacement didn't clip at any filter region edge
 - highlighter sits under, not over, its text; label ink still reads on pastel fills
-- file size reported to the user (subset SVG tens-of-KB vs full-embed ~4MB)
+- file size reported to the user (conforming subset SVG is tens of KB; a full embed would be ~16MB and is forbidden)
 - OFL license notice recorded where the asset ships (example README / provenance)

@@ -3,7 +3,7 @@
 # Generators must not scatter ad-hoc hex values or mix ratios.
 #
 # mix(a, b, t) = linear sRGB interpolation from a toward b by t.
-# Owner neutral-hierarchy adjustment (2026-08-12) lowered wide-area fill saturation:
+# approved neutral-hierarchy adjustment (2026-08-12) lowered wide-area fill saturation:
 # fills mix farther toward the background than the pre-adjustment candidates did.
 
 schema_version: 1

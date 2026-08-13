@@ -5,16 +5,16 @@ and connector rules stay in `authoring.md`; archetype recipes stay in `archetype
 This file owns **identity**: what makes any two outputs read as one product.
 
 Approved canonical skin (decision provenance: *Selected canonical skin — Candidate C +
-Owner neutral-hierarchy adjustment*, 2026-08-12):
+approved neutral-hierarchy adjustment*, design review 2026-08-12):
 
 ![Approved svg-infographic canonical skin](media/canonical-skin-contact-sheet.png)
 
 [Editable SVG](media/canonical-skin-contact-sheet.svg) — both files are an **approved
 snapshot, synchronized with the `current-v1` profile**. They are not the palette
 source of truth (§3), and they become regenerated profile consumers once the recolor
-pipeline (`skin.mjs contact-sheet`, reserved) lands. The snapshot SVG references a
-locally installed handwriting font for its sketch slot (no `@font-face` embed); the
-PNG carries the approved rendering.
+pipeline (`skin.mjs contact-sheet`, reserved) lands. In the snapshot SVG the sketch
+slots embed the canonical handwriting subset as an `@font-face` data URI (per the
+typography profile contract); the PNG carries the approved rendering.
 
 ## 1. Design kernel
 
@@ -94,7 +94,7 @@ node scripts/skin.mjs registry
 
 Resolution model: `palette × mode × treatment` without duplicate definitions, with
 a receipt (profile digests, resolved-token digest, selected-mode contrast matrix).
-Wave 0 supported combinations — anything else is rejected fail-closed:
+Supported combinations — anything else is rejected fail-closed:
 
 | treatment | light | dark |
 | --- | --- | --- |
@@ -105,22 +105,35 @@ Candidate palettes use `status: candidate` and a single shallow `extends`; the
 `current` pointer moves only in `registry.yaml` after owner approval. Role
 add/remove is a kernel migration, not a profile edit.
 
-## 4. Typography (canonical, owner-approved 2026-08-12)
+## 4. Typography (canonical — SSoT: `references/typography/typography-v1.yaml`)
 
-- Canonical family for **both KO and EN**: **Pretendard**.
-- Fallback chain: `Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`.
-  No remote font loading (Google Fonts included) — outputs stay self-contained.
+Typography는 palette/treatment와 독립된 축으로, family/face/weight/style·fallback·
+synthetic 정책·asset/embed 정책·license를 **typography profile**이 단일 소유한다
+(registry `current.typography` 선택; 크기·행간은 PageFrame scale band 소유 유지).
+sketch face는 audition으로 **Hi Melody**가 선정됐다(design review, 2026-08-13) — regular
+단일 face, role weight 400 정규화, shipped sketch 산출물은 glyph subset embed
+(`assets/fonts/` 원본 + license). `skin.mjs typography-check`가 최종 산출물(단독·
+composite 모두)의 effective font cascade를 fail-closed 검증하고, `font-probe.mjs`가
+runtime receipt(computed family + FontFaceSet load check — rendered-face 증명 아님을
+명시)를 남긴다.
+
+- **flat** (KO/EN 공용): **Pretendard**, fallback `Inter, -apple-system,
+  BlinkMacSystemFont, "Segoe UI", sans-serif` (system fonts — no embed).
+- **sketch** (KO/EN 공용): **embedded Hi Melody subset**, weight **400** 고정,
+  fallback `Pretendard, sans-serif` (명시적 secondary role에서만).
+- No remote font loading (Google Fonts included) — outputs stay self-contained.
 - The fallback chain carries no dedicated CJK entry: when Pretendard is unavailable,
-  KO glyphs resolve through the OS cascade. A font-availability/fallback entry in the
-  render receipt is **reserved — not yet implemented** (named follow-up
-  `svg-infographic-font-availability-receipt`, scheduled with the typography-profile
-  SSoT before the sketch typography audition); until it lands, verify tofu/fallback
-  visually in the 2× PNG. KO/EN fixtures verify wrapping, containment and geometry
-  parity.
+  KO glyphs resolve through the OS cascade (flat treatment only — sketch embeds its
+  subset). Effective-font verification is implemented: `skin.mjs typography-check`
+  (static cascade, renderer hard gate) and `scripts/font-probe.mjs` (runtime
+  FontFaceSet load + computed family receipt — not rendered-face proof). Verify
+  tofu visually in the 2× PNG as the glyph-level complement. KO/EN fixtures verify
+  wrapping, containment and geometry parity.
 - A locally bundled Inter may later become an *optional typography profile*, kept
   separate from palette profiles. Until then typography does not fork.
 - Shipped sketch artifacts subset-embed an OFL handwriting font (`sketch.md`); review
-  snapshots that merely reference a locally installed font must say so.
+  snapshots must embed the profile subset — a snapshot that merely references a
+  locally installed font is nonconforming and must be regenerated.
 
 ## 5. Portable resolved output (PPT-oriented)
 
@@ -175,9 +188,9 @@ Contract for distributed canonical SVG:
   `currentColor`) vs **positive** (same geometry, per-shape direct paint) —
   canonical artifacts use the positive form.
 
-Delivery: the contract and annotation schema land in Wave 0 CP2 (this section);
-the direct-paint lint/materializer and negative fixtures in CP3; portable pilot
-generation with PNG parity in CP4. If real PPT import verification is not possible
+Delivery: the contract and annotation schema land first (this section); then the
+direct-paint lint/materializer with negative fixtures; then portable pilot
+generation with PNG parity. If real PPT import verification is not possible
 there, it is recorded as **unverified** and queued as follow-up work.
 
 ## 6. PageFrame & layout contract
@@ -230,7 +243,7 @@ Canvas → Safe area
 - **Minimal variant: H-B** — the same stack without the locator.
 - **Rejected: the vertical accent rail** (unstable length/boundary across 1–2-line
   titles; ambiguous representative scope). Never regenerate it in new output;
-  legacy examples keep it only until the Wave 1 regeneration. H-D open-callout
+  legacy examples keep it only until the catalog regeneration. H-D open-callout
   variants live in review evidence only.
 - Decoration derives from the computed header cluster bounds — it never owns its
   own coordinates.
@@ -358,8 +371,8 @@ annotations is a named follow-up (`svg-infographic-semantic-region-annotation`).
   light/dark/sketch profiles on one canvas for review, so it is *not* an ordinary
   canonical-output surface and is not linted under a single `--palette-profile`
   (its pilots are linted individually under their own profiles). It is regenerated
-  from resolver output + materializer-verified pilots (generator lineage: Work
-  FEAT-20260812-001 evidence); package-local automatic regeneration
+  from resolver output + materializer-verified pilots (generator lineage: design review
+  evidence); package-local automatic regeneration
   (`skin.mjs contact-sheet`) stays **reserved** and the recolor/contact-sheet
   contract items stay **partial** until it lands.
 - Resolver receipts reserve the provenance identity shared by future SVG

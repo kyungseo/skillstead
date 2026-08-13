@@ -1,0 +1,53 @@
+# Typography profile — single SSoT for font families, faces, and asset policy.
+# Sizes and line rhythm stay owned by the PageFrame scale bands (pageframe-v1);
+# this profile owns family/face/weight/style, fallback order, synthetic policy,
+# asset/embed policy and license evidence. Selected through registry.yaml
+# (current.typography). Independent axis from palette/treatment profiles.
+schema_version: 1
+id: typography-v1
+kind: typography
+extends: null
+status: current
+remote-fonts: forbidden
+treatments:
+  flat:
+    locales:
+      ko:
+        face: Pretendard
+        weights: [400, 700]
+        styles: [normal]
+      en:
+        face: Pretendard
+        weights: [400, 700]
+        styles: [normal]
+    fallback: [Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif]
+    synthetic: forbidden
+    asset:
+      policy: system
+      embed: none
+    license:
+      id: OFL-1.1
+      rfn: []
+  sketch:
+    # Selected handwriting face: Hi Melody.
+    locales:
+      ko:
+        face: Hi Melody
+        weights: [400]
+        styles: [normal]
+      en:
+        face: Hi Melody
+        weights: [400]
+        styles: [normal]
+    fallback: [Pretendard, sans-serif]
+    synthetic: forbidden
+    weight-policy: normalize-400
+    asset:
+      policy: bundled
+      path: assets/fonts/HiMelody-Regular.ttf
+      source: google/fonts@038b637da7b3fd956a4ed93ffc607c3d5e4ce172
+      digest: 360d2c0a880918aa48328d1d9219f5390788d09a1c9353e12b471de018673ae6
+      embed: subset
+    license:
+      id: OFL-1.1
+      rfn: []
