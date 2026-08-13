@@ -550,11 +550,12 @@ function compose(planPath, opts) {
   if (problems.length && status === "ok") status = "invalid";
   const hdr = plan.header ?? {};
   // header treatment: 좌표 상수가 아니라 pageframe headerScale에서 파생한다.
-  // - locator(기본): eyebrow 앞 square locator, marker-label-row 산식(중앙 일치)
-  // - title-keyline: H1 line-box에서만 파생한 세로 keyline. locator와 중복 표시 금지,
-  //   eyebrow/H1/subtitle 텍스트 시작선은 하나로 정렬, gap/pad/width는 scale profile 소유
+  // - title-keyline(canonical default): H1 line-box에서만 파생한 세로 keyline.
+  //   locator와 중복 표시 금지, eyebrow/H1/subtitle 텍스트 시작선은 하나로 정렬,
+  //   gap/pad/width는 scale profile 소유
+  // - locator(대안 variant): eyebrow 앞 square locator, marker-label-row 산식(중앙 일치)
   const hs = pf.headerScale;
-  const hStyle = hdr.style ?? "locator";
+  const hStyle = hdr.style ?? "title-keyline";
   const textX = 40, h1Y = 92;
   const h1YLast = h1Y + (h1Lines.length - 1) * hs.h1LinePitch;
   const subtitleY = 124 + (h1Lines.length - 1) * hs.h1LinePitch;

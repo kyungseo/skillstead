@@ -434,10 +434,18 @@ test("R5-3: forged contentFlowBounds/residual은 재계산으로 거부", () => 
   assert.match(r.out, /E-COMP-FORGED receipt residual/);
 });
 
-// ---- marker-label-row primitive(P2) ----
-test("P2-3: compose header locator는 eyebrow line center에 정렬(52/56)", () => {
+// ---- marker-label-row primitive(P2) + header default(P3 확정) ----
+test("P2-3: default는 title-keyline, locator variant는 명시 선택 시 산식(52/56)대로", () => {
   const svg = fs.readFileSync(OUT, "utf8");
-  assert.match(svg, /cluster-locator[^>]*y="52"/);
+  assert.match(svg, /cluster-keyline/);
+  assert.doesNotMatch(svg, /cluster-locator/);
+  const p = mkPlan("k1-explicit.yaml", (s2) => s2.replace("header:\n", "header:\n  style: locator\n"));
+  const o = path.join(td, "k1e.svg");
+  const r = run(["compose", p, "--fragments", path.join(FIX, "fragments"), ...M, "--out", o, "--receipt", path.join(td, "k1e.json")]);
+  assert.equal(r.code, 0, r.out);
+  const svg2 = fs.readFileSync(o, "utf8");
+  assert.match(svg2, /cluster-locator[^>]*y="52"/);
+  assert.doesNotMatch(svg2, /cluster-keyline/);
 });
 
 // ---- title-keyline header treatment(P3) ----
@@ -447,8 +455,8 @@ const mkPlan = (name, mut) => {
   fs.writeFileSync(p, mut(src));
   return p;
 };
-test("P3-1: title-keyline은 H1 line-box에서 파생되고 locator를 대체한다 (browser verify)", () => {
-  const p = mkPlan("k2-1.yaml", (s2) => s2.replace("header:\n", "header:\n  style: title-keyline\n"));
+test("P3-1: canonical default(title-keyline)가 H1 line-box에서 파생되고 locator를 대체한다 (browser verify)", () => {
+  const p = mkPlan("k2-1.yaml", (s2) => s2);
   const o = path.join(td, "k2-1.svg"), rc = path.join(td, "k2-1.json");
   const r = run(["compose", p, "--fragments", path.join(FIX, "fragments"), ...M, "--out", o, "--receipt", rc]);
   assert.equal(r.code, 0, r.out);

@@ -235,11 +235,11 @@ Canvas → Safe area
 
 ### Header composition (owner-approved 2026-08-12)
 
-- **Canonical: H-C refined** — editorial stack. Optional eyebrow row with a small
-  blue locator (square, `rx 2`, size ≈ 0.6 × eyebrow font-size, `--focus`; eyebrow
-  text itself is `--muted`), then H1 (Pretendard, 1–2 lines), then optional muted
-  subtitle, then generous breathing room before the diagram. The locator exists
-  **only when the eyebrow exists**. No box, no wash, no full-width underline.
+- **Canonical: H-C refined with the computed title-keyline (K2, owner-approved
+  2026-08-13)** — editorial stack: optional `--muted` eyebrow row, then H1
+  (Pretendard, 1–2 lines) with a restrained `--focus` vertical keyline at its
+  left, then optional muted subtitle, then generous breathing room before the
+  diagram. No box, no wash, no full-width underline.
 - **Marker-label-row primitive**: the locator and eyebrow form an atomic row —
   `markerCenterY = labelLineCenterY` (an 8px locator against a central-baseline
   eyebrow at y sits at y − 4). The same primitive, annotated
@@ -248,18 +248,20 @@ Canvas → Safe area
   keys, callouts, section labels); a multi-line label aligns the marker to the
   **first** line center. Optical correction, if ever needed, becomes a shared
   token — per-file nudges are forbidden.
-- **Minimal variant: H-B** — the same stack without the locator.
-- **Title-keyline variant (K2, under design review as the next default)** — the
-  H-C stack with a restrained vertical keyline left of the title instead of the
-  square locator. The keyline derives from the **H1 line-box only**: top =
-  `titleTop − pad`, bottom = `titleBottom + pad` for 1- and 2-line titles alike;
-  width/gap/pad are PageFrame scale-profile tokens (`keyline-*-mult` × H1 size),
-  never fixed heights or per-string nudges. With a keyline the square locator is
-  **never double-marked**, and the eyebrow/H1/subtitle text starts align on one
-  line. This is *not* the rejected rail: it never spans the eyebrow~subtitle
-  stack, and lint fails it closed (span, pad symmetry, alignment). The
-  marker-label-row primitive stays canonical for legend keys, callouts and
-  section labels regardless of the header treatment.
+- **Title-keyline formula (canonical default)** — the keyline derives from the
+  **H1 line-box only**: top = `titleTop − pad`, bottom = `titleBottom + pad` for
+  1- and 2-line titles alike; width/gap/pad are PageFrame scale-profile tokens
+  (`keyline-*-mult` × H1 size), never fixed heights or per-string nudges. With a
+  keyline the square locator is **never double-marked**, and the eyebrow/H1/
+  subtitle text starts align on one line. This is *not* the rejected rail: it
+  never spans the eyebrow~subtitle stack, and lint fails it closed (span, pad
+  symmetry, alignment). Two-line titles recompute the contentBox
+  (`--h1-lines 2`), keeping slot budgets fail-closed.
+- **Square-locator variant (alternative)** — the same stack with a small blue
+  locator (square, `rx 2`, size ≈ 0.6 × eyebrow font-size, `--focus`) in front
+  of the eyebrow instead of the keyline; the locator exists **only when the
+  eyebrow exists**. Not the default — select it explicitly.
+- **Minimal variant: H-B** — the same stack without any accent.
 - **Rejected: the vertical accent rail** (unstable length/boundary across 1–2-line
   titles; ambiguous representative scope — the computed title-keyline above is
   the bounded redesign of that instinct, not its return). Never regenerate the
