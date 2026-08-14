@@ -159,6 +159,12 @@ export function routeEdges({ nodes, zones, plan, frame, degradeLevel = 0 }) {
       continue;
     }
     const all = candidates(e, A, B, nodes, zones, frame, usedPorts, { isReturn });
+    if (all.capOverflow) {
+      // 후보 공간이 안전 상한을 넘었다 — 잘라내고 "없다"고 말하지 않는다.
+      diagnostics.push({ ...all.capOverflow, supportedFixes: ["narrow the allowed port interval", "increase the lane gap"] });
+      problems.push(`edge ${e.id}: the allowed port interval yields more candidates than the safety cap — narrow the interval instead of truncating the search`);
+      continue;
+    }
     // 되돌이는 주 흐름과 같은 축도, 같은 면도 쓰지 않는다 — 반대 방향 화살촉이 한 면에 몰리면 읽히지 않는다.
     const cands = isReturn ? all.filter((c) => c.kind === "side-channel") : all;
     const tried = [];
@@ -217,9 +223,20 @@ function candidates(e, A, B, nodes, zones, frame, usedPorts, opt = {}) {
   const vOut = dy > 0 ? "bottom" : "top", vIn = dy > 0 ? "top" : "bottom";
   const hOut = dx > 0 ? "right" : "left", hIn = dx > 0 ? "left" : "right";
   const vertical = Math.abs(dy) >= Math.abs(dx);
-  const iv = (n, side) => side === "top" || side === "bottom"
+  // allowedPortInterval: layout이 label bounds·node bounds·clearance에서 이미 증명한
+  // **합법 port 구간**이다. router는 그 안에서만 후보를 만들고, 없으면 기존과 완전히 같다.
+  // 구간은 node의 실제 port 범위와 교집합을 내며, 교집합이 비면 fail-closed다.
+  const allow = e.allowedPortInterval ?? null;
+  const ivRaw = (n, side) => side === "top" || side === "bottom"
     ? { lo: n.x + K.portInset, hi: n.x + n.w - K.portInset, axis: "x" }
     : { lo: n.y + K.portInset, hi: n.y + n.h - K.portInset, axis: "y" };
+  const iv = (n, side) => {
+    const base = ivRaw(n, side);
+    const end = n === A ? allow?.from : allow?.to;
+    if (!end || end.axis !== base.axis) return base;
+    const lo = Math.max(base.lo, Number(end.lo)), hi = Math.min(base.hi, Number(end.hi));
+    return { lo, hi, axis: base.axis, constrained: true, empty: lo > hi };
+  };
   const at = (n, side, v) => side === "top" ? { x: v, y: n.y }
     : side === "bottom" ? { x: v, y: n.y + n.h }
     : side === "left" ? { x: n.x, y: v } : { x: n.x + n.w, y: v };
@@ -252,12 +269,24 @@ function candidates(e, A, B, nodes, zones, frame, usedPorts, opt = {}) {
       : (tc >= lo && tc <= hi ? tc : (lo + hi) / 2);
     // 겹치는 구간 안에서 **여러 직선 후보**를 낸다 — 첫 좌표가 장애물(예: zone label)에 막혔다고
     // 직선이라는 모양 자체를 포기하면, 옆으로 조금만 옮기면 되는 경우에도 꺾이게 된다.
+    // 후보 수는 임의 상수가 아니라 **구간 폭 / lane gap**에서 나온다 — 구간이 좁으면 적고
+    // 넓으면 그만큼 많다. 순서는 wish에서 바깥으로, 즉 straight-first와 결정성을 유지한다.
+    // 후보 수는 구간 폭에서 나온다. 안전 상한에 닿으면 **조용히 잘라내지 않고** 진단으로 남긴다 —
+    // 잘린 뒤 "후보가 없었다"고 보고하면 실패 근거가 거짓이 된다.
+    const want = Math.max(1, Math.floor((hi - lo) / K.portSpreadStep) + 1);
+    const CAND_CAP = 64;
+    if (want > CAND_CAP) {
+      out.capOverflow = { code: "R-CANDIDATE-CAP", subject: e.id,
+        evidence: { interval: [r1(lo), r1(hi)], step: K.portSpreadStep, want, cap: CAND_CAP } };
+      return out;
+    }
+    const cap = want;
     let made = 0;
     for (const v of nudge(clamp(wish, lo, hi), lo, hi)) {
       if (!free(e.from, sf, v) || !free(e.to, st, v)) continue;
       const p0 = at(A, sf, v), p1 = tip(B, st, v);
       out.push(mk("straight", [p0, p1], sf, st, [[e.from, sf, p0], [e.to, st, p1]]));
-      if (++made >= 12) break;
+      if (++made >= cap) break;
     }
   }
   // ② 1-bend — 한 축으로 나가 다른 축으로 들어간다. 두 조합을 모두 만든다.
