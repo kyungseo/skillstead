@@ -2,7 +2,7 @@ schema_version: 1
 kind: typepack-input
 typepack: layer-stack
 case: stress-cardinality
-preset: social-4x5
+preset: presentation-16x9
 layout: column
 count: 5
 prompt_ko: "플랫폼 역량을 5개 계층으로 보여줘. 4:5."
@@ -15,19 +15,104 @@ layers:
     label:
       ko: "제품 경험"
       en: "Product experience"
+    items:
+      - id: "layer-1-chip-1"
+        label:
+          ko: "검색"
+          en: "Search"
+      - id: "layer-1-chip-2"
+        label:
+          ko: "추천"
+          en: "Recommend"
+      - id: "layer-1-chip-3"
+        label:
+          ko: "결제"
+          en: "Checkout"
+      - id: "layer-1-chip-4"
+        label:
+          ko: "알림"
+          en: "Notify"
   - id: "layer-2"
     label:
       ko: "애플리케이션 서비스"
       en: "Application services"
+    items:
+      - id: "layer-2-chip-1"
+        label:
+          ko: "주문"
+          en: "Orders"
+      - id: "layer-2-chip-2"
+        label:
+          ko: "정산"
+          en: "Billing"
+      - id: "layer-2-chip-3"
+        label:
+          ko: "재고"
+          en: "Stock"
+      - id: "layer-2-chip-4"
+        label:
+          ko: "배송"
+          en: "Shipping"
   - id: "layer-3"
     label:
       ko: "플랫폼 런타임"
       en: "Platform runtime"
+    items:
+      - id: "layer-3-chip-1"
+        label:
+          ko: "실행"
+          en: "Runtime"
+      - id: "layer-3-chip-2"
+        label:
+          ko: "배포"
+          en: "Deploy"
+      - id: "layer-3-chip-3"
+        label:
+          ko: "관측"
+          en: "Observe"
+      - id: "layer-3-chip-4"
+        label:
+          ko: "보안"
+          en: "Security"
   - id: "layer-4"
     label:
       ko: "데이터 기반"
       en: "Data foundation"
+    items:
+      - id: "layer-4-chip-1"
+        label:
+          ko: "적재"
+          en: "Ingest"
+      - id: "layer-4-chip-2"
+        label:
+          ko: "정제"
+          en: "Clean"
+      - id: "layer-4-chip-3"
+        label:
+          ko: "집계"
+          en: "Aggregate"
+      - id: "layer-4-chip-4"
+        label:
+          ko: "공개"
+          en: "Publish"
   - id: "layer-5"
     label:
       ko: "기반 인프라"
       en: "Foundation infrastructure"
+    items:
+      - id: "layer-5-chip-1"
+        label:
+          ko: "계정"
+          en: "Accounts"
+      - id: "layer-5-chip-2"
+        label:
+          ko: "권한"
+          en: "Access"
+      - id: "layer-5-chip-3"
+        label:
+          ko: "감사"
+          en: "Audit"
+      - id: "layer-5-chip-4"
+        label:
+          ko: "정책"
+          en: "Policy"

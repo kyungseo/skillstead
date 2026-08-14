@@ -2,7 +2,7 @@ schema_version: 1
 kind: typepack-input
 typepack: layer-stack
 case: stress-copy
-preset: social-4x5
+preset: document-compact
 layout: column
 count: 4
 prompt_ko: "각 계층 이름을 예산 한계까지 길게 써서 4개 계층으로 보여줘. 4:5."

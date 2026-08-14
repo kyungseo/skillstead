@@ -74,6 +74,12 @@ Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 regi
   coordinates.
 - A layer label and its chips share one computed vertical center per band.
 - The optional annotation column reduces `bandWidth` for **every** band equally.
+- Chips are **content-sized** (the widest chip text across locales sets one uniform
+  width); the run is right-aligned so the last chip's right edge meets
+  `bandRight − bandPad` by construction. Everything left of the run is the reserved
+  label column — declared, not implied, so the symmetry check measures from it.
+  A band **without** chips is the minimal variant of this type (canonical carries
+  representative chips; `stress-copy` exercises the chip-less form).
 - **No connectors.** Adjacency carries the dependency; one colour family per layer,
   optional light → saturated progression toward the most important layer; at most
   one band emphasised.

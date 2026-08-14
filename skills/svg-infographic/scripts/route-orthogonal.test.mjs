@@ -302,3 +302,18 @@ test("R-25: zone 경계를 넘는 connector는 배경에 가리지 않고 이어
   const errs = auditTopology(hidden).errors;
   assert.ok(errs.some((e) => e.startsWith("A-OCCLUDED")), errs.join("; "));
 });
+
+test("R-26: connector가 없는 산출물도 layer 순서를 검사한다 (조기 반환 금지)", () => {
+  // layer-stack·nested-scope처럼 route가 하나도 없는 산출물 — 예전에는 여기서 감사가 조기 반환했다.
+  const bands = `<rect data-entity="layer-1" x="20" y="20" width="360" height="60" fill="#F4F8FC"/>`;
+  const ok = layered(`<g data-layer="containers">${bands}</g><g data-layer="connectors"></g>
+    <g data-layer="nodes"></g><g data-layer="annotations"></g>`);
+  const okRes = auditTopology(ok);
+  assert.deepEqual(okRes.errors, [], okRes.errors.join("; "));
+  assert.ok(okRes.notes.some((n) => /paint layers still checked/.test(n)), JSON.stringify(okRes.notes));
+
+  const swapped = layered(`<g data-layer="annotations"></g><g data-layer="containers">${bands}</g>
+    <g data-layer="connectors"></g><g data-layer="nodes"></g>`);
+  const bad = auditTopology(swapped);
+  assert.ok(bad.errors.some((e) => e.startsWith("A-LAYER-ORDER")), bad.errors.join("; "));
+});
