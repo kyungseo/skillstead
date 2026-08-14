@@ -38,32 +38,40 @@ Phases or milestones over time.
 
 ## 4. Intrinsic fit and variant contract
 
-Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 region에 들어가는지
-판정하고, 들어가지 않으면 §6 ladder로 내려간다. 글자·간격을 줄여 억지로 맞추지 않는다.
+Fit is decided **before** layout: judge whether this type fits the region before attempting
+placement, and drop to the §6 ladder when it does not. Never shrink type or spacing to force a fit.
 
-**수식 변수는 이 문서가 아니라 manifest의 `fit` 블록이 소유한다**(`references/types/manifest.yaml`,
-해당 TypePack의 `fit.cardinality` / `fit.params` / `fit.footprint`). 문서에 상수를 다시
-적으면 두 벌이 어긋나므로, 여기서는 배치 종류와 판정 경계만 적는다.
+**The manifest's `fit` block owns the formula variables, not this document**
+(`references/types/manifest.yaml`, this TypePack's `fit.cardinality` / `fit.params` / `fit.footprint`). Restating constants here would
+let the two copies drift, so this section records only the arrangement and the decision boundary.
 
-- 배치: row(axis band 포함)
-- 근거 수준: manifest `fit.floor_basis`가 `geometry`인 동안 이 수치는 **기하 가정**이며
-  실제 렌더로 확인된 값이 아니다. CP2B의 stress render(getBBox·containment·PNG 검수)를
-  통과한 뒤에만 `rendered`로 승격한다.
-- 판정: `fit.footprint`가 params에서 계산되고, `fit.feasibility`가 **실제 PageFrame
-  contentBox**(preset별 live receipt)와 대조돼 `fits` 또는 `needs-split`으로 확정된다.
-  manifest validator가 두 계산을 모두 재수행하므로 선언만으로 통과할 수 없다.
-- 경계: **4:5 portrait에서 5 phase는 성립하지 않는다**(needs-split) — 4:5의 상한은 4 phase이고
-  16:9은 5 phase가 성립한다. 간격은 계산값이며 label 폭으로 띄우지 않는다.
+- Arrangement: row (including the axis band)
+- Evidence level: while the manifest's `fit.floor_basis` reads `geometry`, these numbers are a
+  **geometric assumption**, not a value confirmed by rendering. They are promoted to `rendered`
+  only after passing the CP2B stress render (getBBox, containment, PNG inspection).
+- Decision: `fit.footprint` is computed from the params, and `fit.feasibility` is settled as
+  `fits` or `needs-split` against the **live PageFrame contentBox** (a per-preset receipt). The
+  manifest validator recomputes both, so a declaration alone never passes.
+- Boundary: **5 phases do not hold in 4:5 portrait** (needs-split) — 4:5 tops out at 4 phases
+  and 16:9 holds 5. The interval is a computed value, never widened by label width.
 
 ## 5. Layout, encoding and connector rules
 
 - Axis as a soft thick line or chevron band; phase dots/chevrons in phase colours.
 - One milestone card per phase under the axis, or alternating above/below.
 - Status is distinguishable **without colour**, and every state marker is **opaque**: `done` = status fill · `current` = background underlay + status fill + outer ring · `future` = background fill + outline. "Outlined" never means transparent — a hollow dot lets the axis rail show through and reads as sitting behind the line. The fill comes from the background **role**, never a hardcoded colour, so it follows the skin into dark mode. The ring must be visibly clear of the dot (radius floor and stroke floor are re-measured on the final SVG, not declared).
-- Paint order is a DOM contract: **axis → marker underlay → dot/ring → label**. The axis is a background rail, so it belongs to the container layer; drawing it after the markers puts the rail on top of them. The accessible status wording per locale is fixed by this spec, so the generator never invents it: `done` = 완료 / Done · `current` = 진행 중 / In progress · `future` = 예정 / Planned.
+- Paint order is a DOM contract: **axis → marker underlay → dot/ring → label**. The axis is a background rail, so it belongs to the container layer; drawing it after the markers puts the rail on top of them. The accessible status wording per locale is fixed by this spec, so the generator never invents it — see the vocabulary table below.
 - The phase label sits on the **opposite side of the axis from its milestone card**, so alternating layout never buries a label under a card.
 - Even spacing derives from the card that must fit: `endInset = cardVisualW/2 + outerClearance` and `step = (contentW − 2 × endInset) / (n − 1)`, where `cardVisualW` is the resolved maximum over both locales. A constant end inset lets the outermost card leave the content box.
 - The "now" marker is a dashed vertical line with a small pill label; it crosses the axis but no card.
+
+**Accessible status vocabulary** (rendered copy, fixed by this spec — not prose):
+
+| `status` | en | ko |
+| --- | --- | --- |
+| `done` | Done | 완료 |
+| `current` | In progress | 진행 중 |
+| `future` | Planned | 예정 |
 
 ## 6. Degrade ladder
 
