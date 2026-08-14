@@ -93,6 +93,8 @@ typepacks:
     support: experimental
     spec: types/specs/cards-kpi-grid.md
     presets: [document-compact, social-4x5, presentation-16x9]
+    # module 규모 카드 묶음은 고정 판형을 채우지 못한다(오너 승인 2026-08-14).
+    preferred_preset: document-compact
     orientations: [portrait, landscape]
     verifier: null
     receipt_schema: null
@@ -169,6 +171,8 @@ typepacks:
     support: experimental
     spec: types/specs/layer-stack.md
     presets: [social-4x5, presentation-16x9]
+    # 이 batch에서 아직 판형을 재평가하지 않았다 — 현재 기본값을 기록한다.
+    preferred_preset: social-4x5
     orientations: [portrait, landscape]
     verifier: null
     receipt_schema: null
@@ -224,6 +228,8 @@ typepacks:
     support: experimental
     spec: types/specs/nested-scope.md
     presets: [social-4x5, presentation-16x9]
+    # 이 batch에서 아직 판형을 재평가하지 않았다 — 현재 기본값을 기록한다.
+    preferred_preset: social-4x5
     orientations: [portrait, landscape]
     verifier: null
     receipt_schema: null
@@ -268,6 +274,8 @@ typepacks:
     support: experimental
     spec: types/specs/topology-component.md
     presets: [social-4x5, presentation-16x9]
+    # 이 batch에서 아직 판형을 재평가하지 않았다 — 현재 기본값을 기록한다.
+    preferred_preset: social-4x5
     orientations: [portrait, landscape]
     verifier: null
     receipt_schema: null
@@ -321,7 +329,9 @@ typepacks:
     profile: constrained-layout
     support: experimental
     spec: types/specs/process-flow.md
-    presets: [social-4x5, presentation-16x9]
+    presets: [document-compact, social-4x5, presentation-16x9]
+    # 구조적으로 좁은 flow/band라 고정 판형을 채우지 못한다 — 기본은 fluid, 넓은 구성만 고정 판형.
+    preferred_preset: document-compact
     orientations: [portrait, landscape]
     verifier: null
     receipt_schema: null
@@ -335,18 +345,23 @@ typepacks:
     migration_origin: legacy
     legacy_section: "Flow"
     inputs:
-      canonical: { id: process-flow-canonical, path: types/inputs/process-flow.canonical.yaml, preset: social-4x5, layout: column, count: 4 }
+      canonical:
+        id: process-flow-canonical
+        path: types/inputs/process-flow.canonical.yaml
+        preset: document-compact
+        layout: column
+        count: 4
       stress:
         - id: process-flow-stress-cardinality
           path: types/inputs/process-flow.stress-cardinality.yaml
-          preset: social-4x5
+          preset: document-compact
           layout: column
           count: 5
           geometry_expected: fits
           covers: [cardinality-max]
         - id: process-flow-stress-copy
           path: types/inputs/process-flow.stress-copy.yaml
-          preset: social-4x5
+          preset: document-compact
           layout: column
           count: 4
           geometry_expected: fits
@@ -366,6 +381,7 @@ typepacks:
         - { count: 5, layout: row, w: 836, h: 88 }
         - { count: 5, layout: column, w: 132, h: 584 }
       feasibility:
+        - { preset: document-compact, orientation: portrait, count: 5, layout: column, result: fits }
         - { preset: social-4x5, orientation: portrait, count: 5, layout: row, result: needs-split }
         - { preset: social-4x5, orientation: portrait, count: 5, layout: column, result: fits }
         - { preset: presentation-16x9, orientation: landscape, count: 5, layout: row, result: fits }
@@ -375,7 +391,9 @@ typepacks:
     profile: constrained-layout
     support: experimental
     spec: types/specs/approval-gate.md
-    presets: [social-4x5, presentation-16x9]
+    presets: [document-compact, social-4x5, presentation-16x9]
+    # 구조적으로 좁은 flow/band라 고정 판형을 채우지 못한다 — 기본은 fluid, 넓은 구성만 고정 판형.
+    preferred_preset: document-compact
     orientations: [portrait, landscape]
     verifier: null
     receipt_schema: null
@@ -389,18 +407,26 @@ typepacks:
     migration_origin: legacy
     legacy_section: "Approval / sequence-lite"
     inputs:
-      canonical: { id: approval-gate-canonical, path: types/inputs/approval-gate.canonical.yaml, preset: social-4x5, layout: row, count: 3 }
+      canonical:
+        id: approval-gate-canonical
+        path: types/inputs/approval-gate.canonical.yaml
+        preset: document-compact
+        layout: row
+        count: 3
       stress:
+        # 오너 판정(2026-08-14): 이 구성은 stress evidence이지 gallery 승격 대상이 아니다.
+        # (선언된 breathing을 허용하는 이유이기도 하다 — 기계 강제는 아니며 승격 심사에서 확인한다.)
         - id: approval-gate-stress-cardinality
           path: types/inputs/approval-gate.stress-cardinality.yaml
           preset: presentation-16x9
           layout: row
           count: 4
+          residual_disposition: { bottom: 484, reason: "4-node band는 fluid 판형의 폭(680)을 넘어 preferred preset을 쓸 수 없다 — 더 넓은 고정 판형을 택한 대가로 남는 세로 breathing이다." }
           geometry_expected: fits
           covers: [cardinality-max]
         - id: approval-gate-stress-copy
           path: types/inputs/approval-gate.stress-copy.yaml
-          preset: social-4x5
+          preset: document-compact
           layout: row
           count: 3
           geometry_expected: fits
@@ -419,6 +445,8 @@ typepacks:
       footprint:
         - { count: 4, layout: row, extraW: 0, extraH: 40, w: 728, h: 128 }
       feasibility:
+        # 4-node band는 fluid 폭(680)을 넘는다 — 그래서 이 구성만 가로 preset을 쓴다.
+        - { preset: document-compact, orientation: portrait, count: 4, layout: row, result: needs-split }
         - { preset: social-4x5, orientation: portrait, count: 4, layout: row, result: needs-split }
         - { preset: presentation-16x9, orientation: landscape, count: 4, layout: row, result: fits }
   - id: before-after
@@ -427,6 +455,8 @@ typepacks:
     support: experimental
     spec: types/specs/before-after.md
     presets: [social-4x5, presentation-16x9]
+    # 이 batch에서 아직 판형을 재평가하지 않았다 — 현재 기본값을 기록한다.
+    preferred_preset: social-4x5
     orientations: [portrait, landscape]
     verifier: null
     receipt_schema: null
@@ -471,6 +501,8 @@ typepacks:
     support: experimental
     spec: types/specs/roadmap-timeline.md
     presets: [social-4x5, presentation-16x9]
+    # 이 batch에서 아직 판형을 재평가하지 않았다 — 현재 기본값을 기록한다.
+    preferred_preset: social-4x5
     orientations: [portrait, landscape]
     verifier: null
     receipt_schema: null
@@ -522,6 +554,8 @@ typepacks:
     support: experimental
     spec: types/specs/decision-matrix.md
     presets: [social-4x5, presentation-16x9]
+    # 이 batch에서 아직 판형을 재평가하지 않았다 — 현재 기본값을 기록한다.
+    preferred_preset: social-4x5
     orientations: [portrait, landscape]
     verifier: null
     receipt_schema: null
