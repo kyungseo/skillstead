@@ -2,12 +2,15 @@ schema_version: 1
 kind: typepack-input
 typepack: cards-kpi-grid
 case: stress-cardinality
-preset: social-4x5
+preset: document-compact
 layout: grid
 cols: 2
 count: 6
 prompt_ko: "핵심 6가지를 2열 카드 격자로 요약해줘. 각 카드에 한 줄 설명 포함. 4:5."
 prompt_en: "Summarise six key points as a two-column card grid with one-line bodies, 4:5."
+title:
+  ko: "운영 기준 6가지"
+  en: "Six operating standards"
 cards:
   - id: "observability"
     title:

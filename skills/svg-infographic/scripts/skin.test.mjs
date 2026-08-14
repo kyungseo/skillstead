@@ -943,9 +943,10 @@ test("CA-6: needs-split tuple이 있는 TypePack은 degrade 입력을 가져야 
 
 test("CA-7: canonical 입력 count는 fit.cardinality.canonical과 같아야 한다", () => {
   const pkg = pkgCopy();
-  writeManifest(pkg, readManifest(pkg).replace(
-    "      canonical: { id: cards-kpi-grid-canonical, path: types/inputs/cards-kpi-grid.canonical.yaml, preset: social-4x5, layout: row, count: 4 }",
-    "      canonical: { id: cards-kpi-grid-canonical, path: types/inputs/cards-kpi-grid.canonical.yaml, preset: social-4x5, layout: row, count: 3 }"));
+  const m0 = readManifest(pkg);
+  const m1 = m0.replace("        id: cards-kpi-grid-canonical\n", "        id: cards-kpi-grid-canonical\n        count: 3\n").replace("        count: 4\n", "");
+  assert.notEqual(m1, m0, "manifest mutation must actually apply — a silent no-op would make this test vacuous");
+  writeManifest(pkg, m1);
   const r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /inputs\.canonical count 3 != fit\.cardinality\.canonical \(4\)/);
@@ -1132,7 +1133,7 @@ test("typography: bundled asset의 digest mismatch는 error", () => {
   fs.writeFileSync(tp, fs.readFileSync(tp, "utf8").replace(/digest: [0-9a-f]{64}/, "digest: " + "f".repeat(64)));
   const r = runIn(pkg, ["typography", tp]);
   assert.equal(r.code, 1, r.out);
-  assert.match(r.out, /asset digest mismatch/);
+  assert.match(r.out, /asset\.faces\[0\] digest mismatch/);   // 어느 face가 어긋났는지까지 말해야 한다
   fs.rmSync(path.dirname(pkg), { recursive: true, force: true });
 });
 

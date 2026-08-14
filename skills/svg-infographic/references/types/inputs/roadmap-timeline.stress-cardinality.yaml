@@ -7,6 +7,9 @@ layout: row
 count: 5
 prompt_ko: "롤아웃 5단계를 상태와 지금 위치까지 넣어 보여줘. 16:9."
 prompt_en: "Five phases with status and a now marker. 16:9."
+title:
+  ko: "롤아웃은 단계로 진행한다"
+  en: "The rollout proceeds in phases"
 phases:
   - id: "phase-1"
     label:

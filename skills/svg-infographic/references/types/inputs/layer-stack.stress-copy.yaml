@@ -7,6 +7,9 @@ layout: column
 count: 4
 prompt_ko: "각 계층 이름을 예산 한계까지 길게 써서 4개 계층으로 보여줘. 4:5."
 prompt_en: "Four layers with labels at the copy budget limit. 4:5."
+title:
+  ko: "플랫폼 역량은 층으로 쌓인다"
+  en: "Platform capability stacks in layers"
 layers:
   - id: "layer-1"
     label:

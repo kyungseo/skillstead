@@ -7,6 +7,9 @@ layout: concentric
 count: 4
 prompt_ko: "신뢰 경계를 4겹 동심 구조로 보여줘. 4:5."
 prompt_en: "Show the trust boundary as 4 concentric scopes. 4:5."
+title:
+  ko: "신뢰 경계는 안쪽일수록 좁다"
+  en: "Trust narrows toward the core"
 rings:
   - id: "ring-1"
     label:

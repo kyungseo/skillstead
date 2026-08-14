@@ -8,6 +8,9 @@ cols: 2
 count: 4
 prompt_ko: "각 칸 이름과 특징을 예산 한계까지 길게 써줘. 4:5."
 prompt_en: "Cell names and traits at the copy budget limit. 4:5."
+title:
+  ko: "두 축이 우선순위를 정한다"
+  en: "Two axes set the priority"
 axes:
   x:
     low:

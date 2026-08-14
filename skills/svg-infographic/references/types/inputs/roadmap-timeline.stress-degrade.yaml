@@ -7,6 +7,9 @@ layout: row
 count: 5
 prompt_ko: "롤아웃 5단계를 4:5에 배치해줘(경계 초과 확인용)."
 prompt_en: "Five phases on 4:5 to exercise the degrade path."
+title:
+  ko: "롤아웃은 단계로 진행한다"
+  en: "The rollout proceeds in phases"
 phases:
   - id: "phase-1"
     label:

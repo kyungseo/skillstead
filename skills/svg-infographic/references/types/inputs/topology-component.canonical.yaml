@@ -7,6 +7,9 @@ layout: zones
 count: 3
 prompt_ko: "요청 경로를 3개 zone으로 나눠 컴포넌트와 연결을 보여줘. 4:5."
 prompt_en: "Show the request path across three zones with components and links. 4:5."
+title:
+  ko: "요청은 zone을 따라 흐른다"
+  en: "Requests flow across the zones"
 zones:
   - id: "zone-1"
     label:
@@ -60,6 +63,12 @@ edges:
     to: "auth"
     kind: "dependency"
     delivery: "sync"
+    visibility: "private"
+  - id: "e3"
+    from: "api"
+    to: "queue"
+    kind: "request"
+    delivery: "async"
     visibility: "private"
 boundary:
   label:

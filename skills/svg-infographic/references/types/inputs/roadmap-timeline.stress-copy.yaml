@@ -7,6 +7,9 @@ layout: row
 count: 4
 prompt_ko: "각 단계 라벨과 카드 문구를 경계까지 길게 써줘. 4:5."
 prompt_en: "Phase labels and cards at the boundary. 4:5."
+title:
+  ko: "롤아웃은 단계로 진행한다"
+  en: "The rollout proceeds in phases"
 phases:
   - id: "phase-1"
     label:

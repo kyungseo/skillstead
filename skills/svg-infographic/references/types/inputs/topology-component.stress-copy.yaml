@@ -7,6 +7,9 @@ layout: zones
 count: 3
 prompt_ko: "zone 라벨을 예산 한계까지 길게 써서 3개 zone으로 보여줘. 4:5."
 prompt_en: "Three zones with labels at the copy budget limit. 4:5."
+title:
+  ko: "요청 경로를 자세히 본다"
+  en: "The request path in detail"
 zones:
   - id: "zone-1"
     label:

@@ -7,6 +7,9 @@ layout: column
 count: 4
 prompt_ko: "각 단계 이름을 예산 한계까지 길게 써서 4단계로 보여줘. 4:5 세로."
 prompt_en: "Four steps with names at the copy budget limit. 4:5 portrait."
+title:
+  ko: "배포는 검증을 지나 반영된다"
+  en: "Delivery ships through verification"
 steps:
   - id: "step-1"
     name:

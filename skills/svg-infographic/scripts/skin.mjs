@@ -55,7 +55,7 @@ function parseInlineMap(v, file, line) {
   }
   return out;
 }
-function parseYaml(text, file) {
+export function parseYaml(text, file) {
   const root = {};
   const stack = [{ indent: -1, obj: root }];
   const lines = text.split(/\r?\n/);
@@ -92,6 +92,10 @@ function parseYaml(text, file) {
     const m = trimmed.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
     if (!m) throw new Error(`${file}:${i + 1} unsupported YAML line: ${trimmed}`);
     const [, key, valRaw] = m;
+    // 같은 mapping에서 key가 두 번 나오면 조용히 덮어쓰지 않는다 — 뒤 선언이 앞 선언을
+    // 지우면 검증기가 통과시킨 것과 사람이 읽은 것이 달라진다.
+    if (Object.prototype.hasOwnProperty.call(parent.obj, key))
+      throw new Error(`${file}:${i + 1} duplicate key "${key}" in the same mapping`);
     if (valRaw === "") {
       // may become a nested map or a list ("- item" lines at deeper indent)
       const obj = {};
@@ -101,6 +105,10 @@ function parseYaml(text, file) {
       let v = valRaw.trim();
       if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1);
       else if (v === "null") v = null;
+      // inline map은 이미 boolean으로 바꾼다 — block 형식만 문자열로 두면 같은 값이
+      // 표기 방식에 따라 다른 타입이 되어 검증기가 조용히 갈린다.
+      else if (v === "true") v = true;
+      else if (v === "false") v = false;
       else if (v === "[]") v = [];
       else if (v.startsWith("[") && v.endsWith("]")) v = v.slice(1, -1).split(",").map((x) => x.trim()).filter(Boolean).map((x) => x.startsWith('"') && x.endsWith('"') ? x.slice(1, -1) : x);
       else if (v.startsWith("{") && v.endsWith("}")) v = parseInlineMap(v, file, i);
@@ -223,29 +231,119 @@ function loadTypography(errors, overridePath = null) {
     const A = cfg.asset ?? {};
     if (!["system", "bundled", "bundled-on-selection"].includes(A.policy)) errors.push(`typography: ${t}: asset.policy must be system|bundled|bundled-on-selection`);
     if (!["none", "subset"].includes(A.embed)) errors.push(`typography: ${t}: asset.embed must be none|subset`);
-    for (const k of Object.keys(A)) if (!["policy", "embed", "path", "source", "digest"].includes(k)) errors.push(`typography: ${t}: asset unknown field "${k}"`);
+    for (const k of Object.keys(A)) if (!["policy", "embed", "path", "source", "digest", "faces"].includes(k)) errors.push(`typography: ${t}: asset unknown field "${k}"`);
+    const checkAsset = (rel, declared, label) => {
+      if (!rel) { errors.push(`typography: ${t}: ${label} requires path`); return; }
+      if (!declared) { errors.push(`typography: ${t}: ${label} requires digest`); return; }
+      try {
+        const d = createHash("sha256").update(readFileSync(path.resolve(skinsDir, "..", "..", String(rel)))).digest("hex");
+        if (d !== declared) errors.push(`typography: ${t}: ${label} digest mismatch — file ${d.slice(0, 16)}…, declared ${String(declared).slice(0, 16)}…`);
+      } catch { errors.push(`typography: ${t}: ${label} not found at ${rel}`); }
+    };
     if (A.policy === "bundled") {
-      const ap = A.path ? path.resolve(skinsDir, "..", "..", String(A.path)) : null;
-      if (!ap) errors.push(`typography: ${t}: bundled asset requires path`);
-      else {
-        try {
-          const buf = readFileSync(ap);
-          const d = createHash("sha256").update(buf).digest("hex");
-          if (A.digest && d !== A.digest) errors.push(`typography: ${t}: asset digest mismatch — file ${d.slice(0, 16)}…, declared ${String(A.digest).slice(0, 16)}…`);
-        } catch { errors.push(`typography: ${t}: bundled asset not found at ${A.path}`); }
-        if (!A.digest) errors.push(`typography: ${t}: bundled asset requires digest`);
-      }
+      // face가 여럿이면 weight별로 각각 pin한다 — "이 글꼴을 쓴다"가 아니라 "이 바이트를 쓴다"가 계약이다.
+      if (Array.isArray(A.faces)) {
+        const declaredWeights = new Set();
+        for (const [i, f] of A.faces.entries()) {
+          for (const k of Object.keys(f)) if (!["weight", "path", "original_filename", "digest"].includes(k))
+            errors.push(`typography: ${t}: asset.faces[${i}] unknown field "${k}"`);
+          if (!Number.isFinite(Number(f.weight))) errors.push(`typography: ${t}: asset.faces[${i}] requires a numeric weight`);
+          else declaredWeights.add(Number(f.weight));
+          if (typeof f.original_filename !== "string" || !f.original_filename.trim())
+            errors.push(`typography: ${t}: asset.faces[${i}] requires original_filename (upstream provenance)`);
+          checkAsset(f.path, f.digest, `asset.faces[${i}]`);
+        }
+        // 선언한 weight는 전부 asset이 있어야 한다 — synthetic이 금지된 이상 빠진 weight는 그릴 수 없다.
+        for (const loc of TYPO_LOCALES)
+          for (const w of (cfg.locales?.[loc]?.weights ?? []))
+            if (!declaredWeights.has(Number(w)))
+              errors.push(`typography: ${t}.${loc}: weight ${w} has no bundled face (synthetic is forbidden, so it cannot be drawn)`);
+      } else checkAsset(A.path, A.digest, "bundled asset");
+      const S = A.source;
+      if (S && typeof S === "object") {
+        for (const k of ["upstream", "release", "commit", "archive", "archive_digest"])
+          if (typeof S[k] !== "string" || !S[k].trim()) errors.push(`typography: ${t}: asset.source requires "${k}" (release provenance)`);
+      } else if (typeof S !== "string" || !S.trim()) errors.push(`typography: ${t}: bundled asset requires source provenance`);
     }
     const Li = cfg.license ?? {};
+    for (const k of Object.keys(Li)) if (!["id", "evidence", "evidence_digest", "rfn"].includes(k)) errors.push(`typography: ${t}: license unknown field "${k}"`);
     if (typeof Li.id !== "string" || !Li.id.trim()) errors.push(`typography: ${t}: license.id required`);
     if (!Array.isArray(Li.rfn)) errors.push(`typography: ${t}: license.rfn must be a list (empty when no Reserved Font Name is declared)`);
     if (A.policy === "bundled") {
       if (typeof Li.evidence !== "string" || !Li.evidence.trim()) errors.push(`typography: ${t}: bundled asset requires license.evidence path`);
-      else { try { readFileSync(path.resolve(skinsDir, "..", "..", Li.evidence)); } catch { errors.push(`typography: ${t}: license.evidence not found at ${Li.evidence}`); } }
+      else {
+        try {
+          const lbuf = readFileSync(path.resolve(skinsDir, "..", "..", Li.evidence));
+          if (Li.evidence_digest) {
+            const ld = createHash("sha256").update(lbuf).digest("hex");
+            if (ld !== Li.evidence_digest) errors.push(`typography: ${t}: license.evidence digest mismatch`);
+          }
+          // RFN 선언과 실제 license 본문이 어긋나면 어느 쪽이든 잘못이다.
+          const hasRfn = /with Reserved Font Name/i.test(lbuf.toString("utf8"));
+          if (hasRfn && (Li.rfn ?? []).length === 0)
+            errors.push(`typography: ${t}: license text declares a Reserved Font Name but license.rfn is empty`);
+          if (!hasRfn && (Li.rfn ?? []).length > 0)
+            errors.push(`typography: ${t}: license.rfn declares names the license text does not reserve`);
+        } catch { errors.push(`typography: ${t}: license.evidence not found at ${Li.evidence}`); }
+      }
     }
   }
   return { doc, digest };
 }
+
+// --- font delivery policy ------------------------------------------------------
+// 글꼴 정체성은 typography SSoT가, **전달 방식**은 이 profile이 소유한다.
+export function loadDelivery(errors, typo = null) {
+  const p = path.resolve(skinsDir, "..", "delivery", "font-delivery-v1.yaml");
+  let doc, digest;
+  try { ({ doc, digest } = readYaml(p)); }
+  catch { errors.push("delivery: font-delivery-v1.yaml not found in references/delivery/"); return null; }
+  validateIdentity(doc, "font-delivery", "font-delivery-v1", errors);
+  const ROOT = ["schema_version", "id", "kind", "extends", "status", "default_mode", "modes"];
+  for (const k of Object.keys(doc)) if (!ROOT.includes(k)) errors.push(`delivery: unknown field "${k}"`);
+  const M = doc.modes ?? {};
+  for (const need of ["portable", "system"]) if (!(need in M)) errors.push(`delivery: missing mode "${need}"`);
+  if (!(doc.default_mode in M)) errors.push(`delivery: default_mode "${doc.default_mode}" is not a declared mode`);
+  const rfn = [];
+  for (const [, cfg] of Object.entries(typo?.treatments ?? {})) for (const n of (cfg.license?.rfn ?? [])) rfn.push(String(n));
+  for (const [id, m] of Object.entries(M)) {
+    const MK = ["grade", "embed", "format", "alias", "editable", "tool", "on_tool_missing", "on_glyph_missing",
+      "requires_installed_family", "identity_rewrite", "preserve_legal_names"];
+    for (const k of Object.keys(m)) if (!MK.includes(k)) errors.push(`delivery: ${id}: unknown field "${k}"`);
+    if (!["acceptance", "environment-dependent"].includes(m.grade))
+      errors.push(`delivery: ${id}: grade must be acceptance|environment-dependent`);
+    if (!["subset", "none"].includes(m.embed)) errors.push(`delivery: ${id}: embed must be subset|none`);
+    if (typeof m.editable !== "boolean") errors.push(`delivery: ${id}: editable must be a boolean`);
+    if (m.embed === "subset") {
+      if (m.format !== "woff2") errors.push(`delivery: ${id}: embedded format must be woff2`);
+      if (typeof m.alias !== "string" || !m.alias.trim()) errors.push(`delivery: ${id}: subset embedding requires an alias`);
+      // OFL: subset은 Modified Version이다. 예약된 이름을 alias로 쓰면 라이선스 위반이다.
+      for (const n of rfn)
+        if (String(m.alias).toLowerCase().includes(n.toLowerCase()))
+          errors.push(`delivery: ${id}: alias "${m.alias}" contains the Reserved Font Name "${n}" — a subset is a Modified Version and must not use it`);
+      const T = m.tool ?? {};
+      for (const k of ["name", "version", "brotli", "command", "wrapper"]) if (typeof T[k] !== "string" || !T[k].trim())
+        errors.push(`delivery: ${id}: tool.${k} must be pinned`);
+      if (T.wrapper) {
+        try { readFileSync(path.resolve(skinsDir, "..", "..", String(T.wrapper))); }
+        catch { errors.push(`delivery: ${id}: tool.wrapper not found at ${T.wrapper} — subsetting must run through the package-owned wrapper, not an arbitrary executable`); }
+      }
+      if (m.identity_rewrite !== "required" || m.preserve_legal_names !== "required")
+        errors.push(`delivery: ${id}: a subset embed must declare identity_rewrite and preserve_legal_names as required (a subset is a Modified Version)`);
+      if (!Array.isArray(T.options) || !T.options.length) errors.push(`delivery: ${id}: tool.options must be pinned`);
+      if (T.dependency_class !== "build-only")
+        errors.push(`delivery: ${id}: tool.dependency_class must be build-only — consuming or verifying an artifact must not require the subsetter`);
+      if (m.on_tool_missing !== "fail-closed" || m.on_glyph_missing !== "fail-closed")
+        errors.push(`delivery: ${id}: missing tool or glyph must fail closed (never a full embed, never a silent system fallback)`);
+      if (m.editable) errors.push(`delivery: ${id}: a subset embed cannot be declared editable — edited text loses its glyphs`);
+    } else {
+      if (m.grade === "acceptance") errors.push(`delivery: ${id}: a non-embedding mode depends on the viewer's installed fonts and cannot be acceptance-grade`);
+      if (m.requires_installed_family !== true) errors.push(`delivery: ${id}: a non-embedding mode must declare requires_installed_family: true`);
+    }
+  }
+  return { doc, digest };
+}
+
 // 결정적 stack 직렬화 — face + fallback을 CSS 규칙(공백 포함 family만 quote)으로
 function serializeStack(face, fallback) {
   return [face, ...fallback].map((f) => /[ ]/.test(f) && !f.startsWith("-") ? `"${f}"` : f).join(", ");
@@ -454,6 +552,7 @@ const OPTION_SPEC = {
   tombstones: { "--check": false, "--write": false, "--json": false },
   typography: { "--json": false },
   "typography-check": { "--json": false },
+  "delivery": { "--json": false },
   pageframe: { "--h1-lines": true, "--eyebrow": true, "--subtitle": true, "--support": true, "--footer": true, "--content-height": true, "--json": false },
 };
 function parseOptions(cmd, rest) {
@@ -642,8 +741,10 @@ const exactKeys = (obj, allowed, ctx, report) => {
 export function validateInputPayload(doc, tid, declaredCount, report) {
   const sc = INPUT_SCHEMA[tid];
   if (!sc) return new Set();
-  const META = ["schema_version", "kind", "typepack", "case", "preset", "layout", "cols", "floor", "count", "prompt_ko", "prompt_en"];
+  const META = ["schema_version", "kind", "typepack", "case", "preset", "layout", "cols", "floor", "count", "prompt_ko", "prompt_en", "title"];
   exactKeys(doc, [...META, ...sc.root], "payload root", report);
+  // H1은 산출물의 결론 문장이다 — generator가 발명하지 못하도록 입력이 소유한다.
+  localized(doc.title, B(30, 46), "payload title", report);
   const list = doc[sc.collection];
   const observed = new Set();
   if (!Array.isArray(list) || !list.length) { report(`payload must carry "${sc.collection}" entities`); return observed; }
@@ -956,7 +1057,7 @@ function computePageFrame(P, opts) {
 function main() {
   preflight({ entrypointUrl: import.meta.url });
   const [cmd, ...restAll] = process.argv.slice(2);
-  if (!cmd || !(cmd in OPTION_SPEC)) fail(2, "usage: skin.mjs validate|resolve <profile.yaml> [options] | registry|manifest|selection [--json]");
+  if (!cmd || !(cmd in OPTION_SPEC)) fail(2, "usage: skin.mjs validate|resolve <profile.yaml> [options] | registry|manifest|selection|delivery [--json]");
   let profileArg = null, rest = restAll, selectionBasis = "explicit-path", svgArg = null;
   if (cmd === "pageframe") {
     const preset = restAll[0];
@@ -1463,7 +1564,8 @@ function main() {
           if (pf.orientation !== fs.orientation)
             errors.push(`manifest: ${id}: fit.feasibility(${fs.preset}) declares orientation "${fs.orientation}" but the preset is "${pf.orientation}"`);
           const cb = pf.regions.contentBox;
-          const fits = fp.w <= cb.w && fp.h <= cb.h;
+          // fluid 캔버스에서는 높이가 제약이 아니다(캔버스가 내용을 따라간다) — 폭만 판정한다.
+          const fits = fp.w <= cb.w && (pf.regions.fluid || fp.h <= cb.h);
           const want = fits ? "fits" : "needs-split";
           if (fs.result !== want)
             errors.push(`manifest: ${id}: fit.feasibility(${fs.preset}, count ${fs.count}) declares "${fs.result}" but ${Math.round(fp.w)}×${Math.round(fp.h)} against contentBox ${cb.w}×${cb.h} computes "${want}"`);
@@ -1483,7 +1585,7 @@ function main() {
         let maxCardScenario = null;
         for (const [cse, c] of cases) {
           if (!c || typeof c !== "object") { errors.push(`manifest: ${id}: inputs.${cse} is required`); continue; }
-          const allowed = ["id", "path", "preset", "layout", "cols", "floor", "count"].concat(cse === "stress" ? ["geometry_expected", "covers"] : []);
+          const allowed = ["id", "path", "preset", "layout", "cols", "floor", "count", "residual_disposition", "routing_expected"].concat(cse === "stress" ? ["geometry_expected", "covers"] : []);
           for (const k of Object.keys(c)) if (!allowed.includes(k)) errors.push(`manifest: ${id}: inputs.${cse} unknown field "${k}"`);
           if (!c.id || !/^[a-z0-9][a-z0-9-]*$/.test(String(c.id))) errors.push(`manifest: ${id}: inputs.${cse} id invalid`);
           else if (inputIds.has(c.id)) errors.push(`manifest: ${id}: duplicate input id "${c.id}"`);
@@ -1501,12 +1603,19 @@ function main() {
           let computed = null;
           if (got && pfi) {
             const cb = pfi.regions.contentBox;
-            computed = (got.w <= cb.w && got.h <= cb.h) ? "fits" : "needs-split";
+            computed = (got.w <= cb.w && (pfi.regions.fluid || got.h <= cb.h)) ? "fits" : "needs-split";
           }
           if (cse === "canonical") {
             if (computed && computed !== "fits")
               errors.push(`manifest: ${id}: inputs.canonical computes ${Math.round(got.w)}×${Math.round(got.h)} → needs-split; the canonical input must be renderable`);
           } else {
+            if (c.routing_expected !== undefined && !["routable", "needs-split"].includes(c.routing_expected))
+              errors.push(`manifest: ${id}: "${c.id}" routing_expected must be routable|needs-split`);
+            if (c.residual_disposition !== undefined) {
+              const rd = c.residual_disposition;
+              if (!rd || typeof rd !== "object" || !Number.isFinite(Number(rd.bottom)) || Number(rd.bottom) < 0 || typeof rd.reason !== "string" || rd.reason.trim().length < 12)
+                errors.push(`manifest: ${id}: "${c.id}" residual_disposition must be { bottom: <px >= 0>, reason: "<why this page does not fill>" }`);
+            }
             if (!["fits", "needs-split"].includes(c.geometry_expected)) errors.push(`manifest: ${id}: stress "${c.id}" geometry_expected must be fits|needs-split`);
             else if (computed && computed !== c.geometry_expected)
               errors.push(`manifest: ${id}: stress "${c.id}" declares geometry_expected "${c.geometry_expected}" but computes "${computed}" against ${c.preset} (geometry only — actual render fit is CP2B)`);
@@ -1822,7 +1931,7 @@ function main() {
     }
     process.exit(errors.length ? 1 : 0);
   }
-  if (cmd !== "registry") {
+  if (cmd !== "registry" && cmd !== "delivery") {
     profileArg = restAll[0];
     if (!profileArg || profileArg.startsWith("--")) fail(2, `${cmd} requires a profile path or "current"`);
     rest = restAll.slice(1);
@@ -1836,6 +1945,19 @@ function main() {
   }
   const opts = parseOptions(cmd, rest);
 
+  if (cmd === "delivery") {
+    rest = restAll;
+    const errors = [];
+    const typo = loadTypography(errors);
+    const del = loadDelivery(errors, typo?.doc ?? null);
+    if (errors.length) { for (const e of errors) console.error(`  ERROR ${e}`); process.exit(1); }
+    const out = { schemaVersion: 1, command: "delivery", profile: { id: del.doc.id, digest: del.digest },
+      typographyProfileDigest: typo.digest, defaultMode: del.doc.default_mode,
+      modes: Object.fromEntries(Object.entries(del.doc.modes).map(([k, m]) => [k, { grade: m.grade, embed: m.embed, editable: m.editable }])) };
+    if (rest.includes("--json")) console.log(JSON.stringify(out, null, 1));
+    else console.log(`delivery — default ${out.defaultMode}; ` + Object.entries(out.modes).map(([k, m]) => `${k}: ${m.grade}/${m.embed}`).join(", "));
+    process.exit(0);
+  }
   if (cmd === "registry") {
     const errors = [];
     const registry = loadRegistry(errors);

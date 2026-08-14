@@ -7,6 +7,9 @@ layout: zones
 count: 4
 prompt_ko: "요청 경로를 4개 zone으로 나누고 연결을 최대 밀도로 보여줘. 4:5."
 prompt_en: "Four zones with the request path at maximum edge density. 4:5."
+title:
+  ko: "요청은 네 zone을 지난다"
+  en: "Requests cross four zones"
 zones:
   - id: "zone-1"
     label:

@@ -7,6 +7,9 @@ layout: row
 count: 2
 prompt_ko: "각 슬롯 문구를 예산 경계까지 길게 써줘. 4:5."
 prompt_en: "Slot copy at the budget boundary. 4:5."
+title:
+  ko: "자동화가 배포 시간을 줄였다"
+  en: "Automation cut the delivery time"
 panels:
   - id: "before"
     title:

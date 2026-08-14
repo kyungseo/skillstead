@@ -92,7 +92,7 @@ typepacks:
     profile: constrained-layout
     support: experimental
     spec: types/specs/cards-kpi-grid.md
-    presets: [social-4x5, presentation-16x9]
+    presets: [document-compact, social-4x5, presentation-16x9]
     orientations: [portrait, landscape]
     verifier: null
     receipt_schema: null
@@ -106,11 +106,17 @@ typepacks:
     migration_origin: legacy
     legacy_section: "Cards / KPI stat grid"
     inputs:
-      canonical: { id: cards-kpi-grid-canonical, path: types/inputs/cards-kpi-grid.canonical.yaml, preset: social-4x5, layout: row, count: 4 }
+      canonical:
+        id: cards-kpi-grid-canonical
+        path: types/inputs/cards-kpi-grid.canonical.yaml
+        preset: document-compact
+        layout: grid
+        cols: 2
+        count: 4
       stress:
         - id: cards-kpi-grid-stress-cardinality
           path: types/inputs/cards-kpi-grid.stress-cardinality.yaml
-          preset: social-4x5
+          preset: document-compact
           layout: grid
           cols: 2
           count: 6
@@ -118,8 +124,9 @@ typepacks:
           covers: [cardinality-max]
         - id: cards-kpi-grid-stress-copy
           path: types/inputs/cards-kpi-grid.stress-copy.yaml
-          preset: social-4x5
-          layout: row
+          preset: document-compact
+          layout: grid
+          cols: 2
           count: 4
           geometry_expected: fits
           covers: [copy-boundary-candidate]
@@ -137,9 +144,11 @@ typepacks:
       params: { itemMinW: 149, itemMinH: 124, compactItemMinW: 132, compactItemMinH: 104, gapX: 16, gapY: 16 }
       footprint:
         - { count: 4, layout: row, w: 644, h: 124 }
+        - { count: 4, layout: grid, cols: 2, w: 314, h: 264 }
         - { count: 6, layout: grid, cols: 2, w: 314, h: 404 }
         - { count: 6, layout: row, floor: compact, w: 872, h: 104 }
       feasibility:
+        - { preset: document-compact, orientation: portrait, count: 6, layout: grid, result: fits }
         - { preset: social-4x5, orientation: portrait, count: 6, layout: grid, result: fits }
         - { preset: social-4x5, orientation: portrait, count: 6, layout: row, floor: compact, result: needs-split }
         - { preset: presentation-16x9, orientation: landscape, count: 6, layout: grid, result: fits }
@@ -272,13 +281,21 @@ typepacks:
     migration_origin: legacy
     legacy_section: "Topology / component"
     inputs:
-      canonical: { id: topology-component-canonical, path: types/inputs/topology-component.canonical.yaml, preset: social-4x5, layout: zones, count: 3 }
+      canonical:
+        id: topology-component-canonical
+        path: types/inputs/topology-component.canonical.yaml
+        preset: social-4x5
+        layout: zones
+        count: 3
+        residual_disposition: { bottom: 194, reason: "zone 높이는 node 기하에서 파생하고 corridor는 배선 수요만큼만 열린다 — 남는 공간은 선언된 breathing이다(kernel §8)." }
+        routing_expected: routable
       stress:
         - id: topology-component-stress-cardinality
           path: types/inputs/topology-component.stress-cardinality.yaml
           preset: social-4x5
           layout: zones
           count: 4
+          routing_expected: needs-split
           geometry_expected: fits
           covers: [cardinality-max, edge-density]
         - id: topology-component-stress-copy
@@ -286,6 +303,8 @@ typepacks:
           preset: social-4x5
           layout: zones
           count: 3
+          residual_disposition: { bottom: 194, reason: "copy 경계에서도 zone 높이는 node 기하에서 파생하므로 잔여가 같다." }
+          routing_expected: routable
           geometry_expected: fits
           covers: [copy-boundary-candidate]
     fit:

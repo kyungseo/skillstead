@@ -23,11 +23,32 @@ treatments:
     fallback: [Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif]
     synthetic: forbidden
     asset:
-      policy: system
-      embed: none
+      # 글꼴 정체성·face·digest·license는 이 SSoT가 소유한다. **어떻게 내보낼지**(embed 여부)는
+      # 이 파일이 정하지 않는다 — references/delivery/font-delivery-v1.yaml이 소유한다.
+      policy: bundled
+      embed: subset
+      faces:
+        - weight: 400
+          path: assets/fonts/Pretendard-Regular.otf
+          original_filename: public/static/Pretendard-Regular.otf
+          digest: 3ffbacde6ab8411f1d2db54bb9b1f0b3ee2a738932033722cf0388c06aed1c93
+        - weight: 700
+          path: assets/fonts/Pretendard-Bold.otf
+          original_filename: public/static/Pretendard-Bold.otf
+          digest: 2e91915fab54df71cc9598ebf608b2bdb54c6fe3c066ac61dff0bc44fca71cc7
+      source:
+        upstream: github.com/orioncactus/pretendard
+        release: v1.3.9
+        commit: 5c41199ea0024a9e0b2cb31735265056e5472d76
+        archive: Pretendard-1.3.9.zip
+        archive_digest: 04be351a74d6bf7d60c480a3087e51d185485d35a52023142af1df19eb8c428a
     license:
       id: OFL-1.1
-      rfn: []
+      evidence: assets/fonts/Pretendard-OFL.txt
+      evidence_digest: b04538c9abec39a3db75108cf0af0fd9c77032fe8aa2cf38345b4d250e98e38e
+      # **Reserved Font Name이 있다.** subset은 OFL상 Modified Version이므로 생성된 subset은
+      # 이 이름을 쓸 수 없다 — embed alias는 delivery policy가 정한 중립 이름을 쓴다.
+      rfn: [Pretendard]
   sketch:
     # Selected 2026-08-13 (typography audition, design review): Hi Melody —
     # single canonical sketch face. Poor Story stays a readability-oriented

@@ -14,7 +14,7 @@
 # evidence 또는 CI artifact로만 저장한다.
 
 schema_version: 1
-surface_revision: 5
+surface_revision: 8
 
 canonicalization:
   version: 1
@@ -32,6 +32,9 @@ digest_sets:
 entries:
   # --- production surface ---------------------------------------------------
   - { path: scripts/preflight.mjs, kind: production-entrypoint }
+  - { path: scripts/generate.mjs, kind: production-entrypoint }
+  - { path: scripts/route-orthogonal.mjs, kind: production-lib }
+  - { path: scripts/font-subset.py, kind: build-tool }
   - { path: scripts/skin.mjs, kind: production-entrypoint }
   - { path: scripts/check-svg.mjs, kind: production-entrypoint }
   - { path: scripts/check-layout.mjs, kind: production-entrypoint }
@@ -67,11 +70,15 @@ entries:
   - { path: references/skins/pageframe-v1.yaml, kind: profile }
   - { path: references/skins/legacy-v0.8.yaml, kind: profile }
   - { path: references/typography/typography-v1.yaml, kind: profile }
+  - { path: references/delivery/font-delivery-v1.yaml, kind: profile }
   - { path: references/types/manifest.yaml, kind: profile }
 
   # --- bundled assets (license evidence 포함) ---------------------------------
   - { path: assets/fonts/HiMelody-Regular.ttf, kind: asset }
   - { path: assets/fonts/HiMelody-OFL.txt, kind: asset }
+  - { path: assets/fonts/Pretendard-Regular.otf, kind: asset }
+  - { path: assets/fonts/Pretendard-Bold.otf, kind: asset }
+  - { path: assets/fonts/Pretendard-OFL.txt, kind: asset }
 
   # --- approved canonical reference: design-kernel이 규범으로 embed·link하므로
   #     agent 판단에 영향을 준다 — evidence가 아니라 runtime asset이다.
@@ -94,6 +101,8 @@ entries:
   - { path: scripts/render.test.mjs, kind: verification }
   - { path: scripts/compose.test.mjs, kind: verification }
   - { path: scripts/font-probe.test.mjs, kind: verification }
+  - { path: scripts/generate.test.mjs, kind: verification }
+  - { path: scripts/route-orthogonal.test.mjs, kind: verification }
   - { tree: scripts/legacy, kind: verification }
   - { tree: scripts/fixtures, kind: verification }
   - { tree: scripts/skin-fixtures, kind: verification }

@@ -2,11 +2,15 @@ schema_version: 1
 kind: typepack-input
 typepack: cards-kpi-grid
 case: stress-copy
-preset: social-4x5
-layout: row
+preset: document-compact
+layout: grid
+cols: 2
 count: 4
 prompt_ko: "핵심 4가지를 카드로 요약하되 제목과 설명을 예산 한계까지 길게 써줘. 4:5."
 prompt_en: "Summarise four key points with titles and bodies at the copy budget limit, 4:5."
+title:
+  ko: "핵심 4가지를 자세히"
+  en: "Four key points in detail"
 cards:
   - id: "observability"
     title:

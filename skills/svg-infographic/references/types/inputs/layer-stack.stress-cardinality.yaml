@@ -7,6 +7,9 @@ layout: column
 count: 5
 prompt_ko: "플랫폼 역량을 5개 계층으로 보여줘. 4:5."
 prompt_en: "Show five stacked capability layers. 4:5."
+title:
+  ko: "플랫폼 역량은 층으로 쌓인다"
+  en: "Platform capability stacks in layers"
 layers:
   - id: "layer-1"
     label:

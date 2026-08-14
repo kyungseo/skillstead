@@ -7,6 +7,9 @@ layout: row
 count: 3
 prompt_ko: "요청이 승인 게이트를 지나 반영되는 경로를 보여줘. 4:5."
 prompt_en: "A request passing an approval gate. 4:5."
+title:
+  ko: "요청은 승인 게이트를 지난다"
+  en: "Requests pass an approval gate"
 nodes:
   - id: "node-1"
     name:

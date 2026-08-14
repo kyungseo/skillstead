@@ -1,0 +1,48 @@
+# Font delivery policy — 산출물에 글꼴을 **어떻게 실어 보낼지**를 정하는 별도 축이다.
+#
+# 경계: 글꼴 정체성(face·weight·asset·digest·license·RFN)은 typography SSoT
+# (references/typography/typography-v1.yaml)가 소유한다. 이 파일은 그 글꼴을
+# portable(사용 glyph subset embed)로 내보낼지, system(설치 글꼴 의존)으로 둘지만 정한다.
+# 두 축을 분리해 두면 글꼴이나 출력 방식이 늘어도 typography profile 조합이 불어나지 않는다.
+schema_version: 1
+id: font-delivery-v1
+kind: font-delivery
+extends: null
+status: current
+default_mode: portable
+modes:
+  portable:
+    # 대상 환경에 글꼴이 없어도 같은 geometry로 렌더된다 — gallery·release evidence의 기준.
+    grade: acceptance
+    embed: subset
+    format: woff2
+    # OFL Reserved Font Name 대응: subset은 Modified Version이므로 원래 이름을 쓸 수 없다.
+    # validator가 typography license.rfn과 대조해 이 alias를 검사한다.
+    alias: SkinSans-Subset
+    editable: false
+    tool:
+      # subsetting은 package가 소유한 wrapper를 통해서만 한다. wrapper가 실행 중인 라이브러리
+      # 버전을 직접 읽어 아래 선언과 대조하므로, 임의의 실행 파일이 acceptance artifact를
+      # 만들 수 없다. 환경이 주는 것은 interpreter뿐이다(SVGINFO_PYTHON).
+      name: fonttools
+      version: 4.53.1
+      brotli: 1.1.0
+      wrapper: scripts/font-subset.py
+      command: python3
+      options: ["--flavor=woff2", "--layout-features=*", "--no-hinting", "--desubroutinize", "--drop-tables+=DSIG"]
+      # 이 도구는 **portable artifact를 만들 때만** 필요하다. 이미 만들어진 산출물을
+      # 보거나 검증(lint·layout·render·audit)하는 데는 요구하지 않는다.
+      dependency_class: build-only
+    on_tool_missing: fail-closed
+    on_glyph_missing: fail-closed
+    # subset은 OFL상 Modified Version이다 — CSS alias만이 아니라 생성된 font의 identity
+    # name record(family·unique ID·full name·PostScript name)까지 중립 명칭으로 rewrite하고,
+    # copyright·trademark·license record는 법적 고지이므로 보존한다.
+    identity_rewrite: required
+    preserve_legal_names: required
+  system:
+    # 가볍고 편집 가능하지만 **환경 의존 산출물**이다 — acceptance 근거로 쓰지 않는다.
+    grade: environment-dependent
+    embed: none
+    editable: true
+    requires_installed_family: true

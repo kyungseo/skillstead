@@ -2,11 +2,15 @@ schema_version: 1
 kind: typepack-input
 typepack: cards-kpi-grid
 case: canonical
-preset: social-4x5
-layout: row
+preset: document-compact
+layout: grid
+cols: 2
 count: 4
 prompt_ko: "핵심 4가지를 동등한 카드로 요약해줘. 소셜 포스트용 4:5 비율."
 prompt_en: "Summarise the four key points as equal cards, 4:5 social post."
+title:
+  ko: "핵심 4가지를 한눈에"
+  en: "Four key points at a glance"
 cards:
   - id: "observability"
     title:

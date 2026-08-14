@@ -8,6 +8,9 @@ cols: 2
 count: 4
 prompt_ko: "두 축으로 옵션을 2×2 사분면에 배치해줘. 4:5."
 prompt_en: "Place options in a 2×2 matrix. 4:5."
+title:
+  ko: "두 축이 우선순위를 정한다"
+  en: "Two axes set the priority"
 axes:
   x:
     low:

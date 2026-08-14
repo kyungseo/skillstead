@@ -265,7 +265,7 @@ const NARROW = new Set(".,:;!'’‘`ijl|()[]{}".split(""));
 const MID_NARROW = new Set("ftrI-·/\\\"".split(""));
 const WIDE = new Set("mMW@%".split(""));
 
-function estimateWidth(text, fontSize, bold, letterSpacing) {
+export function estimateWidth(text, fontSize, bold, letterSpacing) {
   let em = 0;
   for (const ch of text) {
     const code = ch.codePointAt(0);

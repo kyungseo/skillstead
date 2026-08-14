@@ -7,6 +7,9 @@ layout: row
 count: 5
 prompt_ko: "배포 절차를 5단계로 위에서 아래로 보여줘. 4:5 세로."
 prompt_en: "Five top-to-bottom delivery steps. 4:5 portrait."
+title:
+  ko: "배포는 검증을 지나 반영된다"
+  en: "Delivery ships through verification"
 steps:
   - id: "step-1"
     name:

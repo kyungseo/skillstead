@@ -7,6 +7,9 @@ layout: concentric
 count: 3
 prompt_ko: "각 겹 라벨을 예산 한계까지 길게 써서 3겹으로 보여줘. 4:5."
 prompt_en: "Three concentric scopes with labels at the budget limit. 4:5."
+title:
+  ko: "신뢰 경계는 안쪽일수록 좁다"
+  en: "Trust narrows toward the core"
 rings:
   - id: "ring-1"
     label:

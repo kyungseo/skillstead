@@ -8,6 +8,9 @@ cols: 3
 count: 9
 prompt_ko: "리스크를 3×3 격자로 배치해줘. 4:5."
 prompt_en: "Place risks on a 3×3 grid. 4:5."
+title:
+  ko: "두 축이 우선순위를 정한다"
+  en: "Two axes set the priority"
 axes:
   x:
     low:

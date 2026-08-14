@@ -7,6 +7,9 @@ layout: row
 count: 2
 prompt_ko: "전후 비교를 미러 슬롯 5개로 보여줘. 4:5."
 prompt_en: "Before/after with five mirrored slots. 4:5."
+title:
+  ko: "자동화가 배포 시간을 줄였다"
+  en: "Automation cut the delivery time"
 panels:
   - id: "before"
     title:
