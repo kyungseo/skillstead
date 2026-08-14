@@ -1377,7 +1377,7 @@ function main() {
       const FIELDS = ["id", "selection_signal", "profile", "support", "spec", "presets",
         "orientations", "verifier", "receipt_schema", "fixtures", "examples",
         "required_roles", "optional_aliases", "canonical_prompt", "annexes", "gate",
-        "migration_origin", "legacy_section", "fit", "inputs", "composition"];
+        "migration_origin", "legacy_section", "fit", "inputs", "composition", "preferred_preset"];
       for (const k of Object.keys(p)) if (!FIELDS.includes(k)) errors.push(`manifest: ${id}: unknown field "${k}" (locked schema: ${FIELDS.join("/")})`);
       for (const k of FIELDS) if (k !== "composition" && !(k in p)) errors.push(`manifest: ${id}: missing field "${k}"`); // composition은 optional capability (absent => composable: false)
       let pfPresets = [];
@@ -1569,6 +1569,10 @@ function main() {
           const want = fits ? "fits" : "needs-split";
           if (fs.result !== want)
             errors.push(`manifest: ${id}: fit.feasibility(${fs.preset}, count ${fs.count}) declares "${fs.result}" but ${Math.round(fp.w)}×${Math.round(fp.h)} against contentBox ${cb.w}×${cb.h} computes "${want}"`);
+        }
+        if (p.preferred_preset !== undefined) {
+          if (!Array.isArray(p.presets) || !p.presets.includes(p.preferred_preset))
+            errors.push(`manifest: ${id}: preferred_preset "${p.preferred_preset}" must be one of the declared presets`);
         }
         for (const pr of (Array.isArray(p.presets) ? p.presets : []))
           if (!seen.has(`${pr}:${card.max}`)) errors.push(`manifest: ${id}: fit.feasibility must cover preset "${pr}" at the maximum cardinality (${card.max})`);

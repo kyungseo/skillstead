@@ -2,7 +2,7 @@ schema_version: 1
 kind: typepack-input
 typepack: process-flow
 case: stress-cardinality
-preset: social-4x5
+preset: document-compact
 layout: column
 count: 5
 prompt_ko: "배포 절차를 5단계로 위에서 아래로 보여줘. 4:5 세로."

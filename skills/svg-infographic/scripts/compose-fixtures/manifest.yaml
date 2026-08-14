@@ -7,6 +7,7 @@ typepacks:
     support: experimental
     spec: compose-fixtures/specs/summary-cards.md
     presets: [social-4x5]
+    preferred_preset: social-4x5
     orientations: [portrait]
     verifier: null
     receipt_schema: null
@@ -53,6 +54,7 @@ typepacks:
     support: experimental
     spec: compose-fixtures/specs/tree.md
     presets: [social-4x5]
+    preferred_preset: social-4x5
     orientations: [portrait]
     verifier: null
     receipt_schema: null
@@ -101,6 +103,7 @@ typepacks:
     support: experimental
     spec: compose-fixtures/specs/not-composable.md
     presets: [social-4x5]
+    preferred_preset: social-4x5
     orientations: [portrait]
     verifier: null
     receipt_schema: null
@@ -137,6 +140,7 @@ typepacks:
     support: experimental
     spec: compose-fixtures/specs/icon-band.md
     presets: [social-4x5]
+    preferred_preset: social-4x5
     orientations: [portrait]
     verifier: null
     receipt_schema: null

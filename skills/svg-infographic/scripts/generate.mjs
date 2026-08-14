@@ -337,6 +337,146 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0) {
 }
 
 
+
+// ---------- process-flow (main path 한 축, feedback은 되돌이) ----------
+function renderProcessFlow(input, loc, cb, sc, tp) {
+  const steps = input.steps, n = steps.length;
+  const column = sc.layout === "column";
+  const P = tp.fit?.params ?? {};
+  const gap = column ? Number(P.gapY ?? 36) : Number(P.gapX ?? 44);
+  const badge = 26;
+
+  // 카드 크기: 내용에서 파생하고 선언된 floor를 하한으로 둔다(두 locale 최대값 — 기하는 언어에 안정적이어야).
+  const w = column ? Math.min(cb.w, Math.max(Number(P.itemMinW ?? 132), cb.w * 0.62))
+    : (cb.w - (n - 1) * gap) / n;
+  const textW = w - badge - 36;
+  const linesFor = (lc) => steps.map((st) => wrapLines(st.name[lc], textW, 15, true, 2));
+  const maxLines = Math.max(...["ko", "en"].flatMap((lc) => linesFor(lc).map((r) => r.lines.length)));
+  if (["ko", "en"].some((lc) => linesFor(lc).some((r) => r.overflow))) {
+    console.error(`generate: a step name exceeds the §2 line budget at this layout`); process.exit(1);
+  }
+  const h = Math.max(Number(P.itemMinH ?? 88), maxLines * 20 + 40);
+  const x0 = column ? cb.x + (cb.w - w) / 2 : cb.x;
+  const nodes = {}, consumed = [];
+  steps.forEach((st, i) => {
+    nodes[st.id] = column ? { x: x0, y: cb.y + i * (h + gap), w, h }
+      : { x: cb.x + i * (w + gap), y: cb.y, w, h };
+    consumed.push(st.id);
+  });
+  // main path는 인접 단계를 잇는다. feedback이 있으면 되돌이(secondary·dashed)로 마지막 → 첫 단계.
+  const edges = [];
+  for (let i = 0; i + 1 < n; i++) edges.push({ id: `flow-${i + 1}`, from: steps[i].id, to: steps[i + 1].id, weight: "primary" });
+  if (input.feedback) edges.push({ id: "feedback", from: steps[n - 1].id, to: steps[0].id, weight: "secondary", dashed: true });
+
+  const plan = planChannels({ zoneOrder: [], nodeZone: new Map(), nodeIndex: new Map(), edges });
+  const blockH = column ? n * h + (n - 1) * gap : h;
+  const frame = { x: cb.x, y: cb.y, w: cb.w, h: Math.max(blockH + 2 * ROUTE_DEFAULTS.outerClearance, cb.h) };
+  const routed = routeEdges({ nodes, zones: [], plan, frame });
+
+  const laid = linesFor(loc);
+  const nodeArt = steps.map((st, i) => {
+    const b = nodes[st.id], t = laid[i];
+    const ty = b.y + b.h / 2 - (t.lines.length - 1) * 10;
+    return `  <g data-comp-entity="${st.id}" data-entity="${st.id}">
+    <rect x="${r1(b.x)}" y="${r1(b.y)}" width="${r1(b.w)}" height="${r1(b.h)}" rx="12" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface" data-stroke-role="rule" data-layout-item="flow-column"/>
+    <circle cx="${r1(b.x + 24)}" cy="${r1(b.y + b.h / 2)}" r="13" fill="#E4EDF3" data-fill-role="surface-tint"/>
+    <text x="${r1(b.x + 24)}" y="${r1(b.y + b.h / 2)}" font-size="12" font-weight="700" fill="#2E6DA4" data-fill-role="focus" text-anchor="middle" dominant-baseline="central">${i + 1}</text>
+    <text font-size="15" font-weight="700" fill="#252B35" data-fill-role="ink" dominant-baseline="central">${tspans(t.lines, b.x + badge + 24, ty, 20)}</text>
+  </g>`;
+  });
+  return assemble({ routed, consumed, nodes, zoneArt: [`  <g data-layout-group="flow-column" data-distribution="equal-gap" data-axis="${column ? "y" : "x"}" data-group-count="${n}"></g>`],
+    nodeArt, labels: [], loc, bounds: { x: cb.x, y: cb.y, w: cb.w, h: blockH } });
+}
+
+// ---------- approval-gate (한 행 + 게이트 pill과 기준 caption) ----------
+function renderApprovalGate(input, loc, cb, sc, tp) {
+  const list = input.nodes, n = list.length, g = input.gate;
+  const P = tp.fit?.params ?? {};
+  const gap = Number(P.gapX ?? 56);
+  const w = (cb.w - (n - 1) * gap) / n;
+  const textW = w - 24;
+  const linesFor = (lc) => list.map((nd) => wrapLines(nd.name[lc], textW, 14, true, 2));
+  if (["ko", "en"].some((lc) => linesFor(lc).some((r) => r.overflow))) {
+    console.error("generate: a node name exceeds the §2 line budget at this layout"); process.exit(1);
+  }
+  const maxLines = Math.max(...["ko", "en"].flatMap((lc) => linesFor(lc).map((r) => r.lines.length)));
+  const h = Math.max(Number(P.itemMinH ?? 88), maxLines * 19 + 44);
+  // 게이트 pill은 그것이 지키는 화살표 **위**에 놓고 점선으로 내려 닿게 한다(spec §5).
+  const pillH = 26, pillGap = 18;
+  const rowY = cb.y + pillH + pillGap;
+  const nodes = {}, consumed = [];
+  list.forEach((nd, i) => { nodes[nd.id] = { x: cb.x + i * (w + gap), y: rowY, w, h }; consumed.push(nd.id); });
+  const edges = list.slice(0, -1).map((nd, i) => ({ id: `step-${i + 1}`, from: nd.id, to: list[i + 1].id, weight: "primary" }));
+  const plan = planChannels({ zoneOrder: [], nodeZone: new Map(), nodeIndex: new Map(), edges });
+  const routed = routeEdges({ nodes, zones: [], plan, frame: { x: cb.x, y: cb.y, w: cb.w, h: cb.h } });
+
+  const laid = linesFor(loc);
+  const nodeArt = list.map((nd, i) => {
+    const b = nodes[nd.id], t = laid[i];
+    const ty = b.y + b.h / 2 - (t.lines.length - 1) * 9.5;
+    return `  <g data-comp-entity="${nd.id}" data-entity="${nd.id}">
+    <rect x="${r1(b.x)}" y="${r1(b.y)}" width="${r1(b.w)}" height="${r1(b.h)}" rx="12" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface" data-stroke-role="rule" data-layout-item="gate-row"/>
+    <text font-size="14" font-weight="700" fill="#252B35" data-fill-role="ink" text-anchor="middle" dominant-baseline="central">${tspans(t.lines, b.x + b.w / 2, ty, 19)}</text>
+  </g>`;
+  });
+
+  // 지키는 화살표를 찾아 그 중점 위에 pill을 세우고 점선을 내린다.
+  const guarded = routed.routes.find((r) => r.from === g.from && r.to === g.to);
+  const labels = [];
+  if (guarded) {
+    const pts = guarded.points;
+    const mid = { x: (pts[0].x + pts[pts.length - 1].x) / 2, y: (pts[0].y + pts[pts.length - 1].y) / 2 };
+    const label = String(g.label[loc]);
+    const pw = 28 + estimateWidth(label, 12, true, 0) + 16;   // icon 자리(28) + 글자 + 오른쪽 여백
+    const px = mid.x - pw / 2, py = rowY - pillGap - pillH;
+    labels.push(`  <g data-comp-entity="${g.id}" data-entity="${g.id}" data-layout-role="gate">
+    <path d="M${r1(mid.x)} ${r1(py + pillH)} V${r1(mid.y)}" fill="none" stroke="#B07A31" stroke-width="1.4" stroke-dasharray="3 3" data-stroke-role="warning"/>
+    <rect x="${r1(px)}" y="${r1(py)}" width="${r1(pw)}" height="${pillH}" rx="${pillH / 2}" fill="#FBF3E6" stroke="#D8B075" stroke-width="1" data-fill-role="surface-tint" data-stroke-role="warning"/>
+    ${icon("check", px + 16, py + pillH / 2, 13)}
+    <text x="${r1(px + 28)}" y="${r1(py + pillH / 2)}" font-size="12" font-weight="700" fill="#8A5D22" data-fill-role="warning" dominant-baseline="central">${esc(label)}</text>
+  </g>`);
+    consumed.push(g.id);
+  }
+  // 기준은 pill 안이 아니라 band 아래 caption이다(spec §5).
+  const capY = rowY + h + 26;
+  labels.push(`  <g data-layout-role="gate-caption">
+    <text x="${r1(cb.x)}" y="${r1(capY)}" font-size="12.5" fill="#636A75" data-fill-role="muted" dominant-baseline="central">${esc(g.criterion[loc])}</text>
+  </g>`);
+  return assemble({ routed, consumed, nodes,
+    zoneArt: [`  <g data-layout-group="gate-row" data-distribution="equal-gap" data-axis="x" data-group-count="${n}"></g>`],
+    nodeArt, labels, loc, bounds: { x: cb.x, y: cb.y, w: cb.w, h: capY + 10 - cb.y } });
+}
+
+// 두 renderer가 공유하는 조립 — layer 순서와 배선 receipt는 한 곳에서만 만든다.
+function assemble({ routed, consumed, zoneArt, nodeArt, labels, bounds }) {
+  const EDGE = "#7C93AB";
+  const connectors = routed.routes.map((rt) => {
+    const shaft = rt.weight === "primary" ? 2.5 : 2.2;
+    return `  <g data-comp-entity="${rt.id}"><path data-route-id="${rt.id}" data-route-from="${rt.from}" data-route-to="${rt.to}" data-route-kind="${rt.kindPath}" data-route-weight="${rt.weight}" data-route-role="${rt.role ?? "flow"}" d="${pathData(rt)}" fill="none" data-stroke-role="edge-line" stroke="${EDGE}" stroke-width="${shaft}" stroke-linecap="round" stroke-linejoin="round"${rt.style === "dashed" ? ' stroke-dasharray="5 4"' : ""} marker-end="url(#${rt.weight === "primary" ? "ah-primary" : "ah-secondary"})"/></g>`;
+  });
+  const defs = `  <defs>
+    ${["ah-primary", "ah-secondary"].map((id, i) => {
+      const shaft = i === 0 ? 2.5 : 2.2, mw = r1(4.5 * shaft);
+      return `<marker id="${id}" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="${mw}" markerHeight="${mw}" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M2 2 L10 6 L2 10" fill="none" data-stroke-role="edge-line" stroke="${EDGE}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></marker>`;
+    }).join("\n    ")}
+  </defs>`;
+  const body = [defs,
+    `  <g data-layer="containers">`, ...zoneArt, `  </g>`,
+    `  <g data-layer="connectors">`, ...connectors, `  </g>`,
+    `  <g data-layer="nodes">`, ...nodeArt, `  </g>`,
+    `  <g data-layer="annotations">`, ...labels, `  </g>`];
+  if (routed.problems.length) {
+    return { needsSplit: true, consumed: [], routing: { degradeLevel: 0, ladder: [], problems: routed.problems,
+      diagnostics: routed.diagnostics, attempts: routed.attempts, hops: routed.hopCount,
+      unrouted: routed.diagnostics.map((d) => d.subject), edgeCount: routed.routes.length + routed.diagnostics.length } };
+  }
+  return { body: body.join("\n"), consumed, bounds,
+    routing: { degradeLevel: 0, ladder: [], problems: [], hops: routed.hopCount, legend: routed.legendRequired,
+      alignment: [], attempts: routed.attempts, diagnostics: routed.diagnostics, demoted: [],
+      routes: routed.routes.map((rt) => ({ id: rt.id, from: rt.from, to: rt.to, path: rt.kindPath,
+        ports: [rt.sideFrom, rt.sideTo], bends: rt.bends, style: rt.style, targetGap: rt.targetGap, hops: rt.hops.length })) } };
+}
+
 // ---------- font delivery (portable = 사용 glyph subset embed) ----------
 // 계약: portable은 대상 환경의 설치 글꼴에 의존하지 않는다. subset 도구가 없거나 glyph가
 // 빠지면 **full embed로도, system fallback으로도 조용히 넘어가지 않고 실패한다**.
@@ -429,7 +569,9 @@ function build(argv) {
   }
   const render = (cbox) => tid === "cards-kpi-grid" ? renderCards(input, loc, cbox, sc, tp)
     : tid === "topology-component" ? renderTopology(input, loc, cbox, sc, tp)
-    : (console.error(`generate: canary supports cards-kpi-grid and topology-component only (got ${tid})`), process.exit(2));
+    : tid === "process-flow" ? renderProcessFlow(input, loc, cbox, sc, tp)
+    : tid === "approval-gate" ? renderApprovalGate(input, loc, cbox, sc, tp)
+    : (console.error(`generate: no renderer registered for "${tid}"`), process.exit(2));
   let pf = spawnJson([skinCli, "pageframe", preset, "--json"], "skin.mjs pageframe");
   if (pf.regions.fluid) {
     // fluid 캔버스는 내용 높이를 따라간다 — 블록을 먼저 재고 그 높이로 프레임을 다시 만든다.
@@ -441,7 +583,8 @@ function build(argv) {
   const geometry = need.w <= cb.w && need.h <= cb.h ? "fits" : "needs-split";
   const expected = sc.geometry_expected ?? "fits";
   const base = { schemaVersion: 1, command: "generate", typepack: tid, case: sc.id, locale: loc,
-    preset, presetDeclared: tp.presets.includes(preset), audition: Boolean(override) && !tp.presets.includes(preset), layout: sc.layout, count: Number(sc.count), inputDigest,
+    preset, presetDeclared: tp.presets.includes(preset), presetPreferred: tp.preferred_preset ?? null,
+    presetsSupported: tp.presets ?? [], audition: Boolean(override) && !tp.presets.includes(preset), layout: sc.layout, count: Number(sc.count), inputDigest,
     geometry, geometryExpected: expected, routingExpected: sc.routing_expected ?? null,
     footprint: { w: r1(need.w), h: r1(need.h) }, contentBox: { w: cb.w, h: cb.h } };
 
@@ -533,6 +676,11 @@ ${R.body}
 function semanticIds(input, tid) {
   const ids = [];
   if (tid === "cards-kpi-grid") for (const c of input.cards ?? []) ids.push(c.id);
+  if (tid === "process-flow") for (const st of input.steps ?? []) ids.push(st.id);
+  if (tid === "approval-gate") {
+    for (const nd of input.nodes ?? []) ids.push(nd.id);
+    if (input.gate?.id) ids.push(input.gate.id);
+  }
   if (tid === "topology-component") {
     for (const z of input.zones ?? []) { ids.push(z.id); for (const n of z.nodes ?? []) ids.push(n.id); }
     for (const e of input.edges ?? []) ids.push(e.id);
