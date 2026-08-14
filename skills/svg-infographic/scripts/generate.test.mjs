@@ -229,3 +229,111 @@ test("G-12: connector 없는 산출물의 layer 순서를 흐트러뜨리면 ver
   assert.match(r.out, /A-LAYER-ORDER/);
   drop(pkg);
 });
+
+test("G-13: SVG inventory까지 함께 지워도 입력에서 다시 계산한 verify가 잡는다", () => {
+  const pkg = pkgCopy();
+  const b = build(pkg, "before-after", "canonical", "ko");
+  assert.equal(b.code, 0, b.out);
+  assert.equal(runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]).code, 0);
+  // group annotation과 inventory 항목을 **함께** 제거한다 — 산출물 내부는 자기 일관적이다
+  const svg = readFileSync(b.svg, "utf8");
+  const stripped = svg
+    .replace(/data-align-inventory="[^"]*"/, 'data-align-inventory="row:slot-deploy=2"')
+    .replace(/ data-align-row="slot-rollback" data-align-row-count="2"/g, "");
+  writeFileSync(b.svg, stripped);
+  const r = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
+  assert.notEqual(r.code, 0, r.out);
+  assert.match(r.out, /E-GEN-ALIGN/);
+  drop(pkg);
+});
+
+test("G-14: 불완전 격자에서 participant가 1인 축은 group을 만들지 않는다", () => {
+  const pkg = pkgCopy();
+  // 3열에 셀 9개는 완전 격자 — 모든 행·열이 3이다
+  const b = build(pkg, "decision-matrix", "stress-cardinality", "ko");
+  assert.equal(b.code, 0, b.out);
+  const svg = readFileSync(b.svg, "utf8");
+  const inv = (svg.match(/data-align-inventory="([^"]*)"/) ?? [])[1];
+  assert.ok(inv && !/=1(;|$)/.test(inv), `singleton group must not appear in the inventory: ${inv}`);
+  drop(pkg);
+});
+
+// --- decision-matrix: 축 방향과 cell 배치는 축 값에서 파생돼야 한다 -----------------
+// 배열 순서로 자리를 정하면 "낮음" 행이 위로 올라가도 아무 gate가 울리지 않았다.
+// 아래 3종은 그 회귀를 각각 다른 층위에서 고정한다.
+
+test("G-15: 축 값이 자리를 정한다 — high/low 행을 뒤집으면 verify가 거부한다", () => {
+  const pkg = pkgCopy();
+  const b = build(pkg, "decision-matrix", "canonical", "ko");
+  assert.equal(b.code, 0, b.out);
+  assert.equal(runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]).code, 0);
+  // 두 행의 y좌표만 맞바꾼다 — 라벨도 축도 그대로라 산출물만 보면 멀쩡하다.
+  const svg = readFileSync(b.svg, "utf8");
+  const ys = [...svg.matchAll(/<rect x="[\d.]+" y="([\d.]+)"[^>]*data-align-row="matrix-r(\d)"/g)];
+  const top = ys.find((m) => m[2] === "0")[1], bot = ys.find((m) => m[2] === "1")[1];
+  writeFileSync(b.svg, svg.replace(new RegExp(`y="${top}"`, "g"), 'y="__T__')
+    .replace(new RegExp(`y="${bot}"`, "g"), `y="${top}"`).replace(/y="__T__/g, `y="${bot}"`));
+  const r = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
+  assert.notEqual(r.code, 0, r.out);
+  assert.match(r.out, /E-GEN-MATRIX-PLACE/);
+  drop(pkg);
+});
+
+test("G-16: 축 방향 marker가 반대 끝에 있으면 거부한다", () => {
+  const pkg = pkgCopy();
+  const b = build(pkg, "decision-matrix", "canonical", "ko");
+  const svg = readFileSync(b.svg, "utf8");
+  // y축 marker를 아래 끝으로 옮긴다 — 선도 라벨도 그대로다.
+  const line = svg.match(/<path data-axis="y"[^>]*d="M([\d.]+) ([\d.]+) V([\d.]+)"/);
+  const [, ax, bot, top] = line;
+  const moved = svg.replace(/<path data-axis-marker="y" d="[^"]*"/,
+    `<path data-axis-marker="y" d="M${Number(ax) - 3.4} ${Number(bot) - 6.8} L${ax} ${bot} L${Number(ax) + 3.4} ${Number(bot) - 6.8}"`);
+  assert.notEqual(moved, svg);
+  void top;
+  writeFileSync(b.svg, moved);
+  const r = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
+  assert.notEqual(r.code, 0, r.out);
+  assert.match(r.out, /E-GEN-AXIS-DIR/);
+  drop(pkg);
+});
+
+test("G-17: 축 방향과 라벨을 함께 뒤집어도 cell 배치가 어긋나면 거부한다", () => {
+  const pkg = pkgCopy();
+  const b = build(pkg, "decision-matrix", "canonical", "ko");
+  const svg = readFileSync(b.svg, "utf8");
+  // 산출물만 보면 **완전히 자기 일관적**이 되도록 전부 뒤집는다: positive=down,
+  // marker를 아래 끝으로, 두 끝 라벨 교환, 그리고 cell 행까지 교환.
+  // "y는 위로 자란다"는 계약과 원본 축 값이 없으면 이 산출물은 통과해버린다.
+  const line = svg.match(/<path data-axis="y"[^>]*d="M([\d.]+) ([\d.]+) V([\d.]+)"/);
+  const [, ax, bot] = line;
+  const hi = svg.match(/<text data-axis-end="y:high"[^>]*>([^<]*)</)[1];
+  const lo = svg.match(/<text data-axis-end="y:low"[^>]*>([^<]*)</)[1];
+  const ys = [...svg.matchAll(/<rect x="[\d.]+" y="([\d.]+)"[^>]*data-align-row="matrix-r(\d)"/g)];
+  const top = ys.find((m) => m[2] === "0")[1], low = ys.find((m) => m[2] === "1")[1];
+  const f = svg.replace('data-axis-positive="up"', 'data-axis-positive="down"')
+    .replace(/<path data-axis-marker="y" d="[^"]*"/,
+      `<path data-axis-marker="y" d="M${Number(ax) - 3.4} ${Number(bot) - 6.8} L${ax} ${bot} L${Number(ax) + 3.4} ${Number(bot) - 6.8}"`)
+    .replace(/(<text data-axis-end="y:high"[^>]*>)[^<]*</, `$1${lo}<`)
+    .replace(/(<text data-axis-end="y:low"[^>]*>)[^<]*</, `$1${hi}<`)
+    .replace(new RegExp(`y="${top}"`, "g"), 'y="__T__')
+    .replace(new RegExp(`y="${low}"`, "g"), `y="${top}"`)
+    .replace(/y="__T__/g, `y="${low}"`);
+  writeFileSync(b.svg, f);
+  const r = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
+  assert.notEqual(r.code, 0, r.out);
+  // 두 층위가 함께 걸린다: 축 방향 계약(위가 positive)과 입력 축 값이 정한 실제 자리.
+  assert.match(r.out, /E-GEN-AXIS/);
+  assert.match(r.out, /E-GEN-MATRIX-PLACE/);
+  drop(pkg);
+});
+
+test("G-18: ordinal 축은 connector가 아니다 — routing audit 대상이 되지 않는다", () => {
+  const pkg = pkgCopy();
+  const b = build(pkg, "decision-matrix", "canonical", "ko");
+  const svg = readFileSync(b.svg, "utf8");
+  const axisBlock = svg.slice(svg.indexOf('data-layout-role="axis"'));
+  assert.ok(!/data-route-(id|from|to|kind)=/.test(axisBlock), "axis must not carry connector classification");
+  assert.ok(!/marker-end="url\(#ah-/.test(axisBlock), "axis must not reuse the connector arrowhead marker");
+  assert.equal(runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]).code, 0);
+  drop(pkg);
+});

@@ -14,7 +14,7 @@
 # evidence 또는 CI artifact로만 저장한다.
 
 schema_version: 1
-surface_revision: 8
+surface_revision: 9
 
 canonicalization:
   version: 1
@@ -98,6 +98,7 @@ entries:
   - { path: scripts/skin.test.mjs, kind: verification }
   - { path: scripts/check-svg.test.mjs, kind: verification }
   - { path: scripts/check-layout.test.mjs, kind: verification }
+  - { path: scripts/run-tests.sh, kind: verification }
   - { path: scripts/render.test.mjs, kind: verification }
   - { path: scripts/compose.test.mjs, kind: verification }
   - { path: scripts/font-probe.test.mjs, kind: verification }

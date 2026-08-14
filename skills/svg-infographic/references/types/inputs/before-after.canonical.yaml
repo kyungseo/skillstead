@@ -2,7 +2,7 @@ schema_version: 1
 kind: typepack-input
 typepack: before-after
 case: canonical
-preset: social-4x5
+preset: document-compact
 layout: row
 count: 2
 prompt_ko: "마이그레이션 전후를 두 항목으로 비교해줘. 4:5."

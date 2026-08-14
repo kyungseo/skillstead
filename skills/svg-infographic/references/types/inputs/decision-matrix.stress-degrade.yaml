@@ -1,8 +1,8 @@
 schema_version: 1
 kind: typepack-input
 typepack: decision-matrix
-case: stress-cardinality
-preset: presentation-16x9
+case: stress-degrade
+preset: document-compact
 layout: grid
 cols: 3
 count: 9

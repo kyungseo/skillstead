@@ -49,11 +49,20 @@ Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 regi
   contentBox**(preset별 live receipt)와 대조돼 `fits` 또는 `needs-split`으로 확정된다.
   manifest validator가 두 계산을 모두 재수행하므로 선언만으로 통과할 수 없다.
 - 경계: 두 패널과 gutter가 두 preset에서 성립한다. 높이는 긴 쪽이 정하고 짧은 쪽을 **패딩**한다.
+- 패널 높이 floor는 상수가 아니라 **최소 합법 문법에서 유도한다**: 헤더 예약 + (최소 slot 수 ×
+  slot 높이) + slot 사이 간격 + 패널 안쪽 여백. 기호로 쓰면
+  `panelFloor = panelHeaderH + minSlots × slotMinH + (minSlots − 1) × slotGap + 2 × panelPad`이고,
+  변수 값은 모두 manifest `fit.params`가 소유한다. validator와 renderer가 **같은 derive helper**를
+  호출하므로 문서·검증·렌더가 갈라질 수 없다. floor를 맞추려고 canonical의 slot 수를 늘리거나
+  임의의 낮은 상수로 내리지 않는다.
 
 ## 5. Layout, encoding and connector rules
 
 - Two equal-height, equal-width panels with a 32–48px gutter; optional centre arrow or migration chip between them; optional delta strip below.
-- Mirrored slots align to the same y in both panels.
+- Mirrored slots align to the same y in both panels. 이 대칭은 눈으로 판정하지 않는다: slot `i`는
+  두 패널에서 하나의 `data-align-row`에 속하고 참여 수 2를 선언하므로, 한쪽 slot이 어긋나거나
+  annotation이 빠지면 hard error가 된다(design-kernel §7d). 패널 헤더는 `data-reserve-top`으로
+  예약돼 대칭 판정에서 빠진다.
 - A legend is required when three or more semantic colours appear.
 - No connectors between panel internals — the mirror alignment carries the correspondence.
 
@@ -67,7 +76,7 @@ Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 regi
 ## 7. Verifier, receipt and fixture contract
 
 - **Machine verifier**: none (`verifier: null`).
-- Checks: panel heights and widths equal; mirrored slots share a y; gutter ≥ 24 with balanced outer margins; legend present when required.
+- Checks: panel heights and widths equal; mirrored slots share a y; gutter ≥ 24 with balanced outer margins; legend present when required. 앞의 두 항목은 `check-layout.mjs`의 alignment 계약이 기계로 판정하고, artifact의 `data-align-inventory`는 원본 input에서 다시 계산한 기대치와 대조된다.
 - **Receipt**: the mirrored slot list, per-slot change class, and the padding applied to the shorter panel.
 - **Fixtures**: positive per preset + a baseline-red with ragged panel ends. Required before `core`.
 
@@ -81,5 +90,6 @@ Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 regi
 
 - Panels ending ragged because content differed.
 - Slots that do not mirror, so the eye cannot diff.
+- 한쪽 패널의 slot annotation만 남아 정렬 검사가 "남은 것끼리는 맞다"로 통과하는 경우.
 - Colour-only change encoding with no legend and no text.
 - A third panel bolted on.

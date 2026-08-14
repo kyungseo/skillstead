@@ -119,3 +119,31 @@ test("positive: 라벨 열을 예약하면 내용은 예약 경계 기준으로 
 });
 test("12 예약된 라벨 열 안으로 자식이 들어가면 거부", () =>
   neg("ln-reserve-left-breach.svg", /E-LAYOUT-RESERVE container "band"/));
+
+// --- alignment grid: 정렬 + **참여 완결성** ------------------------------------------
+test("positive: mirrored row와 격자 column이 정렬·참여 수를 모두 만족", () => {
+  const r = run([path.join(FIX, "lp-align-grid.svg")]);
+  assert.equal(r.code, 0, r.out);
+});
+test("13 mirrored row 한쪽 annotation 누락", () =>
+  neg("ln-align-missing-mirror.svg", /E-LAYOUT-ALIGN-SCHEMA row "slot-1": declared 2 participant\(s\) but found 1/));
+test("14 격자 셀 하나의 align annotation 누락", () =>
+  neg("ln-align-missing-cell.svg", /E-LAYOUT-ALIGN-SCHEMA col "col-b": declared 2 participant\(s\) but found 1/));
+test("15 같은 row의 y drift", () =>
+  neg("ln-align-row-drift.svg", /E-LAYOUT-ALIGN row "slot-1": top edges differ by 6px/));
+test("16 같은 column의 width drift", () =>
+  neg("ln-align-col-drift.svg", /E-LAYOUT-ALIGN col "col-a": widths differ by 20px/));
+test("17 참여 수 선언 충돌(위조)", () =>
+  neg("ln-align-count-forged.svg", /E-LAYOUT-ALIGN-SCHEMA row "slot-1": participants disagree/));
+test("18 singleton alignment group은 통과하지 않는다", () =>
+  neg("ln-align-singleton.svg", /E-LAYOUT-ALIGN-SCHEMA row "lonely": data-align-row-count must be an integer ≥ 2/));
+
+// --- alignment inventory: group 전체 누락·예상 밖 group -------------------------------
+test("19 mirrored row 양쪽 annotation을 모두 제거해도 inventory가 잡는다", () =>
+  neg("ln-align-inventory-group-gone.svg", /alignment group "row:slot-2" is declared in the inventory but no participant carries it/));
+test("20 격자 row group 전체 제거", () =>
+  neg("ln-align-inventory-row-gone.svg", /alignment group "row:matrix-r1" is declared in the inventory but no participant carries it/));
+test("21 격자 column group 전체 제거", () =>
+  neg("ln-align-inventory-col-gone.svg", /alignment group "col:matrix-c1" is declared in the inventory but no participant carries it/));
+test("22 inventory에 없는 group 추가", () =>
+  neg("ln-align-inventory-unexpected.svg", /alignment group "row:slot-9" exists in the artifact but is absent from the inventory/));

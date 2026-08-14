@@ -268,6 +268,40 @@ async function runBrowserForScreenshot(executable, flags, shotPath, timeoutMs) {
 // profile handles a moment after the child exits, so EBUSY/EPERM/ENOTEMPTY
 // gets a bounded retry. A final failure is reported as an ASCII diagnostic
 // and never changes the render exit code.
+// --- DOM dump lifecycle ---------------------------------------------------
+// spawnSync의 timeout은 이 경로를 bound하지 못한다: Chromium은 결과를 낸 뒤에도
+// 계속 살아 있을 수 있고(render.mjs가 문서화한 동작), 보조 프로세스가 stdout pipe를
+// 붙잡고 있으면 부모의 동기 read가 timeout 뒤에도 계속 막힌다. 실제로 60초로 선언된
+// 호출이 549초를 쓰고 실패했다.
+// 그래서 render.mjs와 같은 계약을 쓴다: 자체 process group으로 띄우고, **필요한 산출물이
+// 나오는 즉시** 우리 자식을 종료하며, wall clock을 hard bound한다. 재시도는 하지 않는다.
+export async function dumpDom(exePath, argv, { timeoutMs = 30000, maxBytes = 64 * 1024 * 1024 } = {}) {
+  return await new Promise((resolve) => {
+    let child;
+    try { child = spawn(exePath, argv, { stdio: ["ignore", "pipe", "pipe"], detached: true }); }
+    catch { return resolve({ stdout: "", stderr: "", reason: "spawn-error" }); }
+    let stdout = "", stderr = "", bytes = 0, settled = false;
+    const stop = (reason) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      // 우리 자식과 그 보조 프로세스만 정리한다 — 사용자의 브라우저는 다른 group이다.
+      try { process.kill(-child.pid, "SIGKILL"); } catch { try { child.kill("SIGKILL"); } catch { /* 이미 종료 */ } }
+      resolve({ stdout, stderr, reason });
+    };
+    const timer = setTimeout(() => stop("timeout"), timeoutMs);
+    child.stdout.on("data", (b) => {
+      bytes += b.length;
+      if (bytes <= maxBytes) stdout += b;
+      // 원하는 것은 dump 전체가 아니라 probe 출력이다. 그것이 보이면 더 기다리지 않는다.
+      if (/<\/pre>/.test(stdout)) stop("done");
+    });
+    child.stderr.on("data", (b) => { stderr += b; });
+    child.on("error", () => stop("spawn-error"));
+    child.on("close", () => stop("exit"));
+  });
+}
+
 export async function cleanupWithRetry(path, { rmFn = rmSync, retries = 5, delayMs = 300, delayFn = delay } = {}) {
   for (let attempt = 0; ; attempt++) {
     try {

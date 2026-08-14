@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 220" width="420" height="220">
+  <!-- column group 하나가 통째로 사라졌다 -->
+  <g data-align-inventory="col:matrix-c0=2;col:matrix-c1=2;row:matrix-r0=2;row:matrix-r1=2">
+    <rect data-align-row="matrix-r0" data-align-row-count="2" data-align-col="matrix-c0" data-align-col-count="2" x="20" y="20" width="170" height="60" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1"/>
+    <rect data-align-row="matrix-r0" data-align-row-count="2" x="230" y="20" width="170" height="60" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1"/>
+    <rect data-align-row="matrix-r1" data-align-row-count="2" data-align-col="matrix-c0" data-align-col-count="2" x="20" y="120" width="170" height="60" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1"/>
+    <rect data-align-row="matrix-r1" data-align-row-count="2" x="230" y="120" width="170" height="60" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1"/>
+  </g>
+</svg>

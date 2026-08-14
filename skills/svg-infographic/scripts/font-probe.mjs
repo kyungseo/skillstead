@@ -16,11 +16,13 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { pathToFileURL, fileURLToPath } from "node:url";
-import { resolveBrowser } from "./render.mjs";
+import { resolveBrowser, dumpDom } from "./render.mjs";
 import { preflight } from "./preflight-lib.mjs";
+
 
 preflight({ entrypointUrl: import.meta.url });
 
+const PROBE_NAME = "font-probe";
 const args = process.argv.slice(2);
 const json = args.includes("--json");
 const svgPath = args.find((a) => !a.startsWith("--"));
@@ -95,12 +97,17 @@ ${svg}
 </script>`;
 const htmlPath = path.join(dir, "probe.html");
 writeFileSync(htmlPath, html);
-const r = spawnSync(browser.path, [
+const r = await dumpDom(browser.path, [
   "--headless=new", "--disable-gpu", "--hide-scrollbars",
   `--user-data-dir=${path.join(dir, "profile")}`,
   "--no-first-run", "--no-default-browser-check",
   "--dump-dom", "--virtual-time-budget=4000", "--timeout=8000", pathToFileURL(htmlPath).href,
-], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024, timeout: 30000 });
+], { timeoutMs: 30000 });
+if (r.reason === "timeout" || r.reason === "spawn-error") {
+  rmSync(dir, { recursive: true, force: true });
+  console.error(`${PROBE_NAME}: browser probe did not finish (${r.reason}) — fail-closed`);
+  process.exit(1);
+}
 rmSync(dir, { recursive: true, force: true });
 const m = (r.stdout || "").match(/<pre id="probe-out">([\s\S]*?)<\/pre>/);
 if (!m || !m[1].trim()) { console.error("font-probe: probe output not found (browser JS did not run)"); process.exit(1); }

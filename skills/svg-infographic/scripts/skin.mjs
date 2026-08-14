@@ -291,6 +291,61 @@ function loadTypography(errors, overridePath = null) {
   return { doc, digest };
 }
 
+
+// --- derived geometry floors -------------------------------------------------
+// 수치 SSoT는 manifest params이고, **산식의 소유자는 이 helper 하나**다.
+// spec은 기호식만 설명하고, validator와 renderer는 이 함수를 함께 쓴다.
+export const PANEL_FLOOR_COMPONENTS = ["panelPad", "panelHeaderH", "slotMinH", "slotGap", "minSlots"];
+export function derivePanelFloor(params = {}) {
+  if (!PANEL_FLOOR_COMPONENTS.some((k) => params[k] !== undefined)) return { declared: false };
+  const missing = PANEL_FLOOR_COMPONENTS.filter((k) => !Number.isFinite(Number(params[k])));
+  if (missing.length) return { declared: true, missing };
+  const n = Number(params.minSlots);
+  const value = 2 * Number(params.panelPad) + Number(params.panelHeaderH)
+    + n * Number(params.slotMinH) + (n - 1) * Number(params.slotGap);
+  return { declared: true, missing: [], value,
+    formula: "2×panelPad + panelHeaderH + minSlots×slotMinH + (minSlots−1)×slotGap" };
+}
+
+
+// --- alignment inventory -----------------------------------------------------
+// 정렬 group이 **통째로 빠지면** participant annotation만으로는 알 수 없다.
+// 그래서 기대 group 목록을 입력 cardinality에서 따로 파생하고, 산출물이 그것을 선언하게 한다.
+// 규칙: 참여자가 2 미만인 축은 정렬 관계가 없으므로 **group을 만들지 않는다**
+//       (불완전 격자도 지원하되 singleton group은 존재 자체가 없다 — 모순을 남기지 않는다).
+// decision-matrix: 자리는 배열 순서가 아니라 **축 값**이 정한다.
+// x tier는 낮음→높음이 왼→오, y tier는 낮음→높음이 아래→위이므로 row는 뒤집어 센다.
+export function deriveMatrixPlacement(input) {
+  const xt = input.axes?.x?.tiers ?? [], yt = input.axes?.y?.tiers ?? [];
+  const cols = xt.length, rows = yt.length;
+  const cells = (input.cells ?? []).map((c) => {
+    const col = xt.findIndex((t) => t.id === c.x), yi = yt.findIndex((t) => t.id === c.y);
+    return { id: c.id, x: c.x, y: c.y, col, row: yi < 0 ? -1 : rows - 1 - yi };
+  });
+  return { cols, rows, xTiers: xt, yTiers: yt, cells };
+}
+export function deriveAlignInventory(typepack, input, scenario = {}) {
+  const out = [];
+  if (typepack === "before-after") {
+    const n = (input.panels ?? []).length;
+    for (const st of input.slots ?? []) if (n >= 2) out.push({ axis: "row", id: `slot-${st.id}`, count: n });
+  } else if (typepack === "decision-matrix") {
+    const pl = deriveMatrixPlacement(input);
+    for (let r = 0; r < pl.rows; r++) {
+      const n = pl.cells.filter((c) => c.row === r).length;
+      if (n >= 2) out.push({ axis: "row", id: `matrix-r${r}`, count: n });
+    }
+    for (let c = 0; c < pl.cols; c++) {
+      const n = pl.cells.filter((x) => x.col === c).length;
+      if (n >= 2) out.push({ axis: "col", id: `matrix-c${c}`, count: n });
+    }
+    void scenario;
+  }
+  return out.sort((a, b) => (a.axis + a.id < b.axis + b.id ? -1 : 1));
+}
+export const serializeAlignInventory = (inv) =>
+  inv.map((g) => `${g.axis}:${g.id}=${g.count}`).join(";");
+
 // --- font delivery policy ------------------------------------------------------
 // 글꼴 정체성은 typography SSoT가, **전달 방식**은 이 profile이 소유한다.
 export function loadDelivery(errors, typo = null) {
@@ -700,8 +755,11 @@ const INPUT_SCHEMA = {
   },
   "decision-matrix": {
     root: ["axes", "cells"], collection: "cells",
-    entity: { required: { name: B(16, 24), trait: B(30, 44) }, optional: { action: B(20, 30), examples: "examples" } },
-    limits: { maxExamples: 2, exampleBudget: B(20, 30) },
+    // 위치가 곧 주장이므로 cell은 **어느 축 값에 속하는지**를 선언한다(x/y = tier id).
+    // name은 선택이다 — 없으면 두 축 tier label에서 파생해 "낮음-높음" 같은 모호한 문안을 없앤다.
+    entity: { required: { x: "tier", y: "tier", trait: B(30, 44) },
+      optional: { name: B(16, 24), action: B(20, 30), examples: "examples" } },
+    limits: { maxExamples: 2, exampleBudget: B(20, 30), tiers: [2, 3] },
   },
 };
 
@@ -758,6 +816,7 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
     else if (ids.has(e.id)) report(`duplicate ${sc.collection} entity id "${e.id}"`);
     else ids.add(e.id);
     for (const [f, budget] of Object.entries(req)) {
+      if (budget === "tier") continue;      // 축 tier 참조는 타입별 validator가 소유
       if (budget === "status") { if (!["done", "current", "future"].includes(e[f])) report(`entity "${e.id}" status must be done|current|future`); continue; }
       if (budget === "card") {
         if (e[f] === undefined) { report(`entity "${e.id}" is missing its required milestone card`); continue; }
@@ -908,10 +967,36 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
       const ax = doc.axes;
       if (!ax || typeof ax !== "object") { report("decision payload requires axes"); return; }
       exactKeys(ax, ["x", "y"], "axes", report);
+      const [tlo, thi] = sc.limits.tiers;
+      const tierIds = {};
       for (const a of ["x", "y"]) {
-        exactKeys(ax[a], ["low", "high"], `axes.${a}`, report);
-        for (const end of ["low", "high"]) localized(ax[a]?.[end], B(14, 20), `axes.${a}.${end}`, report);
+        if (ax[a] && "low" in ax[a]) { report(`axes.${a} still uses the low/high form — declare ordered "tiers" instead so cell placement can be derived from the axis value`); continue; }
+        exactKeys(ax[a], ["tiers"], `axes.${a}`, report);
+        const t = ax[a]?.tiers;
+        if (!Array.isArray(t) || t.length < tlo || t.length > thi) { report(`axes.${a}.tiers must hold ${tlo}–${thi} ordered steps (low → high)`); continue; }
+        const seen = new Set();
+        for (const s of t) {
+          exactKeys(s, ["id", "label"], `axes.${a} tier "${s?.id}"`, report);
+          if (!s?.id || !/^[a-z0-9][a-z0-9-]*$/.test(String(s.id))) report(`axes.${a} tier id "${s?.id}" must be kebab-case`);
+          else if (seen.has(s.id)) report(`axes.${a} declares duplicate tier id "${s.id}"`);
+          else seen.add(s.id);
+          localized(s?.label, B(14, 20), `axes.${a} tier "${s?.id}" label`, report);
+        }
+        tierIds[a] = seen;
       }
+      // cell은 배열 순서가 아니라 축 값으로 자리를 갖는다 — 같은 칸을 두 번 주장할 수 없다.
+      const taken = new Map();
+      for (const c of list) {
+        for (const a of ["x", "y"]) {
+          if (!tierIds[a]) continue;
+          if (!tierIds[a].has(c?.[a])) report(`cell "${c?.id}" ${a} "${c?.[a]}" is not a declared axes.${a} tier`);
+        }
+        const key = `${c?.x}|${c?.y}`;
+        if (taken.has(key)) report(`cells "${taken.get(key)}" and "${c?.id}" both claim the same (x=${c?.x}, y=${c?.y}) position`);
+        else taken.set(key, c?.id);
+      }
+      if (tierIds.x && tierIds.y && list.length > tierIds.x.size * tierIds.y.size)
+        report(`${list.length} cells exceed the ${tierIds.x.size}×${tierIds.y.size} positions the axes declare`);
       if (list.every((c) => c.action !== undefined && (c.examples ?? []).length === sc.limits.maxExamples)) observed.add("optionals-max");
     },
   };
@@ -1488,6 +1573,13 @@ function main() {
           // 승격할 수 없으므로 거부한다.
           errors.push(`manifest: ${id}: fit.floor_basis "rendered" requires the CP2B floor_evidence contract (preset/locale stress fixtures with digests) — it cannot be self-declared`);
         const card = fit.cardinality ?? {};
+        // floor 산식은 derivePanelFloor가 소유한다(renderer도 같은 함수를 쓴다).
+        {
+          const f = derivePanelFloor(fit.params ?? {});
+          if (f.declared && f.missing?.length) errors.push(`manifest: ${id}: derived floor needs ${f.missing.join(", ")}`);
+          else if (f.declared && Number(fit.params.itemMinH) !== f.value)
+            errors.push(`manifest: ${id}: itemMinH ${fit.params.itemMinH} != derived floor ${f.value} (${f.formula})`);
+        }
         for (const k of ["min", "canonical", "max"]) if (!posInt(card[k])) errors.push(`manifest: ${id}: fit.cardinality.${k} must be a positive integer (got ${card[k]})`);
         if (Number(card.min) > Number(card.canonical) || Number(card.canonical) > Number(card.max))
           errors.push(`manifest: ${id}: fit.cardinality must satisfy min <= canonical <= max`);
@@ -1602,7 +1694,13 @@ function main() {
           if (Array.isArray(p.presets) && !p.presets.includes(c.preset)) errors.push(`manifest: ${id}: inputs.${cse} preset "${c.preset}" is not declared`);
           if (!posInt(c.count)) errors.push(`manifest: ${id}: inputs.${cse} count must be a positive integer`);
           // 기하 판정: 선언된 배치를 계산해 live contentBox와 대조하고 expected와 맞춘다
-          const got = computeFit ? computeFit({ count: c.count, layout: c.layout, cols: c.cols, floor: c.floor }) : null;
+          // 같은 구성의 footprint가 선언한 extra(축 라벨 등)를 함께 반영한다 —
+          // 시나리오 판정과 footprint 판정이 다른 수치를 쓰면 두 계약이 갈린다.
+          const fpMatch = (Array.isArray(p.fit?.footprint) ? p.fit.footprint : []).find((f) =>
+            Number(f.count) === Number(c.count) && f.layout === c.layout
+            && String(f.cols ?? "") === String(c.cols ?? "") && String(f.floor ?? "base") === String(c.floor ?? "base"));
+          const got = computeFit ? computeFit({ count: c.count, layout: c.layout, cols: c.cols, floor: c.floor,
+            extraW: fpMatch?.extraW, extraH: fpMatch?.extraH }) : null;
           const pfi = pageframeFor(c.preset);
           let computed = null;
           if (got && pfi) {
