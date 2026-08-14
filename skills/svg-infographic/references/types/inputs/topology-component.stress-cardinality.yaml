@@ -17,10 +17,12 @@ zones:
         name:
           ko: "게이트웨이"
           en: "Gateway"
+        icon: "route"
       - id: "waf"
         name:
           ko: "방화벽"
           en: "WAF"
+        icon: "shield"
   - id: "zone-2"
     label:
       ko: "애플리케이션 zone"
@@ -30,14 +32,17 @@ zones:
         name:
           ko: "API 서비스"
           en: "API service"
+        icon: "server"
       - id: "auth"
         name:
           ko: "인증 서비스"
           en: "Auth service"
+        icon: "lock"
       - id: "job"
         name:
           ko: "작업 처리기"
           en: "Job worker"
+        icon: "gauge"
   - id: "zone-3"
     label:
       ko: "비동기 처리 zone"
@@ -47,10 +52,12 @@ zones:
         name:
           ko: "메시지 큐"
           en: "Message queue"
+        icon: "queue"
       - id: "stream"
         name:
           ko: "스트림 처리"
           en: "Stream processor"
+        icon: "activity"
   - id: "zone-4"
     label:
       ko: "데이터 zone"
@@ -60,10 +67,12 @@ zones:
         name:
           ko: "기본 데이터베이스"
           en: "Primary database"
+        icon: "database"
       - id: "cache"
         name:
           ko: "캐시"
           en: "Cache"
+        icon: "layers"
 edges:
   - id: "e1"
     from: "gw"

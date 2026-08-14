@@ -10,10 +10,10 @@ prompt_en: "Summarise four key points with titles and bodies at the copy budget 
 cards:
   - id: "observability"
     title:
-      ko: "관측 가능성 확보와 경보 체계 정비까지"
+      ko: "관측 가능성 확보와 경보 체계 정비 완료까지"
       en: "Observability with alerting and on-call rota"
     body:
-      ko: "로그·지표·추적을 하나의 흐름으로 연결"
+      ko: "로그와 지표와 추적을 하나의 흐름으로 연결"
       en: "Logs, metrics and traces connected as one"
   - id: "delivery"
     title:

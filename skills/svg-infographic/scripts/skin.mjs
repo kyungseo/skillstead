@@ -596,7 +596,7 @@ const INPUT_SCHEMA = {
   },
   "roadmap-timeline": {
     root: ["phases", "now_marker"], collection: "phases",
-    entity: { required: { label: B(16, 24, "hard"), status: "status" }, optional: { card: "card" } },
+    entity: { required: { label: B(16, 24), status: "status", card: "card" }, optional: {} },
     limits: { cardTitle: B(20, 30), cardBody: B(30, 48) },
   },
   "decision-matrix": {
@@ -611,6 +611,9 @@ const INPUT_SCHEMA = {
 const COVERS_VOCAB = ["cardinality-max", "copy-boundary-candidate", "optionals-max",
   "edge-density", "containment-depth", "mirrored-slots", "status-and-marker",
   "gate-caption", "chips-max", "degrade-path"];
+// audit 대상 축: 관측되면 반드시 선언돼야 한다(선언 ⊆ 관측 뿐 아니라 그 역도 성립).
+const AUDITABLE_COVERS = ["cardinality-max", "copy-boundary-candidate", "optionals-max",
+  "edge-density", "containment-depth", "mirrored-slots", "status-and-marker", "chips-max", "degrade-path"];
 
 function localized(v, budget, ctx, report, required = true) {
   if (v == null) { if (required) report(`${ctx} is missing`); return; }
@@ -620,6 +623,16 @@ function localized(v, budget, ctx, report, required = true) {
     if (!v[loc]) { report(`${ctx} is missing the ${loc} value (both locales are first-class)`); continue; }
     const n = graphemes(v[loc]), lim = budget?.[loc];
     if (lim && n > lim) report(`${ctx}.${loc} is ${n} graphemes, over the ${lim} ${budget.kind === "hard" ? "budget" : "authoring sanity ceiling"}`);
+  }
+}
+// receipt가 독립 entity로 소비할 수 있는 하위 요소는 모두 kebab-case + scope 내 unique다.
+function subIds(items, ctx, report) {
+  const seen = new Set();
+  for (const it of items ?? []) {
+    if (!it || typeof it !== "object") continue;
+    if (!it.id || !/^[a-z0-9][a-z0-9-]*$/.test(String(it.id))) report(`${ctx} id "${it.id}" must be kebab-case`);
+    else if (seen.has(it.id)) report(`duplicate ${ctx} id "${it.id}"`);
+    else seen.add(it.id);
   }
 }
 const exactKeys = (obj, allowed, ctx, report) => {
@@ -645,6 +658,13 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
     else ids.add(e.id);
     for (const [f, budget] of Object.entries(req)) {
       if (budget === "status") { if (!["done", "current", "future"].includes(e[f])) report(`entity "${e.id}" status must be done|current|future`); continue; }
+      if (budget === "card") {
+        if (e[f] === undefined) { report(`entity "${e.id}" is missing its required milestone card`); continue; }
+        exactKeys(e[f], ["title", "body"], `entity "${e.id}" card`, report);
+        localized(e[f].title, sc.limits.cardTitle, `entity "${e.id}" card.title`, report);
+        if (e[f].body !== undefined) localized(e[f].body, sc.limits.cardBody, `entity "${e.id}" card.body`, report);
+        continue;
+      }
       localized(e[f], budget, `entity "${e.id}" ${f}`, report);
     }
     for (const [f, budget] of Object.entries(opt)) {
@@ -653,6 +673,7 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
       if (budget === "chips") {
         if (!Array.isArray(e[f])) { report(`entity "${e.id}" items must be a list`); continue; }
         if (e[f].length > sc.limits.chipsPerLayer) report(`entity "${e.id}" holds ${e[f].length} chips, over the ${sc.limits.chipsPerLayer} cap`);
+        subIds(e[f], `chip of "${e.id}"`, report);
         for (const ch of e[f]) { exactKeys(ch, ["id", "label"], `chip "${ch.id}"`, report); localized(ch.label, sc.limits.chipBudget, `chip "${ch.id}" label`, report); }
         continue;
       }
@@ -666,6 +687,7 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
       if (budget === "examples") {
         if (!Array.isArray(e[f])) { report(`entity "${e.id}" examples must be a list`); continue; }
         if (e[f].length > sc.limits.maxExamples) report(`entity "${e.id}" holds ${e[f].length} examples, over the ${sc.limits.maxExamples} cap`);
+        subIds(e[f], `example of "${e.id}"`, report);
         for (const ex of e[f]) { exactKeys(ex, ["id", "text"], `example "${ex.id}"`, report); localized(ex.text, sc.limits.exampleBudget, `example "${ex.id}" text`, report); }
         continue;
       }
@@ -688,6 +710,7 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
       const nodeIds = new Set();
       for (const z of list) {
         const ns = z.nodes ?? [];
+        subIds(ns, `node of "${z.id}"`, report);
         const [lo, hi] = sc.limits.nodesPerZone;
         if (ns.length < lo || ns.length > hi) report(`zone "${z.id}" holds ${ns.length} nodes; the contract allows ${lo}–${hi}`);
         for (const n of ns) {
@@ -696,13 +719,15 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
           if (nodeIds.has(n.id)) report(`topology node id "${n.id}" appears in more than one zone`);
           nodeIds.add(n.id);
           localized(n.name, sc.limits.nodeName, `node "${n.id}" name`, report);
-          if (n.icon !== undefined && !ICON_SET.includes(n.icon)) report(`node "${n.id}" icon "${n.icon}" is not a bundled icon id`);
+          if (n.icon === undefined) report(`node "${n.id}" is missing its icon (spec: one icon badge per component)`);
+          else if (!ICON_SET.includes(n.icon)) report(`node "${n.id}" icon "${n.icon}" is not a bundled icon id`);
         }
       }
       if (nodeIds.size > sc.limits.nodesTotal) report(`topology declares ${nodeIds.size} nodes but the contract caps it at ${sc.limits.nodesTotal}`);
       const edges = doc.edges ?? [];
       if (!edges.length) report("topology payload must declare at least one edge");
       if (edges.length > sc.limits.maxEdges) report(`topology declares ${edges.length} edges, over the ${sc.limits.maxEdges} cap`);
+      subIds(edges, "edge", report);
       const eids = new Set();
       for (const ed of edges) {
         exactKeys(ed, ["id", "from", "to", "kind", "delivery", "visibility", "label"], `edge "${ed.id}"`, report);
@@ -724,6 +749,7 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
     "process-flow": () => {
       const br = doc.branches ?? [];
       if (br.length > sc.limits.maxBranches) report(`process declares ${br.length} branches, over the ${sc.limits.maxBranches} cap`);
+      subIds(br, "branch", report);
       for (const b of br) {
         exactKeys(b, ["id", "from", "to", "label"], `branch "${b.id}"`, report);
         for (const end of ["from", "to"]) if (!ids.has(b[end])) report(`branch "${b.id}" ${end} "${b[end]}" is not an existing step`);
@@ -737,6 +763,7 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
       if (doc.lanes !== undefined) {
         const [lo, hi] = sc.limits.lanes;
         if (!Array.isArray(doc.lanes) || doc.lanes.length < lo || doc.lanes.length > hi) report(`lanes must hold ${lo}–${hi} entries when present`);
+        subIds(doc.lanes, "lane", report);
         for (const l of doc.lanes ?? []) { exactKeys(l, ["id", "label"], `lane "${l.id}"`, report); localized(l.label, B(16, 24), `lane "${l.id}" label`, report); }
       }
     },
@@ -744,6 +771,7 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
       const g = doc.gate;
       if (!g || typeof g !== "object") { report("approval payload requires a gate"); return; }
       exactKeys(g, ["id", "label", "from", "to", "criterion"], "gate", report);
+      subIds([g], "gate", report);
       localized(g.label, B(16, 24), "gate label", report);
       for (const end of ["from", "to"]) if (!ids.has(g[end])) report(`gate ${end} "${g[end]}" is not an existing node`);
       if (g.criterion !== undefined) { localized(g.criterion, B(30, 48), "gate criterion", report); observed.add("gate-caption"); }
@@ -764,6 +792,7 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
           report(`slot "${sl.id}" change must be unchanged|added|removed|changed`);
       }
       if ((doc.delta ?? []).length > sc.limits.maxDelta) report(`delta holds more than ${sc.limits.maxDelta} entries`);
+      subIds(doc.delta, "delta", report);
       for (const d of doc.delta ?? []) { exactKeys(d, ["id", "text"], `delta "${d.id}"`, report); localized(d.text, B(24, 36), `delta "${d.id}" text`, report); }
       if (slots.length === hi) observed.add("mirrored-slots");
     },
@@ -800,7 +829,6 @@ export function observedCoverage(doc, tid, declaredCount, fitMax, geometryExpect
   if (tid === "nested-scope" && list.length === Number(fitMax)) obs.add("containment-depth");
   // copy-boundary-candidate: 필수 localized field 중 하나라도 선언 상한의 85% 이상.
   // 이름 그대로 **후보**이며, 실제 line fit은 CP2B의 browser measurement가 확정한다.
-  const near = (v, budget) => LOCALES.some((loc) => v?.[loc] && budget?.[loc] && graphemes(v[loc]) >= Math.ceil(budget[loc] * 0.85));
   const texts = [];
   for (const e of list) {
     for (const [f, budget] of Object.entries({ ...sc.entity.required, ...sc.entity.optional }))
@@ -813,7 +841,11 @@ export function observedCoverage(doc, tid, declaredCount, fitMax, geometryExpect
   }
   for (const sl of doc.slots ?? []) { texts.push([sl.before, sc.limits.slotBudget]); texts.push([sl.after, sc.limits.slotBudget]); }
   if (doc.gate?.criterion) texts.push([doc.gate.criterion, { ko: 30, en: 48 }]);
-  if (texts.some(([v, b2]) => near(v, b2))) obs.add("copy-boundary-candidate");
+  // KO/EN이 모두 1급이므로 한 언어만 경계인 것은 후보가 아니다 — 각 locale에 witness 필요
+  const witness = { ko: false, en: false };
+  for (const [v, b2] of texts) for (const loc of LOCALES)
+    if (v?.[loc] && b2?.[loc] && graphemes(v[loc]) >= Math.ceil(b2[loc] * 0.85)) witness[loc] = true;
+  if (witness.ko && witness.en) obs.add("copy-boundary-candidate");
   return obs;
 }
 
@@ -1505,12 +1537,25 @@ function main() {
             if (cse === "stress") {
               // covers는 선언 label이 아니라 payload에서 관측돼야 한다 — 허위 coverage 차단
               const obs = observedCoverage(idoc, id, c.count, fit?.cardinality?.max, c.geometry_expected, obsExtra);
-              for (const v of (Array.isArray(c.covers) ? c.covers : []))
+              const decl = new Set(Array.isArray(c.covers) ? c.covers : []);
+              for (const v of decl)
                 if (!obs.has(v)) errors.push(`manifest: ${id}: stress "${c.id}" declares covers "${v}" but the payload does not exhibit it (observed: ${[...obs].join(", ") || "none"})`);
+              // audit view이므로 양방향이다 — 관측된 감사 대상 축이 선언에서 빠지면 오류
+              for (const v of obs)
+                if (AUDITABLE_COVERS.includes(v) && !decl.has(v))
+                  errors.push(`manifest: ${id}: stress "${c.id}" payload exhibits "${v}" but it is not declared in covers (declared coverage must equal observed auditable coverage)`);
             }
           }
         }
         if (!maxCardScenario) errors.push(`manifest: ${id}: at least one stress scenario must cover "cardinality-max"`);
+        // canonical input은 fit이 선언한 대표 cardinality를 기준점으로 쓴다
+        if (inp.canonical && Number(inp.canonical.count) !== Number(fit?.cardinality?.canonical))
+          errors.push(`manifest: ${id}: inputs.canonical count ${inp.canonical.count} != fit.cardinality.canonical (${fit?.cardinality?.canonical})`);
+        // feasibility에 needs-split tuple이 있으면 degrade 경로를 시험하는 입력도 있어야 한다
+        const hasNeedsSplit = (fit?.feasibility ?? []).some((f) => f.result === "needs-split");
+        const hasDegradeInput = (Array.isArray(inp.stress) ? inp.stress : []).some((x) => x.geometry_expected === "needs-split");
+        if (hasNeedsSplit && !hasDegradeInput)
+          errors.push(`manifest: ${id}: fit.feasibility declares a needs-split tuple, so at least one stress input must exercise the degrade path (geometry_expected: needs-split)`);
         // copy 경계 후보는 payload schema를 가진 TypePack(=실제 카탈로그)에만 요구한다.
         if (INPUT_SCHEMA[id] && !coversSeen.has("copy-boundary-candidate"))
           errors.push(`manifest: ${id}: at least one stress scenario must cover "copy-boundary-candidate" (KO/EN 경계 문안 후보 — 실제 line fit은 CP2B가 확정)`);

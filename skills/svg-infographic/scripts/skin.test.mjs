@@ -721,7 +721,7 @@ test("CP2A: 입력은 구조화 payload이고 KO/EN이 같은 entity 안에 묶�
   assert.equal(m.errors.length, 0, JSON.stringify(m.errors));
   const dir = path.join(here, "..", "references", "types", "inputs");
   const files = fs.readdirSync(dir).filter((f) => f.endsWith(".yaml"));
-  assert.equal(files.length, 27, "9종 × (canonical + stress 2종)");
+  assert.ok(files.length >= 27, `입력 파일 ${files.length}종(9 canonical + stress 시나리오들)`);
   const cards = fs.readFileSync(path.join(dir, "cards-kpi-grid.canonical.yaml"), "utf8");
   assert.match(cards, /^cards:$/m, "타입별 collection을 가져야 한다");
   assert.match(cards, /^ {4}title:\n {6}ko: /m, "locale은 entity 안에 묶인다");
@@ -846,11 +846,11 @@ test("CP2A: stress는 covers 축을 선언한 시나리오 목록이고 geometry
     assert.match(b, /geometry_expected: (fits|needs-split)/, `${id}: 기하 판정 명시 필요`);
   }
   const cases = [
-    [(t) => t.replace("          covers: [copy-boundary-candidate]\n", "          covers: []\n"), /must declare the risk axes it covers/],
+    [(t) => t.replace(/          covers: \[cardinality-max\]\n/, "          covers: []\n"), /must declare the risk axes it covers/],
     [(t) => t.replace("          geometry_expected: fits\n          covers: [cardinality-max]",
                       "          geometry_expected: needs-split\n          covers: [cardinality-max]"),
      /declares geometry_expected "needs-split" but computes "fits"/],
-    [(t) => t.replace(/          covers: \[cardinality-max[^\]]*\]/, "          covers: [degrade-path]"), /must cover "cardinality-max"/],
+    [(t) => t.replace(/          covers: \[cardinality-max[^\]]*\]/g, "          covers: [copy-boundary-candidate]"), /must cover "cardinality-max"/],
   ];
   for (const [mutate, re] of cases) {
     const pkg = pkgCopy();
@@ -869,6 +869,96 @@ test("CP2A: 입력 파일 case는 시나리오와 1:1로 묶인다", () => {
   const r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /input file case "stress-cardinality" != scenario "stress-copy"/);
+  drop(pkg);
+});
+
+// --- CP2A conditional approve closure: 요구 negative 8종 ----------------------
+test("CA-1·2: topology node icon과 roadmap milestone card는 필수다", () => {
+  const cases = [
+    [(pkg) => { const f = path.join(typesOf(pkg), "inputs", "topology-component.canonical.yaml");
+      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('        icon: "route"\n', "")); },
+     /node "gw" is missing its icon/],
+    [(pkg) => { const f = path.join(typesOf(pkg), "inputs", "roadmap-timeline.canonical.yaml");
+      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace(/^    card:\n(?: {6}.*\n| {8}.*\n)+/m, "")); },
+     /is missing its required milestone card/],
+  ];
+  for (const [mutate, re] of cases) {
+    const pkg = pkgCopy(); mutate(pkg);
+    const r = runIn(pkg, ["manifest"]);
+    assert.equal(r.code, 1, `${re}: ${r.out}`);
+    assert.match(r.out, re);
+    drop(pkg);
+  }
+});
+
+test("CA-3: 하위 entity(chip·example·delta·edge)의 ID도 kebab·유일해야 한다", () => {
+  const cases = [
+    [(pkg) => { const f = path.join(typesOf(pkg), "inputs", "before-after.stress-cardinality.yaml");
+      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('  - id: "d2"', '  - id: "d1"')); }, /duplicate delta id "d1"/],
+    [(pkg) => { const f = path.join(typesOf(pkg), "inputs", "layer-stack.stress-degrade.yaml");
+      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('      - id: "chip-1-2"', '      - id: "chip-1-1"')); }, /duplicate chip of "layer-1" id/],
+    [(pkg) => { const f = path.join(typesOf(pkg), "inputs", "decision-matrix.stress-cardinality.yaml");
+      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('  - id: "cell-2"', '  - id: "CELL_2"')); }, /must be kebab-case/],
+  ];
+  for (const [mutate, re] of cases) {
+    const pkg = pkgCopy(); mutate(pkg);
+    const r = runIn(pkg, ["manifest"]);
+    assert.equal(r.code, 1, `${re}: ${r.out}`);
+    assert.match(r.out, re);
+    drop(pkg);
+  }
+});
+
+test("CA-4: 관측된 감사 축이 covers에서 빠지면 거부된다(양방향)", () => {
+  const pkg = pkgCopy();
+  writeManifest(pkg, readManifest(pkg).replace("covers: [cardinality-max, edge-density]", "covers: [cardinality-max]"));
+  const r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /payload exhibits "edge-density" but it is not declared in covers/);
+  drop(pkg);
+});
+
+test("CA-5: copy boundary는 KO·EN 각각 witness가 있어야 한다", () => {
+  const pkg = pkgCopy();
+  // EN witness만 남기고 KO를 짧게 바꾸면 후보로 관측되지 않는다
+  const f = path.join(typesOf(pkg), "inputs", "cards-kpi-grid.stress-copy.yaml");
+  let t = fs.readFileSync(f, "utf8").replace(/^      ko: ".*"$/gm, '      ko: "짧음"');
+  fs.writeFileSync(f, t);
+  const r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /declares covers "copy-boundary-candidate" but the payload does not exhibit it/);
+  drop(pkg);
+});
+
+test("CA-6: needs-split tuple이 있는 TypePack은 degrade 입력을 가져야 한다", () => {
+  const doc = fs.readFileSync(path.join(here, "..", "references", "types", "manifest.yaml"), "utf8");
+  assert.ok((doc.match(/geometry_expected: needs-split/g) ?? []).length >= 5, "needs-split tuple 보유 타입 전부에 degrade 입력");
+  const pkg = pkgCopy();
+  writeManifest(pkg, readManifest(pkg).replace(/        - id: cards-kpi-grid-stress-degrade\n(?:          .*\n)+/, ""));
+  const r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /at least one stress input must exercise the degrade path/);
+  drop(pkg);
+});
+
+test("CA-7: canonical 입력 count는 fit.cardinality.canonical과 같아야 한다", () => {
+  const pkg = pkgCopy();
+  writeManifest(pkg, readManifest(pkg).replace(
+    "      canonical: { id: cards-kpi-grid-canonical, path: types/inputs/cards-kpi-grid.canonical.yaml, preset: social-4x5, layout: row, count: 4 }",
+    "      canonical: { id: cards-kpi-grid-canonical, path: types/inputs/cards-kpi-grid.canonical.yaml, preset: social-4x5, layout: row, count: 3 }"));
+  const r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /inputs\.canonical count 3 != fit\.cardinality\.canonical \(4\)/);
+  drop(pkg);
+});
+
+test("CA-8: roadmap label은 hard budget이 아니라 authoring sanity ceiling이다", () => {
+  const pkg = pkgCopy();
+  const f = path.join(typesOf(pkg), "inputs", "roadmap-timeline.canonical.yaml");
+  fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('      ko: "준비"', '      ko: "' + "가".repeat(20) + '"'));
+  const r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /label\.ko is 20 graphemes, over the 16 authoring sanity ceiling/);
   drop(pkg);
 });
 

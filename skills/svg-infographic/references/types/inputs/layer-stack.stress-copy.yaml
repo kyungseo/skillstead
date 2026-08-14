@@ -10,7 +10,7 @@ prompt_en: "Four layers with labels at the copy budget limit. 4:5."
 layers:
   - id: "layer-1"
     label:
-      ko: "제품 경험과 사용자 여정 전반"
+      ko: "제품 경험과 사용자 여정 전반의 관리 체계 운영"
       en: "Product experience and user journeys"
   - id: "layer-2"
     label:

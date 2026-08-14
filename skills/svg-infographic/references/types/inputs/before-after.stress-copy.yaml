@@ -19,7 +19,7 @@ panels:
 slots:
   - id: "deploy"
     before:
-      ko: "수동 배포와 승인 대기 시간"
+      ko: "수동 배포와 승인 대기 시간이 매우 길었다"
       en: "Manual deploy with approval wait"
     after:
       ko: "자동 배포와 즉시 반영 처리"

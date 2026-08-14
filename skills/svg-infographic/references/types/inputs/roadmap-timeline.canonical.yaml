@@ -5,26 +5,46 @@ case: canonical
 preset: social-4x5
 layout: row
 count: 4
-prompt_ko: "롤아웃을 4개 단계로 보여줘. 지금 위치 표시 포함. 4:5."
-prompt_en: "Four rollout phases with a now marker. 4:5."
+prompt_ko: "롤아웃을 4개 단계로 마일스톤 카드와 함께 보여줘. 4:5."
+prompt_en: "Four rollout phases with milestone cards. 4:5."
 phases:
   - id: "phase-1"
     label:
       ko: "준비"
       en: "Prepare"
     status: "done"
+    card:
+      title:
+        ko: "기준선 확정"
+        en: "Baseline agreed"
   - id: "phase-2"
     label:
       ko: "시범"
       en: "Pilot"
     status: "current"
+    card:
+      title:
+        ko: "시범 팀 적용"
+        en: "Pilot team live"
   - id: "phase-3"
     label:
       ko: "확대"
       en: "Expand"
     status: "future"
+    card:
+      title:
+        ko: "전사 확대"
+        en: "Org-wide rollout"
   - id: "phase-4"
     label:
       ko: "안정화"
       en: "Stabilise"
     status: "future"
+    card:
+      title:
+        ko: "운영 안정화"
+        en: "Ops stabilised"
+now_marker:
+  label:
+    ko: "지금"
+    en: "Now"

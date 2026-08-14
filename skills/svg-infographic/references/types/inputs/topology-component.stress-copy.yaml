@@ -17,10 +17,12 @@ zones:
         name:
           ko: "게이트웨이"
           en: "Gateway"
+        icon: "route"
       - id: "waf"
         name:
           ko: "방화벽"
           en: "WAF"
+        icon: "shield"
   - id: "zone-2"
     label:
       ko: "애플리케이션 서비스 zone"
@@ -30,10 +32,12 @@ zones:
         name:
           ko: "API 서비스"
           en: "API service"
+        icon: "server"
       - id: "auth"
         name:
           ko: "인증 서비스"
           en: "Auth service"
+        icon: "lock"
   - id: "zone-3"
     label:
       ko: "영속 데이터 저장 zone"
@@ -43,6 +47,7 @@ zones:
         name:
           ko: "메시지 큐"
           en: "Message queue"
+        icon: "queue"
 edges:
   - id: "e1"
     from: "gw"

@@ -123,6 +123,14 @@ typepacks:
           count: 4
           geometry_expected: fits
           covers: [copy-boundary-candidate]
+        - id: cards-kpi-grid-stress-degrade
+          path: types/inputs/cards-kpi-grid.stress-degrade.yaml
+          preset: social-4x5
+          layout: row
+          floor: compact
+          count: 6
+          geometry_expected: needs-split
+          covers: [cardinality-max, degrade-path]
     fit:
       floor_basis: geometry
       cardinality: { min: 3, canonical: 4, max: 6 }
@@ -181,6 +189,14 @@ typepacks:
           count: 4
           geometry_expected: fits
           covers: [copy-boundary-candidate]
+        - id: layer-stack-stress-degrade
+          path: types/inputs/layer-stack.stress-degrade.yaml
+          preset: social-4x5
+          layout: column
+          floor: wide
+          count: 5
+          geometry_expected: needs-split
+          covers: [cardinality-max, chips-max, degrade-path]
     fit:
       floor_basis: geometry
       cardinality: { min: 3, canonical: 4, max: 5 }
@@ -316,6 +332,13 @@ typepacks:
           count: 4
           geometry_expected: fits
           covers: [copy-boundary-candidate]
+        - id: process-flow-stress-degrade
+          path: types/inputs/process-flow.stress-degrade.yaml
+          preset: social-4x5
+          layout: row
+          count: 5
+          geometry_expected: needs-split
+          covers: [cardinality-max, degrade-path]
     fit:
       floor_basis: geometry
       cardinality: { min: 3, canonical: 4, max: 5 }
@@ -363,6 +386,13 @@ typepacks:
           count: 3
           geometry_expected: fits
           covers: [copy-boundary-candidate, gate-caption]
+        - id: approval-gate-stress-degrade
+          path: types/inputs/approval-gate.stress-degrade.yaml
+          preset: social-4x5
+          layout: row
+          count: 4
+          geometry_expected: needs-split
+          covers: [cardinality-max, gate-caption, degrade-path]
     fit:
       floor_basis: geometry
       cardinality: { min: 3, canonical: 3, max: 4 }
@@ -406,7 +436,7 @@ typepacks:
           layout: row
           count: 2
           geometry_expected: fits
-          covers: [copy-boundary-candidate]
+          covers: [cardinality-max, copy-boundary-candidate]
     fit:
       floor_basis: geometry
       cardinality: { min: 2, canonical: 2, max: 2 }
@@ -450,7 +480,14 @@ typepacks:
           layout: row
           count: 4
           geometry_expected: fits
-          covers: [copy-boundary-candidate]
+          covers: [copy-boundary-candidate, status-and-marker]
+        - id: roadmap-timeline-stress-degrade
+          path: types/inputs/roadmap-timeline.stress-degrade.yaml
+          preset: social-4x5
+          layout: row
+          count: 5
+          geometry_expected: needs-split
+          covers: [cardinality-max, status-and-marker, degrade-path]
     fit:
       floor_basis: geometry
       cardinality: { min: 3, canonical: 4, max: 5 }

@@ -10,7 +10,7 @@ prompt_en: "Node names and gate copy at the budget limit. 4:5."
 nodes:
   - id: "node-1"
     name:
-      ko: "변경 요청자"
+      ko: "변경 요청 담당자와 승인 요청 담당"
       en: "Change requester and submitter"
   - id: "node-2"
     name:

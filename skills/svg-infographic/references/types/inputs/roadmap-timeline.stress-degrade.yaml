@@ -1,12 +1,12 @@
 schema_version: 1
 kind: typepack-input
 typepack: roadmap-timeline
-case: stress-cardinality
-preset: presentation-16x9
+case: stress-degrade
+preset: social-4x5
 layout: row
 count: 5
-prompt_ko: "롤아웃 5단계를 상태와 지금 위치까지 넣어 보여줘. 16:9."
-prompt_en: "Five phases with status and a now marker. 16:9."
+prompt_ko: "롤아웃 5단계를 4:5에 배치해줘(경계 초과 확인용)."
+prompt_en: "Five phases on 4:5 to exercise the degrade path."
 phases:
   - id: "phase-1"
     label:

@@ -10,7 +10,7 @@ prompt_en: "Four steps with names at the copy budget limit. 4:5 portrait."
 steps:
   - id: "step-1"
     name:
-      ko: "변경 제안과 영향 범위 정리"
+      ko: "변경 제안과 영향 범위 정리 및 사전 공유"
       en: "Propose change and scope impact"
   - id: "step-2"
     name:
