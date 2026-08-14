@@ -580,10 +580,10 @@ test("R1-1·R1-2: fit footprint는 params에서 재계산되고 feasibility는 l
   assert.equal(m.errors.length, 0, JSON.stringify(m.errors));
   // 선언된 footprint 수치를 흔들면 params 재계산이 잡아야 한다
   let pkg = pkgCopy();
-  writeManifest(pkg, readManifest(pkg).replace(/w: 576, h: 104/, "w: 500, h: 104"));
+  writeManifest(pkg, readManifest(pkg).replace(/w: 644, h: 124/, "w: 500, h: 124"));
   let r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
-  assert.match(r.out, /declares 500×104 but the params compute 576×104/);
+  assert.match(r.out, /declares 500×124 but the params compute 644×124/);
   drop(pkg);
 
   // feasibility 결과를 뒤집으면 live contentBox 재계산이 잡아야 한다
@@ -609,8 +609,9 @@ test("R1-2b: 모든 TypePack이 선언 preset의 최대 cardinality feasibility�
   }
   // 커버리지 누락은 거부된다
   const pkg = pkgCopy();
+  // 최대 cardinality에서 해당 preset 항목이 하나뿐인 타입(topology zones)으로 커버리지 누락을 만든다
   writeManifest(pkg, readManifest(pkg).replace(
-    /        - \{ preset: presentation-16x9, orientation: landscape, count: 6, layout: grid, result: fits \}\n/, ""));
+    "        - { preset: presentation-16x9, orientation: landscape, count: 4, layout: zones, result: fits }\n", ""));
   const r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /must cover preset "presentation-16x9" at the maximum cardinality/);
@@ -644,14 +645,63 @@ test("R1-5: unrelated gallery heading·재사용 artifact로는 core 증거가 �
   drop(pkg);
 });
 
-test("R1-3·R1-6: topology spec은 machine/manual 책임을 나누고 edge 축을 분리한다", () => {
+test("R1-3·R1-6: topology spec은 증거 수준을 구현에 맞추고 edge 축을 분리한다", () => {
   const spec = fs.readFileSync(path.join(here, "..", "references", "types", "specs", "topology-component.md"), "utf8");
-  assert.match(spec, /\*\*Machine \(generic lint/);
-  assert.match(spec, /\*\*Visual \/ manual/);
-  assert.match(spec, /edge crossing 없음 — 현재는 육안 확인/);
+  assert.match(spec, /\*\*Machine \(generic guard가 실제로 검사하는 것\)/);
+  assert.match(spec, /topology\s*\n의미 모델을 아는 전용 경로는 Wave 1에 없다|의미 모델을 아는 전용 경로는 Wave 1에 없다/);
+  assert.match(spec, /아직 증명되지 않음\(등록 fixture 없음\)/);
+  assert.match(spec, /node → zone \*\*semantic\*\* ownership/);
   for (const axis of ["kind: request \\| dependency", "delivery: sync \\| async", "visibility: public \\| private"])
     assert.match(spec, new RegExp(axis), axis);
   assert.match(spec, /선 스타일은 이 셋에서 파생된다/);
+});
+
+test("R1B-P2: fit schema는 음수 gap·잘못된 orientation·중복 tuple을 거부한다", () => {
+  const cases = [
+    [(t) => t.replace("gapX: 44", "gapX: -44"), /fit\.params\.gapX must be >= 0/],
+    [(t) => t.replace("{ preset: presentation-16x9, orientation: landscape, count: 5, layout: row, result: fits }",
+                      "{ preset: presentation-16x9, orientation: portrait, count: 5, layout: row, result: fits }"),
+     /declares orientation "portrait" but the preset is "landscape"|orientation "portrait" is not declared/],
+    [(t) => t.replace("        - { preset: social-4x5, orientation: portrait, count: 5, layout: row, result: needs-split }",
+                      "        - { preset: social-4x5, orientation: portrait, count: 5, layout: row, result: needs-split }\n        - { preset: social-4x5, orientation: portrait, count: 5, layout: row, result: needs-split }"),
+     /duplicate fit\.feasibility entry/],
+    [(t) => t.replace("cardinality: { min: 3, canonical: 4, max: 5 }", "cardinality: { min: 3, canonical: 4, max: 5.5 }"),
+     /fit\.cardinality\.max must be a positive integer/],
+    [(t) => t.replace("floor_basis: geometry", "floor_basis: proven"), /floor_basis must be geometry\|rendered/],
+  ];
+  for (const [mutate, re] of cases) {
+    const pkg = pkgCopy();
+    writeManifest(pkg, mutate(readManifest(pkg)));
+    const r = runIn(pkg, ["manifest"]);
+    assert.equal(r.code, 1, `${re}: ${r.out}`);
+    assert.match(r.out, re);
+    drop(pkg);
+  }
+});
+
+test("R1B-P1: topology fit은 zone 내부 구조를 포함한 계층형 경계 상자로 계산된다", () => {
+  const doc = fs.readFileSync(path.join(here, "..", "references", "types", "manifest.yaml"), "utf8");
+  const b = doc.split("  - id: topology-component")[1].split(/^  - id: /m)[0];
+  assert.match(b, /layout: zones/, "zones layout을 써야 한다");
+  for (const k of ["maxNodesPerZone", "zonePad", "zoneLabelBand", "zoneGap"])
+    assert.ok(b.includes(k), `${k} 파라미터 필요`);
+  const spec = fs.readFileSync(path.join(here, "..", "references", "types", "specs", "topology-component.md"), "utf8");
+  assert.match(spec, /총 node ≤ 9/, "zone당 상한과 총량 상한이 함께 적혀야 한다");
+  assert.doesNotMatch(spec, /4 zone × zone당 4 node까지 두 preset에서 성립/, "총 9개 계약과 충돌하는 문구 제거");
+});
+
+test("R1B-P1c: content floor는 이름으로 구분되고 근거 수준이 표시된다", () => {
+  const doc = fs.readFileSync(path.join(here, "..", "references", "types", "manifest.yaml"), "utf8");
+  assert.equal((doc.match(/floor_basis: geometry/g) ?? []).length, 9, "Wave 1 수치는 전부 기하 가정이다");
+  const cards = doc.split("  - id: cards-kpi-grid")[1].split(/^  - id: /m)[0];
+  assert.match(cards, /itemMinW: 149, itemMinH: 124/, "base floor는 기존 시각 증거 이상");
+  assert.match(cards, /compactItemMinW: 132, compactItemMinH: 104/, "compact는 별도 floor");
+  const layer = doc.split("  - id: layer-stack")[1].split(/^  - id: /m)[0];
+  assert.match(layer, /floor: wide, result: needs-split/, "chip 4개는 4:5에서 성립하지 않는다");
+  for (const f of ["cards-kpi-grid", "layer-stack", "process-flow"]) {
+    const spec = fs.readFileSync(path.join(here, "..", "references", "types", "specs", `${f}.md`), "utf8");
+    assert.match(spec, /floor_basis`가 `geometry`인 동안 이 수치는 \*\*기하 가정\*\*/, f);
+  }
 });
 
 // --- pageframe fail-closed schema + fluid two-phase -------------------------------

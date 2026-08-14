@@ -57,10 +57,15 @@ Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 regi
 적으면 두 벌이 어긋나므로, 여기서는 배치 종류와 판정 경계만 적는다.
 
 - 배치: row(n ≤ 4) / grid 2열(n = 5–6)
+- 근거 수준: manifest `fit.floor_basis`가 `geometry`인 동안 이 수치는 **기하 가정**이며
+  실제 렌더로 확인된 값이 아니다. CP2B의 stress render(getBBox·containment·PNG 검수)를
+  통과한 뒤에만 `rendered`로 승격한다.
 - 판정: `fit.footprint`가 params에서 계산되고, `fit.feasibility`가 **실제 PageFrame
   contentBox**(preset별 live receipt)와 대조돼 `fits` 또는 `needs-split`으로 확정된다.
   manifest validator가 두 계산을 모두 재수행하므로 선언만으로 통과할 수 없다.
-- 경계: 두 preset 모두 최대 6장까지 성립한다. compact variant는 body를 버리는 축약이지 floor를 낮추는 수단이 아니다.
+- 경계: base floor는 title 2줄 + body 2줄 + icon을 수용하는 크기이고, `compact` floor는 body를
+  버린 title-only 축약이다 — 두 floor는 manifest `fit.params`에서 이름으로 구분된다.
+  4:5에서는 6장 grid가 성립하고 compact 한 줄 배치는 성립하지 않는다(needs-split).
 
 ## 5. Layout, encoding and connector rules
 

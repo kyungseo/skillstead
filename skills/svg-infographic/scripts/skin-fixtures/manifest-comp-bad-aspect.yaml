@@ -21,6 +21,7 @@ typepacks:
     migration_origin: new
     legacy_section: null
     fit:
+      floor_basis: geometry
       cardinality: { min: 1, canonical: 1, max: 1 }
       params: { itemMinW: 100, itemMinH: 60, gapX: 0, gapY: 0 }
       footprint:

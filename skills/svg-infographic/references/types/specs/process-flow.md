@@ -43,10 +43,14 @@ Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 regi
 적으면 두 벌이 어긋나므로, 여기서는 배치 종류와 판정 경계만 적는다.
 
 - 배치: row(가로) / column(세로)
+- 근거 수준: manifest `fit.floor_basis`가 `geometry`인 동안 이 수치는 **기하 가정**이며
+  실제 렌더로 확인된 값이 아니다. CP2B의 stress render(getBBox·containment·PNG 검수)를
+  통과한 뒤에만 `rendered`로 승격한다.
 - 판정: `fit.footprint`가 params에서 계산되고, `fit.feasibility`가 **실제 PageFrame
   contentBox**(preset별 live receipt)와 대조돼 `fits` 또는 `needs-split`으로 확정된다.
   manifest validator가 두 계산을 모두 재수행하므로 선언만으로 통과할 수 없다.
-- 경계: **4:5 portrait에서 5단계는 가로로 성립하지 않는다** — 가로 압축이 아니라 top→bottom(column)으로 배치한다. 16:9은 가로 5단계가 성립한다.
+- 경계: **4:5 portrait에서 5단계는 가로로 성립하지 않는다** — 가로 압축이 아니라
+  top→bottom(column)으로 배치한다. 16:9은 가로 5단계가 성립한다.
 
 ## 5. Layout, encoding and connector rules
 

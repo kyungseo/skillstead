@@ -106,14 +106,18 @@ typepacks:
     migration_origin: legacy
     legacy_section: "Cards / KPI stat grid"
     fit:
+      floor_basis: geometry
       cardinality: { min: 3, canonical: 4, max: 6 }
-      params: { itemMinW: 132, itemMinH: 104, gapX: 16, gapY: 16 }
+      params: { itemMinW: 149, itemMinH: 124, compactItemMinW: 132, compactItemMinH: 104, gapX: 16, gapY: 16 }
       footprint:
-        - { count: 4, layout: row, w: 576, h: 104 }
-        - { count: 6, layout: grid, cols: 2, w: 280, h: 344 }
+        - { count: 4, layout: row, w: 644, h: 124 }
+        - { count: 6, layout: grid, cols: 2, w: 314, h: 404 }
+        - { count: 6, layout: row, floor: compact, w: 872, h: 104 }
       feasibility:
         - { preset: social-4x5, orientation: portrait, count: 6, layout: grid, result: fits }
+        - { preset: social-4x5, orientation: portrait, count: 6, layout: row, floor: compact, result: needs-split }
         - { preset: presentation-16x9, orientation: landscape, count: 6, layout: grid, result: fits }
+        - { preset: presentation-16x9, orientation: landscape, count: 6, layout: row, floor: compact, result: fits }
     composition:
       composable: true
       min_slot_size: { w: 640, h: 240 }
@@ -143,13 +147,17 @@ typepacks:
     migration_origin: legacy
     legacy_section: "Layer stack"
     fit:
+      floor_basis: geometry
       cardinality: { min: 3, canonical: 4, max: 5 }
-      params: { itemMinW: 520, itemMinH: 72, gapX: 20, gapY: 20 }
+      params: { itemMinW: 612, itemMinH: 88, wideItemMinW: 1084, wideItemMinH: 88, gapX: 20, gapY: 20 }
       footprint:
-        - { count: 5, layout: column, w: 520, h: 440 }
+        - { count: 5, layout: column, w: 612, h: 520 }
+        - { count: 5, layout: column, floor: wide, w: 1084, h: 520 }
       feasibility:
         - { preset: social-4x5, orientation: portrait, count: 5, layout: column, result: fits }
+        - { preset: social-4x5, orientation: portrait, count: 5, layout: column, floor: wide, result: needs-split }
         - { preset: presentation-16x9, orientation: landscape, count: 5, layout: column, result: fits }
+        - { preset: presentation-16x9, orientation: landscape, count: 5, layout: column, floor: wide, result: fits }
   - id: nested-scope
     selection_signal: "포함·범위 관계 — 안쪽이 바깥쪽 안에 산다 (신뢰 zone·scope ring·platform → app → feature)"
     profile: constrained-layout
@@ -169,10 +177,11 @@ typepacks:
     migration_origin: legacy
     legacy_section: "Nested / onion"
     fit:
+      floor_basis: geometry
       cardinality: { min: 3, canonical: 3, max: 4 }
-      params: { itemMinW: 120, itemMinH: 120, inset: 40, gapX: 0, gapY: 0 }
+      params: { itemMinW: 296, itemMinH: 96, inset: 44, gapX: 0, gapY: 0 }
       footprint:
-        - { count: 4, layout: concentric, w: 360, h: 360 }
+        - { count: 4, layout: concentric, w: 560, h: 360 }
       feasibility:
         - { preset: social-4x5, orientation: portrait, count: 4, layout: concentric, result: fits }
         - { preset: presentation-16x9, orientation: landscape, count: 4, layout: concentric, result: fits }
@@ -195,13 +204,14 @@ typepacks:
     migration_origin: legacy
     legacy_section: "Topology / component"
     fit:
+      floor_basis: geometry
       cardinality: { min: 2, canonical: 3, max: 4 }
-      params: { itemMinW: 140, itemMinH: 96, gapX: 16, gapY: 24 }
+      params: { itemMinW: 140, itemMinH: 96, gapX: 16, gapY: 24, maxNodesPerZone: 4, zonePad: 12, zoneLabelBand: 22, zoneGap: 28 }
       footprint:
-        - { count: 4, layout: grid, cols: 4, w: 608, h: 96 }
+        - { count: 4, layout: zones, w: 632, h: 652 }
       feasibility:
-        - { preset: social-4x5, orientation: portrait, count: 4, layout: grid, result: fits }
-        - { preset: presentation-16x9, orientation: landscape, count: 4, layout: grid, result: fits }
+        - { preset: social-4x5, orientation: portrait, count: 4, layout: zones, result: fits }
+        - { preset: presentation-16x9, orientation: landscape, count: 4, layout: zones, result: fits }
   - id: process-flow
     selection_signal: "순서 있는 단계나 인계 — 프로세스·파이프라인·데이터 흐름·리뷰 루프"
     profile: constrained-layout
@@ -221,6 +231,7 @@ typepacks:
     migration_origin: legacy
     legacy_section: "Flow"
     fit:
+      floor_basis: geometry
       cardinality: { min: 3, canonical: 4, max: 5 }
       params: { itemMinW: 132, itemMinH: 88, gapX: 44, gapY: 36 }
       footprint:
@@ -250,6 +261,7 @@ typepacks:
     migration_origin: legacy
     legacy_section: "Approval / sequence-lite"
     fit:
+      floor_basis: geometry
       cardinality: { min: 3, canonical: 3, max: 4 }
       params: { itemMinW: 140, itemMinH: 88, gapX: 56, gapY: 56 }
       footprint:
@@ -276,6 +288,7 @@ typepacks:
     migration_origin: legacy
     legacy_section: "Before / after"
     fit:
+      floor_basis: geometry
       cardinality: { min: 2, canonical: 2, max: 2 }
       params: { itemMinW: 260, itemMinH: 320, gapX: 32, gapY: 32 }
       footprint:
@@ -302,6 +315,7 @@ typepacks:
     migration_origin: legacy
     legacy_section: "Roadmap / timeline"
     fit:
+      floor_basis: geometry
       cardinality: { min: 3, canonical: 4, max: 5 }
       params: { itemMinW: 132, itemMinH: 112, gapX: 20, gapY: 20 }
       footprint:
@@ -328,6 +342,7 @@ typepacks:
     migration_origin: legacy
     legacy_section: "Decision / risk matrix"
     fit:
+      floor_basis: geometry
       cardinality: { min: 4, canonical: 4, max: 9 }
       params: { itemMinW: 180, itemMinH: 150, gapX: 16, gapY: 16 }
       footprint:

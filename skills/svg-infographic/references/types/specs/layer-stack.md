@@ -53,10 +53,16 @@ Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 regi
 적으면 두 벌이 어긋나므로, 여기서는 배치 종류와 판정 경계만 적는다.
 
 - 배치: column
+- 근거 수준: manifest `fit.floor_basis`가 `geometry`인 동안 이 수치는 **기하 가정**이며
+  실제 렌더로 확인된 값이 아니다. CP2B의 stress render(getBBox·containment·PNG 검수)를
+  통과한 뒤에만 `rendered`로 승격한다.
 - 판정: `fit.footprint`가 params에서 계산되고, `fit.feasibility`가 **실제 PageFrame
   contentBox**(preset별 live receipt)와 대조돼 `fits` 또는 `needs-split`으로 확정된다.
   manifest validator가 두 계산을 모두 재수행하므로 선언만으로 통과할 수 없다.
-- 경계: 5개 층까지 두 preset에서 성립한다. clamp는 feasibility 판정 **이후**에만 적용한다 — 필요한 높이가 region을 넘으면 clamp가 아니라 §6이다.
+- 경계: **band 폭은 chip 예산이 정한다.** base floor는 label gutter + chip 2개(각 16 CJK)를
+  수용하고, chip 4개를 요구하는 `wide` floor는 **4:5에서 성립하지 않는다**(needs-split;
+  16:9은 성립). 4:5에서 chip 4개가 필요하면 chip 문구를 줄이거나 분리 페이지다.
+  clamp는 feasibility 판정 **이후**에만 적용한다.
 
 ## 5. Layout, encoding and connector rules
 

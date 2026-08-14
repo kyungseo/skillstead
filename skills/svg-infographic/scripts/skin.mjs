@@ -1064,19 +1064,42 @@ function main() {
       const fit = p.fit;
       if (!fit || typeof fit !== "object") errors.push(`manifest: ${id}: fit block is required (cardinality/params/footprint/feasibility)`);
       else {
-        for (const k of Object.keys(fit)) if (!["cardinality", "params", "footprint", "feasibility"].includes(k))
+        for (const k of Object.keys(fit)) if (!["cardinality", "params", "footprint", "feasibility", "floor_basis"].includes(k))
           errors.push(`manifest: ${id}: fit unknown field "${k}"`);
+        // floor_basis: 이 수치가 기하 가정인지(geometry) 실제 렌더로 확인된 값인지(rendered).
+        // Wave 1은 geometry가 정직한 기본값이고, CP2B stress render 이후에만 rendered로 승격한다.
+        if (!["geometry", "rendered"].includes(fit.floor_basis))
+          errors.push(`manifest: ${id}: fit.floor_basis must be geometry|rendered (geometry = not yet confirmed by an actual render)`);
         const card = fit.cardinality ?? {};
-        for (const k of ["min", "canonical", "max"]) if (!Number.isFinite(Number(card[k]))) errors.push(`manifest: ${id}: fit.cardinality.${k} must be a number`);
+        const posInt = (v) => Number.isInteger(Number(v)) && Number(v) > 0;
+        for (const k of ["min", "canonical", "max"]) if (!posInt(card[k])) errors.push(`manifest: ${id}: fit.cardinality.${k} must be a positive integer (got ${card[k]})`);
         if (Number(card.min) > Number(card.canonical) || Number(card.canonical) > Number(card.max))
           errors.push(`manifest: ${id}: fit.cardinality must satisfy min <= canonical <= max`);
         const prm = fit.params ?? {};
-        for (const [k, v] of Object.entries(prm)) if (!Number.isFinite(Number(v))) errors.push(`manifest: ${id}: fit.params.${k} must be a number (got ${v})`);
+        for (const [k, v] of Object.entries(prm)) {
+          const n = Number(v);
+          if (!Number.isFinite(n)) { errors.push(`manifest: ${id}: fit.params.${k} must be a number (got ${v})`); continue; }
+          // 최소 크기·inset은 양수여야 하고 gap·여백은 음수일 수 없다 — 음수 gap으로
+          // 허위 fit을 만드는 경로를 막는다.
+          if (/(ItemMinW|ItemMinH|inset|itemMinW|itemMinH|nodeMinW|nodeMinH)$/.test(k) && !(n > 0))
+            errors.push(`manifest: ${id}: fit.params.${k} must be positive (got ${n})`);
+          else if (n < 0) errors.push(`manifest: ${id}: fit.params.${k} must be >= 0 (got ${n})`);
+        }
         const need = (n) => { if (!Number.isFinite(Number(prm[n]))) { errors.push(`manifest: ${id}: fit.params.${n} is required by the declared layouts`); return NaN; } return Number(prm[n]); };
         const compute = (fp) => {
           const n = Number(fp.count), ex = { w: Number(fp.extraW ?? 0), h: Number(fp.extraH ?? 0) };
-          const iw = need("itemMinW"), ih = need("itemMinH");
+          // floor 이름으로 base/compact/wide 등 서로 다른 content floor를 고른다
+          const fl = fp.floor && fp.floor !== "base" ? fp.floor : null;
+          const iw = fl ? need(`${fl}ItemMinW`) : need("itemMinW");
+          const ih = fl ? need(`${fl}ItemMinH`) : need("itemMinH");
           const gx = Number(prm.gapX ?? prm.gap ?? 0), gy = Number(prm.gapY ?? prm.gap ?? 0);
+          if (fp.layout === "zones") {
+            // 계층형: 가장 넓은 zone(노드 행)과 가장 깊은 stack(zone 수)을 동시에 만족하는
+            // 경계 상자 — 어떤 합법 구성도 이 안에 들어간다.
+            const npz = need("maxNodesPerZone"), pad = need("zonePad"), band = need("zoneLabelBand"), zgap = need("zoneGap");
+            return { w: npz * iw + (npz - 1) * gx + 2 * pad + ex.w,
+                     h: n * (band + ih + 2 * pad) + (n - 1) * zgap + ex.h };
+          }
           if (fp.layout === "row") return { w: n * iw + (n - 1) * gx + Number(ex.w ?? 0), h: ih + Number(ex.h ?? 0) };
           if (fp.layout === "column") return { w: iw + Number(ex.w ?? 0), h: n * ih + (n - 1) * gy + Number(ex.h ?? 0) };
           if (fp.layout === "grid") {
@@ -1087,31 +1110,43 @@ function main() {
             const inset = need("inset");
             return { w: iw + 2 * (n - 1) * inset + Number(ex.w ?? 0), h: ih + 2 * (n - 1) * inset + Number(ex.h ?? 0) };
           }
-          errors.push(`manifest: ${id}: fit footprint layout "${fp.layout}" is not one of row/column/grid/concentric`);
+          errors.push(`manifest: ${id}: fit footprint layout "${fp.layout}" is not one of row/column/grid/concentric/zones`);
           return null;
         };
         const byCount = new Map();
         for (const fp of fit.footprint ?? []) {
-          for (const k of Object.keys(fp)) if (!["count", "layout", "cols", "extraW", "extraH", "w", "h"].includes(k)) errors.push(`manifest: ${id}: fit.footprint unknown field "${k}"`);
+          for (const k of Object.keys(fp)) if (!["count", "layout", "cols", "floor", "extraW", "extraH", "w", "h"].includes(k)) errors.push(`manifest: ${id}: fit.footprint unknown field "${k}"`);
+          if (!posInt(fp.count)) errors.push(`manifest: ${id}: fit.footprint count must be a positive integer (got ${fp.count})`);
+          if (fp.cols !== undefined && !posInt(fp.cols)) errors.push(`manifest: ${id}: fit.footprint cols must be a positive integer`);
+          for (const k of ["extraW", "extraH"]) if (fp[k] !== undefined && !(Number(fp[k]) >= 0)) errors.push(`manifest: ${id}: fit.footprint ${k} must be >= 0`);
+          if (!(Number(fp.w) > 0) || !(Number(fp.h) > 0)) errors.push(`manifest: ${id}: fit.footprint w/h must be positive`);
           const got = compute(fp);
           if (!got) continue;
           if (Math.round(got.w) !== Number(fp.w) || Math.round(got.h) !== Number(fp.h))
             errors.push(`manifest: ${id}: fit.footprint(count ${fp.count}, ${fp.layout}) declares ${fp.w}×${fp.h} but the params compute ${Math.round(got.w)}×${Math.round(got.h)}`);
-          byCount.set(`${fp.count}:${fp.layout}`, { ...fp, ...got });
+          byCount.set(`${fp.count}:${fp.layout}:${fp.floor ?? "base"}`, { ...fp, ...got });
         }
         if (!(fit.footprint ?? []).some((fp) => Number(fp.count) === Number(card.max)))
           errors.push(`manifest: ${id}: fit.footprint must cover the maximum cardinality (${card.max})`);
         // feasibility: 선언 결과를 live contentBox로 재계산해 대조한다(문서 상수 재복사 금지)
-        const seen = new Set();
+        const seen = new Set(), seenTuple = new Set();
         for (const fs of fit.feasibility ?? []) {
-          for (const k of Object.keys(fs)) if (!["preset", "orientation", "count", "layout", "result"].includes(k)) errors.push(`manifest: ${id}: fit.feasibility unknown field "${k}"`);
+          for (const k of Object.keys(fs)) if (!["preset", "orientation", "count", "layout", "floor", "result"].includes(k)) errors.push(`manifest: ${id}: fit.feasibility unknown field "${k}"`);
           if (!["fits", "needs-split"].includes(fs.result)) errors.push(`manifest: ${id}: fit.feasibility result must be fits|needs-split`);
           if (Array.isArray(p.presets) && !p.presets.includes(fs.preset)) errors.push(`manifest: ${id}: fit.feasibility preset "${fs.preset}" is not declared by this typepack`);
+          const tuple = `${fs.preset}:${fs.count}:${fs.layout}:${fs.floor ?? "base"}`;
+          if (seenTuple.has(tuple)) errors.push(`manifest: ${id}: duplicate fit.feasibility entry (${tuple})`);
+          seenTuple.add(tuple);
           seen.add(`${fs.preset}:${fs.count}`);
-          const fp = byCount.get(`${fs.count}:${fs.layout}`);
-          if (!fp) { errors.push(`manifest: ${id}: fit.feasibility(count ${fs.count}, ${fs.layout}) has no matching footprint`); continue; }
+          const fp = byCount.get(`${fs.count}:${fs.layout}:${fs.floor ?? "base"}`);
+          if (!fp) { errors.push(`manifest: ${id}: fit.feasibility(count ${fs.count}, ${fs.layout}, floor ${fs.floor ?? "base"}) has no matching footprint`); continue; }
           const pf = pageframeFor(fs.preset);
           if (!pf) { errors.push(`manifest: ${id}: cannot resolve PageFrame contentBox for "${fs.preset}"`); continue; }
+          // orientation은 TypePack 선언과 **실제 preset의 orientation** 양쪽과 맞아야 한다
+          if (Array.isArray(p.orientations) && !p.orientations.includes(fs.orientation))
+            errors.push(`manifest: ${id}: fit.feasibility orientation "${fs.orientation}" is not declared by this typepack`);
+          if (pf.orientation !== fs.orientation)
+            errors.push(`manifest: ${id}: fit.feasibility(${fs.preset}) declares orientation "${fs.orientation}" but the preset is "${pf.orientation}"`);
           const cb = pf.regions.contentBox;
           const fits = fp.w <= cb.w && fp.h <= cb.h;
           const want = fits ? "fits" : "needs-split";

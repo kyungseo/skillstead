@@ -23,7 +23,7 @@ Systems, components and their links inside zones.
 | Field | Cardinality | Budget |
 | --- | --- | --- |
 | `zones[].label` | 2–4 zones, entry → app → data | one line, ≤ 18 CJK / ≤ 28 Latin |
-| `zones[].nodes[]` | 1–4 per zone, ≤ 9 total | name ≤ 2 lines, one icon |
+| `zones[].nodes[]` | zone당 1–4개, **총 9개 이하**(두 상한이 동시에 적용된다) | name ≤ 2 lines, one icon |
 | `edges[]` | ≤ 12 | optional label ≤ 1 line |
 | `boundary` | optional, one system boundary | label ≤ 1 line |
 
@@ -43,10 +43,17 @@ Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 regi
 적으면 두 벌이 어긋나므로, 여기서는 배치 종류와 판정 경계만 적는다.
 
 - 배치: grid(zone × zone당 node)
+- 근거 수준: manifest `fit.floor_basis`가 `geometry`인 동안 이 수치는 **기하 가정**이며
+  실제 렌더로 확인된 값이 아니다. CP2B의 stress render(getBBox·containment·PNG 검수)를
+  통과한 뒤에만 `rendered`로 승격한다.
 - 판정: `fit.footprint`가 params에서 계산되고, `fit.feasibility`가 **실제 PageFrame
   contentBox**(preset별 live receipt)와 대조돼 `fits` 또는 `needs-split`으로 확정된다.
   manifest validator가 두 계산을 모두 재수행하므로 선언만으로 통과할 수 없다.
-- 경계: 4 zone × zone당 4 node까지 두 preset에서 성립한다. 그 이상은 zone을 합치거나 분리 페이지다.
+- 경계: **계층형 경계 상자**로 판정한다 — 가장 넓은 zone(노드 행)과 가장 깊은 stack(zone 수)을
+  동시에 만족하는 상자이며 zone label band·zone padding·zone 간 routing corridor를 포함한다.
+  Wave 1 검증 구성은 zone ≤ 4, 한 zone 최대 4 node, **총 node ≤ 9**이고, footprint는 그
+  상한(가장 넓은 zone × 가장 깊은 stack)을 계산하므로 어떤 합법 구성도 이 안에 들어간다.
+  두 preset에서 성립한다.
 
 ## 5. Layout, encoding and connector rules
 
@@ -67,15 +74,24 @@ Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 regi
 원본 archetype의 check를 **기계가 증명하는 것**과 **사람이 보거나 이후 verifier가 증명할
 것**으로 나눈다. 규칙을 §5에 적는 것과 그 규칙이 검증된다고 말하는 것은 다르다.
 
-**Machine (generic lint + layout guard, Wave 1에서 실제로 증명됨)**
+**Machine (generic guard가 실제로 검사하는 것)**
 
-- node → zone 소유(모든 node가 정확히 한 zone에 속함)와 zone containment
-- edge가 존재하는 node만 참조하는지(dangling edge 없음)
+generic lint와 layout guard는 **annotation이 붙은 일반 geometry**를 검사한다 — topology
+의미 모델을 아는 전용 경로는 Wave 1에 없다.
+
+- annotated container/child containment(zone frame 안에 node 카드가 들어가는지)
+- SVG reference 무결성(`url(#…)`·dangling id)과 중복 id
 - arrow-target clearance 8–12px, arrowhead 최소 크기
 - 하나의 `cluster-h1`, module heading이 section scale에 머무름
 
+**아직 증명되지 않음(등록 fixture 없음).** 위 항목도 이 TypePack의 fixture가 등록되기
+전까지는 *계약*이며 통과 증거가 아니다. "proved"라고 말할 수 있는 것은 실제 fixture로
+통과시킨 항목뿐이다.
+
 **Visual / manual (Wave 1에서는 기계 증명 대상이 아님)**
 
+- node → zone **semantic** ownership(annotation이 아닌 의미 모델 수준)
+- edge endpoint가 실재하는 node를 가리키는지(semantic dangling)
 - edge crossing 없음 — 현재는 육안 확인이며 자동 판정하지 않는다
 - edge label이 선 **옆**에 있고 선 위에 놓이지 않았는지
 - external actor가 system boundary **밖**에 있는지
