@@ -171,7 +171,6 @@ typepacks:
     support: experimental
     spec: types/specs/layer-stack.md
     presets: [document-compact, social-4x5, presentation-16x9]
-    # 이 batch에서 아직 판형을 재평가하지 않았다 — 현재 기본값을 기록한다.
     # 장면별 실측(잔여 27~62%) 근거로 fluid를 기본으로 한다.
     preferred_preset: document-compact
     orientations: [portrait, landscape]
@@ -233,7 +232,6 @@ typepacks:
     support: experimental
     spec: types/specs/nested-scope.md
     presets: [document-compact, social-4x5, presentation-16x9]
-    # 이 batch에서 아직 판형을 재평가하지 않았다 — 현재 기본값을 기록한다.
     # 장면별 실측(잔여 27~62%) 근거로 fluid를 기본으로 한다.
     preferred_preset: document-compact
     orientations: [portrait, landscape]
@@ -461,9 +459,9 @@ typepacks:
     profile: constrained-layout
     support: experimental
     spec: types/specs/before-after.md
-    presets: [social-4x5, presentation-16x9]
-    # 이 batch에서 아직 판형을 재평가하지 않았다 — 현재 기본값을 기록한다.
-    preferred_preset: social-4x5
+    presets: [document-compact, social-4x5, presentation-16x9]
+    # 장면별 실측(고정 4:5에서 잔여 27~79%)에 따라 fluid를 기본으로 한다.
+    preferred_preset: document-compact
     orientations: [portrait, landscape]
     verifier: null
     receipt_schema: null
@@ -477,18 +475,18 @@ typepacks:
     migration_origin: legacy
     legacy_section: "Before / after"
     inputs:
-      canonical: { id: before-after-canonical, path: types/inputs/before-after.canonical.yaml, preset: social-4x5, layout: row, count: 2 }
+      canonical: { id: before-after-canonical, path: types/inputs/before-after.canonical.yaml, preset: document-compact, layout: row, count: 2 }
       stress:
         - id: before-after-stress-cardinality
           path: types/inputs/before-after.stress-cardinality.yaml
-          preset: social-4x5
+          preset: document-compact
           layout: row
           count: 2
           geometry_expected: fits
           covers: [cardinality-max, mirrored-slots]
         - id: before-after-stress-copy
           path: types/inputs/before-after.stress-copy.yaml
-          preset: social-4x5
+          preset: document-compact
           layout: row
           count: 2
           geometry_expected: fits
@@ -496,10 +494,14 @@ typepacks:
     fit:
       floor_basis: geometry
       cardinality: { min: 2, canonical: 2, max: 2 }
-      params: { itemMinW: 260, itemMinH: 320, gapX: 32, gapY: 32 }
+      # panel 최소 높이는 **최소 합법 문법에서 계산**한다(임의 수치가 아니다):
+      #   2×panelPad + panelHeaderH + minSlots×slotMinH + (minSlots-1)×slotGap
+      #   = 2×16 + 34 + 2×38 + 1×10 = 152. validator가 이 합과 itemMinH를 대조한다.
+      params: { itemMinW: 260, itemMinH: 152, gapX: 32, gapY: 32, panelPad: 16, panelHeaderH: 34, slotMinH: 38, slotGap: 10, minSlots: 2 }
       footprint:
-        - { count: 2, layout: row, w: 552, h: 320 }
+        - { count: 2, layout: row, w: 552, h: 152 }
       feasibility:
+        - { preset: document-compact, orientation: portrait, count: 2, layout: row, result: fits }
         - { preset: social-4x5, orientation: portrait, count: 2, layout: row, result: fits }
         - { preset: presentation-16x9, orientation: landscape, count: 2, layout: row, result: fits }
   - id: roadmap-timeline
@@ -560,9 +562,9 @@ typepacks:
     profile: constrained-layout
     support: experimental
     spec: types/specs/decision-matrix.md
-    presets: [social-4x5, presentation-16x9]
-    # 이 batch에서 아직 판형을 재평가하지 않았다 — 현재 기본값을 기록한다.
-    preferred_preset: social-4x5
+    presets: [document-compact, social-4x5, presentation-16x9]
+    # 장면별 실측(고정 4:5에서 잔여 27~79%)에 따라 fluid를 기본으로 한다.
+    preferred_preset: document-compact
     orientations: [portrait, landscape]
     verifier: null
     receipt_schema: null
@@ -576,19 +578,29 @@ typepacks:
     migration_origin: legacy
     legacy_section: "Decision / risk matrix"
     inputs:
-      canonical: { id: decision-matrix-canonical, path: types/inputs/decision-matrix.canonical.yaml, preset: social-4x5, layout: grid, cols: 2, count: 4 }
+      canonical: { id: decision-matrix-canonical, path: types/inputs/decision-matrix.canonical.yaml, preset: document-compact, layout: grid, cols: 2, count: 4 }
       stress:
         - id: decision-matrix-stress-cardinality
           path: types/inputs/decision-matrix.stress-cardinality.yaml
-          preset: social-4x5
+          # 3×3은 fluid 폭을 넘는다 — 이 구성만 더 넓은 지원 판형을 쓴다.
+          preset: presentation-16x9
           layout: grid
           cols: 3
           count: 9
+          residual_disposition: { bottom: 358, reason: "3×3 격자는 축 예약을 포함해 fluid 폭을 넘으므로 폭이 되는 유일한 선언 판형이 16:9다. cell 높이는 내용이 정하고 canvas를 채우려고 늘리지 않는다 — 가로를 얻은 대가로 남는 세로 여백이다." }
           geometry_expected: fits
           covers: [cardinality-max]
+        - id: decision-matrix-stress-degrade
+          path: types/inputs/decision-matrix.stress-degrade.yaml
+          preset: document-compact
+          layout: grid
+          cols: 3
+          count: 9
+          geometry_expected: needs-split
+          covers: [cardinality-max, degrade-path]
         - id: decision-matrix-stress-copy
           path: types/inputs/decision-matrix.stress-copy.yaml
-          preset: social-4x5
+          preset: document-compact
           layout: grid
           cols: 2
           count: 4
@@ -597,10 +609,15 @@ typepacks:
     fit:
       floor_basis: geometry
       cardinality: { min: 4, canonical: 4, max: 9 }
-      params: { itemMinW: 180, itemMinH: 150, gapX: 16, gapY: 16 }
+      # cell 높이는 canvas가 아니라 내용이 정한다. itemMinH는 **최소 합법 cell**의 geometry floor다:
+      # 2 × cellPadY + nameLine + nameGap + traitLine = 28 + 18 + 6 + 16. 실제 높이는 두 locale
+      # 최대 line-box에서 나오고, 예측 floor를 넘으면 렌더 뒤 측정 gate가 다시 판정한다.
+      params: { itemMinW: 180, itemMinH: 68, gapX: 16, gapY: 16, cellPadY: 14, nameLine: 18, nameGap: 6, traitLine: 16 }
       footprint:
-        - { count: 4, layout: grid, cols: 2, extraW: 56, extraH: 44, w: 432, h: 360 }
-        - { count: 9, layout: grid, cols: 3, extraW: 56, extraH: 44, w: 628, h: 526 }
+        - { count: 4, layout: grid, cols: 2, extraW: 72, extraH: 58, w: 448, h: 210 }
+        - { count: 9, layout: grid, cols: 3, extraW: 72, extraH: 58, w: 644, h: 294 }
       feasibility:
+        # 3×3 격자는 fluid 폭(616)을 넘는다 — 그 구성만 더 넓은 판형을 쓴다.
+        - { preset: document-compact, orientation: portrait, count: 9, layout: grid, result: needs-split }
         - { preset: social-4x5, orientation: portrait, count: 9, layout: grid, result: fits }
         - { preset: presentation-16x9, orientation: landscape, count: 9, layout: grid, result: fits }

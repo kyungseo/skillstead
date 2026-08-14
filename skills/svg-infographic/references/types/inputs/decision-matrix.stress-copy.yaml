@@ -2,7 +2,7 @@ schema_version: 1
 kind: typepack-input
 typepack: decision-matrix
 case: stress-copy
-preset: social-4x5
+preset: document-compact
 layout: grid
 cols: 2
 count: 4
@@ -13,21 +13,29 @@ title:
   en: "Two axes set the priority"
 axes:
   x:
-    low:
-      ko: "좁은 범위"
-      en: "Narrow"
-    high:
-      ko: "넓은 범위"
-      en: "Broad"
+    tiers:
+      - id: "narrow"
+        label:
+          ko: "좁은 범위"
+          en: "Narrow"
+      - id: "broad"
+        label:
+          ko: "넓은 범위"
+          en: "Broad"
   y:
-    low:
-      ko: "낮은 영향"
-      en: "Low impact"
-    high:
-      ko: "높은 영향"
-      en: "High impact"
+    tiers:
+      - id: "low"
+        label:
+          ko: "낮은 영향"
+          en: "Low impact"
+      - id: "high"
+        label:
+          ko: "높은 영향"
+          en: "High impact"
 cells:
   - id: "cell-1"
+    x: "narrow"
+    y: "high"
     name:
       ko: "즉시 실행 대상"
       en: "Act immediately"
@@ -35,6 +43,8 @@ cells:
       ko: "영향이 크고 범위가 좁아 지금 바로 처리한다고 본다"
       en: "High impact and narrow scope, handle now"
   - id: "cell-2"
+    x: "broad"
+    y: "high"
     name:
       ko: "분기 계획 대상"
       en: "Plan this quarter"
@@ -42,6 +52,8 @@ cells:
       ko: "영향이 크지만 범위가 넓어 계획 수립이 먼저 필요하다"
       en: "High impact but broad scope, plan first"
   - id: "cell-3"
+    x: "narrow"
+    y: "low"
     name:
       ko: "위임 가능 항목"
       en: "Delegate safely"
@@ -49,6 +61,8 @@ cells:
       ko: "영향이 작고 범위가 좁아 위임할 수 있다"
       en: "Low impact and narrow scope, delegate"
   - id: "cell-4"
+    x: "broad"
+    y: "low"
     name:
       ko: "다음 주기 보류"
       en: "Defer to next cycle"

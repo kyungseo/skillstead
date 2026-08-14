@@ -24,6 +24,9 @@
 //   groups:     data-layout-group="<id>" data-distribution="equal-gap"
 //               data-axis="x|y" data-group-count [data-gap-tol=1]
 //               (distribution/axis/group-count REQUIRED); items: data-layout-item="<id>"
+//   alignment:  data-align-row="<id>" data-align-row-count="<n≥2>" — 같은 y·같은 높이, 참여 수 고정
+//               data-align-col="<id>" data-align-col-count="<n≥2>" — 같은 x·같은 폭, 참여 수 고정
+//               (서로 다른 container에 걸친 교차 정렬 전용. 격자 엔진이 아니다)
 //   clusters:   item frame: data-cluster-id="<id>" data-cluster-count
 //               components: data-cluster="<id>" on circle/rect (bounds) or
 //               text/g/use (anchor point)
@@ -104,7 +107,8 @@ export function checkLayoutFile(file) {
     if (a.transform != null && !tm) broken = true;
     if (name === "g" && !self) stack.push({ tx: tm ? Number(tm[1]) : 0, ty: tm ? Number(tm[2]) : 0, broken: a.transform != null && !tm });
     const declared = a["data-layout-container"] || a["data-layout-parent"] || a["data-layout-item"]
-      || a["data-layout-group"] || a["data-cluster-id"] || a["data-cluster"] || a["data-layout-title"];
+      || a["data-layout-group"] || a["data-cluster-id"] || a["data-cluster"] || a["data-layout-title"]
+      || a["data-align-row"] || a["data-align-col"];
     if (!declared) continue;
     if (a["data-layout-unverified"] != null) {
       unverified.push({ id: declared, reason: a["data-layout-unverified"] });
@@ -148,6 +152,83 @@ export function checkLayoutFile(file) {
   }
 
   const r1 = (v) => Math.round(v * 10) / 10;
+  // --- alignment inventory: group이 **통째로 빠진 것**까지 잡는다 ------------------------
+  const invAttr = [...src.matchAll(/data-align-inventory="([^"]*)"/g)].map((m) => m[1]);
+  if (invAttr.length > 1) errors.push(`E-LAYOUT-ALIGN-SCHEMA: more than one data-align-inventory declaration`);
+  const declaredInv = invAttr.length
+    ? new Map(invAttr[0].split(";").filter(Boolean).map((t) => {
+        const m = t.match(/^(row|col):(.+)=(\d+)$/);
+        if (!m) { errors.push(`E-LAYOUT-ALIGN-SCHEMA: unparseable inventory entry "${t}"`); return ["?", NaN]; }
+        return [`${m[1]}:${m[2]}`, Number(m[3])];
+      }))
+    : null;
+
+  // --- alignment rows/cols: 교차축 정렬 + **참여 완결성** ------------------------------
+  // 정렬이 맞는지만 보면 한쪽 annotation이 빠졌을 때 남은 것만으로 통과한다.
+  // 그래서 group마다 기대 참여 수를 선언하게 하고, 수가 어긋나면 거부한다.
+  const alignTol = 1;
+  for (const [attr, cntAttr, axis, pos, size, label] of [
+    ["data-align-row", "data-align-row-count", "row", "y", "h", "top edge"],
+    ["data-align-col", "data-align-col-count", "col", "x", "w", "left edge"],
+  ]) {
+    const byName = new Map();
+    for (const e of els.filter((x) => x.a[attr])) {
+      const k = e.a[attr];
+      if (!byName.has(k)) byName.set(k, []);
+      byName.get(k).push(e);
+    }
+    for (const [name, list] of byName) {
+      const ctxA = `${axis} "${name}"`;
+      const counts = [...new Set(list.map((e) => e.a[cntAttr]))];
+      if (counts.some((c) => c === undefined)) {
+        errors.push(`E-LAYOUT-ALIGN-SCHEMA ${ctxA}: every participant must declare ${cntAttr} — without it a missing participant passes unnoticed`);
+        continue;
+      }
+      if (counts.length > 1) {
+        errors.push(`E-LAYOUT-ALIGN-SCHEMA ${ctxA}: participants disagree on ${cntAttr} (${counts.join(", ")})`);
+        continue;
+      }
+      const expected = num(counts[0]);
+      if (!Number.isFinite(expected) || expected < 2) {
+        errors.push(`E-LAYOUT-ALIGN-SCHEMA ${ctxA}: ${cntAttr} must be an integer ≥ 2 — a one-member alignment ${axis} asserts nothing`);
+        continue;
+      }
+      if (list.length !== expected) {
+        errors.push(`E-LAYOUT-ALIGN-SCHEMA ${ctxA}: declared ${expected} participant(s) but found ${list.length} — a missing annotation is a missing alignment claim`);
+        continue;
+      }
+      const withGeom = list.filter((e) => e.geom);
+      if (withGeom.length !== list.length) {
+        errors.push(`E-LAYOUT-ALIGN-SCHEMA ${ctxA}: ${list.length - withGeom.length} participant(s) have no provable geometry`);
+        continue;
+      }
+      const posOf = (e) => (pos === "y" ? e.geom.y : e.geom.x);
+      const sizeOf = (e) => (size === "h" ? e.geom.h : e.geom.w);
+      const pSpread = r1(Math.max(...withGeom.map(posOf)) - Math.min(...withGeom.map(posOf)));
+      const sSpread = r1(Math.max(...withGeom.map(sizeOf)) - Math.min(...withGeom.map(sizeOf)));
+      if (pSpread > alignTol)
+        errors.push(`E-LAYOUT-ALIGN ${ctxA}: ${label}s differ by ${pSpread}px across ${withGeom.length} member(s) — members of one alignment ${axis} must share it`);
+      if (sSpread > alignTol)
+        errors.push(`E-LAYOUT-ALIGN ${ctxA}: ${size === "h" ? "heights" : "widths"} differ by ${sSpread}px — an alignment ${axis} implies equal extent`);
+    }
+  }
+
+  if (declaredInv) {
+    const actual = new Map();
+    for (const [attr, cntAttr, axis] of [["data-align-row", "data-align-row-count", "row"], ["data-align-col", "data-align-col-count", "col"]])
+      for (const e of els.filter((x) => x.a[attr])) {
+        const k = `${axis}:${e.a[attr]}`;
+        actual.set(k, (actual.get(k) ?? 0) + 1);
+        void cntAttr;
+      }
+    for (const [k, n] of declaredInv) {
+      if (!actual.has(k)) errors.push(`E-LAYOUT-ALIGN-SCHEMA: alignment group "${k}" is declared in the inventory but no participant carries it — the whole group is missing`);
+      else if (actual.get(k) !== n) errors.push(`E-LAYOUT-ALIGN-SCHEMA: alignment group "${k}" has ${actual.get(k)} participant(s) but the inventory declares ${n}`);
+    }
+    for (const k of actual.keys())
+      if (!declaredInv.has(k)) errors.push(`E-LAYOUT-ALIGN-SCHEMA: alignment group "${k}" exists in the artifact but is absent from the inventory`);
+  }
+
   const receipt = { file: path.basename(file), containers: [], groups: [], clusters: [], unverified };
 
   // ---- containers (duplicate id = error) ----

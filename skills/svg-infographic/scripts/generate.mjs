@@ -13,14 +13,14 @@
 //   node generate.mjs build  --typepack <id> --case <case> --locale ko|en --out <svg> --receipt <json>
 //   node generate.mjs verify --receipt <json> [--svg <svg>] [--pair <other-locale-receipt>]
 // exit: 0 ok · 1 error · 2 usage · 3 needs-split(비성공, degrade receipt 기록) · 7 preflight
-import { readFileSync, writeFileSync, rmSync } from "node:fs";
+import { readFileSync, writeFileSync, rmSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { preflight, guardPackagePath, provenance, SKILL_LOCATOR } from "./preflight-lib.mjs";
-import { parseYaml } from "./skin.mjs";
+import { parseYaml, derivePanelFloor, deriveAlignInventory, serializeAlignInventory, deriveMatrixPlacement } from "./skin.mjs";
 import { estimateWidth } from "./check-svg.mjs";
 import { planChannels, routeEdges, pathData, auditTopology, alignRows, ROUTE_DEFAULTS } from "./route-orthogonal.mjs";
 
@@ -56,15 +56,20 @@ function loadCase(tid, caseId) {
 // geometry 판정은 manifest fit params에서 계산한다(문서 상수 재복사 금지)
 function computeFit(tp, sc) {
   const prm = tp.fit.params;
+  // 같은 구성의 footprint가 선언한 extra(축 라벨 등)를 함께 반영한다 — validator와 같은 수치를 쓴다.
+  const fp = (Array.isArray(tp.fit.footprint) ? tp.fit.footprint : []).find((f) =>
+    Number(f.count) === Number(sc.count) && f.layout === sc.layout
+    && String(f.cols ?? "") === String(sc.cols ?? "") && String(f.floor ?? "base") === String(sc.floor ?? "base"));
+  const ex = { w: Number(fp?.extraW ?? 0), h: Number(fp?.extraH ?? 0) };
   const fl = sc.floor && sc.floor !== "base" ? sc.floor : null;
   const iw = Number(fl ? prm[`${fl}ItemMinW`] : prm.itemMinW);
   const ih = Number(fl ? prm[`${fl}ItemMinH`] : prm.itemMinH);
   const gx = Number(prm.gapX ?? 0), gy = Number(prm.gapY ?? 0), n = Number(sc.count);
-  if (sc.layout === "row") return { w: n * iw + (n - 1) * gx, h: ih };
-  if (sc.layout === "column") return { w: iw, h: n * ih + (n - 1) * gy };
+  if (sc.layout === "row") return { w: n * iw + (n - 1) * gx + ex.w, h: ih + ex.h };
+  if (sc.layout === "column") return { w: iw + ex.w, h: n * ih + (n - 1) * gy + ex.h };
   if (sc.layout === "grid") {
     const cols = Number(sc.cols), rows = Math.ceil(n / cols);
-    return { w: cols * iw + (cols - 1) * gx, h: rows * ih + (rows - 1) * gy };
+    return { w: cols * iw + (cols - 1) * gx + ex.w, h: rows * ih + (rows - 1) * gy + ex.h };
   }
   if (sc.layout === "zones") {
     const npz = Number(prm.maxNodesPerZone), pad = Number(prm.zonePad), band = Number(prm.zoneLabelBand), zg = Number(prm.zoneGap);
@@ -592,6 +597,175 @@ function renderNestedScope(input, loc, cb, sc, tp) {
       attempts: [], diagnostics: [], demoted: [], routes: [] } };
 }
 
+
+// ---------- before-after (좌우 mirrored — 정렬이 대응을 나른다) ----------
+function renderBeforeAfter(input, loc, cb, sc, tp) {
+  const panels = input.panels, slots = input.slots, delta = input.delta ?? [];
+  const P = tp.fit?.params ?? {};
+  const gutter = Number(P.gapX ?? 32), pad = Number(P.panelPad ?? 16), rowGap = Number(P.slotGap ?? 10);
+  const slotMinH = Number(P.slotMinH ?? 38);
+  const panelW = (cb.w - gutter) / 2;
+  const textW = panelW - 2 * pad - 24;
+  const wrapAll = (lc) => slots.map((st) => panels.map((p) =>
+    wrapLines(String(st[p.id]?.[lc] ?? ""), textW, 13, false, 2)));
+  if (["ko", "en"].some((lc) => wrapAll(lc).some((r) => r.some((x) => x.overflow)))) {
+    console.error("generate: a slot line exceeds the §2 budget at this layout"); process.exit(1);
+  }
+  // 행은 반복 항목이다 — 한 높이를 공유한다(양쪽 패널·두 locale 중 가장 긴 것이 정한다).
+  // 그래야 같은 slot이 같은 y에 오고, 반복 항목 크기 계약도 성립한다.
+  const rowUnit = Math.max(slotMinH, ...["ko", "en"].flatMap((lc) =>
+    wrapAll(lc).flat().map((r) => r.lines.length * 17 + 20)));
+  const rowH = slots.map(() => rowUnit);
+  const headH = Number(P.panelHeaderH ?? 34);
+  const bodyH = rowH.reduce((a, b) => a + b, 0) + (slots.length - 1) * rowGap;
+  // floor 산식은 skin.mjs의 derivePanelFloor가 소유한다 — validator와 같은 함수를 쓴다.
+  const f = derivePanelFloor(P);
+  if (!f.declared || f.missing?.length) {
+    console.error(`generate: before-after needs the floor components (${(f.missing ?? []).join(", ") || "panelPad, panelHeaderH, slotMinH, slotGap, minSlots"}) in fit.params`);
+    process.exit(1);
+  }
+  const floorH = f.value;
+  if (Number(P.itemMinH) !== floorH) {
+    console.error(`generate: declared panel floor ${P.itemMinH} != derived ${floorH} (${f.formula})`);
+    process.exit(1);
+  }
+  const panelH = Math.max(floorH, headH + pad + bodyH + pad);
+  const consumed = [], containers = [], nodeArt = [], labels = [];
+  const laid = wrapAll(loc);
+  panels.forEach((p, pi) => {
+    const px = cb.x + pi * (panelW + gutter);
+    consumed.push(p.id);
+    containers.push(`  <g data-comp-entity="${p.id}" data-entity="${p.id}" data-layout-role="panel">
+    <rect x="${r1(px)}" y="${r1(cb.y)}" width="${r1(panelW)}" height="${r1(panelH)}" rx="14" fill="${pi === 0 ? "#F4F8FC" : "#EFF5EC"}" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface-tint" data-stroke-role="rule" data-layout-container="${p.id}" data-min-pad="${pad}" data-reserve-top="${headH}" data-layout-count="${slots.length}" data-symmetry="x"/>
+    <text x="${r1(px + pad)}" y="${r1(cb.y + headH / 2 + 3)}" font-size="13" font-weight="700" fill="#636A75" data-fill-role="muted" dominant-baseline="central">${esc(p.title[loc])}</text>
+  </g>`);
+    let y = cb.y + headH + pad;
+    slots.forEach((st, si) => {
+      const t = laid[si][pi];
+      const changed = st.change === "changed";
+      // 같은 slot은 두 패널에서 같은 행 id를 공유한다 — 정렬이 곧 대응이다.
+      nodeArt.push(`  <g data-comp-entity="${p.id}-${st.id}">
+    <rect x="${r1(px + pad)}" y="${r1(y)}" width="${r1(panelW - 2 * pad)}" height="${r1(rowH[si])}" rx="9" fill="#FFFFFF" stroke="${changed && pi === 1 ? "#9BC3A5" : "#DEE0E2"}" stroke-width="1" data-fill-role="surface" data-stroke-role="rule" data-layout-parent="${p.id}" data-layout-item="${p.id}-rows" data-align-row="slot-${st.id}" data-align-row-count="${panels.length}"/>
+    <text font-size="13" fill="#252B35" data-fill-role="ink" dominant-baseline="central">${tspans(t.lines, px + pad + 12, y + rowH[si] / 2 - (t.lines.length - 1) * 8.5, 17)}</text>
+  </g>`);
+      y += rowH[si] + rowGap;
+    });
+    containers.push(`  <g data-layout-group="${p.id}-rows" data-distribution="equal-gap" data-axis="y" data-group-count="${slots.length}"></g>`);
+  });
+  let bottom = cb.y + panelH;
+  if (delta.length) {
+    const dy = bottom + 22;
+    labels.push(`  <g data-layout-role="delta-strip">` + delta.map((d, i) =>
+      `<text data-entity="${d.id}" x="${r1(cb.x)}" y="${r1(dy + i * 20)}" font-size="12.5" fill="#636A75" data-fill-role="muted" dominant-baseline="central">${esc("· " + d.text[loc])}</text>`).join("") + `</g>`);
+    for (const d of delta) consumed.push(d.id);
+    bottom = dy + (delta.length - 1) * 20 + 12;
+  }
+  const inv = serializeAlignInventory(deriveAlignInventory("before-after", input, sc));
+  return { body: [`  <g data-layer="containers" data-align-inventory="${inv}">`, ...containers, `  </g>`,
+      `  <g data-layer="connectors"></g>`, `  <g data-layer="nodes">`, ...nodeArt, `  </g>`,
+      `  <g data-layer="annotations">`, ...labels, `  </g>`].join("\n"),
+    consumed, bounds: { x: cb.x, y: cb.y, w: cb.w, h: bottom - cb.y },
+    routing: { degradeLevel: 0, ladder: [], problems: [], hops: 0, legend: false, alignment: [],
+      attempts: [], diagnostics: [], demoted: [], routes: [] } };
+}
+
+// ---------- decision-matrix (축은 밖, 셀은 격자) ----------
+// 축은 **ordinal category direction**이다 — 수치 간격도, chart scale도 아니다.
+// 따라서 tick·숫자·gridline은 없고, 방향(위/오른쪽이 높음)만 표시한다.
+// 축은 connector가 아니다: data-route-* 를 쓰지 않으므로 routing audit 대상이 아니고,
+// direction marker는 primary connector arrow보다 가늘게(우선순위가 낮게) 파생한다.
+const AXIS_SHAFT = 1.5;                         // primary connector 2.5 / secondary 2.2보다 얇다
+const AXIS_HEAD = r1(4.5 * AXIS_SHAFT);         // marker 크기는 connector와 **같은 산식**에서 파생한다
+function renderDecisionMatrix(input, loc, cb, sc, tp) {
+  const cells = input.cells, ax = input.axes;
+  const pl = deriveMatrixPlacement(input);
+  const cols = pl.cols, rows = pl.rows;
+  if (Number(sc.cols) !== cols) { console.error(`generate: scenario declares cols ${sc.cols} but axes.x declares ${cols} tiers`); process.exit(1); }
+  const P = tp.fit?.params ?? {};
+  const gx = Number(P.gapX ?? 16), gy = Number(P.gapY ?? 16);
+  const padY = Number(P.cellPadY ?? 14);
+  const pad = 12, axisGap = 12, endLabel = 11;
+  const endOf = (a, which) => (which === "high" ? pl[a === "x" ? "xTiers" : "yTiers"].at(-1) : pl[a === "x" ? "xTiers" : "yTiers"][0]);
+  // 축 라벨 열 폭은 **실제 문안**(두 locale 최대)에서 파생한다 — 고정 상수면 KO에서 넘친다.
+  const axisTextW = Math.max(...["ko", "en"].flatMap((lc) =>
+    ["low", "high"].map((w) => estimateWidth(String(endOf("y", w).label[lc]), endLabel, true, 0))));
+  // 예약 = [라벨][라벨↔축선 간격][축선↔격자 간격]. 축선이 격자에도 라벨에도 닿지 않는다.
+  const axisCol = Math.max(48, axisTextW + 8 + axisGap + 4);
+  const axisRow = axisGap + 22;
+  // 격자 폭은 **예약(축 라벨 열)과 container pad를 뺀 실제 폭**에서 계산한다 —
+  // 경계에 정확히 닿는 것도 통과가 아니므로 양쪽 pad를 실제로 비운다.
+  const gridW = cb.w - axisCol - 2 * pad;
+  const cw = (gridW - (cols - 1) * gx) / cols;
+  const x0 = cb.x + axisCol + pad, y0 = cb.y + pad;
+  // cell 높이는 canvas가 아니라 **내용**이 정한다. 두 locale 최대 line-box + 상하 padding이며
+  // 남는 자리를 채우려고 늘리지 않는다(남는 것은 residual 계약이 선언한다).
+  const wrapped = new Map();
+  let ch = 0;
+  for (const c of cells) {
+    for (const lc of ["ko", "en"]) {
+      const nameL = wrapLines(cellName(c, pl, lc), cw - 2 * pad, 14, true, 2);
+      const traitL = wrapLines(c.trait[lc], cw - 2 * pad, 12, false, 2);
+      if (nameL.overflow || traitL.overflow) { console.error(`generate: cell "${c.id}" text exceeds the §2 budget (${lc})`); process.exit(1); }
+      wrapped.set(`${c.id}|${lc}`, { nameL, traitL });
+      ch = Math.max(ch, padY + nameL.lines.length * 18 + 6 + traitL.lines.length * 16 + padY);
+    }
+  }
+  const gridH = rows * ch + (rows - 1) * gy;
+  const consumed = [], containers = [], nodeArt = [], labels = [];
+  // 격자 전체를 하나의 container로 두고, 축 라벨 구간을 **가로·세로 예약**으로 선언한다.
+  containers.push(`  <rect data-layout-container="matrix" x="${r1(cb.x)}" y="${r1(cb.y)}" width="${r1(cb.w)}" height="${r1(gridH + 2 * pad)}" fill="none" stroke="none" data-min-pad="${pad}" data-reserve-left="${axisCol}" data-reserve-top="0" data-layout-count="${cells.length}"/>`);
+  const inRow = (r) => pl.cells.filter((c) => c.row === r).length;
+  const inCol = (c) => pl.cells.filter((x) => x.col === c).length;
+  for (let r = 0; r < rows; r++)
+    if (inRow(r) === cols)   // 완전한 행만 등간격 group을 선언한다(빈 칸이 있으면 열 정렬이 지배한다)
+      containers.push(`  <g data-layout-group="matrix-row-${r}" data-distribution="equal-gap" data-axis="x" data-group-count="${cols}"></g>`);
+  cells.forEach((c, i) => {
+    const p = pl.cells[i];
+    const cx = x0 + p.col * (cw + gx), cy = y0 + p.row * (ch + gy);
+    consumed.push(c.id);
+    const rowCount = inRow(p.row), colCount = inCol(p.col);
+    const { nameL, traitL } = wrapped.get(`${c.id}|${loc}`);
+    nodeArt.push(`  <g data-comp-entity="${c.id}" data-entity="${c.id}" data-cell-x="${esc(c.x)}" data-cell-y="${esc(c.y)}">
+    <rect x="${r1(cx)}" y="${r1(cy)}" width="${r1(cw)}" height="${r1(ch)}" rx="12" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface" data-stroke-role="rule" data-layout-parent="matrix"${rowCount === cols ? ` data-layout-item="matrix-row-${p.row}"` : ""}${rowCount >= 2 ? ` data-align-row="matrix-r${p.row}" data-align-row-count="${rowCount}"` : ""}${colCount >= 2 ? ` data-align-col="matrix-c${p.col}" data-align-col-count="${colCount}"` : ""}/>
+    <text font-size="14" font-weight="700" fill="#252B35" data-fill-role="ink" dominant-baseline="central">${tspans(nameL.lines, cx + pad, cy + padY + 9, 18)}</text>
+    <text font-size="12" fill="#636A75" data-fill-role="muted" dominant-baseline="central">${tspans(traitL.lines, cx + pad, cy + padY + 9 + nameL.lines.length * 18 + 6, 16)}</text>
+  </g>`);
+  });
+  // 축은 패널 **밖**에 둔다(spec §5): 세로축은 격자 왼쪽, 가로축은 격자 아래.
+  const gridBottom = y0 + gridH, gridRight = x0 + gridW;
+  const ayX = r1(x0 - axisGap), axY = r1(gridBottom + axisGap);
+  const A = `fill="none" data-stroke-role="muted" stroke="#636A75" stroke-width="${AXIS_SHAFT}" stroke-linecap="round" stroke-linejoin="round"`;
+  const h = AXIS_HEAD / 2;
+  labels.push(`  <g data-layout-role="axis" data-axis-kind="ordinal-direction">
+    <path data-axis="y" data-axis-orientation="vertical" data-axis-positive="up" d="M${ayX} ${r1(gridBottom)} V${r1(y0)}" ${A}/>
+    <path data-axis-marker="y" d="M${r1(ayX - h)} ${r1(y0 + AXIS_HEAD)} L${ayX} ${r1(y0)} L${r1(ayX + h)} ${r1(y0 + AXIS_HEAD)}" ${A}/>
+    <path data-axis="x" data-axis-orientation="horizontal" data-axis-positive="right" d="M${r1(x0)} ${axY} H${r1(gridRight)}" ${A}/>
+    <path data-axis-marker="x" d="M${r1(gridRight - AXIS_HEAD)} ${r1(Number(axY) - h)} L${r1(gridRight)} ${axY} L${r1(gridRight - AXIS_HEAD)} ${r1(Number(axY) + h)}" ${A}/>
+    <text data-axis-end="y:high" x="${r1(ayX - 8)}" y="${r1(y0 + 8)}" font-size="${endLabel}" font-weight="700" fill="#636A75" data-fill-role="muted" text-anchor="end" dominant-baseline="central">${esc(endOf("y", "high").label[loc])}</text>
+    <text data-axis-end="y:low" x="${r1(ayX - 8)}" y="${r1(gridBottom - 8)}" font-size="${endLabel}" font-weight="700" fill="#636A75" data-fill-role="muted" text-anchor="end" dominant-baseline="central">${esc(endOf("y", "low").label[loc])}</text>
+    <text data-axis-end="x:low" x="${r1(x0)}" y="${r1(Number(axY) + 14)}" font-size="${endLabel}" font-weight="700" fill="#636A75" data-fill-role="muted" dominant-baseline="central">${esc(endOf("x", "low").label[loc])}</text>
+    <text data-axis-end="x:high" x="${r1(gridRight)}" y="${r1(Number(axY) + 14)}" font-size="${endLabel}" font-weight="700" fill="#636A75" data-fill-role="muted" text-anchor="end" dominant-baseline="central">${esc(endOf("x", "high").label[loc])}</text>
+  </g>`);
+  const inv = serializeAlignInventory(deriveAlignInventory("decision-matrix", input, sc));
+  return { body: [`  <g data-layer="containers" data-align-inventory="${inv}">`, ...containers, `  </g>`,
+      `  <g data-layer="connectors"></g>`, `  <g data-layer="nodes">`, ...nodeArt, `  </g>`,
+      `  <g data-layer="annotations">`, ...labels, `  </g>`].join("\n"),
+    consumed, bounds: { x: cb.x, y: cb.y, w: cb.w, h: gridH + 2 * pad + axisRow },
+    matrix: { kind: "ordinal-direction", cols, rows, cellH: r1(ch), cellW: r1(cw),
+      axes: { x: { positive: "right", tiers: pl.xTiers.map((t) => t.id) },
+        y: { positive: "up", tiers: pl.yTiers.map((t) => t.id) } },
+      placement: pl.cells.map((c) => ({ id: c.id, x: c.x, y: c.y, row: c.row, col: c.col,
+        alignRow: inRow(c.row) >= 2 ? `matrix-r${c.row}` : null, alignCol: inCol(c.col) >= 2 ? `matrix-c${c.col}` : null })) },
+    routing: { degradeLevel: 0, ladder: [], problems: [], hops: 0, legend: false, alignment: [],
+      attempts: [], diagnostics: [], demoted: [], routes: [] } };
+}
+// name은 선택이다 — 없으면 두 축 tier label에서 파생한다(순서가 모호한 "낮음-높음"을 쓰지 않는다).
+function cellName(c, pl, lc) {
+  if (c.name) return c.name[lc];
+  const yt = pl.yTiers.find((t) => t.id === c.y), xt = pl.xTiers.find((t) => t.id === c.x);
+  return `${yt.label[lc]} · ${xt.label[lc]}`;
+}
+
 // ---------- font delivery (portable = 사용 glyph subset embed) ----------
 // 계약: portable은 대상 환경의 설치 글꼴에 의존하지 않는다. subset 도구가 없거나 glyph가
 // 빠지면 **full embed로도, system fallback으로도 조용히 넘어가지 않고 실패한다**.
@@ -608,7 +782,10 @@ function subsetFace(facePath, chars, tool, style, weight, alias, rfn) {
   // acceptance artifact를 만들 수 없다.
   const python = process.env.SVGINFO_PYTHON ?? tool.command ?? "python3";
   const wrapper = guardPackagePath(path.join(here, "..", String(tool.wrapper)), "font subset wrapper");
-  const tmp = path.join(tmpdir(), `svginfo-subset-${weight}-${createHash("sha256").update(chars).digest("hex").slice(0, 12)}.woff2`);
+  // 경로는 **호출마다 새로** 만든다. 내용으로 이름을 지으면 같은 글자 집합을 동시에 subset하는
+  // 두 build가 같은 파일을 쓰고 서로의 것을 지운다(작업 디렉터리는 공유 tmp다).
+  const work = mkdtempSync(path.join(tmpdir(), "svginfo-subset-"));
+  const tmp = path.join(work, `face-${weight}.woff2`);
   const textFile = tmp + ".txt";
   writeFileSync(textFile, chars);
   const args = [wrapper, "--face", facePath, "--text-file", textFile, "--out", tmp,
@@ -616,20 +793,23 @@ function subsetFace(facePath, chars, tool, style, weight, alias, rfn) {
     "--expect-fonttools", String(tool.version), "--expect-brotli", String(tool.brotli),
     ...rfn.flatMap((n) => ["--rfn", String(n)])];
   const r = spawnSync(python, args, { encoding: "utf8" });
+  const done = () => rmSync(work, { recursive: true, force: true });
   rmSync(textFile, { force: true });
   if (r.error?.code === "ENOENT") {
+    done();
     console.error(`generate: portable delivery needs the pinned toolchain (${tool.name} ${tool.version} + brotli ${tool.brotli}) run through ${tool.wrapper}.\n  It is a build-only dependency: point SVGINFO_PYTHON at an interpreter that has it, or generate with --font-delivery system (environment-dependent, not acceptance-grade).`);
     process.exit(4);
   }
   if (r.status !== 0) {
+    done();
     console.error(`generate: subsetting failed (exit ${r.status})\n${(r.stdout ?? "") + (r.stderr ?? "")}`.trimEnd());
     process.exit(4);
   }
   let receipt;
-  try { receipt = JSON.parse(r.stdout); } catch { console.error("generate: subset wrapper did not return JSON"); process.exit(4); }
-  if (receipt.rfnGuard !== "clean") { console.error("generate: subset wrapper did not certify the reserved-name guard"); process.exit(4); }
+  try { receipt = JSON.parse(r.stdout); } catch { done(); console.error("generate: subset wrapper did not return JSON"); process.exit(4); }
+  if (receipt.rfnGuard !== "clean") { done(); console.error("generate: subset wrapper did not certify the reserved-name guard"); process.exit(4); }
   const buf = readFileSync(tmp);
-  rmSync(tmp, { force: true });
+  done();
   return { buf, receipt };
 }
 
@@ -688,6 +868,8 @@ function build(argv) {
     : tid === "approval-gate" ? renderApprovalGate(input, loc, cbox, sc, tp)
     : tid === "layer-stack" ? renderLayerStack(input, loc, cbox, sc, tp)
     : tid === "nested-scope" ? renderNestedScope(input, loc, cbox, sc, tp)
+    : tid === "before-after" ? renderBeforeAfter(input, loc, cbox, sc, tp)
+    : tid === "decision-matrix" ? renderDecisionMatrix(input, loc, cbox, sc, tp)
     : (console.error(`generate: no renderer registered for "${tid}"`), process.exit(2));
   let pf = spawnJson([skinCli, "pageframe", preset, "--json"], "skin.mjs pageframe");
   if (pf.regions.fluid) {
@@ -700,7 +882,7 @@ function build(argv) {
   const geometry = need.w <= cb.w && need.h <= cb.h ? "fits" : "needs-split";
   const expected = sc.geometry_expected ?? "fits";
   const base = { schemaVersion: 1, command: "generate", typepack: tid, case: sc.id, locale: loc,
-    preset, presetDeclared: tp.presets.includes(preset), presetPreferred: tp.preferred_preset ?? null,
+    preset, cols: sc.cols ?? null, presetDeclared: tp.presets.includes(preset), presetPreferred: tp.preferred_preset ?? null,
     presetsSupported: tp.presets ?? [], audition: Boolean(override) && !tp.presets.includes(preset), layout: sc.layout, count: Number(sc.count), inputDigest,
     geometry, geometryExpected: expected, routingExpected: sc.routing_expected ?? null,
     footprint: { w: r1(need.w), h: r1(need.h) }, contentBox: { w: cb.w, h: cb.h } };
@@ -718,6 +900,18 @@ function build(argv) {
   }
 
   const R = render(cb);
+  // fit 예측은 **최소 합법 문법의 floor**다. 내용이 그 floor를 넘겨 자란 배치가 실제로
+  // contentBox를 벗어나면, 낙관적인 예측이 통과시킨 것을 여기서 다시 거부한다.
+  if (R.bounds.h > cb.h + 1) {
+    const degrade = { ...base, status: "needs-split", artifact: null, consumed: [],
+      degrade: { reason: `measured layout is ${r1(R.bounds.h)}px tall against contentBox ${cb.h}px — the declared fit floor (${r1(need.h)}px) is a lower bound and the content grew past it`,
+                 ladder: "spec §6 — reduce optional content, select a declared variant, then split the page" },
+      provenance: provenance({ producer: { kind: "generator", generatorDigest: sha(readFileSync(fileURLToPath(import.meta.url))) },
+        inputs: [{ role: "typepack-input", digest: inputDigest }] }) };
+    writeFileSync(rcp, JSON.stringify(degrade, null, 1) + "\n");
+    console.log(`generate ${tid}/${sc.id}/${loc} — needs-split (measured overflow); degrade receipt written`);
+    process.exit(3);
+  }
   const routingExpected = sc.routing_expected ?? null;
   if (routingExpected === "needs-split" && !R.needsSplit) {
     console.error(`generate: scenario declares routing_expected needs-split but the router found a legal layout — update the declaration`);
@@ -781,6 +975,7 @@ ${R.body}
       alias: embedded.alias ?? null, glyphs: embedded.chars ?? 0, faces: embedded.faces,
       tool: embedded.tool ?? null, wrapperDigest: embedded.wrapperDigest ?? null, identity: embedded.identity ?? [] },
     routing: R.routing ?? null,
+    matrix: R.matrix ?? null,
     residual, residualDisposition: decl,
     provenance: provenance({ producer: { kind: "generator", generatorDigest: sha(readFileSync(fileURLToPath(import.meta.url))) },
       inputs: [{ role: "typepack-input", digest: inputDigest }] }) };
@@ -796,6 +991,8 @@ function semanticIds(input, tid) {
   if (tid === "process-flow") for (const st of input.steps ?? []) ids.push(st.id);
   if (tid === "layer-stack") for (const L of input.layers ?? []) { ids.push(L.id); for (const c of L.items ?? []) ids.push(c.id); }
   if (tid === "nested-scope") for (const rg of input.rings ?? []) ids.push(rg.id);
+  if (tid === "before-after") { for (const p of input.panels ?? []) ids.push(p.id); for (const d of input.delta ?? []) ids.push(d.id); }
+  if (tid === "decision-matrix") for (const c of input.cells ?? []) ids.push(c.id);
   if (tid === "approval-gate") {
     for (const nd of input.nodes ?? []) ids.push(nd.id);
     if (input.gate?.id) ids.push(input.gate.id);
@@ -806,6 +1003,90 @@ function semanticIds(input, tid) {
     if (input.boundary) ids.push("boundary");
   }
   return ids;
+}
+// decision-matrix 감사: **receipt를 믿지 않고** 원본 입력에서 기대 배치를 다시 계산하고,
+// 축 기하는 기록된 path에서 직접 읽는다. 축은 ordinal direction이므로 눈금·수치는 검사 대상이 아니다.
+function auditMatrixAxes(svg, input, loc) {
+  const errs = [], pl = deriveMatrixPlacement(input);
+  const attr = (s, k) => (s.match(new RegExp(`\\b${k}="([^"]*)"`)) ?? [])[1];
+  const numAttr = (s, k) => Number(attr(s, k));
+  // --- 1. cell 기하: 산출물에서 직접 읽는다 ---
+  const cells = [];
+  for (const m of svg.matchAll(/<g[^>]*data-entity="([^"]+)"[^>]*data-cell-x="([^"]*)"[^>]*data-cell-y="([^"]*)"[^>]*>\s*<rect([^>]*)\/>/g))
+    cells.push({ id: m[1], x: m[2], y: m[3], rx: numAttr(m[4], "x"), ry: numAttr(m[4], "y"),
+      rw: numAttr(m[4], "width"), rh: numAttr(m[4], "height") });
+  if (cells.length !== pl.cells.length) {
+    errs.push(`E-GEN-MATRIX artifact carries ${cells.length} placed cell(s) but the input declares ${pl.cells.length}`);
+    return errs;
+  }
+  const expOf = (id) => pl.cells.find((p) => p.id === id);
+  for (const c of cells) {
+    const e = expOf(c.id);
+    if (!e) { errs.push(`E-GEN-MATRIX artifact cell "${c.id}" is absent from the input`); continue; }
+    if (c.x !== e.x || c.y !== e.y)
+      errs.push(`E-GEN-MATRIX cell "${c.id}" carries axis values (${c.x}, ${c.y}) but the input declares (${e.x}, ${e.y})`);
+  }
+  if (errs.length) return errs;
+  // 자리는 좌표 상수가 아니라 **순서**로 증명한다 — 빈 칸이 있어도 성립하고, 뒤집히면 걸린다.
+  const sgn = (n) => (Math.abs(n) < 0.5 ? 0 : Math.sign(n));
+  for (let i = 0; i < cells.length; i++) for (let j = i + 1; j < cells.length; j++) {
+    const a = cells[i], b = cells[j], ea = expOf(a.id), eb = expOf(b.id);
+    for (const [axis, want, got, unit] of [
+      ["column", Math.sign(ea.col - eb.col), sgn(a.rx - b.rx), "x"],
+      ["row", Math.sign(ea.row - eb.row), sgn(a.ry - b.ry), "y"],
+    ]) if (want !== got)
+      errs.push(`E-GEN-MATRIX-PLACE cells "${a.id}" (${ea.x}, ${ea.y}) and "${b.id}" (${eb.x}, ${eb.y}) must differ in ${axis} by ${want} but their drawn ${unit} differs by ${got} — the axis value decides the position, not the declaration order`);
+  }
+  // --- 2. 축 기하: 존재·방향·positive 끝 ---
+  const axisPaths = [...svg.matchAll(/<path([^>]*data-axis="[xy]"[^>]*)\/>/g)].map((m) => m[1]);
+  const markers = [...svg.matchAll(/<path([^>]*data-axis-marker="[xy]"[^>]*)\/>/g)].map((m) => m[1]);
+  for (const a of [...axisPaths, ...markers])
+    if (/data-route-(id|from|to|kind)=/.test(a)) errs.push("E-GEN-AXIS an ordinal axis must not be classified as a connector (data-route-*)");
+  for (const which of ["x", "y"]) {
+    const line = axisPaths.filter((a) => attr(a, "data-axis") === which);
+    const mk = markers.filter((a) => attr(a, "data-axis-marker") === which);
+    if (line.length !== 1 || mk.length !== 1) {
+      errs.push(`E-GEN-AXIS the ${which} axis must be drawn exactly once with one direction marker (found ${line.length} line(s), ${mk.length} marker(s))`);
+      continue;
+    }
+    const d = attr(line[0], "d"), pts = [...d.matchAll(/-?[\d.]+/g)].map(Number);
+    const orient = attr(line[0], "data-axis-orientation"), pos = attr(line[0], "data-axis-positive");
+    const apex = [...attr(mk[0], "d").matchAll(/L(-?[\d.]+) (-?[\d.]+)/g)].map((m) => [Number(m[1]), Number(m[2])])[0];
+    if (which === "y") {
+      if (orient !== "vertical" || pts.length !== 3) { errs.push(`E-GEN-AXIS the y axis must be a single vertical run (orientation "${orient}")`); continue; }
+      const [ax, y1, y2] = pts, top = Math.min(y1, y2), bot = Math.max(y1, y2);
+      if (pos !== "up") errs.push(`E-GEN-AXIS the y axis declares positive "${pos}" — an ordinal y axis grows upward`);
+      if (Math.abs(apex[1] - top) > 1 || Math.abs(apex[0] - ax) > 1)
+        errs.push(`E-GEN-AXIS-DIR the y direction marker sits at ${r1(apex[1])} but the positive (up) end is ${r1(top)} — the marker must mark the high end`);
+      if (ax >= Math.min(...cells.map((c) => c.rx)) - 1) errs.push("E-GEN-AXIS the y axis intrudes into the grid — it must be drawn outside the cells");
+      if (bot < Math.max(...cells.map((c) => c.ry + c.rh)) - 1) errs.push("E-GEN-AXIS the y axis does not span the grid it labels");
+    } else {
+      if (orient !== "horizontal" || pts.length !== 3) { errs.push(`E-GEN-AXIS the x axis must be a single horizontal run (orientation "${orient}")`); continue; }
+      const [x1, ay, x2] = pts, right = Math.max(x1, x2);
+      if (pos !== "right") errs.push(`E-GEN-AXIS the x axis declares positive "${pos}" — an ordinal x axis grows rightward`);
+      if (Math.abs(apex[0] - right) > 1 || Math.abs(apex[1] - ay) > 1)
+        errs.push(`E-GEN-AXIS-DIR the x direction marker sits at ${r1(apex[0])} but the positive (right) end is ${r1(right)} — the marker must mark the high end`);
+      if (ay <= Math.max(...cells.map((c) => c.ry + c.rh)) + 1) errs.push("E-GEN-AXIS the x axis intrudes into the grid — it must be drawn outside the cells");
+    }
+  }
+  // --- 3. 끝점 label이 실제 방향과 같은 뜻인지 ---
+  const ends = new Map();
+  for (const m of svg.matchAll(/<text([^>]*data-axis-end="([^"]+)"[^>]*)>([^<]*)</g))
+    ends.set(m[2], { x: numAttr(m[1], "x"), y: numAttr(m[1], "y"), text: m[3] });
+  for (const k of ["y:high", "y:low", "x:high", "x:low"]) if (!ends.has(k)) errs.push(`E-GEN-AXIS endpoint label "${k}" is missing — both ends of both axes must be labelled`);
+  if (ends.size === 4) {
+    if (!(ends.get("y:high").y < ends.get("y:low").y))
+      errs.push("E-GEN-AXIS-DIR the y high label is not above the low label — the label order contradicts the axis direction");
+    if (!(ends.get("x:high").x > ends.get("x:low").x))
+      errs.push("E-GEN-AXIS-DIR the x high label is not right of the low label — the label order contradicts the axis direction");
+    for (const [k, tiers] of [["y", pl.yTiers], ["x", pl.xTiers]])
+      for (const [end, t] of [["high", tiers.at(-1)], ["low", tiers[0]]]) {
+        const want = esc(String(t.label[loc]));
+        if (ends.get(`${k}:${end}`).text !== want)
+          errs.push(`E-GEN-AXIS the ${k} ${end} label reads "${ends.get(`${k}:${end}`).text}" but the ${end} tier of that axis is "${want}"`);
+      }
+  }
+  return errs;
 }
 function verify(argv) {
   const opt = (n, d = null) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };
@@ -835,6 +1116,14 @@ function verify(argv) {
       const inSvg = new Set([...svg.matchAll(/data-entity="([^"]+)"/g)].map((m) => m[1]));
       for (const i of ids) if (!inSvg.has(i) && i !== "boundary") errors.push(`E-GEN-CONSUME artifact is missing entity "${i}"`);
       for (const i of inSvg) if (!ids.includes(i) && i !== "legend") errors.push(`E-GEN-INVENT artifact carries invented entity "${i}"`);
+      // 정렬 inventory도 산출물을 믿지 않는다 — 원본 입력에서 다시 파생해 대조한다.
+      const expectedInv = serializeAlignInventory(deriveAlignInventory(rcp.typepack, input, { cols: rcp.cols ?? undefined }));
+      const gotInv = (svg.match(/data-align-inventory="([^"]*)"/) ?? [])[1];
+      if (expectedInv && gotInv === undefined)
+        errors.push("E-GEN-ALIGN artifact declares no alignment inventory but the input implies one");
+      else if (expectedInv !== (gotInv ?? ""))
+        errors.push(`E-GEN-ALIGN alignment inventory recomputed from the input does not match the artifact\n    input:    ${expectedInv}\n    artifact: ${gotInv ?? "(none)"}`);
+      if (rcp.typepack === "decision-matrix") for (const e of auditMatrixAxes(svg, input, rcp.locale)) errors.push(e);
       // 배선은 산출물에서 다시 잰다 — receipt가 아니라 기록된 path가 근거다
       const audit = auditTopology(svg);
       for (const e of audit.errors) errors.push(`E-GEN-ROUTE ${e}`);

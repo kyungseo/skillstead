@@ -371,13 +371,49 @@ numbers are schema errors (never NaN-silenced), and duplicate container/group/
 cluster ids are rejected. Symmetry and receipts carry **both** geometric and
 visual values; the canonical visual-spacing judgement uses the visual safe inset.
 
-**7d. Hard-gate integration.** The canonical renderer runs `check-svg →
+**7d. Cross-container alignment contract.** 7a–7c prove structure *inside* one
+container; a mirrored comparison or a matrix also asserts alignment *across*
+containers, and that claim needs its own guard. Participants that must share a
+horizontal band declare `data-align-row="<id>"`, ones that must share a vertical
+band declare `data-align-col="<id>"`; members of a row share top edge and height,
+members of a column share left edge and width, both within 1px. Reservation is
+symmetric with 7a: `data-reserve-top` withholds a title band from the padding and
+symmetry judgement, and `data-reserve-left` does the same for a side band (axis
+labels, rail legends) so the grid is judged inside the remaining content box
+rather than against the raw frame.
+
+Alignment differs from distribution in what a missing annotation costs. An
+equal-gap group that loses a member fails on `data-group-count`; an alignment
+group that loses one simply has fewer members that still agree with each other,
+so the artifact passes while the visible claim is broken. Completeness is
+therefore declared on two independent levels, and both are enforced fail-closed:
+
+- **Per group** — every participant carries `data-align-row-count` /
+  `data-align-col-count`; members must agree on the number, and the measured
+  participant count must equal it. A count below 2 is a schema error: a
+  one-member alignment band asserts nothing, so it must not be declared at all.
+- **Per artifact** — a single `data-align-inventory` lists every expected group as
+  `row|col:<id>=<n>`, compared 1:1 against what the artifact actually carries.
+  Per-group counts cannot catch a group that vanished *entirely* (no participant
+  left to carry the count); the inventory can. `generate verify` recomputes the
+  expected inventory from the **original input**, never from the artifact, so a
+  renderer that drops a band cannot also drop its own expectation.
+
+The two levels together make partial grids representable without weakening
+anything. An incomplete last row declares no equal-gap row group — column
+alignment governs those members instead — and an axis whose participant count
+falls to one emits no group and appears in no inventory. The rule is not
+"incomplete grids are exempt"; it is that a band is declared only where two or
+more members actually make the claim, and wherever it is declared it must be
+complete. No placeholder cells are invented to square the grid.
+
+**7e. Hard-gate integration.** The canonical renderer runs `check-svg →
 check-layout → browser` fail-closed on any SVG carrying layout annotations; a
 layout-negative source is refused before the browser starts.
 `data-layout-unverified` yields exit 3 — an explicit review state that hard gates
 must never treat as success.
 
-**7e. No local coordinate patching.** Canonical generators derive geometry from
+**7f. No local coordinate patching.** Canonical generators derive geometry from
 inputs — parent contentBox (PageFrame receipt), child count/sizes, outer insets,
 gaps, distribution mode, title reservation, connector corridors — and fail closed
 when the budget does not match the contentBox exactly. `check-layout.mjs --json`

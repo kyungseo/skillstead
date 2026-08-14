@@ -2,7 +2,7 @@ schema_version: 1
 kind: typepack-input
 typepack: decision-matrix
 case: canonical
-preset: social-4x5
+preset: document-compact
 layout: grid
 cols: 2
 count: 4
@@ -13,21 +13,29 @@ title:
   en: "Two axes set the priority"
 axes:
   x:
-    low:
-      ko: "좁은 범위"
-      en: "Narrow"
-    high:
-      ko: "넓은 범위"
-      en: "Broad"
+    tiers:
+      - id: "narrow"
+        label:
+          ko: "좁은 범위"
+          en: "Narrow"
+      - id: "broad"
+        label:
+          ko: "넓은 범위"
+          en: "Broad"
   y:
-    low:
-      ko: "낮은 영향"
-      en: "Low impact"
-    high:
-      ko: "높은 영향"
-      en: "High impact"
+    tiers:
+      - id: "low"
+        label:
+          ko: "낮은 영향"
+          en: "Low impact"
+      - id: "high"
+        label:
+          ko: "높은 영향"
+          en: "High impact"
 cells:
   - id: "cell-1"
+    x: "narrow"
+    y: "high"
     name:
       ko: "지금 실행"
       en: "Do now"
@@ -35,6 +43,8 @@ cells:
       ko: "영향이 크고 범위가 좁다"
       en: "High impact, narrow scope"
   - id: "cell-2"
+    x: "broad"
+    y: "high"
     name:
       ko: "계획 수립"
       en: "Plan"
@@ -42,6 +52,8 @@ cells:
       ko: "영향이 크고 범위가 넓다"
       en: "High impact, broad scope"
   - id: "cell-3"
+    x: "narrow"
+    y: "low"
     name:
       ko: "위임"
       en: "Delegate"
@@ -49,6 +61,8 @@ cells:
       ko: "영향이 작고 범위가 좁다"
       en: "Low impact, narrow scope"
   - id: "cell-4"
+    x: "broad"
+    y: "low"
     name:
       ko: "보류"
       en: "Defer"
