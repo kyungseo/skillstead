@@ -105,6 +105,9 @@ typepacks:
     gate: null
     migration_origin: legacy
     legacy_section: "Cards / KPI stat grid"
+    inputs:
+      canonical: { id: cards-kpi-grid-canonical, path: types/inputs/cards-kpi-grid.canonical.yaml, preset: social-4x5, layout: row, count: 4 }
+      stress: { id: cards-kpi-grid-stress, path: types/inputs/cards-kpi-grid.stress.yaml, preset: social-4x5, layout: grid, cols: 2, count: 6 }
     fit:
       floor_basis: geometry
       cardinality: { min: 3, canonical: 4, max: 6 }
@@ -146,6 +149,9 @@ typepacks:
     gate: null
     migration_origin: legacy
     legacy_section: "Layer stack"
+    inputs:
+      canonical: { id: layer-stack-canonical, path: types/inputs/layer-stack.canonical.yaml, preset: social-4x5, layout: column, count: 4 }
+      stress: { id: layer-stack-stress, path: types/inputs/layer-stack.stress.yaml, preset: social-4x5, layout: column, count: 5 }
     fit:
       floor_basis: geometry
       cardinality: { min: 3, canonical: 4, max: 5 }
@@ -176,6 +182,9 @@ typepacks:
     gate: null
     migration_origin: legacy
     legacy_section: "Nested / onion"
+    inputs:
+      canonical: { id: nested-scope-canonical, path: types/inputs/nested-scope.canonical.yaml, preset: social-4x5, layout: concentric, count: 3 }
+      stress: { id: nested-scope-stress, path: types/inputs/nested-scope.stress.yaml, preset: social-4x5, layout: concentric, count: 4 }
     fit:
       floor_basis: geometry
       cardinality: { min: 3, canonical: 3, max: 4 }
@@ -203,6 +212,9 @@ typepacks:
     gate: null
     migration_origin: legacy
     legacy_section: "Topology / component"
+    inputs:
+      canonical: { id: topology-component-canonical, path: types/inputs/topology-component.canonical.yaml, preset: social-4x5, layout: zones, count: 3 }
+      stress: { id: topology-component-stress, path: types/inputs/topology-component.stress.yaml, preset: social-4x5, layout: zones, count: 4 }
     fit:
       floor_basis: geometry
       cardinality: { min: 2, canonical: 3, max: 4 }
@@ -230,6 +242,9 @@ typepacks:
     gate: null
     migration_origin: legacy
     legacy_section: "Flow"
+    inputs:
+      canonical: { id: process-flow-canonical, path: types/inputs/process-flow.canonical.yaml, preset: social-4x5, layout: column, count: 4 }
+      stress: { id: process-flow-stress, path: types/inputs/process-flow.stress.yaml, preset: social-4x5, layout: column, count: 5 }
     fit:
       floor_basis: geometry
       cardinality: { min: 3, canonical: 4, max: 5 }
@@ -260,6 +275,9 @@ typepacks:
     gate: null
     migration_origin: legacy
     legacy_section: "Approval / sequence-lite"
+    inputs:
+      canonical: { id: approval-gate-canonical, path: types/inputs/approval-gate.canonical.yaml, preset: social-4x5, layout: row, count: 3 }
+      stress: { id: approval-gate-stress, path: types/inputs/approval-gate.stress.yaml, preset: presentation-16x9, layout: row, count: 4 }
     fit:
       floor_basis: geometry
       cardinality: { min: 3, canonical: 3, max: 4 }
@@ -287,6 +305,9 @@ typepacks:
     gate: null
     migration_origin: legacy
     legacy_section: "Before / after"
+    inputs:
+      canonical: { id: before-after-canonical, path: types/inputs/before-after.canonical.yaml, preset: social-4x5, layout: row, count: 2 }
+      stress: { id: before-after-stress, path: types/inputs/before-after.stress.yaml, preset: social-4x5, layout: row, count: 2 }
     fit:
       floor_basis: geometry
       cardinality: { min: 2, canonical: 2, max: 2 }
@@ -314,6 +335,9 @@ typepacks:
     gate: null
     migration_origin: legacy
     legacy_section: "Roadmap / timeline"
+    inputs:
+      canonical: { id: roadmap-timeline-canonical, path: types/inputs/roadmap-timeline.canonical.yaml, preset: social-4x5, layout: row, count: 4 }
+      stress: { id: roadmap-timeline-stress, path: types/inputs/roadmap-timeline.stress.yaml, preset: presentation-16x9, layout: row, count: 5 }
     fit:
       floor_basis: geometry
       cardinality: { min: 3, canonical: 4, max: 5 }
@@ -341,6 +365,9 @@ typepacks:
     gate: null
     migration_origin: legacy
     legacy_section: "Decision / risk matrix"
+    inputs:
+      canonical: { id: decision-matrix-canonical, path: types/inputs/decision-matrix.canonical.yaml, preset: social-4x5, layout: grid, cols: 2, count: 4 }
+      stress: { id: decision-matrix-stress, path: types/inputs/decision-matrix.stress.yaml, preset: social-4x5, layout: grid, cols: 3, count: 9 }
     fit:
       floor_basis: geometry
       cardinality: { min: 4, canonical: 4, max: 9 }

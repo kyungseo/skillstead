@@ -1,0 +1,17 @@
+schema_version: 1
+kind: typepack-input
+typepack: nested-scope
+case: canonical
+preset: social-4x5
+layout: concentric
+count: 3
+prompt_ko: "신뢰 경계를 3겹 동심 구조로 보여줘. 안쪽이 가장 민감한 영역. 4:5."
+prompt_en: "Show the trust boundary as three concentric scopes, innermost most sensitive. 4:5."
+items_ko:
+  - "공개 네트워크"
+  - "내부 서비스망"
+  - "핵심 데이터"
+items_en:
+  - "Public network"
+  - "Internal service mesh"
+  - "Core data"

@@ -1,0 +1,19 @@
+schema_version: 1
+kind: typepack-input
+typepack: process-flow
+case: canonical
+preset: social-4x5
+layout: column
+count: 4
+prompt_ko: "배포 절차를 4단계로 위에서 아래로 보여줘. 4:5 세로 비율."
+prompt_en: "Show the delivery process as four top-to-bottom steps. 4:5 portrait."
+items_ko:
+  - "변경 제안"
+  - "자동 검증"
+  - "단계 배포"
+  - "관측과 회수"
+items_en:
+  - "Propose change"
+  - "Automated checks"
+  - "Staged rollout"
+  - "Observe and roll back"

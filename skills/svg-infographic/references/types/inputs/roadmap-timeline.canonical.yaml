@@ -1,0 +1,19 @@
+schema_version: 1
+kind: typepack-input
+typepack: roadmap-timeline
+case: canonical
+preset: social-4x5
+layout: row
+count: 4
+prompt_ko: "롤아웃을 4개 단계로 보여줘. 지금 위치 표시 포함. 4:5."
+prompt_en: "Show the rollout as four phases with a now marker. 4:5."
+items_ko:
+  - "준비"
+  - "시범"
+  - "확대"
+  - "안정화"
+items_en:
+  - "Prepare"
+  - "Pilot"
+  - "Expand"
+  - "Stabilise"

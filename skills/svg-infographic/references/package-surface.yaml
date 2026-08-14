@@ -14,7 +14,7 @@
 # evidence 또는 CI artifact로만 저장한다.
 
 schema_version: 1
-surface_revision: 4
+surface_revision: 5
 
 canonicalization:
   version: 1
@@ -54,6 +54,9 @@ entries:
   # TypePack spec은 트리로 한 번만 분류한다 — 타입 추가는 spec 파일 1개 + manifest 1행이며
   # 이 파일을 매번 고치지 않는다. 트리와 manifest의 1:1 closure는 manifest validator가 소유한다.
   - { tree: references/types/specs, kind: normative-doc }
+  # canonical/stress input도 트리로 한 번 분류한다 — 입력 추가는 파일 1개 + manifest 1행이고
+  # manifest validator가 파일 내용과 fit 계산까지 대조한다.
+  - { tree: references/types/inputs, kind: profile }
 
   # --- profiles / registries -------------------------------------------------
   - { path: references/package-surface.yaml, kind: profile }

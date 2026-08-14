@@ -1,0 +1,17 @@
+schema_version: 1
+kind: typepack-input
+typepack: approval-gate
+case: canonical
+preset: social-4x5
+layout: row
+count: 3
+prompt_ko: "요청이 승인 게이트를 지나 반영되는 경로를 보여줘. 4:5."
+prompt_en: "Show a request passing an approval gate before it lands. 4:5."
+items_ko:
+  - "요청자"
+  - "검토 시스템"
+  - "운영 환경"
+items_en:
+  - "Requester"
+  - "Review system"
+  - "Production"

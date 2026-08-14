@@ -715,6 +715,74 @@ test("R1B-P1c: content floor는 이름으로 구분되고 근거 수준이 표�
   }
 });
 
+// --- CP2A: canonical / stress 입력 계약 -------------------------------------
+test("CP2A: 9종 모두 canonical·stress 입력을 갖고 KO/EN 항목 수가 선언과 일치한다", () => {
+  const m = JSON.parse(run(["manifest", "--json"]).out);
+  assert.equal(m.errors.length, 0, JSON.stringify(m.errors));
+  const dir = path.join(here, "..", "references", "types", "inputs");
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".yaml")).sort();
+  assert.equal(files.length, 18, "9종 × (canonical, stress)");
+  for (const f of files) {
+    const t = fs.readFileSync(path.join(dir, f), "utf8");
+    assert.match(t, /^kind: typepack-input$/m, f);
+    for (const loc of ["ko", "en"]) {
+      assert.match(t, new RegExp(`^prompt_${loc}: ".+"$`, "m"), `${f} prompt_${loc}`);
+      assert.match(t, new RegExp(`^items_${loc}:$`, "m"), `${f} items_${loc}`);
+    }
+  }
+});
+
+test("CP2A: stress 입력은 최대 예산 경계이고 두 입력 모두 실제로 렌더 가능해야 한다", () => {
+  // stress count를 낮추면 최대 예산 경계가 아니게 된다
+  let pkg = pkgCopy();
+  writeManifest(pkg, readManifest(pkg).replace(
+    "      stress: { id: cards-kpi-grid-stress, path: types/inputs/cards-kpi-grid.stress.yaml, preset: social-4x5, layout: grid, cols: 2, count: 6 }",
+    "      stress: { id: cards-kpi-grid-stress, path: types/inputs/cards-kpi-grid.stress.yaml, preset: social-4x5, layout: grid, cols: 2, count: 4 }"));
+  let r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /must equal fit\.cardinality\.max/);
+  drop(pkg);
+
+  // 렌더 불가능한 구성을 입력으로 선언하면 거부된다(4:5 가로 5단계)
+  pkg = pkgCopy();
+  writeManifest(pkg, readManifest(pkg).replace(
+    "      stress: { id: process-flow-stress, path: types/inputs/process-flow.stress.yaml, preset: social-4x5, layout: column, count: 5 }",
+    "      stress: { id: process-flow-stress, path: types/inputs/process-flow.stress.yaml, preset: social-4x5, layout: row, count: 5 }"));
+  r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /an input must be renderable \(fits\)/);
+  drop(pkg);
+});
+
+test("CP2A: 입력 파일과 manifest 선언이 어긋나면 거부된다", () => {
+  const cases = [
+    [(pkg) => {
+      const f = path.join(typesOf(pkg), "inputs", "cards-kpi-grid.canonical.yaml");
+      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace("count: 4", "count: 5"));
+    }, /file count "5" != manifest "4"/],
+    [(pkg) => {
+      const f = path.join(typesOf(pkg), "inputs", "cards-kpi-grid.canonical.yaml");
+      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace(/  - "보안 기본값"\n/, ""));
+    }, /items_ko must hold exactly 4 entries/],
+    [(pkg) => {
+      const f = path.join(typesOf(pkg), "inputs", "layer-stack.stress.yaml");
+      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace("case: stress", "case: canonical"));
+    }, /file declares case "canonical"/],
+    [(pkg) => {
+      const f = path.join(typesOf(pkg), "inputs", "nested-scope.canonical.yaml");
+      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace("typepack: nested-scope", "typepack: layer-stack"));
+    }, /file declares typepack "layer-stack"/],
+  ];
+  for (const [mutate, re] of cases) {
+    const pkg = pkgCopy();
+    mutate(pkg);
+    const r = runIn(pkg, ["manifest"]);
+    assert.equal(r.code, 1, `${re}: ${r.out}`);
+    assert.match(r.out, re);
+    drop(pkg);
+  }
+});
+
 // --- pageframe fail-closed schema + fluid two-phase -------------------------------
 function pfNeg(file, args, re) {
   const pkg = pkgCopy();

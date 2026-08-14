@@ -1,0 +1,24 @@
+schema_version: 1
+kind: typepack-input
+typepack: cards-kpi-grid
+case: stress
+preset: social-4x5
+layout: grid
+cols: 2
+count: 6
+prompt_ko: "핵심 6가지를 2열 카드 격자로 요약해줘. 각 카드에 한 줄 설명 포함. 4:5."
+prompt_en: "Summarise six key points as a two-column card grid with one-line bodies, 4:5."
+items_ko:
+  - "관측 가능성 확보"
+  - "배포 자동화"
+  - "비용 가시성"
+  - "보안 기본값"
+  - "데이터 보존 정책"
+  - "장애 대응 절차"
+items_en:
+  - "Observability in place"
+  - "Automated delivery"
+  - "Cost visibility"
+  - "Secure defaults"
+  - "Data retention policy"
+  - "Incident response drill"

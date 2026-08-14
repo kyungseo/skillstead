@@ -1,0 +1,20 @@
+schema_version: 1
+kind: typepack-input
+typepack: decision-matrix
+case: canonical
+preset: social-4x5
+layout: grid
+cols: 2
+count: 4
+prompt_ko: "두 축으로 옵션을 2×2 사분면에 배치해줘. 축 양끝 라벨 포함. 4:5."
+prompt_en: "Place the options in a 2×2 matrix with both axis ends labelled. 4:5."
+items_ko:
+  - "지금 실행"
+  - "계획 수립"
+  - "위임"
+  - "보류"
+items_en:
+  - "Do now"
+  - "Plan"
+  - "Delegate"
+  - "Defer"

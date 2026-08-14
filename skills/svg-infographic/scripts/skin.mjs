@@ -936,7 +936,7 @@ function main() {
     if (doc.schema_version !== 2) errors.push(`manifest: schema_version must be 2 (atomic package upgrade — v1 manifests are rejected; got ${doc.schema_version})`);
     const packs = doc.typepacks;
     if (!Array.isArray(packs)) errors.push("manifest: typepacks must be an array");
-    const ids = new Set(), fixtureIds = new Set(), exampleIds = new Set(), fixturePaths = new Set();
+    const ids = new Set(), fixtureIds = new Set(), exampleIds = new Set(), fixturePaths = new Set(), inputIds = new Set();
     // live PageFrame receipt를 preset별로 한 번만 계산해 재사용한다(문서 상수 복사 금지)
     const pfCache = new Map();
     const pageframeFor = (preset) => {
@@ -967,7 +967,7 @@ function main() {
       const FIELDS = ["id", "selection_signal", "profile", "support", "spec", "presets",
         "orientations", "verifier", "receipt_schema", "fixtures", "examples",
         "required_roles", "optional_aliases", "canonical_prompt", "annexes", "gate",
-        "migration_origin", "legacy_section", "fit", "composition"];
+        "migration_origin", "legacy_section", "fit", "inputs", "composition"];
       for (const k of Object.keys(p)) if (!FIELDS.includes(k)) errors.push(`manifest: ${id}: unknown field "${k}" (locked schema: ${FIELDS.join("/")})`);
       for (const k of FIELDS) if (k !== "composition" && !(k in p)) errors.push(`manifest: ${id}: missing field "${k}"`); // composition은 optional capability (absent => composable: false)
       let pfPresets = [];
@@ -1061,6 +1061,8 @@ function main() {
         errors.push(`manifest: ${id}: legacy_section must be null or the archetypes.md heading it replaces`);
       // ---- fit 계약: 수식 변수는 문서 산문이 아니라 여기(SSoT)에 있고, feasibility는
       // 선언값이 아니라 **live PageFrame contentBox로 재계산**해 대조한다.
+      const posInt = (v) => Number.isInteger(Number(v)) && Number(v) > 0;
+      let computeFit = null;
       const fit = p.fit;
       if (!fit || typeof fit !== "object") errors.push(`manifest: ${id}: fit block is required (cardinality/params/footprint/feasibility)`);
       else {
@@ -1076,7 +1078,6 @@ function main() {
           // 승격할 수 없으므로 거부한다.
           errors.push(`manifest: ${id}: fit.floor_basis "rendered" requires the CP2B floor_evidence contract (preset/locale stress fixtures with digests) — it cannot be self-declared`);
         const card = fit.cardinality ?? {};
-        const posInt = (v) => Number.isInteger(Number(v)) && Number(v) > 0;
         for (const k of ["min", "canonical", "max"]) if (!posInt(card[k])) errors.push(`manifest: ${id}: fit.cardinality.${k} must be a positive integer (got ${card[k]})`);
         if (Number(card.min) > Number(card.canonical) || Number(card.canonical) > Number(card.max))
           errors.push(`manifest: ${id}: fit.cardinality must satisfy min <= canonical <= max`);
@@ -1091,7 +1092,7 @@ function main() {
           else if (n < 0) errors.push(`manifest: ${id}: fit.params.${k} must be >= 0 (got ${n})`);
         }
         const need = (n) => { if (!Number.isFinite(Number(prm[n]))) { errors.push(`manifest: ${id}: fit.params.${n} is required by the declared layouts`); return NaN; } return Number(prm[n]); };
-        const compute = (fp) => {
+        const compute = computeFit = (fp) => {
           const n = Number(fp.count), ex = { w: Number(fp.extraW ?? 0), h: Number(fp.extraH ?? 0) };
           // floor 이름으로 base/compact/wide 등 서로 다른 content floor를 고른다
           const fl = fp.floor && fp.floor !== "base" ? fp.floor : null;
@@ -1160,6 +1161,56 @@ function main() {
         }
         for (const pr of (Array.isArray(p.presets) ? p.presets : []))
           if (!seen.has(`${pr}:${card.max}`)) errors.push(`manifest: ${id}: fit.feasibility must cover preset "${pr}" at the maximum cardinality (${card.max})`);
+      }
+      // ---- CP2A 입력 계약: canonical/stress input은 fit 계산과 결합된 실제 파일이다.
+      // canonical은 편안한 대표 구성, stress는 **최대 예산 경계**(cardinality.max)이며
+      // 둘 다 live contentBox에서 실제로 fits여야 한다 — 렌더 불가능한 입력은 경계가 아니다.
+      const inp = p.inputs;
+      if (!inp || typeof inp !== "object") errors.push(`manifest: ${id}: inputs block is required (canonical/stress)`);
+      else {
+        for (const k of Object.keys(inp)) if (!["canonical", "stress"].includes(k)) errors.push(`manifest: ${id}: inputs unknown case "${k}"`);
+        for (const cse of ["canonical", "stress"]) {
+          const c = inp[cse];
+          if (!c || typeof c !== "object") { errors.push(`manifest: ${id}: inputs.${cse} is required`); continue; }
+          for (const k of Object.keys(c)) if (!["id", "path", "preset", "layout", "cols", "floor", "count"].includes(k))
+            errors.push(`manifest: ${id}: inputs.${cse} unknown field "${k}"`);
+          if (!c.id || !/^[a-z0-9][a-z0-9-]*$/.test(String(c.id))) errors.push(`manifest: ${id}: inputs.${cse} id invalid`);
+          else if (inputIds.has(c.id)) errors.push(`manifest: ${id}: duplicate input id "${c.id}"`);
+          else inputIds.add(c.id);
+          const ip = String(c.path ?? "");
+          if (!/(^|\/)inputs\/[a-z0-9.-]+\.yaml$/.test(ip)) errors.push(`manifest: ${id}: inputs.${cse} path must live in an inputs/ directory inside the package`);
+          const iabs = path.resolve(path.dirname(mPath), "..", ip);
+          let idoc = null;
+          try { ({ doc: idoc } = readYaml(iabs)); } catch { errors.push(`manifest: ${id}: inputs.${cse} file not found (${ip})`); }
+          if (Array.isArray(p.presets) && !p.presets.includes(c.preset)) errors.push(`manifest: ${id}: inputs.${cse} preset "${c.preset}" is not declared`);
+          if (!posInt(c.count)) errors.push(`manifest: ${id}: inputs.${cse} count must be a positive integer`);
+          // stress는 최대 예산 경계여야 한다 — 임의로 작은 입력을 stress라 부를 수 없다
+          if (cse === "stress" && Number(c.count) !== Number(fit?.cardinality?.max))
+            errors.push(`manifest: ${id}: inputs.stress count ${c.count} must equal fit.cardinality.max (${fit?.cardinality?.max}) — the stress input is the max-budget boundary`);
+          // 실제 fit 계산: 선언된 배치로 계산해 live contentBox에서 fits여야 한다
+          const got = computeFit ? computeFit({ count: c.count, layout: c.layout, cols: c.cols, floor: c.floor }) : null;
+          const pfi = pageframeFor(c.preset);
+          if (got && pfi) {
+            const cb = pfi.regions.contentBox;
+            if (!(got.w <= cb.w && got.h <= cb.h))
+              errors.push(`manifest: ${id}: inputs.${cse} (${c.preset}, count ${c.count}, ${c.layout}) computes ${Math.round(got.w)}×${Math.round(got.h)} against contentBox ${cb.w}×${cb.h} — an input must be renderable (fits)`);
+          }
+          // 입력 파일 자체의 무결성: 선언과 내용이 어긋나면 CP2B가 잘못된 것을 렌더한다
+          if (idoc) {
+            if (Number(idoc.schema_version) !== 1 || idoc.kind !== "typepack-input")
+              errors.push(`manifest: ${id}: inputs.${cse} file identity invalid (schema_version 1 + kind typepack-input)`);
+            if (idoc.typepack !== id) errors.push(`manifest: ${id}: inputs.${cse} file declares typepack "${idoc.typepack}"`);
+            if (idoc.case !== cse) errors.push(`manifest: ${id}: inputs.${cse} file declares case "${idoc.case}"`);
+            for (const k of ["preset", "layout", "count"])
+              if (String(idoc[k]) !== String(c[k])) errors.push(`manifest: ${id}: inputs.${cse} file ${k} "${idoc[k]}" != manifest "${c[k]}"`);
+            for (const loc of ["ko", "en"]) {
+              const items = idoc[`items_${loc}`];
+              if (!Array.isArray(items) || items.length !== Number(c.count))
+                errors.push(`manifest: ${id}: inputs.${cse} items_${loc} must hold exactly ${c.count} entries (KO/EN are both first-class)`);
+              if (!idoc[`prompt_${loc}`]) errors.push(`manifest: ${id}: inputs.${cse} prompt_${loc} is required`);
+            }
+          }
+        }
       }
       // migration origin: Wave 1의 기존 archetype 이행 타입은 legacy section을 반드시 명시한다
       if (!["legacy", "new"].includes(p.migration_origin)) errors.push(`manifest: ${id}: migration_origin must be legacy|new`);

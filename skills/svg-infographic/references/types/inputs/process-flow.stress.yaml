@@ -1,0 +1,21 @@
+schema_version: 1
+kind: typepack-input
+typepack: process-flow
+case: stress
+preset: social-4x5
+layout: column
+count: 5
+prompt_ko: "배포 절차를 5단계로 위에서 아래로 보여줘. 되돌림 경로 포함. 4:5 세로."
+prompt_en: "Show the delivery process as five top-to-bottom steps including the rollback path. 4:5 portrait."
+items_ko:
+  - "변경 제안"
+  - "자동 검증"
+  - "승인"
+  - "단계 배포"
+  - "관측과 회수"
+items_en:
+  - "Propose change"
+  - "Automated checks"
+  - "Approval"
+  - "Staged rollout"
+  - "Observe and roll back"

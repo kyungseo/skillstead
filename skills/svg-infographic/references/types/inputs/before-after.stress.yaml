@@ -1,0 +1,15 @@
+schema_version: 1
+kind: typepack-input
+typepack: before-after
+case: stress
+preset: social-4x5
+layout: row
+count: 2
+prompt_ko: "마이그레이션 전후를 두 패널로 비교하고, 각 패널에 항목 5개씩 넣어줘. 4:5."
+prompt_en: "Compare before and after in two panels with five mirrored slots each. 4:5."
+items_ko:
+  - "이전 구성"
+  - "이후 구성"
+items_en:
+  - "Before"
+  - "After"

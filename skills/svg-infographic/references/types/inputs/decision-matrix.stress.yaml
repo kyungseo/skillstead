@@ -1,0 +1,30 @@
+schema_version: 1
+kind: typepack-input
+typepack: decision-matrix
+case: stress
+preset: social-4x5
+layout: grid
+cols: 3
+count: 9
+prompt_ko: "리스크를 3×3 격자로 배치하고 각 칸에 이름과 한 줄 특징을 넣어줘. 4:5."
+prompt_en: "Place the risks on a 3×3 grid with a name and one-line trait per cell. 4:5."
+items_ko:
+  - "낮음-낮음"
+  - "낮음-중간"
+  - "낮음-높음"
+  - "중간-낮음"
+  - "중간-중간"
+  - "중간-높음"
+  - "높음-낮음"
+  - "높음-중간"
+  - "높음-높음"
+items_en:
+  - "Low-Low"
+  - "Low-Med"
+  - "Low-High"
+  - "Med-Low"
+  - "Med-Med"
+  - "Med-High"
+  - "High-Low"
+  - "High-Med"
+  - "High-High"

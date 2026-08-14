@@ -1,0 +1,19 @@
+schema_version: 1
+kind: typepack-input
+typepack: approval-gate
+case: stress
+preset: presentation-16x9
+layout: row
+count: 4
+prompt_ko: "요청이 승인 게이트를 지나 반영되는 경로를 4개 노드로 보여줘. 16:9."
+prompt_en: "Show the approval path across four nodes. 16:9."
+items_ko:
+  - "요청자"
+  - "검토 시스템"
+  - "승인 담당"
+  - "운영 환경"
+items_en:
+  - "Requester"
+  - "Review system"
+  - "Approver"
+  - "Production"

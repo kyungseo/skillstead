@@ -1,0 +1,19 @@
+schema_version: 1
+kind: typepack-input
+typepack: nested-scope
+case: stress
+preset: social-4x5
+layout: concentric
+count: 4
+prompt_ko: "신뢰 경계를 4겹 동심 구조로 보여줘. 각 겹에 한 줄 라벨. 4:5."
+prompt_en: "Show the trust boundary as four concentric scopes with a one-line label each. 4:5."
+items_ko:
+  - "공개 네트워크"
+  - "경계 게이트웨이"
+  - "내부 서비스망"
+  - "핵심 데이터"
+items_en:
+  - "Public network"
+  - "Edge gateway"
+  - "Internal service mesh"
+  - "Core data"

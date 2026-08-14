@@ -20,6 +20,9 @@ typepacks:
     gate: null
     migration_origin: new
     legacy_section: null
+    inputs:
+      canonical: { id: fixture-topology-canonical, path: skin-fixtures/inputs/fixture-topology.canonical.yaml, preset: social-4x5, layout: row, count: 1 }
+      stress: { id: fixture-topology-stress, path: skin-fixtures/inputs/fixture-topology.stress.yaml, preset: social-4x5, layout: row, count: 1 }
     fit:
       floor_basis: geometry
       cardinality: { min: 1, canonical: 1, max: 1 }

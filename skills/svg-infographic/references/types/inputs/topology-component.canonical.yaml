@@ -1,0 +1,17 @@
+schema_version: 1
+kind: typepack-input
+typepack: topology-component
+case: canonical
+preset: social-4x5
+layout: zones
+count: 3
+prompt_ko: "요청 경로를 3개 zone으로 나눠 컴포넌트 구성을 보여줘. 4:5."
+prompt_en: "Show the request path across three zones of components. 4:5."
+items_ko:
+  - "진입 zone"
+  - "애플리케이션 zone"
+  - "데이터 zone"
+items_en:
+  - "Ingress zone"
+  - "Application zone"
+  - "Data zone"

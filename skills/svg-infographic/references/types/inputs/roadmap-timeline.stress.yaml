@@ -1,0 +1,21 @@
+schema_version: 1
+kind: typepack-input
+typepack: roadmap-timeline
+case: stress
+preset: presentation-16x9
+layout: row
+count: 5
+prompt_ko: "롤아웃을 5개 단계로 보여주고 각 단계에 마일스톤 카드를 붙여줘. 16:9."
+prompt_en: "Show the rollout as five phases with a milestone card each. 16:9."
+items_ko:
+  - "준비"
+  - "시범"
+  - "확대"
+  - "안정화"
+  - "이관"
+items_en:
+  - "Prepare"
+  - "Pilot"
+  - "Expand"
+  - "Stabilise"
+  - "Hand over"

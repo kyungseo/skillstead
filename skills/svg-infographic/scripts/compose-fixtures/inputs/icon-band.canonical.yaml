@@ -1,0 +1,13 @@
+schema_version: 1
+kind: typepack-input
+typepack: icon-band
+case: canonical
+preset: social-4x5
+layout: row
+count: 1
+prompt_ko: "fixture 전용 입력"
+prompt_en: "fixture-only input"
+items_ko:
+  - "항목"
+items_en:
+  - "item"

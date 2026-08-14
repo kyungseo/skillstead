@@ -1,0 +1,19 @@
+schema_version: 1
+kind: typepack-input
+typepack: topology-component
+case: stress
+preset: social-4x5
+layout: zones
+count: 4
+prompt_ko: "요청 경로를 4개 zone으로 나누고 zone마다 컴포넌트를 최대로 채워 보여줘. 4:5."
+prompt_en: "Show the request path across four zones, each filled to its component budget. 4:5."
+items_ko:
+  - "진입 zone"
+  - "애플리케이션 zone"
+  - "비동기 처리 zone"
+  - "데이터 zone"
+items_en:
+  - "Ingress zone"
+  - "Application zone"
+  - "Async processing zone"
+  - "Data zone"
