@@ -496,7 +496,7 @@ export function auditTopology(svg) {
       marker: /marker-end="url\(#[^)]+\)"/.test(at),
       dashed: /stroke-dasharray=/.test(at),
     }; });
-  if (!paths.length) return { errors, notes: ["no annotated routes in this artifact"] };
+  const layersOnly = paths.length === 0;
 
   const polys = new Map();
   const hopPoints = [];
@@ -571,6 +571,7 @@ export function auditTopology(svg) {
       errors.push(`A-LABEL ${id}: the route crosses a zone label box — drawing the label on top hides the connection instead of routing around it`);
       break;
     }
+  if (layersOnly) { checkLayerOrder(svg, errors); return { errors, notes: ["no annotated routes in this artifact — paint layers still checked"] }; }
   // --- port 방향: 선언된 side가 아니라 **실제 첫·마지막 구간**으로 다시 계산한다 -----------
   for (const p of paths) {
     const poly = polys.get(p.id);
@@ -599,30 +600,7 @@ export function auditTopology(svg) {
     if (tFace && dirOf(segs2[segs2.length - 1]) !== inward[tFace])
       errors.push(`A-PORT-DIR ${p.id}: enters the ${tFace} face heading ${dirOf(segs2[segs2.length - 1])} — the last segment must run ${inward[tFace]}`);
   }
-  // --- paint order: 선언이 아니라 **DOM 순서**로 검증한다 -------------------------
-  // canvas → container 배경/테두리 → connector와 marker → node surface → icon·text·label·legend
-  const LAYERS = ["containers", "connectors", "nodes", "annotations"];
-  const marks = [...svg.matchAll(/<g[^>]*data-layer="([a-z]+)"/g)].map((m) => ({ name: m[1], at: m.index }));
-  if (marks.length) {
-    const seen = marks.map((m) => m.name);
-    if (seen.join(",") !== LAYERS.join(","))
-      errors.push(`A-LAYER-ORDER: paint layers appear as [${seen.join(", ")}] — the contract is [${LAYERS.join(", ")}]`);
-    const spanOf = (name) => {
-      const i = marks.findIndex((m) => m.name === name);
-      if (i < 0) return null;
-      return { from: marks[i].at, to: i + 1 < marks.length ? marks[i + 1].at : svg.length };
-    };
-    const conn = spanOf("connectors"), nodesSpan = spanOf("nodes"), ann = spanOf("annotations");
-    for (const m of svg.matchAll(/<path[^>]*data-route-id="([^"]+)"/g))
-      if (conn && (m.index < conn.from || m.index > conn.to))
-        errors.push(`A-LAYER ${m[1]}: a connector is drawn outside the connectors layer`);
-    for (const m of svg.matchAll(/<rect[^>]*data-entity="([^"]+)"/g))
-      if (nodesSpan && (m.index < nodesSpan.from || m.index > nodesSpan.to))
-        errors.push(`A-LAYER ${m[1]}: a node surface is drawn outside the nodes layer`);
-    for (const m of svg.matchAll(/data-layout-role="(zone-label|legend)"/g))
-      if (ann && (m.index < ann.from || m.index > ann.to))
-        errors.push(`A-LAYER ${m[1]}: an annotation is drawn outside the annotations layer`);
-  }
+  checkLayerOrder(svg, errors);
   // --- visibility: 기하가 아니라 **가려지는지**를 따로 본다 ---------------------------
   // connector 뒤에 오는 불투명 면이 선 위를 덮으면, 선은 존재해도 끊겨 보인다.
   const opaque = [...svg.matchAll(/<rect([^>]*)\/>/g)].map((m) => {
@@ -649,6 +627,34 @@ export function auditTopology(svg) {
   if (mixed && !/data-layout-role="legend"/.test(svg))
     errors.push("A-LEGEND artifact: solid and dashed connectors appear together but there is no legend");
   return { errors, notes };
+}
+
+// paint order는 선언이 아니라 **DOM 순서**로 검증한다.
+// canvas → container 배경/테두리 → connector와 marker → node surface → icon·text·label·legend
+function checkLayerOrder(svg, errors) {
+  const LAYERS = ["containers", "connectors", "nodes", "annotations"];
+  const marks = [...svg.matchAll(/<g[^>]*data-layer="([a-z]+)"/g)].map((m) => ({ name: m[1], at: m.index }));
+  if (!marks.length) return;
+  const seen = marks.map((m) => m.name);
+  if (seen.join(",") !== LAYERS.join(","))
+    errors.push(`A-LAYER-ORDER: paint layers appear as [${seen.join(", ")}] — the contract is [${LAYERS.join(", ")}]`);
+  const spanOf = (name) => {
+    const i = marks.findIndex((m) => m.name === name);
+    if (i < 0) return null;
+    return { from: marks[i].at, to: i + 1 < marks.length ? marks[i + 1].at : svg.length };
+  };
+  const conn = spanOf("connectors"), nodesSpan = spanOf("nodes"), ann = spanOf("annotations");
+  for (const m of svg.matchAll(/<path[^>]*data-route-id="([^"]+)"/g))
+    if (conn && (m.index < conn.from || m.index > conn.to))
+      errors.push(`A-LAYER ${m[1]}: a connector is drawn outside the connectors layer`);
+  // node surface 규칙은 **connector의 endpoint**에만 적용한다 — 선이 그 아래로 지나가야 하는 면이 그것뿐이다.
+  const endpoints = new Set([...svg.matchAll(/data-route-(?:from|to)="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of svg.matchAll(/<rect[^>]*data-entity="([^"]+)"/g))
+    if (nodesSpan && endpoints.has(m[1]) && (m.index < nodesSpan.from || m.index > nodesSpan.to))
+      errors.push(`A-LAYER ${m[1]}: a connector endpoint surface is drawn outside the nodes layer`);
+  for (const m of svg.matchAll(/data-layout-role="(zone-label|legend)"/g))
+    if (ann && (m.index < ann.from || m.index > ann.to))
+      errors.push(`A-LAYER ${m[1]}: an annotation is drawn outside the annotations layer`);
 }
 
 // --- geometry helpers --------------------------------------------------------

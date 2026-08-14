@@ -70,6 +70,12 @@ function computeFit(tp, sc) {
     const npz = Number(prm.maxNodesPerZone), pad = Number(prm.zonePad), band = Number(prm.zoneLabelBand), zg = Number(prm.zoneGap);
     return { w: npz * iw + (npz - 1) * gx + 2 * pad, h: n * (band + ih + 2 * pad) + (n - 1) * zg };
   }
+  if (sc.layout === "concentric") {
+    // 동심은 ring마다 사방으로 같은 inset이 들어간다(manifest validator와 동일한 식).
+    // label은 그 위쪽 inset 띠 안에 앉는다 — 별도 strip을 더하지 않는다.
+    const inset = Number(prm.inset);
+    return { w: iw + 2 * (n - 1) * inset, h: ih + 2 * (n - 1) * inset };
+  }
   console.error(`generate: unsupported layout "${sc.layout}"`); process.exit(1);
 }
 
@@ -477,6 +483,115 @@ function assemble({ routed, consumed, zoneArt, nodeArt, labels, bounds }) {
         ports: [rt.sideFrom, rt.sideTo], bends: rt.bends, style: rt.style, targetGap: rt.targetGap, hops: rt.hops.length })) } };
 }
 
+
+// ---------- layer-stack (연결선 없음 — 인접이 관계다) ----------
+function renderLayerStack(input, loc, cb, sc, tp) {
+  const layers = input.layers, n = layers.length;
+  const P = tp.fit?.params ?? {};
+  const gapY = Number(P.gapY ?? 20), pad = 18, chipGap = 12;
+  const bandW = cb.w;
+  const labelW = Math.max(...["ko", "en"].flatMap((lc) => layers.map((L) => estimateWidth(L.label[lc], 15, true, 0))));
+  // chip 폭은 band에서만 파생하지 않는다 — **실제 chip 문안**(두 locale 최대)이 들어가야 한다.
+  const chipPad = 12;
+  const maxChips = Math.max(0, ...layers.map((L) => (L.items ?? []).length));
+  const chipTextW = Math.max(0, ...["ko", "en"].flatMap((lc) =>
+    layers.flatMap((L) => (L.items ?? []).map((c) => estimateWidth(c?.label?.[lc] ?? "", 12, false, 0)))));
+  const chipNeed = maxChips ? chipTextW + 2 * chipPad : 0;
+  const chipRunNeed = maxChips ? maxChips * chipNeed + (maxChips - 1) * chipGap : 0;
+  // chip은 내용 폭으로 크기를 정한다 — 남는 공간을 채우려고 늘리지 않는다.
+  // 대신 **마지막 chip의 오른쪽 끝**이 band 안쪽 끝과 계산으로 만나도록 run을 오른쪽에 붙인다(spec §5).
+  const chipW = maxChips ? Math.max(chipNeed, 72) : 0;
+  const runW = maxChips ? maxChips * chipW + (maxChips - 1) * chipGap : 0;
+  const runStart = cb.x + bandW - pad - runW;
+  // run 왼쪽은 전부 라벨 열 + 여백으로 예약된다(내용이 쓸 수 없는 구간).
+  const labelCol = maxChips ? runStart - pad - cb.x : Math.min(bandW * 0.42, labelW + 2 * pad);
+  if (maxChips && labelCol < labelW + pad) {
+    console.error(`generate: the layer label needs ${r1(labelW + pad)}px but the chip run leaves ${r1(labelCol)}px — shorten the label or the chips (spec §6), or choose a wider preset`);
+    process.exit(1);
+  }
+  const h = Math.max(Number(P.itemMinH ?? 88), 64);
+  const consumed = [], bandArt = [], chipArt = [];
+  layers.forEach((L, i) => {
+    const y = cb.y + i * (h + gapY);
+    consumed.push(L.id);
+    const chips = L.items ?? [];
+    // 마지막 chip의 오른쪽 끝은 계산으로 band 안쪽 끝과 만난다(수기 좌표 금지, spec §5)
+    const m = chips.length;
+
+    const chipY = y + h / 2 - 13;
+    bandArt.push(`  <g data-comp-entity="${L.id}" data-entity="${L.id}" data-layout-role="band">
+    <rect x="${r1(cb.x)}" y="${r1(y)}" width="${r1(bandW)}" height="${r1(h)}" rx="12" fill="#F4F8FC" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface-tint" data-stroke-role="rule" data-layout-item="layer-stack" data-layout-container="${L.id}" data-min-pad="${pad}" data-layout-count="${m}"${m ? ` data-reserve-left="${r1(labelCol)}" data-symmetry="x"` : ""}/>
+    <text x="${r1(cb.x + pad)}" y="${r1(y + h / 2)}" font-size="15" font-weight="700" fill="#252B35" data-fill-role="ink" dominant-baseline="central">${esc(L.label[loc])}</text>
+  </g>`);
+    if (m) {
+      chipArt.push(`  <g data-layout-group="${L.id}-chips" data-distribution="equal-gap" data-axis="x" data-group-count="${m}"></g>`);
+      chips.forEach((c, k) => {
+        // chip은 {id, label{ko,en}} 계약이다. 문안이 없으면 조용히 "undefined"를 그리지 않고 실패한다
+        // (기하 gate는 글자 내용을 보지 않으므로 여기서 막는다).
+        consumed.push(c.id);
+        const chipText = c?.label?.[loc];
+        if (!chipText) { console.error(`generate: chip "${c?.id ?? k + 1}" in layer "${L.id}" has no ${loc} label`); process.exit(1); }
+        const cx = runStart + k * (chipW + chipGap);
+        chipArt.push(`  <g data-comp-entity="${c.id}" data-entity="${c.id}">
+    <rect x="${r1(cx)}" y="${r1(chipY)}" width="${r1(chipW)}" height="26" rx="8" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface" data-stroke-role="rule" data-layout-parent="${L.id}" data-layout-item="${L.id}-chips"/>
+    <text x="${r1(cx + chipW / 2)}" y="${r1(chipY + 13)}" font-size="12" fill="#636A75" data-fill-role="muted" text-anchor="middle" dominant-baseline="central">${esc(chipText)}</text>
+  </g>`);
+      });
+    }
+  });
+  const blockH = n * h + (n - 1) * gapY;
+  return { body: [`  <g data-layer="containers">`,
+      `  <g data-layout-group="layer-stack" data-distribution="equal-gap" data-axis="y" data-group-count="${n}"></g>`,
+      ...bandArt, ...chipArt, `  </g>`,
+      `  <g data-layer="connectors"></g>`, `  <g data-layer="nodes"></g>`, `  <g data-layer="annotations"></g>`].join("\n"),
+    consumed, bounds: { x: cb.x, y: cb.y, w: bandW, h: blockH },
+    routing: { degradeLevel: 0, ladder: [], problems: [], hops: 0, legend: false, alignment: [],
+      attempts: [], diagnostics: [], demoted: [], routes: [] } };
+}
+
+// ---------- nested-scope (동심 — 화살표 없이 포함이 관계다) ----------
+function renderNestedScope(input, loc, cb, sc, tp) {
+  const rings = input.rings, n = rings.length;
+  const P = tp.fit?.params ?? {};
+  const inset = Number(P.inset ?? 44);
+  // 사방 균일 inset — label은 위쪽 inset 띠 안에서 가운데 놓인다(spec §5, fit 계약과 동일).
+  const w0 = Math.min(cb.w, Number(P.itemMinW ?? 296) + 2 * (n - 1) * inset);
+  const h0 = Math.min(cb.h, Number(P.itemMinH ?? 96) + 2 * (n - 1) * inset);
+  const x0 = cb.x + (cb.w - w0) / 2;
+  const consumed = [], art = [], labels = [];
+  const tint = ["#F4F8FC", "#E9F1F8", "#DCE9F4", "#CFE0F0"];
+  let box = { x: x0, y: cb.y, w: w0, h: h0 };
+  const labelWidest = Math.max(...["ko", "en"].flatMap((lc) => rings.map((rg) => estimateWidth(rg.label[lc], 13, true, 0))));
+  rings.forEach((rg, i) => {
+    consumed.push(rg.id);
+    const last = i + 1 === n;
+    const inner = last ? null : { x: box.x + inset, y: box.y + inset, w: box.w - 2 * inset, h: box.h - 2 * inset };
+    art.push(`  <g data-comp-entity="${rg.id}" data-entity="${rg.id}" data-layout-role="ring">
+    <rect x="${r1(box.x)}" y="${r1(box.y)}" width="${r1(box.w)}" height="${r1(box.h)}" rx="16" fill="${tint[Math.min(i, tint.length - 1)]}" stroke="#C7D3DE" stroke-width="1" data-fill-role="surface-tint" data-stroke-role="rule"${inner ? ` data-layout-container="${rg.id}" data-min-pad="${inset}" data-layout-count="1" data-symmetry="xy"` : ""}${i > 0 ? ` data-layout-parent="${rings[i - 1].id}"` : ""}/>
+  </g>`);
+    // ring label은 자기 띠(위쪽 inset) 안에서 측정한다 — ring 전체가 아니라 그 띠가 기준이다.
+    const stripH = last ? Math.min(inset, box.h) : inset;
+    labels.push(`  <g data-layout-role="ring-label" data-label-bounds="${r1(box.x)},${r1(box.y)},${r1(box.w)},${r1(stripH)}">
+    <text x="${r1(box.x + box.w / 2)}" y="${r1(box.y + stripH / 2)}" font-size="13" font-weight="700" fill="#3C4657" data-fill-role="ink" text-anchor="middle" dominant-baseline="central">${esc(rg.label[loc])}</text>
+  </g>`);
+    if (last && rg.core_icon)
+      labels.push(`  <g data-layout-role="core-icon">${icon(rg.core_icon, box.x + box.w / 2, box.y + stripH + (box.h - stripH) / 2, 26)}</g>`);
+    if (inner) box = inner;
+  });
+  // label이 자기 띠 폭을 넘으면 기하가 아니라 문안 문제다 — 조용히 넘기지 않는다.
+  const innerW = w0 - 2 * (n - 1) * inset;
+  if (labelWidest > innerW - 16) {
+    console.error(`generate: a ring label needs ${r1(labelWidest)}px but the innermost strip is ${r1(innerW)}px — shorten the label (spec §6) or widen the scope`);
+    process.exit(1);
+  }
+  return { body: [`  <g data-layer="containers">`, ...art, `  </g>`,
+      `  <g data-layer="connectors"></g>`, `  <g data-layer="nodes"></g>`,
+      `  <g data-layer="annotations">`, ...labels, `  </g>`].join("\n"),
+    consumed, bounds: { x: x0, y: cb.y, w: w0, h: h0 },
+    routing: { degradeLevel: 0, ladder: [], problems: [], hops: 0, legend: false, alignment: [],
+      attempts: [], diagnostics: [], demoted: [], routes: [] } };
+}
+
 // ---------- font delivery (portable = 사용 glyph subset embed) ----------
 // 계약: portable은 대상 환경의 설치 글꼴에 의존하지 않는다. subset 도구가 없거나 glyph가
 // 빠지면 **full embed로도, system fallback으로도 조용히 넘어가지 않고 실패한다**.
@@ -571,6 +686,8 @@ function build(argv) {
     : tid === "topology-component" ? renderTopology(input, loc, cbox, sc, tp)
     : tid === "process-flow" ? renderProcessFlow(input, loc, cbox, sc, tp)
     : tid === "approval-gate" ? renderApprovalGate(input, loc, cbox, sc, tp)
+    : tid === "layer-stack" ? renderLayerStack(input, loc, cbox, sc, tp)
+    : tid === "nested-scope" ? renderNestedScope(input, loc, cbox, sc, tp)
     : (console.error(`generate: no renderer registered for "${tid}"`), process.exit(2));
   let pf = spawnJson([skinCli, "pageframe", preset, "--json"], "skin.mjs pageframe");
   if (pf.regions.fluid) {
@@ -677,6 +794,8 @@ function semanticIds(input, tid) {
   const ids = [];
   if (tid === "cards-kpi-grid") for (const c of input.cards ?? []) ids.push(c.id);
   if (tid === "process-flow") for (const st of input.steps ?? []) ids.push(st.id);
+  if (tid === "layer-stack") for (const L of input.layers ?? []) { ids.push(L.id); for (const c of L.items ?? []) ids.push(c.id); }
+  if (tid === "nested-scope") for (const rg of input.rings ?? []) ids.push(rg.id);
   if (tid === "approval-gate") {
     for (const nd of input.nodes ?? []) ids.push(nd.id);
     if (input.gate?.id) ids.push(input.gate.id);

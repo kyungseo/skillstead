@@ -2,7 +2,7 @@ schema_version: 1
 kind: typepack-input
 typepack: nested-scope
 case: stress-cardinality
-preset: social-4x5
+preset: document-compact
 layout: concentric
 count: 4
 prompt_ko: "신뢰 경계를 4겹 동심 구조로 보여줘. 4:5."

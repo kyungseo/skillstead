@@ -17,7 +17,8 @@
 //
 // Annotation grammar:
 //   containers: data-layout-container="<id>" data-min-pad data-layout-count
-//               [data-min-visual-pad=8] [data-reserve-top=0] [data-symmetry=x|y|xy]
+//               [data-min-visual-pad=8] [data-reserve-top=0] [data-reserve-left=0]
+//               [data-symmetry=x|y|xy]
 //               [data-symmetry-tol=4]        (min-pad and layout-count REQUIRED)
 //   membership: data-layout-parent="<id>"
 //   groups:     data-layout-group="<id>" data-distribution="equal-gap"
@@ -163,12 +164,15 @@ export function checkLayoutFile(file) {
     const declaredCount = field(c.a, "data-layout-count", errors, ctx, { required: true });
     const visPad = field(c.a, "data-min-visual-pad", errors, ctx, { def: 8 });
     const reserve = field(c.a, "data-reserve-top", errors, ctx, { def: 0 });
+    // 라벨 열처럼 **가로로** 예약된 구간이 있으면 내용 경계는 그만큼 오른쪽에서 시작한다.
+    const reserveLeft = field(c.a, "data-reserve-left", errors, ctx, { def: 0 });
     const symTol = field(c.a, "data-symmetry-tol", errors, ctx, { def: 4 });
     const symAxes = c.a["data-symmetry"] ?? "";
     if (!["", "x", "y", "xy"].includes(symAxes)) errors.push(`E-LAYOUT-SCHEMA ${ctx}: data-symmetry must be x|y|xy (got "${symAxes}")`);
     if (minPad == null || declaredCount == null) continue;
     const frame = { x: c.geom.x, y: c.geom.y, x2: c.geom.x + c.geom.w, y2: c.geom.y + c.geom.h };
-    const contentTop = frame.y + reserve; // title reservation excluded from content bounds
+    const contentTop = frame.y + reserve;     // title reservation excluded from content bounds
+    const contentLeft = frame.x + reserveLeft; // label-column reservation, same idea on the x axis
     const kids = els.filter((e) => e.a["data-layout-parent"] === id);
     // title participant: 실측 line-box (중앙 baseline: y ± 0.6×font-size 보수 범위)
     const titleEls = els.filter((e) => e.a["data-layout-title"] === id);
@@ -210,10 +214,10 @@ export function checkLayoutFile(file) {
       const kid = k.a["data-layout-container"] || k.a["data-layout-item"] || k.a["data-cluster-id"] || "child";
       if (k.uv) continue;  // unverified 멤버: 집계만, 검증은 exit 3 검토 상태
       if (!k.geom) { errors.push(`E-LAYOUT-SCHEMA ${ctx}/${kid}: layout child must carry numeric rect/circle bounds`); continue; }
-      const gi = { left: k.geom.x - frame.x, right: frame.x2 - (k.geom.x + k.geom.w),
-                   top: k.geom.y - frame.y, bottom: frame.y2 - (k.geom.y + k.geom.h) };
-      const vi = { left: k.vis.x - frame.x, right: frame.x2 - k.vis.x2,
-                   top: k.vis.y - frame.y, bottom: frame.y2 - k.vis.y2 };
+      const gi = { left: k.geom.x - contentLeft, right: frame.x2 - (k.geom.x + k.geom.w),
+                   top: k.geom.y - contentTop, bottom: frame.y2 - (k.geom.y + k.geom.h) };
+      const vi = { left: k.vis.x - contentLeft, right: frame.x2 - k.vis.x2,
+                   top: k.vis.y - contentTop, bottom: frame.y2 - k.vis.y2 };
       for (const side of ["left", "right", "top", "bottom"]) {
         if (vi[side] <= 0)
           errors.push(`E-LAYOUT-TOUCH ${ctx}/${kid}: visual ${side} edge touches or crosses the parent edge (${r1(vi[side])}px)`);
@@ -223,6 +227,8 @@ export function checkLayoutFile(file) {
           errors.push(`E-LAYOUT-PAD ${ctx}/${kid}: ${side} inset ${r1(gi[side])}px < declared min padding ${minPad}px`);
         geo[side].push(gi[side]); vis[side].push(vi[side]);
       }
+      if (reserveLeft > 0 && k.vis.x < contentLeft - 0.5)
+        errors.push(`E-LAYOUT-RESERVE ${ctx}: child "${k.a["data-layout-item"] ?? k.a["data-layout-parent"]}" starts left of the declared data-reserve-left boundary`);
       if (reserve > 0 && k.vis.y < contentTop - 0.5)
         errors.push(`E-LAYOUT-RESERVE ${ctx}/${kid}: visual top ${r1(k.vis.y)} enters the title reservation (content starts at ${r1(contentTop)}) — title and content collide`);
       if (titleBox && titleGapMin != null && k.vis.y - titleBox.bottom < titleGapMin - 0.05)
@@ -303,7 +309,9 @@ export function checkLayoutFile(file) {
     const pc = parentId && containers.get(parentId);
     if (pc && items.every((i2) => i2.a["data-layout-parent"] === parentId)) {
       const reserve = num(pc.a["data-reserve-top"]) || 0;
-      const cL = axis === "x" ? pc.geom.x : pc.geom.y + reserve;
+      const pcReserveTop = num(pc.a["data-reserve-top"]) || 0;
+      const pcReserveLeft = num(pc.a["data-reserve-left"]) || 0;
+      const cL = axis === "x" ? pc.geom.x + pcReserveLeft : pc.geom.y + pcReserveTop;
       const cR = axis === "x" ? pc.geom.x + pc.geom.w : pc.geom.y + pc.geom.h;
       outer = { start: r1(glo(items[0]) - cL), end: r1(cR - ghi(items[items.length - 1])) };
       const tol = num(pc.a["data-symmetry-tol"]) || 4;

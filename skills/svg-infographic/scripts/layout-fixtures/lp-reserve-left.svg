@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="400" height="120">
+  <!-- 라벨 열을 가로로 예약한 band: 내용(chip)은 예약 경계 뒤에서 좌우 대칭으로 놓인다 -->
+  <rect data-layout-container="band" data-min-pad="16" data-layout-count="3"
+        data-reserve-left="120" data-symmetry="x"
+        x="20" y="20" width="360" height="80" fill="#F4F8FC" stroke="#DEE0E2" stroke-width="1"/>
+  <text x="36" y="60" font-size="14">label</text>
+  <g data-layout-group="band-chips" data-distribution="equal-gap" data-axis="x" data-group-count="3"></g>
+  <rect data-layout-parent="band" data-layout-item="band-chips" x="156" y="47" width="60" height="26" rx="8" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1"/>
+  <rect data-layout-parent="band" data-layout-item="band-chips" x="228" y="47" width="60" height="26" rx="8" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1"/>
+  <rect data-layout-parent="band" data-layout-item="band-chips" x="300" y="47" width="60" height="26" rx="8" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1"/>
+</svg>

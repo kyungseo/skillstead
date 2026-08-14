@@ -170,9 +170,10 @@ typepacks:
     profile: constrained-layout
     support: experimental
     spec: types/specs/layer-stack.md
-    presets: [social-4x5, presentation-16x9]
+    presets: [document-compact, social-4x5, presentation-16x9]
     # 이 batch에서 아직 판형을 재평가하지 않았다 — 현재 기본값을 기록한다.
-    preferred_preset: social-4x5
+    # 장면별 실측(잔여 27~62%) 근거로 fluid를 기본으로 한다.
+    preferred_preset: document-compact
     orientations: [portrait, landscape]
     verifier: null
     receipt_schema: null
@@ -186,18 +187,20 @@ typepacks:
     migration_origin: legacy
     legacy_section: "Layer stack"
     inputs:
-      canonical: { id: layer-stack-canonical, path: types/inputs/layer-stack.canonical.yaml, preset: social-4x5, layout: column, count: 4 }
+      canonical: { id: layer-stack-canonical, path: types/inputs/layer-stack.canonical.yaml, preset: document-compact, layout: column, count: 4 }
       stress:
         - id: layer-stack-stress-cardinality
           path: types/inputs/layer-stack.stress-cardinality.yaml
-          preset: social-4x5
+          # chip 4개가 fluid 폭에 들어가지 않는다 — 규칙에 따라 더 넓은 지원 preset을 쓴다.
+          preset: presentation-16x9
           layout: column
           count: 5
+          residual_disposition: { bottom: 132, reason: \"chip 4개를 담으려 더 넓은 가로 판형을 택한 대가로 남는 세로 breathing이다 — 띠를 늘려 채우지 않는다.\" }
           geometry_expected: fits
-          covers: [cardinality-max]
+          covers: [cardinality-max, chips-max]
         - id: layer-stack-stress-copy
           path: types/inputs/layer-stack.stress-copy.yaml
-          preset: social-4x5
+          preset: document-compact
           layout: column
           count: 4
           geometry_expected: fits
@@ -218,6 +221,8 @@ typepacks:
         - { count: 5, layout: column, w: 612, h: 520 }
         - { count: 5, layout: column, floor: wide, w: 1084, h: 520 }
       feasibility:
+        - { preset: document-compact, orientation: portrait, count: 5, layout: column, result: fits }
+        - { preset: document-compact, orientation: portrait, count: 5, layout: column, floor: wide, result: needs-split }
         - { preset: social-4x5, orientation: portrait, count: 5, layout: column, result: fits }
         - { preset: social-4x5, orientation: portrait, count: 5, layout: column, floor: wide, result: needs-split }
         - { preset: presentation-16x9, orientation: landscape, count: 5, layout: column, result: fits }
@@ -227,9 +232,10 @@ typepacks:
     profile: constrained-layout
     support: experimental
     spec: types/specs/nested-scope.md
-    presets: [social-4x5, presentation-16x9]
+    presets: [document-compact, social-4x5, presentation-16x9]
     # 이 batch에서 아직 판형을 재평가하지 않았다 — 현재 기본값을 기록한다.
-    preferred_preset: social-4x5
+    # 장면별 실측(잔여 27~62%) 근거로 fluid를 기본으로 한다.
+    preferred_preset: document-compact
     orientations: [portrait, landscape]
     verifier: null
     receipt_schema: null
@@ -243,18 +249,18 @@ typepacks:
     migration_origin: legacy
     legacy_section: "Nested / onion"
     inputs:
-      canonical: { id: nested-scope-canonical, path: types/inputs/nested-scope.canonical.yaml, preset: social-4x5, layout: concentric, count: 3 }
+      canonical: { id: nested-scope-canonical, path: types/inputs/nested-scope.canonical.yaml, preset: document-compact, layout: concentric, count: 3 }
       stress:
         - id: nested-scope-stress-cardinality
           path: types/inputs/nested-scope.stress-cardinality.yaml
-          preset: social-4x5
+          preset: document-compact
           layout: concentric
           count: 4
           geometry_expected: fits
           covers: [cardinality-max, containment-depth]
         - id: nested-scope-stress-copy
           path: types/inputs/nested-scope.stress-copy.yaml
-          preset: social-4x5
+          preset: document-compact
           layout: concentric
           count: 3
           geometry_expected: fits
@@ -266,6 +272,7 @@ typepacks:
       footprint:
         - { count: 4, layout: concentric, w: 560, h: 360 }
       feasibility:
+        - { preset: document-compact, orientation: portrait, count: 4, layout: concentric, result: fits }
         - { preset: social-4x5, orientation: portrait, count: 4, layout: concentric, result: fits }
         - { preset: presentation-16x9, orientation: landscape, count: 4, layout: concentric, result: fits }
   - id: topology-component

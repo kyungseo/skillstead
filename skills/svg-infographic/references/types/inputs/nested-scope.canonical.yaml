@@ -2,7 +2,7 @@ schema_version: 1
 kind: typepack-input
 typepack: nested-scope
 case: canonical
-preset: social-4x5
+preset: document-compact
 layout: concentric
 count: 3
 prompt_ko: "신뢰 경계를 3겹 동심 구조로 보여줘. 4:5."
@@ -23,3 +23,4 @@ rings:
     label:
       ko: "내부 서비스망"
       en: "Internal service mesh"
+    core_icon: "lock"

@@ -111,3 +111,11 @@ test("data-layout-unverified는 exit 3 (명시적 검토 상태, 성공 아님)"
   assert.equal(r.code, 3, r.out);
   assert.match(r.out, /explicit review state, not a pass/);
 });
+
+// --- 가로 예약(data-reserve-left) — 세로 예약과 같은 개념의 축 대칭 -----------------
+test("positive: 라벨 열을 예약하면 내용은 예약 경계 기준으로 대칭 판정된다", () => {
+  const r = run([path.join(FIX, "lp-reserve-left.svg")]);
+  assert.equal(r.code, 0, r.out);
+});
+test("12 예약된 라벨 열 안으로 자식이 들어가면 거부", () =>
+  neg("ln-reserve-left-breach.svg", /E-LAYOUT-RESERVE container "band"/));

@@ -211,3 +211,21 @@ test("G-11: portable 산출물은 subset을 embed하고 근거를 남긴다 (pin
   assert.ok(!/@font-face\{font-family:'[^']*Pretendard/i.test(svg), "subset은 Reserved Font Name을 쓸 수 없다");
   drop(pkg);
 });
+
+test("G-12: connector 없는 산출물의 layer 순서를 흐트러뜨리면 verify가 non-zero로 끝난다", () => {
+  const pkg = pkgCopy();
+  const b = build(pkg, "layer-stack", "canonical", "ko");
+  assert.equal(b.code, 0, b.out);
+  const clean = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
+  assert.equal(clean.code, 0, clean.out);
+  // annotations 레이어를 맨 앞으로 옮긴다 — 기하는 그대로이고 그리는 순서만 어긋난다
+  const svg = readFileSync(b.svg, "utf8");
+  const ann = svg.match(/  <g data-layer="annotations">[\s\S]*?<\/g>\n?/);
+  assert.ok(ann, "annotations layer not found");
+  const moved = svg.replace(ann[0], "").replace('  <g data-layer="containers">', ann[0] + '  <g data-layer="containers">');
+  writeFileSync(b.svg, moved);
+  const r = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
+  assert.notEqual(r.code, 0, r.out);
+  assert.match(r.out, /A-LAYER-ORDER/);
+  drop(pkg);
+});

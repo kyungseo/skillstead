@@ -2,7 +2,7 @@ schema_version: 1
 kind: typepack-input
 typepack: nested-scope
 case: stress-copy
-preset: social-4x5
+preset: document-compact
 layout: concentric
 count: 3
 prompt_ko: "각 겹 라벨을 예산 한계까지 길게 써서 3겹으로 보여줘. 4:5."
