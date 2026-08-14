@@ -212,10 +212,29 @@ function loadTypography(errors, overridePath = null) {
   for (const t of TYPO_TREATMENTS) if (!(t in T)) errors.push(`typography: missing treatment "${t}"`);
   for (const [t, cfg] of Object.entries(T)) {
     if (!TYPO_TREATMENTS.includes(t)) { errors.push(`typography: unknown treatment "${t}"`); continue; }
-    const TK = ["locales", "fallback", "synthetic", "weight-policy", "asset", "license"];
+    const TK = ["locales", "fallback", "synthetic", "weight-policy", "optical_calibration", "asset", "license"];
     for (const k of Object.keys(cfg)) if (!TK.includes(k)) errors.push(`typography: ${t}: unknown field "${k}"`);
     if (cfg.synthetic !== "forbidden") errors.push(`typography: ${t}: synthetic must be "forbidden" (synthetic bold/italic is never allowed)`);
     if ("weight-policy" in cfg && cfg["weight-policy"] !== "normalize-400") errors.push(`typography: ${t}: unknown weight-policy "${cfg["weight-policy"]}"`);
+    // optical_calibration: base type scale을 바꾸지 않고 **face의 시각 크기**만 보정하는
+    // named token이다. band는 보정의 최소 단위이고, 파일별·문자열별 보정은 표현할 수 없다.
+    if ("optical_calibration" in cfg) {
+      const oc = cfg.optical_calibration;
+      if (!oc || typeof oc !== "object") errors.push(`typography: ${t}: optical_calibration must be a map`);
+      else {
+        for (const k of Object.keys(oc)) if (!["id", "basis", "bands"].includes(k)) errors.push(`typography: ${t}: optical_calibration unknown field "${k}"`);
+        if (!oc.id || !/^[a-z0-9][a-z0-9-]*$/.test(String(oc.id))) errors.push(`typography: ${t}: optical_calibration.id must be a kebab-case token (a calibration is named, not anonymous)`);
+        if (!oc.basis) errors.push(`typography: ${t}: optical_calibration.basis must record what the value was judged against`);
+        const bands = oc.bands ?? {};
+        const known = ["display", "body"];
+        if (!Object.keys(bands).length) errors.push(`typography: ${t}: optical_calibration.bands must declare at least one band`);
+        for (const [b, v] of Object.entries(bands)) {
+          if (!known.includes(b)) errors.push(`typography: ${t}: optical_calibration unknown band "${b}" (${known.join("|")})`);
+          const n = Number(v);
+          if (!Number.isFinite(n) || n < 1 || n > 3) errors.push(`typography: ${t}: optical_calibration.bands.${b} must be a factor between 1 and 3 (got ${v})`);
+        }
+      }
+    }
     if (!Array.isArray(cfg.fallback) || cfg.fallback.length === 0 || cfg.fallback.some((f) => typeof f !== "string" || !f.trim()))
       errors.push(`typography: ${t}: fallback must be a non-empty family list`);
     for (const loc of TYPO_LOCALES) {
@@ -608,7 +627,7 @@ const OPTION_SPEC = {
   typography: { "--json": false },
   "typography-check": { "--json": false },
   "delivery": { "--json": false },
-  pageframe: { "--h1-lines": true, "--eyebrow": true, "--subtitle": true, "--support": true, "--footer": true, "--content-height": true, "--json": false },
+  pageframe: { "--h1-lines": true, "--eyebrow": true, "--subtitle": true, "--support": true, "--footer": true, "--content-height": true, "--optical-scale": true, "--json": false },
 };
 function parseOptions(cmd, rest) {
   const spec = OPTION_SPEC[cmd];
@@ -1193,19 +1212,27 @@ function main() {
       contentHeight = Number(po["--content-height"]);
       if (!Number.isFinite(contentHeight) || contentHeight <= 0) fail(2, "--content-height must be a positive number");
     }
+    // optical scale은 base type scale을 **덮어쓰지 않는다** — 이 실행에 한해 header 지표를
+    // 보정한 사본을 만들고, header region 높이도 PageFrame이 그 값으로 다시 계산한다.
+    const os = po["--optical-scale"] === undefined ? 1 : Number(po["--optical-scale"]);
+    if (!Number.isFinite(os) || os < 1 || os > 3) fail(2, "--optical-scale must be a factor between 1 and 3");
+    const Peff = os === 1 ? P : { ...P, header: Object.fromEntries(Object.entries(P.header).map(([k, v]) => [k, Math.round(Number(v) * os)])) };
     const opts = { h1Lines, eyebrow: b(po["--eyebrow"], true), subtitle: b(po["--subtitle"], true), support, footer: b(po["--footer"], false), contentHeight };
-    const out = computePageFrame(P, opts);
+    const out = computePageFrame(Peff, opts);
     if (!out.fluid && (out.contentBox.h == null || out.contentBox.h <= 0)) fail(1, `preset ${preset}: computed contentBox height is not positive (${out.contentBox.h}) — canvas too small for the requested regions`);
     if (out.contentBox.w <= 0) fail(1, `preset ${preset}: computed contentBox width is not positive (${out.contentBox.w})`);
     // headerScale: 파일별 수기 상수가 아니라 profile에서 파생된 header 지표 —
     // title-keyline 등 header treatment는 이 값만 소비한다
     const HIm = P["header-internal"];
     const headerScale = {
-      eyebrow: P.header.eyebrow, h1: P.header.h1, subtitle: P.header.subtitle,
-      h1LinePitch: Math.round(P.header.h1 * HIm["h1-line-mult"]),
-      keyline: { width: Math.round(P.header.h1 * HIm["keyline-width-mult"]),
-                 gap: Math.round(P.header.h1 * HIm["keyline-gap-mult"]),
-                 pad: Math.round(P.header.h1 * HIm["keyline-pad-mult"]) } };
+      // nominal은 profile이 소유하고, resolved는 optical calibration이 적용된 값이다.
+      nominal: { eyebrow: P.header.eyebrow, h1: P.header.h1, subtitle: P.header.subtitle },
+      opticalScale: os,
+      eyebrow: Peff.header.eyebrow, h1: Peff.header.h1, subtitle: Peff.header.subtitle,
+      h1LinePitch: Math.round(Peff.header.h1 * HIm["h1-line-mult"]),
+      keyline: { width: Math.round(Peff.header.h1 * HIm["keyline-width-mult"]),
+                 gap: Math.round(Peff.header.h1 * HIm["keyline-gap-mult"]),
+                 pad: Math.round(Peff.header.h1 * HIm["keyline-pad-mult"]) } };
     const receipt = { schemaVersion: 1, command: "pageframe", kernelVersion: "kernel-v1",
       profile: { id: pf.doc.id, digest: pf.digest }, preset, orientation: P.orientation,
       canvas: { width: P["canvas-width"], height: P["canvas-height"] },
@@ -1348,6 +1375,7 @@ function main() {
       treatments: typo && !errors.length ? Object.fromEntries(Object.entries(typo.doc.treatments).map(([t, cfg]) => [t, {
         ko: cfg.locales.ko.face, en: cfg.locales.en.face,
         weights: cfg.locales.ko.weights, weightPolicy: cfg["weight-policy"] ?? null,
+        opticalCalibration: cfg.optical_calibration ?? null,
         stack: serializeStack(cfg.locales.ko.face, cfg.fallback),
         asset: cfg.asset, rfn: cfg.license.rfn }])) : null,
       errors, warnings: [] };

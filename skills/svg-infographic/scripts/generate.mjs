@@ -21,6 +21,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { preflight, guardPackagePath, provenance, SKILL_LOCATOR } from "./preflight-lib.mjs";
 import { parseYaml, derivePanelFloor, deriveAlignInventory, serializeAlignInventory, deriveMatrixPlacement } from "./skin.mjs";
+import { loadTreatment, treatmentDefs, paperRect, displacementBound, filterAttr } from "./treatment.mjs";
 import { estimateWidth } from "./check-svg.mjs";
 import { planChannels, routeEdges, pathData, auditTopology, alignRows, ROUTE_DEFAULTS } from "./route-orthogonal.mjs";
 
@@ -190,10 +191,22 @@ function renderCards(input, loc, cb, sc, tp) {
     bounds: { x: cb.x, y: cb.y, w: gw, h: blockH } };
 }
 
-function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0) {
+function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) => n }) {
   const zones = input.zones, nz = zones.length;
-  const pad = 12, band = 22;
+  // zone label band는 상수가 아니라 **실제 label 크기**에서 나온다. optical calibration으로
+  // 글자가 커지면 band도 함께 커져야 하고, 그러지 않으면 routing corridor가 label을 가로지른다.
+  // (글자를 다시 줄여 기존 band에 맞추지 않는다 — 그것은 보정의 취지를 되돌리는 것이다.)
+  const pad = 12;
+  // zone은 **label band + node area**다. band 높이는 상수가 아니라 resolved label line-box와
+  // 공통 padding에서 나온다(scale 1.0에서는 기존 값 22가 그대로 산출된다).
+  // 그리고 band에는 connector가 들어올 **entry corridor**를 반드시 남긴다 — corridor 폭은
+  // lane 수·clearance에서 계산하며 파일별 좌표는 없다. label이 그 폭에 안 들어가면
+  // 글자를 줄이지 않고 **줄바꿈**한다.
   const K = ROUTE_DEFAULTS;
+  // entry corridor: connector가 label bounds **밖으로** band를 통과할 폭. lane 간격과
+  // clearance에서 계산하며 파일별 좌표는 없다.
+  const corridorReserve = 2 * K.labelPad + K.laneGap + K.outerClearance;
+  const labelLineH = (n) => Math.round(F.fs(12) * 1.5 * n + 4);
 
   // 1) 배선 수요를 먼저 묻는다 — 배치가 먼저 굳으면 선은 결국 관통하거나 겹친다.
   const nodeZone = new Map(), nodeIndex = new Map();
@@ -220,6 +233,21 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0) {
   const corridorTotal = corridors.reduce((a, b) => a + b, 0);
   const intraH = (zid) => (plan.intraLanes.get(zid) ?? 0) * K.laneGap;
   const maxIntra = Math.max(0, ...zones.map((z) => intraH(z.id)));
+  // label은 corridor를 남긴 폭 안에서 **줄바꿈**한다 — 글자를 줄여 한 줄에 욱여넣지 않는다.
+  // corridor는 zone 폭이 아니라 **node의 port 범위** 안에 있어야 한다 — 위 zone에서 내려오는
+  // 선은 목표 node 상단에 붙기 때문이다. 그래서 label 폭 상한은 node 폭에서 유도한다.
+  const nwProbe = (zoneW - 2 * pad - (Math.max(...zones.map((z) => (z.nodes ?? []).length)) - 1) * K.laneGap) / Math.max(...zones.map((z) => (z.nodes ?? []).length));
+  const labelMaxW = Math.min(zoneW - 2 * pad - corridorReserve,
+    nwProbe - K.portInset - K.outerClearance - 2 * K.labelPad);
+  if (process.env.SVGINFO_DEBUG_TOPOLOGY) console.error(`[topo] zoneW=${r1(zoneW)} nwProbe=${r1(nwProbe)} labelMaxW=${r1(labelMaxW)} fs=${F.fs(12)}`);
+  const labelWrap = new Map();
+  for (const z of zones) {
+    const w = ["ko", "en"].map((lc) => wrapLines(String(z.label[lc] ?? ""), labelMaxW, F.fs(12), true, 2));
+    if (w.some((x) => x.overflow)) { console.error(`generate: zone label "${z.id}" does not fit the ${r1(labelMaxW)}px label band even wrapped — widen the preset or shorten the label`); process.exit(1); }
+    labelWrap.set(z.id, w);
+  }
+  const labelLines = Math.max(1, ...[...labelWrap.values()].flat().map((x) => x.lines.length));
+  const band = labelLines === 1 ? Math.round(F.fs(12) * 1.5 + 4) : labelLineH(labelLines);
   const nodeH = Math.min(96, (cb.h - corridorTotal - nz * (band + 2 * pad + maxIntra)) / nz);
   const zoneH = (zid) => band + 2 * pad + nodeH + intraH(zid);
 
@@ -238,8 +266,8 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0) {
     });
     // 장애물로서의 label 폭은 글자 수 어림이 아니라 lint와 같은 추정기로 재고,
     // **KO/EN 중 넓은 쪽**으로 고정한다 — 배선 기하가 언어에 따라 달라지면 안 된다.
-    const labelTextW = Math.max(...["ko", "en"].map((lc) => estimateWidth(String(z.label[lc] ?? ""), 12, true, 0)));
-    const labelW = Math.min(zoneW - 2 * pad, labelTextW * 1.08 + 2 * ROUTE_DEFAULTS.labelPad);
+    const labelTextW = Math.max(...labelWrap.get(z.id).flatMap((w) => w.lines.map((l) => estimateWidth(l, F.fs(12), true, 0))));
+    const labelW = Math.min(labelMaxW, labelTextW * 1.08 + 2 * ROUTE_DEFAULTS.labelPad);
     zoneBoxes.push({ id: z.id, x: zoneX, y: zy, w: zoneW, h: zh,
       labelBox: { x: zoneX + pad, y: zy + 4, w: labelW, h: band - 4 } });
     zy += zh + (corridors[zi] ?? 0);
@@ -248,6 +276,38 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0) {
 
   // 3) 배선 — 좌표는 router가 정한다. 문제가 남으면 spec §6 ladder를 밟는다.
   const ladder = [];
+  // layout이 label bounds·node bounds·clearance에서 **합법 port 구간**을 계산해 router에 넘긴다.
+  // router는 그 안에서만 후보를 만든다. 구간이 없으면(=zone 밖에서 들어오지 않으면) 무제약이다.
+  const zoneOf = new Map();
+  for (const zb of zoneBoxes) for (const nd of (zones.find((z) => z.id === zb.id)?.nodes ?? [])) zoneOf.set(nd.id, zb);
+  const entryInterval = (nid) => {
+    const zb = zoneOf.get(nid), nb = nodeBox[nid];
+    if (!zb || !zb.labelBox || !nb) return null;
+    const lb = zb.labelBox;
+    // label은 hard obstacle이다 — 구간은 label 오른쪽 끝 + clearance부터 시작한다.
+    // layout이 보장하는 것은 "port가 label 아래에 있지 않다"까지다. 선과 label 사이의
+    // 간격은 router가 자기 obstacle 규칙으로 강제한다 — 여기서 더 엄격하게 잡으면
+    // 기존(무제약) 산출물의 배선이 이유 없이 옮겨간다.
+    const lo = Math.max(nb.x + K.portInset, lb.x + lb.w);
+    const hi = nb.x + nb.w - K.portInset;
+    if (!(lo <= hi)) return null;                    // 합법 구간이 없으면 선언하지 않는다(제약 없음과 다르다)
+    return { lo: r1(lo), hi: r1(hi), axis: "x" };
+  };
+  const constrain = (list) => list.map((e) => {
+    const from = zoneOf.get(e.from), to = zoneOf.get(e.to);
+    if (!from || !to || from.id === to.id) return e;   // 같은 zone 안 배선은 band를 지나지 않는다
+    const iv = entryInterval(e.to);
+    if (!iv) return e;
+    // 제약은 **필요할 때만** 건다. 자연스러운 port(두 node의 중심)가 이미 label 밖이면
+    // 구간을 선언하지 않는다 — 그래야 기존 호출의 후보·순서·산출물이 그대로 유지된다.
+    const src = nodeBox[e.from], dst = nodeBox[e.to];
+    const natural = src && dst ? (src.x + src.w / 2 + dst.x + dst.w / 2) / 2 : null;
+    if (natural != null && natural >= iv.lo && natural <= iv.hi) return e;
+    return { ...e, allowedPortInterval: { to: iv } };
+  });
+  plan.classified = constrain(plan.classified);
+  const portConstraints = plan.classified.filter((e) => e.allowedPortInterval)
+    .map((e) => ({ edge: e.id, endpoint: "to", node: e.to, allowed: e.allowedPortInterval.to }));
   let routed = routeEdges({ nodes: nodeBox, zones: zoneBoxes, plan, frame: cb, degradeLevel });
   if (routed.problems.length) {
     ladder.push({ step: 1, action: "drop edge labels to the legend", applied: false, reason: "이 TypePack은 edge label을 그리지 않는다 — 회수할 여유가 없다" });
@@ -282,7 +342,13 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0) {
   </g>`);
     labels.push(`  <g data-layout-role="zone-label" data-label-bounds="${r1(zb.labelBox.x)},${r1(zb.labelBox.y)},${r1(zb.labelBox.w)},${r1(zb.labelBox.h)}">
     <rect x="${r1(zb.labelBox.x)}" y="${r1(zb.labelBox.y)}" width="${r1(zb.labelBox.w)}" height="${r1(zb.labelBox.h)}" rx="4" fill="#F4F8FC" data-fill-role="surface-tint"/>
-    <text x="${r1(zb.x + pad)}" y="${r1(zb.y + band / 2 + 4)}" font-size="12" font-weight="700" fill="#636A75" data-fill-role="muted" dominant-baseline="central">${esc(z.label[loc])}</text>
+    ${(() => { const L = labelWrap.get(z.id)[loc === "ko" ? 0 : 1].lines, lh = F.fs(12) * 1.5,
+        y0 = zb.y + (band - (L.length - 1) * lh) / 2 + 4;
+      // 한 줄이면 기존 단일 text 형태를 그대로 쓴다 — 줄바꿈이 없을 때 마크업이 바뀌면
+      // flat baseline이 이유 없이 깨진다.
+      return L.length === 1
+        ? `<text x="${r1(zb.x + pad)}" y="${r1(y0)}" font-size="${F.fs(12)}" font-weight="700" fill="#636A75" data-fill-role="muted" dominant-baseline="central">${esc(L[0])}</text>`
+        : `<text font-size="${F.fs(12)}" font-weight="700" fill="#636A75" data-fill-role="muted" dominant-baseline="central">${tspans(L, zb.x + pad, y0, lh)}</text>`; })()}
   </g>`);
   });
 
@@ -298,7 +364,7 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0) {
     nodeArt.push(`  <g data-comp-entity="${nd.id}" data-entity="${nd.id}">
     <rect x="${r1(b.x)}" y="${r1(b.y)}" width="${r1(b.w)}" height="${r1(b.h)}" rx="10" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface" data-stroke-role="rule" data-layout-parent="${nodeZone.get(nd.id)}" data-layout-item="${nodeZone.get(nd.id)}-row"/>
     ${icon(nd.icon, b.x + b.w / 2, b.y + b.h / 2 - 14, 20)}
-    <text x="${r1(b.x + b.w / 2)}" y="${r1(b.y + b.h / 2 + 16)}" font-size="12" fill="#252B35" data-fill-role="ink" text-anchor="middle" dominant-baseline="central">${esc(nd.name[loc])}</text>
+    <text x="${r1(b.x + b.w / 2)}" y="${r1(b.y + b.h / 2 + 16)}" font-size="${F.fs(12)}" fill="#252B35" data-fill-role="ink" text-anchor="middle" dominant-baseline="central">${esc(nd.name[loc])}</text>
   </g>`);
   }
 
@@ -313,7 +379,7 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0) {
       const x = lx + i * 260;
       return `    <g data-layout-role="legend-key">
       <path d="M${r1(x)} ${r1(ly)} L${r1(x + 34)} ${r1(ly)}" fill="none" stroke="${EDGE}" stroke-width="2.2"${style === "dashed" ? ' stroke-dasharray="5 4"' : ""} marker-end="url(#ah-secondary)"/>
-      <text x="${r1(x + 56)}" y="${r1(ly)}" font-size="12" fill="#636A75" data-fill-role="muted" dominant-baseline="central">${esc(label)}</text>
+      <text x="${r1(x + 56)}" y="${r1(ly)}" font-size="${F.fs(12)}" fill="#636A75" data-fill-role="muted" dominant-baseline="central">${esc(label)}</text>
     </g>`;
     }).join("\n");
     labels.push(`  <g data-layout-role="legend" data-entity="legend">\n${items}\n  </g>`);
@@ -336,7 +402,7 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0) {
     body: defs + "\n" + body.join("\n"), consumed,
     bounds: { x: cb.x, y: cb.y, w: cb.w, h: contentBottom - cb.y + legendH },
     routing: {
-      degradeLevel: routed.degradeLevel, ladder, problems: routed.problems, hops: routed.hopCount,
+      degradeLevel: routed.degradeLevel, ladder, portConstraints, problems: routed.problems, hops: routed.hopCount,
       alignment: aligned.moves, attempts: routed.attempts, diagnostics: routed.diagnostics,
       legend: routed.legendRequired,
       demoted: routed.demoted.map((e) => e.id),
@@ -972,7 +1038,7 @@ function usedChars(svg) {
   for (const t of texts) for (const ch of t.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")) set.add(ch);
   return [...set].sort().join("");
 }
-function embedSubset(svg, delivery) {
+function embedSubset(svg, delivery, treatment = "flat") {
   const m = delivery.policy.modes[delivery.mode];
   if (m.embed !== "subset") return { svg, faces: [] };
   const full = readYamlFile(path.join(here, "..", "references", "delivery", "font-delivery-v1.yaml"));
@@ -980,11 +1046,15 @@ function embedSubset(svg, delivery) {
   const chars = usedChars(svg);
   if (!chars) { console.error("generate: portable delivery found no text to subset"); process.exit(4); }
   const tp = readYamlFile(path.join(here, "..", "references", "typography", "typography-v1.yaml"));
-  const flat = tp.doc.treatments.flat;
-  const rfn = flat.license?.rfn ?? [];
+  // 글꼴은 typography profile이 소유한다 — treatment resolver도 generator도 face를 고르지 않는다.
+  const prof = tp.doc.treatments[treatment];
+  if (!prof) { console.error(`generate: typography profile declares no "${treatment}" treatment`); process.exit(4); }
+  const rfn = prof.license?.rfn ?? [];
+  // 단일 face profile(sketch)은 faces 배열이 없다 — 선언 형태를 그대로 읽는다.
+  const declared = prof.asset.faces ?? [{ weight: (prof.locales.ko.weights ?? [400])[0], path: prof.asset.path, digest: prof.asset.digest }];
   const faces = [];
   let css = "", tool = null, identity = [];
-  for (const f of flat.asset.faces) {
+  for (const f of declared) {
     const abs = path.join(here, "..", String(f.path));
     const style = Number(f.weight) >= 700 ? "Bold" : "Regular";
     const { buf, receipt } = subsetFace(abs, chars, cfg.tool, style, f.weight, cfg.alias, rfn);
@@ -993,7 +1063,7 @@ function embedSubset(svg, delivery) {
     faces.push({ weight: Number(f.weight), sourceDigest: f.digest, subsetDigest: receipt.digest, bytes: buf.length });
     css += `@font-face{font-family:'${cfg.alias}';font-style:normal;font-weight:${f.weight};src:url(data:font/woff2;base64,${buf.toString("base64")}) format('woff2');}`;
   }
-  const stack = `'${cfg.alias}',` + flat.locales.ko.face + "," + flat.fallback.map((x) => /\s/.test(x) ? `'${x}'` : x).join(",");
+  const stack = `'${cfg.alias}',` + (/\s/.test(prof.locales.ko.face) ? `'${prof.locales.ko.face}'` : prof.locales.ko.face) + "," + prof.fallback.map((x) => /\s/.test(x) ? `'${x}'` : x).join(",");
   const out = svg
     .replace(/style="font-family:[^"]*"/, `style="font-family:${stack}"`)
     .replace("</desc>", `</desc>\n  <style>${css}</style>`);
@@ -1010,12 +1080,25 @@ function build(argv) {
   const override = opt("preset");
   const audition = argv.includes("--audition");
   const preset = override ?? (tp.presets.includes(sc.preset) ? sc.preset : tp.presets[0]);
+  // treatment는 registry가 허용한 것만 고를 수 있다 — 파일 존재가 허가가 아니다.
+  let tx;
+  try { tx = loadTreatment(opt("treatment") ?? "flat", opt("mode") ?? "light"); }
+  catch (e) { console.error(`generate: ${e.message}`); process.exit(2); }
+  // 시각 크기 보정은 typography SSoT의 named calibration이 소유한다. generator는 값을
+  // 정하지 않고 band factor를 읽어 **명목 크기 → 해석 크기**로 옮기기만 한다.
+  const typoDoc = readYamlFile(path.join(here, "..", "references", "typography", "typography-v1.yaml")).doc;
+  const cal = typoDoc.treatments?.[tx.name]?.optical_calibration ?? null;
+  const overrideScale = opt("optical-scale") ? Number(opt("optical-scale")) : null;
+  const band = (b) => (overrideScale ?? Number(cal?.bands?.[b] ?? 1));
+  const TS = { display: band("display"), body: band("body"),
+    fs: (nominal, b = "body") => r1(Number(nominal) * band(b)),
+    calibration: cal ? { id: cal.id, bands: { display: band("display"), body: band("body") } } : null };
   if (override && !tp.presets.includes(override) && !audition) {
     console.error(`generate: preset "${override}" is not declared by ${tid} (declared: ${tp.presets.join(", ")}) — pass --audition to render it as evidence, which marks the receipt non-canonical`);
     process.exit(1);
   }
   const render = (cbox) => tid === "cards-kpi-grid" ? renderCards(input, loc, cbox, sc, tp)
-    : tid === "topology-component" ? renderTopology(input, loc, cbox, sc, tp)
+    : tid === "topology-component" ? renderTopology(input, loc, cbox, sc, tp, 0, TS)
     : tid === "process-flow" ? renderProcessFlow(input, loc, cbox, sc, tp)
     : tid === "approval-gate" ? renderApprovalGate(input, loc, cbox, sc, tp)
     : tid === "layer-stack" ? renderLayerStack(input, loc, cbox, sc, tp)
@@ -1024,13 +1107,14 @@ function build(argv) {
     : tid === "decision-matrix" ? renderDecisionMatrix(input, loc, cbox, sc, tp)
     : tid === "roadmap-timeline" ? renderRoadmapTimeline(input, loc, cbox, sc, tp)
     : (console.error(`generate: no renderer registered for "${tid}"`), process.exit(2));
-  let pf = spawnJson([skinCli, "pageframe", preset, "--json"], "skin.mjs pageframe");
+  const osArgs = TS.display === 1 ? [] : ["--optical-scale", String(TS.display)];
+  let pf = spawnJson([skinCli, "pageframe", preset, ...osArgs, "--json"], "skin.mjs pageframe");
   if (pf.regions.fluid) {
     // fluid 캔버스는 내용 높이를 따라간다 — 블록을 먼저 재고 그 높이로 프레임을 다시 만든다.
     const probe = render({ ...pf.regions.contentBox, h: 100000 });
     // 배치가 성립하지 않으면 잴 높이도 없다 — 프레임은 그대로 두고 아래 needs-split 경로가 판정한다.
     if (probe.bounds)
-      pf = spawnJson([skinCli, "pageframe", preset, "--content-height", String(Math.ceil(probe.bounds.h)), "--json"], "skin.mjs pageframe");
+      pf = spawnJson([skinCli, "pageframe", preset, ...osArgs, "--content-height", String(Math.ceil(probe.bounds.h)), "--json"], "skin.mjs pageframe");
   }
   const cb = pf.regions.contentBox;
   const need = computeFit(tp, sc);
@@ -1097,13 +1181,18 @@ function build(argv) {
   const title = input.title?.[loc];
   if (!title) { console.error("generate: input payload must carry title.ko/title.en — the H1 is content, not something the generator may invent"); process.exit(1); }
   const subtitle = loc === "ko" ? `${tid} · ${sc.id}` : `${tid} · ${sc.id}`;
+  // treatment는 **표면 처리**만 바꾼다 — 좌표·문안·semantic id·reading order는 그대로다.
+  const canvas = { w: pf.canvas.width, h: canvasH };
+  const defs = treatmentDefs(tx, canvas);
+  const body = tx.name === "flat" ? R.body
+    : R.body.replace(/<g data-layer="(containers|connectors|nodes)"/g, (m, k) => `${m}${filterAttr(tx, k === "connectors" ? "rough-line" : "rough-box")}`);
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${pf.canvas.width} ${canvasH}" width="${pf.canvas.width}" height="${canvasH}" role="img"
   style="font-family:Pretendard,Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
   <title>${esc(title)}</title>
   <desc>${esc(tid)} ${esc(sc.id)} (${loc}) — generated from the declared TypePack input payload.</desc>
-  <rect data-fill-role="canvas" fill="#F7F7F5" width="${pf.canvas.width}" height="${pf.canvas.height}"/>
+  <rect data-fill-role="canvas" fill="#F7F7F5" width="${pf.canvas.width}" height="${pf.canvas.height}"/>${tx.name === "flat" ? "" : `\n${paperRect(tx, canvas)}\n  <defs data-treatment-defs="${tx.name}">\n${defs}\n  </defs>`}
 ${header(pf, title, eyebrow, subtitle, R.bounds.y)}
-${R.body}
+${body}
 </svg>
 `;
   // kernel §8: 배치 후 contentFlowBounds와 residual을 기록하고, 큰 하단 여백은
@@ -1117,13 +1206,31 @@ ${R.body}
       console.error(`generate: bottom residual ${residual.bottom}px (${Math.round(100 * residual.bottom / cb.h)}% of the contentBox) exceeds the ${Math.round(100 * RESIDUAL_FLOOR)}% floor and the scenario declares no residual_disposition — declare it with a reason or choose a preset/variant that fills the page`);
       process.exit(1);
     }
-    if (Math.abs(Number(decl.bottom) - residual.bottom) > RESIDUAL_TOL) {
-      console.error(`generate: declared residual_disposition.bottom ${decl.bottom}px does not match the measured ${residual.bottom}px (tol ${RESIDUAL_TOL}px)`);
+    // 잔여 선언은 **최대값이 아니라 실측과 일치하는 값**이다 — 단방향 비교는 stale 선언과
+    // 과도한 content expansion을 통과시킨다. treatment마다 실측이 다르므로 항목도 treatment별이다.
+    const want = residualEntry(decl, tx, TS);
+    if (want.error) { console.error(`generate: ${want.error}`); process.exit(1); }
+    if (Math.abs(Number(want.bottom) - residual.bottom) > RESIDUAL_TOL) {
+      console.error(`generate: declared residual_disposition.bottom ${want.bottom}px does not match the measured ${residual.bottom}px (tol ${RESIDUAL_TOL}px, treatment ${tx.name}${want.calibration ? ` + ${want.calibration}` : ""})`);
       process.exit(1);
     }
   }
   const delivery = fontDelivery(opt("font-delivery"));
-  const embedded = embedSubset(svg, delivery);
+  const embedded = embedSubset(svg, delivery, tx.name);
+  // treatment를 선택했으면 산출물이 실제로 그 treatment여야 한다. 이름만 바뀌고 flat과
+  // 같은 바이트가 나오는 것을 성공으로 인정하지 않는다(materialize `updated 0`와 같은 함정).
+  if (tx.name !== "flat") {
+    const miss = [];
+    if (!/data-treatment-paper="1"/.test(embedded.svg)) miss.push("paper surface");
+    if (!new RegExp(`data-treatment-defs="${tx.name}"`).test(embedded.svg)) miss.push("treatment defs");
+    for (const f of tx.filters) if (!embedded.svg.includes(`filter="url(#tx-${f.id})"`)) miss.push(`applied ${f.id} filter`);
+    if (!/<feDisplacementMap/.test(embedded.svg)) miss.push("displacement map");
+    if (delivery.mode === "portable" && embedded.faces?.some((f) => f.subsetDigest === undefined)) miss.push("subset-embedded face");
+    if (miss.length) {
+      console.error(`generate: treatment "${tx.name}" was selected but the artifact lacks ${miss.join(", ")} — a renamed flat render is not a treatment`);
+      process.exit(1);
+    }
+  }
   const artifact = embedded.svg.replace(/[ \t]+$/gm, "");   // digest 대상은 실제로 기록되는 바이트다
   if (out) writeFileSync(out, artifact);
   const receipt = { ...base, status: "ok", artifact: out ? path.basename(out) : null,
@@ -1133,6 +1240,7 @@ ${R.body}
       policyDigest: delivery.policy.profile.digest, typographyProfileDigest: delivery.policy.typographyProfileDigest,
       alias: embedded.alias ?? null, glyphs: embedded.chars ?? 0, faces: embedded.faces,
       tool: embedded.tool ?? null, wrapperDigest: embedded.wrapperDigest ?? null, identity: embedded.identity ?? [] },
+    treatment: { name: tx.name, mode: tx.mode, overlay: tx.overlay, displacementBound: displacementBound(tx) },
     routing: R.routing ?? null,
     matrix: R.matrix ?? null,
     timeline: R.timeline ?? null,
@@ -1377,6 +1485,120 @@ function auditTimeline(svg, input, rcp, tp) {
   return errs;
 }
 
+// treatment 감사: rough stroke는 기하 bounds 밖으로 **밀려나므로**, 선언 좌표만 보면
+// 경계를 넘는 것을 놓친다. displacement 폭과 filter region까지 포함해 검사한다.
+function auditTreatment(svg, rcp) {
+  const errs = [];
+  const t = rcp.treatment;
+  if (!t) { errs.push("E-TX-RECEIPT receipt carries no treatment block"); return errs; }
+  const declared = /<defs data-treatment-defs="([a-z]+)"/.exec(svg);
+  const paper = /data-treatment-paper="1"/.test(svg);
+  if (t.name === "flat") {
+    if (declared || paper) errs.push("E-TX-FLAT the receipt says flat but the artifact carries treatment surfaces");
+    return errs;
+  }
+  if (!declared || declared[1] !== t.name)
+    errs.push(`E-TX-STRUCT the artifact does not declare the "${t.name}" treatment defs`);
+  if (!paper) errs.push("E-TX-STRUCT the artifact has no treatment paper surface");
+  const vb = /viewBox="0 0 ([\d.]+) ([\d.]+)"/.exec(svg);
+  if (!vb) { errs.push("E-TX-STRUCT viewBox is unreadable"); return errs; }
+  const W = Number(vb[1]), H = Number(vb[2]);
+  const d = Number(t.displacementBound ?? 0);
+  if (!(d > 0)) errs.push("E-TX-STRUCT a surface treatment must declare a positive displacement bound");
+  // filter region은 canvas 전체여야 한다 — 좁은 region은 직선에서 붕괴하고 stroke를 잘라낸다.
+  for (const m of svg.matchAll(/<filter id="tx-([a-z-]+)"([^>]*)>/g)) {
+    const a = (k) => Number((m[2].match(new RegExp(`\\b${k}="([\\d.-]+)"`)) ?? [])[1]);
+    if (!/filterUnits="userSpaceOnUse"/.test(m[2]))
+      errs.push(`E-TX-REGION filter "${m[1]}" must use userSpaceOnUse (percentage regions collapse on straight strokes)`);
+    if (a("x") !== 0 || a("y") !== 0 || a("width") < W || a("height") < H)
+      errs.push(`E-TX-REGION filter "${m[1]}" region ${a("width")}×${a("height")} at ${a("x")},${a("y")} does not cover the ${W}×${H} canvas — displaced strokes would be clipped`);
+  }
+  // filter가 실제로 적용된 layer만 displacement 대상이다.
+  const filtered = new Set([...svg.matchAll(/<g data-layer="([a-z]+)"[^>]*filter="url\(#tx-[a-z-]+\)"/g)].map((m) => m[1]));
+  if (!filtered.size) errs.push("E-TX-STRUCT no layer carries the treatment filter");
+  // rough stroke가 canvas 경계를 넘지 않는지: 선언 기하 + displacement.
+  const rects = [...svg.matchAll(/<rect[^>]*\/>/g)].map((m) => m[0])
+    .filter((r) => !/data-treatment-paper|data-fill-role="canvas"/.test(r));
+  for (const r of rects) {
+    const n = (k) => Number((r.match(new RegExp(`\\b${k}="([\\d.-]+)"`)) ?? [])[1]);
+    const x = n("x"), y = n("y"), w = n("width"), h = n("height");
+    if (![x, y, w, h].every(Number.isFinite)) continue;
+    const sw = Number((r.match(/stroke-width="([\d.]+)"/) ?? [])[1] ?? 0) / 2;
+    if (x - sw - d < 0 || y - sw - d < 0 || x + w + sw + d > W || y + h + sw + d > H)
+      errs.push(`E-TX-CONTAIN a surface at ${r1(x)},${r1(y)} ${r1(w)}×${r1(h)} leaves the canvas once the ${d}px rough displacement is applied`);
+  }
+  // 폰트: portable에서 implicit fallback이 남으면 "설치 글꼴 비의존" 주장이 깨진다.
+  if (rcp.fontDelivery?.mode === "portable") {
+    if (!(rcp.fontDelivery.faces ?? []).length) errs.push("E-TX-FONT portable sketch must embed at least one subset face");
+    const css = /<style>([\s\S]*?)<\/style>/.exec(svg);
+    if (!css || !/@font-face/.test(css[1])) errs.push("E-TX-FONT the artifact carries no embedded @font-face");
+    const stack = (/style="font-family:([^"]*)"/.exec(svg) ?? [])[1] ?? "";
+    if (!stack.startsWith(`'${rcp.fontDelivery.alias}'`))
+      errs.push(`E-TX-FONT the embedded alias must lead the font stack (got "${stack.slice(0, 48)}")`);
+  }
+  return errs;
+}
+
+// allowed port interval 감사: receipt를 정답으로 쓰지 않고 **산출물의 layout metric**
+// (label bounds · node bounds · route 상수)에서 구간을 다시 계산해 대조한다.
+function auditPortIntervals(svg, rcp) {
+  const errs = [];
+  const pc = rcp.routing?.portConstraints ?? [];
+  if (!pc.length) return errs;
+  const K = ROUTE_DEFAULTS;
+  const num = (t, k) => Number((t.match(new RegExp(`\\b${k}="([\\d.-]+)"`)) ?? [])[1]);
+  const nodes = new Map();
+  for (const m of svg.matchAll(/<rect[^>]*data-entity="([^"]+)"[^>]*\/>/g))
+    nodes.set(m[1], { x: num(m[0], "x"), y: num(m[0], "y"), w: num(m[0], "width"), h: num(m[0], "height") });
+  for (const m of svg.matchAll(/<g[^>]*data-entity="([^"]+)"[^>]*>\s*<rect([^>]*)\/>/g))
+    if (!nodes.has(m[1])) nodes.set(m[1], { x: num(m[2], "x"), y: num(m[2], "y"), w: num(m[2], "width"), h: num(m[2], "height") });
+  const labels = [...svg.matchAll(/data-label-bounds="([\d.,-]+)"/g)]
+    .map((m) => m[1].split(",").map(Number)).map(([x, y, w, h]) => ({ x, y, w, h }));
+  for (const c of pc) {
+    const n = nodes.get(c.node);
+    if (!n) { errs.push(`E-PORT-INTERVAL constraint names node "${c.node}" which is absent from the artifact`); continue; }
+    // 이 node를 덮는 label을 찾아 layout과 같은 식으로 구간을 다시 만든다.
+    const over = labels.filter((l) => l.y <= n.y && l.x < n.x + n.w && l.x + l.w > n.x);
+    const right = over.length ? Math.max(...over.map((l) => l.x + l.w)) : -Infinity;
+    // layout과 **같은 식**을 쓴다 — 선과 label 사이 간격은 router가 강제한다.
+    const lo = r1(Math.max(n.x + K.portInset, right === -Infinity ? -Infinity : right));
+    const hi = r1(n.x + n.w - K.portInset);
+    if (Math.abs(lo - Number(c.allowed.lo)) > 0.5 || Math.abs(hi - Number(c.allowed.hi)) > 0.5)
+      errs.push(`E-PORT-INTERVAL edge "${c.edge}" declares [${c.allowed.lo}, ${c.allowed.hi}] but the layout metric recomputes [${lo}, ${hi}]`);
+    if (!(Number(c.allowed.lo) >= n.x + K.portInset - 0.5 && Number(c.allowed.hi) <= n.x + n.w - K.portInset + 0.5))
+      errs.push(`E-PORT-INTERVAL edge "${c.edge}" interval leaves the port range of node "${c.node}"`);
+    // 선택된 port가 구간 안에 있는지 — 기록된 path에서 다시 잰다.
+    const rt = (rcp.routing.routes ?? []).find((r) => r.id === c.edge);
+    // 좌표 d만 잡는다 — data-route-kind 같은 다른 속성이 먼저 걸리면 NaN이 된다.
+    const d = (svg.match(new RegExp(`data-route-id="${c.edge}"[^>]*?\\sd="(M[^"]+)"`)) ?? [])[1];
+    if (d) {
+      const pts = [...d.matchAll(/-?[\d.]+/g)].map(Number);
+      const endX = pts.at(-2);
+      if (!(endX >= Number(c.allowed.lo) - 0.5 && endX <= Number(c.allowed.hi) + 0.5))
+        errs.push(`E-PORT-INTERVAL edge "${c.edge}" attaches at x=${r1(endX)}, outside its allowed interval [${c.allowed.lo}, ${c.allowed.hi}]`);
+    }
+    void rt;
+  }
+  return errs;
+}
+
+
+// 잔여 선언 조회: treatment(+calibration) 항목이 없거나 ID가 다르면 **fail-closed**다.
+// 항목 없이 통과시키면 "선언되지 않은 dead space"가 다시 열린다.
+function residualEntry(decl, tx, TS) {
+  const calId = TS.calibration?.id ?? null;
+  if (Array.isArray(decl.by_treatment)) {
+    const hit = decl.by_treatment.find((e) => e.treatment === tx.name
+      && (e.calibration === undefined ? calId === null : e.calibration === calId));
+    if (!hit) return { error: `residual_disposition declares no entry for treatment "${tx.name}"${calId ? ` + calibration "${calId}"` : ""} — declare the measured value instead of reusing another treatment's` };
+    if (!Number.isFinite(Number(hit.bottom))) return { error: `residual_disposition entry for "${tx.name}" has no numeric bottom` };
+    return { bottom: hit.bottom, calibration: hit.calibration ?? null };
+  }
+  // 단일 선언은 flat 전용이다 — treatment를 켠 채 이것을 쓰면 실측과 어긋난다.
+  if (tx.name !== "flat") return { error: `residual_disposition is declared once (flat only) but treatment "${tx.name}" is active — declare it per treatment with by_treatment` };
+  return { bottom: decl.bottom, calibration: null };
+}
+
 function verify(argv) {
   const opt = (n, d = null) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };
   const rcpP = opt("receipt"), svgP = opt("svg"), pairP = opt("pair");
@@ -1414,6 +1636,15 @@ function verify(argv) {
         errors.push(`E-GEN-ALIGN alignment inventory recomputed from the input does not match the artifact\n    input:    ${expectedInv}\n    artifact: ${gotInv ?? "(none)"}`);
       if (rcp.typepack === "decision-matrix") for (const e of auditMatrixAxes(svg, input, rcp.locale)) errors.push(e);
       if (rcp.typepack === "roadmap-timeline") for (const e of auditTimeline(svg, input, rcp, caseTp)) errors.push(e);
+      for (const e of auditTreatment(svg, rcp)) errors.push(e);
+      for (const e of auditPortIntervals(svg, rcp)) errors.push(e);
+      // residual도 receipt를 정답으로 쓰지 않는다 — 최종 contentFlowBounds와 contentBox에서 다시 잰다.
+      if (rcp.contentFlowBounds && rcp.contentBox) {
+        const cbY = rcp.contentFlowBounds.y - (rcp.residual?.top ?? 0);
+        const recomputed = r1(cbY + rcp.contentBox.h - (rcp.contentFlowBounds.y + rcp.contentFlowBounds.h));
+        if (Math.abs(recomputed - Number(rcp.residual?.bottom ?? NaN)) > 0.5)
+          errors.push(`E-GEN-RESIDUAL receipt residual.bottom ${rcp.residual?.bottom} != ${recomputed} recomputed from contentFlowBounds and contentBox`);
+      }
       // 배선은 산출물에서 다시 잰다 — receipt가 아니라 기록된 path가 근거다
       const audit = auditTopology(svg);
       for (const e of audit.errors) errors.push(`E-GEN-ROUTE ${e}`);

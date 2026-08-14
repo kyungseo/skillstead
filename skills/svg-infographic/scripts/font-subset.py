@@ -114,6 +114,17 @@ def main():
     if leaked:
         fail(5, "reserved font name still present in identity records after rewrite:\n  " + "\n  ".join(leaked))
 
+    # delivery 정책의 on_glyph_missing: fail-closed 를 **실제로 집행한다**.
+    # 요청 문자가 subset의 cmap에 없으면 렌더는 조용히 fallback face로 새고,
+    # portable artifact가 "설치 글꼴에 의존하지 않는다"는 주장이 깨진다.
+    cmap = set()
+    for table in font["cmap"].tables:
+        cmap.update(table.cmap.keys())
+    missing = sorted({ch for ch in text if ord(ch) not in cmap and ch not in "\r\n\t"})
+    if missing:
+        fail(7, "the subset does not cover %d requested character(s) — an implicit fallback would be needed: %s"
+             % (len(missing), " ".join(repr(c) for c in missing[:20])))
+
     try:
         font.save(a.out)
     except Exception as e:  # noqa: BLE001
@@ -127,6 +138,7 @@ def main():
         "identity": {"family": family, "fullName": full, "postScriptName": ps, "uniqueID": unique},
         "preservedLegalNameIDs": sorted({r.nameID for r in name.names if r.nameID in LEGAL_IDS}),
         "rfnGuard": "clean",
+        "glyphCoverage": {"requested": len(set(text)), "missing": 0},
         "bytes": len(blob),
         "digest": "sha256:" + hashlib.sha256(blob).hexdigest(),
     }))

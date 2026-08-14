@@ -14,7 +14,7 @@
 # evidence 또는 CI artifact로만 저장한다.
 
 schema_version: 1
-surface_revision: 10
+surface_revision: 11
 
 canonicalization:
   version: 1
@@ -44,6 +44,7 @@ entries:
   - { path: scripts/font-probe.mjs, kind: production-entrypoint }
   - { path: scripts/render.sh, kind: production-shim }
   - { path: scripts/preflight-lib.mjs, kind: production-lib }
+  - { path: scripts/treatment.mjs, kind: production-lib }
 
   # --- normative docs (agent 판단 표면) --------------------------------------
   - { path: SKILL.md, kind: normative-doc }

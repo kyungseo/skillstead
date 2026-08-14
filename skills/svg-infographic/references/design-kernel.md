@@ -423,6 +423,38 @@ comparing receipts before/after an edit exposes any invariant the edit broke.
 Generalizing the guard beyond annotated rect geometry to semantic region
 annotations is a named follow-up (`svg-infographic-semantic-region-annotation`).
 
+## 7g. Surface treatment axis (opt-in, experimental)
+
+`flat` is the canonical default. `sketch` is an **experimental opt-in preview** selected with
+`generate.mjs --treatment sketch`; nothing routes to it automatically and no TypePack claims it.
+
+Ownership is split so no layer reaches into another's concern:
+
+| Owner | Concern |
+| --- | --- |
+| generator | selecting the treatment and building the artifact structure |
+| treatment resolver (`scripts/treatment.mjs`) | paper surface, rough-line/rough-box filters, highlight, displacement bound |
+| typography profile | face, weight, subset, license (`treatments.sketch`) |
+| materializer | semantic paint values only |
+
+Filters and fonts never move into the materializer, and palette roles are never merged with overlay
+tokens. The resolver reads its numbers from the overlay declaration rather than restating them.
+
+The axis is fail-closed on the **artifact**, not the flag. A treatment must be selected by the skin
+registry (an overlay file alone is not authorisation); a selected treatment whose artifact lacks the
+paper surface, the treatment defs, an applied filter or a displacement map is refused; and a renamed
+flat render never counts as a treatment. `dark × sketch` stays rejected until it is visually approved.
+
+Two properties are re-measured rather than declared. Containment includes the **displacement bound**
+and the filter region: a rough stroke that leaves the canvas, or a filter region narrower than the
+canvas (percentage regions collapse on straight strokes), fails. Font coverage is enforced at subset
+time: if the embedded subset does not cover every character the artifact uses, the build fails rather
+than letting an implicit system fallback supply the glyph.
+
+Geometry, copy, semantic ids and reading order are identical across treatments. A treatment never
+patches coordinates; if a face's metrics would overflow, the shared budget is recomputed or the build
+fails closed.
+
 ## 8. Composition (multi-type scenes)
 
 One page is not limited to one type. A scene may combine TypePacks — summary cards

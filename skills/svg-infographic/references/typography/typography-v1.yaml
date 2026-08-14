@@ -65,6 +65,21 @@ treatments:
     fallback: [Pretendard, sans-serif]
     synthetic: forbidden
     weight-policy: normalize-400
+    # Optical size compensation — named calibration, NOT a change to the base type scale.
+    # Hi Melody renders far smaller than Pretendard at the same nominal px, so equal nominal
+    # size is not equal visual hierarchy. The base scale keeps its owner (PageFrame profile);
+    # this token only compensates the apparent size of THIS face. Per-file or per-string
+    # adjustment is forbidden — a band is the smallest unit.
+    optical_calibration:
+      id: hi-melody-optical-v1
+      # Owner selection 2026-08-15 after the 1.6x / 1.8x / 2.0x audition (KO + EN).
+      # Chosen for optical parity and legibility — the H1 hierarchy reads closest to flat —
+      # not because it is the largest value that happens to fit. 2.0x is refused by the
+      # layout at 4:5 and at 16:9; 1.8x keeps route 3/3, bend 0 and a 36px minimum inset.
+      basis: owner selection 2026-08-15 — optical parity audition (1.6x / 1.8x / 2.0x, KO + EN)
+      bands:
+        display: 1.8
+        body: 1.8
     asset:
       policy: bundled
       path: assets/fonts/HiMelody-Regular.ttf

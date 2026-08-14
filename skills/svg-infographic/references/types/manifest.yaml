@@ -300,7 +300,13 @@ typepacks:
         preset: social-4x5
         layout: zones
         count: 3
-        residual_disposition: { bottom: 194, reason: "zone 높이는 node 기하에서 파생하고 corridor는 배선 수요만큼만 열린다 — 남는 공간은 선언된 breathing이다(kernel §8)." }
+        # 잔여는 최대값이 아니라 **실측과 일치하는 선언**이다. treatment마다 실측이 다르므로
+        # 각각 정확값을 선언한다 — 단방향 비교는 stale 선언과 과도한 content expansion을 통과시킨다.
+        residual_disposition:
+          reason: "zone 높이는 node 기하에서 파생하고 corridor는 배선 수요만큼만 열린다 — 남는 공간은 선언된 breathing이다(kernel §8)."
+          by_treatment:
+            - { treatment: flat, bottom: 194 }
+            - { treatment: sketch, calibration: hi-melody-optical-v1, bottom: 93 }
         routing_expected: routable
       stress:
         - id: topology-component-stress-cardinality
