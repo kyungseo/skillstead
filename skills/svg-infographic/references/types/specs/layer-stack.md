@@ -45,24 +45,24 @@ the artifact rather than shrinking the band height.
 
 ## 4. Intrinsic fit and variant contract
 
-Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 region에 들어가는지
-판정하고, 들어가지 않으면 §6 ladder로 내려간다. 글자·간격을 줄여 억지로 맞추지 않는다.
+Fit is decided **before** layout: judge whether this type fits the region before attempting
+placement, and drop to the §6 ladder when it does not. Never shrink type or spacing to force a fit.
 
-**수식 변수는 이 문서가 아니라 manifest의 `fit` 블록이 소유한다**(`references/types/manifest.yaml`,
-해당 TypePack의 `fit.cardinality` / `fit.params` / `fit.footprint`). 문서에 상수를 다시
-적으면 두 벌이 어긋나므로, 여기서는 배치 종류와 판정 경계만 적는다.
+**The manifest's `fit` block owns the formula variables, not this document**
+(`references/types/manifest.yaml`, this TypePack's `fit.cardinality` / `fit.params` / `fit.footprint`). Restating constants here would
+let the two copies drift, so this section records only the arrangement and the decision boundary.
 
-- 배치: column
-- 근거 수준: manifest `fit.floor_basis`가 `geometry`인 동안 이 수치는 **기하 가정**이며
-  실제 렌더로 확인된 값이 아니다. CP2B의 stress render(getBBox·containment·PNG 검수)를
-  통과한 뒤에만 `rendered`로 승격한다.
-- 판정: `fit.footprint`가 params에서 계산되고, `fit.feasibility`가 **실제 PageFrame
-  contentBox**(preset별 live receipt)와 대조돼 `fits` 또는 `needs-split`으로 확정된다.
-  manifest validator가 두 계산을 모두 재수행하므로 선언만으로 통과할 수 없다.
-- 경계: **band 폭은 chip 예산이 정한다.** base floor는 label gutter + chip 2개(각 16 CJK)를
-  수용하고, chip 4개를 요구하는 `wide` floor는 **4:5에서 성립하지 않는다**(needs-split;
-  16:9은 성립). 4:5에서 chip 4개가 필요하면 chip 문구를 줄이거나 분리 페이지다.
-  clamp는 feasibility 판정 **이후**에만 적용한다.
+- Arrangement: column
+- Evidence level: while the manifest's `fit.floor_basis` reads `geometry`, these numbers are a
+  **geometric assumption**, not a value confirmed by rendering. They are promoted to `rendered`
+  only after passing the CP2B stress render (getBBox, containment, PNG inspection).
+- Decision: `fit.footprint` is computed from the params, and `fit.feasibility` is settled as
+  `fits` or `needs-split` against the **live PageFrame contentBox** (a per-preset receipt). The
+  manifest validator recomputes both, so a declaration alone never passes.
+- Boundary: **the chip budget sets the band width.** The base floor holds the label gutter plus 2
+  chips (16 CJK characters each); the `wide` floor that demands 4 chips **does not hold in 4:5**
+  (needs-split; 16:9 does). When 4:5 needs 4 chips, shorten the chip copy or split the page.
+  Clamping applies only **after** the feasibility decision.
 
 ## 5. Layout, encoding and connector rules
 

@@ -34,35 +34,37 @@ Old versus new, side by side.
 
 ## 4. Intrinsic fit and variant contract
 
-Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 region에 들어가는지
-판정하고, 들어가지 않으면 §6 ladder로 내려간다. 글자·간격을 줄여 억지로 맞추지 않는다.
+Fit is decided **before** layout: judge whether this type fits the region before attempting
+placement, and drop to the §6 ladder when it does not. Never shrink type or spacing to force a fit.
 
-**수식 변수는 이 문서가 아니라 manifest의 `fit` 블록이 소유한다**(`references/types/manifest.yaml`,
-해당 TypePack의 `fit.cardinality` / `fit.params` / `fit.footprint`). 문서에 상수를 다시
-적으면 두 벌이 어긋나므로, 여기서는 배치 종류와 판정 경계만 적는다.
+**The manifest's `fit` block owns the formula variables, not this document**
+(`references/types/manifest.yaml`, this TypePack's `fit.cardinality` / `fit.params` / `fit.footprint`). Restating constants here would
+let the two copies drift, so this section records only the arrangement and the decision boundary.
 
-- 배치: row(패널 2개)
-- 근거 수준: manifest `fit.floor_basis`가 `geometry`인 동안 이 수치는 **기하 가정**이며
-  실제 렌더로 확인된 값이 아니다. CP2B의 stress render(getBBox·containment·PNG 검수)를
-  통과한 뒤에만 `rendered`로 승격한다.
-- 판정: `fit.footprint`가 params에서 계산되고, `fit.feasibility`가 **실제 PageFrame
-  contentBox**(preset별 live receipt)와 대조돼 `fits` 또는 `needs-split`으로 확정된다.
-  manifest validator가 두 계산을 모두 재수행하므로 선언만으로 통과할 수 없다.
-- 경계: 두 패널과 gutter가 두 preset에서 성립한다. 높이는 긴 쪽이 정하고 짧은 쪽을 **패딩**한다.
-- 패널 높이 floor는 상수가 아니라 **최소 합법 문법에서 유도한다**: 헤더 예약 + (최소 slot 수 ×
-  slot 높이) + slot 사이 간격 + 패널 안쪽 여백. 기호로 쓰면
-  `panelFloor = panelHeaderH + minSlots × slotMinH + (minSlots − 1) × slotGap + 2 × panelPad`이고,
-  변수 값은 모두 manifest `fit.params`가 소유한다. validator와 renderer가 **같은 derive helper**를
-  호출하므로 문서·검증·렌더가 갈라질 수 없다. floor를 맞추려고 canonical의 slot 수를 늘리거나
-  임의의 낮은 상수로 내리지 않는다.
+- Arrangement: row (2 panels)
+- Evidence level: while the manifest's `fit.floor_basis` reads `geometry`, these numbers are a
+  **geometric assumption**, not a value confirmed by rendering. They are promoted to `rendered`
+  only after passing the CP2B stress render (getBBox, containment, PNG inspection).
+- Decision: `fit.footprint` is computed from the params, and `fit.feasibility` is settled as
+  `fits` or `needs-split` against the **live PageFrame contentBox** (a per-preset receipt). The
+  manifest validator recomputes both, so a declaration alone never passes.
+- Boundary: both panels and the gutter hold in both presets. The taller panel sets the height and the
+  shorter one is **padded** to match.
+- The panel height floor is not a constant — it is **derived from the minimum legal syntax**: the header
+  reservation, plus (minimum slot count × slot height), plus the gaps between slots, plus the panel's
+  inner padding. Symbolically:
+  `panelFloor = panelHeaderH + minSlots × slotMinH + (minSlots − 1) × slotGap + 2 × panelPad`,
+  and the manifest `fit.params` owns every variable. The validator and the renderer call the **same
+  derive helper**, so the document, the check and the render cannot drift apart. Never raise the
+  canonical slot count to reach the floor, and never lower the floor to an arbitrary constant.
 
 ## 5. Layout, encoding and connector rules
 
 - Two equal-height, equal-width panels with a 32–48px gutter; optional centre arrow or migration chip between them; optional delta strip below.
-- Mirrored slots align to the same y in both panels. 이 대칭은 눈으로 판정하지 않는다: slot `i`는
-  두 패널에서 하나의 `data-align-row`에 속하고 참여 수 2를 선언하므로, 한쪽 slot이 어긋나거나
-  annotation이 빠지면 hard error가 된다(design-kernel §7d). 패널 헤더는 `data-reserve-top`으로
-  예약돼 대칭 판정에서 빠진다.
+- Mirrored slots align to the same y in both panels. This symmetry is not judged by eye: slot `i` joins
+  one `data-align-row` across both panels and declares a participant count of 2, so a slot that drifts —
+  or an annotation that goes missing — becomes a hard error (design-kernel §7d). The panel header is
+  reserved with `data-reserve-top` and is therefore excluded from the symmetry judgement.
 - A legend is required when three or more semantic colours appear.
 - No connectors between panel internals — the mirror alignment carries the correspondence.
 
@@ -76,7 +78,7 @@ Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 regi
 ## 7. Verifier, receipt and fixture contract
 
 - **Machine verifier**: none (`verifier: null`).
-- Checks: panel heights and widths equal; mirrored slots share a y; gutter ≥ 24 with balanced outer margins; legend present when required. 앞의 두 항목은 `check-layout.mjs`의 alignment 계약이 기계로 판정하고, artifact의 `data-align-inventory`는 원본 input에서 다시 계산한 기대치와 대조된다.
+- Checks: panel heights and widths equal; mirrored slots share a y; gutter ≥ 24 with balanced outer margins; legend present when required. The first two are decided by machine through the alignment contract in `check-layout.mjs`, and the artifact's `data-align-inventory` is compared against an expectation recomputed from the original input.
 - **Receipt**: the mirrored slot list, per-slot change class, and the padding applied to the shorter panel.
 - **Fixtures**: positive per preset + a baseline-red with ragged panel ends. Required before `core`.
 
@@ -90,6 +92,6 @@ Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 regi
 
 - Panels ending ragged because content differed.
 - Slots that do not mirror, so the eye cannot diff.
-- 한쪽 패널의 slot annotation만 남아 정렬 검사가 "남은 것끼리는 맞다"로 통과하는 경우.
+- Only one panel keeping its slot annotations, so the alignment check passes on "the survivors agree".
 - Colour-only change encoding with no legend and no text.
 - A third panel bolted on.

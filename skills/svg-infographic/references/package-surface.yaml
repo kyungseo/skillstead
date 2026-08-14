@@ -14,7 +14,7 @@
 # evidence 또는 CI artifact로만 저장한다.
 
 schema_version: 1
-surface_revision: 9
+surface_revision: 10
 
 canonicalization:
   version: 1

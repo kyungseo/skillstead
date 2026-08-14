@@ -49,23 +49,23 @@ promote the extras out of the grid — never shrink the card below the §4 floor
 
 ## 4. Intrinsic fit and variant contract
 
-Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 region에 들어가는지
-판정하고, 들어가지 않으면 §6 ladder로 내려간다. 글자·간격을 줄여 억지로 맞추지 않는다.
+Fit is decided **before** layout: judge whether this type fits the region before attempting
+placement, and drop to the §6 ladder when it does not. Never shrink type or spacing to force a fit.
 
-**수식 변수는 이 문서가 아니라 manifest의 `fit` 블록이 소유한다**(`references/types/manifest.yaml`,
-해당 TypePack의 `fit.cardinality` / `fit.params` / `fit.footprint`). 문서에 상수를 다시
-적으면 두 벌이 어긋나므로, 여기서는 배치 종류와 판정 경계만 적는다.
+**The manifest's `fit` block owns the formula variables, not this document**
+(`references/types/manifest.yaml`, this TypePack's `fit.cardinality` / `fit.params` / `fit.footprint`). Restating constants here would
+let the two copies drift, so this section records only the arrangement and the decision boundary.
 
-- 배치: row(n ≤ 4) / grid 2열(n = 5–6)
-- 근거 수준: manifest `fit.floor_basis`가 `geometry`인 동안 이 수치는 **기하 가정**이며
-  실제 렌더로 확인된 값이 아니다. CP2B의 stress render(getBBox·containment·PNG 검수)를
-  통과한 뒤에만 `rendered`로 승격한다.
-- 판정: `fit.footprint`가 params에서 계산되고, `fit.feasibility`가 **실제 PageFrame
-  contentBox**(preset별 live receipt)와 대조돼 `fits` 또는 `needs-split`으로 확정된다.
-  manifest validator가 두 계산을 모두 재수행하므로 선언만으로 통과할 수 없다.
-- 경계: base floor는 title 2줄 + body 2줄 + icon을 수용하는 크기이고, `compact` floor는 body를
-  버린 title-only 축약이다 — 두 floor는 manifest `fit.params`에서 이름으로 구분된다.
-  4:5에서는 6장 grid가 성립하고 compact 한 줄 배치는 성립하지 않는다(needs-split).
+- Arrangement: row (n ≤ 4) / 2-column grid (n = 5–6)
+- Evidence level: while the manifest's `fit.floor_basis` reads `geometry`, these numbers are a
+  **geometric assumption**, not a value confirmed by rendering. They are promoted to `rendered`
+  only after passing the CP2B stress render (getBBox, containment, PNG inspection).
+- Decision: `fit.footprint` is computed from the params, and `fit.feasibility` is settled as
+  `fits` or `needs-split` against the **live PageFrame contentBox** (a per-preset receipt). The
+  manifest validator recomputes both, so a declaration alone never passes.
+- Boundary: the base floor holds a 2-line title, a 2-line body and an icon; the `compact` floor
+  is the title-only reduction that drops the body — the two floors are distinguished by name in the
+  manifest `fit.params`. In 4:5 a 6-card grid holds while a compact single row does not (needs-split).
 
 ## 5. Layout, encoding and connector rules
 

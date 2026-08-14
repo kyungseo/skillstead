@@ -647,22 +647,22 @@ test("R1-5: unrelated gallery heading·재사용 artifact로는 core 증거가 �
 
 test("R1-3·R1-6: topology spec은 증거 수준을 구현에 맞추고 edge 축을 분리한다", () => {
   const spec = fs.readFileSync(path.join(here, "..", "references", "types", "specs", "topology-component.md"), "utf8");
-  assert.match(spec, /\*\*Machine \(generic guard가 실제로 검사하는 것\)/);
-  assert.match(spec, /topology\s*\n의미 모델을 아는 전용 경로는 Wave 1에 없다|의미 모델을 아는 전용 경로는 Wave 1에 없다/);
-  assert.match(spec, /아직 증명되지 않음\(등록 fixture 없음\)/);
+  assert.match(spec, /\*\*Machine \(what the generic guards actually check\)/);
+  assert.match(spec, /no dedicated path\s*\nthat understands the topology semantic model|that understands the topology semantic model/);
+  assert.match(spec, /Not yet proved \(no registered fixture\)/);
   assert.match(spec, /node → zone \*\*semantic\*\* ownership/);
   // R1C-P1: arrow-target clearance는 machine 목록이 아니라 미증명 목록에 있어야 한다
-  const machine = spec.split("**Machine (generic guard가 실제로 검사하는 것)**")[1].split("**Visual / manual")[0];
+  const machine = spec.split("**Machine (what the generic guards actually check)**")[1].split("**Visual / manual")[0];
   const manual = spec.split("**Visual / manual")[1];
   // machine **목록 항목**에 clearance 주장이 없어야 한다(부재를 밝히는 설명 문장은 허용)
   const machineBullets = machine.split("\n").filter((l) => l.startsWith("- ")).join("\n");
   assert.doesNotMatch(machineBullets, /clearance|tip/, "target clearance를 machine 항목으로 주장하면 안 된다");
-  assert.match(machine, /간격을 재는 경로는 없다/, "부재를 명시적으로 밝혀야 한다");
-  assert.match(machine, /arrowhead 가시 크기와 shaft 대비 비율/, "arrowhead 크기 규칙만 machine이다");
+  assert.match(machine, /no path that measures the gap between an arrow tip and its target node/, "부재를 명시적으로 밝혀야 한다");
+  assert.match(machine, /visible arrowhead size and its ratio to the shaft/, "arrowhead 크기 규칙만 machine이다");
   assert.match(manual, /arrow tip–target 8–12px gap/, "target clearance는 미증명·수동 항목이다");
   for (const axis of ["kind: request \\| dependency", "delivery: sync \\| async", "visibility: public \\| private"])
     assert.match(spec, new RegExp(axis), axis);
-  assert.match(spec, /선 스타일은 이 셋에서 파생된다/);
+  assert.match(spec, /The line style derives from these three/);
 });
 
 test("R1B-P2: fit schema는 음수 gap·잘못된 orientation·중복 tuple을 거부한다", () => {
@@ -697,8 +697,8 @@ test("R1B-P1: topology fit은 zone 내부 구조를 포함한 계층형 경계 �
   for (const k of ["maxNodesPerZone", "zonePad", "zoneLabelBand", "zoneGap"])
     assert.ok(b.includes(k), `${k} 파라미터 필요`);
   const spec = fs.readFileSync(path.join(here, "..", "references", "types", "specs", "topology-component.md"), "utf8");
-  assert.match(spec, /총 node ≤ 9/, "zone당 상한과 총량 상한이 함께 적혀야 한다");
-  assert.doesNotMatch(spec, /4 zone × zone당 4 node까지 두 preset에서 성립/, "총 9개 계약과 충돌하는 문구 제거");
+  assert.match(spec, /9 nodes in total/, "zone당 상한과 총량 상한이 함께 적혀야 한다");
+  assert.doesNotMatch(spec, /4 zones × 4 nodes per zone hold in both presets/, "총 9개 계약과 충돌하는 문구 제거");
 });
 
 test("R1B-P1c: content floor는 이름으로 구분되고 근거 수준이 표시된다", () => {
@@ -711,7 +711,7 @@ test("R1B-P1c: content floor는 이름으로 구분되고 근거 수준이 표�
   assert.match(layer, /floor: wide, result: needs-split/, "chip 4개는 4:5에서 성립하지 않는다");
   for (const f of ["cards-kpi-grid", "layer-stack", "process-flow"]) {
     const spec = fs.readFileSync(path.join(here, "..", "references", "types", "specs", `${f}.md`), "utf8");
-    assert.match(spec, /floor_basis`가 `geometry`인 동안 이 수치는 \*\*기하 가정\*\*/, f);
+    assert.match(spec, /`fit\.floor_basis` reads `geometry`, these numbers are a\s*\n\s*\*\*geometric assumption\*\*/, f);
   }
 });
 
