@@ -1,12 +1,12 @@
 schema_version: 1
 kind: typepack-input
 typepack: roadmap-timeline
-case: stress-degrade
+case: stress-body
 preset: document-compact
 layout: row
-count: 5
-prompt_ko: "롤아웃 5단계를 4:5에 배치해줘(경계 초과 확인용)."
-prompt_en: "Five phases on 4:5 to exercise the degrade path."
+count: 4
+prompt_ko: "롤아웃을 4개 단계로 마일스톤 카드와 함께 보여줘. 4:5."
+prompt_en: "Four rollout phases with milestone cards. 4:5."
 title:
   ko: "롤아웃은 단계로 진행한다"
   en: "The rollout proceeds in phases"
@@ -20,24 +20,33 @@ phases:
       title:
         ko: "기준선 확정"
         en: "Baseline agreed"
+      body:
+        ko: "파일럿 결과를 기준선으로 확정했다"
+        en: "Baseline fixed from the pilot result"
   - id: "phase-2"
     label:
       ko: "시범"
       en: "Pilot"
-    status: "done"
+    status: "current"
     card:
       title:
         ko: "시범 팀 적용"
         en: "Pilot team live"
+      body:
+        ko: "두 팀이 실제 업무에서 사용 중이다"
+        en: "Two teams now use it in real work"
   - id: "phase-3"
     label:
       ko: "확대"
       en: "Expand"
-    status: "current"
+    status: "future"
     card:
       title:
         ko: "전사 확대"
         en: "Org-wide rollout"
+      body:
+        ko: "전 조직 순차 적용을 준비한다"
+        en: "Preparing a staged org-wide rollout"
   - id: "phase-4"
     label:
       ko: "안정화"
@@ -47,17 +56,11 @@ phases:
       title:
         ko: "운영 안정화"
         en: "Ops stabilised"
-  - id: "phase-5"
-    label:
-      ko: "이관"
-      en: "Hand over"
-    status: "future"
-    card:
-      title:
-        ko: "팀 이관"
-        en: "Handed to team"
+      body:
+        ko: "운영 인계와 지표 감시를 마무리한다"
+        en: "Finishing handover and metric watch"
 now_marker:
-  after_phase: "phase-3"
+  after_phase: "phase-2"
   label:
     ko: "지금"
     en: "Now"

@@ -337,3 +337,161 @@ test("G-18: ordinal 축은 connector가 아니다 — routing audit 대상이 �
   assert.equal(runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]).code, 0);
   drop(pkg);
 });
+
+// --- roadmap-timeline: 위치는 입력이 정하고, 상태는 색 없이도 구분된다 -----------------
+// 이 타입의 뜻은 "순서"다. 그래서 좌표·순서·marker 위치를 모두 **원본 입력에서 재계산해** 대조한다.
+
+const skinManifest = (pkg) => {
+  const r = spawnSync(process.execPath, [path.join(pkg, "scripts", "skin.mjs"), "manifest"],
+    { encoding: "utf8", cwd: path.join(pkg, "scripts") });
+  return { code: r.status, out: r.stdout + r.stderr };
+};
+const tlEdit = (pkg, tid, fn) => {
+  const f = path.join(pkg, "references", "types", "inputs", `roadmap-timeline.${tid}.yaml`);
+  writeFileSync(f, fn(readFileSync(f, "utf8")));
+};
+
+test("G-19: 등간격은 계산값이다 — 한 phase만 옮기면 verify가 거부한다", () => {
+  const pkg = pkgCopy();
+  const b = build(pkg, "roadmap-timeline", "canonical", "ko");
+  assert.equal(b.code, 0, b.out);
+  assert.equal(runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]).code, 0);
+  const svg = readFileSync(b.svg, "utf8");
+  // phase 하나를 통째로 옮긴다(underlay·dot·ring·label 전부) — 자기 일관적인 이동이다.
+  const grp = svg.match(/<g data-comp-entity="phase-3"[\s\S]*?<\/g>/)[0];
+  const cx = Number(grp.match(/<circle[^>]*cx="([\d.]+)"/)[1]);
+  const moved = grp.replace(new RegExp(`cx="${cx}"`, "g"), `cx="${cx + 24}"`)
+    .replace(new RegExp(`x="${cx}"`, "g"), `x="${cx + 24}"`);
+  writeFileSync(b.svg, svg.replace(grp, moved));
+  const r = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
+  assert.notEqual(r.code, 0, r.out);
+  assert.match(r.out, /E-TL-POSITION/);
+  drop(pkg);
+});
+
+test("G-20: now marker 위치는 after_phase가 정한다 — 옮기면 거부한다", () => {
+  const pkg = pkgCopy();
+  const b = build(pkg, "roadmap-timeline", "canonical", "ko");
+  const svg = readFileSync(b.svg, "utf8");
+  const d = svg.match(/data-marker-stem="now" d="M([\d.]+)/)[1];
+  writeFileSync(b.svg, svg.replace(`d="M${d}`, `d="M${Number(d) + 20}`));
+  const r = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
+  assert.notEqual(r.code, 0, r.out);
+  assert.match(r.out, /E-TL-MARKER/);
+  drop(pkg);
+});
+
+test("G-21: after_phase가 없는 phase이거나 current가 아니면 입력에서 거부한다", () => {
+  for (const [mutate, why] of [
+    [(s) => s.replace('after_phase: "phase-2"', 'after_phase: "phase-9"'), /not an existing phase id/],
+    [(s) => s.replace('after_phase: "phase-2"', 'after_phase: "phase-3"'), /must name the phase whose status is "current"/],
+  ]) {
+    const pkg = pkgCopy();
+    tlEdit(pkg, "canonical", mutate);
+    const r = skinManifest(pkg);
+    assert.notEqual(r.code, 0, r.out);
+    assert.match(r.out, why);
+    drop(pkg);
+  }
+});
+
+test("G-22: 마지막 phase가 current인데 marker가 있으면 거부한다", () => {
+  const pkg = pkgCopy();
+  // tail-current 입력에 marker를 되돌려 넣는다 — 뒤에 놓을 ordinal interval이 없다.
+  const marker = ['now_marker:', '  after_phase: "phase-4"', '  label:', '    ko: "지금"', '    en: "Now"', ''].join("\n");
+  tlEdit(pkg, "stress-tail-current", (s) => s.trimEnd() + "\n" + marker);
+  const r = skinManifest(pkg);
+  assert.notEqual(r.code, 0, r.out);
+  assert.match(r.out, /no ordinal interval follows it/);
+  drop(pkg);
+});
+
+test("G-23: status가 시간 순서와 모순이면 거부한다", () => {
+  const pkg = pkgCopy();
+  // done → future 로 바꿔 future 가 current 앞에 오게 만든다.
+  tlEdit(pkg, "canonical", (s) => s.replace('status: "done"', 'status: "future"'));
+  const r = skinManifest(pkg);
+  assert.notEqual(r.code, 0, r.out);
+  assert.match(r.out, /done\* → current → future\*/);
+  drop(pkg);
+});
+
+test("G-24: 상태는 색만으로 구분되지 않는다 — ring이 안 보이면 거부한다", () => {
+  for (const [mutate, code] of [
+    [(s) => s.replace(/(data-dot-ring="current"[^>]*stroke-width=")[\d.]+/, "$10"), /ring stroke 0 is below the visible floor/],
+    [(s) => s.replace(/(<circle data-dot-ring="current" cx="[\d.]+" cy="[\d.]+" r=")[\d.]+/, "$19"), /leaves no visible gap/],
+    [(s) => s.replace(/<circle data-dot-ring="current"[^>]*\/>/, ""), /carries no ring/],
+  ]) {
+    const pkg = pkgCopy();
+    const b = build(pkg, "roadmap-timeline", "canonical", "ko");
+    writeFileSync(b.svg, mutate(readFileSync(b.svg, "utf8")));
+    const r = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
+    assert.notEqual(r.code, 0, r.out);
+    assert.match(r.out, code);
+    drop(pkg);
+  }
+});
+
+test("G-25: timeline receipt는 exact schema다 — 누락·추가·타입·길이·union 모순을 거부한다", () => {
+  const muts = [
+    [(t) => { delete t.timeline.axis.step; }, /missing required field "step"/],
+    [(t) => { t.timeline.extra = 1; }, /undeclared field "extra"/],
+    [(t) => { t.timeline.axis.step = "wide"; }, /axis.step must be a finite number/],
+    [(t) => { t.timeline.phases[0].x = Infinity; }, /phases\[0\]\.x must be a finite number/],
+    [(t) => { t.timeline.phases.pop(); }, /holds 3 entries but the input declares 4/],
+    [(t) => { t.timeline.marker = null; }, /but the input declares now_marker/],
+    [(t) => { t.timeline.kind = "proportional"; }, /kind must be "ordinal"/],
+  ];
+  for (const [mutate, why] of muts) {
+    const pkg = pkgCopy();
+    const b = build(pkg, "roadmap-timeline", "canonical", "ko");
+    const t = JSON.parse(readFileSync(b.rcp, "utf8"));
+    mutate(t);
+    writeFileSync(b.rcp, JSON.stringify(t));
+    const r = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
+    assert.notEqual(r.code, 0, `${why}\n${r.out}`);
+    assert.match(r.out, why);
+    drop(pkg);
+  }
+});
+
+test("G-26: 날짜 domain은 이 타입에 없다 — 입력이 들고 오면 거부한다", () => {
+  const pkg = pkgCopy();
+  const b = build(pkg, "roadmap-timeline", "canonical", "ko");
+  tlEdit(pkg, "canonical", (s) => s.replace('  - id: "phase-1"', '  - id: "phase-1"\n    date: "2026-01-01"'));
+  const r = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
+  assert.notEqual(r.code, 0, r.out);
+  drop(pkg);
+});
+
+test("G-27: 축은 모든 state marker 뒤에 그려져야 한다 — 순서를 뒤집으면 거부한다", () => {
+  const pkg = pkgCopy();
+  const b = build(pkg, "roadmap-timeline", "canonical", "ko");
+  assert.equal(b.code, 0, b.out);
+  const svg = readFileSync(b.svg, "utf8");
+  // 축 rect를 dot 뒤로 옮긴다 — 좌표는 그대로라 기하 검사만으로는 잡히지 않는다.
+  const ax = svg.match(/<rect[^>]*data-axis="x"[^>]*\/>/)[0];
+  writeFileSync(b.svg, svg.replace(ax, "").replace("</svg>", `${ax}\n</svg>`));
+  const r = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
+  assert.notEqual(r.code, 0, r.out);
+  assert.match(r.out, /E-TL-LAYER/);
+  drop(pkg);
+});
+
+test("G-28: 투명한 future dot은 거부한다 — 축 rail이 비친다", () => {
+  for (const [mutate, why] of [
+    [(s) => s.replace(/(<circle cx="[\d.]+" cy="[\d.]+" r="[\d.]+" )fill="#F7F7F5" data-fill-role="canvas"( stroke="#636A75")/, '$1fill="none"$2'), /no fill — the axis rail shows through/],
+    [(s) => s.replace(/<circle[^>]*data-dot-underlay="future"[^>]*\/>/, ""), /carries no background underlay/],
+  ]) {
+    const pkg = pkgCopy();
+    const b = build(pkg, "roadmap-timeline", "canonical", "ko");
+    const before = readFileSync(b.svg, "utf8");
+    const after = mutate(before);
+    assert.notEqual(after, before, "fixture mutation did not apply");
+    writeFileSync(b.svg, after);
+    const r = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
+    assert.notEqual(r.code, 0, r.out);
+    assert.match(r.out, why);
+    drop(pkg);
+  }
+});

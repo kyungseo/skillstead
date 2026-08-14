@@ -2,7 +2,7 @@ schema_version: 1
 kind: typepack-input
 typepack: roadmap-timeline
 case: stress-copy
-preset: social-4x5
+preset: presentation-16x9
 layout: row
 count: 4
 prompt_ko: "각 단계 라벨과 카드 문구를 경계까지 길게 써줘. 4:5."
@@ -48,6 +48,7 @@ phases:
         ko: "운영 지표 안정화"
         en: "Ops metrics stabilised"
 now_marker:
+  after_phase: "phase-2"
   label:
     ko: "지금"
     en: "Now"

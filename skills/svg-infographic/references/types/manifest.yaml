@@ -509,9 +509,10 @@ typepacks:
     profile: constrained-layout
     support: experimental
     spec: types/specs/roadmap-timeline.md
-    presets: [social-4x5, presentation-16x9]
-    # 이 batch에서 아직 판형을 재평가하지 않았다 — 현재 기본값을 기록한다.
-    preferred_preset: social-4x5
+    presets: [document-compact, social-4x5, presentation-16x9]
+    # 구조적으로 얇은 band라 고정 판형을 채우지 못한다(장면별 실측 잔여 80~87%) — 기본은 fluid.
+    # 폭이 모자란 구성만 더 넓은 16:9로 옮긴다.
+    preferred_preset: document-compact
     orientations: [portrait, landscape]
     verifier: null
     receipt_schema: null
@@ -525,25 +526,42 @@ typepacks:
     migration_origin: legacy
     legacy_section: "Roadmap / timeline"
     inputs:
-      canonical: { id: roadmap-timeline-canonical, path: types/inputs/roadmap-timeline.canonical.yaml, preset: social-4x5, layout: row, count: 4 }
+      canonical: { id: roadmap-timeline-canonical, path: types/inputs/roadmap-timeline.canonical.yaml, preset: document-compact, layout: row, count: 4 }
       stress:
         - id: roadmap-timeline-stress-cardinality
           path: types/inputs/roadmap-timeline.stress-cardinality.yaml
           preset: presentation-16x9
           layout: row
           count: 5
+          residual_disposition: { bottom: 501, reason: "timeline은 구조적으로 얇은 band다. 5 phase는 폭 때문에 16:9를 써야 하고 band를 canvas 높이에 맞춰 늘리지 않으므로 남는 세로 여백이다." }
           geometry_expected: fits
           covers: [cardinality-max, status-and-marker]
-        - id: roadmap-timeline-stress-copy
-          path: types/inputs/roadmap-timeline.stress-copy.yaml
-          preset: social-4x5
+        - id: roadmap-timeline-stress-body
+          path: types/inputs/roadmap-timeline.stress-body.yaml
+          preset: document-compact
           layout: row
           count: 4
+          geometry_expected: fits
+          covers: [status-and-marker]
+        - id: roadmap-timeline-stress-tail-current
+          path: types/inputs/roadmap-timeline.stress-tail-current.yaml
+          preset: document-compact
+          layout: row
+          count: 4
+          geometry_expected: fits
+          covers: [terminal-current]
+        - id: roadmap-timeline-stress-copy
+          path: types/inputs/roadmap-timeline.stress-copy.yaml
+          # 긴 title이 card 폭을 키워 fluid 폭을 넘는다 — 이 구성만 더 넓은 판형을 쓴다.
+          preset: presentation-16x9
+          layout: row
+          count: 4
+          residual_disposition: { bottom: 501, reason: "긴 title 때문에 폭이 되는 판형이 16:9뿐이다. band 높이는 내용이 정하고 canvas를 채우려고 늘리지 않는다." }
           geometry_expected: fits
           covers: [copy-boundary-candidate, status-and-marker]
         - id: roadmap-timeline-stress-degrade
           path: types/inputs/roadmap-timeline.stress-degrade.yaml
-          preset: social-4x5
+          preset: document-compact
           layout: row
           count: 5
           geometry_expected: needs-split
@@ -551,10 +569,17 @@ typepacks:
     fit:
       floor_basis: geometry
       cardinality: { min: 3, canonical: 4, max: 5 }
-      params: { itemMinW: 132, itemMinH: 112, gapX: 20, gapY: 20 }
+      # 두 수치 모두 **최소 합법 문법**에서 유도한다(임의 상수가 아니다).
+      #   itemMinW = card 폭 floor. 실제 폭은 두 locale 최장 title에서 나오고 이 값이 하한이다.
+      #   itemMinH = label 띠 + dot + 간격 + body 없는 card = (9+5+10+8) + 12 + 9 + (12+18+12) = 95
+      #   extraW   = 축 양 끝 여백 2 × outerClearance = 28. 끝 card가 content box 안에 들어오는 조건이다.
+      params: { itemMinW: 132, itemMinH: 95, gapX: 20, gapY: 20 }
       footprint:
-        - { count: 5, layout: row, extraW: 48, extraH: 56, w: 788, h: 168 }
+        - { count: 4, layout: row, extraW: 28, extraH: 0, w: 616, h: 95 }
+        - { count: 5, layout: row, extraW: 28, extraH: 0, w: 768, h: 95 }
       feasibility:
+        # 5 phase는 768px가 필요해 616px 폭(fluid·4:5)을 넘는다 — 폭이 되는 것은 16:9뿐이다.
+        - { preset: document-compact, orientation: portrait, count: 5, layout: row, result: needs-split }
         - { preset: social-4x5, orientation: portrait, count: 5, layout: row, result: needs-split }
         - { preset: presentation-16x9, orientation: landscape, count: 5, layout: row, result: fits }
   - id: decision-matrix

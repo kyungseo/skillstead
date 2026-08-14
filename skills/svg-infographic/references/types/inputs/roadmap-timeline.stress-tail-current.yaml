@@ -1,15 +1,15 @@
 schema_version: 1
 kind: typepack-input
 typepack: roadmap-timeline
-case: stress-degrade
+case: stress-tail-current
 preset: document-compact
 layout: row
-count: 5
-prompt_ko: "롤아웃 5단계를 4:5에 배치해줘(경계 초과 확인용)."
-prompt_en: "Five phases on 4:5 to exercise the degrade path."
+count: 4
+prompt_ko: "마지막 단계를 진행 중인 롤아웃을 보여줘. 4:5."
+prompt_en: "A rollout whose final phase is under way. 4:5."
 title:
-  ko: "롤아웃은 단계로 진행한다"
-  en: "The rollout proceeds in phases"
+  ko: "마지막 단계를 진행하고 있다"
+  en: "The final phase is under way"
 phases:
   - id: "phase-1"
     label:
@@ -33,7 +33,7 @@ phases:
     label:
       ko: "확대"
       en: "Expand"
-    status: "current"
+    status: "done"
     card:
       title:
         ko: "전사 확대"
@@ -42,22 +42,8 @@ phases:
     label:
       ko: "안정화"
       en: "Stabilise"
-    status: "future"
+    status: "current"
     card:
       title:
         ko: "운영 안정화"
         en: "Ops stabilised"
-  - id: "phase-5"
-    label:
-      ko: "이관"
-      en: "Hand over"
-    status: "future"
-    card:
-      title:
-        ko: "팀 이관"
-        en: "Handed to team"
-now_marker:
-  after_phase: "phase-3"
-  label:
-    ko: "지금"
-    en: "Now"
