@@ -81,8 +81,11 @@ generic lint와 layout guard는 **annotation이 붙은 일반 geometry**를 검�
 
 - annotated container/child containment(zone frame 안에 node 카드가 들어가는지)
 - SVG reference 무결성(`url(#…)`·dangling id)과 중복 id
-- arrow-target clearance 8–12px, arrowhead 최소 크기
+- **arrowhead 가시 크기와 shaft 대비 비율**(arrow 자체의 크기 규칙)
 - 하나의 `cluster-h1`, module heading이 section scale에 머무름
+
+generic guard에 **arrow tip과 target node 사이 간격을 재는 경로는 없다** — arrowhead
+크기 검사를 target clearance 검증으로 읽으면 안 된다.
 
 **아직 증명되지 않음(등록 fixture 없음).** 위 항목도 이 TypePack의 fixture가 등록되기
 전까지는 *계약*이며 통과 증거가 아니다. "proved"라고 말할 수 있는 것은 실제 fixture로
@@ -90,6 +93,9 @@ generic lint와 layout guard는 **annotation이 붙은 일반 geometry**를 검�
 
 **Visual / manual (Wave 1에서는 기계 증명 대상이 아님)**
 
+- **arrow tip–target 8–12px gap**과 visible shaft corridor — 규칙은 §5가 정하지만 현재
+  이를 측정하는 generic 경로가 없다(annotation 기반 connector guard가 생기면 Machine으로
+  승격한다)
 - node → zone **semantic** ownership(annotation이 아닌 의미 모델 수준)
 - edge endpoint가 실재하는 node를 가리키는지(semantic dangling)
 - edge crossing 없음 — 현재는 육안 확인이며 자동 판정하지 않는다

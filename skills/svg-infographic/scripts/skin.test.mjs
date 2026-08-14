@@ -651,6 +651,15 @@ test("R1-3·R1-6: topology spec은 증거 수준을 구현에 맞추고 edge 축
   assert.match(spec, /topology\s*\n의미 모델을 아는 전용 경로는 Wave 1에 없다|의미 모델을 아는 전용 경로는 Wave 1에 없다/);
   assert.match(spec, /아직 증명되지 않음\(등록 fixture 없음\)/);
   assert.match(spec, /node → zone \*\*semantic\*\* ownership/);
+  // R1C-P1: arrow-target clearance는 machine 목록이 아니라 미증명 목록에 있어야 한다
+  const machine = spec.split("**Machine (generic guard가 실제로 검사하는 것)**")[1].split("**Visual / manual")[0];
+  const manual = spec.split("**Visual / manual")[1];
+  // machine **목록 항목**에 clearance 주장이 없어야 한다(부재를 밝히는 설명 문장은 허용)
+  const machineBullets = machine.split("\n").filter((l) => l.startsWith("- ")).join("\n");
+  assert.doesNotMatch(machineBullets, /clearance|tip/, "target clearance를 machine 항목으로 주장하면 안 된다");
+  assert.match(machine, /간격을 재는 경로는 없다/, "부재를 명시적으로 밝혀야 한다");
+  assert.match(machine, /arrowhead 가시 크기와 shaft 대비 비율/, "arrowhead 크기 규칙만 machine이다");
+  assert.match(manual, /arrow tip–target 8–12px gap/, "target clearance는 미증명·수동 항목이다");
   for (const axis of ["kind: request \\| dependency", "delivery: sync \\| async", "visibility: public \\| private"])
     assert.match(spec, new RegExp(axis), axis);
   assert.match(spec, /선 스타일은 이 셋에서 파생된다/);
@@ -668,6 +677,8 @@ test("R1B-P2: fit schema는 음수 gap·잘못된 orientation·중복 tuple을 �
     [(t) => t.replace("cardinality: { min: 3, canonical: 4, max: 5 }", "cardinality: { min: 3, canonical: 4, max: 5.5 }"),
      /fit\.cardinality\.max must be a positive integer/],
     [(t) => t.replace("floor_basis: geometry", "floor_basis: proven"), /floor_basis must be geometry\|rendered/],
+    // R1C-P2: rendered는 CP2B evidence 계약 없이 자기 선언으로 승격할 수 없다
+    [(t) => t.replace("floor_basis: geometry", "floor_basis: rendered"), /requires the CP2B floor_evidence contract/],
   ];
   for (const [mutate, re] of cases) {
     const pkg = pkgCopy();

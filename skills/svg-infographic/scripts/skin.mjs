@@ -1070,6 +1070,11 @@ function main() {
         // Wave 1은 geometry가 정직한 기본값이고, CP2B stress render 이후에만 rendered로 승격한다.
         if (!["geometry", "rendered"].includes(fit.floor_basis))
           errors.push(`manifest: ${id}: fit.floor_basis must be geometry|rendered (geometry = not yet confirmed by an actual render)`);
+        else if (fit.floor_basis === "rendered")
+          // rendered는 증거가 있어야 하는 주장이다. CP2B에서 floor_evidence(preset·locale·
+          // stress fixture locator + digest)가 원자적으로 들어오기 전까지는 자기 선언으로
+          // 승격할 수 없으므로 거부한다.
+          errors.push(`manifest: ${id}: fit.floor_basis "rendered" requires the CP2B floor_evidence contract (preset/locale stress fixtures with digests) — it cannot be self-declared`);
         const card = fit.cardinality ?? {};
         const posInt = (v) => Number.isInteger(Number(v)) && Number(v) > 0;
         for (const k of ["min", "canonical", "max"]) if (!posInt(card[k])) errors.push(`manifest: ${id}: fit.cardinality.${k} must be a positive integer (got ${card[k]})`);
