@@ -540,105 +540,281 @@ function materializeSvg(text, tokens) {
   return { out, findings };
 }
 
-// ---- TypePack input payload schema (CP2A-R1) ----------------------------------
-// 입력은 prompt 문장이 아니라 **구조화 payload**가 SSoT다. generator가 누락 내용을
-// 발명하지 못하도록 entity마다 안정 ID를 두고 locale 값을 그 안에 묶는다.
+// ---- TypePack input payload schema (CP2A-R1B) ---------------------------------
+// 입력은 prompt 문장이 아니라 **구조화 payload**가 SSoT다. 공통 primitive(exact key,
+// localized text, stable id, grapheme budget)와 TypePack별 validator를 분리하고,
+// root·entity 모두 unknown field를 fail-closed로 거부한다.
+//
+// 문자 상한의 지위: label처럼 spec이 실제 문자 수를 정한 곳은 pre-render hard gate이지만,
+// "1줄/2줄"로만 정의된 copy는 문자 수로 line fit을 증명할 수 없다. 후자는
+// **authoring sanity ceiling**이며 실제 줄 수·overflow는 CP2B browser measurement가 정한다.
 const LOCALES = ["ko", "en"];
-const INPUT_SCHEMA = {
-  "cards-kpi-grid": { collection: "cards", required: ["title"], optional: ["body", "icon", "numeral"],
-    budget: { title: [28, 44], body: [30, 48] } },
-  "layer-stack": { collection: "layers", required: ["label"], optional: ["items", "note"],
-    budget: { label: [28, 40], note: [30, 48] } },
-  "nested-scope": { collection: "rings", required: ["label"], optional: ["core_icon", "callout"],
-    budget: { label: [20, 30], callout: [30, 48] } },
-  "topology-component": { collection: "zones", required: ["label"], optional: ["nodes"],
-    budget: { label: [18, 28] }, extra: ["edges", "boundary"] },
-  "process-flow": { collection: "steps", required: ["name"], optional: [],
-    budget: { name: [24, 36] }, extra: ["feedback", "lanes"] },
-  "approval-gate": { collection: "nodes", required: ["name"], optional: [],
-    budget: { name: [20, 30] }, extra: ["gate"] },
-  "before-after": { collection: "slots", required: ["before", "after"], optional: ["change"],
-    budget: { before: [24, 36], after: [24, 36] } },
-  "roadmap-timeline": { collection: "phases", required: ["label", "status"], optional: ["card"],
-    budget: { label: [16, 24] }, extra: ["now_marker"] },
-  "decision-matrix": { collection: "cells", required: ["name", "trait"], optional: ["action"],
-    budget: { name: [16, 24], trait: [30, 44] }, extra: ["axes"] },
+const ICON_SET = ["activity", "rocket", "coins", "shield", "database", "cloud", "lock",
+  "gauge", "layers", "route", "flag", "check", "clock", "users", "server", "queue"];
+const graphemes = (str) => {
+  try { return [...new Intl.Segmenter(undefined, { granularity: "grapheme" }).segment(String(str))].length; }
+  catch { return [...String(str)].length; }   // code point fallback
 };
-const COVERS_VOCAB = ["cardinality-max", "copy-max", "optionals-max", "connector-density",
-  "containment-depth", "mirrored-slots", "status-and-marker", "degrade-path", "gate-caption"];
+// budget kind: "hard" = spec이 문자 수를 정함 · "sanity" = 줄 수 계약의 작성 상한
+const B = (ko, en, kind = "sanity") => ({ ko, en, kind });
 
-// entity payload 검증: 필수 localized field, KO/EN 동시 존재, budget, ID 유일성,
-// 그리고 두 locale의 entity ID 집합이 같은지(구조적 parity).
-function validateInputPayload(doc, tid, declaredCount, report) {
+const INPUT_SCHEMA = {
+  "cards-kpi-grid": {
+    root: ["cards"], collection: "cards",
+    entity: { required: { title: B(28, 44) }, optional: { body: B(30, 48), icon: "icon", numeral: B(5, 5, "hard") } },
+    limits: {},
+  },
+  "layer-stack": {
+    root: ["layers"], collection: "layers",
+    entity: { required: { label: B(28, 40, "hard") }, optional: { note: B(30, 48), items: "chips" } },
+    limits: { chipsPerLayer: 4, chipBudget: B(16, 24, "hard") },
+  },
+  "nested-scope": {
+    root: ["rings"], collection: "rings",
+    entity: { required: { label: B(20, 30, "hard") }, optional: { callout: B(30, 48), core_icon: "icon" } },
+    limits: {},
+  },
+  "topology-component": {
+    root: ["zones", "edges", "boundary"], collection: "zones",
+    entity: { required: { label: B(18, 28, "hard") }, optional: { nodes: "nodes" } },
+    limits: { nodesPerZone: [1, 4], nodesTotal: 9, maxEdges: 12, nodeName: B(24, 36) },
+  },
+  "process-flow": {
+    root: ["steps", "feedback", "lanes", "branches"], collection: "steps",
+    entity: { required: { name: B(24, 36) }, optional: {} },
+    limits: { maxBranches: 2, lanes: [2, 3] },
+  },
+  "approval-gate": {
+    root: ["nodes", "gate"], collection: "nodes",
+    entity: { required: { name: B(20, 30) }, optional: {} },
+    limits: {},
+  },
+  "before-after": {
+    root: ["panels", "slots", "delta"], collection: "panels",
+    entity: { required: { title: B(20, 30) }, optional: {} },
+    limits: { panels: 2, slots: [2, 5], maxDelta: 3, slotBudget: B(24, 36) },
+  },
+  "roadmap-timeline": {
+    root: ["phases", "now_marker"], collection: "phases",
+    entity: { required: { label: B(16, 24, "hard"), status: "status" }, optional: { card: "card" } },
+    limits: { cardTitle: B(20, 30), cardBody: B(30, 48) },
+  },
+  "decision-matrix": {
+    root: ["axes", "cells"], collection: "cells",
+    entity: { required: { name: B(16, 24), trait: B(30, 44) }, optional: { action: B(20, 30), examples: "examples" } },
+    limits: { maxExamples: 2, exampleBudget: B(20, 30) },
+  },
+};
+
+// covers는 선언 label이 아니라 payload에서 **관측**된다. 선언한 축이 실제로 관측되지
+// 않으면 허위 coverage이므로 거부한다.
+const COVERS_VOCAB = ["cardinality-max", "copy-boundary-candidate", "optionals-max",
+  "edge-density", "containment-depth", "mirrored-slots", "status-and-marker",
+  "gate-caption", "chips-max", "degrade-path"];
+
+function localized(v, budget, ctx, report, required = true) {
+  if (v == null) { if (required) report(`${ctx} is missing`); return; }
+  if (typeof v !== "object" || Array.isArray(v)) return report(`${ctx} must be a { ko, en } map`);
+  for (const k of Object.keys(v)) if (!LOCALES.includes(k)) report(`${ctx} has unknown locale "${k}"`);
+  for (const loc of LOCALES) {
+    if (!v[loc]) { report(`${ctx} is missing the ${loc} value (both locales are first-class)`); continue; }
+    const n = graphemes(v[loc]), lim = budget?.[loc];
+    if (lim && n > lim) report(`${ctx}.${loc} is ${n} graphemes, over the ${lim} ${budget.kind === "hard" ? "budget" : "authoring sanity ceiling"}`);
+  }
+}
+const exactKeys = (obj, allowed, ctx, report) => {
+  for (const k of Object.keys(obj ?? {})) if (!allowed.includes(k)) report(`${ctx} has unknown field "${k}"`);
+};
+
+export function validateInputPayload(doc, tid, declaredCount, report) {
   const sc = INPUT_SCHEMA[tid];
-  if (!sc) return;
+  if (!sc) return new Set();
+  const META = ["schema_version", "kind", "typepack", "case", "preset", "layout", "cols", "floor", "count", "prompt_ko", "prompt_en"];
+  exactKeys(doc, [...META, ...sc.root], "payload root", report);
   const list = doc[sc.collection];
-  if (!Array.isArray(list) || !list.length) return report(`payload must carry "${sc.collection}" entities`);
+  const observed = new Set();
+  if (!Array.isArray(list) || !list.length) { report(`payload must carry "${sc.collection}" entities`); return observed; }
   if (list.length !== Number(declaredCount)) report(`"${sc.collection}" holds ${list.length} entities but the manifest declares count ${declaredCount}`);
   const ids = new Set();
+  const req = sc.entity.required, opt = sc.entity.optional;
   for (const e of list) {
     if (!e || typeof e !== "object") { report(`${sc.collection} entity must be a map`); continue; }
+    exactKeys(e, ["id", ...Object.keys(req), ...Object.keys(opt)], `${sc.collection} entity "${e.id}"`, report);
     if (!e.id || !/^[a-z0-9][a-z0-9-]*$/.test(String(e.id))) report(`${sc.collection} entity id "${e.id}" must be kebab-case`);
     else if (ids.has(e.id)) report(`duplicate ${sc.collection} entity id "${e.id}"`);
     else ids.add(e.id);
-    for (const k of Object.keys(e)) if (!["id", ...sc.required, ...sc.optional].includes(k)) report(`${sc.collection} entity "${e.id}" has unknown field "${k}"`);
-    for (const f of sc.required) {
-      const v = e[f];
-      if (f === "status") { if (!["done", "current", "future"].includes(v)) report(`entity "${e.id}" status must be done|current|future`); continue; }
-      if (!v || typeof v !== "object") { report(`entity "${e.id}" is missing required field "${f}"`); continue; }
-      for (const loc of LOCALES) {
-        if (!v[loc]) { report(`entity "${e.id}" field "${f}" is missing the ${loc} value (both locales are first-class)`); continue; }
-        const lim = sc.budget?.[f]?.[loc === "ko" ? 0 : 1];
-        if (lim && String(v[loc]).length > lim) report(`entity "${e.id}" ${f}.${loc} is ${String(v[loc]).length} chars, over the ${lim} budget`);
+    for (const [f, budget] of Object.entries(req)) {
+      if (budget === "status") { if (!["done", "current", "future"].includes(e[f])) report(`entity "${e.id}" status must be done|current|future`); continue; }
+      localized(e[f], budget, `entity "${e.id}" ${f}`, report);
+    }
+    for (const [f, budget] of Object.entries(opt)) {
+      if (e[f] === undefined) continue;
+      if (budget === "icon") { if (!ICON_SET.includes(e[f])) report(`entity "${e.id}" ${f} "${e[f]}" is not a bundled icon id`); continue; }
+      if (budget === "chips") {
+        if (!Array.isArray(e[f])) { report(`entity "${e.id}" items must be a list`); continue; }
+        if (e[f].length > sc.limits.chipsPerLayer) report(`entity "${e.id}" holds ${e[f].length} chips, over the ${sc.limits.chipsPerLayer} cap`);
+        for (const ch of e[f]) { exactKeys(ch, ["id", "label"], `chip "${ch.id}"`, report); localized(ch.label, sc.limits.chipBudget, `chip "${ch.id}" label`, report); }
+        continue;
       }
-    }
-    for (const f of sc.optional) {
-      const v = e[f];
-      if (v == null || typeof v !== "object" || Array.isArray(v)) continue;
-      for (const loc of LOCALES) if (v[loc] === undefined) report(`entity "${e.id}" optional field "${f}" must carry both locales when present`);
+      if (budget === "nodes") continue;      // 타입별 validator가 소유
+      if (budget === "card") {
+        exactKeys(e[f], ["title", "body"], `entity "${e.id}" card`, report);
+        localized(e[f].title, sc.limits.cardTitle, `entity "${e.id}" card.title`, report);
+        if (e[f].body !== undefined) localized(e[f].body, sc.limits.cardBody, `entity "${e.id}" card.body`, report);
+        continue;
+      }
+      if (budget === "examples") {
+        if (!Array.isArray(e[f])) { report(`entity "${e.id}" examples must be a list`); continue; }
+        if (e[f].length > sc.limits.maxExamples) report(`entity "${e.id}" holds ${e[f].length} examples, over the ${sc.limits.maxExamples} cap`);
+        for (const ex of e[f]) { exactKeys(ex, ["id", "text"], `example "${ex.id}"`, report); localized(ex.text, sc.limits.exampleBudget, `example "${ex.id}" text`, report); }
+        continue;
+      }
+      localized(e[f], budget, `entity "${e.id}" ${f}`, report, false);
     }
   }
-  // 타입별 invariant
-  if (tid === "topology-component") {
-    const nodeIds = new Set();
-    for (const z of list) for (const n of z.nodes ?? []) {
-      if (!n.id) { report("topology node needs an id"); continue; }
-      if (nodeIds.has(n.id)) report(`topology node id "${n.id}" appears in more than one zone`);
-      nodeIds.add(n.id);
-      for (const loc of LOCALES) if (!n.name?.[loc]) report(`topology node "${n.id}" is missing name.${loc}`);
-    }
-    if (!nodeIds.size) report("topology payload must declare nodes inside its zones");
-    if (nodeIds.size > 9) report(`topology declares ${nodeIds.size} nodes but the contract caps it at 9`);
-    for (const ed of doc.edges ?? []) {
-      for (const end of ["from", "to"]) if (!nodeIds.has(ed[end])) report(`edge "${ed.id}" ${end} "${ed[end]}" is not an existing node`);
-      if (!["request", "dependency"].includes(ed.kind)) report(`edge "${ed.id}" kind must be request|dependency`);
-      if (!["sync", "async"].includes(ed.delivery)) report(`edge "${ed.id}" delivery must be sync|async`);
-      if (!["public", "private"].includes(ed.visibility)) report(`edge "${ed.id}" visibility must be public|private`);
-    }
-    if (!(doc.edges ?? []).length) report("topology payload must declare at least one edge");
-  }
-  if (tid === "approval-gate") {
-    const g = doc.gate;
-    if (!g || typeof g !== "object") report("approval payload requires a gate");
-    else {
-      for (const loc of LOCALES) if (!g.label?.[loc]) report(`gate label is missing the ${loc} value`);
+  // ---- 타입별 validator + observed coverage ----
+  const V = {
+    "cards-kpi-grid": () => {
+      if (list.every((c) => c.icon !== undefined && c.numeral !== undefined)) observed.add("optionals-max");
+    },
+    "layer-stack": () => {
+      if (list.every((l) => (l.items ?? []).length === sc.limits.chipsPerLayer)) observed.add("chips-max");
+    },
+    "nested-scope": () => {
+      for (const [i, r] of list.entries())
+        if (r.core_icon !== undefined && i !== list.length - 1) report(`ring "${r.id}" carries core_icon but only the innermost ring may`);
+    },
+    "topology-component": () => {
+      const nodeIds = new Set();
+      for (const z of list) {
+        const ns = z.nodes ?? [];
+        const [lo, hi] = sc.limits.nodesPerZone;
+        if (ns.length < lo || ns.length > hi) report(`zone "${z.id}" holds ${ns.length} nodes; the contract allows ${lo}–${hi}`);
+        for (const n of ns) {
+          exactKeys(n, ["id", "name", "icon"], `node "${n.id}"`, report);
+          if (!n.id) { report("topology node needs an id"); continue; }
+          if (nodeIds.has(n.id)) report(`topology node id "${n.id}" appears in more than one zone`);
+          nodeIds.add(n.id);
+          localized(n.name, sc.limits.nodeName, `node "${n.id}" name`, report);
+          if (n.icon !== undefined && !ICON_SET.includes(n.icon)) report(`node "${n.id}" icon "${n.icon}" is not a bundled icon id`);
+        }
+      }
+      if (nodeIds.size > sc.limits.nodesTotal) report(`topology declares ${nodeIds.size} nodes but the contract caps it at ${sc.limits.nodesTotal}`);
+      const edges = doc.edges ?? [];
+      if (!edges.length) report("topology payload must declare at least one edge");
+      if (edges.length > sc.limits.maxEdges) report(`topology declares ${edges.length} edges, over the ${sc.limits.maxEdges} cap`);
+      const eids = new Set();
+      for (const ed of edges) {
+        exactKeys(ed, ["id", "from", "to", "kind", "delivery", "visibility", "label"], `edge "${ed.id}"`, report);
+        if (!ed.id) report("edge needs an id");
+        else if (eids.has(ed.id)) report(`duplicate edge id "${ed.id}"`);
+        else eids.add(ed.id);
+        for (const end of ["from", "to"]) if (!nodeIds.has(ed[end])) report(`edge "${ed.id}" ${end} "${ed[end]}" is not an existing node`);
+        if (!["request", "dependency"].includes(ed.kind)) report(`edge "${ed.id}" kind must be request|dependency`);
+        if (!["sync", "async"].includes(ed.delivery)) report(`edge "${ed.id}" delivery must be sync|async`);
+        if (!["public", "private"].includes(ed.visibility)) report(`edge "${ed.id}" visibility must be public|private`);
+        if (ed.label !== undefined) localized(ed.label, B(16, 24), `edge "${ed.id}" label`, report);
+      }
+      if (doc.boundary !== undefined) {
+        exactKeys(doc.boundary, ["label"], "boundary", report);
+        localized(doc.boundary.label, B(18, 28), "boundary label", report);
+      }
+      if (edges.length === sc.limits.maxEdges) observed.add("edge-density");
+    },
+    "process-flow": () => {
+      const br = doc.branches ?? [];
+      if (br.length > sc.limits.maxBranches) report(`process declares ${br.length} branches, over the ${sc.limits.maxBranches} cap`);
+      for (const b of br) {
+        exactKeys(b, ["id", "from", "to", "label"], `branch "${b.id}"`, report);
+        for (const end of ["from", "to"]) if (!ids.has(b[end])) report(`branch "${b.id}" ${end} "${b[end]}" is not an existing step`);
+        localized(b.label, B(20, 30), `branch "${b.id}" label`, report);
+      }
+      if (doc.feedback !== undefined) {
+        exactKeys(doc.feedback, ["from", "to", "label"], "feedback", report);
+        for (const end of ["from", "to"]) if (!ids.has(doc.feedback[end])) report(`feedback ${end} "${doc.feedback[end]}" is not an existing step`);
+        localized(doc.feedback.label, B(20, 30), "feedback label", report);
+      }
+      if (doc.lanes !== undefined) {
+        const [lo, hi] = sc.limits.lanes;
+        if (!Array.isArray(doc.lanes) || doc.lanes.length < lo || doc.lanes.length > hi) report(`lanes must hold ${lo}–${hi} entries when present`);
+        for (const l of doc.lanes ?? []) { exactKeys(l, ["id", "label"], `lane "${l.id}"`, report); localized(l.label, B(16, 24), `lane "${l.id}" label`, report); }
+      }
+    },
+    "approval-gate": () => {
+      const g = doc.gate;
+      if (!g || typeof g !== "object") { report("approval payload requires a gate"); return; }
+      exactKeys(g, ["id", "label", "from", "to", "criterion"], "gate", report);
+      localized(g.label, B(16, 24), "gate label", report);
       for (const end of ["from", "to"]) if (!ids.has(g[end])) report(`gate ${end} "${g[end]}" is not an existing node`);
-    }
+      if (g.criterion !== undefined) { localized(g.criterion, B(30, 48), "gate criterion", report); observed.add("gate-caption"); }
+    },
+    "before-after": () => {
+      if (list.length !== sc.limits.panels) report(`before-after requires exactly ${sc.limits.panels} panels (got ${list.length})`);
+      const slots = doc.slots ?? [];
+      const [lo, hi] = sc.limits.slots;
+      if (slots.length < lo || slots.length > hi) report(`before-after requires ${lo}–${hi} mirrored slots (got ${slots.length})`);
+      const sids = new Set();
+      for (const sl of slots) {
+        exactKeys(sl, ["id", "before", "after", "change"], `slot "${sl.id}"`, report);
+        if (!sl.id) report("slot needs an id");
+        else if (sids.has(sl.id)) report(`duplicate slot id "${sl.id}"`);
+        else sids.add(sl.id);
+        for (const side of ["before", "after"]) localized(sl[side], sc.limits.slotBudget, `slot "${sl.id}" ${side}`, report);
+        if (sl.change !== undefined && !["unchanged", "added", "removed", "changed"].includes(sl.change))
+          report(`slot "${sl.id}" change must be unchanged|added|removed|changed`);
+      }
+      if ((doc.delta ?? []).length > sc.limits.maxDelta) report(`delta holds more than ${sc.limits.maxDelta} entries`);
+      for (const d of doc.delta ?? []) { exactKeys(d, ["id", "text"], `delta "${d.id}"`, report); localized(d.text, B(24, 36), `delta "${d.id}" text`, report); }
+      if (slots.length === hi) observed.add("mirrored-slots");
+    },
+    "roadmap-timeline": () => {
+      const cur = list.filter((x) => x.status === "current").length;
+      if (cur !== 1) report(`exactly one phase must be "current" (found ${cur})`);
+      if (doc.now_marker !== undefined) { exactKeys(doc.now_marker, ["label"], "now_marker", report); localized(doc.now_marker.label, B(12, 18), "now_marker label", report); }
+      const st = new Set(list.map((x) => x.status));
+      if (st.has("done") && st.has("current") && st.has("future") && doc.now_marker !== undefined) observed.add("status-and-marker");
+    },
+    "decision-matrix": () => {
+      const ax = doc.axes;
+      if (!ax || typeof ax !== "object") { report("decision payload requires axes"); return; }
+      exactKeys(ax, ["x", "y"], "axes", report);
+      for (const a of ["x", "y"]) {
+        exactKeys(ax[a], ["low", "high"], `axes.${a}`, report);
+        for (const end of ["low", "high"]) localized(ax[a]?.[end], B(14, 20), `axes.${a}.${end}`, report);
+      }
+      if (list.every((c) => c.action !== undefined && (c.examples ?? []).length === sc.limits.maxExamples)) observed.add("optionals-max");
+    },
+  };
+  (V[tid] ?? (() => {}))();
+  return observed;
+}
+
+export function observedCoverage(doc, tid, declaredCount, fitMax, geometryExpected, extra) {
+  const obs = new Set(extra ?? []);
+  // cardinality·degrade는 schema 유무와 무관하게 선언값으로 관측된다(fixture typepack 포함)
+  if (Number(declaredCount) === Number(fitMax)) obs.add("cardinality-max");
+  if (geometryExpected === "needs-split") obs.add("degrade-path");
+  const sc = INPUT_SCHEMA[tid];
+  if (!sc) return obs;
+  const list = doc[sc.collection] ?? [];
+  if (tid === "nested-scope" && list.length === Number(fitMax)) obs.add("containment-depth");
+  // copy-boundary-candidate: 필수 localized field 중 하나라도 선언 상한의 85% 이상.
+  // 이름 그대로 **후보**이며, 실제 line fit은 CP2B의 browser measurement가 확정한다.
+  const near = (v, budget) => LOCALES.some((loc) => v?.[loc] && budget?.[loc] && graphemes(v[loc]) >= Math.ceil(budget[loc] * 0.85));
+  const texts = [];
+  for (const e of list) {
+    for (const [f, budget] of Object.entries({ ...sc.entity.required, ...sc.entity.optional }))
+      if (typeof budget !== "string") texts.push([e[f], budget]);
+    // 타입별로 실제 문안이 사는 곳도 함께 본다(collection 밖의 nested text)
+    for (const ch of e.items ?? []) texts.push([ch.label, sc.limits.chipBudget]);
+    for (const n of e.nodes ?? []) texts.push([n.name, sc.limits.nodeName]);
+    for (const ex of e.examples ?? []) texts.push([ex.text, sc.limits.exampleBudget]);
+    if (e.card) { texts.push([e.card.title, sc.limits.cardTitle]); texts.push([e.card.body, sc.limits.cardBody]); }
   }
-  if (tid === "roadmap-timeline") {
-    const cur = list.filter((x) => x.status === "current").length;
-    if (cur !== 1) report(`exactly one phase must be "current" (found ${cur})`);
-  }
-  if (tid === "decision-matrix") {
-    const ax = doc.axes;
-    if (!ax || typeof ax !== "object") report("decision payload requires axes");
-    else for (const a of ["x", "y"]) for (const end of ["low", "high"])
-      for (const loc of LOCALES) if (!ax[a]?.[end]?.[loc]) report(`axes.${a}.${end} is missing the ${loc} label`);
-  }
-  if (tid === "before-after") {
-    for (const e of list) if (e.change && !["unchanged", "added", "removed", "changed"].includes(e.change))
-      report(`slot "${e.id}" change must be unchanged|added|removed|changed`);
-  }
+  for (const sl of doc.slots ?? []) { texts.push([sl.before, sc.limits.slotBudget]); texts.push([sl.after, sc.limits.slotBudget]); }
+  if (doc.gate?.criterion) texts.push([doc.gate.criterion, { ko: 30, en: 48 }]);
+  if (texts.some(([v, b2]) => near(v, b2))) obs.add("copy-boundary-candidate");
+  return obs;
 }
 
 const PF_HEADER = ["eyebrow", "h1", "subtitle"];
@@ -1275,7 +1451,7 @@ function main() {
         let maxCardScenario = null;
         for (const [cse, c] of cases) {
           if (!c || typeof c !== "object") { errors.push(`manifest: ${id}: inputs.${cse} is required`); continue; }
-          const allowed = ["id", "path", "preset", "layout", "cols", "floor", "count"].concat(cse === "stress" ? ["expected", "covers"] : []);
+          const allowed = ["id", "path", "preset", "layout", "cols", "floor", "count"].concat(cse === "stress" ? ["geometry_expected", "covers"] : []);
           for (const k of Object.keys(c)) if (!allowed.includes(k)) errors.push(`manifest: ${id}: inputs.${cse} unknown field "${k}"`);
           if (!c.id || !/^[a-z0-9][a-z0-9-]*$/.test(String(c.id))) errors.push(`manifest: ${id}: inputs.${cse} id invalid`);
           else if (inputIds.has(c.id)) errors.push(`manifest: ${id}: duplicate input id "${c.id}"`);
@@ -1299,9 +1475,9 @@ function main() {
             if (computed && computed !== "fits")
               errors.push(`manifest: ${id}: inputs.canonical computes ${Math.round(got.w)}×${Math.round(got.h)} → needs-split; the canonical input must be renderable`);
           } else {
-            if (!["fits", "needs-split"].includes(c.expected)) errors.push(`manifest: ${id}: stress "${c.id}" expected must be fits|needs-split`);
-            else if (computed && computed !== c.expected)
-              errors.push(`manifest: ${id}: stress "${c.id}" declares expected "${c.expected}" but computes "${computed}" against ${c.preset}`);
+            if (!["fits", "needs-split"].includes(c.geometry_expected)) errors.push(`manifest: ${id}: stress "${c.id}" geometry_expected must be fits|needs-split`);
+            else if (computed && computed !== c.geometry_expected)
+              errors.push(`manifest: ${id}: stress "${c.id}" declares geometry_expected "${c.geometry_expected}" but computes "${computed}" against ${c.preset} (geometry only — actual render fit is CP2B)`);
             const cov = Array.isArray(c.covers) ? c.covers : [];
             if (!cov.length) errors.push(`manifest: ${id}: stress "${c.id}" must declare the risk axes it covers`);
             for (const v of cov) {
@@ -1325,11 +1501,19 @@ function main() {
             for (const k of ["preset", "layout", "count"])
               if (String(idoc[k]) !== String(c[k])) errors.push(`manifest: ${id}: inputs.${cse} file ${k} "${idoc[k]}" != manifest "${c[k]}"`);
             for (const loc of ["ko", "en"]) if (!idoc[`prompt_${loc}`]) errors.push(`manifest: ${id}: inputs.${cse} prompt_${loc} is required (intent 설명)`);
-            validateInputPayload(idoc, id, c.count, (m) => errors.push(`manifest: ${id}: inputs.${cse} payload — ${m}`));
+            const obsExtra = validateInputPayload(idoc, id, c.count, (m) => errors.push(`manifest: ${id}: inputs.${cse} payload — ${m}`));
+            if (cse === "stress") {
+              // covers는 선언 label이 아니라 payload에서 관측돼야 한다 — 허위 coverage 차단
+              const obs = observedCoverage(idoc, id, c.count, fit?.cardinality?.max, c.geometry_expected, obsExtra);
+              for (const v of (Array.isArray(c.covers) ? c.covers : []))
+                if (!obs.has(v)) errors.push(`manifest: ${id}: stress "${c.id}" declares covers "${v}" but the payload does not exhibit it (observed: ${[...obs].join(", ") || "none"})`);
+            }
           }
         }
         if (!maxCardScenario) errors.push(`manifest: ${id}: at least one stress scenario must cover "cardinality-max"`);
-        if (!coversSeen.has("copy-max")) errors.push(`manifest: ${id}: at least one stress scenario must cover "copy-max" (KO/EN 경계 문안)`);
+        // copy 경계 후보는 payload schema를 가진 TypePack(=실제 카탈로그)에만 요구한다.
+        if (INPUT_SCHEMA[id] && !coversSeen.has("copy-boundary-candidate"))
+          errors.push(`manifest: ${id}: at least one stress scenario must cover "copy-boundary-candidate" (KO/EN 경계 문안 후보 — 실제 line fit은 CP2B가 확정)`);
       }
       // migration origin: Wave 1의 기존 archetype 이행 타입은 legacy section을 반드시 명시한다
       if (!["legacy", "new"].includes(p.migration_origin)) errors.push(`manifest: ${id}: migration_origin must be legacy|new`);

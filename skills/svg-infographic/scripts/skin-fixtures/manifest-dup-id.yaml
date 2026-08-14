@@ -28,8 +28,8 @@ typepacks:
           preset: social-4x5
           layout: row
           count: 1
-          expected: fits
-          covers: [cardinality-max, copy-max]
+          geometry_expected: fits
+          covers: [cardinality-max]
   - id: fixture-topology
     selection_signal: "duplicate id entry"
     profile: constrained-layout
@@ -56,8 +56,8 @@ typepacks:
           preset: social-4x5
           layout: row
           count: 1
-          expected: fits
-          covers: [cardinality-max, copy-max]
+          geometry_expected: fits
+          covers: [cardinality-max]
     fit:
       floor_basis: geometry
       cardinality: { min: 1, canonical: 1, max: 1 }

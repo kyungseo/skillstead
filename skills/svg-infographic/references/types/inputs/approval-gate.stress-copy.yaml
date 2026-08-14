@@ -11,15 +11,15 @@ nodes:
   - id: "node-1"
     name:
       ko: "변경 요청자"
-      en: "Change requester"
+      en: "Change requester and submitter"
   - id: "node-2"
     name:
       ko: "자동 검토 시스템"
-      en: "Automated review"
+      en: "Automated review and checks"
   - id: "node-3"
     name:
       ko: "운영 환경 반영"
-      en: "Production rollout"
+      en: "Production rollout target"
 gate:
   id: "gate-1"
   label:

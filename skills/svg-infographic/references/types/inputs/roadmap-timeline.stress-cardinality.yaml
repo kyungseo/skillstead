@@ -5,8 +5,8 @@ case: stress-cardinality
 preset: presentation-16x9
 layout: row
 count: 5
-prompt_ko: "롤아웃을 5개 단계로 보여줘. 16:9."
-prompt_en: "Five rollout phases. 16:9."
+prompt_ko: "롤아웃 5단계를 상태와 지금 위치 표시까지 넣어 보여줘. 16:9."
+prompt_en: "Five rollout phases with status and a now marker. 16:9."
 phases:
   - id: "phase-1"
     label:
@@ -33,3 +33,7 @@ phases:
       ko: "이관"
       en: "Hand over"
     status: "future"
+now_marker:
+  label:
+    ko: "지금"
+    en: "Now"

@@ -5,22 +5,64 @@ case: stress-cardinality
 preset: social-4x5
 layout: row
 count: 2
-prompt_ko: "전후 비교를 최대 항목 수로 보여줘. 4:5."
-prompt_en: "Before/after at the maximum slot count. 4:5."
+prompt_ko: "전후 비교를 미러 슬롯 5개로 보여줘. 4:5."
+prompt_en: "Before/after with five mirrored slots. 4:5."
+panels:
+  - id: "before"
+    title:
+      ko: "이전 구성"
+      en: "Before"
+  - id: "after"
+    title:
+      ko: "이후 구성"
+      en: "After"
 slots:
   - id: "deploy"
     before:
-      ko: "수동 배포 절차"
-      en: "Manual deploy steps"
+      ko: "수동 배포"
+      en: "Manual deploy"
     after:
-      ko: "자동 배포 파이프라인"
-      en: "Automated pipeline"
+      ko: "자동 배포"
+      en: "Automated deploy"
     change: "changed"
   - id: "rollback"
     before:
-      ko: "회수 절차 없음"
-      en: "No rollback path"
+      ko: "회수 없음"
+      en: "No rollback"
     after:
-      ko: "자동 회수 지원"
+      ko: "자동 회수"
       en: "Automated rollback"
     change: "added"
+  - id: "observe"
+    before:
+      ko: "수동 확인"
+      en: "Manual checks"
+    after:
+      ko: "자동 관측"
+      en: "Automated observation"
+    change: "changed"
+  - id: "cost"
+    before:
+      ko: "비용 미상"
+      en: "Cost unknown"
+    after:
+      ko: "주간 리포트"
+      en: "Weekly report"
+    change: "added"
+  - id: "access"
+    before:
+      ko: "공유 계정"
+      en: "Shared account"
+    after:
+      ko: "개별 권한"
+      en: "Per-user access"
+    change: "changed"
+delta:
+  - id: "d1"
+    text:
+      ko: "배포 시간 4시간에서 20분"
+      en: "Deploy 4h to 20m"
+  - id: "d2"
+    text:
+      ko: "회수 경로 신설"
+      en: "Rollback path added"

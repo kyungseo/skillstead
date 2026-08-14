@@ -740,7 +740,7 @@ test("CP2A: payload 누락·budget 초과·locale 결손·잘못된 참조는 �
      /payload — approval payload requires a gate/],
     [(pkg) => { const f = F(pkg, "cards-kpi-grid.canonical.yaml");
       fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('      en: "Observability in place"', '      en: "' + "x".repeat(60) + '"')); },
-     /title\.en is 60 chars, over the 44 budget/],
+     /title\.en is 60 graphemes, over the 44/],
     [(pkg) => { const f = F(pkg, "cards-kpi-grid.canonical.yaml");
       fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('      en: "Observability in place"\n', "")); },
      /is missing the en value/],
@@ -764,18 +764,92 @@ test("CP2A: payload 누락·budget 초과·locale 결손·잘못된 참조는 �
   }
 });
 
-test("CP2A: stress는 covers 축을 선언한 시나리오 목록이고 expected가 계산과 일치해야 한다", () => {
+test("CP2A-R1B: canary(cards·topology) payload negative 8종", () => {
+  const F = (pkg, f) => path.join(typesOf(pkg), "inputs", f);
+  const cards = "cards-kpi-grid.canonical.yaml", topo = "topology-component.stress-cardinality.yaml";
+  const edit = (pkg, f, from, to) => {
+    const p2 = F(pkg, f);
+    fs.writeFileSync(p2, fs.readFileSync(p2, "utf8").replace(from, to));
+  };
+  const cases = [
+    ["잘못된 icon id", (pkg) => edit(pkg, cards, 'icon: "activity"', 'icon: "../../evil.svg"'), /is not a bundled icon id/],
+    ["numeral 5 glyph 초과", (pkg) => edit(pkg, cards, '    icon: "activity"', '    numeral:\n      ko: "123456"\n      en: "123456"'), /numeral\.(ko|en) is 6 graphemes, over the 5 budget/],
+    ["body locale 누락", (pkg) => edit(pkg, cards, '      en: "Logs, metrics and traces as one"\n', ""), /body is missing the en value/],
+    ["body budget 초과", (pkg) => edit(pkg, cards, '      en: "Logs, metrics and traces as one"', '      en: "' + "x".repeat(60) + '"'), /body\.en is 60 graphemes, over the 48/],
+    ["zone당 node 5개", (pkg) => edit(pkg, topo, '      - id: "queue"', '      - id: "extra1"\n        name:\n          ko: "추가"\n          en: "Extra"\n      - id: "extra2"\n        name:\n          ko: "추가2"\n          en: "Extra2"\n      - id: "extra3"\n        name:\n          ko: "추가3"\n          en: "Extra3"\n      - id: "queue"'), /holds \d+ nodes; the contract allows 1–4|caps it at 9/],
+    ["node name locale 누락", (pkg) => edit(pkg, topo, '          en: "Gateway"\n', ""), /node "gw" name is missing the en value/],
+    ["edge 13개", (pkg) => edit(pkg, topo, '  - id: "e12"', '  - id: "e13"\n    from: "gw"\n    to: "cache"\n    kind: "dependency"\n    delivery: "sync"\n    visibility: "private"\n  - id: "e12"'), /over the 12 cap/],
+    ["duplicate edge id", (pkg) => edit(pkg, topo, '  - id: "e12"', '  - id: "e11"'), /duplicate edge id "e11"/],
+    ["boundary label locale 누락", (pkg) => edit(pkg, topo, '    en: "System boundary"\n', ""), /boundary label is missing the en value/],
+  ];
+  for (const [label, mutate, re] of cases) {
+    const pkg = pkgCopy();
+    mutate(pkg);
+    const r = runIn(pkg, ["manifest"]);
+    assert.equal(r.code, 1, `${label}: ${r.out}`);
+    assert.match(r.out, re, label);
+    drop(pkg);
+  }
+});
+
+test("CP2A-R1B: covers는 payload에서 관측돼야 한다(허위 coverage 거부)", () => {
+  const pkg = pkgCopy();
+  // 짧은 문안 시나리오에 copy-boundary-candidate를 붙이면 관측되지 않아 거부된다
+  writeManifest(pkg, readManifest(pkg).replace(
+    "          covers: [cardinality-max]\n", "          covers: [cardinality-max, copy-boundary-candidate]\n"));
+  const short = path.join(typesOf(pkg), "inputs", "layer-stack.stress-cardinality.yaml");
+  const r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /declares covers "copy-boundary-candidate" but the payload does not exhibit it/);
+  assert.ok(fs.existsSync(short));
+  drop(pkg);
+});
+
+test("CP2A-R1B: root·entity의 unknown field는 fail-closed", () => {
+  const cases = [
+    [(pkg) => { const f = path.join(typesOf(pkg), "inputs", "cards-kpi-grid.canonical.yaml");
+      fs.appendFileSync(f, 'extra_root:\n  - id: "x"\n'); }, /payload root has unknown field "extra_root"/],
+    [(pkg) => { const f = path.join(typesOf(pkg), "inputs", "cards-kpi-grid.canonical.yaml");
+      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('    icon: "activity"', '    icon: "activity"\n    rogue: "x"')); },
+     /entity "observability" has unknown field "rogue"/],
+  ];
+  for (const [mutate, re] of cases) {
+    const pkg = pkgCopy();
+    mutate(pkg);
+    const r = runIn(pkg, ["manifest"]);
+    assert.equal(r.code, 1, `${re}: ${r.out}`);
+    assert.match(r.out, re);
+    drop(pkg);
+  }
+});
+
+test("CP2A-R1B: before-after는 panel 수와 mirrored slot 수를 분리한다", () => {
+  const doc = fs.readFileSync(path.join(here, "..", "references", "types", "inputs", "before-after.stress-cardinality.yaml"), "utf8");
+  assert.match(doc, /^panels:$/m);
+  assert.match(doc, /^slots:$/m);
+  assert.equal((doc.match(/^ {2}- id: /gm) ?? []).length >= 7, true, "panel 2 + slot 5");
+  const pkg = pkgCopy();
+  const f = path.join(typesOf(pkg), "inputs", "before-after.canonical.yaml");
+  fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace(/^slots:\n(?: {2}- id.*\n| {4}.*\n| {6}.*\n)+/m, 'slots:\n  - id: "only"\n    before:\n      ko: "하나"\n      en: "One"\n    after:\n      ko: "둘"\n      en: "Two"\n'));
+  const r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /requires 2–5 mirrored slots \(got 1\)/);
+  drop(pkg);
+});
+
+test("CP2A: stress는 covers 축을 선언한 시나리오 목록이고 geometry_expected가 계산과 일치해야 한다", () => {
   const doc = fs.readFileSync(path.join(here, "..", "references", "types", "manifest.yaml"), "utf8");
   for (const b of doc.split(/^  - id: /m).slice(1)) {
     const id = b.split("\n")[0].trim();
     assert.match(b, /covers: \[cardinality-max/, `${id}: cardinality-max 시나리오 필요`);
-    assert.ok(/covers: \[[^\]]*copy-max/.test(b), `${id}: copy-max 시나리오 필요`);
+    assert.ok(/covers: \[[^\]]*copy-boundary-candidate/.test(b), `${id}: copy-boundary-candidate 시나리오 필요`);
+    assert.match(b, /geometry_expected: (fits|needs-split)/, `${id}: 기하 판정 명시 필요`);
   }
   const cases = [
-    [(t) => t.replace("          covers: [copy-max, optionals-max]\n", "          covers: []\n"), /must declare the risk axes it covers/],
-    [(t) => t.replace("          covers: [cardinality-max]\n          expected: fits", "          covers: [cardinality-max]\n          expected: needs-split")
-             .replace("expected: fits\n          covers: [cardinality-max]", "expected: needs-split\n          covers: [cardinality-max]"),
-     /declares expected "needs-split" but computes "fits"/],
+    [(t) => t.replace("          covers: [copy-boundary-candidate]\n", "          covers: []\n"), /must declare the risk axes it covers/],
+    [(t) => t.replace("          geometry_expected: fits\n          covers: [cardinality-max]",
+                      "          geometry_expected: needs-split\n          covers: [cardinality-max]"),
+     /declares geometry_expected "needs-split" but computes "fits"/],
     [(t) => t.replace(/          covers: \[cardinality-max[^\]]*\]/, "          covers: [degrade-path]"), /must cover "cardinality-max"/],
   ];
   for (const [mutate, re] of cases) {

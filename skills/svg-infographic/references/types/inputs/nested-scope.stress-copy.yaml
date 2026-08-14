@@ -10,13 +10,13 @@ prompt_en: "Three concentric scopes with labels at the budget limit. 4:5."
 rings:
   - id: "ring-1"
     label:
-      ko: "공개 네트워크 경계 영역"
+      ko: "공개 네트워크의 외부 경계 영역"
       en: "Public network perimeter"
   - id: "ring-2"
     label:
-      ko: "내부 서비스 통신망"
+      ko: "내부 서비스 사이 통신 구간"
       en: "Internal service network"
   - id: "ring-3"
     label:
-      ko: "핵심 데이터 저장 영역"
+      ko: "핵심 데이터의 저장 영역"
       en: "Core data storage"
