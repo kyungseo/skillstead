@@ -26,11 +26,14 @@ Phases or milestones over time.
 | `phases[].card` | one per phase | title ≤ 1 line, body ≤ 2 lines |
 | `phases[].status` | done / current / future | — |
 | `now_marker` | optional | pill label ≤ 1 line |
+| `now_marker.after_phase` | required when `now_marker` is present | must name the `current` phase |
 
 ## 3. Semantic model and invariants
 
 - Entities are **ordered phases**; position encodes order only, and intervals are uniform by construction.
-- Invariants: exactly one phase may be `current`; phase labels are preferred over exact dates; the axis is continuous across all phases.
+- Invariants: exactly one phase may be `current`; **statuses read `done* → current → future*` in declaration order** (one-current alone would admit `future → done → current`); the axis is continuous across all phases.
+- **Position is input, never inference.** Phase order fixes phase position; the now marker's position comes from `now_marker.after_phase`, which must name the `current` phase. The value is redundant with `status` on purpose — a marker moved without moving `current` becomes an error instead of a silent contradiction. If the `current` phase is last there is no interval after it, so a `now_marker` is refused: drop it from the input rather than asking the renderer to hide a declared label.
+- **No dates.** This TypePack carries no date, duration, tick, numeric scale or dependency. Such fields are refused at the input, not silently ignored.
 - **No duration claim**: even spacing must never be read as equal length, and the subtitle says so when dates are shown.
 
 ## 4. Intrinsic fit and variant contract
@@ -56,21 +59,24 @@ Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 regi
 
 - Axis as a soft thick line or chevron band; phase dots/chevrons in phase colours.
 - One milestone card per phase under the axis, or alternating above/below.
-- Status shifts saturation: done = muted, current = emphasis toolkit, future = outline.
+- Status is distinguishable **without colour**, and every state marker is **opaque**: `done` = status fill · `current` = background underlay + status fill + outer ring · `future` = background fill + outline. "Outlined" never means transparent — a hollow dot lets the axis rail show through and reads as sitting behind the line. The fill comes from the background **role**, never a hardcoded colour, so it follows the skin into dark mode. The ring must be visibly clear of the dot (radius floor and stroke floor are re-measured on the final SVG, not declared).
+- Paint order is a DOM contract: **axis → marker underlay → dot/ring → label**. The axis is a background rail, so it belongs to the container layer; drawing it after the markers puts the rail on top of them. The accessible status wording per locale is fixed by this spec, so the generator never invents it: `done` = 완료 / Done · `current` = 진행 중 / In progress · `future` = 예정 / Planned.
+- The phase label sits on the **opposite side of the axis from its milestone card**, so alternating layout never buries a label under a card.
+- Even spacing derives from the card that must fit: `endInset = cardVisualW/2 + outerClearance` and `step = (contentW − 2 × endInset) / (n − 1)`, where `cardVisualW` is the resolved maximum over both locales. A constant end inset lets the outermost card leave the content box.
 - The "now" marker is a dashed vertical line with a small pill label; it crosses the axis but no card.
 
 ## 6. Degrade ladder
 
-1. Drop card bodies (title-only milestones).
-2. Alternate cards above/below the axis.
-3. Merge adjacent phases, recording the merge.
-4. Return `needs-split`.
+1. Alternate cards above/below the axis.
+2. Return `needs-split`.
+
+Two steps that a reader might expect are **deliberately absent**. *Dropping card bodies* is not a step: height never binds in this type (a body adds ~36px against a content box of 700+), so dropping it cannot rescue a layout — a body over the §2 budget is an input error, not something to degrade away. *Merging adjacent phases* is not a step either: merging changes the author's meaning, and no input yet declares which phases may merge or what label survives.
 
 ## 7. Verifier, receipt and fixture contract
 
-- **Machine verifier**: none (`verifier: null`) — because the type makes **no** proportional claim. A dated timeline that claimed real intervals would need the data-accuracy annex and a verifier before `core`.
-- Checks: intervals mathematically even; alternating cards clear of axis labels; the now marker crosses no card; phase count 3–5.
-- **Receipt**: phases in order with status, the computed interval, and any merge.
+- **Machine verifier**: no separate data-accuracy verifier (`verifier: null`) — the type makes no proportional claim. Structure is still machine-checked: the generation entrypoint runs an ordinal audit that recomputes geometry from the input and compares it against the written SVG.
+- Checks: the axis appears before every state marker in DOM order; each marker carries a background-role underlay covering its full extent (ring included for `current`); `future` is background-filled with an outline rather than transparent; intervals recomputed from the input and matched within 0.5px; declaration order = DOM order = left-to-right order; dot shape matches status and the current ring is visibly clear; the axis is drawn once, horizontal, and spans the first and last phase; the marker sits where `after_phase` puts it and its **whole visual bounds** (pill + stem) clear every card, phase label and the content box; the outermost card stays inside the content box, re-measured on the final SVG.
+- **Receipt**: `timeline receipt v1` — `schemaVersion`, `kind: "ordinal"`, axis (`x0`, `x1`, `endInset`, `step`), `phases[]` (`id`, `index`, `status`, `x`), and `marker` as a union of `null` or `{ afterPhase, x, labelConsumed }`. Undeclared fields are refused. One shared validator serves both the producer and the verifier, and the verifier recomputes every coordinate from the input rather than trusting the receipt.
 - **Fixtures**: positive per preset + a baseline-red with label-width spacing. Required before `core`.
 
 ## 8. Reading order, accessibility and locale
@@ -82,6 +88,12 @@ Fit is decided **before** layout: 배치 시도 전에 이 타입이 해당 regi
 ## 9. Anti-patterns and known failures
 
 - Spacing phases by label width instead of the computed interval.
+- A now marker whose position the renderer inferred rather than the input declaring it.
+- Statuses that contradict time order (`future` before `done`).
+- A constant axis end inset that pushes the outermost milestone card out of the content box.
+- `done` and `current` differing by colour alone.
+- A transparent `future` dot with the axis rail visible through it.
+- The axis painted over the state markers.
 - Even spacing presented as if it were a real duration scale.
 - Two phases marked `current`.
 - A "now" marker drawn over a milestone card.

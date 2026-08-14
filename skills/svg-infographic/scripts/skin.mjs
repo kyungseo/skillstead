@@ -767,10 +767,10 @@ const INPUT_SCHEMA = {
 // 않으면 허위 coverage이므로 거부한다.
 const COVERS_VOCAB = ["cardinality-max", "copy-boundary-candidate", "optionals-max",
   "edge-density", "containment-depth", "mirrored-slots", "status-and-marker",
-  "gate-caption", "chips-max", "degrade-path"];
+  "gate-caption", "chips-max", "degrade-path", "terminal-current"];
 // audit 대상 축: 관측되면 반드시 선언돼야 한다(선언 ⊆ 관측 뿐 아니라 그 역도 성립).
 const AUDITABLE_COVERS = ["cardinality-max", "copy-boundary-candidate", "optionals-max",
-  "edge-density", "containment-depth", "mirrored-slots", "status-and-marker", "chips-max", "degrade-path"];
+  "edge-density", "containment-depth", "mirrored-slots", "status-and-marker", "chips-max", "degrade-path", "terminal-current"];
 
 function localized(v, budget, ctx, report, required = true) {
   if (v == null) { if (required) report(`${ctx} is missing`); return; }
@@ -959,9 +959,35 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
     "roadmap-timeline": () => {
       const cur = list.filter((x) => x.status === "current").length;
       if (cur !== 1) report(`exactly one phase must be "current" (found ${cur})`);
-      if (doc.now_marker !== undefined) { exactKeys(doc.now_marker, ["label"], "now_marker", report); localized(doc.now_marker.label, B(12, 18), "now_marker label", report); }
+      // 축이 뜻하는 것은 순서다. "current 하나"만 보면 future → done → current 처럼
+      // 시간과 모순된 배열이 통과한다. 상태는 반드시 done* current future* 순이다.
+      const rank = { done: 0, current: 1, future: 2 };
+      let prev = -1, mono = true;
+      for (const p of list) {
+        const r = rank[p.status];
+        if (r === undefined || r < prev) { mono = false; break; }
+        prev = r;
+      }
+      if (!mono) report(`phase statuses must read done* → current → future* in declaration order (got ${list.map((p) => p.status).join(" → ")})`);
+      const curIdx = list.findIndex((p) => p.status === "current");
+      if (doc.now_marker !== undefined) {
+        exactKeys(doc.now_marker, ["label", "after_phase"], "now_marker", report);
+        localized(doc.now_marker.label, B(12, 18), "now_marker label", report);
+        // marker 위치는 입력이 말한다 — renderer가 추론하지 않는다. after_phase는 current와
+        // 같아야 하므로 값 자체는 중복이지만, marker만 옮기고 current를 두고 온 경우를
+        // **조용한 모순 대신 오류**로 만든다(검사되는 중복).
+        const ap = doc.now_marker.after_phase;
+        if (ap === undefined) report("now_marker requires after_phase — the marker position is input data, not something the generator may infer");
+        else if (!ids.has(ap)) report(`now_marker after_phase "${ap}" is not an existing phase id`);
+        else if (curIdx >= 0 && list[curIdx].id !== ap)
+          report(`now_marker after_phase "${ap}" must name the phase whose status is "current" (that is "${list[curIdx].id}")`);
+        else if (curIdx === list.length - 1)
+          report("the last phase is \"current\", so no ordinal interval follows it — drop now_marker from the input instead of asking the renderer to hide a declared label");
+      }
       const st = new Set(list.map((x) => x.status));
       if (st.has("done") && st.has("current") && st.has("future") && doc.now_marker !== undefined) observed.add("status-and-marker");
+      // C-06이 fail-closed로 다루는 조합의 **합법 쪽**이다: 마지막이 current인데 marker가 없다.
+      if (curIdx === list.length - 1 && doc.now_marker === undefined) observed.add("terminal-current");
     },
     "decision-matrix": () => {
       const ax = doc.axes;

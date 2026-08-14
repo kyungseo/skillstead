@@ -57,6 +57,7 @@ phases:
         ko: "팀 이관"
         en: "Handed to team"
 now_marker:
+  after_phase: "phase-3"
   label:
     ko: "지금"
     en: "Now"
