@@ -1,0 +1,29 @@
+schema_version: 1
+kind: typepack-input
+typepack: layer-stack
+case: canonical
+preset: social-4x5
+layout: column
+count: 4
+prompt_ko: "플랫폼 역량을 4개 계층으로 쌓아서 보여줘. 4:5."
+prompt_en: "Show the platform capability as four stacked layers. 4:5."
+title:
+  ko: "플랫폼 역량은 층으로 쌓인다"
+  en: "Platform capability stacks in layers"
+layers:
+  - id: "layer-1"
+    label:
+      ko: "제품 경험"
+      en: "Product experience"
+  - id: "layer-2"
+    label:
+      ko: "애플리케이션 서비스"
+      en: "Application services"
+  - id: "layer-3"
+    label:
+      ko: "플랫폼 런타임"
+      en: "Platform runtime"
+  - id: "layer-4"
+    label:
+      ko: "데이터 기반"
+      en: "Data foundation"

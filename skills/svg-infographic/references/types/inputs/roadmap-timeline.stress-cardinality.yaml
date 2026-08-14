@@ -1,0 +1,62 @@
+schema_version: 1
+kind: typepack-input
+typepack: roadmap-timeline
+case: stress-cardinality
+preset: presentation-16x9
+layout: row
+count: 5
+prompt_ko: "롤아웃 5단계를 상태와 지금 위치까지 넣어 보여줘. 16:9."
+prompt_en: "Five phases with status and a now marker. 16:9."
+title:
+  ko: "롤아웃은 단계로 진행한다"
+  en: "The rollout proceeds in phases"
+phases:
+  - id: "phase-1"
+    label:
+      ko: "준비"
+      en: "Prepare"
+    status: "done"
+    card:
+      title:
+        ko: "기준선 확정"
+        en: "Baseline agreed"
+  - id: "phase-2"
+    label:
+      ko: "시범"
+      en: "Pilot"
+    status: "done"
+    card:
+      title:
+        ko: "시범 팀 적용"
+        en: "Pilot team live"
+  - id: "phase-3"
+    label:
+      ko: "확대"
+      en: "Expand"
+    status: "current"
+    card:
+      title:
+        ko: "전사 확대"
+        en: "Org-wide rollout"
+  - id: "phase-4"
+    label:
+      ko: "안정화"
+      en: "Stabilise"
+    status: "future"
+    card:
+      title:
+        ko: "운영 안정화"
+        en: "Ops stabilised"
+  - id: "phase-5"
+    label:
+      ko: "이관"
+      en: "Hand over"
+    status: "future"
+    card:
+      title:
+        ko: "팀 이관"
+        en: "Handed to team"
+now_marker:
+  label:
+    ko: "지금"
+    en: "Now"

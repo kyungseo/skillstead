@@ -1,0 +1,57 @@
+schema_version: 1
+kind: typepack-input
+typepack: cards-kpi-grid
+case: stress-degrade
+preset: social-4x5
+layout: row
+floor: compact
+cols: 2
+count: 6
+prompt_ko: "핵심 6가지를 2열 카드 격자로 요약해줘. 각 카드에 한 줄 설명 포함. 4:5."
+prompt_en: "Summarise six key points as a two-column card grid with one-line bodies, 4:5."
+title:
+  ko: "운영 기준 6가지"
+  en: "Six operating standards"
+cards:
+  - id: "observability"
+    title:
+      ko: "관측 가능성"
+      en: "Observability"
+    body:
+      ko: "로그·지표·추적 연결"
+      en: "Logs, metrics, traces"
+  - id: "delivery"
+    title:
+      ko: "배포 자동화"
+      en: "Automated delivery"
+    body:
+      ko: "검증 통과분만 반영"
+      en: "Verified changes only"
+  - id: "cost"
+    title:
+      ko: "비용 가시성"
+      en: "Cost visibility"
+    body:
+      ko: "주간 사용량 공개"
+      en: "Weekly usage shared"
+  - id: "security"
+    title:
+      ko: "보안 기본값"
+      en: "Secure defaults"
+    body:
+      ko: "안전한 기본값"
+      en: "Safe defaults"
+  - id: "retention"
+    title:
+      ko: "데이터 보존"
+      en: "Data retention"
+    body:
+      ko: "보존 기간 명시"
+      en: "Stated retention"
+  - id: "drill"
+    title:
+      ko: "장애 대응 훈련"
+      en: "Incident response drill"
+    body:
+      ko: "분기별 훈련 수행"
+      en: "Quarterly drill"

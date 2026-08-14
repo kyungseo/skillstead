@@ -1,0 +1,39 @@
+schema_version: 1
+kind: typepack-input
+typepack: approval-gate
+case: stress-cardinality
+preset: presentation-16x9
+layout: row
+count: 4
+prompt_ko: "요청 승인 경로를 4개 노드로 보여줘. 16:9."
+prompt_en: "The approval path across four nodes. 16:9."
+title:
+  ko: "요청은 승인 게이트를 지난다"
+  en: "Requests pass an approval gate"
+nodes:
+  - id: "node-1"
+    name:
+      ko: "요청자"
+      en: "Requester"
+  - id: "node-2"
+    name:
+      ko: "검토 시스템"
+      en: "Review system"
+  - id: "node-3"
+    name:
+      ko: "승인 담당"
+      en: "Approver"
+  - id: "node-4"
+    name:
+      ko: "운영 환경"
+      en: "Production"
+gate:
+  id: "gate-1"
+  label:
+    ko: "승인 게이트"
+    en: "Approval gate"
+  from: "node-1"
+  to: "node-2"
+  criterion:
+    ko: "보안·비용 검토 통과 시"
+    en: "When security and cost review pass"

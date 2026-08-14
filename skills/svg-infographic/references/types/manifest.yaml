@@ -11,19 +11,42 @@
 #                                                   # machine verifier + receipt exist;
 #                                                   # gated types must not appear in
 #                                                   # discovery copy or the cookbook
-#   spec:             types/<id>.md                 # must exist — owns local region
-#                                                   # partition, complexity budget,
-#                                                   # degrade ladder, known failures
+#   spec:             types/specs/<id>.md           # 1:1 with this entry — the spec's
+#                                                   # frontmatter (spec_schema_version /
+#                                                   # typepack_id / profile) must match,
+#                                                   # sections 1–9 must be complete, the
+#                                                   # path must be unique, and the specs
+#                                                   # tree must have no orphan file
 #   presets:          supported output presets (PageFrame registry ids, e.g. social-4x5)
 #   orientations:     supported orientations (portrait | landscape | square) — kept
 #                     separate from presets; preset ids never encode orientation
 #   verifier:         null | scripts path           # required for accuracy-bearing types
-#   fixtures:         [] | paths                    # baseline-red/positive pairs
-#   examples:         [] | example ids              # gallery mapping
 #   required_roles:   Foundation roles the type consumes (resolver checks coverage)
 #   optional_aliases: domain aliases the type may consume
-#   canonical_prompt: PROMPT-GALLERY.md#<anchor>    # stable anchor into the prompt
-#                                                   # cookbook (semantics reserved)
+#   canonical_prompt: { status, anchor }            # status: reserved | bound.
+#                                                   # reserved = anchor format+uniqueness
+#                                                   # only (the gallery does not exist
+#                                                   # yet); bound = the target file and
+#                                                   # anchor must exist (fail-closed)
+#   receipt_schema:   null | path                   # required for accuracy-bearing types
+#                                                   # (exact-parametric or data-accuracy)
+#   fixtures:         [{ id, kind, preset, path }]  # kind: positive | baseline-red; path is
+#                                                   # an in-package .svg/.json; core needs a
+#                                                   # positive per preset + one baseline-red
+#   examples:         [{ id, gallery_anchor }]      # core requires the anchor to resolve in
+#                                                   # a real gallery file
+#   annexes:          [] | [topology|data-accuracy] # profile-specific spec annexes; each
+#                                                   # declared annex needs its full subsection
+#                                                   # set in the spec (heading alone fails)
+#   migration_origin: legacy | new                  # legacy => legacy_section required and
+#                                                   # its archetypes.md section must be the
+#                                                   # canonical tombstone; new => null
+#   gate:             null | { reason, release }    # required when support: gated —
+#                                                   # gated types are withheld from the
+#                                                   # routable view but stay auditable
+#   legacy_section:   null | "<archetypes heading>" # the legacy section this TypePack
+#                                                   # replaces; that section must be a
+#                                                   # pointer tombstone, not a rival rule
 #   composition:      OPTIONAL capability block (schema v2). Absent => the TypePack
 #                     is composable: false. Fields:
 #     composable: true|false
@@ -45,13 +68,498 @@
 # rejected fail-closed. Existing TypePacks migrate without a composition block and
 # are therefore composable: false until they opt in.
 #
-# Validation gate: unique ids, referenced paths exist, selection-table 1:1 mapping,
-# positive + duplicate/missing-path negative fixtures. TypePacks declare role
-# requirements only — no hex values, no palette ids.
+# Validation gate: unique ids, spec identity/section/inventory closure, unique prompt
+# anchors with their reserved|bound state, promotion evidence for `core`, gate reason
+# for `gated`, legacy tombstone closure, and the derived selection view. TypePacks
+# declare role requirements only — no hex values, no palette ids.
+#
+# Promotion: `experimental` is a preview state. `core` additionally requires at least
+# one registered example and profile-appropriate verification evidence (fixtures for
+# every profile; a machine verifier as well for exact-parametric / data-accuracy).
 #
 # Population happens as the archetype catalog migrates to TypePacks; pilots
 # register here only when promoted.
 
 schema_version: 2
 
-typepacks: []
+# Wave 1 migration in progress: the archetype catalog moves here one TypePack at a
+# time. `support` stays `experimental` until a type has its examples and fixtures;
+# `gated` types are registered but withheld from discovery copy.
+
+typepacks:
+  - id: cards-kpi-grid
+    selection_signal: "핵심 항목·수치 몇 개를 동등한 카드로 요약 (feature highlight·원칙·상태 카운트·역량 요약; 데이터 정확성을 주장하는 chart가 아님)"
+    profile: constrained-layout
+    support: experimental
+    spec: types/specs/cards-kpi-grid.md
+    presets: [document-compact, social-4x5, presentation-16x9]
+    orientations: [portrait, landscape]
+    verifier: null
+    receipt_schema: null
+    fixtures: []
+    examples: []
+    required_roles: [canvas, surface, ink, muted, rule, focus]
+    optional_aliases: []
+    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#cards-kpi-grid }
+    annexes: []
+    gate: null
+    migration_origin: legacy
+    legacy_section: "Cards / KPI stat grid"
+    inputs:
+      canonical:
+        id: cards-kpi-grid-canonical
+        path: types/inputs/cards-kpi-grid.canonical.yaml
+        preset: document-compact
+        layout: grid
+        cols: 2
+        count: 4
+      stress:
+        - id: cards-kpi-grid-stress-cardinality
+          path: types/inputs/cards-kpi-grid.stress-cardinality.yaml
+          preset: document-compact
+          layout: grid
+          cols: 2
+          count: 6
+          geometry_expected: fits
+          covers: [cardinality-max]
+        - id: cards-kpi-grid-stress-copy
+          path: types/inputs/cards-kpi-grid.stress-copy.yaml
+          preset: document-compact
+          layout: grid
+          cols: 2
+          count: 4
+          geometry_expected: fits
+          covers: [copy-boundary-candidate]
+        - id: cards-kpi-grid-stress-degrade
+          path: types/inputs/cards-kpi-grid.stress-degrade.yaml
+          preset: social-4x5
+          layout: row
+          floor: compact
+          count: 6
+          geometry_expected: needs-split
+          covers: [cardinality-max, degrade-path]
+    fit:
+      floor_basis: geometry
+      cardinality: { min: 3, canonical: 4, max: 6 }
+      params: { itemMinW: 149, itemMinH: 124, compactItemMinW: 132, compactItemMinH: 104, gapX: 16, gapY: 16 }
+      footprint:
+        - { count: 4, layout: row, w: 644, h: 124 }
+        - { count: 4, layout: grid, cols: 2, w: 314, h: 264 }
+        - { count: 6, layout: grid, cols: 2, w: 314, h: 404 }
+        - { count: 6, layout: row, floor: compact, w: 872, h: 104 }
+      feasibility:
+        - { preset: document-compact, orientation: portrait, count: 6, layout: grid, result: fits }
+        - { preset: social-4x5, orientation: portrait, count: 6, layout: grid, result: fits }
+        - { preset: social-4x5, orientation: portrait, count: 6, layout: row, floor: compact, result: needs-split }
+        - { preset: presentation-16x9, orientation: landscape, count: 6, layout: grid, result: fits }
+        - { preset: presentation-16x9, orientation: landscape, count: 6, layout: row, floor: compact, result: fits }
+    composition:
+      composable: true
+      min_slot_size: { w: 640, h: 240 }
+      preferred_slot_aspect: { min: 1.8, max: 3.2 }
+      allowed_slots: [top, middle]
+      variants:
+        - id: compact
+          min_slot_size: { w: 640, h: 180 }
+      ports:
+        - { template: item-anchor, direction: out, kind: reference, cardinality: 0..n }
+  - id: layer-stack
+    selection_signal: "아래 층을 기반으로 쌓이거나 추상화하는 계층 구조 (플랫폼 스택·런타임 계층·역량 모델)"
+    profile: constrained-layout
+    support: experimental
+    spec: types/specs/layer-stack.md
+    presets: [social-4x5, presentation-16x9]
+    orientations: [portrait, landscape]
+    verifier: null
+    receipt_schema: null
+    fixtures: []
+    examples: []
+    required_roles: [canvas, surface, ink, muted, rule, focus]
+    optional_aliases: []
+    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#layer-stack }
+    annexes: []
+    gate: null
+    migration_origin: legacy
+    legacy_section: "Layer stack"
+    inputs:
+      canonical: { id: layer-stack-canonical, path: types/inputs/layer-stack.canonical.yaml, preset: social-4x5, layout: column, count: 4 }
+      stress:
+        - id: layer-stack-stress-cardinality
+          path: types/inputs/layer-stack.stress-cardinality.yaml
+          preset: social-4x5
+          layout: column
+          count: 5
+          geometry_expected: fits
+          covers: [cardinality-max]
+        - id: layer-stack-stress-copy
+          path: types/inputs/layer-stack.stress-copy.yaml
+          preset: social-4x5
+          layout: column
+          count: 4
+          geometry_expected: fits
+          covers: [copy-boundary-candidate]
+        - id: layer-stack-stress-degrade
+          path: types/inputs/layer-stack.stress-degrade.yaml
+          preset: social-4x5
+          layout: column
+          floor: wide
+          count: 5
+          geometry_expected: needs-split
+          covers: [cardinality-max, chips-max, degrade-path]
+    fit:
+      floor_basis: geometry
+      cardinality: { min: 3, canonical: 4, max: 5 }
+      params: { itemMinW: 612, itemMinH: 88, wideItemMinW: 1084, wideItemMinH: 88, gapX: 20, gapY: 20 }
+      footprint:
+        - { count: 5, layout: column, w: 612, h: 520 }
+        - { count: 5, layout: column, floor: wide, w: 1084, h: 520 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 5, layout: column, result: fits }
+        - { preset: social-4x5, orientation: portrait, count: 5, layout: column, floor: wide, result: needs-split }
+        - { preset: presentation-16x9, orientation: landscape, count: 5, layout: column, result: fits }
+        - { preset: presentation-16x9, orientation: landscape, count: 5, layout: column, floor: wide, result: fits }
+  - id: nested-scope
+    selection_signal: "포함·범위 관계 — 안쪽이 바깥쪽 안에 산다 (신뢰 zone·scope ring·platform → app → feature)"
+    profile: constrained-layout
+    support: experimental
+    spec: types/specs/nested-scope.md
+    presets: [social-4x5, presentation-16x9]
+    orientations: [portrait, landscape]
+    verifier: null
+    receipt_schema: null
+    fixtures: []
+    examples: []
+    required_roles: [canvas, surface, ink, muted, rule, focus]
+    optional_aliases: []
+    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#nested-scope }
+    annexes: []
+    gate: null
+    migration_origin: legacy
+    legacy_section: "Nested / onion"
+    inputs:
+      canonical: { id: nested-scope-canonical, path: types/inputs/nested-scope.canonical.yaml, preset: social-4x5, layout: concentric, count: 3 }
+      stress:
+        - id: nested-scope-stress-cardinality
+          path: types/inputs/nested-scope.stress-cardinality.yaml
+          preset: social-4x5
+          layout: concentric
+          count: 4
+          geometry_expected: fits
+          covers: [cardinality-max, containment-depth]
+        - id: nested-scope-stress-copy
+          path: types/inputs/nested-scope.stress-copy.yaml
+          preset: social-4x5
+          layout: concentric
+          count: 3
+          geometry_expected: fits
+          covers: [copy-boundary-candidate]
+    fit:
+      floor_basis: geometry
+      cardinality: { min: 3, canonical: 3, max: 4 }
+      params: { itemMinW: 296, itemMinH: 96, inset: 44, gapX: 0, gapY: 0 }
+      footprint:
+        - { count: 4, layout: concentric, w: 560, h: 360 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 4, layout: concentric, result: fits }
+        - { preset: presentation-16x9, orientation: landscape, count: 4, layout: concentric, result: fits }
+  - id: topology-component
+    selection_signal: "시스템·컴포넌트와 그 연결 — 요청 경로·클라우드/네트워크 zone·시스템 경계가 있는 서비스 아키텍처"
+    profile: editorial-composition
+    support: experimental
+    spec: types/specs/topology-component.md
+    presets: [social-4x5, presentation-16x9]
+    orientations: [portrait, landscape]
+    verifier: null
+    receipt_schema: null
+    fixtures: []
+    examples: []
+    required_roles: [canvas, surface, ink, muted, rule, focus]
+    optional_aliases: []
+    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#topology-component }
+    annexes: [topology]
+    gate: null
+    migration_origin: legacy
+    legacy_section: "Topology / component"
+    inputs:
+      canonical:
+        id: topology-component-canonical
+        path: types/inputs/topology-component.canonical.yaml
+        preset: social-4x5
+        layout: zones
+        count: 3
+        residual_disposition: { bottom: 194, reason: "zone 높이는 node 기하에서 파생하고 corridor는 배선 수요만큼만 열린다 — 남는 공간은 선언된 breathing이다(kernel §8)." }
+        routing_expected: routable
+      stress:
+        - id: topology-component-stress-cardinality
+          path: types/inputs/topology-component.stress-cardinality.yaml
+          preset: social-4x5
+          layout: zones
+          count: 4
+          routing_expected: needs-split
+          geometry_expected: fits
+          covers: [cardinality-max, edge-density]
+        - id: topology-component-stress-copy
+          path: types/inputs/topology-component.stress-copy.yaml
+          preset: social-4x5
+          layout: zones
+          count: 3
+          residual_disposition: { bottom: 194, reason: "copy 경계에서도 zone 높이는 node 기하에서 파생하므로 잔여가 같다." }
+          routing_expected: routable
+          geometry_expected: fits
+          covers: [copy-boundary-candidate]
+    fit:
+      floor_basis: geometry
+      cardinality: { min: 2, canonical: 3, max: 4 }
+      params: { itemMinW: 140, itemMinH: 96, gapX: 16, gapY: 24, maxNodesPerZone: 4, zonePad: 12, zoneLabelBand: 22, zoneGap: 28 }
+      footprint:
+        - { count: 4, layout: zones, w: 632, h: 652 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 4, layout: zones, result: fits }
+        - { preset: presentation-16x9, orientation: landscape, count: 4, layout: zones, result: fits }
+  - id: process-flow
+    selection_signal: "순서 있는 단계나 인계 — 프로세스·파이프라인·데이터 흐름·리뷰 루프"
+    profile: constrained-layout
+    support: experimental
+    spec: types/specs/process-flow.md
+    presets: [social-4x5, presentation-16x9]
+    orientations: [portrait, landscape]
+    verifier: null
+    receipt_schema: null
+    fixtures: []
+    examples: []
+    required_roles: [canvas, surface, ink, muted, rule, focus]
+    optional_aliases: []
+    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#process-flow }
+    annexes: []
+    gate: null
+    migration_origin: legacy
+    legacy_section: "Flow"
+    inputs:
+      canonical: { id: process-flow-canonical, path: types/inputs/process-flow.canonical.yaml, preset: social-4x5, layout: column, count: 4 }
+      stress:
+        - id: process-flow-stress-cardinality
+          path: types/inputs/process-flow.stress-cardinality.yaml
+          preset: social-4x5
+          layout: column
+          count: 5
+          geometry_expected: fits
+          covers: [cardinality-max]
+        - id: process-flow-stress-copy
+          path: types/inputs/process-flow.stress-copy.yaml
+          preset: social-4x5
+          layout: column
+          count: 4
+          geometry_expected: fits
+          covers: [copy-boundary-candidate]
+        - id: process-flow-stress-degrade
+          path: types/inputs/process-flow.stress-degrade.yaml
+          preset: social-4x5
+          layout: row
+          count: 5
+          geometry_expected: needs-split
+          covers: [cardinality-max, degrade-path]
+    fit:
+      floor_basis: geometry
+      cardinality: { min: 3, canonical: 4, max: 5 }
+      params: { itemMinW: 132, itemMinH: 88, gapX: 44, gapY: 36 }
+      footprint:
+        - { count: 5, layout: row, w: 836, h: 88 }
+        - { count: 5, layout: column, w: 132, h: 584 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 5, layout: row, result: needs-split }
+        - { preset: social-4x5, orientation: portrait, count: 5, layout: column, result: fits }
+        - { preset: presentation-16x9, orientation: landscape, count: 5, layout: row, result: fits }
+        - { preset: presentation-16x9, orientation: landscape, count: 5, layout: column, result: fits }
+  - id: approval-gate
+    selection_signal: "승인 gate·체크포인트가 하나 있는 단순 요청 경로 (a→b→c; 전체 sequence diagram은 범위 밖)"
+    profile: constrained-layout
+    support: experimental
+    spec: types/specs/approval-gate.md
+    presets: [social-4x5, presentation-16x9]
+    orientations: [portrait, landscape]
+    verifier: null
+    receipt_schema: null
+    fixtures: []
+    examples: []
+    required_roles: [canvas, surface, ink, muted, rule, focus]
+    optional_aliases: []
+    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#approval-gate }
+    annexes: []
+    gate: null
+    migration_origin: legacy
+    legacy_section: "Approval / sequence-lite"
+    inputs:
+      canonical: { id: approval-gate-canonical, path: types/inputs/approval-gate.canonical.yaml, preset: social-4x5, layout: row, count: 3 }
+      stress:
+        - id: approval-gate-stress-cardinality
+          path: types/inputs/approval-gate.stress-cardinality.yaml
+          preset: presentation-16x9
+          layout: row
+          count: 4
+          geometry_expected: fits
+          covers: [cardinality-max]
+        - id: approval-gate-stress-copy
+          path: types/inputs/approval-gate.stress-copy.yaml
+          preset: social-4x5
+          layout: row
+          count: 3
+          geometry_expected: fits
+          covers: [copy-boundary-candidate, gate-caption]
+        - id: approval-gate-stress-degrade
+          path: types/inputs/approval-gate.stress-degrade.yaml
+          preset: social-4x5
+          layout: row
+          count: 4
+          geometry_expected: needs-split
+          covers: [cardinality-max, gate-caption, degrade-path]
+    fit:
+      floor_basis: geometry
+      cardinality: { min: 3, canonical: 3, max: 4 }
+      params: { itemMinW: 140, itemMinH: 88, gapX: 56, gapY: 56 }
+      footprint:
+        - { count: 4, layout: row, extraW: 0, extraH: 40, w: 728, h: 128 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 4, layout: row, result: needs-split }
+        - { preset: presentation-16x9, orientation: landscape, count: 4, layout: row, result: fits }
+  - id: before-after
+    selection_signal: "이전과 이후 — 마이그레이션·현대화·리팩터 결과·트레이드오프 비교"
+    profile: constrained-layout
+    support: experimental
+    spec: types/specs/before-after.md
+    presets: [social-4x5, presentation-16x9]
+    orientations: [portrait, landscape]
+    verifier: null
+    receipt_schema: null
+    fixtures: []
+    examples: []
+    required_roles: [canvas, surface, ink, muted, rule, focus]
+    optional_aliases: []
+    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#before-after }
+    annexes: []
+    gate: null
+    migration_origin: legacy
+    legacy_section: "Before / after"
+    inputs:
+      canonical: { id: before-after-canonical, path: types/inputs/before-after.canonical.yaml, preset: social-4x5, layout: row, count: 2 }
+      stress:
+        - id: before-after-stress-cardinality
+          path: types/inputs/before-after.stress-cardinality.yaml
+          preset: social-4x5
+          layout: row
+          count: 2
+          geometry_expected: fits
+          covers: [cardinality-max, mirrored-slots]
+        - id: before-after-stress-copy
+          path: types/inputs/before-after.stress-copy.yaml
+          preset: social-4x5
+          layout: row
+          count: 2
+          geometry_expected: fits
+          covers: [cardinality-max, copy-boundary-candidate]
+    fit:
+      floor_basis: geometry
+      cardinality: { min: 2, canonical: 2, max: 2 }
+      params: { itemMinW: 260, itemMinH: 320, gapX: 32, gapY: 32 }
+      footprint:
+        - { count: 2, layout: row, w: 552, h: 320 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 2, layout: row, result: fits }
+        - { preset: presentation-16x9, orientation: landscape, count: 2, layout: row, result: fits }
+  - id: roadmap-timeline
+    selection_signal: "시간·단계 — 제품 phase·마일스톤·롤아웃 wave·시점별 상태 (균등 간격이며 기간 비례를 주장하지 않음)"
+    profile: constrained-layout
+    support: experimental
+    spec: types/specs/roadmap-timeline.md
+    presets: [social-4x5, presentation-16x9]
+    orientations: [portrait, landscape]
+    verifier: null
+    receipt_schema: null
+    fixtures: []
+    examples: []
+    required_roles: [canvas, surface, ink, muted, rule, focus]
+    optional_aliases: []
+    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#roadmap-timeline }
+    annexes: []
+    gate: null
+    migration_origin: legacy
+    legacy_section: "Roadmap / timeline"
+    inputs:
+      canonical: { id: roadmap-timeline-canonical, path: types/inputs/roadmap-timeline.canonical.yaml, preset: social-4x5, layout: row, count: 4 }
+      stress:
+        - id: roadmap-timeline-stress-cardinality
+          path: types/inputs/roadmap-timeline.stress-cardinality.yaml
+          preset: presentation-16x9
+          layout: row
+          count: 5
+          geometry_expected: fits
+          covers: [cardinality-max, status-and-marker]
+        - id: roadmap-timeline-stress-copy
+          path: types/inputs/roadmap-timeline.stress-copy.yaml
+          preset: social-4x5
+          layout: row
+          count: 4
+          geometry_expected: fits
+          covers: [copy-boundary-candidate, status-and-marker]
+        - id: roadmap-timeline-stress-degrade
+          path: types/inputs/roadmap-timeline.stress-degrade.yaml
+          preset: social-4x5
+          layout: row
+          count: 5
+          geometry_expected: needs-split
+          covers: [cardinality-max, status-and-marker, degrade-path]
+    fit:
+      floor_basis: geometry
+      cardinality: { min: 3, canonical: 4, max: 5 }
+      params: { itemMinW: 132, itemMinH: 112, gapX: 20, gapY: 20 }
+      footprint:
+        - { count: 5, layout: row, extraW: 48, extraH: 56, w: 788, h: 168 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 5, layout: row, result: needs-split }
+        - { preset: presentation-16x9, orientation: landscape, count: 5, layout: row, result: fits }
+  - id: decision-matrix
+    selection_signal: "두 정성 축으로 배치하는 옵션·항목 — 2×2 우선순위/결정 사분면·3×3 리스크 격자"
+    profile: constrained-layout
+    support: experimental
+    spec: types/specs/decision-matrix.md
+    presets: [social-4x5, presentation-16x9]
+    orientations: [portrait, landscape]
+    verifier: null
+    receipt_schema: null
+    fixtures: []
+    examples: []
+    required_roles: [canvas, surface, ink, muted, rule, focus]
+    optional_aliases: []
+    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#decision-matrix }
+    annexes: []
+    gate: null
+    migration_origin: legacy
+    legacy_section: "Decision / risk matrix"
+    inputs:
+      canonical: { id: decision-matrix-canonical, path: types/inputs/decision-matrix.canonical.yaml, preset: social-4x5, layout: grid, cols: 2, count: 4 }
+      stress:
+        - id: decision-matrix-stress-cardinality
+          path: types/inputs/decision-matrix.stress-cardinality.yaml
+          preset: social-4x5
+          layout: grid
+          cols: 3
+          count: 9
+          geometry_expected: fits
+          covers: [cardinality-max]
+        - id: decision-matrix-stress-copy
+          path: types/inputs/decision-matrix.stress-copy.yaml
+          preset: social-4x5
+          layout: grid
+          cols: 2
+          count: 4
+          geometry_expected: fits
+          covers: [copy-boundary-candidate]
+    fit:
+      floor_basis: geometry
+      cardinality: { min: 4, canonical: 4, max: 9 }
+      params: { itemMinW: 180, itemMinH: 150, gapX: 16, gapY: 16 }
+      footprint:
+        - { count: 4, layout: grid, cols: 2, extraW: 56, extraH: 44, w: 432, h: 360 }
+        - { count: 9, layout: grid, cols: 3, extraW: 56, extraH: 44, w: 628, h: 526 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 9, layout: grid, result: fits }
+        - { preset: presentation-16x9, orientation: landscape, count: 9, layout: grid, result: fits }

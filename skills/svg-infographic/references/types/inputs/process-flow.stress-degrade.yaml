@@ -1,0 +1,33 @@
+schema_version: 1
+kind: typepack-input
+typepack: process-flow
+case: stress-degrade
+preset: social-4x5
+layout: row
+count: 5
+prompt_ko: "배포 절차를 5단계로 위에서 아래로 보여줘. 4:5 세로."
+prompt_en: "Five top-to-bottom delivery steps. 4:5 portrait."
+title:
+  ko: "배포는 검증을 지나 반영된다"
+  en: "Delivery ships through verification"
+steps:
+  - id: "step-1"
+    name:
+      ko: "변경 제안"
+      en: "Propose change"
+  - id: "step-2"
+    name:
+      ko: "자동 검증"
+      en: "Automated checks"
+  - id: "step-3"
+    name:
+      ko: "승인"
+      en: "Approval"
+  - id: "step-4"
+    name:
+      ko: "단계 배포"
+      en: "Staged rollout"
+  - id: "step-5"
+    name:
+      ko: "관측과 회수"
+      en: "Observe and roll back"

@@ -1,0 +1,38 @@
+schema_version: 1
+kind: typepack-input
+typepack: before-after
+case: canonical
+preset: social-4x5
+layout: row
+count: 2
+prompt_ko: "마이그레이션 전후를 두 항목으로 비교해줘. 4:5."
+prompt_en: "Compare before and after across two slots. 4:5."
+title:
+  ko: "자동화가 배포 시간을 줄였다"
+  en: "Automation cut the delivery time"
+panels:
+  - id: "before"
+    title:
+      ko: "이전 구성"
+      en: "Before"
+  - id: "after"
+    title:
+      ko: "이후 구성"
+      en: "After"
+slots:
+  - id: "deploy"
+    before:
+      ko: "수동 배포"
+      en: "Manual deploy"
+    after:
+      ko: "자동 배포"
+      en: "Automated deploy"
+    change: "changed"
+  - id: "rollback"
+    before:
+      ko: "수동 회수"
+      en: "Manual rollback"
+    after:
+      ko: "자동 회수"
+      en: "Automated rollback"
+    change: "changed"

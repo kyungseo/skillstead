@@ -1,0 +1,53 @@
+schema_version: 1
+kind: typepack-input
+typepack: roadmap-timeline
+case: stress-copy
+preset: social-4x5
+layout: row
+count: 4
+prompt_ko: "각 단계 라벨과 카드 문구를 경계까지 길게 써줘. 4:5."
+prompt_en: "Phase labels and cards at the boundary. 4:5."
+title:
+  ko: "롤아웃은 단계로 진행한다"
+  en: "The rollout proceeds in phases"
+phases:
+  - id: "phase-1"
+    label:
+      ko: "준비와 기준 확정"
+      en: "Prepare and baseline"
+    status: "done"
+    card:
+      title:
+        ko: "기준선과 핵심 지표 합의를 완료"
+        en: "Baseline and metrics agreed"
+  - id: "phase-2"
+    label:
+      ko: "시범 적용 단계"
+      en: "Pilot rollout stage"
+    status: "current"
+    card:
+      title:
+        ko: "시범 팀 전체 적용"
+        en: "Pilot team fully live"
+  - id: "phase-3"
+    label:
+      ko: "전사 확대 단계"
+      en: "Org-wide expansion"
+    status: "future"
+    card:
+      title:
+        ko: "전사 순차 확대"
+        en: "Sequential org rollout"
+  - id: "phase-4"
+    label:
+      ko: "운영 안정화 단계"
+      en: "Operational stability"
+    status: "future"
+    card:
+      title:
+        ko: "운영 지표 안정화"
+        en: "Ops metrics stabilised"
+now_marker:
+  label:
+    ko: "지금"
+    en: "Now"

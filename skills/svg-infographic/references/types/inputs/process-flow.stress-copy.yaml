@@ -1,0 +1,29 @@
+schema_version: 1
+kind: typepack-input
+typepack: process-flow
+case: stress-copy
+preset: social-4x5
+layout: column
+count: 4
+prompt_ko: "각 단계 이름을 예산 한계까지 길게 써서 4단계로 보여줘. 4:5 세로."
+prompt_en: "Four steps with names at the copy budget limit. 4:5 portrait."
+title:
+  ko: "배포는 검증을 지나 반영된다"
+  en: "Delivery ships through verification"
+steps:
+  - id: "step-1"
+    name:
+      ko: "변경 제안과 영향 범위 정리 및 사전 공유"
+      en: "Propose change and scope impact"
+  - id: "step-2"
+    name:
+      ko: "자동 검증과 회귀 확인"
+      en: "Automated checks and regression"
+  - id: "step-3"
+    name:
+      ko: "단계적 배포와 관측"
+      en: "Staged rollout with observation"
+  - id: "step-4"
+    name:
+      ko: "이상 시 즉시 회수"
+      en: "Roll back on anomaly"

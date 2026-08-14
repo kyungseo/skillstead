@@ -1,0 +1,57 @@
+schema_version: 1
+kind: typepack-input
+typepack: decision-matrix
+case: canonical
+preset: social-4x5
+layout: grid
+cols: 2
+count: 4
+prompt_ko: "두 축으로 옵션을 2×2 사분면에 배치해줘. 4:5."
+prompt_en: "Place options in a 2×2 matrix. 4:5."
+title:
+  ko: "두 축이 우선순위를 정한다"
+  en: "Two axes set the priority"
+axes:
+  x:
+    low:
+      ko: "좁은 범위"
+      en: "Narrow"
+    high:
+      ko: "넓은 범위"
+      en: "Broad"
+  y:
+    low:
+      ko: "낮은 영향"
+      en: "Low impact"
+    high:
+      ko: "높은 영향"
+      en: "High impact"
+cells:
+  - id: "cell-1"
+    name:
+      ko: "지금 실행"
+      en: "Do now"
+    trait:
+      ko: "영향이 크고 범위가 좁다"
+      en: "High impact, narrow scope"
+  - id: "cell-2"
+    name:
+      ko: "계획 수립"
+      en: "Plan"
+    trait:
+      ko: "영향이 크고 범위가 넓다"
+      en: "High impact, broad scope"
+  - id: "cell-3"
+    name:
+      ko: "위임"
+      en: "Delegate"
+    trait:
+      ko: "영향이 작고 범위가 좁다"
+      en: "Low impact, narrow scope"
+  - id: "cell-4"
+    name:
+      ko: "보류"
+      en: "Defer"
+    trait:
+      ko: "영향이 작고 범위가 넓다"
+      en: "Low impact, broad scope"

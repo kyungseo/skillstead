@@ -1,0 +1,25 @@
+schema_version: 1
+kind: typepack-input
+typepack: nested-scope
+case: stress-copy
+preset: social-4x5
+layout: concentric
+count: 3
+prompt_ko: "각 겹 라벨을 예산 한계까지 길게 써서 3겹으로 보여줘. 4:5."
+prompt_en: "Three concentric scopes with labels at the budget limit. 4:5."
+title:
+  ko: "신뢰 경계는 안쪽일수록 좁다"
+  en: "Trust narrows toward the core"
+rings:
+  - id: "ring-1"
+    label:
+      ko: "공개 네트워크의 외부 경계 영역"
+      en: "Public network edge perimeter"
+  - id: "ring-2"
+    label:
+      ko: "내부 서비스 사이 통신 구간"
+      en: "Internal service comms path"
+  - id: "ring-3"
+    label:
+      ko: "핵심 데이터의 저장 영역"
+      en: "Core data storage"

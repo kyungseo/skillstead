@@ -1,0 +1,92 @@
+schema_version: 1
+kind: typepack-input
+typepack: decision-matrix
+case: stress-cardinality
+preset: social-4x5
+layout: grid
+cols: 3
+count: 9
+prompt_ko: "리스크를 3×3 격자로 배치해줘. 4:5."
+prompt_en: "Place risks on a 3×3 grid. 4:5."
+title:
+  ko: "두 축이 우선순위를 정한다"
+  en: "Two axes set the priority"
+axes:
+  x:
+    low:
+      ko: "좁은 범위"
+      en: "Narrow"
+    high:
+      ko: "넓은 범위"
+      en: "Broad"
+  y:
+    low:
+      ko: "낮은 영향"
+      en: "Low impact"
+    high:
+      ko: "높은 영향"
+      en: "High impact"
+cells:
+  - id: "cell-1"
+    name:
+      ko: "낮음-낮음"
+      en: "Low-Low"
+    trait:
+      ko: "관찰만 유지"
+      en: "Monitor only"
+  - id: "cell-2"
+    name:
+      ko: "낮음-중간"
+      en: "Low-Med"
+    trait:
+      ko: "관찰만 유지"
+      en: "Monitor only"
+  - id: "cell-3"
+    name:
+      ko: "낮음-높음"
+      en: "Low-High"
+    trait:
+      ko: "관찰만 유지"
+      en: "Monitor only"
+  - id: "cell-4"
+    name:
+      ko: "중간-낮음"
+      en: "Med-Low"
+    trait:
+      ko: "관찰만 유지"
+      en: "Monitor only"
+  - id: "cell-5"
+    name:
+      ko: "중간-중간"
+      en: "Med-Med"
+    trait:
+      ko: "관찰만 유지"
+      en: "Monitor only"
+  - id: "cell-6"
+    name:
+      ko: "중간-높음"
+      en: "Med-High"
+    trait:
+      ko: "관찰만 유지"
+      en: "Monitor only"
+  - id: "cell-7"
+    name:
+      ko: "높음-낮음"
+      en: "High-Low"
+    trait:
+      ko: "관찰만 유지"
+      en: "Monitor only"
+  - id: "cell-8"
+    name:
+      ko: "높음-중간"
+      en: "High-Med"
+    trait:
+      ko: "관찰만 유지"
+      en: "Monitor only"
+  - id: "cell-9"
+    name:
+      ko: "높음-높음"
+      en: "High-High"
+    trait:
+      ko: "관찰만 유지"
+      en: "Monitor only"

@@ -1,0 +1,119 @@
+schema_version: 1
+kind: typepack-input
+typepack: layer-stack
+case: stress-degrade
+preset: social-4x5
+layout: column
+floor: wide
+count: 5
+prompt_ko: "플랫폼 역량을 5개 계층으로 보여줘. 4:5."
+prompt_en: "Show five stacked capability layers. 4:5."
+title:
+  ko: "플랫폼 역량은 층으로 쌓인다"
+  en: "Platform capability stacks in layers"
+layers:
+  - id: "layer-1"
+    label:
+      ko: "제품 경험"
+      en: "Product experience"
+    items:
+      - id: "chip-1-1"
+        label:
+          ko: "구성요소 1"
+          en: "Component 1"
+      - id: "chip-1-2"
+        label:
+          ko: "구성요소 2"
+          en: "Component 2"
+      - id: "chip-1-3"
+        label:
+          ko: "구성요소 3"
+          en: "Component 3"
+      - id: "chip-1-4"
+        label:
+          ko: "구성요소 4"
+          en: "Component 4"
+  - id: "layer-2"
+    label:
+      ko: "애플리케이션 서비스"
+      en: "Application services"
+    items:
+      - id: "chip-2-1"
+        label:
+          ko: "구성요소 1"
+          en: "Component 1"
+      - id: "chip-2-2"
+        label:
+          ko: "구성요소 2"
+          en: "Component 2"
+      - id: "chip-2-3"
+        label:
+          ko: "구성요소 3"
+          en: "Component 3"
+      - id: "chip-2-4"
+        label:
+          ko: "구성요소 4"
+          en: "Component 4"
+  - id: "layer-3"
+    label:
+      ko: "플랫폼 런타임"
+      en: "Platform runtime"
+    items:
+      - id: "chip-3-1"
+        label:
+          ko: "구성요소 1"
+          en: "Component 1"
+      - id: "chip-3-2"
+        label:
+          ko: "구성요소 2"
+          en: "Component 2"
+      - id: "chip-3-3"
+        label:
+          ko: "구성요소 3"
+          en: "Component 3"
+      - id: "chip-3-4"
+        label:
+          ko: "구성요소 4"
+          en: "Component 4"
+  - id: "layer-4"
+    label:
+      ko: "데이터 기반"
+      en: "Data foundation"
+    items:
+      - id: "chip-4-1"
+        label:
+          ko: "구성요소 1"
+          en: "Component 1"
+      - id: "chip-4-2"
+        label:
+          ko: "구성요소 2"
+          en: "Component 2"
+      - id: "chip-4-3"
+        label:
+          ko: "구성요소 3"
+          en: "Component 3"
+      - id: "chip-4-4"
+        label:
+          ko: "구성요소 4"
+          en: "Component 4"
+  - id: "layer-5"
+    label:
+      ko: "기반 인프라"
+      en: "Foundation infrastructure"
+    items:
+      - id: "chip-5-1"
+        label:
+          ko: "구성요소 1"
+          en: "Component 1"
+      - id: "chip-5-2"
+        label:
+          ko: "구성요소 2"
+          en: "Component 2"
+      - id: "chip-5-3"
+        label:
+          ko: "구성요소 3"
+          en: "Component 3"
+      - id: "chip-5-4"
+        label:
+          ko: "구성요소 4"
+          en: "Component 4"

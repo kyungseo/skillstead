@@ -37,6 +37,7 @@
 import { readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { preflight } from "./preflight-lib.mjs";
 
 const num = (v) => (v == null ? null : /^-?\d+(\.\d+)?$/.test(v) ? Number(v) : NaN);
 
@@ -402,4 +403,7 @@ function isEntrypoint() {
     return import.meta.url === pathToFileURL(process.argv[1] ?? "").href;
   }
 }
-if (isEntrypoint()) process.exit(runLayoutCli(process.argv.slice(2)));
+if (isEntrypoint()) {
+  preflight({ entrypointUrl: import.meta.url });
+  process.exit(runLayoutCli(process.argv.slice(2)));
+}

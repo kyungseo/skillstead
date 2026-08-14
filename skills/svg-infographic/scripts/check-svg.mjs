@@ -35,6 +35,7 @@
 import { readFileSync , realpathSync } from "node:fs";
 import { pathToFileURL, fileURLToPath } from "node:url";
 import { allowedPaintSet } from "./skin.mjs";
+import { preflight } from "./preflight-lib.mjs";
 import process from "node:process";
 
 // ---------------------------------------------------------------------------
@@ -264,7 +265,7 @@ const NARROW = new Set(".,:;!'’‘`ijl|()[]{}".split(""));
 const MID_NARROW = new Set("ftrI-·/\\\"".split(""));
 const WIDE = new Set("mMW@%".split(""));
 
-function estimateWidth(text, fontSize, bold, letterSpacing) {
+export function estimateWidth(text, fontSize, bold, letterSpacing) {
   let em = 0;
   for (const ch of text) {
     const code = ch.codePointAt(0);
@@ -1326,5 +1327,6 @@ const __isMain = (() => {
   }
 })();
 if (__isMain) {
+  preflight({ entrypointUrl: import.meta.url });
   process.exit(runCli(process.argv.slice(2)));
 }

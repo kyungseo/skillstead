@@ -1,0 +1,35 @@
+schema_version: 1
+kind: typepack-input
+typepack: approval-gate
+case: stress-copy
+preset: social-4x5
+layout: row
+count: 3
+prompt_ko: "노드 이름과 게이트 문구를 예산 한계까지 길게 써줘. 4:5."
+prompt_en: "Node names and gate copy at the budget limit. 4:5."
+title:
+  ko: "요청은 승인 게이트를 지난다"
+  en: "Requests pass an approval gate"
+nodes:
+  - id: "node-1"
+    name:
+      ko: "변경 요청 담당자와 승인 요청 담당"
+      en: "Change requester and submitter"
+  - id: "node-2"
+    name:
+      ko: "자동 검토 시스템"
+      en: "Automated review and checks"
+  - id: "node-3"
+    name:
+      ko: "운영 환경 반영"
+      en: "Production rollout target"
+gate:
+  id: "gate-1"
+  label:
+    ko: "보안 승인 게이트"
+    en: "Security approval gate"
+  from: "node-1"
+  to: "node-2"
+  criterion:
+    ko: "보안 검토와 비용 검토를 모두 통과했을 때"
+    en: "When both security and cost reviews pass"

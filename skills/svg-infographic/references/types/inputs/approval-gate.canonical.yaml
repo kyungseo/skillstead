@@ -1,0 +1,35 @@
+schema_version: 1
+kind: typepack-input
+typepack: approval-gate
+case: canonical
+preset: social-4x5
+layout: row
+count: 3
+prompt_ko: "요청이 승인 게이트를 지나 반영되는 경로를 보여줘. 4:5."
+prompt_en: "A request passing an approval gate. 4:5."
+title:
+  ko: "요청은 승인 게이트를 지난다"
+  en: "Requests pass an approval gate"
+nodes:
+  - id: "node-1"
+    name:
+      ko: "요청자"
+      en: "Requester"
+  - id: "node-2"
+    name:
+      ko: "검토 시스템"
+      en: "Review system"
+  - id: "node-3"
+    name:
+      ko: "운영 환경"
+      en: "Production"
+gate:
+  id: "gate-1"
+  label:
+    ko: "승인 게이트"
+    en: "Approval gate"
+  from: "node-1"
+  to: "node-2"
+  criterion:
+    ko: "보안 검토 통과 시"
+    en: "When security review passes"

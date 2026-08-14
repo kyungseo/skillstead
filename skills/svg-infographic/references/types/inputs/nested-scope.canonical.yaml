@@ -1,0 +1,25 @@
+schema_version: 1
+kind: typepack-input
+typepack: nested-scope
+case: canonical
+preset: social-4x5
+layout: concentric
+count: 3
+prompt_ko: "신뢰 경계를 3겹 동심 구조로 보여줘. 4:5."
+prompt_en: "Show the trust boundary as 3 concentric scopes. 4:5."
+title:
+  ko: "신뢰 경계는 안쪽일수록 좁다"
+  en: "Trust narrows toward the core"
+rings:
+  - id: "ring-1"
+    label:
+      ko: "공개 네트워크"
+      en: "Public network"
+  - id: "ring-2"
+    label:
+      ko: "경계 게이트웨이"
+      en: "Edge gateway"
+  - id: "ring-3"
+    label:
+      ko: "내부 서비스망"
+      en: "Internal service mesh"

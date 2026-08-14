@@ -9,11 +9,34 @@ typepacks:
     presets: [social-4x5]
     orientations: [portrait]
     verifier: null
+    receipt_schema: null
     fixtures: []
     examples: []
     required_roles: [canvas, surface, ink, muted, rule, focus]
     optional_aliases: []
-    canonical_prompt: PROMPT-GALLERY.md#summary-cards
+    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#summary-cards }
+    annexes: []
+    gate: null
+    migration_origin: new
+    legacy_section: null
+    inputs:
+      canonical: { id: summary-cards-canonical, path: compose-fixtures/inputs/summary-cards.canonical.yaml, preset: social-4x5, layout: row, count: 1 }
+      stress:
+        - id: summary-cards-stress-cardinality
+          path: compose-fixtures/inputs/summary-cards.stress-cardinality.yaml
+          preset: social-4x5
+          layout: row
+          count: 1
+          geometry_expected: fits
+          covers: [cardinality-max]
+    fit:
+      floor_basis: geometry
+      cardinality: { min: 1, canonical: 1, max: 1 }
+      params: { itemMinW: 100, itemMinH: 60, gapX: 0, gapY: 0 }
+      footprint:
+        - { count: 1, layout: row, w: 100, h: 60 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 1, layout: row, result: fits }
     composition:
       composable: true
       min_slot_size: { w: 640, h: 240 }
@@ -32,11 +55,34 @@ typepacks:
     presets: [social-4x5]
     orientations: [portrait]
     verifier: null
+    receipt_schema: null
     fixtures: []
     examples: []
     required_roles: [canvas, surface, ink, muted, rule, focus]
     optional_aliases: []
-    canonical_prompt: PROMPT-GALLERY.md#tree
+    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#tree }
+    annexes: []
+    gate: null
+    migration_origin: new
+    legacy_section: null
+    inputs:
+      canonical: { id: tree-canonical, path: compose-fixtures/inputs/tree.canonical.yaml, preset: social-4x5, layout: row, count: 1 }
+      stress:
+        - id: tree-stress-cardinality
+          path: compose-fixtures/inputs/tree.stress-cardinality.yaml
+          preset: social-4x5
+          layout: row
+          count: 1
+          geometry_expected: fits
+          covers: [cardinality-max]
+    fit:
+      floor_basis: geometry
+      cardinality: { min: 1, canonical: 1, max: 1 }
+      params: { itemMinW: 100, itemMinH: 60, gapX: 0, gapY: 0 }
+      footprint:
+        - { count: 1, layout: row, w: 100, h: 60 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 1, layout: row, result: fits }
     composition:
       composable: true
       min_slot_size: { w: 640, h: 300 }
@@ -53,28 +99,74 @@ typepacks:
     selection_signal: "composition 미지원 typepack"
     profile: constrained-layout
     support: experimental
-    spec: compose-fixtures/specs/summary-cards.md
+    spec: compose-fixtures/specs/not-composable.md
     presets: [social-4x5]
     orientations: [portrait]
     verifier: null
+    receipt_schema: null
     fixtures: []
     examples: []
     required_roles: [canvas, ink]
     optional_aliases: []
-    canonical_prompt: PROMPT-GALLERY.md#not-composable
+    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#not-composable }
+    annexes: []
+    gate: null
+    migration_origin: new
+    legacy_section: null
+    inputs:
+      canonical: { id: not-composable-canonical, path: compose-fixtures/inputs/not-composable.canonical.yaml, preset: social-4x5, layout: row, count: 1 }
+      stress:
+        - id: not-composable-stress-cardinality
+          path: compose-fixtures/inputs/not-composable.stress-cardinality.yaml
+          preset: social-4x5
+          layout: row
+          count: 1
+          geometry_expected: fits
+          covers: [cardinality-max]
+    fit:
+      floor_basis: geometry
+      cardinality: { min: 1, canonical: 1, max: 1 }
+      params: { itemMinW: 100, itemMinH: 60, gapX: 0, gapY: 0 }
+      footprint:
+        - { count: 1, layout: row, w: 100, h: 60 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 1, layout: row, result: fits }
   - id: icon-band
     selection_signal: "텍스트 없는 아이콘 밴드 (micro-fixture)"
     profile: constrained-layout
     support: experimental
-    spec: compose-fixtures/specs/summary-cards.md
+    spec: compose-fixtures/specs/icon-band.md
     presets: [social-4x5]
     orientations: [portrait]
     verifier: null
+    receipt_schema: null
     fixtures: []
     examples: []
     required_roles: [canvas, surface, focus]
     optional_aliases: []
-    canonical_prompt: PROMPT-GALLERY.md#icon-band
+    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#icon-band }
+    annexes: []
+    gate: null
+    migration_origin: new
+    legacy_section: null
+    inputs:
+      canonical: { id: icon-band-canonical, path: compose-fixtures/inputs/icon-band.canonical.yaml, preset: social-4x5, layout: row, count: 1 }
+      stress:
+        - id: icon-band-stress-cardinality
+          path: compose-fixtures/inputs/icon-band.stress-cardinality.yaml
+          preset: social-4x5
+          layout: row
+          count: 1
+          geometry_expected: fits
+          covers: [cardinality-max]
+    fit:
+      floor_basis: geometry
+      cardinality: { min: 1, canonical: 1, max: 1 }
+      params: { itemMinW: 100, itemMinH: 60, gapX: 0, gapY: 0 }
+      footprint:
+        - { count: 1, layout: row, w: 100, h: 60 }
+      feasibility:
+        - { preset: social-4x5, orientation: portrait, count: 1, layout: row, result: fits }
     composition:
       composable: true
       min_slot_size: { w: 640, h: 100 }

@@ -21,7 +21,8 @@ Nuances: a **simple qualitative** 2×2/3×3 matrix or a status-count badge is fi
 | File | When to read |
 | --- | --- |
 | `references/design-kernel.md` | **Before choosing colors, tokens or typography** — the canonical skin contract: 11-role token model, domain aliases, versioned profiles + `skin.mjs` resolver, typography profile SSoT(`references/typography/`), approved contact sheet |
-| `references/archetypes.md` | **Always, before the layout pass** — the chosen archetype's layout skeleton, premium recipe, and per-type checks |
+| `references/types/selection.md` | **Before choosing a type** — the generated routing view: content signal → TypePack → its spec (derived from the TypePack manifest; migrated types only) |
+| `references/archetypes.md` | **For the cross-type premium base recipe** (the default visual language). Every per-type rule set has moved to its TypePack spec; the per-archetype sections here are pointer tombstones only |
 | `references/authoring.md` | **Always, before writing SVG** — detailed geometry/connector/panel/emphasis/color rules and the full icon set; also the manual render fallback |
 | `references/sketch.md` | Only when the user asks for a hand-drawn / sketchnote / 손글씨 feel — the opt-in sketch preset (paper, handwriting font, rough filters, highlighter) |
 | `scripts/render.mjs` | **Canonical renderer** (Node 18+, stdlib only) — lint gate → browser discovery → 2× render → exact IHDR verification in one entrypoint; works from any shell incl. Windows CMD/PowerShell without Git Bash |
@@ -71,7 +72,7 @@ If Node 18+ is missing:
 
 ## 1. Pick an archetype (shape first)
 
-Pick from the content signal, then **read that archetype's section in `references/archetypes.md`** — it has the layout skeleton, the premium recipe, and the checks that prevent that type's common failures.
+Pick from the content signal. Read `references/types/selection.md` first: if the signal routes to a **TypePack**, that spec is the only rule set — it owns the input contract, the fit/variant contract, the layout formulas and the checks, and `references/archetypes.md` holds nothing but a pointer for it. If the signal does not appear there, the type has not been migrated yet: read its section in `references/archetypes.md`, which stays normative for exactly those types.
 
 | Content signal | Archetype |
 | --- | --- |
@@ -103,7 +104,13 @@ Pick from the content signal, then **read that archetype's section in `reference
 
 Read `references/authoring.md` for the detailed rules and the reusable icon set. The render-critical core:
 
-- **Root:** `<svg xmlns viewBox="0 0 W H" width=W height=H role="img" style="font-family:...">` with `<title>`/`<desc>` — the family comes from the **typography profile SSoT** (`references/typography/typography-v1.yaml`, `skin.mjs resolve` receipt의 `typography.stack`). flat = Pretendard + normalized fallback stack(KO/EN 공용, system); sketch = **Hi Melody** glyph subset을 `@font-face` data URI로 embed(중립 alias, weight 400 고정, bundled asset `assets/fonts/`). 최종 산출물은 `skin.mjs typography-check`(정적 cascade — renderer가 sketch/typography 표기 감지 시 hard gate로 자동 실행)와 필요 시 `scripts/font-probe.mjs`(runtime load/computed receipt — rendered-face 증명 아님을 명시)로 검증한다. Linux에서 flat KO가 tofu(□)면 Pretendard 또는 `fonts-noto-cjk` 설치.
+- **Root:** `<svg xmlns viewBox="0 0 W H" width=W height=H role="img" style="font-family:...">` with `<title>`/`<desc>` — 글꼴 정체성(face·weight·asset·digest·license)은 **typography SSoT**(`references/typography/typography-v1.yaml`), **어떻게 실어 보낼지**는 **font-delivery policy**(`references/delivery/font-delivery-v1.yaml`)가 소유한다. 두 축은 분리돼 있어 글꼴이나 출력 방식이 늘어도 조합이 불어나지 않는다.
+  - **portable(기본, acceptance-grade):** flat의 Pretendard 400/700 bundled face에서 **그 산출물이 실제로 쓴 glyph만** subset해 `@font-face` data URI로 embed한다. alias는 policy가 정한 중립 이름이다 — Pretendard는 **Reserved Font Name**이라 subset(=Modified Version)에 그 이름을 쓸 수 없다. 대상 환경에 글꼴이 없어도 같은 geometry로 렌더된다. gallery와 release evidence는 이 mode로만 만든다.
+  - **system(lightweight, 환경 의존):** embed 없이 설치 글꼴 stack에 의존한다. 가볍고 편집 가능하지만 fallback이 갈리면 줄바꿈·geometry가 달라지므로 **acceptance 근거로 쓰지 않는다**.
+  - **편집 가능한 산출물의 조건:** embed된 subset은 보기·렌더 충실도를 위한 것이지 편집 가능성을 보장하지 않는다(문자를 고치면 subset에 없는 glyph는 tofu가 된다). SVG를 열어 고치거나 PPT로 가져가 편집하려면 **대상 환경에 Pretendard가 설치돼 있어야 한다** — PowerPoint는 SVG에 embed된 폰트를 보존하지 않는다.
+  - **subset 도구는 pinned build-only 의존성이다:** `fonttools 4.53.1`(+`brotli`)의 `pyftsubset`을 고정된 옵션으로 쓴다. 도구가 없으면 full embed로도 system fallback으로도 **조용히 넘어가지 않고 실패한다**. 이미 만들어진 산출물을 보거나 검증(lint·layout·render·audit)하는 데는 이 도구가 필요 없다.
+  - sketch treatment는 **Hi Melody** glyph subset을 같은 방식으로 embed한다(중립 alias, weight 400 고정).
+  - 검증: `skin.mjs typography-check`(정적 cascade — renderer가 sketch/typography 표기 감지 시 hard gate로 자동 실행), `skin.mjs delivery`(정책·alias·RFN 대조), 필요 시 `scripts/font-probe.mjs`(runtime load/computed receipt — rendered-face 증명 아님). system mode에서 Linux flat KO가 tofu(□)면 Pretendard 또는 `fonts-noto-cjk` 설치.
 - **Direct paint + role annotations** — colors encode role, not decoration, but the canonical SVG is authored in the PPT-oriented portable form from the start (`references/design-kernel.md` §5): every paint-bearing shape carries direct `fill`/`stroke` values plus `data-fill-role`/`data-stroke-role` annotations. Recolor by re-running the `skin.mjs` materializer against a profile, never by hand-editing hex. No `var(--…)`, `currentColor` or paint classes in canonical output:
 
 ```xml
