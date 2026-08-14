@@ -1,0 +1,54 @@
+schema_version: 1
+kind: typepack-input
+typepack: decision-matrix
+case: stress-copy
+preset: social-4x5
+layout: grid
+cols: 2
+count: 4
+prompt_ko: "각 칸 이름과 특징을 예산 한계까지 길게 써줘. 4:5."
+prompt_en: "Cell names and traits at the copy budget limit. 4:5."
+axes:
+  x:
+    low:
+      ko: "좁은 범위"
+      en: "Narrow"
+    high:
+      ko: "넓은 범위"
+      en: "Broad"
+  y:
+    low:
+      ko: "낮은 영향"
+      en: "Low impact"
+    high:
+      ko: "높은 영향"
+      en: "High impact"
+cells:
+  - id: "cell-1"
+    name:
+      ko: "즉시 실행 대상"
+      en: "Act immediately"
+    trait:
+      ko: "영향이 크고 범위가 좁아 지금 처리한다"
+      en: "High impact and narrow scope, handle now"
+  - id: "cell-2"
+    name:
+      ko: "분기 계획 대상"
+      en: "Plan this quarter"
+    trait:
+      ko: "영향이 크지만 범위가 넓어 계획이 필요하다"
+      en: "High impact but broad scope, plan first"
+  - id: "cell-3"
+    name:
+      ko: "위임 가능 항목"
+      en: "Delegate safely"
+    trait:
+      ko: "영향이 작고 범위가 좁아 위임할 수 있다"
+      en: "Low impact and narrow scope, delegate"
+  - id: "cell-4"
+    name:
+      ko: "다음 주기 보류"
+      en: "Defer to next cycle"
+    trait:
+      ko: "영향이 작고 범위가 넓어 미룬다"
+      en: "Low impact and broad scope, defer"

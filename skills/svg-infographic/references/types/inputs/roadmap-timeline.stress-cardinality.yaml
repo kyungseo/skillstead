@@ -1,12 +1,12 @@
 schema_version: 1
 kind: typepack-input
 typepack: roadmap-timeline
-case: canonical
-preset: social-4x5
+case: stress-cardinality
+preset: presentation-16x9
 layout: row
-count: 4
-prompt_ko: "롤아웃을 4개 단계로 보여줘. 지금 위치 표시 포함. 4:5."
-prompt_en: "Four rollout phases with a now marker. 4:5."
+count: 5
+prompt_ko: "롤아웃을 5개 단계로 보여줘. 16:9."
+prompt_en: "Five rollout phases. 16:9."
 phases:
   - id: "phase-1"
     label:
@@ -17,14 +17,19 @@ phases:
     label:
       ko: "시범"
       en: "Pilot"
-    status: "current"
+    status: "done"
   - id: "phase-3"
     label:
       ko: "확대"
       en: "Expand"
-    status: "future"
+    status: "current"
   - id: "phase-4"
     label:
       ko: "안정화"
       en: "Stabilise"
+    status: "future"
+  - id: "phase-5"
+    label:
+      ko: "이관"
+      en: "Hand over"
     status: "future"

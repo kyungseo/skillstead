@@ -1,12 +1,12 @@
 schema_version: 1
 kind: typepack-input
 typepack: layer-stack
-case: canonical
+case: stress-cardinality
 preset: social-4x5
 layout: column
-count: 4
-prompt_ko: "플랫폼 역량을 4개 계층으로 쌓아서 보여줘. 4:5."
-prompt_en: "Show the platform capability as four stacked layers. 4:5."
+count: 5
+prompt_ko: "플랫폼 역량을 5개 계층으로 보여줘. 4:5."
+prompt_en: "Show five stacked capability layers. 4:5."
 layers:
   - id: "layer-1"
     label:
@@ -24,3 +24,7 @@ layers:
     label:
       ko: "데이터 기반"
       en: "Data foundation"
+  - id: "layer-5"
+    label:
+      ko: "기반 인프라"
+      en: "Foundation infrastructure"

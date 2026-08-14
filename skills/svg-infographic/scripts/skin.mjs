@@ -540,6 +540,107 @@ function materializeSvg(text, tokens) {
   return { out, findings };
 }
 
+// ---- TypePack input payload schema (CP2A-R1) ----------------------------------
+// 입력은 prompt 문장이 아니라 **구조화 payload**가 SSoT다. generator가 누락 내용을
+// 발명하지 못하도록 entity마다 안정 ID를 두고 locale 값을 그 안에 묶는다.
+const LOCALES = ["ko", "en"];
+const INPUT_SCHEMA = {
+  "cards-kpi-grid": { collection: "cards", required: ["title"], optional: ["body", "icon", "numeral"],
+    budget: { title: [28, 44], body: [30, 48] } },
+  "layer-stack": { collection: "layers", required: ["label"], optional: ["items", "note"],
+    budget: { label: [28, 40], note: [30, 48] } },
+  "nested-scope": { collection: "rings", required: ["label"], optional: ["core_icon", "callout"],
+    budget: { label: [20, 30], callout: [30, 48] } },
+  "topology-component": { collection: "zones", required: ["label"], optional: ["nodes"],
+    budget: { label: [18, 28] }, extra: ["edges", "boundary"] },
+  "process-flow": { collection: "steps", required: ["name"], optional: [],
+    budget: { name: [24, 36] }, extra: ["feedback", "lanes"] },
+  "approval-gate": { collection: "nodes", required: ["name"], optional: [],
+    budget: { name: [20, 30] }, extra: ["gate"] },
+  "before-after": { collection: "slots", required: ["before", "after"], optional: ["change"],
+    budget: { before: [24, 36], after: [24, 36] } },
+  "roadmap-timeline": { collection: "phases", required: ["label", "status"], optional: ["card"],
+    budget: { label: [16, 24] }, extra: ["now_marker"] },
+  "decision-matrix": { collection: "cells", required: ["name", "trait"], optional: ["action"],
+    budget: { name: [16, 24], trait: [30, 44] }, extra: ["axes"] },
+};
+const COVERS_VOCAB = ["cardinality-max", "copy-max", "optionals-max", "connector-density",
+  "containment-depth", "mirrored-slots", "status-and-marker", "degrade-path", "gate-caption"];
+
+// entity payload 검증: 필수 localized field, KO/EN 동시 존재, budget, ID 유일성,
+// 그리고 두 locale의 entity ID 집합이 같은지(구조적 parity).
+function validateInputPayload(doc, tid, declaredCount, report) {
+  const sc = INPUT_SCHEMA[tid];
+  if (!sc) return;
+  const list = doc[sc.collection];
+  if (!Array.isArray(list) || !list.length) return report(`payload must carry "${sc.collection}" entities`);
+  if (list.length !== Number(declaredCount)) report(`"${sc.collection}" holds ${list.length} entities but the manifest declares count ${declaredCount}`);
+  const ids = new Set();
+  for (const e of list) {
+    if (!e || typeof e !== "object") { report(`${sc.collection} entity must be a map`); continue; }
+    if (!e.id || !/^[a-z0-9][a-z0-9-]*$/.test(String(e.id))) report(`${sc.collection} entity id "${e.id}" must be kebab-case`);
+    else if (ids.has(e.id)) report(`duplicate ${sc.collection} entity id "${e.id}"`);
+    else ids.add(e.id);
+    for (const k of Object.keys(e)) if (!["id", ...sc.required, ...sc.optional].includes(k)) report(`${sc.collection} entity "${e.id}" has unknown field "${k}"`);
+    for (const f of sc.required) {
+      const v = e[f];
+      if (f === "status") { if (!["done", "current", "future"].includes(v)) report(`entity "${e.id}" status must be done|current|future`); continue; }
+      if (!v || typeof v !== "object") { report(`entity "${e.id}" is missing required field "${f}"`); continue; }
+      for (const loc of LOCALES) {
+        if (!v[loc]) { report(`entity "${e.id}" field "${f}" is missing the ${loc} value (both locales are first-class)`); continue; }
+        const lim = sc.budget?.[f]?.[loc === "ko" ? 0 : 1];
+        if (lim && String(v[loc]).length > lim) report(`entity "${e.id}" ${f}.${loc} is ${String(v[loc]).length} chars, over the ${lim} budget`);
+      }
+    }
+    for (const f of sc.optional) {
+      const v = e[f];
+      if (v == null || typeof v !== "object" || Array.isArray(v)) continue;
+      for (const loc of LOCALES) if (v[loc] === undefined) report(`entity "${e.id}" optional field "${f}" must carry both locales when present`);
+    }
+  }
+  // 타입별 invariant
+  if (tid === "topology-component") {
+    const nodeIds = new Set();
+    for (const z of list) for (const n of z.nodes ?? []) {
+      if (!n.id) { report("topology node needs an id"); continue; }
+      if (nodeIds.has(n.id)) report(`topology node id "${n.id}" appears in more than one zone`);
+      nodeIds.add(n.id);
+      for (const loc of LOCALES) if (!n.name?.[loc]) report(`topology node "${n.id}" is missing name.${loc}`);
+    }
+    if (!nodeIds.size) report("topology payload must declare nodes inside its zones");
+    if (nodeIds.size > 9) report(`topology declares ${nodeIds.size} nodes but the contract caps it at 9`);
+    for (const ed of doc.edges ?? []) {
+      for (const end of ["from", "to"]) if (!nodeIds.has(ed[end])) report(`edge "${ed.id}" ${end} "${ed[end]}" is not an existing node`);
+      if (!["request", "dependency"].includes(ed.kind)) report(`edge "${ed.id}" kind must be request|dependency`);
+      if (!["sync", "async"].includes(ed.delivery)) report(`edge "${ed.id}" delivery must be sync|async`);
+      if (!["public", "private"].includes(ed.visibility)) report(`edge "${ed.id}" visibility must be public|private`);
+    }
+    if (!(doc.edges ?? []).length) report("topology payload must declare at least one edge");
+  }
+  if (tid === "approval-gate") {
+    const g = doc.gate;
+    if (!g || typeof g !== "object") report("approval payload requires a gate");
+    else {
+      for (const loc of LOCALES) if (!g.label?.[loc]) report(`gate label is missing the ${loc} value`);
+      for (const end of ["from", "to"]) if (!ids.has(g[end])) report(`gate ${end} "${g[end]}" is not an existing node`);
+    }
+  }
+  if (tid === "roadmap-timeline") {
+    const cur = list.filter((x) => x.status === "current").length;
+    if (cur !== 1) report(`exactly one phase must be "current" (found ${cur})`);
+  }
+  if (tid === "decision-matrix") {
+    const ax = doc.axes;
+    if (!ax || typeof ax !== "object") report("decision payload requires axes");
+    else for (const a of ["x", "y"]) for (const end of ["low", "high"])
+      for (const loc of LOCALES) if (!ax[a]?.[end]?.[loc]) report(`axes.${a}.${end} is missing the ${loc} label`);
+  }
+  if (tid === "before-after") {
+    for (const e of list) if (e.change && !["unchanged", "added", "removed", "changed"].includes(e.change))
+      report(`slot "${e.id}" change must be unchanged|added|removed|changed`);
+  }
+}
+
 const PF_HEADER = ["eyebrow", "h1", "subtitle"];
 const PF_HI = ["ascent-mult", "eyebrow-row-mult", "eyebrow-gap", "collapsed-top-mult",
   "h1-line-mult", "h1-descent-mult", "subtitle-gap-mult", "subtitle-descent-mult",
@@ -1162,18 +1263,20 @@ function main() {
         for (const pr of (Array.isArray(p.presets) ? p.presets : []))
           if (!seen.has(`${pr}:${card.max}`)) errors.push(`manifest: ${id}: fit.feasibility must cover preset "${pr}" at the maximum cardinality (${card.max})`);
       }
-      // ---- CP2A 입력 계약: canonical/stress input은 fit 계산과 결합된 실제 파일이다.
-      // canonical은 편안한 대표 구성, stress는 **최대 예산 경계**(cardinality.max)이며
-      // 둘 다 live contentBox에서 실제로 fits여야 한다 — 렌더 불가능한 입력은 경계가 아니다.
+      // ---- CP2A 입력 계약(R1 반영): canonical 1건 + stress **scenario 목록**.
+      // 입력은 구조화 payload가 SSoT이고, stress는 위험 축(covers)별로 나뉜다.
       const inp = p.inputs;
-      if (!inp || typeof inp !== "object") errors.push(`manifest: ${id}: inputs block is required (canonical/stress)`);
+      if (!inp || typeof inp !== "object") errors.push(`manifest: ${id}: inputs block is required (canonical + stress scenarios)`);
       else {
         for (const k of Object.keys(inp)) if (!["canonical", "stress"].includes(k)) errors.push(`manifest: ${id}: inputs unknown case "${k}"`);
-        for (const cse of ["canonical", "stress"]) {
-          const c = inp[cse];
+        const cases = [["canonical", inp.canonical]].concat((Array.isArray(inp.stress) ? inp.stress : []).map((x) => ["stress", x]));
+        if (!Array.isArray(inp.stress) || !inp.stress.length) errors.push(`manifest: ${id}: inputs.stress must be a non-empty list of named scenarios`);
+        const coversSeen = new Set();
+        let maxCardScenario = null;
+        for (const [cse, c] of cases) {
           if (!c || typeof c !== "object") { errors.push(`manifest: ${id}: inputs.${cse} is required`); continue; }
-          for (const k of Object.keys(c)) if (!["id", "path", "preset", "layout", "cols", "floor", "count"].includes(k))
-            errors.push(`manifest: ${id}: inputs.${cse} unknown field "${k}"`);
+          const allowed = ["id", "path", "preset", "layout", "cols", "floor", "count"].concat(cse === "stress" ? ["expected", "covers"] : []);
+          for (const k of Object.keys(c)) if (!allowed.includes(k)) errors.push(`manifest: ${id}: inputs.${cse} unknown field "${k}"`);
           if (!c.id || !/^[a-z0-9][a-z0-9-]*$/.test(String(c.id))) errors.push(`manifest: ${id}: inputs.${cse} id invalid`);
           else if (inputIds.has(c.id)) errors.push(`manifest: ${id}: duplicate input id "${c.id}"`);
           else inputIds.add(c.id);
@@ -1184,33 +1287,49 @@ function main() {
           try { ({ doc: idoc } = readYaml(iabs)); } catch { errors.push(`manifest: ${id}: inputs.${cse} file not found (${ip})`); }
           if (Array.isArray(p.presets) && !p.presets.includes(c.preset)) errors.push(`manifest: ${id}: inputs.${cse} preset "${c.preset}" is not declared`);
           if (!posInt(c.count)) errors.push(`manifest: ${id}: inputs.${cse} count must be a positive integer`);
-          // stress는 최대 예산 경계여야 한다 — 임의로 작은 입력을 stress라 부를 수 없다
-          if (cse === "stress" && Number(c.count) !== Number(fit?.cardinality?.max))
-            errors.push(`manifest: ${id}: inputs.stress count ${c.count} must equal fit.cardinality.max (${fit?.cardinality?.max}) — the stress input is the max-budget boundary`);
-          // 실제 fit 계산: 선언된 배치로 계산해 live contentBox에서 fits여야 한다
+          // 기하 판정: 선언된 배치를 계산해 live contentBox와 대조하고 expected와 맞춘다
           const got = computeFit ? computeFit({ count: c.count, layout: c.layout, cols: c.cols, floor: c.floor }) : null;
           const pfi = pageframeFor(c.preset);
+          let computed = null;
           if (got && pfi) {
             const cb = pfi.regions.contentBox;
-            if (!(got.w <= cb.w && got.h <= cb.h))
-              errors.push(`manifest: ${id}: inputs.${cse} (${c.preset}, count ${c.count}, ${c.layout}) computes ${Math.round(got.w)}×${Math.round(got.h)} against contentBox ${cb.w}×${cb.h} — an input must be renderable (fits)`);
+            computed = (got.w <= cb.w && got.h <= cb.h) ? "fits" : "needs-split";
           }
-          // 입력 파일 자체의 무결성: 선언과 내용이 어긋나면 CP2B가 잘못된 것을 렌더한다
+          if (cse === "canonical") {
+            if (computed && computed !== "fits")
+              errors.push(`manifest: ${id}: inputs.canonical computes ${Math.round(got.w)}×${Math.round(got.h)} → needs-split; the canonical input must be renderable`);
+          } else {
+            if (!["fits", "needs-split"].includes(c.expected)) errors.push(`manifest: ${id}: stress "${c.id}" expected must be fits|needs-split`);
+            else if (computed && computed !== c.expected)
+              errors.push(`manifest: ${id}: stress "${c.id}" declares expected "${c.expected}" but computes "${computed}" against ${c.preset}`);
+            const cov = Array.isArray(c.covers) ? c.covers : [];
+            if (!cov.length) errors.push(`manifest: ${id}: stress "${c.id}" must declare the risk axes it covers`);
+            for (const v of cov) {
+              if (!COVERS_VOCAB.includes(v)) errors.push(`manifest: ${id}: stress "${c.id}" covers "${v}" is not in the vocabulary (${COVERS_VOCAB.join("/")})`);
+              coversSeen.add(v);
+            }
+            if (cov.includes("cardinality-max")) {
+              maxCardScenario = c;
+              if (Number(c.count) !== Number(fit?.cardinality?.max))
+                errors.push(`manifest: ${id}: stress "${c.id}" covers cardinality-max but count ${c.count} != fit.cardinality.max (${fit?.cardinality?.max})`);
+            }
+          }
+          // 입력 파일 무결성 + 구조화 payload 검증
           if (idoc) {
             if (Number(idoc.schema_version) !== 1 || idoc.kind !== "typepack-input")
               errors.push(`manifest: ${id}: inputs.${cse} file identity invalid (schema_version 1 + kind typepack-input)`);
             if (idoc.typepack !== id) errors.push(`manifest: ${id}: inputs.${cse} file declares typepack "${idoc.typepack}"`);
-            if (idoc.case !== cse) errors.push(`manifest: ${id}: inputs.${cse} file declares case "${idoc.case}"`);
+            // 파일의 case는 시나리오 id와 결합된다 — 한 파일을 여러 시나리오가 겸용할 수 없다
+            const wantCase = cse === "canonical" ? "canonical" : String(c.id).slice(String(id).length + 1);
+            if (idoc.case !== wantCase) errors.push(`manifest: ${id}: input file case "${idoc.case}" != scenario "${wantCase}"`);
             for (const k of ["preset", "layout", "count"])
               if (String(idoc[k]) !== String(c[k])) errors.push(`manifest: ${id}: inputs.${cse} file ${k} "${idoc[k]}" != manifest "${c[k]}"`);
-            for (const loc of ["ko", "en"]) {
-              const items = idoc[`items_${loc}`];
-              if (!Array.isArray(items) || items.length !== Number(c.count))
-                errors.push(`manifest: ${id}: inputs.${cse} items_${loc} must hold exactly ${c.count} entries (KO/EN are both first-class)`);
-              if (!idoc[`prompt_${loc}`]) errors.push(`manifest: ${id}: inputs.${cse} prompt_${loc} is required`);
-            }
+            for (const loc of ["ko", "en"]) if (!idoc[`prompt_${loc}`]) errors.push(`manifest: ${id}: inputs.${cse} prompt_${loc} is required (intent 설명)`);
+            validateInputPayload(idoc, id, c.count, (m) => errors.push(`manifest: ${id}: inputs.${cse} payload — ${m}`));
           }
         }
+        if (!maxCardScenario) errors.push(`manifest: ${id}: at least one stress scenario must cover "cardinality-max"`);
+        if (!coversSeen.has("copy-max")) errors.push(`manifest: ${id}: at least one stress scenario must cover "copy-max" (KO/EN 경계 문안)`);
       }
       // migration origin: Wave 1의 기존 archetype 이행 타입은 legacy section을 반드시 명시한다
       if (!["legacy", "new"].includes(p.migration_origin)) errors.push(`manifest: ${id}: migration_origin must be legacy|new`);

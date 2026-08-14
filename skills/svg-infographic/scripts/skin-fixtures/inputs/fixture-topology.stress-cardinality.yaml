@@ -1,13 +1,14 @@
 schema_version: 1
 kind: typepack-input
-typepack: not-composable
-case: stress
+typepack: fixture-topology
+case: stress-cardinality
 preset: social-4x5
 layout: row
 count: 1
 prompt_ko: "fixture 전용 입력"
 prompt_en: "fixture-only input"
-items_ko:
-  - "항목"
-items_en:
-  - "item"
+cards:
+  - id: fixture-item
+    title:
+      ko: "항목"
+      en: "Item"

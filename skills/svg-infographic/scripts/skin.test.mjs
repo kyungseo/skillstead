@@ -692,7 +692,7 @@ test("R1B-P2: fit schema는 음수 gap·잘못된 orientation·중복 tuple을 �
 
 test("R1B-P1: topology fit은 zone 내부 구조를 포함한 계층형 경계 상자로 계산된다", () => {
   const doc = fs.readFileSync(path.join(here, "..", "references", "types", "manifest.yaml"), "utf8");
-  const b = doc.split("  - id: topology-component")[1].split(/^  - id: /m)[0];
+  const b = doc.split(/^  - id: topology-component$/m)[1].split(/^  - id: /m)[0];
   assert.match(b, /layout: zones/, "zones layout을 써야 한다");
   for (const k of ["maxNodesPerZone", "zonePad", "zoneLabelBand", "zoneGap"])
     assert.ok(b.includes(k), `${k} 파라미터 필요`);
@@ -704,10 +704,10 @@ test("R1B-P1: topology fit은 zone 내부 구조를 포함한 계층형 경계 �
 test("R1B-P1c: content floor는 이름으로 구분되고 근거 수준이 표시된다", () => {
   const doc = fs.readFileSync(path.join(here, "..", "references", "types", "manifest.yaml"), "utf8");
   assert.equal((doc.match(/floor_basis: geometry/g) ?? []).length, 9, "Wave 1 수치는 전부 기하 가정이다");
-  const cards = doc.split("  - id: cards-kpi-grid")[1].split(/^  - id: /m)[0];
+  const cards = doc.split(/^  - id: cards-kpi-grid$/m)[1].split(/^  - id: /m)[0];
   assert.match(cards, /itemMinW: 149, itemMinH: 124/, "base floor는 기존 시각 증거 이상");
   assert.match(cards, /compactItemMinW: 132, compactItemMinH: 104/, "compact는 별도 floor");
-  const layer = doc.split("  - id: layer-stack")[1].split(/^  - id: /m)[0];
+  const layer = doc.split(/^  - id: layer-stack$/m)[1].split(/^  - id: /m)[0];
   assert.match(layer, /floor: wide, result: needs-split/, "chip 4개는 4:5에서 성립하지 않는다");
   for (const f of ["cards-kpi-grid", "layer-stack", "process-flow"]) {
     const spec = fs.readFileSync(path.join(here, "..", "references", "types", "specs", `${f}.md`), "utf8");
@@ -715,63 +715,44 @@ test("R1B-P1c: content floor는 이름으로 구분되고 근거 수준이 표�
   }
 });
 
-// --- CP2A: canonical / stress 입력 계약 -------------------------------------
-test("CP2A: 9종 모두 canonical·stress 입력을 갖고 KO/EN 항목 수가 선언과 일치한다", () => {
+// --- CP2A: typed payload + stress scenario 계약 (R1 반영) ---------------------
+test("CP2A: 입력은 구조화 payload이고 KO/EN이 같은 entity 안에 묶인다", () => {
   const m = JSON.parse(run(["manifest", "--json"]).out);
   assert.equal(m.errors.length, 0, JSON.stringify(m.errors));
   const dir = path.join(here, "..", "references", "types", "inputs");
-  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".yaml")).sort();
-  assert.equal(files.length, 18, "9종 × (canonical, stress)");
-  for (const f of files) {
-    const t = fs.readFileSync(path.join(dir, f), "utf8");
-    assert.match(t, /^kind: typepack-input$/m, f);
-    for (const loc of ["ko", "en"]) {
-      assert.match(t, new RegExp(`^prompt_${loc}: ".+"$`, "m"), `${f} prompt_${loc}`);
-      assert.match(t, new RegExp(`^items_${loc}:$`, "m"), `${f} items_${loc}`);
-    }
-  }
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".yaml"));
+  assert.equal(files.length, 27, "9종 × (canonical + stress 2종)");
+  const cards = fs.readFileSync(path.join(dir, "cards-kpi-grid.canonical.yaml"), "utf8");
+  assert.match(cards, /^cards:$/m, "타입별 collection을 가져야 한다");
+  assert.match(cards, /^ {4}title:\n {6}ko: /m, "locale은 entity 안에 묶인다");
+  assert.doesNotMatch(cards, /^items_ko:/m, "평행 배열 방식은 폐기됐다");
+  const topo = fs.readFileSync(path.join(dir, "topology-component.canonical.yaml"), "utf8");
+  for (const k of ["zones:", "nodes:", "edges:", "boundary:"]) assert.ok(topo.includes(k), k);
+  const appr = fs.readFileSync(path.join(dir, "approval-gate.canonical.yaml"), "utf8");
+  assert.match(appr, /^gate:$/m, "approval은 gate를 실제 필드로 가진다");
 });
 
-test("CP2A: stress 입력은 최대 예산 경계이고 두 입력 모두 실제로 렌더 가능해야 한다", () => {
-  // stress count를 낮추면 최대 예산 경계가 아니게 된다
-  let pkg = pkgCopy();
-  writeManifest(pkg, readManifest(pkg).replace(
-    "      stress: { id: cards-kpi-grid-stress, path: types/inputs/cards-kpi-grid.stress.yaml, preset: social-4x5, layout: grid, cols: 2, count: 6 }",
-    "      stress: { id: cards-kpi-grid-stress, path: types/inputs/cards-kpi-grid.stress.yaml, preset: social-4x5, layout: grid, cols: 2, count: 4 }"));
-  let r = runIn(pkg, ["manifest"]);
-  assert.equal(r.code, 1, r.out);
-  assert.match(r.out, /must equal fit\.cardinality\.max/);
-  drop(pkg);
-
-  // 렌더 불가능한 구성을 입력으로 선언하면 거부된다(4:5 가로 5단계)
-  pkg = pkgCopy();
-  writeManifest(pkg, readManifest(pkg).replace(
-    "      stress: { id: process-flow-stress, path: types/inputs/process-flow.stress.yaml, preset: social-4x5, layout: column, count: 5 }",
-    "      stress: { id: process-flow-stress, path: types/inputs/process-flow.stress.yaml, preset: social-4x5, layout: row, count: 5 }"));
-  r = runIn(pkg, ["manifest"]);
-  assert.equal(r.code, 1, r.out);
-  assert.match(r.out, /an input must be renderable \(fits\)/);
-  drop(pkg);
-});
-
-test("CP2A: 입력 파일과 manifest 선언이 어긋나면 거부된다", () => {
+test("CP2A: payload 누락·budget 초과·locale 결손·잘못된 참조는 거부된다", () => {
+  const F = (pkg, f) => path.join(typesOf(pkg), "inputs", f);
   const cases = [
-    [(pkg) => {
-      const f = path.join(typesOf(pkg), "inputs", "cards-kpi-grid.canonical.yaml");
-      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace("count: 4", "count: 5"));
-    }, /file count "5" != manifest "4"/],
-    [(pkg) => {
-      const f = path.join(typesOf(pkg), "inputs", "cards-kpi-grid.canonical.yaml");
-      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace(/  - "보안 기본값"\n/, ""));
-    }, /items_ko must hold exactly 4 entries/],
-    [(pkg) => {
-      const f = path.join(typesOf(pkg), "inputs", "layer-stack.stress.yaml");
-      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace("case: stress", "case: canonical"));
-    }, /file declares case "canonical"/],
-    [(pkg) => {
-      const f = path.join(typesOf(pkg), "inputs", "nested-scope.canonical.yaml");
-      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace("typepack: nested-scope", "typepack: layer-stack"));
-    }, /file declares typepack "layer-stack"/],
+    [(pkg) => { const f = F(pkg, "approval-gate.canonical.yaml");
+      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace(/^gate:\n(?: {2}.*\n| {4}.*\n| {6}.*\n)+/m, "")); },
+     /payload — approval payload requires a gate/],
+    [(pkg) => { const f = F(pkg, "cards-kpi-grid.canonical.yaml");
+      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('      en: "Observability in place"', '      en: "' + "x".repeat(60) + '"')); },
+     /title\.en is 60 chars, over the 44 budget/],
+    [(pkg) => { const f = F(pkg, "cards-kpi-grid.canonical.yaml");
+      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('      en: "Observability in place"\n', "")); },
+     /is missing the en value/],
+    [(pkg) => { const f = F(pkg, "topology-component.canonical.yaml");
+      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('    to: "api"', '    to: "ghost-node"')); },
+     /is not an existing node/],
+    [(pkg) => { const f = F(pkg, "roadmap-timeline.canonical.yaml");
+      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('status: "future"', 'status: "current"')); },
+     /exactly one phase must be "current"/],
+    [(pkg) => { const f = F(pkg, "cards-kpi-grid.canonical.yaml");
+      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('  - id: "security"', '  - id: "observability"')); },
+     /duplicate cards entity id/],
   ];
   for (const [mutate, re] of cases) {
     const pkg = pkgCopy();
@@ -781,6 +762,40 @@ test("CP2A: 입력 파일과 manifest 선언이 어긋나면 거부된다", () =
     assert.match(r.out, re);
     drop(pkg);
   }
+});
+
+test("CP2A: stress는 covers 축을 선언한 시나리오 목록이고 expected가 계산과 일치해야 한다", () => {
+  const doc = fs.readFileSync(path.join(here, "..", "references", "types", "manifest.yaml"), "utf8");
+  for (const b of doc.split(/^  - id: /m).slice(1)) {
+    const id = b.split("\n")[0].trim();
+    assert.match(b, /covers: \[cardinality-max/, `${id}: cardinality-max 시나리오 필요`);
+    assert.ok(/covers: \[[^\]]*copy-max/.test(b), `${id}: copy-max 시나리오 필요`);
+  }
+  const cases = [
+    [(t) => t.replace("          covers: [copy-max, optionals-max]\n", "          covers: []\n"), /must declare the risk axes it covers/],
+    [(t) => t.replace("          covers: [cardinality-max]\n          expected: fits", "          covers: [cardinality-max]\n          expected: needs-split")
+             .replace("expected: fits\n          covers: [cardinality-max]", "expected: needs-split\n          covers: [cardinality-max]"),
+     /declares expected "needs-split" but computes "fits"/],
+    [(t) => t.replace(/          covers: \[cardinality-max[^\]]*\]/, "          covers: [degrade-path]"), /must cover "cardinality-max"/],
+  ];
+  for (const [mutate, re] of cases) {
+    const pkg = pkgCopy();
+    writeManifest(pkg, mutate(readManifest(pkg)));
+    const r = runIn(pkg, ["manifest"]);
+    assert.equal(r.code, 1, `${re}: ${r.out}`);
+    assert.match(r.out, re);
+    drop(pkg);
+  }
+});
+
+test("CP2A: 입력 파일 case는 시나리오와 1:1로 묶인다", () => {
+  const pkg = pkgCopy();
+  const f = path.join(typesOf(pkg), "inputs", "cards-kpi-grid.stress-copy.yaml");
+  fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace("case: stress-copy", "case: stress-cardinality"));
+  const r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /input file case "stress-cardinality" != scenario "stress-copy"/);
+  drop(pkg);
 });
 
 // --- pageframe fail-closed schema + fluid two-phase -------------------------------

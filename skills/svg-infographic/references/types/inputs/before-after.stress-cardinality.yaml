@@ -1,0 +1,26 @@
+schema_version: 1
+kind: typepack-input
+typepack: before-after
+case: stress-cardinality
+preset: social-4x5
+layout: row
+count: 2
+prompt_ko: "전후 비교를 최대 항목 수로 보여줘. 4:5."
+prompt_en: "Before/after at the maximum slot count. 4:5."
+slots:
+  - id: "deploy"
+    before:
+      ko: "수동 배포 절차"
+      en: "Manual deploy steps"
+    after:
+      ko: "자동 배포 파이프라인"
+      en: "Automated pipeline"
+    change: "changed"
+  - id: "rollback"
+    before:
+      ko: "회수 절차 없음"
+      en: "No rollback path"
+    after:
+      ko: "자동 회수 지원"
+      en: "Automated rollback"
+    change: "added"

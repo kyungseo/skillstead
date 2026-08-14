@@ -1,0 +1,26 @@
+schema_version: 1
+kind: typepack-input
+typepack: before-after
+case: stress-copy
+preset: social-4x5
+layout: row
+count: 2
+prompt_ko: "각 슬롯 문구를 예산 한계까지 길게 써줘. 4:5."
+prompt_en: "Slot copy at the budget limit. 4:5."
+slots:
+  - id: "deploy"
+    before:
+      ko: "수동 배포와 승인 대기 시간"
+      en: "Manual deploy with approval wait"
+    after:
+      ko: "자동 배포와 즉시 반영"
+      en: "Automated deploy, instant rollout"
+    change: "changed"
+  - id: "observe"
+    before:
+      ko: "장애 감지까지 수 시간"
+      en: "Hours to detect incidents"
+    after:
+      ko: "이상 감지 후 즉시 회수"
+      en: "Detect and roll back at once"
+    change: "changed"

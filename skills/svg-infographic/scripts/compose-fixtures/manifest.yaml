@@ -21,7 +21,14 @@ typepacks:
     legacy_section: null
     inputs:
       canonical: { id: summary-cards-canonical, path: compose-fixtures/inputs/summary-cards.canonical.yaml, preset: social-4x5, layout: row, count: 1 }
-      stress: { id: summary-cards-stress, path: compose-fixtures/inputs/summary-cards.stress.yaml, preset: social-4x5, layout: row, count: 1 }
+      stress:
+        - id: summary-cards-stress-cardinality
+          path: compose-fixtures/inputs/summary-cards.stress-cardinality.yaml
+          preset: social-4x5
+          layout: row
+          count: 1
+          expected: fits
+          covers: [cardinality-max, copy-max]
     fit:
       floor_basis: geometry
       cardinality: { min: 1, canonical: 1, max: 1 }
@@ -60,7 +67,14 @@ typepacks:
     legacy_section: null
     inputs:
       canonical: { id: tree-canonical, path: compose-fixtures/inputs/tree.canonical.yaml, preset: social-4x5, layout: row, count: 1 }
-      stress: { id: tree-stress, path: compose-fixtures/inputs/tree.stress.yaml, preset: social-4x5, layout: row, count: 1 }
+      stress:
+        - id: tree-stress-cardinality
+          path: compose-fixtures/inputs/tree.stress-cardinality.yaml
+          preset: social-4x5
+          layout: row
+          count: 1
+          expected: fits
+          covers: [cardinality-max, copy-max]
     fit:
       floor_basis: geometry
       cardinality: { min: 1, canonical: 1, max: 1 }
@@ -101,7 +115,14 @@ typepacks:
     legacy_section: null
     inputs:
       canonical: { id: not-composable-canonical, path: compose-fixtures/inputs/not-composable.canonical.yaml, preset: social-4x5, layout: row, count: 1 }
-      stress: { id: not-composable-stress, path: compose-fixtures/inputs/not-composable.stress.yaml, preset: social-4x5, layout: row, count: 1 }
+      stress:
+        - id: not-composable-stress-cardinality
+          path: compose-fixtures/inputs/not-composable.stress-cardinality.yaml
+          preset: social-4x5
+          layout: row
+          count: 1
+          expected: fits
+          covers: [cardinality-max, copy-max]
     fit:
       floor_basis: geometry
       cardinality: { min: 1, canonical: 1, max: 1 }
@@ -130,7 +151,14 @@ typepacks:
     legacy_section: null
     inputs:
       canonical: { id: icon-band-canonical, path: compose-fixtures/inputs/icon-band.canonical.yaml, preset: social-4x5, layout: row, count: 1 }
-      stress: { id: icon-band-stress, path: compose-fixtures/inputs/icon-band.stress.yaml, preset: social-4x5, layout: row, count: 1 }
+      stress:
+        - id: icon-band-stress-cardinality
+          path: compose-fixtures/inputs/icon-band.stress-cardinality.yaml
+          preset: social-4x5
+          layout: row
+          count: 1
+          expected: fits
+          covers: [cardinality-max, copy-max]
     fit:
       floor_basis: geometry
       cardinality: { min: 1, canonical: 1, max: 1 }

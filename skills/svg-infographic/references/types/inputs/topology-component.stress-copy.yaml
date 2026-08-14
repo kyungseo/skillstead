@@ -1,17 +1,17 @@
 schema_version: 1
 kind: typepack-input
 typepack: topology-component
-case: canonical
+case: stress-copy
 preset: social-4x5
 layout: zones
 count: 3
-prompt_ko: "요청 경로를 3개 zone으로 나눠 컴포넌트와 연결을 보여줘. 4:5."
-prompt_en: "Show the request path across three zones with components and links. 4:5."
+prompt_ko: "zone 라벨을 예산 한계까지 길게 써서 3개 zone으로 보여줘. 4:5."
+prompt_en: "Three zones with labels at the copy budget limit. 4:5."
 zones:
   - id: "zone-1"
     label:
-      ko: "진입 zone"
-      en: "Ingress zone"
+      ko: "외부 진입과 경계 방어 zone"
+      en: "External ingress and edge"
     nodes:
       - id: "gw"
         name:
@@ -23,8 +23,8 @@ zones:
           en: "WAF"
   - id: "zone-2"
     label:
-      ko: "애플리케이션 zone"
-      en: "Application zone"
+      ko: "애플리케이션 서비스 zone"
+      en: "Application service zone"
     nodes:
       - id: "api"
         name:
@@ -36,8 +36,8 @@ zones:
           en: "Auth service"
   - id: "zone-3"
     label:
-      ko: "비동기 처리 zone"
-      en: "Async processing zone"
+      ko: "영속 데이터 저장 zone"
+      en: "Persistent data storage zone"
     nodes:
       - id: "queue"
         name:

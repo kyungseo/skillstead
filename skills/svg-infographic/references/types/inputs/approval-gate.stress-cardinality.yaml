@@ -1,12 +1,12 @@
 schema_version: 1
 kind: typepack-input
 typepack: approval-gate
-case: canonical
-preset: social-4x5
+case: stress-cardinality
+preset: presentation-16x9
 layout: row
-count: 3
-prompt_ko: "요청이 승인 게이트를 지나 반영되는 경로를 보여줘. 4:5."
-prompt_en: "A request passing an approval gate. 4:5."
+count: 4
+prompt_ko: "요청 승인 경로를 4개 노드로 보여줘. 16:9."
+prompt_en: "The approval path across four nodes. 16:9."
 nodes:
   - id: "node-1"
     name:
@@ -18,6 +18,10 @@ nodes:
       en: "Review system"
   - id: "node-3"
     name:
+      ko: "승인 담당"
+      en: "Approver"
+  - id: "node-4"
+    name:
       ko: "운영 환경"
       en: "Production"
 gate:
@@ -28,5 +32,5 @@ gate:
   from: "node-1"
   to: "node-2"
   criterion:
-    ko: "보안 검토 통과 시"
-    en: "When security review passes"
+    ko: "보안·비용 검토 통과 시"
+    en: "When security and cost review pass"

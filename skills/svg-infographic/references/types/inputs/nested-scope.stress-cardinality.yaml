@@ -1,12 +1,12 @@
 schema_version: 1
 kind: typepack-input
 typepack: nested-scope
-case: canonical
+case: stress-cardinality
 preset: social-4x5
 layout: concentric
-count: 3
-prompt_ko: "신뢰 경계를 3겹 동심 구조로 보여줘. 4:5."
-prompt_en: "Show the trust boundary as 3 concentric scopes. 4:5."
+count: 4
+prompt_ko: "신뢰 경계를 4겹 동심 구조로 보여줘. 4:5."
+prompt_en: "Show the trust boundary as 4 concentric scopes. 4:5."
 rings:
   - id: "ring-1"
     label:
@@ -20,3 +20,7 @@ rings:
     label:
       ko: "내부 서비스망"
       en: "Internal service mesh"
+  - id: "ring-4"
+    label:
+      ko: "핵심 데이터"
+      en: "Core data"

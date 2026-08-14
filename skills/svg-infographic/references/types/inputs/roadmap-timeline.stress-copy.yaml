@@ -1,0 +1,30 @@
+schema_version: 1
+kind: typepack-input
+typepack: roadmap-timeline
+case: stress-copy
+preset: social-4x5
+layout: row
+count: 4
+prompt_ko: "각 단계 라벨을 예산 한계까지 길게 써줘. 4:5."
+prompt_en: "Phase labels at the copy budget limit. 4:5."
+phases:
+  - id: "phase-1"
+    label:
+      ko: "준비와 기준 확정"
+      en: "Prepare and baseline"
+    status: "done"
+  - id: "phase-2"
+    label:
+      ko: "시범 적용"
+      en: "Pilot rollout"
+    status: "current"
+  - id: "phase-3"
+    label:
+      ko: "전사 확대"
+      en: "Org-wide expand"
+    status: "future"
+  - id: "phase-4"
+    label:
+      ko: "운영 안정화"
+      en: "Operational stability"
+    status: "future"

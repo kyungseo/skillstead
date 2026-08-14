@@ -1,0 +1,38 @@
+schema_version: 1
+kind: typepack-input
+typepack: cards-kpi-grid
+case: stress-copy
+preset: social-4x5
+layout: row
+count: 4
+prompt_ko: "핵심 4가지를 카드로 요약하되 제목과 설명을 예산 한계까지 길게 써줘. 4:5."
+prompt_en: "Summarise four key points with titles and bodies at the copy budget limit, 4:5."
+cards:
+  - id: "observability"
+    title:
+      ko: "관측 가능성 확보와 경보 체계 정비까지"
+      en: "Observability with alerting and on-call rota"
+    body:
+      ko: "로그·지표·추적을 하나의 흐름으로 연결"
+      en: "Logs, metrics and traces connected as one"
+  - id: "delivery"
+    title:
+      ko: "배포 자동화와 승인 절차 간소화 완료"
+      en: "Automated delivery with simplified approvals"
+    body:
+      ko: "검증을 통과한 변경만 자동으로 반영"
+      en: "Only verified changes ship automatically"
+  - id: "cost"
+    title:
+      ko: "비용 가시성 확보 및 예산 알림 도입"
+      en: "Cost visibility plus budget alerting"
+    body:
+      ko: "팀별 사용량과 예산 초과를 주간 공개"
+      en: "Weekly per-team usage and budget alerts"
+  - id: "security"
+    title:
+      ko: "보안 기본값 적용과 접근 통제 정비"
+      en: "Secure defaults with access control review"
+    body:
+      ko: "기본값이 안전하고 예외는 기록으로"
+      en: "Safe by default with exceptions recorded"

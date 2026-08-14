@@ -107,7 +107,22 @@ typepacks:
     legacy_section: "Cards / KPI stat grid"
     inputs:
       canonical: { id: cards-kpi-grid-canonical, path: types/inputs/cards-kpi-grid.canonical.yaml, preset: social-4x5, layout: row, count: 4 }
-      stress: { id: cards-kpi-grid-stress, path: types/inputs/cards-kpi-grid.stress.yaml, preset: social-4x5, layout: grid, cols: 2, count: 6 }
+      stress:
+        - id: cards-kpi-grid-stress-cardinality
+          path: types/inputs/cards-kpi-grid.stress-cardinality.yaml
+          preset: social-4x5
+          layout: grid
+          cols: 2
+          count: 6
+          expected: fits
+          covers: [cardinality-max]
+        - id: cards-kpi-grid-stress-copy
+          path: types/inputs/cards-kpi-grid.stress-copy.yaml
+          preset: social-4x5
+          layout: row
+          count: 4
+          expected: fits
+          covers: [copy-max, optionals-max]
     fit:
       floor_basis: geometry
       cardinality: { min: 3, canonical: 4, max: 6 }
@@ -151,7 +166,21 @@ typepacks:
     legacy_section: "Layer stack"
     inputs:
       canonical: { id: layer-stack-canonical, path: types/inputs/layer-stack.canonical.yaml, preset: social-4x5, layout: column, count: 4 }
-      stress: { id: layer-stack-stress, path: types/inputs/layer-stack.stress.yaml, preset: social-4x5, layout: column, count: 5 }
+      stress:
+        - id: layer-stack-stress-cardinality
+          path: types/inputs/layer-stack.stress-cardinality.yaml
+          preset: social-4x5
+          layout: column
+          count: 5
+          expected: fits
+          covers: [cardinality-max]
+        - id: layer-stack-stress-copy
+          path: types/inputs/layer-stack.stress-copy.yaml
+          preset: social-4x5
+          layout: column
+          count: 4
+          expected: fits
+          covers: [copy-max]
     fit:
       floor_basis: geometry
       cardinality: { min: 3, canonical: 4, max: 5 }
@@ -184,7 +213,21 @@ typepacks:
     legacy_section: "Nested / onion"
     inputs:
       canonical: { id: nested-scope-canonical, path: types/inputs/nested-scope.canonical.yaml, preset: social-4x5, layout: concentric, count: 3 }
-      stress: { id: nested-scope-stress, path: types/inputs/nested-scope.stress.yaml, preset: social-4x5, layout: concentric, count: 4 }
+      stress:
+        - id: nested-scope-stress-cardinality
+          path: types/inputs/nested-scope.stress-cardinality.yaml
+          preset: social-4x5
+          layout: concentric
+          count: 4
+          expected: fits
+          covers: [cardinality-max, containment-depth]
+        - id: nested-scope-stress-copy
+          path: types/inputs/nested-scope.stress-copy.yaml
+          preset: social-4x5
+          layout: concentric
+          count: 3
+          expected: fits
+          covers: [copy-max]
     fit:
       floor_basis: geometry
       cardinality: { min: 3, canonical: 3, max: 4 }
@@ -214,7 +257,21 @@ typepacks:
     legacy_section: "Topology / component"
     inputs:
       canonical: { id: topology-component-canonical, path: types/inputs/topology-component.canonical.yaml, preset: social-4x5, layout: zones, count: 3 }
-      stress: { id: topology-component-stress, path: types/inputs/topology-component.stress.yaml, preset: social-4x5, layout: zones, count: 4 }
+      stress:
+        - id: topology-component-stress-cardinality
+          path: types/inputs/topology-component.stress-cardinality.yaml
+          preset: social-4x5
+          layout: zones
+          count: 4
+          expected: fits
+          covers: [cardinality-max, connector-density]
+        - id: topology-component-stress-copy
+          path: types/inputs/topology-component.stress-copy.yaml
+          preset: social-4x5
+          layout: zones
+          count: 3
+          expected: fits
+          covers: [copy-max]
     fit:
       floor_basis: geometry
       cardinality: { min: 2, canonical: 3, max: 4 }
@@ -244,7 +301,21 @@ typepacks:
     legacy_section: "Flow"
     inputs:
       canonical: { id: process-flow-canonical, path: types/inputs/process-flow.canonical.yaml, preset: social-4x5, layout: column, count: 4 }
-      stress: { id: process-flow-stress, path: types/inputs/process-flow.stress.yaml, preset: social-4x5, layout: column, count: 5 }
+      stress:
+        - id: process-flow-stress-cardinality
+          path: types/inputs/process-flow.stress-cardinality.yaml
+          preset: social-4x5
+          layout: column
+          count: 5
+          expected: fits
+          covers: [cardinality-max]
+        - id: process-flow-stress-copy
+          path: types/inputs/process-flow.stress-copy.yaml
+          preset: social-4x5
+          layout: column
+          count: 4
+          expected: fits
+          covers: [copy-max]
     fit:
       floor_basis: geometry
       cardinality: { min: 3, canonical: 4, max: 5 }
@@ -277,7 +348,21 @@ typepacks:
     legacy_section: "Approval / sequence-lite"
     inputs:
       canonical: { id: approval-gate-canonical, path: types/inputs/approval-gate.canonical.yaml, preset: social-4x5, layout: row, count: 3 }
-      stress: { id: approval-gate-stress, path: types/inputs/approval-gate.stress.yaml, preset: presentation-16x9, layout: row, count: 4 }
+      stress:
+        - id: approval-gate-stress-cardinality
+          path: types/inputs/approval-gate.stress-cardinality.yaml
+          preset: presentation-16x9
+          layout: row
+          count: 4
+          expected: fits
+          covers: [cardinality-max]
+        - id: approval-gate-stress-copy
+          path: types/inputs/approval-gate.stress-copy.yaml
+          preset: social-4x5
+          layout: row
+          count: 3
+          expected: fits
+          covers: [copy-max, gate-caption]
     fit:
       floor_basis: geometry
       cardinality: { min: 3, canonical: 3, max: 4 }
@@ -307,7 +392,21 @@ typepacks:
     legacy_section: "Before / after"
     inputs:
       canonical: { id: before-after-canonical, path: types/inputs/before-after.canonical.yaml, preset: social-4x5, layout: row, count: 2 }
-      stress: { id: before-after-stress, path: types/inputs/before-after.stress.yaml, preset: social-4x5, layout: row, count: 2 }
+      stress:
+        - id: before-after-stress-cardinality
+          path: types/inputs/before-after.stress-cardinality.yaml
+          preset: social-4x5
+          layout: row
+          count: 2
+          expected: fits
+          covers: [cardinality-max, mirrored-slots]
+        - id: before-after-stress-copy
+          path: types/inputs/before-after.stress-copy.yaml
+          preset: social-4x5
+          layout: row
+          count: 2
+          expected: fits
+          covers: [copy-max]
     fit:
       floor_basis: geometry
       cardinality: { min: 2, canonical: 2, max: 2 }
@@ -337,7 +436,21 @@ typepacks:
     legacy_section: "Roadmap / timeline"
     inputs:
       canonical: { id: roadmap-timeline-canonical, path: types/inputs/roadmap-timeline.canonical.yaml, preset: social-4x5, layout: row, count: 4 }
-      stress: { id: roadmap-timeline-stress, path: types/inputs/roadmap-timeline.stress.yaml, preset: presentation-16x9, layout: row, count: 5 }
+      stress:
+        - id: roadmap-timeline-stress-cardinality
+          path: types/inputs/roadmap-timeline.stress-cardinality.yaml
+          preset: presentation-16x9
+          layout: row
+          count: 5
+          expected: fits
+          covers: [cardinality-max, status-and-marker]
+        - id: roadmap-timeline-stress-copy
+          path: types/inputs/roadmap-timeline.stress-copy.yaml
+          preset: social-4x5
+          layout: row
+          count: 4
+          expected: fits
+          covers: [copy-max]
     fit:
       floor_basis: geometry
       cardinality: { min: 3, canonical: 4, max: 5 }
@@ -367,7 +480,23 @@ typepacks:
     legacy_section: "Decision / risk matrix"
     inputs:
       canonical: { id: decision-matrix-canonical, path: types/inputs/decision-matrix.canonical.yaml, preset: social-4x5, layout: grid, cols: 2, count: 4 }
-      stress: { id: decision-matrix-stress, path: types/inputs/decision-matrix.stress.yaml, preset: social-4x5, layout: grid, cols: 3, count: 9 }
+      stress:
+        - id: decision-matrix-stress-cardinality
+          path: types/inputs/decision-matrix.stress-cardinality.yaml
+          preset: social-4x5
+          layout: grid
+          cols: 3
+          count: 9
+          expected: fits
+          covers: [cardinality-max]
+        - id: decision-matrix-stress-copy
+          path: types/inputs/decision-matrix.stress-copy.yaml
+          preset: social-4x5
+          layout: grid
+          cols: 2
+          count: 4
+          expected: fits
+          covers: [copy-max, optionals-max]
     fit:
       floor_basis: geometry
       cardinality: { min: 4, canonical: 4, max: 9 }

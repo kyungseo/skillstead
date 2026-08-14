@@ -1,12 +1,12 @@
 schema_version: 1
 kind: typepack-input
 typepack: topology-component
-case: canonical
+case: stress-cardinality
 preset: social-4x5
 layout: zones
-count: 3
-prompt_ko: "요청 경로를 3개 zone으로 나눠 컴포넌트와 연결을 보여줘. 4:5."
-prompt_en: "Show the request path across three zones with components and links. 4:5."
+count: 4
+prompt_ko: "요청 경로를 4개 zone으로 나누고 zone마다 컴포넌트를 채워 보여줘. 4:5."
+prompt_en: "Show four zones each filled with components. 4:5."
 zones:
   - id: "zone-1"
     label:
@@ -43,6 +43,19 @@ zones:
         name:
           ko: "메시지 큐"
           en: "Message queue"
+  - id: "zone-4"
+    label:
+      ko: "데이터 zone"
+      en: "Data zone"
+    nodes:
+      - id: "db"
+        name:
+          ko: "기본 데이터베이스"
+          en: "Primary database"
+      - id: "cache"
+        name:
+          ko: "캐시"
+          en: "Cache"
 edges:
   - id: "e1"
     from: "gw"
@@ -55,6 +68,18 @@ edges:
     to: "auth"
     kind: "dependency"
     delivery: "sync"
+    visibility: "private"
+  - id: "e3"
+    from: "api"
+    to: "queue"
+    kind: "dependency"
+    delivery: "async"
+    visibility: "private"
+  - id: "e4"
+    from: "queue"
+    to: "db"
+    kind: "dependency"
+    delivery: "async"
     visibility: "private"
 boundary:
   label:
