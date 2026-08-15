@@ -17,7 +17,7 @@
 # stored only as detached evidence or a CI artifact.
 
 schema_version: 1
-surface_revision: 12
+surface_revision: 13
 
 canonicalization:
   version: 1
@@ -57,8 +57,10 @@ entries:
   - { path: references/archetypes.md, kind: normative-doc }
   - { path: references/sketch.md, kind: normative-doc }
   - { path: references/legacy/page-title-rail.md, kind: normative-doc }
-  # The derived and verified selection view (the routing-judgement surface)
+  # The derived and verified agent-facing views. Both steer routing and authoring, so they belong to
+  # the runtime surface: a change to either must move runtimeSurfaceDigest, not only the tree digest.
   - { path: references/types/selection.md, kind: normative-doc }
+  - { path: references/PROMPT-GALLERY.md, kind: normative-doc }
   # TypePack specs are classified once as a tree — adding a type is one spec file plus one
   # manifest row and does not touch this file. The 1:1 closure between tree and manifest is
   # owned by the manifest validator.

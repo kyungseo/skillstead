@@ -628,6 +628,7 @@ const OPTION_SPEC = {
   materialize: { "--profile": true, "--mode": true, "--treatment": true, "--check": false, "--json": false },
   manifest: { "--json": false },
   selection: { "--check": false, "--write": false, "--json": false },
+  gallery: { "--check": false, "--write": false, "--json": false },
   tombstones: { "--check": false, "--write": false, "--json": false },
   typography: { "--json": false },
   "typography-check": { "--json": false },
@@ -1197,7 +1198,7 @@ function computePageFrame(P, opts) {
 function main() {
   preflight({ entrypointUrl: import.meta.url });
   const [cmd, ...restAll] = process.argv.slice(2);
-  if (!cmd || !(cmd in OPTION_SPEC)) fail(2, "usage: skin.mjs validate|resolve <profile.yaml> [options] | registry|manifest|selection|delivery [--json]");
+  if (!cmd || !(cmd in OPTION_SPEC)) fail(2, "usage: skin.mjs validate|resolve <profile.yaml> [options] | registry|manifest|selection|gallery|delivery [--json]");
   let profileArg = null, rest = restAll, selectionBasis = "explicit-path", svgArg = null;
   if (cmd === "pageframe") {
     const preset = restAll[0];
@@ -1373,6 +1374,103 @@ function main() {
       driftedBefore, wrote, driftedAfter, errors, warnings: [] };
     if (so["--json"]) console.log(JSON.stringify(receipt, null, 1));
     else if (so["--check"] || so["--write"]) console.log(`selection — ${packs.length} registered, ${shown.length} shown, ${errors.length} error(s)`);
+    else process.stdout.write(view);
+    for (const e of errors) console.error(`ERROR ${e}`);
+    process.exit(errors.length ? 1 : 0);
+  }
+  if (cmd === "gallery") {
+    // The Prompt Gallery is a **derived view** too, not a hand-maintained document. The manifest owns
+    // the selection signal and the input payloads own the prompt wording — this command only joins
+    // the two, so the gallery cannot quietly claim copy the package does not carry.
+    const go = parseOptions("gallery", restAll);
+    const mPath = path.resolve(here, "..", "references", "types", "manifest.yaml");
+    const viewPath = path.resolve(here, "..", "references", "PROMPT-GALLERY.md");
+    const errors = [];
+    let doc;
+    try { ({ doc } = readYaml(mPath)); } catch (e) { fail(1, `gallery: ${e.message}`); }
+    const packs = (doc.typepacks ?? []).filter((p) => p.support !== "gated")
+      .slice().sort((a, b) => String(a.id).localeCompare(String(b.id)));
+    const rel = (p) => path.relative(path.dirname(viewPath), p).split(path.sep).join("/");
+    const sections = [];
+    for (const p of packs) {
+      const anchor = String(p.canonical_prompt?.anchor ?? "");
+      const am = /^PROMPT-GALLERY\.md#([a-z0-9-]+)$/.exec(anchor);
+      if (!am) { errors.push(`gallery: ${p.id}: canonical_prompt.anchor must be PROMPT-GALLERY.md#<anchor> (got "${anchor}")`); continue; }
+      // The anchor derives from the heading — if it differs from the id, a reader lands on another entry.
+      if (am[1] !== p.id) errors.push(`gallery: ${p.id}: anchor "#${am[1]}" must match the TypePack id`);
+      const ci = p.inputs?.canonical;
+      if (!ci?.path) { errors.push(`gallery: ${p.id}: no canonical input registered`); continue; }
+      const ip = path.resolve(here, "..", "references", String(ci.path));
+      let input = null;
+      try { ({ doc: input } = readYaml(ip)); } catch { errors.push(`gallery: ${p.id}: canonical input ${ci.path} is unreadable`); continue; }
+      for (const k of ["prompt_ko", "prompt_en"])
+        if (!input[k]) errors.push(`gallery: ${p.id}: canonical input is missing ${k} — the gallery never invents a prompt`);
+      const presets = (p.presets ?? []).join(", ");
+      const variants = (p.inputs?.stress ?? []).map((s) =>
+        `\`${String(s.id).replace(`${p.id}-`, "")}\` (${s.preset}, ${s.geometry_expected})`).join(" · ") || "—";
+      sections.push([
+        `## ${p.id}`,
+        "",
+        `**Choose it when** ${p.selection_signal}`,
+        "",
+        `- Spec: [\`${path.basename(String(p.spec))}\`](${rel(path.resolve(here, "..", "references", String(p.spec)))})`,
+        `- Profile \`${p.profile}\` · maturity \`${p.support}\` · presets ${presets} · preferred \`${p.preferred_preset}\``,
+        `- Canonical input: [\`${path.basename(String(ci.path))}\`](${rel(ip)}) (\`${ci.preset}\`, ${ci.layout}, count ${ci.count})`,
+        "",
+        "Canonical prompt — these are the payload's own `prompt_ko` / `prompt_en`, not a restatement:",
+        "",
+        "```text",
+        `ko: ${input.prompt_ko ?? ""}`,
+        `en: ${input.prompt_en ?? ""}`,
+        "```",
+        "",
+        "Build and verify:",
+        "",
+        "```bash",
+        `node scripts/generate.mjs build --typepack ${p.id} --case canonical --locale ko \\`,
+        `  --out <out>.svg --receipt <out>.json`,
+        `node scripts/generate.mjs verify --receipt <out>.json --svg <out>.svg`,
+        "```",
+        "",
+        `The receipt records \`consumed\` (every declared entity id), \`geometry\` vs \`geometryExpected\`, \`residual\` with its disposition, and \`fontDelivery\`. Declared variants: ${variants}. A configuration that does not fit returns \`needs-split\` with a degrade receipt and **no artifact** — that is a non-success, not a smaller render.`,
+        "",
+      ].join("\n"));
+    }
+    const view = [
+      "<!-- GENERATED VIEW — do not edit by hand.",
+      "     Source of truth: references/types/manifest.yaml + the canonical input payloads.",
+      "     Regenerate with `node scripts/skin.mjs gallery --write`;",
+      "     `node scripts/skin.mjs gallery --check` fails when this file drifts. -->",
+      "",
+      "# Prompt Gallery",
+      "",
+      "One entry per routable TypePack: the signal that selects it, the canonical prompt in both locales,",
+      "the command that produces the artifact, and what the receipt must show. Prompts are read from the",
+      "canonical input payloads, so this catalog cannot claim wording the package does not actually carry.",
+      "",
+      "This file is the **agent-facing** catalog and stays inside the package. Rendered examples for human",
+      "readers live in the repository's Example Cookbook, outside the installed package.",
+      "",
+      `${packs.length} routable TypePacks.`,
+      "",
+      ...sections,
+    ].join("\n").replace(/\n+$/, "\n");
+    const readView = () => { try { return readFileSync(viewPath, "utf8"); } catch { return null; } };
+    const current = readView();
+    const driftedBefore = current !== view;
+    let wrote = false;
+    if (go["--write"]) {
+      if (state()?.mode !== "source-development")
+        fail(1, "gallery --write requires source-development execution (run it from the repository that owns the package)");
+      if (!errors.length) { writeFileSync(viewPath, view); wrote = true; }
+    } else if (go["--check"]) {
+      if (current === null) errors.push("gallery: references/PROMPT-GALLERY.md is missing — regenerate it with --write");
+      else if (driftedBefore) errors.push("gallery: references/PROMPT-GALLERY.md is out of date with the manifest or the canonical inputs (regenerate with --write)");
+    }
+    const receipt = { schemaVersion: 1, command: "gallery", kernelVersion: "kernel-v1",
+      entries: packs.length, driftedBefore, wrote, driftedAfter: readView() !== view, errors, warnings: [] };
+    if (go["--json"]) console.log(JSON.stringify(receipt, null, 1));
+    else if (go["--check"] || go["--write"]) console.log(`gallery — ${packs.length} entries, ${errors.length} error(s)`);
     else process.stdout.write(view);
     for (const e of errors) console.error(`ERROR ${e}`);
     process.exit(errors.length ? 1 : 0);

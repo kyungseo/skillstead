@@ -1,0 +1,221 @@
+{
+ "schemaVersion": 1,
+ "command": "generate",
+ "typepack": "approval-gate",
+ "case": "approval-gate-canonical",
+ "locale": "en",
+ "preset": "document-compact",
+ "cols": null,
+ "presetDeclared": true,
+ "presetPreferred": "document-compact",
+ "presetsSupported": [
+  "document-compact",
+  "social-4x5",
+  "presentation-16x9"
+ ],
+ "audition": false,
+ "layout": "row",
+ "count": 3,
+ "inputDigest": "sha256:ac19876c44cd223a87d1a669fd72b85f20ed24005bd7136b23a5d8060bdf7ccf",
+ "geometry": "fits",
+ "geometryExpected": "fits",
+ "routingExpected": null,
+ "footprint": {
+  "w": 532,
+  "h": 88
+ },
+ "contentBox": {
+  "w": 616,
+  "h": 168
+ },
+ "status": "ok",
+ "artifact": "approval-gate.en.svg",
+ "consumed": [
+  "node-1",
+  "node-2",
+  "node-3",
+  "gate-1"
+ ],
+ "artifactDigest": "sha256:9f1e8dd31082b30537ae9d22cacb731b27fd25fa0cf92b0c9f030681a4764e9b",
+ "contentFlowBounds": {
+  "x": 32,
+  "y": 136,
+  "w": 616,
+  "h": 168
+ },
+ "fontDelivery": {
+  "mode": "portable",
+  "grade": "acceptance",
+  "policyDigest": "1fc29ca6a5bd7e1b",
+  "typographyProfileDigest": "154f16e844e12cbf",
+  "alias": "SkinSans-Subset",
+  "glyphs": 32,
+  "faces": [
+   {
+    "weight": 400,
+    "sourceDigest": "3ffbacde6ab8411f1d2db54bb9b1f0b3ee2a738932033722cf0388c06aed1c93",
+    "subsetDigest": "sha256:56a94d6c8babb62e5ae6091b4422b6047504323d2e042a85b9522c5a094f0f22",
+    "bytes": 17084
+   },
+   {
+    "weight": 700,
+    "sourceDigest": "2e91915fab54df71cc9598ebf608b2bdb54c6fe3c066ac61dff0bc44fca71cc7",
+    "subsetDigest": "sha256:ac95c746a46b7fcdbbce599e9d1ba185f819223e41860a790d14e91e180890bb",
+    "bytes": 16956
+   }
+  ],
+  "tool": {
+   "fonttools": "4.53.1",
+   "brotli": "1.1.0",
+   "python": "3.14.6"
+  },
+  "wrapperDigest": "sha256:061bce4a288e30c4805190080342a5d15f08f4729915ca56a42d2be6806b4a30",
+  "identity": [
+   {
+    "weight": 400,
+    "family": "SkinSans-Subset",
+    "fullName": "SkinSans-Subset Regular",
+    "postScriptName": "SkinSans-Subset-Regular",
+    "uniqueID": "SkinSans-Subset Regular; subset; weight 400",
+    "preservedLegalNameIDs": [
+     0,
+     7,
+     8,
+     9,
+     11,
+     12,
+     13,
+     14
+    ]
+   },
+   {
+    "weight": 700,
+    "family": "SkinSans-Subset",
+    "fullName": "SkinSans-Subset Bold",
+    "postScriptName": "SkinSans-Subset-Bold",
+    "uniqueID": "SkinSans-Subset Bold; subset; weight 700",
+    "preservedLegalNameIDs": [
+     0,
+     7,
+     8,
+     9,
+     11,
+     12,
+     13,
+     14
+    ]
+   }
+  ]
+ },
+ "treatment": {
+  "name": "flat",
+  "mode": "light",
+  "overlay": null,
+  "displacementBound": 0
+ },
+ "routing": {
+  "degradeLevel": 0,
+  "ladder": [],
+  "problems": [],
+  "hops": 0,
+  "legend": false,
+  "alignment": [],
+  "attempts": [
+   {
+    "edge": "step-1",
+    "candidates": [
+     {
+      "shape": "straight",
+      "bends": 0,
+      "travel": 46,
+      "ok": true,
+      "code": null,
+      "reason": null
+     }
+    ]
+   },
+   {
+    "edge": "step-2",
+    "candidates": [
+     {
+      "shape": "straight",
+      "bends": 0,
+      "travel": 46,
+      "ok": true,
+      "code": null,
+      "reason": null
+     }
+    ]
+   }
+  ],
+  "diagnostics": [],
+  "demoted": [],
+  "routes": [
+   {
+    "id": "step-1",
+    "from": "node-1",
+    "to": "node-2",
+    "path": "straight",
+    "ports": [
+     "right",
+     "left"
+    ],
+    "bends": 0,
+    "style": "solid",
+    "targetGap": 10,
+    "hops": 0
+   },
+   {
+    "id": "step-2",
+    "from": "node-2",
+    "to": "node-3",
+    "path": "straight",
+    "ports": [
+     "right",
+     "left"
+    ],
+    "bends": 0,
+    "style": "solid",
+    "targetGap": 10,
+    "hops": 0
+   }
+  ]
+ },
+ "matrix": null,
+ "timeline": null,
+ "residual": {
+  "top": 0,
+  "bottom": 0
+ },
+ "residualDisposition": null,
+ "provenance": {
+  "schema": {
+   "name": "svg-infographic-provenance",
+   "version": 1,
+   "canonicalization": 1
+  },
+  "executionMode": "source-development",
+  "skillRoot": "skills/svg-infographic",
+  "package": {
+   "id": "svg-infographic",
+   "surfaceRevision": 13
+  },
+  "runtimeSurfaceDigest": "sha256:31f5af7ae5643fbc58d0883729b2e4fe30377bb21ce72a4fe527982d99a41401",
+  "source": {
+   "headCommit": "0976ac3f8054b2b71fb99fcc11582173a5764070",
+   "repoDirty": true,
+   "runtimeSurfaceDirty": true
+  },
+  "producer": {
+   "kind": "generator",
+   "generatorDigest": "sha256:0460941003ebc5ba8d1502eac5f10be86d6ce10de048491b24ede0f30837c28d"
+  },
+  "inputs": [
+   {
+    "role": "typepack-input",
+    "digest": "sha256:ac19876c44cd223a87d1a669fd72b85f20ed24005bd7136b23a5d8060bdf7ccf"
+   }
+  ],
+  "browser": null
+ }
+}
