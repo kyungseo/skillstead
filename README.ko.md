@@ -24,11 +24,13 @@
 
 ### SVG 갤러리
 
-[![기술 SVG 인포그래픽 여섯 개를 모은 갤러리 미리보기](./examples/svg-infographic/gallery-preview.ko.png)](./examples/svg-infographic/README.ko.md)
+[![svg-infographic으로 만든 결과 여섯 가지: 클라우드 토폴로지, 분기하는 스윔레인, 의사결정 매트릭스, 중첩된 신뢰 경계, 변경 전후 비교, 손그림 느낌의 시스템 구성도](./gallery/contact-sheet.ko.png)](./gallery/index.html)
 
-`svg-infographic`은 일반적인 아키텍처 구성도보다 다양한 결과를 만들 수 있습니다. 손으로 그린 느낌의
-장애 대응 흐름과 에이전트 시스템 구성도, 클라우드 토폴로지, 의사결정 매트릭스, 변경 전후 비교,
-로드맵과 한국어 기술 요약 자료를 제공합니다. [영문·한국어 예시 14개를 확인하세요.](./examples/svg-infographic/README.ko.md)
+`svg-infographic`은 일반적인 아키텍처 구성도보다 다양한 결과를 만들 수 있습니다. 위 여섯 가지는 형태가
+서로 얼마나 다른지를 기준으로 고른 것입니다. lint·layout·typography gate를 통과하며, TypePack receipt
+체계보다 먼저 만들어졌기 때문에 receipt는 주장하지 않습니다. 이미지를 누르면 열리는 갤러리에는 receipt를
+갖춘 TypePack 9종이 함께 있습니다. [갤러리 열기](./gallery/index.html) 또는
+[legacy 예제와 검증된 TypePack 카탈로그 확인하기](./examples/svg-infographic/README.ko.md).
 
 ### 하나만 사용하거나 릴리스 흐름으로 연결하세요
 
@@ -74,7 +76,7 @@ GitHub의 **Latest** 배지는 가장 최근에 발행된 개별 스킬 릴리�
 한국어 기술 요약 자료를 만들 때 적합합니다.
 
 - 자세한 안내: [`svg-infographic` 한국어 README](./skills/svg-infographic/README.ko.md)
-- 결과 예시: [영문·한국어 다이어그램 14개 갤러리](./examples/svg-infographic/README.ko.md)
+- 결과 예시: [legacy 예제와 검증된 TypePack 카탈로그](./examples/svg-infographic/README.ko.md)
 - 스킬 이름을 쓰는 예시: `svg-infographic으로 이 전환 계획을 수정 가능한 기술 다이어그램으로 만들어 줘.`
 - 자연스럽게 요청하는 예시: `이 전환 계획을 수정 가능한 기술 SVG와 검증된 2× PNG로 만들어 줘. 파일을 만들기 전에 출력 경로를 보여 줘.`
 
