@@ -24,6 +24,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 from skillstead_validate.gallery import (  # noqa: E402
     EXAMPLES, MODEL_PATH, TOKENS_PATH, GalleryError, NodeRunner, build_model, run_gallery,
 )
+from skillstead_validate.gallery_html import GALLERY_HTML, render  # noqa: E402
+
+FEATURED = "gallery/featured.json"
 
 REPO = Path(__file__).resolve().parent.parent
 NODE = shutil.which("node")
@@ -264,6 +267,238 @@ class GalleryModelFixtures(unittest.TestCase):
     def test_missing_model_is_caught(self):
         (self.repo / MODEL_PATH).unlink()
         self.assertIn("GAL-DRIFT", self.checks())
+
+    # ---- the rendered page ---------------------------------------------------------------
+
+    def test_page_is_regenerated_with_the_model(self):
+        """Both outputs come from one command, so neither can be refreshed while the other rots."""
+        self.assertEqual(self.checks(), set())
+        page = (self.repo / GALLERY_HTML)
+        self.assertTrue(page.exists())
+        page.write_text(page.read_text(encoding="utf-8") + "<!-- hand edit -->\n", encoding="utf-8")
+        findings = run_gallery(self.repo)
+        self.assertIn("GAL-DRIFT", {f.check for f in findings})
+        self.assertTrue(any(GALLERY_HTML in f.subject for f in findings), findings)
+
+    def test_a_token_change_moves_the_page(self):
+        """Tokens are the source the page renders from, not a document describing it."""
+        before = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
+        p = self.repo / TOKENS_PATH
+        t = json.loads(p.read_text())
+        t["palette"]["ground"] = "#123456"
+        p.write_text(json.dumps(t, indent=1), encoding="utf-8")
+        self.assertIn("GAL-DRIFT", {f.check for f in run_gallery(self.repo)})
+        self.assertEqual(run_gallery(self.repo, write=True), [])
+        after = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
+        self.assertNotEqual(before, after)
+        self.assertIn("#123456", after)
+
+    def test_page_makes_no_external_request(self):
+        h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
+        self.assertNotIn("http://", h)
+        self.assertNotIn("https://", h)
+        self.assertNotIn("@import", h)
+
+    def test_page_shows_both_locales_without_scripting(self):
+        """The no-JS state is the complete view. Nothing is hidden unless scripting has put a locale
+        on the root, the switch never appears without scripting, and detail opens on its own — so
+        both sections and every prompt remain reachable."""
+        h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
+        self.assertIn('id="switch" hidden', h)
+        for rule in ('[data-locale="ko"] figure[data-loc="en"]', '[data-locale="en"] figure[data-loc="ko"]'):
+            self.assertIn(rule, h)
+        self.assertEqual(h.count("<details>"), 9)
+
+    def test_featured_switches_locale_with_the_catalog(self):
+        """The switch is one control for the whole page: featured artifacts carry data-loc exactly
+        as catalog thumbnails do, so a locale choice cannot apply to one section only."""
+        h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
+        import re
+        feat = re.search(r'<div class="featured">(.*?)</div>\s*<p class="note">', h, re.S).group(1)
+        self.assertEqual(feat.count('data-loc="ko"'), 6)
+        self.assertEqual(feat.count('data-loc="en"'), 6)
+
+    def test_page_alt_text_names_the_type_and_the_artifact(self):
+        """Alt text describes the picture. The selection signal says when to reach for the type,
+        which is a different sentence and would not describe anything."""
+        import re
+        model, _ = build_model(self.repo)
+        h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
+        # Content images only. The zoom dialog holds an empty placeholder whose src and alt are
+        # both copied from the clicked image, so it describes nothing until it has something to
+        # describe — asserted separately below rather than counted here.
+        content, _, shell = h.partition("<dialog")
+        alts = re.findall(r'alt="([^"]*)"', content)
+        expected = 2 * (len(model["typepacks"]) + len(model["featured"]["entries"]))
+        self.assertEqual(len(alts), expected, "every image in both sections needs alt text")
+        self.assertFalse([a for a in alts if not a.strip()])
+        self.assertIn('alt = a.querySelector("img").alt', shell,
+                      "the zoom placeholder must take the alt of the image it is showing")
+        for t in model["typepacks"]:
+            for loc, e in t["locales"].items():
+                self.assertIn(f'{t["id"]} — {e["title"]} ({loc.upper()})', alts)
+            signal = (t.get("selectionSignal") or "")[:25]
+            self.assertFalse([a for a in alts if signal and signal in a],
+                             f'{t["id"]}: the selection signal must not be used as alt text')
+        for f in model["featured"]["entries"]:
+            for loc in ("ko", "en"):
+                self.assertIn(f'{f["name"]} — {f["caption"]} ({loc.upper()})', alts,
+                              f'{f["slug"]}/{loc}: featured alt text describes the picture too')
+
+    def test_page_shows_the_verified_svg_not_the_png(self):
+        h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
+        import re
+        model, _ = build_model(self.repo)
+        srcs = re.findall(r'<img src="([^"]+)"', h)
+        self.assertEqual(len(srcs), 2 * (len(model["typepacks"]) + len(model["featured"]["entries"])))
+        self.assertTrue(all(s.endswith(".svg") for s in srcs),
+                        "the SVG is what the gates and the verifier re-checked")
+
+    def test_page_links_resolve(self):
+        import os, re
+        h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
+        links = set(re.findall(r'(?:src|href)="(\.\./[^"#]+)(?:#[^"]*)?"', h))
+        missing = [l for l in sorted(links) if not (self.repo / "gallery" / l).exists()]
+        self.assertEqual(missing, [], "repository -> package relative links must resolve")
+
+    # ---- featured: an editorial list with only the claim its evidence supports -----------
+
+    def test_featured_comes_from_the_editorial_file(self):
+        model, _ = build_model(self.repo)
+        declared = json.loads((self.repo / FEATURED).read_text())["entries"]
+        got = model["featured"]["entries"]
+        self.assertEqual([e["slug"] for e in got], [e["slug"] for e in declared],
+                         "the model must publish exactly what the editorial file selects")
+        for e in got:
+            self.assertTrue(e["artifacts"].get("ko") and e["artifacts"].get("en"))
+            self.assertTrue(e["reason"], f'{e["slug"]}: a selection without a reason is not editorial')
+
+    def test_featured_claims_only_the_gates_it_passes(self):
+        """These predate the TypePack receipts. Saying so explicitly is the point — `none` is a
+        verdict, not a missing field."""
+        model, _ = build_model(self.repo)
+        for e in model["featured"]["entries"]:
+            self.assertEqual(e["evidence"]["sourceGates"], "pass")
+            self.assertEqual(e["evidence"]["typePackReceipt"], "none")
+            self.assertEqual(e["evidence"]["dataAccuracy"], "not-applicable")
+
+    def test_featured_verified_count_is_not_mixed_into_the_typepack_count(self):
+        h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
+        model, _ = build_model(self.repo)
+        n = sum(1 for t in model["typepacks"] for e in t["locales"].values() if e["verified"])
+        self.assertIn(f"{n}/{n} TypePack canonical artifacts pass", h)
+        self.assertNotIn(f"{n + len(model['featured']['entries'])}/", h)
+
+    def test_the_catalog_count_does_not_claim_semantic_completeness(self):
+        """Passing the verifier is not the same as drawing everything the receipt counts."""
+        h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
+        self.assertNotIn("TypePack canonical examples verified", h)
+        self.assertIn("pass the current package verifier", h)
+        self.assertIn("tracked separately", h)
+
+    def test_an_entity_the_artifact_never_draws_is_reported_not_hidden(self):
+        """The verifier exempts one id from its own artifact check; the model reports the gap."""
+        model, _ = build_model(self.repo)
+        gaps = {(t["id"], loc): e["unrendered"]
+                for t in model["typepacks"] for loc, e in t["locales"].items()
+                if e.get("unrendered")}
+        self.assertTrue(gaps, "the known boundary gap disappeared without the model noticing")
+        for ids in gaps.values():
+            self.assertEqual(ids, ["boundary"], gaps)
+
+        h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
+        # Shown on exactly the packs that have a gap — not on every card, and not nowhere.
+        self.assertEqual(h.count("Known limitation"),
+                         len({tid for tid, _ in gaps}), gaps)
+        self.assertIn("does not draw it", h)
+
+    def test_a_pack_with_nothing_unrendered_carries_no_limitation_note(self):
+        """The note is derived, so it must vanish on its own once the entity is drawn."""
+        tid = "topology-component"
+        for loc in ("ko", "en"):
+            svg = self.repo / EXAMPLES / tid / f"{tid}.{loc}.svg"
+            t = svg.read_text(encoding="utf-8")
+            # Stand in for the fix: give the artifact the entity it was already credited with.
+            svg.write_text(t.replace("</svg>", '<g data-entity="boundary"></g></svg>'),
+                           encoding="utf-8")
+        # The edit invalidates the artifact digest, so this pack also stops being verified. That
+        # is a side effect of the stand-in, not the subject: what is asserted is only that the
+        # note follows the gap.
+        model, _ = build_model(self.repo)
+        pack = next(t for t in model["typepacks"] if t["id"] == tid)
+        self.assertIsNone(pack["locales"]["ko"].get("unrendered"))
+        tokens = json.loads((self.repo / TOKENS_PATH).read_text(encoding="utf-8"))
+        self.assertNotIn("Known limitation", render(model, tokens))
+
+    def test_a_caption_carrying_a_number_is_refused(self):
+        """A count in a caption is a claim about the artifact that no gate checks."""
+        p = self.repo / FEATURED
+        d = json.loads(p.read_text())
+        d["entries"][0]["caption"] = "20+ connectors"
+        p.write_text(json.dumps(d, indent=1, ensure_ascii=False), encoding="utf-8")
+        findings = run_gallery(self.repo)
+        self.assertIn("GAL-FEATURED", {f.check for f in findings})
+        self.assertTrue(any("digit" in f.detail for f in findings), findings)
+
+    def test_a_featured_entry_pointing_nowhere_is_refused(self):
+        p = self.repo / FEATURED
+        d = json.loads(p.read_text())
+        d["entries"][0]["slug"] = "no-such-example"
+        p.write_text(json.dumps(d, indent=1, ensure_ascii=False), encoding="utf-8")
+        self.assertIn("GAL-FEATURED", {f.check for f in run_gallery(self.repo)})
+
+    def test_a_featured_artifact_failing_the_gates_is_refused(self):
+        """The one claim featured entries make has to be re-established, not asserted.
+
+        The mutation has to be something a gate genuinely rejects: an element outside the viewBox is
+        an E-BOUNDS error the linter owns. An earlier attempt appended an empty rect, which changed
+        the bytes without violating anything — the build then failed on drift instead, which would
+        have let this test pass while proving nothing about the gates.
+        """
+        svg = self.repo / "examples/svg-infographic/zero-trust-onion/zero-trust-onion.ko.svg"
+        svg.write_text(
+            svg.read_text(encoding="utf-8").replace(
+                "</svg>", '<rect x="9000" y="9000" width="200" height="200" fill="#000"/></svg>'),
+            encoding="utf-8")
+        findings = run_gallery(self.repo)
+        self.assertIn("GAL-FEATURED", {f.check for f in findings})
+        self.assertTrue(any("source gates failed" in f.detail for f in findings), findings)
+
+    def test_editorial_file_missing_fails_the_build(self):
+        (self.repo / FEATURED).unlink()
+        self.assertIn("GAL-FEATURED", {f.check for f in run_gallery(self.repo)})
+
+    # ---- evidence is facets, not a ranking ----------------------------------------------
+
+    def test_evidence_is_three_independent_facets(self):
+        """Nothing in the model orders these. A chart will add a data-accuracy verdict without
+        becoming 'more verified' than a diagram that never had one to give."""
+        model, _ = build_model(self.repo)
+        holders = [e for t in model["typepacks"] for e in t["locales"].values()]
+        holders += model["featured"]["entries"]
+        allowed = {"pass", "none", "not-applicable"}
+        for h in holders:
+            ev = h["evidence"]
+            self.assertEqual(set(ev), {"sourceGates", "typePackReceipt", "dataAccuracy"})
+            for k, v in ev.items():
+                self.assertIn(v, allowed, f"{k}={v}")
+        # The two groups differ in exactly one facet, which is the distinction worth carrying.
+        tp = model["typepacks"][0]["locales"]["ko"]["evidence"]
+        ft = model["featured"]["entries"][0]["evidence"]
+        self.assertEqual(tp["sourceGates"], ft["sourceGates"])
+        self.assertNotEqual(tp["typePackReceipt"], ft["typePackReceipt"])
+
+    def test_page_prints_facets_and_not_a_tier(self):
+        import re
+        h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
+        self.assertIn("source gates", h)
+        self.assertIn("TypePack receipt", h)
+        # not-applicable facets are omitted rather than shown as an empty claim
+        self.assertNotIn("not-applicable", h)
+        # No ranking vocabulary around the evidence. Matched as ordinals rather than as substrings:
+        # "degrade receipt" is the generator's own term and contains "grade".
+        self.assertNotIn("tier", h.lower())
+        self.assertIsNone(re.search(r"\b(grade|level|rank)\s*\d", h, re.I))
 
     # ---- tokens ------------------------------------------------------------------------
 

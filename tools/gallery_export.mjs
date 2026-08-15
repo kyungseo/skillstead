@@ -37,4 +37,46 @@ for (const p of packs) {
   }
 }
 
-process.stdout.write(JSON.stringify({ schemaVersion: 1, typepacks: packs, payloads }, null, 1) + "\n");
+// --- featured: the repository's editorial selection ------------------------------------
+// Validated here so a bad entry fails the build rather than rendering a broken card. The rules are
+// deliberately few: the artifact must exist in both locales, and a caption may not carry digits —
+// a number in a caption is a claim about the picture that no gate verifies.
+const featuredPath = path.join(root, "gallery", "featured.json");
+const featured = { source: "gallery/featured.json", entries: [], errors: [] };
+if (!existsSync(featuredPath)) {
+  featured.errors.push("gallery/featured.json is missing — the featured showcase has no source");
+} else {
+  let doc;
+  try { doc = JSON.parse(readFileSync(featuredPath, "utf8")); }
+  catch (e) { featured.errors.push(`gallery/featured.json is unreadable: ${e.message}`); doc = null; }
+  const seen = new Set();
+  for (const entry of (doc?.entries ?? [])) {
+    const slug = String(entry.slug ?? "");
+    if (!slug) { featured.errors.push("featured entry has no slug"); continue; }
+    if (seen.has(slug)) { featured.errors.push(`featured "${slug}" is listed twice`); continue; }
+    seen.add(slug);
+    for (const field of ["name", "caption", "reason"])
+      if (!entry[field]) featured.errors.push(`featured "${slug}" is missing ${field}`);
+    if (/\d/.test(String(entry.caption ?? "")))
+      featured.errors.push(`featured "${slug}" caption carries a digit — captions stay qualitative `
+        + `because a count is a claim no gate checks (got "${entry.caption}")`);
+    if (entry.span !== undefined)
+      featured.errors.push(`featured "${slug}" declares span — the grid sizes every entry the same, `
+        + `so a per-entry size control would be a field nothing reads`);
+    const dir = path.join(root, "examples", "svg-infographic", slug);
+    const art = {};
+    for (const loc of ["ko", "en"]) {
+      const rel = `examples/svg-infographic/${slug}/${slug}.${loc}.svg`;
+      if (!existsSync(path.join(root, rel))) featured.errors.push(`featured "${slug}": ${rel} is missing`);
+      else art[loc] = rel;
+    }
+    // Recorded, not required: these are hand-authored examples that predate the TypePack receipts.
+    const receipt = existsSync(path.join(dir, `${slug}.ko.json`));
+    featured.entries.push({ slug, name: entry.name, caption: entry.caption, reason: entry.reason,
+                            artifacts: art, hasReceipt: receipt });
+  }
+  if (!featured.entries.length && !featured.errors.length)
+    featured.errors.push("gallery/featured.json declares no entry");
+}
+
+process.stdout.write(JSON.stringify({ schemaVersion: 1, typepacks: packs, payloads, featured }, null, 1) + "\n");

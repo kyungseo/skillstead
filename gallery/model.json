@@ -105,10 +105,16 @@
       "node-3",
       "gate-1"
      ],
+     "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/approval-gate/approval-gate.ko.svg",
      "svgDigest": "sha256:166a397c33345f406e9df710751b05bd5fe49db0616059111a26813448284563",
      "receipt": "examples/svg-infographic/typepacks/approval-gate/approval-gate.ko.json",
      "verified": true,
+     "evidence": {
+      "sourceGates": "pass",
+      "typePackReceipt": "pass",
+      "dataAccuracy": "not-applicable"
+     },
      "png": {
       "path": "examples/svg-infographic/typepacks/approval-gate/approval-gate.ko.png",
       "digest": "sha256:590a0906f4f12953b0905d57fa4d2d4f489520cfb5c76393de9ece386d27bc31",
@@ -135,10 +141,16 @@
       "node-3",
       "gate-1"
      ],
+     "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/approval-gate/approval-gate.en.svg",
      "svgDigest": "sha256:9f1e8dd31082b30537ae9d22cacb731b27fd25fa0cf92b0c9f030681a4764e9b",
      "receipt": "examples/svg-infographic/typepacks/approval-gate/approval-gate.en.json",
      "verified": true,
+     "evidence": {
+      "sourceGates": "pass",
+      "typePackReceipt": "pass",
+      "dataAccuracy": "not-applicable"
+     },
      "png": {
       "path": "examples/svg-infographic/typepacks/approval-gate/approval-gate.en.png",
       "digest": "sha256:176ad2f0fac47379f2b1953c913f5cfc51863d002897b471fb8a1a541dbe384f",
@@ -230,10 +242,16 @@
       "before",
       "after"
      ],
+     "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/before-after/before-after.ko.svg",
      "svgDigest": "sha256:e15b0bd322c545023f9383c815b68b71bede0d85b8e67b1c60c80f1fc410a5ee",
      "receipt": "examples/svg-infographic/typepacks/before-after/before-after.ko.json",
      "verified": true,
+     "evidence": {
+      "sourceGates": "pass",
+      "typePackReceipt": "pass",
+      "dataAccuracy": "not-applicable"
+     },
      "png": {
       "path": "examples/svg-infographic/typepacks/before-after/before-after.ko.png",
       "digest": "sha256:c5c4d1cfdfa55bf102a4dd202882250e8136ee522b0586a3fa4e20af153f98bb",
@@ -258,10 +276,16 @@
       "before",
       "after"
      ],
+     "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/before-after/before-after.en.svg",
      "svgDigest": "sha256:f6d7bc171359e34ab9cba5f3fd4b43d196be42dd5ab7801595593d3136bb61a5",
      "receipt": "examples/svg-infographic/typepacks/before-after/before-after.en.json",
      "verified": true,
+     "evidence": {
+      "sourceGates": "pass",
+      "typePackReceipt": "pass",
+      "dataAccuracy": "not-applicable"
+     },
      "png": {
       "path": "examples/svg-infographic/typepacks/before-after/before-after.en.png",
       "digest": "sha256:2f787ee4d20cf183331f0b5f14ab31c3b2397e59d1ff3c050f06337b821037bc",
@@ -379,10 +403,16 @@
       "cost",
       "security"
      ],
+     "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.ko.svg",
      "svgDigest": "sha256:016f3f30774aa45dbebd78418edd26bf0a729bd75a68bb568d6e0561369b83a7",
      "receipt": "examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.ko.json",
      "verified": true,
+     "evidence": {
+      "sourceGates": "pass",
+      "typePackReceipt": "pass",
+      "dataAccuracy": "not-applicable"
+     },
      "png": {
       "path": "examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.ko.png",
       "digest": "sha256:4c754a0208b2922c8d5844c1f282efedcef610bec53bf39ce9b969c2db8132f5",
@@ -409,10 +439,16 @@
       "cost",
       "security"
      ],
+     "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.en.svg",
      "svgDigest": "sha256:33fec63cada3ba543471a59b08c226f3d8f11e5fb5f24450ba9575687d5fe243",
      "receipt": "examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.en.json",
      "verified": true,
+     "evidence": {
+      "sourceGates": "pass",
+      "typePackReceipt": "pass",
+      "dataAccuracy": "not-applicable"
+     },
      "png": {
       "path": "examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.en.png",
       "digest": "sha256:697e277b0da4a6ceef5f069e2ce10cc1afce8a39a7a5837a1ca934b1ce9a8888",
@@ -519,10 +555,16 @@
       "cell-3",
       "cell-4"
      ],
+     "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/decision-matrix/decision-matrix.ko.svg",
      "svgDigest": "sha256:1c6c06d5c73694d89fa5c63602083cab3940e5395a3dcaa7ac4cf9a593d0d99b",
      "receipt": "examples/svg-infographic/typepacks/decision-matrix/decision-matrix.ko.json",
      "verified": true,
+     "evidence": {
+      "sourceGates": "pass",
+      "typePackReceipt": "pass",
+      "dataAccuracy": "not-applicable"
+     },
      "png": {
       "path": "examples/svg-infographic/typepacks/decision-matrix/decision-matrix.ko.png",
       "digest": "sha256:8027994556216b8a4b469ff9acbd8f910a761fb4712dcda5d2de9d9fce6e126d",
@@ -549,10 +591,16 @@
       "cell-3",
       "cell-4"
      ],
+     "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/decision-matrix/decision-matrix.en.svg",
      "svgDigest": "sha256:d29504aed3cf3aa04f541ba0127095b9ca7287d736477b115a288ef62782aa25",
      "receipt": "examples/svg-infographic/typepacks/decision-matrix/decision-matrix.en.json",
      "verified": true,
+     "evidence": {
+      "sourceGates": "pass",
+      "typePackReceipt": "pass",
+      "dataAccuracy": "not-applicable"
+     },
      "png": {
       "path": "examples/svg-infographic/typepacks/decision-matrix/decision-matrix.en.png",
       "digest": "sha256:e56448f49b399c31f312a777a1529dc195e40c70cd286ea218a235b190102908",
@@ -690,10 +738,16 @@
       "layer-4-chip-1",
       "layer-4-chip-2"
      ],
+     "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/layer-stack/layer-stack.ko.svg",
      "svgDigest": "sha256:9d84f282db9f8055891d3659fce3aec5dc4e28b7bf90eaee1d3af04ca2af2f76",
      "receipt": "examples/svg-infographic/typepacks/layer-stack/layer-stack.ko.json",
      "verified": true,
+     "evidence": {
+      "sourceGates": "pass",
+      "typePackReceipt": "pass",
+      "dataAccuracy": "not-applicable"
+     },
      "png": {
       "path": "examples/svg-infographic/typepacks/layer-stack/layer-stack.ko.png",
       "digest": "sha256:db1abf971502ac2ca523a9510159b11e4b672d84c4fb321fb5d1382486b500b8",
@@ -728,10 +782,16 @@
       "layer-4-chip-1",
       "layer-4-chip-2"
      ],
+     "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/layer-stack/layer-stack.en.svg",
      "svgDigest": "sha256:8bd40672c183d3bf17d67039f33d4d451a5e33d7fcd34986af855458ca1fa152",
      "receipt": "examples/svg-infographic/typepacks/layer-stack/layer-stack.en.json",
      "verified": true,
+     "evidence": {
+      "sourceGates": "pass",
+      "typePackReceipt": "pass",
+      "dataAccuracy": "not-applicable"
+     },
      "png": {
       "path": "examples/svg-infographic/typepacks/layer-stack/layer-stack.en.png",
       "digest": "sha256:d076a3a6245f4c0f1db383b5fb5bbf5d505b5d9e2788bec563d746a258650978",
@@ -823,10 +883,16 @@
       "ring-2",
       "ring-3"
      ],
+     "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/nested-scope/nested-scope.ko.svg",
      "svgDigest": "sha256:f7938cfdca961c6d3fbc145b69f1140c4fd9ae4145ae93c03ba83b8529a305eb",
      "receipt": "examples/svg-infographic/typepacks/nested-scope/nested-scope.ko.json",
      "verified": true,
+     "evidence": {
+      "sourceGates": "pass",
+      "typePackReceipt": "pass",
+      "dataAccuracy": "not-applicable"
+     },
      "png": {
       "path": "examples/svg-infographic/typepacks/nested-scope/nested-scope.ko.png",
       "digest": "sha256:4da96b21c365503d51f2930e7b69cba2a54d9190004e01ab302c9e5c0eae9480",
@@ -852,10 +918,16 @@
       "ring-2",
       "ring-3"
      ],
+     "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/nested-scope/nested-scope.en.svg",
      "svgDigest": "sha256:e9d4aff3855882f3750d79d7b61f64d114cea26b597567af4ffeb8b003220d70",
      "receipt": "examples/svg-infographic/typepacks/nested-scope/nested-scope.en.json",
      "verified": true,
+     "evidence": {
+      "sourceGates": "pass",
+      "typePackReceipt": "pass",
+      "dataAccuracy": "not-applicable"
+     },
      "png": {
       "path": "examples/svg-infographic/typepacks/nested-scope/nested-scope.en.png",
       "digest": "sha256:a6b7c710d7982d59125cf39173a1c71e583fea73334bb3597586019d07feeac7",
@@ -973,10 +1045,16 @@
       "step-3",
       "step-4"
      ],
+     "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/process-flow/process-flow.ko.svg",
      "svgDigest": "sha256:82534f5de711142cd0520345352bf67749d8c38b1175724a145c23164ec84acf",
      "receipt": "examples/svg-infographic/typepacks/process-flow/process-flow.ko.json",
      "verified": true,
+     "evidence": {
+      "sourceGates": "pass",
+      "typePackReceipt": "pass",
+      "dataAccuracy": "not-applicable"
+     },
      "png": {
       "path": "examples/svg-infographic/typepacks/process-flow/process-flow.ko.png",
       "digest": "sha256:e23f8c583f482b86946e177ecef8818d6a126a643b691cfbaf34b635be2eb8ae",
@@ -1003,10 +1081,16 @@
       "step-3",
       "step-4"
      ],
+     "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/process-flow/process-flow.en.svg",
      "svgDigest": "sha256:d8b09a5dcfdd2e63c91ba2cc9b52b049f71a9fa054bb285992760db5756d0173",
      "receipt": "examples/svg-infographic/typepacks/process-flow/process-flow.en.json",
      "verified": true,
+     "evidence": {
+      "sourceGates": "pass",
+      "typePackReceipt": "pass",
+      "dataAccuracy": "not-applicable"
+     },
      "png": {
       "path": "examples/svg-infographic/typepacks/process-flow/process-flow.en.png",
       "digest": "sha256:59f6fdce18ea8eb42068a8dd877a23e97965067f18248ccf924d57b3bed90871",
@@ -1141,10 +1225,16 @@
       "phase-3",
       "phase-4"
      ],
+     "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/roadmap-timeline/roadmap-timeline.ko.svg",
      "svgDigest": "sha256:a4ff21b816ed5d08a383378af4b37e0cd5fd46629690b08273fd717fff1d0b6f",
      "receipt": "examples/svg-infographic/typepacks/roadmap-timeline/roadmap-timeline.ko.json",
      "verified": true,
+     "evidence": {
+      "sourceGates": "pass",
+      "typePackReceipt": "pass",
+      "dataAccuracy": "not-applicable"
+     },
      "png": {
       "path": "examples/svg-infographic/typepacks/roadmap-timeline/roadmap-timeline.ko.png",
       "digest": "sha256:d0487c41a418f011ee6ad72ca87bc8f300918ce4ae7f67aca4bc960a18837e4c",
@@ -1171,10 +1261,16 @@
       "phase-3",
       "phase-4"
      ],
+     "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/roadmap-timeline/roadmap-timeline.en.svg",
      "svgDigest": "sha256:500867f18825febe5413be4370226b9f8f74e8ab51d0fd33ef3454445b1a6fe5",
      "receipt": "examples/svg-infographic/typepacks/roadmap-timeline/roadmap-timeline.en.json",
      "verified": true,
+     "evidence": {
+      "sourceGates": "pass",
+      "typePackReceipt": "pass",
+      "dataAccuracy": "not-applicable"
+     },
      "png": {
       "path": "examples/svg-infographic/typepacks/roadmap-timeline/roadmap-timeline.en.png",
       "digest": "sha256:5d56d66234881e0a4f37b0fbe2bc3f77da79f270b64686eed7d932f11d4d94b0",
@@ -1283,10 +1379,18 @@
       "e2",
       "boundary"
      ],
+     "unrendered": [
+      "boundary"
+     ],
      "svg": "examples/svg-infographic/typepacks/topology-component/topology-component.ko.svg",
      "svgDigest": "sha256:308a08f6ed81c8d93da91aeb94aeca632df665214f8a49d5e913189363cbd0b1",
      "receipt": "examples/svg-infographic/typepacks/topology-component/topology-component.ko.json",
      "verified": true,
+     "evidence": {
+      "sourceGates": "pass",
+      "typePackReceipt": "pass",
+      "dataAccuracy": "not-applicable"
+     },
      "png": {
       "path": "examples/svg-infographic/typepacks/topology-component/topology-component.ko.png",
       "digest": "sha256:81db3828ccbb6c5b1c270c9028a432c2a2e57a931876e449f0afee4a0fb548ca",
@@ -1334,10 +1438,18 @@
       "e2",
       "boundary"
      ],
+     "unrendered": [
+      "boundary"
+     ],
      "svg": "examples/svg-infographic/typepacks/topology-component/topology-component.en.svg",
      "svgDigest": "sha256:eef5808edf3e5c021e70b82d9bae2edc8831d0ce31bb75aff819a90fd5de7cc7",
      "receipt": "examples/svg-infographic/typepacks/topology-component/topology-component.en.json",
      "verified": true,
+     "evidence": {
+      "sourceGates": "pass",
+      "typePackReceipt": "pass",
+      "dataAccuracy": "not-applicable"
+     },
      "png": {
       "path": "examples/svg-infographic/typepacks/topology-component/topology-component.en.png",
       "digest": "sha256:6bdac61d7a1c009f8c7565faeb7da53b8d065a9c23f49b7e82dcdd5d4bd5eed2",
@@ -1347,5 +1459,137 @@
     }
    }
   }
- ]
+ ],
+ "featured": {
+  "source": "gallery/featured.json",
+  "note": "Editorial selection, transitional for Wave 1. The final composition and any unification of the evidence facets are settled after Wave 2 through a replacement audition, not automatically — a candidate replaces an entry only when a receipt check and a visual audition find it the better showcase, and retaining an entry is a valid, recorded outcome. Until then the legacy provenance and absent receipt stand as the facets report them.",
+  "entries": [
+   {
+    "slug": "cloud-infra-topology",
+    "name": "Cloud topology",
+    "caption": "zones, boundaries and routed connectors",
+    "reason": "The densest structure the catalog produces — nested zones with routing that has to stay legible.",
+    "artifacts": {
+     "ko": {
+      "svg": "examples/svg-infographic/cloud-infra-topology/cloud-infra-topology.ko.svg",
+      "svgDigest": "sha256:baa2fc0676ec4656a402db24c5c80f6d6b6f2074f99b23bb8f8683393c930657"
+     },
+     "en": {
+      "svg": "examples/svg-infographic/cloud-infra-topology/cloud-infra-topology.en.svg",
+      "svgDigest": "sha256:6ce6cce45d657ece4897bae64c13dcf56b2673471364847d0980942ea280f8c5"
+     }
+    },
+    "evidence": {
+     "sourceGates": "pass",
+     "typePackReceipt": "none",
+     "dataAccuracy": "not-applicable"
+    }
+   },
+   {
+    "slug": "agent-waiting-swimlane",
+    "name": "Branching swimlane",
+    "caption": "parallel lanes that rejoin",
+    "reason": "Shows branching and rejoin, which a single-axis process flow cannot express.",
+    "artifacts": {
+     "ko": {
+      "svg": "examples/svg-infographic/agent-waiting-swimlane/agent-waiting-swimlane.ko.svg",
+      "svgDigest": "sha256:cd5c9ea2b4fb8d916bc2452b2d89e6f8048b4e752c62c7a84f706b0e5c8d3ccd"
+     },
+     "en": {
+      "svg": "examples/svg-infographic/agent-waiting-swimlane/agent-waiting-swimlane.en.svg",
+      "svgDigest": "sha256:502bd98a5fca9c2e049a962c79bac8a7a1a5948571d93ae45263756124a4a1cc"
+     }
+    },
+    "evidence": {
+     "sourceGates": "pass",
+     "typePackReceipt": "none",
+     "dataAccuracy": "not-applicable"
+    }
+   },
+   {
+    "slug": "agent-task-matrix",
+    "name": "Decision matrix",
+    "caption": "two qualitative axes",
+    "reason": "Position carries meaning here, so it demonstrates the axis contract rather than a layout.",
+    "artifacts": {
+     "ko": {
+      "svg": "examples/svg-infographic/agent-task-matrix/agent-task-matrix.ko.svg",
+      "svgDigest": "sha256:c1f77b769ea27158ea520c33a42e6f01e93b72b10cba1d4e806cb47ba3965494"
+     },
+     "en": {
+      "svg": "examples/svg-infographic/agent-task-matrix/agent-task-matrix.en.svg",
+      "svgDigest": "sha256:38217df80a418db993bba234de96d149875c4097e38a7a527713101a015ac654"
+     }
+    },
+    "evidence": {
+     "sourceGates": "pass",
+     "typePackReceipt": "none",
+     "dataAccuracy": "not-applicable"
+    }
+   },
+   {
+    "slug": "zero-trust-onion",
+    "name": "Nested scope",
+    "caption": "concentric trust rings",
+    "reason": "Containment as the relation, with no connectors at all.",
+    "artifacts": {
+     "ko": {
+      "svg": "examples/svg-infographic/zero-trust-onion/zero-trust-onion.ko.svg",
+      "svgDigest": "sha256:5417f8005fac0c3e60f0ea3c8403720711e684db6ef7f4888fbd2cb9ba0de21e"
+     },
+     "en": {
+      "svg": "examples/svg-infographic/zero-trust-onion/zero-trust-onion.en.svg",
+      "svgDigest": "sha256:32191b7b7086e7ccb87b1fe3530df6b1e37e4f441fc880d2638b0486b9add0f0"
+     }
+    },
+    "evidence": {
+     "sourceGates": "pass",
+     "typePackReceipt": "none",
+     "dataAccuracy": "not-applicable"
+    }
+   },
+   {
+    "slug": "before-after-migration",
+    "name": "Before and after",
+    "caption": "mirrored comparison",
+    "reason": "Alignment carries the correspondence between the two sides.",
+    "artifacts": {
+     "ko": {
+      "svg": "examples/svg-infographic/before-after-migration/before-after-migration.ko.svg",
+      "svgDigest": "sha256:89be1ec0271fc2486c1576c7f1bde84fb6c753fb1d90c2cee7b6f36ecc4f854b"
+     },
+     "en": {
+      "svg": "examples/svg-infographic/before-after-migration/before-after-migration.en.svg",
+      "svgDigest": "sha256:820c4c3cf06766a3d6a40556e390079e9d48e665dfb2e74cd061f187f781a41b"
+     }
+    },
+    "evidence": {
+     "sourceGates": "pass",
+     "typePackReceipt": "none",
+     "dataAccuracy": "not-applicable"
+    }
+   },
+   {
+    "slug": "agent-system-sketch",
+    "name": "Sketch treatment",
+    "caption": "handwriting and rough stroke",
+    "reason": "The one surface treatment that is not flat, shown on a structure that is not trivial.",
+    "artifacts": {
+     "ko": {
+      "svg": "examples/svg-infographic/agent-system-sketch/agent-system-sketch.ko.svg",
+      "svgDigest": "sha256:7c6a3123760e6833fcfadb66d66f5a2210fd3bc674525bc73bea80a726cab5e1"
+     },
+     "en": {
+      "svg": "examples/svg-infographic/agent-system-sketch/agent-system-sketch.en.svg",
+      "svgDigest": "sha256:e05ff70819c72dcbb2f4becf9c330eb646650c590b6be51bca1fe50b57e3ac3f"
+     }
+    },
+    "evidence": {
+     "sourceGates": "pass",
+     "typePackReceipt": "none",
+     "dataAccuracy": "not-applicable"
+    }
+   }
+  ]
+ }
 }
