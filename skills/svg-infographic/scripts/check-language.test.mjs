@@ -135,6 +135,41 @@ test("negative: a Korean comment in generate.mjs fails even with the marker on i
   assert.match(r.out, /rendered-locale-copy/);
 });
 
+// ---- the generated Prompt Gallery: KO prompts are payload data, everything else is prose ----
+
+const GALLERY = "references/PROMPT-GALLERY.md";
+
+test("positive: the generated ko: prompt lines pass", () => {
+  // The committed gallery already carries one KO prompt per routable TypePack, read verbatim from
+  // the canonical payloads. If those did not pass, the view could not exist at all.
+  const r = runIn(ROOT);
+  assert.equal(r.code, 0, r.out);
+  const ko = fs.readFileSync(path.join(ROOT, GALLERY), "utf8")
+    .split("\n").filter((l) => /^ko: /.test(l) && /\p{Script=Hangul}/u.test(l));
+  assert.ok(ko.length >= 9, `expected a KO prompt per routable TypePack, found ${ko.length}`);
+});
+
+test("negative: a Korean heading in the gallery fails", () => {
+  const r = withLine(GALLERY, "## 한국어 제목");  /* lang-allow: ko-fixture */
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /generated-gallery-prompt.*ko-value/);
+});
+
+test("negative: Korean prose in the gallery fails", () => {
+  const r = withLine(GALLERY, "이 문단은 payload가 아니라 손으로 쓴 산문이다.");  /* lang-allow: ko-fixture */
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /generated-gallery-prompt/);
+  assert.match(r.out, /read as guidance, not data/);
+});
+
+test("negative: Korean landing in the en: field of the gallery fails", () => {
+  // The KO/EN split is the point — Korean under `en:` means the payload or the generator is wrong,
+  // and letting it pass would have the view claim an English prompt the package does not carry.
+  const r = withLine(GALLERY, "en: 한국어가 en 필드에 들어갔다");  /* lang-allow: ko-fixture */
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /generated-gallery-prompt/);
+});
+
 // ---- an unlisted file has no door at all ----
 
 test("negative: Korean in a file with no allow entry fails", () => {

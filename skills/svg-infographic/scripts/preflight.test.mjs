@@ -431,6 +431,44 @@ test("a digest receipt cannot be written inside the hashed package (no self-refe
   assert.ok(!fs.existsSync(inside));
 });
 
+// ---- surface classification decides which digest a change moves ----
+// A file's `kind` is not bookkeeping: it decides whether editing that file is visible in runtime
+// provenance at all. An agent-facing view filed as a plain `doc` lands only in packageTreeDigest, so
+// its guidance could be rewritten and every runtime receipt would still claim the same surface.
+
+const digestsOf = (pkg) => {
+  const r = run([path.join(pkg, "scripts", "preflight.mjs"), "--json"], { cwd: pkg });
+  assert.equal(r.code, 0, r.out);
+  return JSON.parse(r.out).digests;
+};
+
+test("editing an agent-facing view moves runtimeSurfaceDigest, not just the tree digest", () => {
+  const pkg = copyPackage(path.join(tmp("kind"), "svg-infographic"));
+  const before = digestsOf(pkg);
+  // One byte, in a file whose own body calls itself the agent-facing catalog.
+  const view = path.join(pkg, "references", "PROMPT-GALLERY.md");
+  fs.appendFileSync(view, "\n");
+  const after = digestsOf(pkg);
+  assert.notEqual(after.runtimeSurfaceDigest, before.runtimeSurfaceDigest,
+    "a change to the Prompt Gallery must be visible in runtime provenance");
+  assert.notEqual(after.packageTreeDigest, before.packageTreeDigest);
+  // And it is runtime, not verification — a normative view is not test material.
+  assert.equal(after.verificationSurfaceDigest, before.verificationSurfaceDigest,
+    "an agent-facing view must not be classified into the verification surface");
+});
+
+test("editing a test moves verificationSurfaceDigest, not the runtime surface", () => {
+  // The mirror of the check above: without it, "runtime changed" could simply mean every kind
+  // lands in every digest, and the classification would prove nothing.
+  const pkg = copyPackage(path.join(tmp("kind2"), "svg-infographic"));
+  const before = digestsOf(pkg);
+  fs.appendFileSync(path.join(pkg, "scripts", "check-language.test.mjs"), "\n");
+  const after = digestsOf(pkg);
+  assert.notEqual(after.verificationSurfaceDigest, before.verificationSurfaceDigest);
+  assert.equal(after.runtimeSurfaceDigest, before.runtimeSurfaceDigest,
+    "a test is not part of the runtime surface");
+});
+
 test("the digest framing is not vulnerable to path-boundary confusion", () => {
   const dir = tmp("frame");
   fs.mkdirSync(path.join(dir, "a"));

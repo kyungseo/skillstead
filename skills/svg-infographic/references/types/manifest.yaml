@@ -99,10 +99,11 @@ typepacks:
     verifier: null
     receipt_schema: null
     fixtures: []
-    examples: []
+    examples:
+      - { id: cards-kpi-grid-canonical, gallery_anchor: PROMPT-GALLERY.md#cards-kpi-grid }
     required_roles: [canvas, surface, ink, muted, rule, focus]
     optional_aliases: []
-    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#cards-kpi-grid }
+    canonical_prompt: { status: bound, anchor: PROMPT-GALLERY.md#cards-kpi-grid }
     annexes: []
     gate: null
     migration_origin: legacy
@@ -177,10 +178,11 @@ typepacks:
     verifier: null
     receipt_schema: null
     fixtures: []
-    examples: []
+    examples:
+      - { id: layer-stack-canonical, gallery_anchor: PROMPT-GALLERY.md#layer-stack }
     required_roles: [canvas, surface, ink, muted, rule, focus]
     optional_aliases: []
-    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#layer-stack }
+    canonical_prompt: { status: bound, anchor: PROMPT-GALLERY.md#layer-stack }
     annexes: []
     gate: null
     migration_origin: legacy
@@ -238,10 +240,11 @@ typepacks:
     verifier: null
     receipt_schema: null
     fixtures: []
-    examples: []
+    examples:
+      - { id: nested-scope-canonical, gallery_anchor: PROMPT-GALLERY.md#nested-scope }
     required_roles: [canvas, surface, ink, muted, rule, focus]
     optional_aliases: []
-    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#nested-scope }
+    canonical_prompt: { status: bound, anchor: PROMPT-GALLERY.md#nested-scope }
     annexes: []
     gate: null
     migration_origin: legacy
@@ -285,10 +288,11 @@ typepacks:
     verifier: null
     receipt_schema: null
     fixtures: []
-    examples: []
+    examples:
+      - { id: topology-component-canonical, gallery_anchor: PROMPT-GALLERY.md#topology-component }
     required_roles: [canvas, surface, ink, muted, rule, focus]
     optional_aliases: []
-    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#topology-component }
+    canonical_prompt: { status: bound, anchor: PROMPT-GALLERY.md#topology-component }
     annexes: [topology]
     gate: null
     migration_origin: legacy
@@ -348,10 +352,11 @@ typepacks:
     verifier: null
     receipt_schema: null
     fixtures: []
-    examples: []
+    examples:
+      - { id: process-flow-canonical, gallery_anchor: PROMPT-GALLERY.md#process-flow }
     required_roles: [canvas, surface, ink, muted, rule, focus]
     optional_aliases: []
-    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#process-flow }
+    canonical_prompt: { status: bound, anchor: PROMPT-GALLERY.md#process-flow }
     annexes: []
     gate: null
     migration_origin: legacy
@@ -410,10 +415,11 @@ typepacks:
     verifier: null
     receipt_schema: null
     fixtures: []
-    examples: []
+    examples:
+      - { id: approval-gate-canonical, gallery_anchor: PROMPT-GALLERY.md#approval-gate }
     required_roles: [canvas, surface, ink, muted, rule, focus]
     optional_aliases: []
-    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#approval-gate }
+    canonical_prompt: { status: bound, anchor: PROMPT-GALLERY.md#approval-gate }
     annexes: []
     gate: null
     migration_origin: legacy
@@ -474,10 +480,11 @@ typepacks:
     verifier: null
     receipt_schema: null
     fixtures: []
-    examples: []
+    examples:
+      - { id: before-after-canonical, gallery_anchor: PROMPT-GALLERY.md#before-after }
     required_roles: [canvas, surface, ink, muted, rule, focus]
     optional_aliases: []
-    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#before-after }
+    canonical_prompt: { status: bound, anchor: PROMPT-GALLERY.md#before-after }
     annexes: []
     gate: null
     migration_origin: legacy
@@ -525,10 +532,11 @@ typepacks:
     verifier: null
     receipt_schema: null
     fixtures: []
-    examples: []
+    examples:
+      - { id: roadmap-timeline-canonical, gallery_anchor: PROMPT-GALLERY.md#roadmap-timeline }
     required_roles: [canvas, surface, ink, muted, rule, focus]
     optional_aliases: []
-    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#roadmap-timeline }
+    canonical_prompt: { status: bound, anchor: PROMPT-GALLERY.md#roadmap-timeline }
     annexes: []
     gate: null
     migration_origin: legacy
@@ -604,10 +612,11 @@ typepacks:
     verifier: null
     receipt_schema: null
     fixtures: []
-    examples: []
+    examples:
+      - { id: decision-matrix-canonical, gallery_anchor: PROMPT-GALLERY.md#decision-matrix }
     required_roles: [canvas, surface, ink, muted, rule, focus]
     optional_aliases: []
-    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#decision-matrix }
+    canonical_prompt: { status: bound, anchor: PROMPT-GALLERY.md#decision-matrix }
     annexes: []
     gate: null
     migration_origin: legacy

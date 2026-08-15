@@ -254,6 +254,36 @@ const readManifest = (pkg) => fs.readFileSync(path.join(typesOf(pkg), "manifest.
 const writeManifest = (pkg, text) => fs.writeFileSync(path.join(typesOf(pkg), "manifest.yaml"), text);
 const drop = (pkg) => fs.rmSync(path.dirname(pkg), { recursive: true, force: true });
 
+// Mutate inside ONE TypePack's block and prove the mutation actually happened.
+//
+// A whole-file `String.replace` takes the first match wherever it lands. That was survivable while
+// every pack shared the same placeholder text, but once the catalog registered per-pack examples and
+// bound prompts, the first match often belongs to a different pack — so a "negative" fixture could
+// mutate nothing, leave the manifest valid, and still pass. Both assertions below exist to make that
+// failure mode impossible: the edit must match exactly once inside the target block, and the file
+// must actually change.
+const mutatePack = (pkg, id, edits) => {
+  const text = readManifest(pkg);
+  const heads = [...text.matchAll(/^  - id: (\S+)$/gm)];
+  const i = heads.findIndex((m) => m[1] === id);
+  assert.ok(i >= 0, `manifest has no TypePack "${id}"`);
+  const start = heads[i].index, end = i + 1 < heads.length ? heads[i + 1].index : text.length;
+  let block = text.slice(start, end);
+  for (const [from, to] of edits) {
+    const hits = block.split(from).length - 1;
+    assert.equal(hits, 1,
+      `${id}: expected exactly 1 occurrence of ${JSON.stringify(from.slice(0, 60))} in its own block, found ${hits}`);
+    block = block.replace(from, to);
+  }
+  const next = text.slice(0, start) + block + text.slice(end);
+  assert.notEqual(next, text, `${id}: the mutation changed nothing — this negative would prove nothing`);
+  writeManifest(pkg, next);
+  return next;
+};
+// The registered example block a pack carries at baseline, and the prompt binding beside it.
+const exampleBlock = (id) => `    examples:\n      - { id: ${id}-canonical, gallery_anchor: PROMPT-GALLERY.md#${id} }\n`;
+const promptLine = (id, status = "bound") => `    canonical_prompt: { status: ${status}, anchor: PROMPT-GALLERY.md#${id} }`;
+
 test("the selection view derives from the manifest and --check catches drift (mutated in a copy)", () => {
   const ok = run(["selection", "--check", "--json"]);
   assert.equal(ok.code, 0, ok.out);
@@ -352,8 +382,13 @@ test("R1-1 and R1-2: a duplicate spec path, an identity mismatch, an empty spec 
 });
 
 test("R1-3: promotion to core without promotion evidence is refused", () => {
+  // The catalog now ships a registered example per pack, so claiming core is only interesting once
+  // the evidence is explicitly taken away — otherwise this would test a pack that already has some.
   const pkg = pkgCopy();
-  writeManifest(pkg, readManifest(pkg).replace("support: experimental", "support: core"));
+  mutatePack(pkg, "cards-kpi-grid", [
+    ["    support: experimental\n", "    support: core\n"],
+    [exampleBlock("cards-kpi-grid"), "    examples: []\n"],
+  ]);
   const r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /requires at least one registered example/);
@@ -363,17 +398,21 @@ test("R1-3: promotion to core without promotion evidence is refused", () => {
 });
 
 test("R1B-1: a fake gallery id or a non-fixture file cannot promote to core", () => {
+  // Replace the real example with one naming a gallery entry that does not exist, and offer a spec
+  // document as a fixture. Both are shaped correctly; neither is evidence.
   const pkg = pkgCopy();
-  writeManifest(pkg, readManifest(pkg)
-    .replace("    support: experimental\n    spec: types/specs/cards-kpi-grid.md",
-             "    support: core\n    spec: types/specs/cards-kpi-grid.md")
-    .replace("    examples: []\n    required_roles: [canvas, surface, ink, muted, rule, focus]\n    optional_aliases: []\n    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#cards-kpi-grid }",
-             "    examples:\n      - { id: fake-gallery-id, gallery_anchor: PROMPT-GALLERY.md#fake-gallery-id }\n    required_roles: [canvas, surface, ink, muted, rule, focus]\n    optional_aliases: []\n    canonical_prompt: { status: reserved, anchor: PROMPT-GALLERY.md#cards-kpi-grid }")
-    .replace("    fixtures: []\n    examples:", "    fixtures:\n      - { id: fake-fx, kind: positive, preset: social-4x5, path: types/specs/cards-kpi-grid.md }\n    examples:"));
+  mutatePack(pkg, "cards-kpi-grid", [
+    ["    support: experimental\n", "    support: core\n"],
+    ["    fixtures: []\n", "    fixtures:\n      - { id: fake-fx, kind: positive, preset: social-4x5, path: types/specs/cards-kpi-grid.md }\n"],
+    [exampleBlock("cards-kpi-grid"),
+     "    examples:\n      - { id: fake-gallery-id, gallery_anchor: PROMPT-GALLERY.md#fake-gallery-id }\n"],
+  ]);
   const r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /must point at an \.svg artifact or \.json receipt/, "a spec document cannot serve as a fixture");
-  assert.match(r.out, /does not exist — "core" requires a real gallery entry/, "a fake gallery id is not evidence");
+  // Now that the gallery exists, the anchor is checked against its real headings rather than merely
+  // noting the file is absent — a stronger refusal than the one this assertion used to make.
+  assert.match(r.out, /anchor "#fake-gallery-id" is not in PROMPT-GALLERY\.md/, "a fake gallery id is not evidence");
   drop(pkg);
 });
 
@@ -469,33 +508,60 @@ test("R1-4: a gated TypePack drops out of routing but keeps its id, reason and r
   drop(pkg);
 });
 
-test("R1-5: a canonical prompt requires the reserved-to-bound transition and refuses a bound target that is absent", () => {
+test("R1-5: a bound canonical prompt must resolve to a real file and a real anchor", () => {
+  // reserved -> bound is a transition the catalog has already completed, so re-enacting it proves
+  // nothing about today's package. What still has to hold is the standing invariant: every routable
+  // pack declares `bound`, and that binding resolves. Each step below breaks exactly one half of it.
   const pkg = pkgCopy();
-  writeManifest(pkg, readManifest(pkg).replace("{ status: reserved, anchor: PROMPT-GALLERY.md#layer-stack }",
-    "{ status: bound, anchor: PROMPT-GALLERY.md#layer-stack }"));
+  const gallery = path.join(pkg, "references", "PROMPT-GALLERY.md");
+  const surf = path.join(pkg, "references", "package-surface.yaml");
+  // Match whatever kind the surface files it under: hardcoding one here made the removal a silent
+  // no-op the moment the classification changed, and preflight failed in place of the check below.
+  const surfRe = /^ {2}- \{ path: references\/PROMPT-GALLERY\.md, kind: [a-z-]+ \}\n/m;
+  const dropSurfEntry = () => {
+    const before = fs.readFileSync(surf, "utf8");
+    assert.match(before, surfRe, "the gallery must be registered in package-surface to begin with");
+    fs.writeFileSync(surf, before.replace(surfRe, ""));
+    return before.match(surfRe)[0];
+  };
+
+  // Every routable pack is bound at baseline — the invariant this test guards.
+  const base = readManifest(pkg);
+  const bound = [...base.matchAll(/canonical_prompt: \{ status: (\w+), anchor:/g)].map((m) => m[1]);
+  assert.ok(bound.length >= 9 && bound.every((b) => b === "bound"),
+    `every routable pack must be bound, saw ${JSON.stringify([...new Set(bound)])}`);
+
+  // (1) The target file is gone. Its surface entry goes with it, so preflight is not the failure.
+  fs.rmSync(gallery);
+  const surfEntry = dropSurfEntry();
   let r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /bound but PROMPT-GALLERY\.md does not exist/);
-  // With the file present but the anchor missing it is still refused.
-  // Adding the file and registering package membership must happen in one change (the CP3 atomic
-  // extension contract).
-  fs.writeFileSync(path.join(pkg, "references", "PROMPT-GALLERY.md"), "# Prompt gallery\n\n## other anchor\n");
-  const surf = path.join(pkg, "references", "package-surface.yaml");
+
+  // (2) The file is back and registered, but this pack's anchor names no heading in it.
+  fs.writeFileSync(gallery, "# Prompt Gallery\n\n## some-other-anchor\n");
   fs.writeFileSync(surf, fs.readFileSync(surf, "utf8").replace(
-    "  - { path: references/types/selection.md, kind: normative-doc }",
-    "  - { path: references/types/selection.md, kind: normative-doc }\n  - { path: references/PROMPT-GALLERY.md, kind: normative-doc }"));
+    "  - { path: references/types/selection.md, kind: normative-doc }\n",
+    "  - { path: references/types/selection.md, kind: normative-doc }\n" + surfEntry));
+  assert.match(fs.readFileSync(surf, "utf8"), surfRe, "the entry must be back before this step means anything");
   r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
-  assert.match(r.out, /anchor "#layer-stack" not found/);
-  // with the anchor present it passes
-  fs.appendFileSync(path.join(pkg, "references", "PROMPT-GALLERY.md"), "\n## layer stack\n");
-  assert.equal(runIn(pkg, ["manifest"]).code, 0, runIn(pkg, ["manifest"]).out);
+  assert.match(r.out, /anchor "#[a-z0-9-]+" not found/);
+
+  // (3) With every declared anchor present it resolves and passes.
+  const ids = [...base.matchAll(/^  - id: (\S+)$/gm)].map((m) => m[1]);
+  fs.writeFileSync(gallery, "# Prompt Gallery\n\n" + ids.map((id) => `## ${id}\n`).join("\n"));
+  const ok = runIn(pkg, ["manifest"]);
+  assert.equal(ok.code, 0, ok.out);
   drop(pkg);
 });
 
 test("a duplicate canonical_prompt anchor is caught by the manifest validator itself", () => {
+  // `#layer-stack` now appears twice inside its own block (the prompt anchor and the example's
+  // gallery_anchor), so a first-match replace would rewrite the example instead and never create the
+  // duplicate this test is named for. Only the canonical_prompt line is touched.
   const pkg = pkgCopy();
-  writeManifest(pkg, readManifest(pkg).replace("PROMPT-GALLERY.md#layer-stack", "PROMPT-GALLERY.md#cards-kpi-grid"));
+  mutatePack(pkg, "layer-stack", [[promptLine("layer-stack"), promptLine("cards-kpi-grid")]]);
   const r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /duplicate canonical_prompt anchor/);
@@ -632,13 +698,18 @@ test("R1-4: a TypePack declaring a topology annex cannot become core without a v
 });
 
 test("R1-5: an unrelated gallery heading or a reused artifact does not constitute core evidence", () => {
+  // Both mutations are well-formed and would satisfy a shape check: an anchor into a real document
+  // that simply is not the gallery, and two fixture roles pointing at one artifact.
   const pkg = pkgCopy();
   const svg = "scripts/skin-fixtures/portable-positive.svg";
-  writeManifest(pkg, readManifest(pkg)
-    .replace(/(- id: cards-kpi-grid[\s\S]*?)support: experimental/, "$1support: core")
-    .replace(/(- id: cards-kpi-grid[\s\S]*?)    fixtures: \[\]\n    examples: \[\]/,
-      `$1    fixtures:\n      - {{ id: fx-a, kind: positive, preset: social-4x5, path: ${svg} }}\n      - {{ id: fx-b, kind: baseline-red, preset: social-4x5, path: ${svg} }}\n    examples:\n      - {{ id: ex-a, gallery_anchor: archetypes.md#layer-stack }}`
-        .replace(/{{/g, "{").replace(/}}/g, "}")));
+  mutatePack(pkg, "cards-kpi-grid", [
+    ["    support: experimental\n", "    support: core\n"],
+    ["    fixtures: []\n",
+     `    fixtures:\n      - {{ id: fx-a, kind: positive, preset: social-4x5, path: ${svg} }}\n      - {{ id: fx-b, kind: baseline-red, preset: social-4x5, path: ${svg} }}\n`
+       .replace(/{{/g, "{").replace(/}}/g, "}")],
+    [exampleBlock("cards-kpi-grid"),
+     "    examples:\n      - { id: ex-a, gallery_anchor: archetypes.md#layer-stack }\n"],
+  ]);
   const r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /gallery_anchor must be PROMPT-GALLERY\.md/, "any document's heading is not example evidence");

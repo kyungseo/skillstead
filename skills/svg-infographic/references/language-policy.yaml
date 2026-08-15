@@ -22,6 +22,11 @@ allow:
     # A path alone does not grant the exception — the file must declare itself locale data.
     line_rule: ko-value
 
+  - id: generated-gallery-prompt
+    reason: "The KO half of each canonical prompt in the generated Prompt Gallery. The generator reads these verbatim from the input payloads — the very strings typepack-input-payload already allows — so the view shows what the package actually carries instead of a restatement. Only `ko:` prompt lines qualify: Korean prose, a heading or a hand-written note in this file is still a violation. The file is regenerated, never edited."
+    files: ["references/PROMPT-GALLERY.md"]
+    line_rule: ko-value
+
   - id: roadmap-status-vocabulary
     reason: "The KO column of the accessible status vocabulary table. These are rendered words the spec pins so the generator never invents them. The table heading, its explanation and every contract sentence around it stay English canonical."
     paths: ["references/types/specs/roadmap-timeline.md"]
