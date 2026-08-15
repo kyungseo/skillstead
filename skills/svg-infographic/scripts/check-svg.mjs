@@ -715,9 +715,10 @@ export function lintSvg(source, filename = "input.svg") {
         add(errors, group.line, "E-LAYOUT", `page-title-header rail budget failed: ${violations.join("; ")}`, "derive rail y/height from the eyebrow and final title line before rendering (SKILL.md §2, authoring.md §1)");
       }
     } else if (role === "marker-label-row") {
-      // 공통 primitive (design-kernel §6 파생): marker(rect|circle) + 단일행 label을
-      // 하나의 atomic row로 취급 — markerCenterY = labelLineCenterY. eyebrow 외에도
-      // legend·callout·section label의 작은 marker+label 조합에 재사용한다.
+      // Shared primitive (derived from design-kernel §6): a marker (rect|circle) plus a
+      // single-line label is treated as one atomic row — markerCenterY = labelLineCenterY.
+      // Beyond the eyebrow it is reused for the small marker+label pairs of legends,
+      // callouts and section labels.
       const kids = group.children ?? [];
       const marker = kids.find((k) => k.tag === "rect" || k.tag === "circle");
       const label = kids.find((k) => k.tag === "text");
@@ -784,7 +785,7 @@ export function lintSvg(source, filename = "input.svg") {
         continue;
       }
       const violations = [];
-      // 2줄 H1은 x가 tspan에 있다 — 첫 tspan의 시작선을 H1 left edge로 삼는다
+      // On a two-line H1 the x lives on the tspans — take the first tspan's start as the H1 left edge
       const h1X = px(h1s[0].attrs.x ?? h1s[0].children.find((c) => c.tag === "tspan")?.attrs.x);
       if (locators.length === 1) {
         const loc = locators[0];
@@ -802,7 +803,7 @@ export function lintSvg(source, filename = "input.svg") {
         const eyX = px(eyebrows[0].attrs.x);
         if (locX !== undefined && h1X !== undefined && Math.abs(locX - h1X) > tolerance) violations.push(`locator x ${round1(locX)} is not aligned with the H1 left edge ${round1(h1X)}`);
         if (locX !== undefined && eyX !== undefined && (eyX - (locX + locW) < 4 || eyX - (locX + locW) > 14)) violations.push(`eyebrow starts ${round1(eyX - (locX + locW))}px after the locator; expected a 4–14px gap`);
-        // marker-label-row 산식: markerCenterY = labelLineCenterY (파일별 수기 보정 금지)
+        // marker-label-row formula: markerCenterY = labelLineCenterY (no per-file manual fudging)
         const locY = px(localGeometryProp(loc, "y", rules));
         const eyY = px(eyebrows[0].attrs.y);
         const eyCentral = eyebrows[0].attrs["dominant-baseline"] === "central";
@@ -815,9 +816,10 @@ export function lintSvg(source, filename = "input.svg") {
         }
       }
       if (keylines.length === 1) {
-        // title-keyline 산식(design-kernel §6): 세로 keyline은 H1 line-box에서만
-        // 파생한다 — top = titleTop − pad, bottom = titleBottom + pad(동일 pad),
-        // eyebrow~subtitle 전체를 감싸는 구형 rail 복원 금지, 텍스트 시작선 단일 정렬.
+        // title-keyline formula (design-kernel §6): the vertical keyline derives from the H1
+        // line-box alone — top = titleTop - pad, bottom = titleBottom + pad (the same pad).
+        // The old rail wrapping eyebrow through subtitle is not to be restored; a single
+        // alignment on the text start line.
         const key = keylines[0];
         if (key.tag !== "rect") violations.push("cluster-keyline must be a rect");
         const ky = px(localGeometryProp(key, "y", rules));

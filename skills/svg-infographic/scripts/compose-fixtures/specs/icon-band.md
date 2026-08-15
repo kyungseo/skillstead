@@ -6,7 +6,7 @@ profile: constrained-layout
 
 # icon-band TypePack (fixture)
 
-텍스트 없는 아이콘 밴드 fragment (fixture).
+A text-free icon band fragment (fixture).
 
 ## 1. Identity and selection
 fixture-only registration stub; the contract lives in the real TypePack spec.

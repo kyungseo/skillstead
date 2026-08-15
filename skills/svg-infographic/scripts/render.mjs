@@ -269,12 +269,12 @@ async function runBrowserForScreenshot(executable, flags, shotPath, timeoutMs) {
 // gets a bounded retry. A final failure is reported as an ASCII diagnostic
 // and never changes the render exit code.
 // --- DOM dump lifecycle ---------------------------------------------------
-// spawnSync의 timeout은 이 경로를 bound하지 못한다: Chromium은 결과를 낸 뒤에도
-// 계속 살아 있을 수 있고(render.mjs가 문서화한 동작), 보조 프로세스가 stdout pipe를
-// 붙잡고 있으면 부모의 동기 read가 timeout 뒤에도 계속 막힌다. 실제로 60초로 선언된
-// 호출이 549초를 쓰고 실패했다.
-// 그래서 render.mjs와 같은 계약을 쓴다: 자체 process group으로 띄우고, **필요한 산출물이
-// 나오는 즉시** 우리 자식을 종료하며, wall clock을 hard bound한다. 재시도는 하지 않는다.
+// spawnSync's timeout cannot bound this path: Chromium may stay alive after producing its
+// result (behaviour render.mjs documents), and while a helper process holds the stdout pipe the
+// parent's synchronous read stays blocked past the timeout. In practice a call declared at 60
+// seconds spent 549 seconds and then failed.
+// So it uses the same contract as render.mjs: spawn into its own process group, kill our child
+// **as soon as the output we need appears**, and hard-bound the wall clock. No retries.
 export async function dumpDom(exePath, argv, { timeoutMs = 30000, maxBytes = 64 * 1024 * 1024 } = {}) {
   return await new Promise((resolve) => {
     let child;
@@ -285,15 +285,15 @@ export async function dumpDom(exePath, argv, { timeoutMs = 30000, maxBytes = 64 
       if (settled) return;
       settled = true;
       clearTimeout(timer);
-      // 우리 자식과 그 보조 프로세스만 정리한다 — 사용자의 브라우저는 다른 group이다.
-      try { process.kill(-child.pid, "SIGKILL"); } catch { try { child.kill("SIGKILL"); } catch { /* 이미 종료 */ } }
+      // Clean up only our child and its helpers — the user's browser is in another group.
+      try { process.kill(-child.pid, "SIGKILL"); } catch { try { child.kill("SIGKILL"); } catch { /* already gone */ } }
       resolve({ stdout, stderr, reason });
     };
     const timer = setTimeout(() => stop("timeout"), timeoutMs);
     child.stdout.on("data", (b) => {
       bytes += b.length;
       if (bytes <= maxBytes) stdout += b;
-      // 원하는 것은 dump 전체가 아니라 probe 출력이다. 그것이 보이면 더 기다리지 않는다.
+      // What we want is the probe output, not the whole dump. Once it appears we wait no longer.
       if (/<\/pre>/.test(stdout)) stop("done");
     });
     child.stderr.on("data", (b) => { stderr += b; });
@@ -360,9 +360,9 @@ export async function main(argv) {
   }
 
   // --- 1a2. typography contract gate (typography SSoT) ----------------------
-  // sketch/typography annotation이 있는 SVG는 browser 실행 전에 typography-check를
-  // fail-closed로 통과해야 한다 — canonical renderer만 실행해도 must-fix가 우회되지
-  // 않는다. (runtime font-probe는 별도 명령 — 정적 gate가 이 단계의 계약이다.)
+  // An SVG carrying sketch/typography annotation must pass typography-check fail-closed before
+  // the browser runs — so running only the canonical renderer still cannot bypass a must-fix.
+  // (The runtime font-probe is a separate command; the static gate is this stage's contract.)
   if (/data-treatment\s*=\s*["']sketch["']|data-typography-(scope|role)\s*=/.test(readFileSync(svg, "utf8"))) {
     const skinCli = fileURLToPath(new URL("./skin.mjs", import.meta.url));
     const tr = spawnSync(process.execPath, [skinCli, "typography-check", svg], { encoding: "utf8" });
@@ -374,9 +374,9 @@ export async function main(argv) {
   }
 
   // --- 1b. layout contract gate (design-kernel §7) -------------------------
-  // layout annotation이 있는 SVG는 check-svg → check-layout → browser 순으로
-  // fail-closed 실행된다. data-layout-unverified(exit 3)는 성공이 아니라 명시적
-  // 검토 상태다 — hard gate에서 통과 처리하지 않는다.
+  // An SVG carrying layout annotation runs fail-closed in the order check-svg -> check-layout ->
+  // browser. data-layout-unverified (exit 3) is an explicit review state, not a success — the
+  // hard gate does not treat it as a pass.
   if (/data-(layout-(container|parent|item|group|title|unverified)|cluster(-id|-at)?)\s*=/.test(readFileSync(svg, "utf8"))) {
     const layoutExit = runLayoutCli([svg]);
     if (layoutExit === 3) {

@@ -1,32 +1,33 @@
 #!/usr/bin/env python3
-"""font-subset.py — portable artifact를 위한 glyph subset 생성기(빌드 전용).
+"""font-subset.py — the glyph subset generator for portable artifacts (build only).
 
-이 wrapper가 존재하는 이유는 두 가지다.
+This wrapper exists for two reasons.
 
-1) **버전을 실제로 확인한다.** policy가 fonttools 4.53.1을 선언했다는 사실만으로는
-   어떤 실행 파일이 돌았는지 알 수 없다. 여기서 실행 중인 fontTools/brotli 버전을 직접 읽어
-   선언과 대조하고, 어긋나면 acceptance artifact를 만들지 않는다.
+1) **It actually checks the version.** The policy declaring fonttools 4.53.1 says nothing
+   about which executable ran. Here the running fontTools/brotli versions are read directly and
+   compared with the declaration; on a mismatch no acceptance artifact is produced.
 
-2) **Reserved Font Name을 정리한다.** subset은 OFL상 Modified Version이므로 CSS alias만
-   바꾸는 것으로는 부족하다 — 생성된 font의 name table에서 **identity record**
-   (family/unique ID/full name/PostScript name/typographic family)를 중립 명칭으로
-   결정적으로 rewrite하고, copyright·trademark·license record는 법적 고지이므로 **보존**한다.
-   rewrite 후 identity record에 예약 이름이 남아 있으면 실패로 끝낸다.
+2) **It settles the Reserved Font Name.** Under the OFL a subset is a Modified Version, so
+   changing the CSS alias alone is not enough — in the generated font's name table the
+   **identity records** (family, unique ID, full name, PostScript name, typographic family) are
+   deterministically rewritten to neutral names, while the copyright, trademark and license
+   records are **preserved** as the legal notice they are. If a reserved name survives in an
+   identity record after the rewrite, the run ends in failure.
 
 usage:
   font-subset.py --face <font> --text-file <chars.txt> --out <woff2> --alias <Name>
                  --style <Regular|Bold> --weight <400|700>
                  --expect-fonttools <ver> --expect-brotli <ver> --rfn <Name> [--rfn <Name> ...]
-exit: 0 ok · 2 usage · 4 tool/version 문제 · 5 RFN 잔존 · 6 subset 실패
+exit: 0 ok / 2 usage / 4 tool or version problem / 5 RFN survived / 6 subset failed
 """
 import argparse
 import hashlib
 import json
 import sys
 
-# identity — 무엇이라 불리는 font인가. subset은 원래 이름을 쓸 수 없다.
+# identity — what the font is called. A subset may not use the original name.
 IDENTITY_IDS = [1, 3, 4, 6, 16, 18, 20, 21, 22, 25]
-# 법적 고지 — 보존한다(OFL은 저작권 고지 유지를 요구한다).
+# Legal notice — preserved (the OFL requires the copyright notice to be kept).
 LEGAL_IDS = [0, 7, 8, 9, 11, 12, 13, 14]
 
 
@@ -85,10 +86,10 @@ def main():
         subsetter = subset.Subsetter(options=opts)
         subsetter.populate(text=text)
         subsetter.subset(font)
-    except Exception as e:  # noqa: BLE001 — 도구 실패는 조용히 넘기지 않는다
+    except Exception as e:  # noqa: BLE001 — a tool failure is never passed over quietly
         fail(6, f"subsetting failed: {e}")
 
-    # identity record를 중립 명칭으로 결정적으로 rewrite한다(Regular/Bold 각각 일관되게).
+    # Deterministically rewrite the identity records to neutral names (consistently for Regular and Bold).
     alias = a.alias
     family = alias
     full = f"{alias} {a.style}"
@@ -102,7 +103,7 @@ def main():
         elif rec.nameID in (20, 25):
             name.removeNames(nameID=rec.nameID)
 
-    # 검사: identity record에 예약 이름이 남으면 실패. 법적 고지는 검사 대상이 아니다.
+    # Check: a reserved name surviving in an identity record is a failure. The legal notice is not a subject of this check.
     leaked = []
     for rec in name.names:
         if rec.nameID in LEGAL_IDS:
@@ -114,9 +115,9 @@ def main():
     if leaked:
         fail(5, "reserved font name still present in identity records after rewrite:\n  " + "\n  ".join(leaked))
 
-    # delivery 정책의 on_glyph_missing: fail-closed 를 **실제로 집행한다**.
-    # 요청 문자가 subset의 cmap에 없으면 렌더는 조용히 fallback face로 새고,
-    # portable artifact가 "설치 글꼴에 의존하지 않는다"는 주장이 깨진다.
+    # This **actually enforces** the delivery policy's on_glyph_missing: fail-closed.
+    # If a requested character is absent from the subset's cmap the render leaks quietly to a
+    # fallback face, breaking the portable artifact's claim of not depending on an installed font.
     cmap = set()
     for table in font["cmap"].tables:
         cmap.update(table.cmap.keys())

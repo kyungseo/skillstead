@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 220" width="420" height="220">
-  <!-- 2×2 격자에서 셀 하나의 col annotation이 빠졌다 -->
+  <!-- a grid cell drops its alignment annotation -->
   <rect data-align-col="col-a" data-align-col-count="2" x="20" y="20" width="170" height="60" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1"/>
   <rect data-align-col="col-a" data-align-col-count="2" x="20" y="120" width="170" height="60" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1"/>
   <rect data-align-col="col-b" data-align-col-count="2" x="230" y="20" width="170" height="60" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1"/>

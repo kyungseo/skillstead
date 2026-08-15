@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
-# svg-infographic 공식 회귀 실행 경로.
+# svg-infographic official regression path.
 #
-# 왜 runner가 필요한가: suite 중 일부는 headless browser를 띄운다(render·measure-text 경유).
-# 이들을 동시에 돌리면 wall-clock timeout이 걸린 단계가 자원 경합에 노출돼 결과가 비결정적이 된다.
-# 그래서 **browser 비의존 suite는 병렬, browser 의존 suite는 직렬**을 계약으로 고정한다.
+# Why a runner: some suites launch a headless browser (through render / measure-text).
+# Running those concurrently exposes the wall-clock-timed steps to resource contention and
+# the result stops being deterministic. So the contract is fixed: **suites that need no
+# browser run in parallel, browser-dependent suites run serially.**
 #
-# 계약:
-#   - 재시도하지 않는다. 실패는 실패로 보고한다.
-#   - suite마다 전체 출력을 로그로 남긴다 — 실패 항목을 사후에 특정할 수 있어야 한다.
-#   - 한 suite라도 실패하면 non-zero로 끝난다.
+# Contract:
+#   - No retries. A failure is reported as a failure.
+#   - Full output per suite is kept as a log — a failing case must be identifiable afterwards.
+#   - If any suite fails, the run exits non-zero.
 #
-# 사용: bash scripts/run-tests.sh [--log-dir <dir>]
+# usage: bash scripts/run-tests.sh [--log-dir <dir>]
 set -uo pipefail
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -24,9 +25,9 @@ done
 [ -n "$log_dir" ] || log_dir="$(mktemp -d "${TMPDIR:-/tmp}/svginfo-tests-XXXXXX")"
 mkdir -p "$log_dir"
 
-# browser를 띄우지 않는다 — 동시에 돌려도 서로 간섭하지 않는다.
-parallel_suites=(skin preflight check-svg check-layout route-orthogonal)
-# headless browser를 띄운다 — 반드시 한 번에 하나씩.
+# These launch no browser — running them together causes no interference.
+parallel_suites=(skin preflight check-svg check-layout route-orthogonal check-language)
+# These launch a headless browser — strictly one at a time.
 serial_suites=(font-probe render compose generate)
 
 status=0

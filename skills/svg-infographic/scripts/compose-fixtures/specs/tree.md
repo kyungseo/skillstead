@@ -6,7 +6,7 @@ profile: constrained-layout
 
 # tree TypePack (fixture)
 
-root 1 + leaf n 계층 fragment. local 좌표계, page 요소 없음.
+A hierarchy fragment of one root and n leaves. Local coordinate system, no page-level elements.
 
 ## 1. Identity and selection
 fixture-only registration stub; the contract lives in the real TypePack spec.

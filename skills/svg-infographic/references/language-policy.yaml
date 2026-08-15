@@ -1,0 +1,72 @@
+# Package language policy — what may carry Hangul inside the installed package.
+#
+# The package is agent-facing guidance: normative prose, comments, diagnostics and test
+# names are English canonical. Hangul survives only where it IS the data — rendered copy,
+# a locale fixture, or the one registered Korean mirror.
+#
+# This file is the allowlist the checker enforces. It is deliberately narrow: a broad
+# directory exception would let normative Korean drift back in under a fixture's cover.
+schema_version: 1
+id: language-policy
+kind: policy
+status: current
+
+canonical_language: en
+
+# Every entry states WHAT may carry Hangul and WHY. `match` narrows within the file so a
+# path alone never grants a blanket exception.
+allow:
+  - id: typepack-input-payload
+    reason: "Rendered copy. The generator consumes these strings verbatim; translating them would change what the artifact says."
+    paths: ["references/types/inputs/*.yaml"]
+    # A path alone does not grant the exception — the file must declare itself locale data.
+    line_rule: ko-value
+
+  - id: roadmap-status-vocabulary
+    reason: "The KO column of the accessible status vocabulary table. These are rendered words the spec pins so the generator never invents them. The table heading, its explanation and every contract sentence around it stay English canonical."
+    paths: ["references/types/specs/roadmap-timeline.md"]
+    match_prefixes: ["| `done` |", "| `current` |", "| `future` |"]
+    max_lines: 3
+
+  - id: korean-readme-mirror
+    reason: "The registered Korean mirror of README.md, cross-linked from the English original. Exactly this one file. A new *.ko.md is NOT auto-allowed — it needs a mirror registration and a parity contract first."
+    paths: ["README.ko.md"]
+
+  - id: locale-fixture
+    reason: "Fixtures that exist to exercise CJK measurement, wrapping, subsetting and layout. Korean text is the input under test, not documentation."
+    paths:
+      - "scripts/compose-fixtures/**"
+      - "scripts/fixtures/**"
+      - "scripts/skin-fixtures/**"
+      - "scripts/layout-fixtures/**"
+    # Match the fixture's purpose: only rendered inputs (SVG/JSON payload) qualify, so a
+    # sibling script or doc cannot hide Korean commentary behind the fixture exception.
+    extensions: [".svg", ".json", ".yaml"]
+    line_rule: rendered-text
+
+  - id: inline-locale-test-input
+    reason: "Korean a test feeds to the code under test — CJK measurement, wrapping and subsetting need real Korean input. The line must say so explicitly with a `/* lang-allow: ko-fixture */` marker or a koFixture(...) helper; a Korean test name, comment or expected diagnostic is still a violation."
+    paths: ["scripts/*.test.mjs", "scripts/legacy/*.test.mjs"]
+    line_rule: ko-marker
+
+  - id: rendered-locale-copy
+    reason: "Fixed locale chrome the generator writes into the artifact itself. Each sits beside its EN sibling and is chosen by locale; translating it would change what the artifact says. The exception is closed rather than open: a line must name which of the three anchors below it is, each anchor may be claimed once, and the count is capped — so a Korean comment, a diagnostic, or a fourth piece of production copy is still a violation. Adding a fourth anchor is a language-policy decision, not a code change."
+    paths: ["scripts/generate.mjs"]
+    line_rule: ko-copy
+    anchors:
+      - legend-keys                  # topology legend: solid = sync/public, dashed = async/private
+      - timeline-status-vocabulary   # roadmap STATUS_TEXT: done / current / future
+      - page-eyebrow                 # PageFrame eyebrow above the H1
+    max_lines: 3
+
+  - id: readme-mirror-link
+    reason: "The cross-link label that names the Korean mirror from the English README."
+    files: ["README.md"]
+    match_prefixes: ["**English** ·"]
+    max_lines: 1
+
+  - id: frozen-legacy-evidence
+    reason: "Frozen pre-kernel evidence kept for provenance. The contact sheet is a rendered artifact whose Korean IS its content; the rail note records a superseded contract verbatim. Editing either would falsify the record it exists to preserve."
+    files:
+      - "references/media/canonical-skin-contact-sheet.svg"
+      - "references/legacy/page-title-rail.md"

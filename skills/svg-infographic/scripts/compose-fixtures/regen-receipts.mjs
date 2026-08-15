@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// fragment receipt 재생성기 — 측정기(measuredBoundsStrict)와 live SSoT digest로
-// receipt를 산출한다. profile이 바뀌면 이 스크립트로 fixture receipt를 갱신한다
-// (digest 대조 fixture와 동일한 유지 규칙).
+// Fragment receipt regenerator — produces receipts from the measurer (measuredBoundsStrict)
+// and the live SSoT digests. When a profile changes, fixture receipts are refreshed through
+// this script (the same maintenance rule as the digest-comparison fixtures).
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
@@ -28,7 +28,7 @@ for (const [dir, stem] of [["fragments", "summary-cards"], ["fragments", "tree"]
   const rcpP = path.join(here, dir, `${stem}.receipt.json`);
   const frag = readFileSync(svgP, "utf8");
   const body = frag.match(/<svg[^>]*>([\s\S]*)<\/svg>\s*$/)[1];
-  // text bounds: browser 실측 (정적 파서로 불가)
+  // Text bounds: measured in the browser (a static parser cannot do this)
   const hasText = /<text[\s>]/.test(body);
   let textBoxes = [];
   let tm = { texts: [] };

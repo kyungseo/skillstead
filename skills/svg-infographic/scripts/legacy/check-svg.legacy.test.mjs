@@ -87,8 +87,8 @@ test("root svg geometry rules do not leak into a descendant title rail", () => {
 
 test("page-title rail contract counts visual tspan lines, not only title elements", () => {
   const source = fixture("title-rail-valid.svg").replace(
-    '<text data-layout-role="title-line" x="68" y="110" font-size="46" dominant-baseline="middle">한 줄 제목</text>',
-    '<text data-layout-role="title-line" x="68" y="110" font-size="46" dominant-baseline="middle"><tspan x="68" dy="0">첫 줄</tspan><tspan x="68" dy="52">둘째 줄</tspan><tspan x="68" dy="52">셋째 줄</tspan></text>',
+    /* lang-allow: ko-fixture */ '<text data-layout-role="title-line" x="68" y="110" font-size="46" dominant-baseline="middle">한 줄 제목</text>',
+    /* lang-allow: ko-fixture */ '<text data-layout-role="title-line" x="68" y="110" font-size="46" dominant-baseline="middle"><tspan x="68" dy="0">첫 줄</tspan><tspan x="68" dy="52">둘째 줄</tspan><tspan x="68" dy="52">셋째 줄</tspan></text>',
   );
   const { errors } = lintSvg(source, "title-rail-three-visual-lines.svg");
   assert.ok(errors.some((f) => f.rule === "E-LAYOUT" && f.message.includes("found 3")));

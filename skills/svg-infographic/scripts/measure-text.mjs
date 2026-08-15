@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// measure-text.mjs — fragment의 text 요소별 실측 bounds (browser getBBox).
-// text는 정적 파서로 bounds를 증명할 수 없으므로, fragment receipt에 이 측정
-// evidence(방식·입력 digest 포함)를 담아 compose가 대조한다.
+// measure-text.mjs — measured bounds per text element of a fragment (browser getBBox).
+// A static parser cannot prove text bounds, so the fragment receipt carries this
+// measurement evidence (method and input digest included) for compose to check against.
 // usage: node measure-text.mjs <svg> [--json]
 import { readFileSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -34,7 +34,7 @@ ${svg}
     const svgRoot = document.querySelector("svg");
     for (const t of document.querySelectorAll("svg text")) {
       const b = t.getBBox();
-      // ancestor CTM 반영 global bounds (root 좌표계)
+      // Global bounds with the ancestor CTM applied (root coordinate system)
       const m = t.getCTM();
       const pts = [[b.x, b.y], [b.x + b.width, b.y], [b.x, b.y + b.height], [b.x + b.width, b.y + b.height]]
         .map(([px, py]) => [m.a * px + m.c * py + m.e, m.b * px + m.d * py + m.f]);

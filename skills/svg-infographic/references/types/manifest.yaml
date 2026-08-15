@@ -53,15 +53,15 @@
 #     min_slot_size: { w, h }        # logical px, the inner content area the
 #                                    # fragment's intrinsic bounds must fit (slot
 #                                    # padding excluded, scale profile applied later)
-#     preferred_slot_aspect: { min, max }   # slot(=할당 영역) aspect range — page
-#                                    # aspect는 presets/orientations가 소유
-#     allowed_slots: [top, bottom]   # template 위치 enum(top/middle/bottom/side) —
-#                                    # plan의 slot binding이 이 범위를 벗어나면 거부
-#     variants: [ { id, min_slot_size: {w,h} } ]  # composition이 선택하는 local
-#                                    # degrade variants (의미 축약은 receipt에 기록)
+#     preferred_slot_aspect: { min, max }   # aspect range of the assigned slot — page
+#                                    # aspect is owned by presets/orientations
+#     allowed_slots: [top, bottom]   # template position enum (top/middle/bottom/side) —
+#                                    # a plan slot binding outside this range is refused
+#     variants: [ { id, min_slot_size: {w,h} } ]  # local degrade variants the composition
+#                                    # selects (any loss of meaning is recorded in the receipt)
 #     ports: [ { template, direction: out|in|bidir, kind: flow|reference,
-#                cardinality: "n" | "n..m" | "0..n" } ]  # capability만 — 실제
-#                                    # port는 instance receipt가 산출
+#                cardinality: "n" | "n..m" | "0..n" } ]  # capability only — the actual
+#                                    # ports are produced by the instance receipt
 #
 # Schema upgrade policy (v1 -> v2, atomic package upgrade): the validator and every
 # manifest in the package move to v2 in the same commit — mixed versions are
@@ -88,12 +88,12 @@ schema_version: 2
 
 typepacks:
   - id: cards-kpi-grid
-    selection_signal: "핵심 항목·수치 몇 개를 동등한 카드로 요약 (feature highlight·원칙·상태 카운트·역량 요약; 데이터 정확성을 주장하는 chart가 아님)"
+    selection_signal: "A few key items or figures summarised as equal cards (feature highlights, principles, status counts, capability summaries; not a chart claiming data accuracy)"
     profile: constrained-layout
     support: experimental
     spec: types/specs/cards-kpi-grid.md
     presets: [document-compact, social-4x5, presentation-16x9]
-    # module 규모 카드 묶음은 고정 판형을 채우지 못한다(오너 승인 2026-08-14).
+    # A module-scale card set cannot fill a fixed preset (owner approved 2026-08-14).
     preferred_preset: document-compact
     orientations: [portrait, landscape]
     verifier: null
@@ -166,12 +166,12 @@ typepacks:
       ports:
         - { template: item-anchor, direction: out, kind: reference, cardinality: 0..n }
   - id: layer-stack
-    selection_signal: "아래 층을 기반으로 쌓이거나 추상화하는 계층 구조 (플랫폼 스택·런타임 계층·역량 모델)"
+    selection_signal: "A hierarchy that stacks on or abstracts the layer beneath it (platform stacks, runtime layers, capability models)"
     profile: constrained-layout
     support: experimental
     spec: types/specs/layer-stack.md
     presets: [document-compact, social-4x5, presentation-16x9]
-    # 장면별 실측(잔여 27~62%) 근거로 fluid를 기본으로 한다.
+    # Per-scene measurement (27-62% residual) makes fluid the default.
     preferred_preset: document-compact
     orientations: [portrait, landscape]
     verifier: null
@@ -190,11 +190,11 @@ typepacks:
       stress:
         - id: layer-stack-stress-cardinality
           path: types/inputs/layer-stack.stress-cardinality.yaml
-          # chip 4개가 fluid 폭에 들어가지 않는다 — 규칙에 따라 더 넓은 지원 preset을 쓴다.
+          # Four chips do not fit the fluid width — by rule this uses a wider supported preset.
           preset: presentation-16x9
           layout: column
           count: 5
-          residual_disposition: { bottom: 132, reason: \"chip 4개를 담으려 더 넓은 가로 판형을 택한 대가로 남는 세로 breathing이다 — 띠를 늘려 채우지 않는다.\" }
+          residual_disposition: { bottom: 132, reason: \"Vertical breathing left over from choosing a wider landscape preset to hold four chips — the band is not stretched to fill it.\" }
           geometry_expected: fits
           covers: [cardinality-max, chips-max]
         - id: layer-stack-stress-copy
@@ -227,12 +227,12 @@ typepacks:
         - { preset: presentation-16x9, orientation: landscape, count: 5, layout: column, result: fits }
         - { preset: presentation-16x9, orientation: landscape, count: 5, layout: column, floor: wide, result: fits }
   - id: nested-scope
-    selection_signal: "포함·범위 관계 — 안쪽이 바깥쪽 안에 산다 (신뢰 zone·scope ring·platform → app → feature)"
+    selection_signal: "Containment and scope — the inner lives inside the outer (trust zones, scope rings, platform -> app -> feature)"
     profile: constrained-layout
     support: experimental
     spec: types/specs/nested-scope.md
     presets: [document-compact, social-4x5, presentation-16x9]
-    # 장면별 실측(잔여 27~62%) 근거로 fluid를 기본으로 한다.
+    # Per-scene measurement (27-62% residual) makes fluid the default.
     preferred_preset: document-compact
     orientations: [portrait, landscape]
     verifier: null
@@ -274,12 +274,12 @@ typepacks:
         - { preset: social-4x5, orientation: portrait, count: 4, layout: concentric, result: fits }
         - { preset: presentation-16x9, orientation: landscape, count: 4, layout: concentric, result: fits }
   - id: topology-component
-    selection_signal: "시스템·컴포넌트와 그 연결 — 요청 경로·클라우드/네트워크 zone·시스템 경계가 있는 서비스 아키텍처"
+    selection_signal: "Systems or components and their connections — request paths, cloud/network zones, service architecture with a system boundary"
     profile: editorial-composition
     support: experimental
     spec: types/specs/topology-component.md
     presets: [social-4x5, presentation-16x9]
-    # 이 batch에서 아직 판형을 재평가하지 않았다 — 현재 기본값을 기록한다.
+    # This batch has not re-evaluated the preset — the current default is recorded as-is.
     preferred_preset: social-4x5
     orientations: [portrait, landscape]
     verifier: null
@@ -300,10 +300,11 @@ typepacks:
         preset: social-4x5
         layout: zones
         count: 3
-        # 잔여는 최대값이 아니라 **실측과 일치하는 선언**이다. treatment마다 실측이 다르므로
-        # 각각 정확값을 선언한다 — 단방향 비교는 stale 선언과 과도한 content expansion을 통과시킨다.
+        # Residual is not a maximum: it is a declaration that **matches the measurement**.
+        # Each treatment measures differently, so each declares its exact value — a one-sided
+        # comparison would pass stale declarations and excessive content expansion.
         residual_disposition:
-          reason: "zone 높이는 node 기하에서 파생하고 corridor는 배선 수요만큼만 열린다 — 남는 공간은 선언된 breathing이다(kernel §8)."
+          reason: "Zone height derives from node geometry and corridors open only as far as routing demand requires — the remaining space is declared breathing (kernel §8)."
           by_treatment:
             - { treatment: flat, bottom: 194 }
             - { treatment: sketch, calibration: hi-melody-optical-v1, bottom: 93 }
@@ -322,7 +323,7 @@ typepacks:
           preset: social-4x5
           layout: zones
           count: 3
-          residual_disposition: { bottom: 194, reason: "copy 경계에서도 zone 높이는 node 기하에서 파생하므로 잔여가 같다." }
+          residual_disposition: { bottom: 194, reason: "Even at the copy boundary the zone height derives from node geometry — so the residual is unchanged." }
           routing_expected: routable
           geometry_expected: fits
           covers: [copy-boundary-candidate]
@@ -336,12 +337,12 @@ typepacks:
         - { preset: social-4x5, orientation: portrait, count: 4, layout: zones, result: fits }
         - { preset: presentation-16x9, orientation: landscape, count: 4, layout: zones, result: fits }
   - id: process-flow
-    selection_signal: "순서 있는 단계나 인계 — 프로세스·파이프라인·데이터 흐름·리뷰 루프"
+    selection_signal: "Ordered steps or handoffs — processes, pipelines, data flows, review loops"
     profile: constrained-layout
     support: experimental
     spec: types/specs/process-flow.md
     presets: [document-compact, social-4x5, presentation-16x9]
-    # 구조적으로 좁은 flow/band라 고정 판형을 채우지 못한다 — 기본은 fluid, 넓은 구성만 고정 판형.
+    # A structurally narrow flow/band cannot fill a fixed preset — fluid by default, fixed only for wide configurations.
     preferred_preset: document-compact
     orientations: [portrait, landscape]
     verifier: null
@@ -398,12 +399,12 @@ typepacks:
         - { preset: presentation-16x9, orientation: landscape, count: 5, layout: row, result: fits }
         - { preset: presentation-16x9, orientation: landscape, count: 5, layout: column, result: fits }
   - id: approval-gate
-    selection_signal: "승인 gate·체크포인트가 하나 있는 단순 요청 경로 (a→b→c; 전체 sequence diagram은 범위 밖)"
+    selection_signal: "A simple request path with one approval gate or checkpoint (a->b->c; a full sequence diagram is out of scope)"
     profile: constrained-layout
     support: experimental
     spec: types/specs/approval-gate.md
     presets: [document-compact, social-4x5, presentation-16x9]
-    # 구조적으로 좁은 flow/band라 고정 판형을 채우지 못한다 — 기본은 fluid, 넓은 구성만 고정 판형.
+    # A structurally narrow flow/band cannot fill a fixed preset — fluid by default, fixed only for wide configurations.
     preferred_preset: document-compact
     orientations: [portrait, landscape]
     verifier: null
@@ -425,14 +426,15 @@ typepacks:
         layout: row
         count: 3
       stress:
-        # 오너 판정(2026-08-14): 이 구성은 stress evidence이지 gallery 승격 대상이 아니다.
-        # (선언된 breathing을 허용하는 이유이기도 하다 — 기계 강제는 아니며 승격 심사에서 확인한다.)
+        # Owner decision (2026-08-14): this configuration is stress evidence, not a gallery
+        # promotion candidate. That is also why its declared breathing is accepted — this is
+        # not machine-enforced and is confirmed at promotion review.
         - id: approval-gate-stress-cardinality
           path: types/inputs/approval-gate.stress-cardinality.yaml
           preset: presentation-16x9
           layout: row
           count: 4
-          residual_disposition: { bottom: 484, reason: "4-node band는 fluid 판형의 폭(680)을 넘어 preferred preset을 쓸 수 없다 — 더 넓은 고정 판형을 택한 대가로 남는 세로 breathing이다." }
+          residual_disposition: { bottom: 484, reason: "A 4-node band exceeds the fluid preset width (680) so the preferred preset cannot be used — the vertical breathing is the cost of choosing a wider fixed preset." }
           geometry_expected: fits
           covers: [cardinality-max]
         - id: approval-gate-stress-copy
@@ -456,17 +458,17 @@ typepacks:
       footprint:
         - { count: 4, layout: row, extraW: 0, extraH: 40, w: 728, h: 128 }
       feasibility:
-        # 4-node band는 fluid 폭(680)을 넘는다 — 그래서 이 구성만 가로 preset을 쓴다.
+        # A 4-node band exceeds the fluid width (680) — only this configuration uses a landscape preset.
         - { preset: document-compact, orientation: portrait, count: 4, layout: row, result: needs-split }
         - { preset: social-4x5, orientation: portrait, count: 4, layout: row, result: needs-split }
         - { preset: presentation-16x9, orientation: landscape, count: 4, layout: row, result: fits }
   - id: before-after
-    selection_signal: "이전과 이후 — 마이그레이션·현대화·리팩터 결과·트레이드오프 비교"
+    selection_signal: "Before and after — migration, modernisation, refactor outcome, trade-off comparison"
     profile: constrained-layout
     support: experimental
     spec: types/specs/before-after.md
     presets: [document-compact, social-4x5, presentation-16x9]
-    # 장면별 실측(고정 4:5에서 잔여 27~79%)에 따라 fluid를 기본으로 한다.
+    # Per-scene measurement (27-79% residual on the fixed 4:5) makes fluid the default.
     preferred_preset: document-compact
     orientations: [portrait, landscape]
     verifier: null
@@ -500,9 +502,9 @@ typepacks:
     fit:
       floor_basis: geometry
       cardinality: { min: 2, canonical: 2, max: 2 }
-      # panel 최소 높이는 **최소 합법 문법에서 계산**한다(임의 수치가 아니다):
+      # The minimum panel height is **computed from the minimum legal syntax** (not an arbitrary number):
       #   2×panelPad + panelHeaderH + minSlots×slotMinH + (minSlots-1)×slotGap
-      #   = 2×16 + 34 + 2×38 + 1×10 = 152. validator가 이 합과 itemMinH를 대조한다.
+      #   = 2x16 + 34 + 2x38 + 1x10 = 152. The validator checks this sum against itemMinH.
       params: { itemMinW: 260, itemMinH: 152, gapX: 32, gapY: 32, panelPad: 16, panelHeaderH: 34, slotMinH: 38, slotGap: 10, minSlots: 2 }
       footprint:
         - { count: 2, layout: row, w: 552, h: 152 }
@@ -511,13 +513,13 @@ typepacks:
         - { preset: social-4x5, orientation: portrait, count: 2, layout: row, result: fits }
         - { preset: presentation-16x9, orientation: landscape, count: 2, layout: row, result: fits }
   - id: roadmap-timeline
-    selection_signal: "시간·단계 — 제품 phase·마일스톤·롤아웃 wave·시점별 상태 (균등 간격이며 기간 비례를 주장하지 않음)"
+    selection_signal: "Time or phases — product phases, milestones, rollout waves, a status snapshot over time (evenly spaced, claiming no proportional duration)"
     profile: constrained-layout
     support: experimental
     spec: types/specs/roadmap-timeline.md
     presets: [document-compact, social-4x5, presentation-16x9]
-    # 구조적으로 얇은 band라 고정 판형을 채우지 못한다(장면별 실측 잔여 80~87%) — 기본은 fluid.
-    # 폭이 모자란 구성만 더 넓은 16:9로 옮긴다.
+    # A structurally thin band cannot fill a fixed preset (80-87% residual measured per scene)
+    # — fluid by default. Only configurations short on width move to the wider 16:9.
     preferred_preset: document-compact
     orientations: [portrait, landscape]
     verifier: null
@@ -539,7 +541,7 @@ typepacks:
           preset: presentation-16x9
           layout: row
           count: 5
-          residual_disposition: { bottom: 501, reason: "timeline은 구조적으로 얇은 band다. 5 phase는 폭 때문에 16:9를 써야 하고 band를 canvas 높이에 맞춰 늘리지 않으므로 남는 세로 여백이다." }
+          residual_disposition: { bottom: 501, reason: "A timeline is a structurally thin band. Five phases need 16:9 for width — and the band is never stretched to the canvas height — so this vertical space is left over." }
           geometry_expected: fits
           covers: [cardinality-max, status-and-marker]
         - id: roadmap-timeline-stress-body
@@ -558,11 +560,11 @@ typepacks:
           covers: [terminal-current]
         - id: roadmap-timeline-stress-copy
           path: types/inputs/roadmap-timeline.stress-copy.yaml
-          # 긴 title이 card 폭을 키워 fluid 폭을 넘는다 — 이 구성만 더 넓은 판형을 쓴다.
+          # Long titles grow the card width past the fluid width — only this configuration uses a wider preset.
           preset: presentation-16x9
           layout: row
           count: 4
-          residual_disposition: { bottom: 501, reason: "긴 title 때문에 폭이 되는 판형이 16:9뿐이다. band 높이는 내용이 정하고 canvas를 채우려고 늘리지 않는다." }
+          residual_disposition: { bottom: 501, reason: "Long titles leave 16:9 as the only preset wide enough. The band height is set by content and is never stretched to fill the canvas." }
           geometry_expected: fits
           covers: [copy-boundary-candidate, status-and-marker]
         - id: roadmap-timeline-stress-degrade
@@ -575,26 +577,28 @@ typepacks:
     fit:
       floor_basis: geometry
       cardinality: { min: 3, canonical: 4, max: 5 }
-      # 두 수치 모두 **최소 합법 문법**에서 유도한다(임의 상수가 아니다).
-      #   itemMinW = card 폭 floor. 실제 폭은 두 locale 최장 title에서 나오고 이 값이 하한이다.
-      #   itemMinH = label 띠 + dot + 간격 + body 없는 card = (9+5+10+8) + 12 + 9 + (12+18+12) = 95
-      #   extraW   = 축 양 끝 여백 2 × outerClearance = 28. 끝 card가 content box 안에 들어오는 조건이다.
+      # Both numbers derive from the **minimum legal syntax** (they are not arbitrary constants).
+      #   itemMinW = the card width floor. The real width comes from the longest title across both
+      #              locales; this value is its lower bound.
+      #   itemMinH = label band + dot + gap + a body-less card = (9+5+10+8) + 12 + 9 + (12+18+12) = 95
+      #   extraW   = axis end margins, 2 x outerClearance = 28 — the condition that keeps the
+      #              outermost card inside the content box.
       params: { itemMinW: 132, itemMinH: 95, gapX: 20, gapY: 20 }
       footprint:
         - { count: 4, layout: row, extraW: 28, extraH: 0, w: 616, h: 95 }
         - { count: 5, layout: row, extraW: 28, extraH: 0, w: 768, h: 95 }
       feasibility:
-        # 5 phase는 768px가 필요해 616px 폭(fluid·4:5)을 넘는다 — 폭이 되는 것은 16:9뿐이다.
+        # Five phases need 768px, past the 616px width (fluid and 4:5) — only 16:9 is wide enough.
         - { preset: document-compact, orientation: portrait, count: 5, layout: row, result: needs-split }
         - { preset: social-4x5, orientation: portrait, count: 5, layout: row, result: needs-split }
         - { preset: presentation-16x9, orientation: landscape, count: 5, layout: row, result: fits }
   - id: decision-matrix
-    selection_signal: "두 정성 축으로 배치하는 옵션·항목 — 2×2 우선순위/결정 사분면·3×3 리스크 격자"
+    selection_signal: "Options or items placed by two qualitative axes — a 2x2 priority/decision quadrant, a 3x3 risk grid"
     profile: constrained-layout
     support: experimental
     spec: types/specs/decision-matrix.md
     presets: [document-compact, social-4x5, presentation-16x9]
-    # 장면별 실측(고정 4:5에서 잔여 27~79%)에 따라 fluid를 기본으로 한다.
+    # Per-scene measurement (27-79% residual on the fixed 4:5) makes fluid the default.
     preferred_preset: document-compact
     orientations: [portrait, landscape]
     verifier: null
@@ -613,12 +617,12 @@ typepacks:
       stress:
         - id: decision-matrix-stress-cardinality
           path: types/inputs/decision-matrix.stress-cardinality.yaml
-          # 3×3은 fluid 폭을 넘는다 — 이 구성만 더 넓은 지원 판형을 쓴다.
+          # A 3x3 exceeds the fluid width — only this configuration uses a wider supported preset.
           preset: presentation-16x9
           layout: grid
           cols: 3
           count: 9
-          residual_disposition: { bottom: 358, reason: "3×3 격자는 축 예약을 포함해 fluid 폭을 넘으므로 폭이 되는 유일한 선언 판형이 16:9다. cell 높이는 내용이 정하고 canvas를 채우려고 늘리지 않는다 — 가로를 얻은 대가로 남는 세로 여백이다." }
+          residual_disposition: { bottom: 358, reason: "With the axis reservation included a 3x3 grid exceeds the fluid width — leaving 16:9 as the only declared preset wide enough. Cell height is set by content and never stretched to fill the canvas — this vertical space is the cost of gaining width." }
           geometry_expected: fits
           covers: [cardinality-max]
         - id: decision-matrix-stress-degrade
@@ -640,15 +644,16 @@ typepacks:
     fit:
       floor_basis: geometry
       cardinality: { min: 4, canonical: 4, max: 9 }
-      # cell 높이는 canvas가 아니라 내용이 정한다. itemMinH는 **최소 합법 cell**의 geometry floor다:
-      # 2 × cellPadY + nameLine + nameGap + traitLine = 28 + 18 + 6 + 16. 실제 높이는 두 locale
-      # 최대 line-box에서 나오고, 예측 floor를 넘으면 렌더 뒤 측정 gate가 다시 판정한다.
+      # Cell height is set by content, not by the canvas. itemMinH is the geometry floor of the
+      # **minimum legal cell**: 2 x cellPadY + nameLine + nameGap + traitLine = 28 + 18 + 6 + 16.
+      # The real height comes from the larger line-box across both locales; when it exceeds the
+      # predicted floor the post-render measurement gate decides again.
       params: { itemMinW: 180, itemMinH: 68, gapX: 16, gapY: 16, cellPadY: 14, nameLine: 18, nameGap: 6, traitLine: 16 }
       footprint:
         - { count: 4, layout: grid, cols: 2, extraW: 72, extraH: 58, w: 448, h: 210 }
         - { count: 9, layout: grid, cols: 3, extraW: 72, extraH: 58, w: 644, h: 294 }
       feasibility:
-        # 3×3 격자는 fluid 폭(616)을 넘는다 — 그 구성만 더 넓은 판형을 쓴다.
+        # A 3x3 grid exceeds the fluid width (616) — only that configuration uses a wider preset.
         - { preset: document-compact, orientation: portrait, count: 9, layout: grid, result: needs-split }
         - { preset: social-4x5, orientation: portrait, count: 9, layout: grid, result: fits }
         - { preset: presentation-16x9, orientation: landscape, count: 9, layout: grid, result: fits }

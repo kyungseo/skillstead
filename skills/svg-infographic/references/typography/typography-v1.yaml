@@ -23,8 +23,8 @@ treatments:
     fallback: [Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif]
     synthetic: forbidden
     asset:
-      # 글꼴 정체성·face·digest·license는 이 SSoT가 소유한다. **어떻게 내보낼지**(embed 여부)는
-      # 이 파일이 정하지 않는다 — references/delivery/font-delivery-v1.yaml이 소유한다.
+      # This SSoT owns font identity, faces, digests and licensing. It does NOT decide **how
+      # the font ships** (whether it is embedded) — references/delivery/font-delivery-v1.yaml does.
       policy: bundled
       embed: subset
       faces:
@@ -46,8 +46,9 @@ treatments:
       id: OFL-1.1
       evidence: assets/fonts/Pretendard-OFL.txt
       evidence_digest: b04538c9abec39a3db75108cf0af0fd9c77032fe8aa2cf38345b4d250e98e38e
-      # **Reserved Font Name이 있다.** subset은 OFL상 Modified Version이므로 생성된 subset은
-      # 이 이름을 쓸 수 없다 — embed alias는 delivery policy가 정한 중립 이름을 쓴다.
+      # **There is a Reserved Font Name.** Under the OFL a subset is a Modified Version, so the
+      # generated subset may not carry this name — the embed alias uses the neutral name the
+      # delivery policy declares.
       rfn: [Pretendard]
   sketch:
     # Selected 2026-08-13 (typography audition, design review): Hi Melody —

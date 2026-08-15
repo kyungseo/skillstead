@@ -6,7 +6,7 @@ profile: constrained-layout
 
 # not-composable TypePack (fixture)
 
-composition 미지원 TypePack (fixture).
+A TypePack that does not support composition (fixture).
 
 ## 1. Identity and selection
 fixture-only registration stub; the contract lives in the real TypePack spec.

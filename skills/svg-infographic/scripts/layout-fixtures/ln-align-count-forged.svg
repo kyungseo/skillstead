@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 120" width="420" height="120">
-  <!-- 참여자끼리 기대 수가 다르다(위조·불일치) -->
+  <!-- the declared participant count does not match what the artifact carries -->
   <rect data-align-row="slot-1" data-align-row-count="2" x="20" y="20" width="170" height="60" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1"/>
   <rect data-align-row="slot-1" data-align-row-count="3" x="230" y="20" width="170" height="60" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1"/>
 </svg>

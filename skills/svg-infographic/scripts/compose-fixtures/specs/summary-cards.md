@@ -6,7 +6,7 @@ profile: constrained-layout
 
 # summary-cards TypePack (fixture)
 
-동등한 카드 n개 fragment. local 좌표계, page 요소 없음.
+A fragment of n peer cards. Local coordinate system, no page-level elements.
 
 ## 1. Identity and selection
 fixture-only registration stub; the contract lives in the real TypePack spec.

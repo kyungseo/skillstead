@@ -50,25 +50,25 @@ const runCli = (args, env = {}) =>
     env: { ...process.env, ...env },
   });
 
-test("typography-negative SVG는 browser 실행 전에 거부된다 (exit 5)", () => {
+test("a typography-negative SVG is rejected before the browser runs (exit 5)", () => {
   const r = runCli([join(here, "skin-fixtures", "typography", "tf-wrapper-lost.svg")]);
   assert.equal(r.status, 5, r.stdout + r.stderr);
   assert.match(r.stdout + r.stderr, /typography contract failed/);
 });
 
-test("single-quote sketch root도 renderer typography gate가 거부한다 (exit 5)", () => {
+test("the renderer typography gate also rejects a single-quote sketch root (exit 5)", () => {
   const r = runCli([join(here, "skin-fixtures", "typography", "tf-sq-sketch-root.svg")]);
   assert.equal(r.status, 5, r.stdout + r.stderr);
   assert.match(r.stdout + r.stderr, /typography contract failed/);
 });
 
-test("layout-negative SVG는 browser 실행 전에 거부된다 (exit 5)", () => {
+test("a layout-negative SVG is rejected before the browser runs (exit 5)", () => {
   const r = runCli([join(here, "layout-fixtures", "ln-gap-drift.svg")]);
   assert.equal(r.status, 5, r.stdout + r.stderr);
   assert.match(r.stdout + r.stderr, /layout contract failed/);
 });
 
-test("data-layout-unverified는 render hard gate에서 성공 처리되지 않는다 (exit 5)", () => {
+test("data-layout-unverified is not treated as success by the render hard gate (exit 5)", () => {
   const src = readFileSync(join(here, "layout-fixtures", "ln-transform.svg"), "utf8");
   const tmp = join(mkdtempSync(join(tmpdir(), "aw-lu-")), "unverified.svg");
   writeFileSync(tmp, src.replace('data-layout-parent="p" ', 'data-layout-parent="p" data-layout-unverified="manual review" '));
@@ -133,7 +133,7 @@ test("running Chrome/Edge with localized non-version output is accepted only fro
     "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
     "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
   ];
-  const localized = "기존 브라우저 세션에서 열립니다."; // localized non-version status
+  const localized = /* lang-allow: ko-fixture */ "기존 브라우저 세션에서 열립니다."; // localized non-version status
   const opts = { platform: "win32", documentedPaths };
   const ok = verifyChromiumIdentity(documentedPaths[0], localized, opts);
   assert.equal(ok.ok, true);

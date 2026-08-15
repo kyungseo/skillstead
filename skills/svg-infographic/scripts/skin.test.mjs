@@ -21,20 +21,20 @@ function run(args, env = {}) {
   const r = spawnSync(process.execPath, [SKIN, ...args], { encoding: "utf8", env: { ...process.env, ...env } });
   return { code: r.status, out: r.stdout + r.stderr };
 }
-// package 안에서 profile 집합을 바꿔 끼워야 하는 negative는 **package 사본**을 만들어
-// 그 사본의 entrypoint를 자기 root에서 실행한다 — containment를 끄지 않고도 동일한
-// 결함 상황을 재현한다(shipped 표면에 fixture 우회 경로를 두지 않기 위함).
+// A negative that needs the profile set swapped inside the package makes a **copy of the package**
+// and runs that copy's entrypoint from its own root — reproducing the same defect without turning
+// containment off (so no fixture bypass path sits on the shipped surface).
 function pkgCopy() {
   const dir = mkdtempSync(path.join(tmpdir(), "skinpkg-"));
   const pkg = path.join(dir, "svg-infographic");
   const r = spawnSync("cp", ["-R", path.join(here, ".."), pkg], { encoding: "utf8" });
   assert.equal(r.status, 0, r.stderr);
-  // source checkout이 read-only여도 사본은 변조 가능해야 한다(테스트는 source를 만지지 않는다)
+  // The copy must be mutable even where the source checkout is read-only (the tests never touch the source)
   spawnSync("chmod", ["-R", "u+w", pkg], { encoding: "utf8" });
   return pkg;
 }
 function runIn(pkg, args, env = {}) {
-  // 상속된 root/mode는 지우되, 테스트가 **명시적으로 준** 값은 보존한다.
+  // Clear the inherited root and mode, but preserve whatever the test gave **explicitly**.
   const e = { ...process.env, ...env };
   for (const k of ["SVGINFO_EXPECTED_SKILL_ROOT", "SVGINFO_EXECUTION_MODE"]) if (!(k in env)) delete e[k];
   const r = spawnSync(process.execPath, [path.join(pkg, "scripts", "skin.mjs"), ...args],
@@ -63,8 +63,8 @@ test("dark + sketch is an unsupported combination", () => {
 });
 
 // --- profile negatives (SKIN_SKINS_DIR isolation) ------------------------------
-// negative profile 집합은 이미 package 안(scripts/skin-fixtures/skins-negative)에 있으므로
-// 그대로 가리켜도 containment를 통과한다 — package 밖으로 나가는 경로만 거부된다.
+// The negative profile set already lives inside the package (scripts/skin-fixtures/skins-negative),
+// so pointing straight at it clears containment — only a path leaving the package is refused.
 const neg = (file, re, extraEnv = {}) => {
   const r = run(["validate", path.join(NEG, file)], { SKIN_SKINS_DIR: NEG, ...extraEnv });
   assert.equal(r.code, 1, r.out);
@@ -79,8 +79,8 @@ test("derivation ratio out of [0,1] is rejected", () => neg("ratio-oob.yaml", /o
 test("overlay missing a required token is rejected", () => neg("overlay-missing-token.yaml", /missing token "highlight"/));
 test("overlay with an unexpected token is rejected", () => neg("overlay-unexpected-token.yaml", /unexpected token "glitter"/));
 test("palette validation fails when the sibling derivation is defective", () => {
-  // package 사본의 negative 트리 안에서만 profile을 바꾼다(트리 전체가 분류돼 있어
-  // 파일 추가·교체가 분류 gate를 깨지 않는다).
+  // Change profiles only inside the negative tree of the package copy (the whole tree is
+  // classified, so adding or replacing a file does not break the classification gate).
   const pkg = pkgCopy();
   const skins = path.join(pkg, "scripts", "skin-fixtures", "skins-negative");
   writeFileSync(path.join(skins, "derivation-v1.yaml"),
@@ -135,7 +135,7 @@ test("materialize rewrites mismatched paint deterministically (write path, temp 
   const dir = mkdtempSync(path.join(tmpdir(), "mat-"));
   const f = path.join(dir, "m.svg");
   copyFileSync(path.join(FIX, "materialize-mismatch.svg"), f);
-  fs.chmodSync(f, 0o644);   // read-only checkout에서 복사해도 쓰기 가능해야 한다
+  fs.chmodSync(f, 0o644);   // it must stay writable even when copied from a read-only checkout
   const r = run(["materialize", f, "--json"]);
   assert.equal(r.code, 0, r.out);
   const after = readFileSync(f, "utf8");
@@ -247,14 +247,14 @@ test("micro-fixtures: connector shafts and visible heads meet the preset minimum
 });
 
 // --- TypePack registration closure + derived selection view (Wave 1 CP1A) ----
-// 이 블록은 **source tree를 절대 수정하지 않는다** — 변조가 필요한 재현은 package
-// 사본에서 수행한다(read-only checkout에서도 suite가 통과해야 한다).
+// This block **never modifies the source tree** — any reproduction needing mutation happens in a
+// package copy (the suite must pass on a read-only checkout too).
 const typesOf = (pkg) => path.join(pkg, "references", "types");
 const readManifest = (pkg) => fs.readFileSync(path.join(typesOf(pkg), "manifest.yaml"), "utf8");
 const writeManifest = (pkg, text) => fs.writeFileSync(path.join(typesOf(pkg), "manifest.yaml"), text);
 const drop = (pkg) => fs.rmSync(path.dirname(pkg), { recursive: true, force: true });
 
-test("selection view는 manifest에서 파생되고 drift는 --check가 잡는다(사본에서 변조)", () => {
+test("the selection view derives from the manifest and --check catches drift (mutated in a copy)", () => {
   const ok = run(["selection", "--check", "--json"]);
   assert.equal(ok.code, 0, ok.out);
   const j = JSON.parse(ok.out);
@@ -271,27 +271,27 @@ test("selection view는 manifest에서 파생되고 drift는 --check가 잡는�
   drop(pkg);
 });
 
-test("R1-7: manifest row 순서를 뒤집어도 selection view는 동일하다", () => {
+test("R1-7: reversing the manifest row order leaves the selection view identical", () => {
   const base = run(["selection"]);
   assert.equal(base.code, 0, base.out);
   const pkg = pkgCopy();
   const text = readManifest(pkg);
   const head = text.slice(0, text.indexOf("  - id: "));
   const entries = text.slice(text.indexOf("  - id: ")).split(/(?=^  - id: )/m).filter(Boolean);
-  assert.ok(entries.length >= 2, `등록 TypePack이 ${entries.length}종이다`);
+  assert.ok(entries.length >= 2, `there are ${entries.length} registered TypePacks`);
   writeManifest(pkg, head + entries.reverse().join(""));
   const reordered = runIn(pkg, ["selection"]);
   assert.equal(reordered.code, 0, reordered.out);
-  assert.equal(reordered.out, base.out, "정렬 기준이 manifest 순서와 무관해야 한다");
+  assert.equal(reordered.out, base.out, "the sort key must be independent of the manifest order");
   drop(pkg);
 });
 
-test("R1-6: selection --write는 개발 모드에서만 허용되고, write 후 --check가 통과한다", () => {
+test("R1-6: selection --write is allowed only in development mode, and --check passes after the write", () => {
   const denied = run(["selection", "--write"]);
   assert.equal(denied.code, 1, denied.out);
   assert.match(denied.out, /requires source-development execution/);
 
-  // 소유 repository로 만든 임시 package에서 실제 write → check 왕복
+  // a real write-then-check round trip in a temporary package built as an owning repository
   const repo = mkdtempSync(path.join(tmpdir(), "seldev-"));
   spawnSync("git", ["init", "-q", repo], { encoding: "utf8" });
   fs.mkdirSync(path.join(repo, "skills"), { recursive: true });
@@ -307,12 +307,12 @@ test("R1-6: selection --write는 개발 모드에서만 허용되고, write 후 
   const j = JSON.parse(w.out);
   assert.equal(j.driftedBefore, true);
   assert.equal(j.wrote, true);
-  assert.equal(j.driftedAfter, false, "write 후에도 drift가 남으면 안 된다");
-  assert.equal(runIn(pkg, ["selection", "--check"]).code, 0, "write 직후 check는 통과해야 한다");
+  assert.equal(j.driftedAfter, false, "no drift may remain after the write");
+  assert.equal(runIn(pkg, ["selection", "--check"]).code, 0, "the check right after the write must pass");
   fs.rmSync(repo, { recursive: true, force: true });
 });
 
-test("manifest: 등록된 TypePack의 spec identity·섹션·inventory closure", () => {
+test("manifest: spec identity, sections and inventory closure for registered TypePacks", () => {
   const m = run(["manifest", "--json"]);
   assert.equal(m.code, 0, m.out);
   assert.equal(JSON.parse(m.out).errors.length, 0);
@@ -323,7 +323,7 @@ test("manifest: 등록된 TypePack의 spec identity·섹션·inventory closure",
   }
 });
 
-test("R1-1·R1-2: 중복 spec 경로·identity 불일치·빈 spec·orphan spec은 거부된다", () => {
+test("R1-1 and R1-2: a duplicate spec path, an identity mismatch, an empty spec and an orphan spec are refused", () => {
   const cases = [
     ["duplicate spec path", (pkg) => writeManifest(pkg, readManifest(pkg).replace("types/specs/layer-stack.md", "types/specs/cards-kpi-grid.md")), /is already claimed by/],
     ["identity mismatch", (pkg) => {
@@ -351,7 +351,7 @@ test("R1-1·R1-2: 중복 spec 경로·identity 불일치·빈 spec·orphan spec�
   }
 });
 
-test("R1-3: promotion evidence 없는 core 승격은 거부된다", () => {
+test("R1-3: promotion to core without promotion evidence is refused", () => {
   const pkg = pkgCopy();
   writeManifest(pkg, readManifest(pkg).replace("support: experimental", "support: core"));
   const r = runIn(pkg, ["manifest"]);
@@ -362,7 +362,7 @@ test("R1-3: promotion evidence 없는 core 승격은 거부된다", () => {
   drop(pkg);
 });
 
-test("R1B-1: 가짜 gallery id·비fixture 파일로는 core 승격이 불가능하다", () => {
+test("R1B-1: a fake gallery id or a non-fixture file cannot promote to core", () => {
   const pkg = pkgCopy();
   writeManifest(pkg, readManifest(pkg)
     .replace("    support: experimental\n    spec: types/specs/cards-kpi-grid.md",
@@ -372,12 +372,12 @@ test("R1B-1: 가짜 gallery id·비fixture 파일로는 core 승격이 불가능
     .replace("    fixtures: []\n    examples:", "    fixtures:\n      - { id: fake-fx, kind: positive, preset: social-4x5, path: types/specs/cards-kpi-grid.md }\n    examples:"));
   const r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
-  assert.match(r.out, /must point at an \.svg artifact or \.json receipt/, "spec 문서를 fixture로 쓸 수 없다");
-  assert.match(r.out, /does not exist — "core" requires a real gallery entry/, "가짜 gallery id는 증거가 아니다");
+  assert.match(r.out, /must point at an \.svg artifact or \.json receipt/, "a spec document cannot serve as a fixture");
+  assert.match(r.out, /does not exist — "core" requires a real gallery entry/, "a fake gallery id is not evidence");
   drop(pkg);
 });
 
-test("R1B-2: 지원 preset의 positive·baseline-red 증거 누락은 core를 막는다", () => {
+test("R1B-2: missing positive or baseline-red evidence for a supported preset blocks core", () => {
   const pkg = pkgCopy();
   const svg = "scripts/skin-fixtures/portable-positive.svg";
   writeManifest(pkg, readManifest(pkg)
@@ -387,12 +387,12 @@ test("R1B-2: 지원 preset의 positive·baseline-red 증거 누락은 core를 �
              `    verifier: null\n    receipt_schema: null\n    fixtures:\n      - {{ id: ls-social, kind: positive, preset: social-4x5, path: ${svg} }}\n    examples:\n      - {{ id: ls-ex, gallery_anchor: PROMPT-GALLERY.md#layer-stack }}\n    required_roles: [canvas, surface, ink, muted, rule, focus]\n    optional_aliases: []\n    canonical_prompt: {{ status: reserved, anchor: PROMPT-GALLERY.md#layer-stack }}`.replace(/{{/g, "{").replace(/}}/g, "}")));
   const r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
-  assert.match(r.out, /requires a positive fixture for preset "presentation-16x9"/, "선언한 preset 전부에 positive가 필요하다");
+  assert.match(r.out, /requires a positive fixture for preset "presentation-16x9"/, "every declared preset needs a positive");
   assert.match(r.out, /requires at least one baseline-red fixture/);
   drop(pkg);
 });
 
-test("R1B-3: heading만 있는 annex는 거부된다", () => {
+test("R1B-3: an annex that is only a heading is refused", () => {
   const pkg = pkgCopy();
   writeManifest(pkg, readManifest(pkg).replace("    annexes: []\n    gate: null\n    migration_origin: legacy\n    legacy_section: \"Layer stack\"",
     "    annexes: [topology]\n    gate: null\n    migration_origin: legacy\n    legacy_section: \"Layer stack\""));
@@ -405,7 +405,7 @@ test("R1B-3: heading만 있는 annex는 거부된다", () => {
   drop(pkg);
 });
 
-test("R1B-4: data-accuracy annex는 core 승격 시 verifier와 receipt schema를 요구한다", () => {
+test("R1B-4: a data-accuracy annex requires a verifier and a receipt schema to promote to core", () => {
   const pkg = pkgCopy();
   writeManifest(pkg, readManifest(pkg)
     .replace("    annexes: []\n    gate: null\n    migration_origin: legacy\n    legacy_section: \"Layer stack\"",
@@ -418,8 +418,8 @@ test("R1B-4: data-accuracy annex는 core 승격 시 verifier와 receipt schema�
   drop(pkg);
 });
 
-test("R1B-5: legacy_section null 우회와 tombstone 규칙 문장 추가는 거부된다", () => {
-  // (1) legacy origin인데 legacy_section을 비우면 거부
+test("R1B-5: the legacy_section null bypass and appending a rule sentence to a tombstone are refused", () => {
+  // (1) a legacy origin with an empty legacy_section is refused
   let pkg = pkgCopy();
   writeManifest(pkg, readManifest(pkg).replace('legacy_section: "Layer stack"', "legacy_section: null"));
   let r = runIn(pkg, ["manifest"]);
@@ -427,7 +427,7 @@ test("R1B-5: legacy_section null 우회와 tombstone 규칙 문장 추가는 거
   assert.match(r.out, /migration_origin "legacy" requires legacy_section/);
   drop(pkg);
 
-  // (2) origin을 new로 바꿔 검사를 빠져나가면 주인 없는 tombstone이 남는다
+  // (2) slipping past the check by switching origin to new leaves an ownerless tombstone
   pkg = pkgCopy();
   writeManifest(pkg, readManifest(pkg)
     .replace("    migration_origin: legacy\n    legacy_section: \"Layer stack\"", "    migration_origin: new\n    legacy_section: null"));
@@ -436,7 +436,7 @@ test("R1B-5: legacy_section null 우회와 tombstone 규칙 문장 추가는 거
   assert.match(r.out, /no typepack claims it via legacy_section/);
   drop(pkg);
 
-  // (3) tombstone에 규칙 문장을 덧붙이면 canonical body 불일치로 거부
+  // (3) appending a rule sentence to a tombstone is refused on the canonical body mismatch
   pkg = pkgCopy();
   const ap = path.join(pkg, "references", "archetypes.md");
   fs.writeFileSync(ap, fs.readFileSync(ap, "utf8").replace(
@@ -448,36 +448,37 @@ test("R1B-5: legacy_section null 우회와 tombstone 규칙 문장 추가는 거
   drop(pkg);
 });
 
-test("R1-4: gated TypePack은 라우팅에서 빠지되 id·사유·해제 조건이 남는다", () => {
+test("R1-4: a gated TypePack drops out of routing but keeps its id, reason and release condition", () => {
   const pkg = pkgCopy();
-  // gate 없이 gated로 바꾸면 거부
+  // switching to gated without a gate is refused
   writeManifest(pkg, readManifest(pkg).replace("    support: experimental\n    spec: types/specs/layer-stack.md",
     "    support: gated\n    spec: types/specs/layer-stack.md"));
   let r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /gated typepacks require gate/);
-  // gate를 채우면 통과하고, view에는 audit 행으로만 남는다
+  // filling the gate passes, and it appears in the view only as an audit row
   writeManifest(pkg, readManifest(pkg).replace("    gate: null\n    migration_origin: legacy\n    legacy_section: \"Layer stack\"",
-    "    gate: { reason: \"machine verifier 미완\", release: \"verifier + receipt schema 확정 시\" }\n    migration_origin: legacy\n    legacy_section: \"Layer stack\""));
+    "    gate: { reason: \"machine verifier incomplete\", release: \"once verifier + receipt schema are settled\" }\n    migration_origin: legacy\n    legacy_section: \"Layer stack\""));
   assert.equal(runIn(pkg, ["manifest"]).code, 0, runIn(pkg, ["manifest"]).out);
   const view = runIn(pkg, ["selection"]);
   assert.equal(view.code, 0, view.out);
   assert.doesNotMatch(view.out.split("## Registered but not routable")[0], /layer-stack/,
-    "gated 타입은 라우팅 표에 없어야 한다");
+    "a gated type must not appear in the routing table");
   assert.match(view.out, /Registered but not routable/);
-  assert.match(view.out, /layer-stack.*machine verifier 미완.*verifier \+ receipt schema/s);
+  assert.match(view.out, /layer-stack.*machine verifier incomplete.*verifier \+ receipt schema/s);
   drop(pkg);
 });
 
-test("R1-5: canonical prompt는 reserved→bound 전이를 요구하고 bound 대상 부재를 거부한다", () => {
+test("R1-5: a canonical prompt requires the reserved-to-bound transition and refuses a bound target that is absent", () => {
   const pkg = pkgCopy();
   writeManifest(pkg, readManifest(pkg).replace("{ status: reserved, anchor: PROMPT-GALLERY.md#layer-stack }",
     "{ status: bound, anchor: PROMPT-GALLERY.md#layer-stack }"));
   let r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /bound but PROMPT-GALLERY\.md does not exist/);
-  // 파일은 있으나 anchor가 없으면 여전히 거부.
-  // 파일 추가와 package membership 등록은 같은 변경에서 이뤄져야 한다(CP3 원자 확장 계약).
+  // With the file present but the anchor missing it is still refused.
+  // Adding the file and registering package membership must happen in one change (the CP3 atomic
+  // extension contract).
   fs.writeFileSync(path.join(pkg, "references", "PROMPT-GALLERY.md"), "# Prompt gallery\n\n## other anchor\n");
   const surf = path.join(pkg, "references", "package-surface.yaml");
   fs.writeFileSync(surf, fs.readFileSync(surf, "utf8").replace(
@@ -486,13 +487,13 @@ test("R1-5: canonical prompt는 reserved→bound 전이를 요구하고 bound �
   r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /anchor "#layer-stack" not found/);
-  // anchor가 있으면 통과
+  // with the anchor present it passes
   fs.appendFileSync(path.join(pkg, "references", "PROMPT-GALLERY.md"), "\n## layer stack\n");
   assert.equal(runIn(pkg, ["manifest"]).code, 0, runIn(pkg, ["manifest"]).out);
   drop(pkg);
 });
 
-test("중복 canonical_prompt anchor는 manifest validator가 직접 잡는다", () => {
+test("a duplicate canonical_prompt anchor is caught by the manifest validator itself", () => {
   const pkg = pkgCopy();
   writeManifest(pkg, readManifest(pkg).replace("PROMPT-GALLERY.md#layer-stack", "PROMPT-GALLERY.md#cards-kpi-grid"));
   const r = runIn(pkg, ["manifest"]);
@@ -501,7 +502,7 @@ test("중복 canonical_prompt anchor는 manifest validator가 직접 잡는다",
   drop(pkg);
 });
 
-test("R1-5b: 등록된 TypePack의 legacy archetype section이 되살아나면 거부된다", () => {
+test("R1-5b: a revived legacy archetype section on a registered TypePack is refused", () => {
   const pkg = pkgCopy();
   const ap = path.join(pkg, "references", "archetypes.md");
   fs.writeFileSync(ap, fs.readFileSync(ap, "utf8").replace(
@@ -512,13 +513,13 @@ test("R1-5b: 등록된 TypePack의 legacy archetype section이 되살아나면 �
   drop(pkg);
 });
 
-// --- CP1B: 카탈로그 전수 이행 -------------------------------------------------
-test("CP1B: 9종 archetype이 모두 TypePack으로 등록되고 selection view에 노출된다", () => {
+// --- CP1B: migrating the whole catalogue -------------------------------------------------
+test("CP1B: all nine archetypes are registered as TypePacks and appear in the selection view", () => {
   const m = run(["manifest", "--json"]);
   assert.equal(m.code, 0, m.out);
   const j = JSON.parse(m.out);
   assert.equal(j.errors.length, 0, JSON.stringify(j.errors));
-  assert.equal(j.count, 9, "archetype 9종이 모두 등록되어야 한다");
+  assert.equal(j.count, 9, "all nine archetypes must be registered");
   const sel = JSON.parse(run(["selection", "--check", "--json"]).out);
   assert.equal(sel.registered, 9);
   assert.equal(sel.shown, 9);
@@ -526,20 +527,20 @@ test("CP1B: 9종 archetype이 모두 TypePack으로 등록되고 selection view�
   const view = fs.readFileSync(path.join(here, "..", "references", "types", "selection.md"), "utf8");
   for (const id of ["approval-gate", "before-after", "cards-kpi-grid", "decision-matrix", "layer-stack",
                     "nested-scope", "process-flow", "roadmap-timeline", "topology-component"])
-    assert.match(view, new RegExp(`\\\`${id}\\\``), `${id} 행이 있어야 한다`);
+    assert.match(view, new RegExp(`\\\`${id}\\\``), `there must be a row for ${id}`);
 });
 
-test("CP1B: archetypes.md의 per-type section은 모두 tombstone이다", () => {
+test("CP1B: every per-type section in archetypes.md is a tombstone", () => {
   const arch = fs.readFileSync(path.join(here, "..", "references", "archetypes.md"), "utf8");
   const blocks = arch.split(/^## /m).slice(1);
   const shared = blocks.filter((b) => !/Migrated to TypePack/.test(b)).map((b) => b.split("\n")[0].trim());
   assert.deepEqual(shared, ["Premium base recipe (applies to every archetype)"],
-    "cross-type 공통 recipe 외에는 per-type normative section이 남으면 안 된다");
+    "beyond the shared cross-type recipe, no per-type normative section may remain");
 });
 
-test("tombstones 명령은 canonical template에서 재생성하고 drift를 잡는다", () => {
+test("the tombstones command regenerates from the canonical template and catches drift", () => {
   assert.equal(run(["tombstones", "--check"]).code, 0);
-  // --write는 개발 모드가 필요하므로 소유 repository로 만든 임시 package에서 검증한다
+  // --write needs development mode, so this is verified in a temporary package built as an owning repository
   const repo = mkdtempSync(path.join(tmpdir(), "tsdev-"));
   spawnSync("git", ["init", "-q", repo], { encoding: "utf8" });
   fs.mkdirSync(path.join(repo, "skills"), { recursive: true });
@@ -554,31 +555,31 @@ test("tombstones 명령은 canonical template에서 재생성하고 drift를 잡
   const drift = runIn(pkg, ["tombstones", "--check"]);
   assert.equal(drift.code, 1, drift.out);
   assert.match(drift.out, /do not match the canonical template/);
-  // 재생성하면 manifest closure까지 통과한다
+  // once regenerated it passes the manifest closure too
   const w = runIn(pkg, ["tombstones", "--write"], { SVGINFO_EXECUTION_MODE: "source-development" });
   assert.equal(w.code, 0, w.out);
   assert.equal(runIn(pkg, ["manifest"]).code, 0, runIn(pkg, ["manifest"]).out);
   fs.rmSync(repo, { recursive: true, force: true });
 });
 
-test("tombstones --write도 개발 모드에서만 허용된다", () => {
+test("tombstones --write is likewise allowed only in development mode", () => {
   const r = run(["tombstones", "--write"]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /requires source-development execution/);
 });
 
-test("topology annex를 선언한 TypePack은 필수 하위 절을 모두 갖춘다", () => {
+test("a TypePack declaring a topology annex carries every required subsection", () => {
   const spec = fs.readFileSync(path.join(here, "..", "references", "types", "specs", "topology-component.md"), "utf8");
   for (const sub of ["Entity identity", "Edge kind and direction", "Cardinality", "Cycle policy",
                      "Traversal and reading order", "Topology verifier and receipt boundary"])
     assert.match(spec, new RegExp(`^### ${sub}$`, "m"), sub);
 });
 
-// --- CP1B-R1: fit 계약 실행 가능성과 증거 결합 --------------------------------
-test("R1-1·R1-2: fit footprint는 params에서 재계산되고 feasibility는 live contentBox와 대조된다", () => {
+// --- CP1B-R1: the executability of the fit contract and its binding to evidence --------------------------------
+test("R1-1 and R1-2: the fit footprint is recomputed from params and feasibility is checked against the live contentBox", () => {
   const m = JSON.parse(run(["manifest", "--json"]).out);
   assert.equal(m.errors.length, 0, JSON.stringify(m.errors));
-  // 선언된 footprint 수치를 흔들면 params 재계산이 잡아야 한다
+  // disturbing the declared footprint numbers must be caught by the params recomputation
   let pkg = pkgCopy();
   writeManifest(pkg, readManifest(pkg).replace(/w: 644, h: 124/, "w: 500, h: 124"));
   let r = runIn(pkg, ["manifest"]);
@@ -586,7 +587,7 @@ test("R1-1·R1-2: fit footprint는 params에서 재계산되고 feasibility는 l
   assert.match(r.out, /declares 500×124 but the params compute 644×124/);
   drop(pkg);
 
-  // feasibility 결과를 뒤집으면 live contentBox 재계산이 잡아야 한다
+  // flipping the feasibility outcome must be caught by the live contentBox recomputation
   pkg = pkgCopy();
   writeManifest(pkg, readManifest(pkg).replace(
     "{ preset: social-4x5, orientation: portrait, count: 5, layout: row, result: needs-split }",
@@ -597,19 +598,19 @@ test("R1-1·R1-2: fit footprint는 params에서 재계산되고 feasibility는 l
   drop(pkg);
 });
 
-test("R1-2b: 모든 TypePack이 선언 preset의 최대 cardinality feasibility를 갖는다", () => {
+test("R1-2b: every TypePack has a maximum-cardinality feasibility for each declared preset", () => {
   const doc = fs.readFileSync(path.join(here, "..", "references", "types", "manifest.yaml"), "utf8");
   const blocks = doc.split(/^  - id: /m).slice(1);
-  assert.equal(blocks.length, 9, `등록 TypePack 수 ${blocks.length}`);
+  assert.equal(blocks.length, 9, `registered TypePack count ${blocks.length}`);
   for (const b of blocks) {
     const id = b.split("\n")[0].trim();
-    assert.match(b, /fit:/, `${id}: fit 블록 필요`);
+    assert.match(b, /fit:/, `${id}: a fit block is required`);
     for (const preset of ["social-4x5", "presentation-16x9"])
-      assert.ok(b.includes(`preset: ${preset}`), `${id}: ${preset} feasibility 필요`);
+      assert.ok(b.includes(`preset: ${preset}`), `${id}: a ${preset} feasibility is required`);
   }
-  // 커버리지 누락은 거부된다
+  // missing coverage is refused
   const pkg = pkgCopy();
-  // 최대 cardinality에서 해당 preset 항목이 하나뿐인 타입(topology zones)으로 커버리지 누락을 만든다
+  // create the missing coverage using a type with a single entry for that preset at maximum cardinality (topology zones)
   writeManifest(pkg, readManifest(pkg).replace(
     "        - { preset: presentation-16x9, orientation: landscape, count: 4, layout: zones, result: fits }\n", ""));
   const r = runIn(pkg, ["manifest"]);
@@ -618,7 +619,7 @@ test("R1-2b: 모든 TypePack이 선언 preset의 최대 cardinality feasibility�
   drop(pkg);
 });
 
-test("R1-4: topology annex를 선언한 TypePack은 verifier·receipt 없이 core가 될 수 없다", () => {
+test("R1-4: a TypePack declaring a topology annex cannot become core without a verifier and a receipt", () => {
   const pkg = pkgCopy();
   writeManifest(pkg, readManifest(pkg).replace(
     "  - id: topology-component\n    selection_signal:", "  - id: topology-component\n    selection_signal:")
@@ -630,7 +631,7 @@ test("R1-4: topology annex를 선언한 TypePack은 verifier·receipt 없이 cor
   drop(pkg);
 });
 
-test("R1-5: unrelated gallery heading·재사용 artifact로는 core 증거가 되지 않는다", () => {
+test("R1-5: an unrelated gallery heading or a reused artifact does not constitute core evidence", () => {
   const pkg = pkgCopy();
   const svg = "scripts/skin-fixtures/portable-positive.svg";
   writeManifest(pkg, readManifest(pkg)
@@ -640,32 +641,32 @@ test("R1-5: unrelated gallery heading·재사용 artifact로는 core 증거가 �
         .replace(/{{/g, "{").replace(/}}/g, "}")));
   const r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
-  assert.match(r.out, /gallery_anchor must be PROMPT-GALLERY\.md/, "아무 문서의 heading은 example 증거가 아니다");
-  assert.match(r.out, /is registered more than once — one artifact proves one/, "같은 artifact를 두 역할로 재사용할 수 없다");
+  assert.match(r.out, /gallery_anchor must be PROMPT-GALLERY\.md/, "any document's heading is not example evidence");
+  assert.match(r.out, /is registered more than once — one artifact proves one/, "one artifact cannot be reused in two roles");
   drop(pkg);
 });
 
-test("R1-3·R1-6: topology spec은 증거 수준을 구현에 맞추고 edge 축을 분리한다", () => {
+test("R1-3 and R1-6: the topology spec matches its evidence level to the implementation and separates the edge axes", () => {
   const spec = fs.readFileSync(path.join(here, "..", "references", "types", "specs", "topology-component.md"), "utf8");
   assert.match(spec, /\*\*Machine \(what the generic guards actually check\)/);
   assert.match(spec, /no dedicated path\s*\nthat understands the topology semantic model|that understands the topology semantic model/);
   assert.match(spec, /Not yet proved \(no registered fixture\)/);
   assert.match(spec, /node → zone \*\*semantic\*\* ownership/);
-  // R1C-P1: arrow-target clearance는 machine 목록이 아니라 미증명 목록에 있어야 한다
+  // R1C-P1: arrow-target clearance belongs on the unproven list, not the machine list
   const machine = spec.split("**Machine (what the generic guards actually check)**")[1].split("**Visual / manual")[0];
   const manual = spec.split("**Visual / manual")[1];
-  // machine **목록 항목**에 clearance 주장이 없어야 한다(부재를 밝히는 설명 문장은 허용)
+  // no machine **list item** may claim clearance (a sentence stating its absence is allowed)
   const machineBullets = machine.split("\n").filter((l) => l.startsWith("- ")).join("\n");
-  assert.doesNotMatch(machineBullets, /clearance|tip/, "target clearance를 machine 항목으로 주장하면 안 된다");
-  assert.match(machine, /no path that measures the gap between an arrow tip and its target node/, "부재를 명시적으로 밝혀야 한다");
-  assert.match(machine, /visible arrowhead size and its ratio to the shaft/, "arrowhead 크기 규칙만 machine이다");
-  assert.match(manual, /arrow tip–target 8–12px gap/, "target clearance는 미증명·수동 항목이다");
+  assert.doesNotMatch(machineBullets, /clearance|tip/, "target clearance must not be claimed as a machine item");
+  assert.match(machine, /no path that measures the gap between an arrow tip and its target node/, "the absence must be stated explicitly");
+  assert.match(machine, /visible arrowhead size and its ratio to the shaft/, "only the arrowhead size rule is machine-checked");
+  assert.match(manual, /arrow tip–target 8–12px gap/, "target clearance is an unproven, manual item");
   for (const axis of ["kind: request \\| dependency", "delivery: sync \\| async", "visibility: public \\| private"])
     assert.match(spec, new RegExp(axis), axis);
   assert.match(spec, /The line style derives from these three/);
 });
 
-test("R1B-P2: fit schema는 음수 gap·잘못된 orientation·중복 tuple을 거부한다", () => {
+test("R1B-P2: the fit schema refuses a negative gap, a wrong orientation and a duplicate tuple", () => {
   const cases = [
     [(t) => t.replace("gapX: 44", "gapX: -44"), /fit\.params\.gapX must be >= 0/],
     [(t) => t.replace("{ preset: presentation-16x9, orientation: landscape, count: 5, layout: row, result: fits }",
@@ -677,7 +678,7 @@ test("R1B-P2: fit schema는 음수 gap·잘못된 orientation·중복 tuple을 �
     [(t) => t.replace("cardinality: { min: 3, canonical: 4, max: 5 }", "cardinality: { min: 3, canonical: 4, max: 5.5 }"),
      /fit\.cardinality\.max must be a positive integer/],
     [(t) => t.replace("floor_basis: geometry", "floor_basis: proven"), /floor_basis must be geometry\|rendered/],
-    // R1C-P2: rendered는 CP2B evidence 계약 없이 자기 선언으로 승격할 수 없다
+    // R1C-P2: rendered cannot be promoted by self-declaration without the CP2B evidence contract
     [(t) => t.replace("floor_basis: geometry", "floor_basis: rendered"), /requires the CP2B floor_evidence contract/],
   ];
   for (const [mutate, re] of cases) {
@@ -690,49 +691,49 @@ test("R1B-P2: fit schema는 음수 gap·잘못된 orientation·중복 tuple을 �
   }
 });
 
-test("R1B-P1: topology fit은 zone 내부 구조를 포함한 계층형 경계 상자로 계산된다", () => {
+test("R1B-P1: the topology fit is computed as a hierarchical bounding box including the zone interior", () => {
   const doc = fs.readFileSync(path.join(here, "..", "references", "types", "manifest.yaml"), "utf8");
   const b = doc.split(/^  - id: topology-component$/m)[1].split(/^  - id: /m)[0];
-  assert.match(b, /layout: zones/, "zones layout을 써야 한다");
+  assert.match(b, /layout: zones/, "it must use the zones layout");
   for (const k of ["maxNodesPerZone", "zonePad", "zoneLabelBand", "zoneGap"])
-    assert.ok(b.includes(k), `${k} 파라미터 필요`);
+    assert.ok(b.includes(k), `the ${k} parameter is required`);
   const spec = fs.readFileSync(path.join(here, "..", "references", "types", "specs", "topology-component.md"), "utf8");
-  assert.match(spec, /9 nodes in total/, "zone당 상한과 총량 상한이 함께 적혀야 한다");
-  assert.doesNotMatch(spec, /4 zones × 4 nodes per zone hold in both presets/, "총 9개 계약과 충돌하는 문구 제거");
+  assert.match(spec, /9 nodes in total/, "the per-zone cap and the total cap must both be stated");
+  assert.doesNotMatch(spec, /4 zones × 4 nodes per zone hold in both presets/, "wording conflicting with the total-of-9 contract is removed");
 });
 
-test("R1B-P1c: content floor는 이름으로 구분되고 근거 수준이 표시된다", () => {
+test("R1B-P1c: content floors are distinguished by name and carry their evidence level", () => {
   const doc = fs.readFileSync(path.join(here, "..", "references", "types", "manifest.yaml"), "utf8");
-  assert.equal((doc.match(/floor_basis: geometry/g) ?? []).length, 9, "Wave 1 수치는 전부 기하 가정이다");
+  assert.equal((doc.match(/floor_basis: geometry/g) ?? []).length, 9, "every Wave 1 number is a geometric assumption");
   const cards = doc.split(/^  - id: cards-kpi-grid$/m)[1].split(/^  - id: /m)[0];
-  assert.match(cards, /itemMinW: 149, itemMinH: 124/, "base floor는 기존 시각 증거 이상");
-  assert.match(cards, /compactItemMinW: 132, compactItemMinH: 104/, "compact는 별도 floor");
+  assert.match(cards, /itemMinW: 149, itemMinH: 124/, "the base floor is at least the existing visual evidence");
+  assert.match(cards, /compactItemMinW: 132, compactItemMinH: 104/, "compact has its own floor");
   const layer = doc.split(/^  - id: layer-stack$/m)[1].split(/^  - id: /m)[0];
-  assert.match(layer, /floor: wide, result: needs-split/, "chip 4개는 4:5에서 성립하지 않는다");
+  assert.match(layer, /floor: wide, result: needs-split/, "four chips do not hold at 4:5");
   for (const f of ["cards-kpi-grid", "layer-stack", "process-flow"]) {
     const spec = fs.readFileSync(path.join(here, "..", "references", "types", "specs", `${f}.md`), "utf8");
     assert.match(spec, /`fit\.floor_basis` reads `geometry`, these numbers are a\s*\n\s*\*\*geometric assumption\*\*/, f);
   }
 });
 
-// --- CP2A: typed payload + stress scenario 계약 (R1 반영) ---------------------
-test("CP2A: 입력은 구조화 payload이고 KO/EN이 같은 entity 안에 묶인다", () => {
+// --- CP2A: the typed payload plus stress scenario contract (with R1 applied) ---------------------
+test("CP2A: input is a structured payload and KO/EN are bound inside the same entity", () => {
   const m = JSON.parse(run(["manifest", "--json"]).out);
   assert.equal(m.errors.length, 0, JSON.stringify(m.errors));
   const dir = path.join(here, "..", "references", "types", "inputs");
   const files = fs.readdirSync(dir).filter((f) => f.endsWith(".yaml"));
-  assert.ok(files.length >= 27, `입력 파일 ${files.length}종(9 canonical + stress 시나리오들)`);
+  assert.ok(files.length >= 27, `${files.length} input files (9 canonical plus the stress scenarios)`);
   const cards = fs.readFileSync(path.join(dir, "cards-kpi-grid.canonical.yaml"), "utf8");
-  assert.match(cards, /^cards:$/m, "타입별 collection을 가져야 한다");
-  assert.match(cards, /^ {4}title:\n {6}ko: /m, "locale은 entity 안에 묶인다");
-  assert.doesNotMatch(cards, /^items_ko:/m, "평행 배열 방식은 폐기됐다");
+  assert.match(cards, /^cards:$/m, "it must have a per-type collection");
+  assert.match(cards, /^ {4}title:\n {6}ko: /m, "locales are bound inside the entity");
+  assert.doesNotMatch(cards, /^items_ko:/m, "the parallel-array approach is retired");
   const topo = fs.readFileSync(path.join(dir, "topology-component.canonical.yaml"), "utf8");
   for (const k of ["zones:", "nodes:", "edges:", "boundary:"]) assert.ok(topo.includes(k), k);
   const appr = fs.readFileSync(path.join(dir, "approval-gate.canonical.yaml"), "utf8");
-  assert.match(appr, /^gate:$/m, "approval은 gate를 실제 필드로 가진다");
+  assert.match(appr, /^gate:$/m, "approval carries gate as a real field");
 });
 
-test("CP2A: payload 누락·budget 초과·locale 결손·잘못된 참조는 거부된다", () => {
+test("CP2A: a missing payload, an over-budget value, a missing locale and a wrong reference are refused", () => {
   const F = (pkg, f) => path.join(typesOf(pkg), "inputs", f);
   const cases = [
     [(pkg) => { const f = F(pkg, "approval-gate.canonical.yaml");
@@ -764,7 +765,7 @@ test("CP2A: payload 누락·budget 초과·locale 결손·잘못된 참조는 �
   }
 });
 
-test("CP2A-R1B: canary(cards·topology) payload negative 8종", () => {
+test("CP2A-R1B: eight payload negatives for the canaries (cards and topology)", () => {
   const F = (pkg, f) => path.join(typesOf(pkg), "inputs", f);
   const cards = "cards-kpi-grid.canonical.yaml", topo = "topology-component.stress-cardinality.yaml";
   const edit = (pkg, f, from, to) => {
@@ -772,15 +773,15 @@ test("CP2A-R1B: canary(cards·topology) payload negative 8종", () => {
     fs.writeFileSync(p2, fs.readFileSync(p2, "utf8").replace(from, to));
   };
   const cases = [
-    ["잘못된 icon id", (pkg) => edit(pkg, cards, 'icon: "activity"', 'icon: "../../evil.svg"'), /is not a bundled icon id/],
-    ["numeral 5 glyph 초과", (pkg) => edit(pkg, cards, '    icon: "activity"', '    numeral:\n      ko: "123456"\n      en: "123456"'), /numeral\.(ko|en) is 6 graphemes, over the 5 budget/],
-    ["body locale 누락", (pkg) => edit(pkg, cards, '      en: "Logs, metrics and traces as one"\n', ""), /body is missing the en value/],
-    ["body budget 초과", (pkg) => edit(pkg, cards, '      en: "Logs, metrics and traces as one"', '      en: "' + "x".repeat(60) + '"'), /body\.en is 60 graphemes, over the 48/],
-    ["zone당 node 5개", (pkg) => edit(pkg, topo, '      - id: "queue"', '      - id: "extra1"\n        name:\n          ko: "추가"\n          en: "Extra"\n      - id: "extra2"\n        name:\n          ko: "추가2"\n          en: "Extra2"\n      - id: "extra3"\n        name:\n          ko: "추가3"\n          en: "Extra3"\n      - id: "queue"'), /holds \d+ nodes; the contract allows 1–4|caps it at 9/],
-    ["node name locale 누락", (pkg) => edit(pkg, topo, '          en: "Gateway"\n', ""), /node "gw" name is missing the en value/],
-    ["edge 13개", (pkg) => edit(pkg, topo, '  - id: "e12"', '  - id: "e13"\n    from: "gw"\n    to: "cache"\n    kind: "dependency"\n    delivery: "sync"\n    visibility: "private"\n  - id: "e12"'), /over the 12 cap/],
+    ["a wrong icon id", (pkg) => edit(pkg, cards, 'icon: "activity"', 'icon: "../../evil.svg"'), /is not a bundled icon id/],
+    ["a numeral over the 5-glyph budget", (pkg) => edit(pkg, cards, '    icon: "activity"', '    numeral:\n      ko: "123456"\n      en: "123456"'), /numeral\.(ko|en) is 6 graphemes, over the 5 budget/],
+    ["a missing body locale", (pkg) => edit(pkg, cards, '      en: "Logs, metrics and traces as one"\n', ""), /body is missing the en value/],
+    ["an over-budget body", (pkg) => edit(pkg, cards, '      en: "Logs, metrics and traces as one"', '      en: "' + "x".repeat(60) + '"'), /body\.en is 60 graphemes, over the 48/],
+    ["five nodes in one zone", (pkg) => edit(pkg, topo, '      - id: "queue"', '      - id: "extra1"\n        name:\n          ko: "추가"\n          en: "Extra"\n      - id: "extra2"\n        name:\n          ko: "추가2"\n          en: "Extra2"\n      - id: "extra3"\n        name:\n          ko: "추가3"\n          en: "Extra3"\n      - id: "queue"'), /holds \d+ nodes; the contract allows 1–4|caps it at 9/],  /* lang-allow: ko-fixture */
+    ["a missing node name locale", (pkg) => edit(pkg, topo, '          en: "Gateway"\n', ""), /node "gw" name is missing the en value/],
+    ["thirteen edges", (pkg) => edit(pkg, topo, '  - id: "e12"', '  - id: "e13"\n    from: "gw"\n    to: "cache"\n    kind: "dependency"\n    delivery: "sync"\n    visibility: "private"\n  - id: "e12"'), /over the 12 cap/],
     ["duplicate edge id", (pkg) => edit(pkg, topo, '  - id: "e12"', '  - id: "e11"'), /duplicate edge id "e11"/],
-    ["boundary label locale 누락", (pkg) => edit(pkg, topo, '    en: "System boundary"\n', ""), /boundary label is missing the en value/],
+    ["a missing boundary label locale", (pkg) => edit(pkg, topo, '    en: "System boundary"\n', ""), /boundary label is missing the en value/],
   ];
   for (const [label, mutate, re] of cases) {
     const pkg = pkgCopy();
@@ -792,9 +793,9 @@ test("CP2A-R1B: canary(cards·topology) payload negative 8종", () => {
   }
 });
 
-test("CP2A-R1B: covers는 payload에서 관측돼야 한다(허위 coverage 거부)", () => {
+test("CP2A-R1B: covers must be observed in the payload (false coverage is refused)", () => {
   const pkg = pkgCopy();
-  // 짧은 문안 시나리오에 copy-boundary-candidate를 붙이면 관측되지 않아 거부된다
+  // attaching copy-boundary-candidate to a short-copy scenario is refused because it is not observed
   writeManifest(pkg, readManifest(pkg).replace(
     "          covers: [cardinality-max]\n", "          covers: [cardinality-max, copy-boundary-candidate]\n"));
   const short = path.join(typesOf(pkg), "inputs", "layer-stack.stress-cardinality.yaml");
@@ -805,7 +806,7 @@ test("CP2A-R1B: covers는 payload에서 관측돼야 한다(허위 coverage 거�
   drop(pkg);
 });
 
-test("CP2A-R1B: root·entity의 unknown field는 fail-closed", () => {
+test("CP2A-R1B: an unknown field at root or entity level fails closed", () => {
   const cases = [
     [(pkg) => { const f = path.join(typesOf(pkg), "inputs", "cards-kpi-grid.canonical.yaml");
       fs.appendFileSync(f, 'extra_root:\n  - id: "x"\n'); }, /payload root has unknown field "extra_root"/],
@@ -823,27 +824,27 @@ test("CP2A-R1B: root·entity의 unknown field는 fail-closed", () => {
   }
 });
 
-test("CP2A-R1B: before-after는 panel 수와 mirrored slot 수를 분리한다", () => {
+test("CP2A-R1B: before-after separates the panel count from the mirrored slot count", () => {
   const doc = fs.readFileSync(path.join(here, "..", "references", "types", "inputs", "before-after.stress-cardinality.yaml"), "utf8");
   assert.match(doc, /^panels:$/m);
   assert.match(doc, /^slots:$/m);
   assert.equal((doc.match(/^ {2}- id: /gm) ?? []).length >= 7, true, "panel 2 + slot 5");
   const pkg = pkgCopy();
   const f = path.join(typesOf(pkg), "inputs", "before-after.canonical.yaml");
-  fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace(/^slots:\n(?: {2}- id.*\n| {4}.*\n| {6}.*\n)+/m, 'slots:\n  - id: "only"\n    before:\n      ko: "하나"\n      en: "One"\n    after:\n      ko: "둘"\n      en: "Two"\n'));
+  fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace(/^slots:\n(?: {2}- id.*\n| {4}.*\n| {6}.*\n)+/m, 'slots:\n  - id: "only"\n    before:\n      ko: "하나"\n      en: "One"\n    after:\n      ko: "둘"\n      en: "Two"\n'));  /* lang-allow: ko-fixture */
   const r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /requires 2–5 mirrored slots \(got 1\)/);
   drop(pkg);
 });
 
-test("CP2A: stress는 covers 축을 선언한 시나리오 목록이고 geometry_expected가 계산과 일치해야 한다", () => {
+test("CP2A: stress is a list of scenarios declaring their covers axes, and geometry_expected must agree with the computation", () => {
   const doc = fs.readFileSync(path.join(here, "..", "references", "types", "manifest.yaml"), "utf8");
   for (const b of doc.split(/^  - id: /m).slice(1)) {
     const id = b.split("\n")[0].trim();
-    assert.match(b, /covers: \[cardinality-max/, `${id}: cardinality-max 시나리오 필요`);
-    assert.ok(/covers: \[[^\]]*copy-boundary-candidate/.test(b), `${id}: copy-boundary-candidate 시나리오 필요`);
-    assert.match(b, /geometry_expected: (fits|needs-split)/, `${id}: 기하 판정 명시 필요`);
+    assert.match(b, /covers: \[cardinality-max/, `${id}: a cardinality-max scenario is required`);
+    assert.ok(/covers: \[[^\]]*copy-boundary-candidate/.test(b), `${id}: a copy-boundary-candidate scenario is required`);
+    assert.match(b, /geometry_expected: (fits|needs-split)/, `${id}: the geometric verdict must be stated`);
   }
   const cases = [
     [(t) => t.replace(/          covers: \[cardinality-max\]\n/, "          covers: []\n"), /must declare the risk axes it covers/],
@@ -862,7 +863,7 @@ test("CP2A: stress는 covers 축을 선언한 시나리오 목록이고 geometry
   }
 });
 
-test("CP2A: 입력 파일 case는 시나리오와 1:1로 묶인다", () => {
+test("CP2A: an input file case is bound 1:1 to its scenario", () => {
   const pkg = pkgCopy();
   const f = path.join(typesOf(pkg), "inputs", "cards-kpi-grid.stress-copy.yaml");
   fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace("case: stress-copy", "case: stress-cardinality"));
@@ -872,8 +873,8 @@ test("CP2A: 입력 파일 case는 시나리오와 1:1로 묶인다", () => {
   drop(pkg);
 });
 
-// --- CP2A conditional approve closure: 요구 negative 8종 ----------------------
-test("CA-1·2: topology node icon과 roadmap milestone card는 필수다", () => {
+// --- closing the CP2A conditional approval: the eight required negatives ----------------------
+test("CA-1 and CA-2: a topology node icon and a roadmap milestone card are required", () => {
   const cases = [
     [(pkg) => { const f = path.join(typesOf(pkg), "inputs", "topology-component.canonical.yaml");
       fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('        icon: "route"\n', "")); },
@@ -891,7 +892,7 @@ test("CA-1·2: topology node icon과 roadmap milestone card는 필수다", () =>
   }
 });
 
-test("CA-3: 하위 entity(chip·example·delta·edge)의 ID도 kebab·유일해야 한다", () => {
+test("CA-3: the IDs of sub-entities (chip, example, delta, edge) must also be kebab-case and unique", () => {
   const cases = [
     [(pkg) => { const f = path.join(typesOf(pkg), "inputs", "before-after.stress-cardinality.yaml");
       fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('  - id: "d2"', '  - id: "d1"')); }, /duplicate delta id "d1"/],
@@ -909,7 +910,7 @@ test("CA-3: 하위 entity(chip·example·delta·edge)의 ID도 kebab·유일해�
   }
 });
 
-test("CA-4: 관측된 감사 축이 covers에서 빠지면 거부된다(양방향)", () => {
+test("CA-4: an observed audited axis missing from covers is refused (both ways)", () => {
   const pkg = pkgCopy();
   writeManifest(pkg, readManifest(pkg).replace("covers: [cardinality-max, edge-density]", "covers: [cardinality-max]"));
   const r = runIn(pkg, ["manifest"]);
@@ -918,11 +919,11 @@ test("CA-4: 관측된 감사 축이 covers에서 빠지면 거부된다(양방�
   drop(pkg);
 });
 
-test("CA-5: copy boundary는 KO·EN 각각 witness가 있어야 한다", () => {
+test("CA-5: a copy boundary needs a witness in KO and in EN", () => {
   const pkg = pkgCopy();
-  // EN witness만 남기고 KO를 짧게 바꾸면 후보로 관측되지 않는다
+  // leaving only the EN witness and shortening the KO means it is not observed as a candidate
   const f = path.join(typesOf(pkg), "inputs", "cards-kpi-grid.stress-copy.yaml");
-  let t = fs.readFileSync(f, "utf8").replace(/^      ko: ".*"$/gm, '      ko: "짧음"');
+  let t = fs.readFileSync(f, "utf8").replace(/^      ko: ".*"$/gm, '      ko: "짧음"');  /* lang-allow: ko-fixture */
   fs.writeFileSync(f, t);
   const r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
@@ -930,9 +931,9 @@ test("CA-5: copy boundary는 KO·EN 각각 witness가 있어야 한다", () => {
   drop(pkg);
 });
 
-test("CA-6: needs-split tuple이 있는 TypePack은 degrade 입력을 가져야 한다", () => {
+test("CA-6: a TypePack with a needs-split tuple must carry a degrade input", () => {
   const doc = fs.readFileSync(path.join(here, "..", "references", "types", "manifest.yaml"), "utf8");
-  assert.ok((doc.match(/geometry_expected: needs-split/g) ?? []).length >= 5, "needs-split tuple 보유 타입 전부에 degrade 입력");
+  assert.ok((doc.match(/geometry_expected: needs-split/g) ?? []).length >= 5, "every type holding a needs-split tuple has a degrade input");
   const pkg = pkgCopy();
   writeManifest(pkg, readManifest(pkg).replace(/        - id: cards-kpi-grid-stress-degrade\n(?:          .*\n)+/, ""));
   const r = runIn(pkg, ["manifest"]);
@@ -941,7 +942,7 @@ test("CA-6: needs-split tuple이 있는 TypePack은 degrade 입력을 가져야 
   drop(pkg);
 });
 
-test("CA-7: canonical 입력 count는 fit.cardinality.canonical과 같아야 한다", () => {
+test("CA-7: the canonical input count must equal fit.cardinality.canonical", () => {
   const pkg = pkgCopy();
   const m0 = readManifest(pkg);
   const m1 = m0.replace("        id: cards-kpi-grid-canonical\n", "        id: cards-kpi-grid-canonical\n        count: 3\n").replace("        count: 4\n", "");
@@ -953,10 +954,10 @@ test("CA-7: canonical 입력 count는 fit.cardinality.canonical과 같아야 한
   drop(pkg);
 });
 
-test("CA-8: roadmap label은 hard budget이 아니라 authoring sanity ceiling이다", () => {
+test("CA-8: a roadmap label is an authoring sanity ceiling, not a hard budget", () => {
   const pkg = pkgCopy();
   const f = path.join(typesOf(pkg), "inputs", "roadmap-timeline.canonical.yaml");
-  fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('      ko: "준비"', '      ko: "' + "가".repeat(20) + '"'));
+  fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('      ko: "준비"', '      ko: "' + "가".repeat(20) + '"'));  /* lang-allow: ko-fixture */
   const r = runIn(pkg, ["manifest"]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /label\.ko is 20 graphemes, over the 16 authoring sanity ceiling/);
@@ -1000,7 +1001,7 @@ test("canonical presets carry exact aspect ratios", () => {
   const r45 = run(["pageframe", "social-4x5", "--json"]);
   const r169 = run(["pageframe", "presentation-16x9", "--json"]);
   const j45 = JSON.parse(r45.out), j169 = JSON.parse(r169.out);
-  // 실제 preset 값(receipt canvas)으로 비율을 검증 — YAML이 다시 틀어지면 여기서 실패한다
+  // verify the ratio against the real preset values (the receipt canvas) — if the YAML drifts again this fails here
   assert.equal(j45.canvas.width / j45.canvas.height, 4 / 5);
   assert.equal(j169.canvas.width / j169.canvas.height, 16 / 9);
   assert.equal(j45.orientation, "portrait");
@@ -1031,31 +1032,31 @@ test("typography: canonical profile validates (fail-closed schema)", () => {
   const r = run(["typography"]);
   assert.equal(r.code, 0, r.out);
 });
-test("typography: registry가 current.typography를 선택한다", () => {
+test("typography: the registry selects current.typography", () => {
   const r = run(["registry", "--json"]);
   assert.equal(JSON.parse(r.out).errors.length, 0, r.out);
 });
-test("typography: synthetic 허용 시도는 거부", () => {
+test("typography: an attempt to allow synthetic is refused", () => {
   const r = run(["typography", path.join(FIX, "typography", "typo-synthetic.yaml")]);
   assert.equal(r.code, 1);
   assert.match(r.out, /synthetic must be "forbidden"/);
 });
-test("typography: 비수치 weight 거부", () => {
+test("typography: a non-numeric weight is refused", () => {
   const r = run(["typography", path.join(FIX, "typography", "typo-bad-weight.yaml")]);
   assert.equal(r.code, 1);
   assert.match(r.out, /weights must be a non-empty list of numeric weights/);
 });
-test("typography: unknown field 거부", () => {
+test("typography: an unknown field is refused", () => {
   const r = run(["typography", path.join(FIX, "typography", "typo-unknown-field.yaml")]);
   assert.equal(r.code, 1);
   assert.match(r.out, /unknown field "letter-spacing"/);
 });
-test("typography: locale 누락 거부", () => {
+test("typography: a missing locale is refused", () => {
   const r = run(["typography", path.join(FIX, "typography", "typo-missing-locale.yaml")]);
   assert.equal(r.code, 1);
   assert.match(r.out, /missing locale "en"/);
 });
-test("typography: resolve receipt에 결정적 stack이 동봉된다", () => {
+test("typography: the deterministic stack rides along in the resolve receipt", () => {
   const r = run(["resolve", "current", "--mode", "light", "--treatment", "sketch", "--json"]);
   const j = JSON.parse(r.out);
   assert.equal(j.typography.stack, '"Hi Melody", Pretendard, sans-serif');
@@ -1066,47 +1067,47 @@ test("typography: resolve receipt에 결정적 stack이 동봉된다", () => {
   assert.equal(JSON.parse(r2.out).typography.stack.startsWith("Pretendard, Inter"), true);
 });
 
-// --- typography-check (composite wrapper 유실 방지) -----------------------
+// --- typography-check (preventing a lost composite wrapper) -----------------------
 const TFIX = path.join(FIX, "typography");
-test("typography-check: positive (alias 유지 + 명시적 secondary + weight 400)", () => {
+test("typography-check: positive (alias kept, explicit secondary, weight 400)", () => {
   const r = run(["typography-check", path.join(TFIX, "tf-positive.svg")]);
   assert.equal(r.code, 0, r.out);
 });
-test("typography-check: wrapper font-family 유실은 fail-closed", () => {
+test("typography-check: a lost wrapper font-family fails closed", () => {
   const r = run(["typography-check", path.join(TFIX, "tf-wrapper-lost.svg")]);
   assert.equal(r.code, 1);
   assert.match(r.out, /E-TYPO-LOST .*wrapper lost the typography alias/);
 });
-test("typography-check: regular-only face에 weight 700은 error", () => {
+test("typography-check: weight 700 on a regular-only face is an error", () => {
   const r = run(["typography-check", path.join(TFIX, "tf-weight-700.svg")]);
   assert.equal(r.code, 1);
   assert.match(r.out, /E-TYPO-WEIGHT .*synthetic weights are forbidden/);
 });
-test("typography-check: annotation 없는 secondary fallback은 error", () => {
+test("typography-check: a secondary fallback without annotation is an error", () => {
   const r = run(["typography-check", path.join(TFIX, "tf-secondary-unannotated.svg")]);
   assert.equal(r.code, 1);
   assert.match(r.out, /E-TYPO-LOST/);
 });
-test("typography-check: remote font src는 error", () => {
+test("typography-check: a remote font src is an error", () => {
   const r = run(["typography-check", path.join(TFIX, "tf-remote-font.svg")]);
   assert.equal(r.code, 1);
   assert.match(r.out, /E-TYPO-REMOTE/);
 });
-test("typography-check: 상위 g 상속 weight 700도 검출(F2)", () => {
+test("typography-check: a weight 700 inherited from an ancestor g is detected too (F2)", () => {
   const r = run(["typography-check", path.join(TFIX, "tf-inherited-weight.svg")]);
   assert.equal(r.code, 1);
   assert.match(r.out, /E-TYPO-WEIGHT .*inherited cascade included/);
 });
-test("typography-check: spaced/single-quote scope도 인식되어 유실 검출(F2)", () => {
+test("typography-check: a spaced or single-quote scope is recognised, so the loss is still detected (F2)", () => {
   const r = run(["typography-check", path.join(TFIX, "tf-single-quote-scope.svg")]);
   assert.equal(r.code, 1);
   assert.match(r.out, /E-TYPO-LOST/);
 });
-test("typography-check: spaced double-quote 정상 조합은 통과(F2 동등성)", () => {
+test("typography-check: a sound spaced double-quote combination passes (F2 equivalence)", () => {
   const r = run(["typography-check", path.join(TFIX, "tf-spaced-scope-ok.svg")]);
   assert.equal(r.code, 0, r.out);
 });
-test("typography-check: marker 존재 + scope text 0은 fail-closed(F2)", () => {
+test("typography-check: a marker present with zero scope text fails closed (F2)", () => {
   const td = fs.mkdtempSync(path.join(os.tmpdir(), "typo-empty-"));
   const tmp = path.join(td, "empty.svg");
   let r;
@@ -1117,23 +1118,23 @@ test("typography-check: marker 존재 + scope text 0은 fail-closed(F2)", () => 
   assert.equal(r.code, 1);
   assert.match(r.out, /E-TYPO-EMPTY/);
 });
-test("typography-check: single-quote root sketch도 gate 대상(R1B2-1)", () => {
+test("typography-check: a single-quote root sketch is also subject to the gate (R1B2-1)", () => {
   const r = run(["typography-check", path.join(TFIX, "tf-sq-sketch-root.svg")]);
   assert.equal(r.code, 1);
   assert.match(r.out, /E-TYPO-LOST|E-TYPO-WEIGHT/);
 });
-test("typography: bundled인데 license.evidence 누락은 error(F8)", () => {
+test("typography: bundled with license.evidence missing is an error (F8)", () => {
   const r = run(["typography", path.join(TFIX, "typo-missing-license-evidence.yaml")]);
   assert.equal(r.code, 1);
   assert.match(r.out, /bundled asset requires license.evidence/);
 });
-test("typography: bundled asset의 digest mismatch는 error", () => {
+test("typography: a digest mismatch on a bundled asset is an error", () => {
   const pkg = pkgCopy();
   const tp = path.join(pkg, "references", "typography", "typography-v1.yaml");
   fs.writeFileSync(tp, fs.readFileSync(tp, "utf8").replace(/digest: [0-9a-f]{64}/, "digest: " + "f".repeat(64)));
   const r = runIn(pkg, ["typography", tp]);
   assert.equal(r.code, 1, r.out);
-  assert.match(r.out, /asset\.faces\[0\] digest mismatch/);   // 어느 face가 어긋났는지까지 말해야 한다
+  assert.match(r.out, /asset\.faces\[0\] digest mismatch/);   // it must say which face mismatched
   fs.rmSync(path.dirname(pkg), { recursive: true, force: true });
 });
 
@@ -1165,22 +1166,22 @@ test("manifest v2: composition capability positive", () => {
   const r = run(["manifest", path.join(FIX, "manifest-comp-positive.yaml")]);
   assert.equal(r.code, 0, r.out);
 });
-test("manifest v2: composition unknown field 거부", () => {
+test("manifest v2: an unknown composition field is refused", () => {
   const r = run(["manifest", path.join(FIX, "manifest-comp-unknown.yaml")]);
   assert.equal(r.code, 1);
   assert.match(r.out, /composition unknown field "max_modules"/);
 });
-test("manifest v2: preferred_slot_aspect min>max 거부", () => {
+test("manifest v2: a preferred_slot_aspect with min > max is refused", () => {
   const r = run(["manifest", path.join(FIX, "manifest-comp-bad-aspect.yaml")]);
   assert.equal(r.code, 1);
   assert.match(r.out, /preferred_slot_aspect must be \{min, max\}/);
 });
-test("manifest v2: port direction enum 거부", () => {
+test("manifest v2: a bad port direction enum is refused", () => {
   const r = run(["manifest", path.join(FIX, "manifest-comp-bad-port.yaml")]);
   assert.equal(r.code, 1);
   assert.match(r.out, /direction must be out\|in\|bidir/);
 });
-test("manifest v2: v1 manifest는 atomic upgrade 정책으로 거부", () => {
+test("manifest v2: a v1 manifest is refused under the atomic upgrade policy", () => {
   const r = run(["manifest", path.join(FIX, "manifest-v1-rejected.yaml")]);
   assert.equal(r.code, 1);
   assert.match(r.out, /schema_version must be 2/);

@@ -24,9 +24,9 @@
 //   groups:     data-layout-group="<id>" data-distribution="equal-gap"
 //               data-axis="x|y" data-group-count [data-gap-tol=1]
 //               (distribution/axis/group-count REQUIRED); items: data-layout-item="<id>"
-//   alignment:  data-align-row="<id>" data-align-row-count="<n≥2>" — 같은 y·같은 높이, 참여 수 고정
-//               data-align-col="<id>" data-align-col-count="<n≥2>" — 같은 x·같은 폭, 참여 수 고정
-//               (서로 다른 container에 걸친 교차 정렬 전용. 격자 엔진이 아니다)
+//   alignment:  data-align-row="<id>" data-align-row-count="<n>=2>" — same y, same height, fixed participant count
+//               data-align-col="<id>" data-align-col-count="<n>=2>" — same x, same width, fixed participant count
+//               (for cross-alignment spanning different containers only. Not a grid engine)
 //   clusters:   item frame: data-cluster-id="<id>" data-cluster-count
 //               components: data-cluster="<id>" on circle/rect (bounds) or
 //               text/g/use (anchor point)
@@ -98,7 +98,8 @@ export function checkLayoutFile(file) {
     const a = attrs(rawAttrs);
     let tx = stack.reduce((s, f) => s + f.tx, 0), ty = stack.reduce((s, f) => s + f.ty, 0);
     let broken = stack.some((f) => f.broken);
-    // translate-only가 원칙; anchor 참여자(text/g/use)는 원점이 scale과 무관하므로 translate+scale까지 provable
+    // Translate-only is the rule; for anchor participants (text/g/use) the origin is independent of
+    // scale, so translate+scale is provable too
     const anchorKind = name === "text" || name === "g" || name === "use";
     const tRe = anchorKind
       ? /^\s*translate\(\s*(-?[\d.]+)[ ,]\s*(-?[\d.]+)\s*\)(?:\s*scale\([\d. ]+\))?\s*$/
@@ -112,7 +113,7 @@ export function checkLayoutFile(file) {
     if (!declared) continue;
     if (a["data-layout-unverified"] != null) {
       unverified.push({ id: declared, reason: a["data-layout-unverified"] });
-      els.push({ a, name, uv: true });  // 선언 멤버로 집계하되 기하 검증은 명시적 검토 상태로 남긴다
+      els.push({ a, name, uv: true });  // counted as a declared member, but its geometry check stays in an explicit review state
       continue;
     }
     if (tm) { tx += Number(tm[1]); ty += Number(tm[2]); }
@@ -125,7 +126,7 @@ export function checkLayoutFile(file) {
       const cx = num(a.cx), cy = num(a.cy), r = num(a.r);
       if ([cx, cy, r].every(Number.isFinite)) g = { x: cx - r + tx, y: cy - r + ty, w: 2 * r, h: 2 * r };
     } else if (anchorKind) {
-      // anchor-point participants — cluster membership only (g는 translate 원점이 anchor)
+      // anchor-point participants — cluster membership only (for g, the translate origin is the anchor)
       const ax = num(a.x) ?? (name === "g" ? 0 : NaN), ay = num(a.y) ?? (name === "g" ? 0 : NaN);
       if ([ax, ay].every(Number.isFinite)) el.anchor = { x: ax + tx, y: ay + ty };
     }
@@ -152,7 +153,7 @@ export function checkLayoutFile(file) {
   }
 
   const r1 = (v) => Math.round(v * 10) / 10;
-  // --- alignment inventory: group이 **통째로 빠진 것**까지 잡는다 ------------------------
+  // --- alignment inventory: catches even a group that went missing **in its entirety** ------
   const invAttr = [...src.matchAll(/data-align-inventory="([^"]*)"/g)].map((m) => m[1]);
   if (invAttr.length > 1) errors.push(`E-LAYOUT-ALIGN-SCHEMA: more than one data-align-inventory declaration`);
   const declaredInv = invAttr.length
@@ -163,9 +164,10 @@ export function checkLayoutFile(file) {
       }))
     : null;
 
-  // --- alignment rows/cols: 교차축 정렬 + **참여 완결성** ------------------------------
-  // 정렬이 맞는지만 보면 한쪽 annotation이 빠졌을 때 남은 것만으로 통과한다.
-  // 그래서 group마다 기대 참여 수를 선언하게 하고, 수가 어긋나면 거부한다.
+  // --- alignment rows/cols: cross-axis alignment plus **participation completeness** --------
+  // Checking only whether things line up lets a group pass on its remaining members when one
+  // annotation is missing. So each group must declare its expected participant count, and a
+  // mismatched count is rejected.
   const alignTol = 1;
   for (const [attr, cntAttr, axis, pos, size, label] of [
     ["data-align-row", "data-align-row-count", "row", "y", "h", "top edge"],
@@ -245,7 +247,7 @@ export function checkLayoutFile(file) {
     const declaredCount = field(c.a, "data-layout-count", errors, ctx, { required: true });
     const visPad = field(c.a, "data-min-visual-pad", errors, ctx, { def: 8 });
     const reserve = field(c.a, "data-reserve-top", errors, ctx, { def: 0 });
-    // 라벨 열처럼 **가로로** 예약된 구간이 있으면 내용 경계는 그만큼 오른쪽에서 시작한다.
+    // When a span is reserved **horizontally** — a label column, say — the content boundary starts that much further right.
     const reserveLeft = field(c.a, "data-reserve-left", errors, ctx, { def: 0 });
     const symTol = field(c.a, "data-symmetry-tol", errors, ctx, { def: 4 });
     const symAxes = c.a["data-symmetry"] ?? "";
@@ -255,7 +257,7 @@ export function checkLayoutFile(file) {
     const contentTop = frame.y + reserve;     // title reservation excluded from content bounds
     const contentLeft = frame.x + reserveLeft; // label-column reservation, same idea on the x axis
     const kids = els.filter((e) => e.a["data-layout-parent"] === id);
-    // title participant: 실측 line-box (중앙 baseline: y ± 0.6×font-size 보수 범위)
+    // title participant: the measured line-box (centred baseline: the conservative range y +/- 0.6 x font-size)
     const titleEls = els.filter((e) => e.a["data-layout-title"] === id);
     const titledMode = "data-title-gap" in c.a;
     if (titledMode && titleEls.length === 0)
@@ -281,8 +283,9 @@ export function checkLayoutFile(file) {
       }
     }
     const titleGapMin = field(c.a, "data-title-gap", errors, ctx, { def: null });
-    // titled mode: contentBox(reserve 이후) 기준 top inset 최소값을 명시 계약으로 요구하고,
-    // y-symmetry는 titled container에 적용 불가(제목이 상단을 채우는 의도적 비대칭 — silent 강등이 아닌 명시 계약)
+    // titled mode: require a minimum top inset against the contentBox (after reservation) as an
+    // explicit contract, and do not apply y-symmetry to a titled container (the title filling the
+    // top is deliberate asymmetry — an explicit contract, not a silent downgrade)
     const contentPadTop = field(c.a, "data-content-pad-top", errors, ctx, { required: titledMode, def: null });
     if (titledMode && symAxes.includes("y"))
       errors.push(`E-LAYOUT-SCHEMA ${ctx}: y-symmetry is not applicable to a titled container — declare data-content-pad-top + data-title-gap instead (design-kernel §7a)`);
@@ -293,7 +296,7 @@ export function checkLayoutFile(file) {
     const kidRecs = [];
     for (const k of kids) {
       const kid = k.a["data-layout-container"] || k.a["data-layout-item"] || k.a["data-cluster-id"] || "child";
-      if (k.uv) continue;  // unverified 멤버: 집계만, 검증은 exit 3 검토 상태
+      if (k.uv) continue;  // unverified member: counted only; its check stays in the exit-3 review state
       if (!k.geom) { errors.push(`E-LAYOUT-SCHEMA ${ctx}/${kid}: layout child must carry numeric rect/circle bounds`); continue; }
       const gi = { left: k.geom.x - contentLeft, right: frame.x2 - (k.geom.x + k.geom.w),
                    top: k.geom.y - contentTop, bottom: frame.y2 - (k.geom.y + k.geom.h) };
@@ -344,7 +347,7 @@ export function checkLayoutFile(file) {
       titleGapMin, children: kidRecs });
   }
 
-  // title이 미선언 container를 참조하면 schema error (orphan title)
+  // A title referencing an undeclared container is a schema error (orphan title)
   for (const e of els.filter((x) => x.a["data-layout-title"])) {
     if (!containers.has(e.a["data-layout-title"]))
       errors.push(`E-LAYOUT-SCHEMA title participant references undeclared container "${e.a["data-layout-title"]}"`);
@@ -429,7 +432,7 @@ export function checkLayoutFile(file) {
       let ok, kind, ref;
       if (mm.geom) {
         kind = "bounds";
-        ref = { x: mm.geom.x + mm.geom.w / 2, y: mm.geom.y + mm.geom.h / 2 }; // binding 기준: bounds 중심
+        ref = { x: mm.geom.x + mm.geom.w / 2, y: mm.geom.y + mm.geom.h / 2 }; // binding reference: the centre of the bounds
         ok = mm.geom.x >= fb.x - 0.5 && mm.geom.y >= fb.y - 0.5 && mm.geom.x + mm.geom.w <= fb.x2 + 0.5 && mm.geom.y + mm.geom.h <= fb.y2 + 0.5;
       } else {
         kind = "anchor";
@@ -438,7 +441,7 @@ export function checkLayoutFile(file) {
       }
       if (!ok)
         errors.push(`E-LAYOUT-CLUSTER ${ctx}: component <${mm.name}> (${kind} ${JSON.stringify(mm.geom ?? mm.anchor)}) sits outside the item frame ${JSON.stringify(fb)} — the item moved without this component`);
-      // atomic binding: containment만으로는 frame-only small drift를 못 잡는다 — 선언된 상대 offset과 대조
+      // atomic binding: containment alone misses a frame-only small drift — check against the declared relative offset
       let bind = null;
       const at = mm.a["data-cluster-at"];
       if (at == null) {

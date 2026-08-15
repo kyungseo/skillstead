@@ -1,14 +1,14 @@
 #!/usr/bin/env node
-// preflight.mjs — package 소비 경계의 CLI 표면 (Wave 1 CP0).
+// preflight.mjs — the CLI surface at the package consumption boundary (Wave 1 CP0).
 //
 // usage:
-//   node preflight.mjs [--json]                      실행 문맥 검증 + digest 요약
-//   node preflight.mjs --require-mode <mode>          source-development 강제(Wave runner)
-//   node preflight.mjs --receipt <path>               detached identity receipt 기록
-//   node preflight.mjs --staging <dir>                staging 사본의 packageTreeDigest 대조
-//   node preflight.mjs --verify-receipt <path>        receipt를 현재 package에서 재계산 검증
+//   node preflight.mjs [--json]                      verify the execution context, summarise digests
+//   node preflight.mjs --require-mode <mode>          require source-development (Wave runner)
+//   node preflight.mjs --receipt <path>               write a detached identity receipt
+//   node preflight.mjs --staging <dir>                check a staging copy's packageTreeDigest
+//   node preflight.mjs --verify-receipt <path>        recompute and verify a receipt against this package
 //
-// exit: 0 ok · 2 usage · 7 preflight 위반/불일치
+// exit: 0 ok / 2 usage / 7 preflight violation or mismatch
 import { writeFileSync, existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import {
@@ -37,8 +37,9 @@ const st = preflight({ entrypointUrl: import.meta.url, requireMode: requireMode 
 const sets = digestSets(st.skillRoot, st.kinds, st.manifest);
 const errors = [...importClosure(st.skillRoot, st.kinds)];
 
-// production entrypoint 목록은 manifest가 SSoT다. 이 정적 검사는 보조 증거이며,
-// acceptance 증거는 preflight.test.mjs의 실행 negative(외부 사본 실행 → exit 7)다.
+// The manifest is the SSoT for the production entrypoint list. This static check is
+// supporting evidence; the acceptance evidence is the executed negative in preflight.test.mjs
+// (running an external copy exits 7).
 function bindingCoverage(skillRoot, kinds) {
   const problems = [];
   for (const [rel, kind] of kinds) {
@@ -89,8 +90,8 @@ if (verifyPath) {
   let doc;
   try { doc = JSON.parse(readFileSync(path.resolve(verifyPath), "utf8")); }
   catch (e) { console.error(`preflight: unreadable receipt: ${e.message}`); process.exit(PREFLIGHT_EXIT); }
-  // receipt 종류는 **schema identity**로 판별한다 — command 라벨을 바꿔 검증을
-  // 건너뛰는 relabel 우회를 막는다(CP0-R1-F3).
+  // The receipt kind is decided by **schema identity** — this blocks the relabel bypass of
+  // skipping verification by changing the command label (CP0-R1-F3).
   let verrs;
   if (doc?.schema?.name === RECEIPT_SCHEMA.name) verrs = verifyIdentityReceipt(doc);
   else if (doc?.provenance?.schema?.name === PROVENANCE_SCHEMA.name) {
@@ -119,13 +120,13 @@ const receipt = {
 const receiptPath = opt("--receipt");
 if (receiptPath) {
   const abs = path.resolve(receiptPath);
-  // 자기참조 금지: digest receipt는 hashed package 안에 만들지 않는다.
+  // No self-reference: a digest receipt is never written inside the hashed package.
   if (isUnder(abs, st.skillRoot)) {
     console.error(`preflight: refusing to write a digest receipt inside the hashed package (${SKILL_LOCATOR}) — receipts are detached evidence or CI artifacts`);
     process.exit(PREFLIGHT_EXIT);
   }
-  // 위반이 하나라도 있으면 receipt를 만들지 않는다 — 실패한 상태의 증거를 남겨
-  // 나중에 통과 증거처럼 쓰이는 경로를 없앤다.
+  // If there is even one violation no receipt is written — this removes the path where
+  // evidence of a failed state is later read as evidence of a pass.
   if (errors.length) {
     console.error("preflight: refusing to write a receipt while checks are failing:");
     for (const e of errors) console.error(`  ERROR ${e}`);

@@ -1,20 +1,23 @@
-# package-surface — 이 package의 파일 membership SSoT (Wave 1 CP0 계약).
+# package-surface — the file-membership SSoT for this package (Wave 1 CP0 contract).
 #
-# 왜 manifest인가: digest 경계를 코드 내부 glob으로 두면 "무엇이 규범 표면인가"가
-# 구현에 숨는다. 이 파일이 분류의 단일 근거이고, 분류되지 않은 파일이 하나라도
-# 있으면 preflight가 fail-closed로 거부한다(누락 시 조용히 빠지는 경로 없음).
+# Why a manifest: if the digest boundary lives in a glob inside the code, "what counts as
+# the normative surface" hides in the implementation. This file is the single basis for the
+# classification, and preflight refuses fail-closed if even one file is unclassified — there
+# is no path where an omission drops out quietly.
 #
-# 세 digest는 목적이 다르며 서로 섞지 않는다:
-#   runtimeSurfaceDigest      동작·agent 판단에 영향을 주는 표면 (tests/fixtures 제외).
-#                             design-kernel이 규범으로 참조하는 승인 asset은 포함한다.
-#   verificationSurfaceDigest tests·fixtures — acceptance 연결 전용
-#   packageTreeDigest         설치·staging에 복사되는 전체 tree — 원본↔사본 동일성 전용
+# The three digests serve different purposes and are never mixed:
+#   runtimeSurfaceDigest      the surface that affects behaviour and agent judgement (tests and
+#                             fixtures excluded). Approved assets that design-kernel references
+#                             normatively are included.
+#   verificationSurfaceDigest tests and fixtures — for the acceptance linkage only
+#   packageTreeDigest         the whole tree copied on install/staging — for original-vs-copy
+#                             identity only
 #
-# digest receipt 자체는 이 tree 안에 만들지 않는다(자기참조 금지). detached
-# evidence 또는 CI artifact로만 저장한다.
+# The digest receipt itself is never written inside this tree (no self-reference). It is
+# stored only as detached evidence or a CI artifact.
 
 schema_version: 1
-surface_revision: 11
+surface_revision: 12
 
 canonicalization:
   version: 1
@@ -38,6 +41,7 @@ entries:
   - { path: scripts/skin.mjs, kind: production-entrypoint }
   - { path: scripts/check-svg.mjs, kind: production-entrypoint }
   - { path: scripts/check-layout.mjs, kind: production-entrypoint }
+  - { path: scripts/check-language.mjs, kind: verification }
   - { path: scripts/render.mjs, kind: production-entrypoint }
   - { path: scripts/compose.mjs, kind: production-entrypoint }
   - { path: scripts/measure-text.mjs, kind: production-entrypoint }
@@ -46,23 +50,26 @@ entries:
   - { path: scripts/preflight-lib.mjs, kind: production-lib }
   - { path: scripts/treatment.mjs, kind: production-lib }
 
-  # --- normative docs (agent 판단 표면) --------------------------------------
+  # --- normative docs (the agent-judgement surface) ---------------------------
   - { path: SKILL.md, kind: normative-doc }
   - { path: references/design-kernel.md, kind: normative-doc }
   - { path: references/authoring.md, kind: normative-doc }
   - { path: references/archetypes.md, kind: normative-doc }
   - { path: references/sketch.md, kind: normative-doc }
   - { path: references/legacy/page-title-rail.md, kind: normative-doc }
-  # 파생·검증되는 selection view (라우팅 판단 표면)
+  # The derived and verified selection view (the routing-judgement surface)
   - { path: references/types/selection.md, kind: normative-doc }
-  # TypePack spec은 트리로 한 번만 분류한다 — 타입 추가는 spec 파일 1개 + manifest 1행이며
-  # 이 파일을 매번 고치지 않는다. 트리와 manifest의 1:1 closure는 manifest validator가 소유한다.
+  # TypePack specs are classified once as a tree — adding a type is one spec file plus one
+  # manifest row and does not touch this file. The 1:1 closure between tree and manifest is
+  # owned by the manifest validator.
   - { tree: references/types/specs, kind: normative-doc }
-  # canonical/stress input도 트리로 한 번 분류한다 — 입력 추가는 파일 1개 + manifest 1행이고
-  # manifest validator가 파일 내용과 fit 계산까지 대조한다.
+  # Canonical and stress inputs are likewise classified once as a tree — adding an input is one
+  # file plus one manifest row, and the manifest validator checks the file content and the fit
+  # computation against it.
   - { tree: references/types/inputs, kind: profile }
 
   # --- profiles / registries -------------------------------------------------
+  - { path: references/language-policy.yaml, kind: profile }
   - { path: references/package-surface.yaml, kind: profile }
   - { path: references/skins/registry.yaml, kind: profile }
   - { path: references/skins/current-v1.yaml, kind: profile }
@@ -74,15 +81,15 @@ entries:
   - { path: references/delivery/font-delivery-v1.yaml, kind: profile }
   - { path: references/types/manifest.yaml, kind: profile }
 
-  # --- bundled assets (license evidence 포함) ---------------------------------
+  # --- bundled assets (license evidence included) -----------------------------
   - { path: assets/fonts/HiMelody-Regular.ttf, kind: asset }
   - { path: assets/fonts/HiMelody-OFL.txt, kind: asset }
   - { path: assets/fonts/Pretendard-Regular.otf, kind: asset }
   - { path: assets/fonts/Pretendard-Bold.otf, kind: asset }
   - { path: assets/fonts/Pretendard-OFL.txt, kind: asset }
 
-  # --- approved canonical reference: design-kernel이 규범으로 embed·link하므로
-  #     agent 판단에 영향을 준다 — evidence가 아니라 runtime asset이다.
+  # --- approved canonical reference: design-kernel embeds and links it normatively, so it
+  #     affects agent judgement — a runtime asset, not evidence.
   - { path: references/media/canonical-skin-contact-sheet.svg, kind: asset }
   - { path: references/media/canonical-skin-contact-sheet.png, kind: asset }
 
@@ -105,6 +112,7 @@ entries:
   - { path: scripts/font-probe.test.mjs, kind: verification }
   - { path: scripts/generate.test.mjs, kind: verification }
   - { path: scripts/route-orthogonal.test.mjs, kind: verification }
+  - { path: scripts/check-language.test.mjs, kind: verification }
   - { tree: scripts/legacy, kind: verification }
   - { tree: scripts/fixtures, kind: verification }
   - { tree: scripts/skin-fixtures, kind: verification }

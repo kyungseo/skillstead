@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 // font-probe.mjs — browser runtime font receipt (typography contract).
 //
-// document.fonts.ready 이후 각 embedded @font-face alias에 대해:
-//   - FontFaceSet.check(alias) — 선택 asset의 load 상태
-//   - 대표 KO/EN text node의 getComputedStyle fontFamily / fontWeight
-// 를 수집해 receipt로 남긴다.
+// After document.fonts.ready, for each embedded @font-face alias it collects:
+//   - FontFaceSet.check(alias) — the load state of the selected asset
+//   - getComputedStyle fontFamily / fontWeight on representative KO and EN text nodes
+// and records them as a receipt.
 //
-// 증거 수준(과장 금지 계약): 이 receipt는 "computed family + FontFaceSet load check"다.
-// 브라우저가 실제로 어떤 face로 글리프를 그렸는지(actual rendered face)는 이 방법으로
-// 증명되지 않는다 — glyph 수준 증명은 subset cmap(정적) + 시각 검수가 담당한다.
+// Evidence level (the no-overclaiming contract): this receipt is "computed family plus a
+// FontFaceSet load check". Which face the browser actually drew the glyphs with (the actual
+// rendered face) is not proven this way — glyph-level proof is the job of the subset cmap
+// (static) plus visual inspection.
 //
 // usage: node font-probe.mjs <svg> [--json]
 import { readFileSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
@@ -35,9 +36,10 @@ if (hasMarkers && families.length === 0) {
   console.error("font-probe: typography markers present but no embedded @font-face — fail-closed");
   process.exit(1);
 }
-// expected weight는 profile SSoT에서 (sketch)
+// The expected weight comes from the profile SSoT (sketch)
 const skinCli = fileURLToPath(new URL("./skin.mjs", import.meta.url));
-// profile SSoT 로드는 fail-closed — 명령 실패·JSON 파손·필수 필드 누락 시 즉시 실패
+// Loading the profile SSoT is fail-closed — a failed command, corrupt JSON or a missing
+// required field fails immediately
 const profileJsonArgIdx = args.indexOf("--profile-json");
 let profileRaw;
 if (profileJsonArgIdx >= 0) {
@@ -68,15 +70,16 @@ ${svg}
     await document.fonts.ready;
     out.fontsReady = true;
     for (const fam of ${JSON.stringify(families)}) {
-      out.checks[fam] = { loadCheckKo: document.fonts.check("15px '" + fam + "'", "한글확인"),
+      out.checks[fam] = { loadCheckKo: document.fonts.check("15px '" + fam + "'", "\ud55c\uae00\ud655\uc778" /* KO probe sample, escaped: production code, not a fixture */),
                           loadCheckEn: document.fonts.check("15px '" + fam + "'", "sample") };
     }
-    // scope 내부에서만 대표 표본 선택 — 시트 chrome(제목 등)을 표본으로 잡지 않는다
+    // Pick representative samples only inside the scope — never sample the sheet chrome (its title and the like)
     const scopeRoots = [...document.querySelectorAll("[data-typography-scope]")];
     const rootSvg = document.querySelector("svg[data-treatment='sketch']");
     if (rootSvg) scopeRoots.push(rootSvg);
-    // primary 표본: secondary role(자신/조상)인 텍스트 제외 — 내부에 secondary tspan을
-    // 품은 텍스트는 primary 표본으로 유효(computed는 text 요소 기준)
+    // Primary samples: exclude text in a secondary role (its own or an ancestor's) — text that
+    // merely contains a secondary tspan is still a valid primary sample (computed is read on
+    // the text element)
     const texts = scopeRoots.flatMap((r) => [...r.querySelectorAll("text")])
       .filter((t) => !t.closest("[data-typography-role='secondary']"));
     const scoped = texts.filter((t) => t.textContent.trim());
@@ -116,9 +119,9 @@ try { probe = JSON.parse(m[1].replace(/&quot;/g, '"').replace(/&amp;/g, "&").rep
 catch { console.error("font-probe: unparseable probe output"); process.exit(1); }
 const receipt = { schemaVersion: 1, command: "font-probe", file: path.basename(svgPath),
   embeddedFamilies: families,
-  evidenceLevel: "computed-family + FontFaceSet.check(load) — NOT actual-rendered-face proof; glyph 증명은 subset cmap(정적) + 시각 검수",
+  evidenceLevel: "computed-family + FontFaceSet.check(load) — NOT actual-rendered-face proof; glyph-level proof is the subset cmap (static) plus visual inspection",
   probe };
-// 실패 조건 전건(F3): error·ready·check 누락/false·scoped 표본 0·표본 family/weight mismatch
+// Every failure condition (F3): error, missing or false ready/check, zero scoped samples, a sample family/weight mismatch
 const firstFam = (v) => String(v).split(",")[0].trim().replace(/^["']|["']$/g, "");
 const problems = [];
 if (probe.error) problems.push(`probe error: ${probe.error}`);
@@ -129,7 +132,7 @@ for (const f of families) {
   else if (!(c.loadCheckKo && c.loadCheckEn)) problems.push(`FontFaceSet.check failed for "${f}" (ko=${c?.loadCheckKo}, en=${c?.loadCheckEn})`);
 }
 if (hasMarkers && !probe.scopedTextCount) problems.push("no scoped primary text found — samples must come from typography scopes, not sheet chrome (secondary-only scope is not evidence)");
-// 계약: KO와 EN 대표 표본 각각 최소 1개 (KO-only/EN-only는 반쪽 증거)
+// Contract: at least one representative sample each for KO and EN (KO-only or EN-only is half the evidence)
 if (hasMarkers && probe.scopedTextCount) {
   for (const loc of ["ko", "en"]) {
     if (!(probe.samples ?? []).some((smp) => smp.locale === loc))
