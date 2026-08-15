@@ -99,16 +99,23 @@ README, 설치 안내, 릴리스 노트, 공지문을 공개하기 전에 사용
 
 GitHub 릴리스에는 문서 수정뿐 아니라 저장소 공개 전환, 브랜치와 태그, 설정, GitHub Release 공개처럼
 되돌리기 어려운 작업도 포함됩니다. `github-release-guide`는 먼저 저장소를 바꾸지 않고 준비 상태를
-점검합니다. 준비가 끝나면 변경할 내용과 영향을 하나씩 보여주고, 현재 상태를 다시 확인한 뒤 사용자가
-직접 승인한 작업만 실행합니다.
+점검합니다. 준비가 끝나면 변경할 내용과 영향을 하나씩 보여주고 현재 상태를 다시 확인한 뒤, 승인을 두
+범위로 나눠 받습니다 — 저장소 명령을 실행하는 승인과 저장소를 변경하는 승인. 승인한 작업만 실행하고
+실제 결과를 확인합니다.
 
 V1은 두 시점에 사용할 수 있습니다. 비공개 github.com 저장소를 처음 공개 상태로 전환할 때 사용하고,
 공개된 뒤에는 새로운 버전을 릴리스할 때마다 다시 사용할 수 있습니다. 저장소 생성, 패키지 저장소 공개,
 바이너리 서명, 클라우드 배포, 보안 감사, 강제 전송, 커밋 기록 다시 쓰기는 수행하지 않습니다.
 
-| 진행 방식과 릴리스 유형 선택 | 변경 작업의 승인 과정 |
-| --- | --- |
-| [![Assess 또는 Guided 진행 방식과 first-public 또는 version-release 릴리스 유형 선택](./examples/github-release-guide/mode-profile-map/mode-profile-map.ko.png)](./examples/github-release-guide/mode-profile-map/mode-profile-map.ko.svg) | [![저장소 변경 하나를 미리 보여주고 상태를 재확인한 뒤 승인, 실행, 결과 확인으로 진행하는 과정](./examples/github-release-guide/approval-safety-loop/approval-safety-loop.ko.png)](./examples/github-release-guide/approval-safety-loop/approval-safety-loop.ko.svg) |
+**먼저 진행 방식을 고릅니다.** Assess는 아무것도 바꾸지 않고 점검하며, Guided는 Assess를 마치고
+release-critical blocker를 해소한 뒤 전환을 명시적으로 선택했을 때만 시작합니다.
+
+[![Assess는 저장소를 바꾸지 않고 점검해 Ready·Needs attention·Blocked 중 하나를 돌려주며, Guided는 세 가지 진입 조건을 모두 충족할 때만 시작하고, 두 방식 모두 first-public 또는 version-release profile에서 동작한다](./examples/github-release-guide/mode-profile-map/mode-profile-map.ko.png)](./examples/github-release-guide/mode-profile-map/mode-profile-map.ko.svg)
+
+**그다음 Guided에서는 한 번에 하나씩.** 승인은 두 범위로 나뉩니다 — 명령 실행 승인과 저장소 변경 승인은
+서로를 대신하지 않습니다.
+
+[![Guided는 변경마다 먼저 보여주고 실행 직전에 다시 확인한 뒤, 명령 실행이 필요할 때만 실행 승인을 받고 변경 승인은 언제나 받으며, 미리 보여준 것만 실행하고 실제 결과를 확인한 뒤 계속하거나 중단한다](./examples/github-release-guide/approval-safety-loop/approval-safety-loop.ko.png)](./examples/github-release-guide/approval-safety-loop/approval-safety-loop.ko.svg)
 
 - 자세한 안내: [`github-release-guide` 한국어 README](./skills/github-release-guide/README.ko.md)
 - 검증 자료와 다이어그램: [가상 시나리오, 정답표, 실행 결과](./examples/github-release-guide/README.ko.md)

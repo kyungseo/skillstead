@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350" width="1080" height="1350" role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
   <title>GitHub 공개와 릴리스의 불안을 확인과 승인 절차로 바꿉니다</title>
-  <desc>공개된 정보는 완전히 회수하기 어렵다. github-release-guide는 Assess에서 저장소를 변경하지 않고 위험과 다음 단계를 안내하며, Guided에서는 사용자가 승인한 작업만 실행한다. 공개 전환 직전에는 별도 승인을 확인하고, 실행 뒤에는 실제 결과를 검증한다. 자동 검사는 모든 위험을 찾는다고 보장하지 않으며 최종 판단과 릴리스 권한은 사용자에게 남는다.</desc>
+  <desc>공개된 정보는 완전히 회수하기 어렵다. github-release-guide는 Assess에서 저장소를 변경하지 않고 위험과 다음 단계를 안내하며, Guided에서는 명령 실행 승인과 저장소 변경 승인을 따로 받고 승인한 작업만 실행한다. 공개 전환 직전에는 별도 승인을 확인하고, 실행 뒤에는 실제 결과를 검증한다. 자동 검사는 모든 위험을 찾는다고 보장하지 않으며 최종 판단과 릴리스 권한은 사용자에게 남는다.</desc>
   <style>
     svg{ --bg:#F7F9FC; --ink:#1C2838; --muted:#607086; --edge:#8496AB;
       --warn:#B4621B; --warn-line:#DDA566; --warn-fill:#FBEFE4; --warn-tint:#F9E3CF; --warn-ink:#7A3E0E; --warn-body:#6E543C;
@@ -11,7 +11,7 @@
     .on-accent{ fill:#FFFFFF }
   </style>
   <defs>
-    <marker id="arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto"><path d="M0 0l12 6-12 6z" fill="#8496AB"/></marker>
+    <marker id="arrow-primary" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path d="M2 2 L10 6 L2 10" fill="none" stroke="#8496AB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
     <symbol id="ic-alert" viewBox="0 0 24 24"><path d="M12 4.2L21.2 19.8H2.8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 17.2h.01" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
     <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15.5 15.5L21 21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
     <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
@@ -36,7 +36,7 @@
   <text x="220" y="410" dominant-baseline="central" font-size="19" fill="var(--warn-body)">인증 정보가 노출되면 즉시 중단하고 폐기·교체와 사고 대응이 필요합니다.</text>
 
   <!-- arrow -->
-  <line x1="540" y1="496" x2="540" y2="528" stroke="var(--edge)" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="540" y1="496" x2="540" y2="528" stroke="var(--edge)" stroke-width="2.5" marker-end="url(#arrow-primary)" data-flow="primary"/>
 
   <!-- band 2 · 점검과 승인 -->
   <rect x="60" y="540" width="960" height="390" rx="20" fill="var(--blue-fill)" stroke="var(--blue)" stroke-width="2.5"/>
@@ -54,8 +54,8 @@
     <rect x="552" y="595" width="436" height="180" rx="18" fill="#FFFFFF" stroke="#D69B51" stroke-width="2"/>
     <circle cx="608" cy="685" r="34" fill="var(--amber-tint)"/><use href="#ic-shield" x="589" y="666" width="38" height="38" style="color:var(--amber)"/>
     <text x="660" y="645" dominant-baseline="central" font-size="25" font-weight="730" fill="var(--amber-ink)">Guided &#183; 실행</text>
-    <text x="660" y="692" dominant-baseline="central" font-size="19" fill="var(--amber-body)">변경 내용과 영향을 먼저 보여주고</text>
-    <text x="660" y="722" dominant-baseline="central" font-size="19" fill="var(--amber-body)">사용자가 승인한 작업만 하나씩 실행</text>
+    <text x="660" y="692" dominant-baseline="central" font-size="19" fill="var(--amber-body)">변경 내용을 먼저 보여주고</text>
+    <text x="660" y="722" dominant-baseline="central" font-size="19" fill="var(--amber-body)">명령 실행과 변경 승인을 따로 받음</text>
   </g>
 
   <rect x="92" y="805" width="896" height="92" rx="16" fill="var(--note-fill)" stroke="var(--note-line)" stroke-width="2"/>
@@ -63,7 +63,7 @@
   <text x="540" y="868" dominant-baseline="central" text-anchor="middle" font-size="18" font-weight="650" fill="var(--note-ink)">공개 상태 변경에 대한 사용자의 승인을 별도로 확인합니다</text>
 
   <!-- arrow -->
-  <line x1="540" y1="938" x2="540" y2="970" stroke="var(--edge)" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="540" y1="938" x2="540" y2="970" stroke="var(--edge)" stroke-width="2.5" marker-end="url(#arrow-primary)" data-flow="primary"/>
 
   <!-- band 3 · 결과 확인 -->
   <rect x="60" y="982" width="960" height="250" rx="20" fill="var(--green-fill)" stroke="var(--green-line)" stroke-width="2"/>
