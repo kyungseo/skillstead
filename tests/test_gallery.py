@@ -12,6 +12,7 @@ join works on data shaped the way the test author imagined it.
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -24,6 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 from skillstead_validate.gallery import (  # noqa: E402
     EXAMPLES, MODEL_PATH, TOKENS_PATH, GalleryError, NodeRunner, build_model, run_gallery,
 )
+from skillstead_validate.contact_sheet import RENDER_RECEIPT, sheet_paths  # noqa: E402
 from skillstead_validate.gallery_html import GALLERY_HTML, render  # noqa: E402
 
 FEATURED = "gallery/featured.json"
@@ -52,11 +54,22 @@ def _copy_repo(dst: Path) -> Path:
     subprocess.run(["git", "clone", "--quiet", "--no-hardlinks", str(REPO), str(dst)], check=True)
     # Bring the working tree to what is on disk, not what is committed — the model is built from
     # files, and an uncommitted example must still be catchable.
-    for rel in ("gallery", EXAMPLES, "skills/svg-infographic", "tools"):
+    # Files as well as directories: the root READMEs are part of what these fixtures check, and a
+    # clone alone would hand them back at HEAD while the rest of the copy is at working-tree state.
+    #
+    # This list is deliberately narrow, not exhaustive. Adding a fixture that reads a root document
+    # not named here means adding it here too — otherwise the fixture silently checks the committed
+    # version and passes while the working tree says something else.
+    for rel in ("gallery", EXAMPLES, "skills/svg-infographic", "tools",
+                "README.md", "README.ko.md"):
         src = REPO / rel
-        if src.exists():
+        if not src.exists():
+            continue
+        if src.is_dir():
             shutil.rmtree(dst / rel, ignore_errors=True)
             shutil.copytree(src, dst / rel)
+        else:
+            shutil.copy2(src, dst / rel)
     _git(dst, "add", "-A")
     if _git(dst, "diff", "--cached", "--quiet", check=False).returncode != 0:
         _git(dst, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "fixture")
@@ -388,6 +401,147 @@ class GalleryModelFixtures(unittest.TestCase):
         n = sum(1 for t in model["typepacks"] for e in t["locales"].values() if e["verified"])
         self.assertIn(f"{n}/{n} TypePack canonical artifacts pass", h)
         self.assertNotIn(f"{n + len(model['featured']['entries'])}/", h)
+
+    # --- README contact sheet ---------------------------------------------------------
+    def test_the_contact_sheet_consumes_the_featured_selection_not_a_second_list(self):
+        """One editorial selection feeds the gallery and the README, or the two drift apart."""
+        model, _ = build_model(self.repo)
+        slugs = [e["slug"] for e in model["featured"]["entries"]]
+        for loc in ("ko", "en"):
+            svg = (self.repo / sheet_paths(loc)[0]).read_text(encoding="utf-8")
+            cells = re.findall(r'data-cell="([^"]+)"', svg)
+            self.assertEqual(cells, slugs, f"{loc}: the sheet must follow featured.json in order")
+            # and it must not quietly grow the catalog's nine into the README
+            self.assertFalse([t["id"] for t in model["typepacks"] if t["id"] in cells])
+
+    def test_every_contact_sheet_cell_carries_its_artifact_digest(self):
+        model, _ = build_model(self.repo)
+        for loc in ("ko", "en"):
+            svg = (self.repo / sheet_paths(loc)[0]).read_text(encoding="utf-8")
+            digests = re.findall(r'data-artifact-digest="([^"]+)"', svg)
+            expected = [e["artifacts"][loc]["svgDigest"] for e in model["featured"]["entries"]]
+            self.assertEqual(digests, expected, loc)
+
+    def test_the_two_locale_sheets_share_one_geometry(self):
+        """Only the pictures differ. A layout that moved with the language would mean the sheet
+        was laid out around the words rather than the work."""
+        geo = []
+        for loc in ("ko", "en"):
+            svg = (self.repo / sheet_paths(loc)[0]).read_text(encoding="utf-8")
+            geo.append(re.findall(r'<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"', svg))
+        self.assertTrue(geo[0], "no cells found")
+        self.assertEqual(geo[0], geo[1])
+
+    def test_the_sheet_states_its_evidence_boundary_in_the_image(self):
+        """The picture gets quoted on its own, so the claim travels inside it."""
+        for loc in ("ko", "en"):
+            svg = (self.repo / sheet_paths(loc)[0]).read_text(encoding="utf-8")
+            self.assertIn("no TypePack receipt", svg)
+            self.assertIn("gates pass", svg)
+
+    def test_no_cell_is_left_empty(self):
+        model, _ = build_model(self.repo)
+        n = len(model["featured"]["entries"])
+        self.assertEqual(n % 3, 0, f"{n} entries do not fill a 3-wide grid")
+
+    def test_the_root_readmes_link_the_sheet_to_the_gallery_with_locale_alt_text(self):
+        alts = []
+        for name, loc in (("README.md", "en"), ("README.ko.md", "ko")):
+            t = (self.repo / name).read_text(encoding="utf-8")
+            m = re.search(r'!\[([^\]]+)\]\(\./gallery/contact-sheet\.' + loc + r'\.png\)\]\(([^)]+)\)', t)
+            self.assertIsNotNone(m, f"{name}: the sheet must be present and wrapped in a link")
+            self.assertEqual(m.group(2), "./gallery/index.html", name)
+            self.assertTrue((self.repo / "gallery/index.html").exists())
+            alts.append(m.group(1))
+        self.assertNotEqual(alts[0], alts[1], "each locale describes the picture in its own language")
+
+    def test_no_readme_still_counts_fourteen_examples(self):
+        """The count predates the TypePack catalog; the replacement states no number at all."""
+        for name in ("README.md", "README.ko.md"):
+            t = (self.repo / name).read_text(encoding="utf-8")
+            self.assertNotRegex(t, r"14-example|fourteen examples|예시 14개|다이어그램 14개")
+
+    # --- the PNG the README shows is bound to what produced it --------------------------
+    def _render_findings(self) -> list:
+        return [f for f in run_gallery(self.repo) if f.check == "GAL-RENDER"]
+
+    def test_a_sheet_regenerated_without_re_rendering_its_png_fails(self):
+        """The README displays the PNG, and only the SVG is derived — so this is the gap the
+        receipt exists to close."""
+        svg = self.repo / sheet_paths("ko")[0]
+        svg.write_text(svg.read_text(encoding="utf-8") + "\n<!-- regenerated -->\n",
+                       encoding="utf-8")
+        details = " ".join(f.detail for f in self._render_findings())
+        self.assertIn("SVG changed", details, details or "no GAL-RENDER finding")
+
+    def test_a_changed_featured_artifact_without_re_rendering_fails(self):
+        model, _ = build_model(self.repo)
+        first = model["featured"]["entries"][0]["artifacts"]["ko"]["svg"][:-4] + ".png"
+        png = self.repo / first
+        png.write_bytes(png.read_bytes() + b"\x00")
+        details = " ".join(f.detail for f in self._render_findings())
+        self.assertIn("featured artifacts changed", details, details or "no GAL-RENDER finding")
+
+    def test_a_replaced_output_png_fails(self):
+        png = self.repo / sheet_paths("ko")[1]
+        png.write_bytes(png.read_bytes() + b"\x00")
+        details = " ".join(f.detail for f in self._render_findings())
+        self.assertIn("digest recorded", details, details or "no GAL-RENDER finding")
+
+    def test_a_renderer_change_since_the_render_fails(self):
+        """Checked through the receipt rather than by editing the renderer: render.sh is a
+        production shim, so touching it makes every receipt stale and the run stops upstream —
+        the case that reaches here is a renderer change whose artifacts were regenerated."""
+        rec = self.repo / RENDER_RECEIPT
+        d = json.loads(rec.read_text(encoding="utf-8"))
+        key = next(iter(d["renderer"]))
+        d["renderer"][key] = "sha256:" + "0" * 64
+        rec.write_text(json.dumps(d, indent=1) + "\n", encoding="utf-8")
+        details = " ".join(f.detail for f in self._render_findings())
+        self.assertIn("renderer changed", details, details or "no GAL-RENDER finding")
+
+    def test_a_missing_receipt_fails_closed(self):
+        (self.repo / RENDER_RECEIPT).unlink()
+        details = " ".join(f.detail for f in self._render_findings())
+        self.assertIn("missing", details, details or "no GAL-RENDER finding")
+
+    # --- what surface_revision is actually bound to -------------------------------------
+    def _digests(self) -> dict:
+        out = subprocess.run([NODE, f"skills/svg-infographic/scripts/preflight.mjs", "--json"],
+                             cwd=self.repo, capture_output=True, text=True)
+        self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
+        # preflight nests them; reading the nested object keeps the fixture honest about the shape
+        # it actually consumes rather than a flattened convenience of its own.
+        return json.loads(out.stdout)["digests"]
+
+    def _revision(self) -> str:
+        p = self.repo / "skills/svg-infographic/references/package-surface.yaml"
+        return re.search(r"surface_revision:\s*(\d+)", p.read_text(encoding="utf-8")).group(1)
+
+    def test_a_doc_only_edit_moves_the_tree_digest_and_nothing_else(self):
+        """`kind: doc` is outside the runtime surface, so a README edit must not make the receipts
+        stale. Bumping the revision for one would: the manifest is itself a profile, so the bump
+        changes the runtime digest and forces every artifact to be regenerated for nothing."""
+        before, rev = self._digests(), self._revision()
+        readme = self.repo / "skills/svg-infographic/README.md"
+        readme.write_text(readme.read_text(encoding="utf-8") + "\n<!-- doc-only edit -->\n",
+                          encoding="utf-8")
+        after = self._digests()
+        self.assertNotEqual(before["packageTreeDigest"], after["packageTreeDigest"],
+                            "an installed copy did change, so the tree digest must move")
+        self.assertEqual(before["runtimeSurfaceDigest"], after["runtimeSurfaceDigest"])
+        self.assertEqual(rev, self._revision(), "and no revision bump is owed for it")
+
+    def test_a_runtime_kind_edit_moves_the_runtime_digest(self):
+        """The other direction: touching a file the runtime surface covers must be visible there,
+        which is what makes a revision bump owed."""
+        before = self._digests()
+        lib = self.repo / "skills/svg-infographic/scripts/generate.mjs"
+        lib.write_text(lib.read_text(encoding="utf-8") + "\n// runtime-kind edit\n",
+                       encoding="utf-8")
+        after = self._digests()
+        self.assertNotEqual(before["runtimeSurfaceDigest"], after["runtimeSurfaceDigest"])
+        self.assertNotEqual(before["packageTreeDigest"], after["packageTreeDigest"])
 
     def test_the_catalog_count_does_not_claim_semantic_completeness(self):
         """Passing the verifier is not the same as drawing everything the receipt counts."""

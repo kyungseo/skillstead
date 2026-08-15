@@ -263,6 +263,12 @@ Browse the full gallery:
 
 It includes English and Korean examples for topology, layer/onion models, before/after comparison, process flow, roadmap, a decision matrix, CI/CD artifact promotion, an issue-tracker approval flow, and a self-demo.
 
+The repository also publishes a browsable gallery of the TypePack catalog — each type with its Korean and English canonical example, the prompt that produced it and the receipt facts behind it:
+
+**https://github.com/kyungseo/skillstead/blob/main/gallery/index.html**
+
+Both are optional reading. This skill runs from the files in this directory alone.
+
 ## Boundaries
 
 Use this skill for flat, structural visuals — or the opt-in **sketch preset** for a "tidy hand-drawn" look (paper background, Korean handwriting font, rough strokes, highlighter; the layout stays computed). It is not designed for:

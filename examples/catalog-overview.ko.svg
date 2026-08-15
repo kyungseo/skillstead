@@ -20,18 +20,18 @@
   <rect width="1400" height="900" rx="28" fill="var(--bg)"/>
   <rect x="72" y="58" width="6" height="62" rx="3" fill="var(--blue)"/>
   <text x="98" y="72" class="muted" font-size="16" font-weight="800" letter-spacing="1.2">SKILLSTEAD · 스킬 조합 가이드</text>
-  <text x="98" y="119" class="ink" font-size="42" font-weight="850">하나만 써도 되고, 릴리스 흐름으로 연결해도 됩니다</text>
+  <text x="98" y="119" class="ink" font-size="42" font-weight="850">작업에 맞게 고르세요. 연결은 필요할 때만.</text>
   <text x="98" y="151" class="muted" font-size="17">글·시각 자료·근거 확인·승인 단계를 다루되, 각 스킬은 서로 의존하지 않는 독립 패키지입니다.</text>
 
   <rect x="60" y="180" width="1280" height="450" rx="24" fill="#F9FBFE" stroke="var(--hair)" stroke-width="1.5"/>
   <rect x="84" y="196" width="240" height="34" rx="17" fill="var(--slate)"/>
-  <text x="204" y="213" class="on-accent label" text-anchor="middle" dominant-baseline="central">선택형 프로젝트 흐름</text>
+  <text x="204" y="213" class="on-accent label" text-anchor="middle" dominant-baseline="central">선택형 릴리스 흐름</text>
 
-  <path d="M290 390H302V337H331" fill="none" stroke="#8795A8" stroke-width="3" marker-end="url(#arrow)"/>
-  <path d="M302 390V482H331" fill="none" stroke="#8795A8" stroke-width="3" marker-end="url(#arrow)"/>
-  <path d="M790 337H833V390" fill="none" stroke="#8795A8" stroke-width="3"/>
-  <path d="M790 482H833V390H861" fill="none" stroke="#8795A8" stroke-width="3" marker-end="url(#arrow)"/>
-  <path d="M1070 390H1101" fill="none" stroke="#8795A8" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M290 390H302V337H331" fill="none" stroke="#A9B4C2" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
+  <path d="M302 390V482H331" fill="none" stroke="#A9B4C2" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
+  <path d="M790 337H833V390" fill="none" stroke="#A9B4C2" stroke-width="3" stroke-dasharray="7 6"/>
+  <path d="M790 482H833V390H861" fill="none" stroke="#A9B4C2" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
+  <path d="M1070 390H1101" fill="none" stroke="#A9B4C2" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
 
   <g filter="url(#shadow)">
     <rect x="90" y="245" width="200" height="300" rx="20" class="stage" stroke="var(--slate)"/>
@@ -71,8 +71,8 @@
 
   <g filter="url(#shadow)">
     <rect x="870" y="245" width="200" height="300" rx="20" class="stage" stroke="var(--violet)"/>
-    <rect x="888" y="265" width="86" height="32" rx="16" fill="var(--violet)"/>
-    <text x="931" y="281" class="on-accent label" text-anchor="middle" dominant-baseline="central">확인</text>
+    <rect x="874" y="265" width="115" height="32" rx="16" fill="var(--violet)"/>
+    <text x="931" y="281" class="on-accent label" text-anchor="middle" dominant-baseline="central">공개 문구 검증</text>
     <circle cx="970" cy="345" r="36" fill="var(--violet-soft)"/>
     <use href="#ic-check" x="950" y="325" width="40" height="40" style="color:var(--violet)"/>
     <text x="970" y="409" class="ink skill-name" text-anchor="middle">docs-claim-check</text>
@@ -83,8 +83,8 @@
 
   <g filter="url(#shadow)">
     <rect x="1110" y="245" width="200" height="300" rx="20" class="stage" stroke="var(--amber)"/>
-    <rect x="1126" y="265" width="100" height="32" rx="16" fill="var(--amber)"/>
-    <text x="1176" y="281" class="on-accent label" text-anchor="middle" dominant-baseline="central">릴리스</text>
+    <rect x="1135" y="265" width="150" height="32" rx="16" fill="var(--amber)"/>
+    <text x="1210" y="281" class="on-accent label" text-anchor="middle" dominant-baseline="central">공개 GitHub 저장소</text>
     <circle cx="1210" cy="345" r="36" fill="var(--amber-soft)"/>
     <use href="#ic-release" x="1190" y="325" width="40" height="40" style="color:var(--amber)"/>
     <text x="1210" y="400" class="ink skill-name" text-anchor="middle"><tspan x="1210">github-release-</tspan><tspan x="1210" dy="23">guide</tspan></text>
@@ -109,5 +109,4 @@
     <text x="1010" y="716" class="ink" font-size="19" font-weight="800">바뀐 산출물은 다시 확인</text>
     <text x="1010" y="746" class="muted body"><tspan x="1010">공개할 내용이 달라지면 앞 단계의</tspan><tspan x="1010" dy="23">점검으로 돌아갑니다.</tspan></text>
   </g>
-  <text x="700" y="860" class="muted" font-size="14" text-anchor="middle">현재 catalog · agent review는 계획 중이며 아직 사용할 수 없습니다</text>
 </svg>

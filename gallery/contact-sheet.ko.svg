@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080.0 724.0" width="1080.0" height="724.0" role="img" aria-label="What it can draw — 6 selected outputs · KO · lint, layout and typography gates pass · no TypePack receipt">
+  <title>What it can draw — 6 selected outputs · KO · lint, layout and typography gates pass · no TypePack receipt</title>
+  <rect width="1080.0" height="724.0" fill="#f4f4f6" data-fill-role="canvas"/>
+  <rect data-layout-container="sheet" x="20.0" y="20.0" width="1040.0" height="684.0" fill="none" stroke="none" data-min-pad="16.0" data-reserve-top="80.0" data-layout-count="6"/>
+  <text x="36.0" y="56.0" font-size="20" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#17171d" dominant-baseline="central">What it can draw</text>
+  <text x="36.0" y="80.0" font-size="13" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#6c6c7c" dominant-baseline="central">6 selected outputs · KO · lint, layout and typography gates pass · no TypePack receipt</text>
+  <g data-cell="cloud-infra-topology" data-artifact-digest="sha256:baa2fc0676ec4656a402db24c5c80f6d6b6f2074f99b23bb8f8683393c930657">
+    <rect x="36.0" y="116.0" width="322.7" height="276.0" rx="6" fill="#ffffff" stroke="#e0e0e7" stroke-width="1" data-layout-parent="sheet" data-layout-item="sheet-row-0" data-align-row="sheet-r0" data-align-row-count="3"/>
+    <image href="../examples/svg-infographic/cloud-infra-topology/cloud-infra-topology.ko.png" x="111.9" y="116.0" width="170.8" height="242.0" preserveAspectRatio="none"/>
+    <text x="197.3" y="376.0" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#17171d">Cloud topology</text>
+  </g>
+  <g data-cell="agent-waiting-swimlane" data-artifact-digest="sha256:cd5c9ea2b4fb8d916bc2452b2d89e6f8048b4e752c62c7a84f706b0e5c8d3ccd">
+    <rect x="378.7" y="116.0" width="322.7" height="276.0" rx="6" fill="#ffffff" stroke="#e0e0e7" stroke-width="1" data-layout-parent="sheet" data-layout-item="sheet-row-0" data-align-row="sheet-r0" data-align-row-count="3"/>
+    <image href="../examples/svg-infographic/agent-waiting-swimlane/agent-waiting-swimlane.ko.png" x="378.7" y="142.5" width="322.7" height="189.0" preserveAspectRatio="none"/>
+    <text x="540.0" y="376.0" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#17171d">Branching swimlane</text>
+  </g>
+  <g data-cell="agent-task-matrix" data-artifact-digest="sha256:c1f77b769ea27158ea520c33a42e6f01e93b72b10cba1d4e806cb47ba3965494">
+    <rect x="721.3" y="116.0" width="322.7" height="276.0" rx="6" fill="#ffffff" stroke="#e0e0e7" stroke-width="1" data-layout-parent="sheet" data-layout-item="sheet-row-0" data-align-row="sheet-r0" data-align-row-count="3"/>
+    <image href="../examples/svg-infographic/agent-task-matrix/agent-task-matrix.ko.png" x="735.7" y="116.0" width="294.0" height="242.0" preserveAspectRatio="none"/>
+    <text x="882.7" y="376.0" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#17171d">Decision matrix</text>
+  </g>
+  <g data-cell="zero-trust-onion" data-artifact-digest="sha256:5417f8005fac0c3e60f0ea3c8403720711e684db6ef7f4888fbd2cb9ba0de21e">
+    <rect x="36.0" y="412.0" width="322.7" height="276.0" rx="6" fill="#ffffff" stroke="#e0e0e7" stroke-width="1" data-layout-parent="sheet" data-layout-item="sheet-row-1" data-align-row="sheet-r1" data-align-row-count="3"/>
+    <image href="../examples/svg-infographic/zero-trust-onion/zero-trust-onion.ko.png" x="36.0" y="429.3" width="322.7" height="207.4" preserveAspectRatio="none"/>
+    <text x="197.3" y="672.0" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#17171d">Nested scope</text>
+  </g>
+  <g data-cell="before-after-migration" data-artifact-digest="sha256:89be1ec0271fc2486c1576c7f1bde84fb6c753fb1d90c2cee7b6f36ecc4f854b">
+    <rect x="378.7" y="412.0" width="322.7" height="276.0" rx="6" fill="#ffffff" stroke="#e0e0e7" stroke-width="1" data-layout-parent="sheet" data-layout-item="sheet-row-1" data-align-row="sheet-r1" data-align-row-count="3"/>
+    <image href="../examples/svg-infographic/before-after-migration/before-after-migration.ko.png" x="378.7" y="423.5" width="322.7" height="219.0" preserveAspectRatio="none"/>
+    <text x="540.0" y="672.0" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#17171d">Before and after</text>
+  </g>
+  <g data-cell="agent-system-sketch" data-artifact-digest="sha256:7c6a3123760e6833fcfadb66d66f5a2210fd3bc674525bc73bea80a726cab5e1">
+    <rect x="721.3" y="412.0" width="322.7" height="276.0" rx="6" fill="#ffffff" stroke="#e0e0e7" stroke-width="1" data-layout-parent="sheet" data-layout-item="sheet-row-1" data-align-row="sheet-r1" data-align-row-count="3"/>
+    <image href="../examples/svg-infographic/agent-system-sketch/agent-system-sketch.ko.png" x="721.3" y="412.0" width="322.7" height="242.0" preserveAspectRatio="none"/>
+    <text x="882.7" y="672.0" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#17171d">Sketch treatment</text>
+  </g>
+</svg>

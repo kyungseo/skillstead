@@ -23,11 +23,13 @@ maintainer references.
 
 ### Explore the SVG gallery
 
-[![A gallery preview of six technical SVG infographics](./examples/svg-infographic/gallery-preview.en.png)](./examples/svg-infographic)
+[![Six outputs from svg-infographic: a cloud topology, a branching swimlane, a decision matrix, nested trust rings, a before-and-after migration, and a sketch-treatment system map](./gallery/contact-sheet.en.png)](./gallery/index.html)
 
-`svg-infographic` covers more than conventional architecture boxes. The gallery includes sketch-style incident
-flows, agent-system maps, cloud topology, decision matrices, migration views, roadmaps, and Korean/CJK-ready
-technical one-pagers. [Browse the 14-example English/Korean gallery.](./examples/svg-infographic)
+`svg-infographic` covers more than conventional architecture boxes. The six above were chosen for how
+differently they are shaped; they clear the lint, layout and typography gates, and they predate the TypePack
+receipts, so no receipt is claimed for them. The gallery behind the image carries the nine TypePacks with their
+receipts alongside these. [Open the gallery](./gallery/index.html), or
+[browse the legacy examples and the verified TypePack catalog](./examples/svg-infographic).
 
 ### Use one skill—or combine them across a release
 
@@ -73,7 +75,7 @@ Use it for architecture and cloud topology, process or approval flows, before/af
 layer models, qualitative matrices, and Korean/CJK-ready technical one-pagers.
 
 - Friendly guide: [`svg-infographic` README](./skills/svg-infographic/README.md)
-- Examples: [14-example English/Korean gallery](./examples/svg-infographic)
+- Examples: [legacy examples and the verified TypePack catalog](./examples/svg-infographic)
 - Name the skill: `Use svg-infographic to turn this migration plan into an editable technical infographic.`
 - Or ask naturally: `Turn this migration plan into an editable technical SVG and verified 2× PNG. Show the output path before creating files.`
 
