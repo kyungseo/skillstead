@@ -30,7 +30,7 @@ The files serve these purposes:
 | Mode | Result |
 | --- | --- |
 | `Assess` | Reads available information without changing the repository. It reports readiness, explains known and unknown information, and gives one safest next step. |
-| `Guided` | Shows one proposed change and its impact, checks the current state again, asks for direct approval, performs only that change, and verifies the result. |
+| `Guided` | Shows one proposed change and its impact, checks the current state again, then asks for approval in two distinct scopes — running a repository command, and changing the repository — before performing only that change and verifying the result. |
 
 Use the first-public profile once when an existing private github.com repository becomes public. Afterward, use
 the version-release profile for every new version published from that public repository. Repository creation,
@@ -41,17 +41,36 @@ The examples use fictitious `northwind-labs/fieldnotes-fixture` data. No reposit
 
 ## Diagram gallery
 
-| Mode and profile map | Approval safety loop |
-| --- | --- |
-| [![Choose Assess or Guided, then first-public or version-release](./mode-profile-map/mode-profile-map.en.png)](./mode-profile-map/mode-profile-map.en.svg) | [![How one repository change is previewed, rechecked, approved, carried out, and verified](./approval-safety-loop/approval-safety-loop.en.png)](./approval-safety-loop/approval-safety-loop.en.svg) |
+**Mode and profile map** — which mode to pick, and on which profile. `Guided` starts only when all three
+entry conditions hold: Assess is complete, release-critical blockers are resolved, and the user explicitly
+chooses to switch.
 
-The two workflow diagrams above ship as editable SVG plus dimension-verified 2× PNG, with matching
-English/Korean geometry.
+[![Assess checks the repository without changing it and returns Ready, Needs attention or Blocked; Guided starts only when all three entry conditions are met; either mode works on the first-public or version-release profile](./mode-profile-map/mode-profile-map.en.png)](./mode-profile-map/mode-profile-map.en.svg)
+
+**Approval safety loop** — how Guided carries out one change. Execution approval is asked only where a
+repository command must run; mutation approval is asked before any change on either path. Neither implies the
+other, and a state change at the recheck voids both.
+
+[![In Guided each change is previewed and rechecked, then takes execution approval only when a command must run, always takes mutation approval, applies only what was previewed, and verifies the observed result before continuing or stopping](./approval-safety-loop/approval-safety-loop.en.png)](./approval-safety-loop/approval-safety-loop.en.svg)
+
+Both ship as editable SVG plus dimension-verified 2× PNG. KO and EN share one geometry; only the words differ.
 
 ### Korean release announcement
 
-[![Korean LinkedIn announcement showing how github-release-guide uses assessment, approval, and result checks for first-public and version releases](./release-announcement/release-announcement.ko.png)](./release-announcement/release-announcement.ko.svg)
+[![Korean LinkedIn announcement: a public repository cannot be fully recalled, so Assess inspects without changing anything, Guided asks separately for command execution and repository change, visibility gets its own approval, and only approved changes are applied and then verified](./release-announcement/release-announcement.ko.png)](./release-announcement/release-announcement.ko.svg)
 
 This portrait asset is specifically for a Korean LinkedIn post and intentionally has no English pair. Exclude
 this folder from EN/KO mirror-parity requirements, but include it in release provenance, credential, host-path,
 and secret scans.
+
+`release-announcement.v0.9.0.ko.svg` and its PNG are a frozen historical copy of the v0.9.0 post. They are kept
+for provenance, are not linked from any document, and are not updated when the contract changes — read the
+current asset above instead.
+
+Regenerate the PNG after editing the SVG (run from the repository root):
+
+```bash
+bash skills/svg-infographic/scripts/render.sh \
+  examples/github-release-guide/release-announcement/release-announcement.ko.svg \
+  examples/github-release-guide/release-announcement/release-announcement.ko.png --scale 2
+```

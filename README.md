@@ -97,16 +97,23 @@ contract runs no commands during assessment and does not generate fixes, code re
 
 GitHub releases combine documentation work with changes to visibility, branches, tags, settings, and GitHub
 Releases that can be difficult to undo. `github-release-guide` first checks readiness without changing the
-repository. It then shows each proposed change, checks the current state again, asks for direct approval, and
-verifies the result before moving on.
+repository. It then shows each proposed change, checks the current state again, and asks for approval in two
+distinct scopes — running a repository command, and changing the repository — before verifying the result and
+moving on.
 
 V1 can be used at two points: when an existing private github.com repository becomes public for the first time,
 and whenever that public repository publishes a new version afterward. It does not bootstrap repositories,
 publish packages, sign binaries, deploy cloud services, claim a security audit, force-push, or rewrite history.
 
-| Choose the mode and profile | Follow the approval safety loop |
-| --- | --- |
-| [![Choose Assess or Guided, then choose first-public or version-release](./examples/github-release-guide/mode-profile-map/mode-profile-map.en.png)](./examples/github-release-guide/mode-profile-map/mode-profile-map.en.svg) | [![How one repository change is previewed, rechecked, approved, carried out, and verified](./examples/github-release-guide/approval-safety-loop/approval-safety-loop.en.png)](./examples/github-release-guide/approval-safety-loop/approval-safety-loop.en.svg) |
+**First, pick the mode.** Assess inspects without changing anything; Guided starts only after Assess is
+complete, release-critical blockers are resolved, and you explicitly choose to switch.
+
+[![Assess checks the repository without changing it and returns Ready, Needs attention or Blocked; Guided starts only when all three entry conditions are met; either mode works on the first-public or version-release profile](./examples/github-release-guide/mode-profile-map/mode-profile-map.en.png)](./examples/github-release-guide/mode-profile-map/mode-profile-map.en.svg)
+
+**Then, in Guided, one change at a time.** Approval is asked in two distinct scopes: running a command is
+approved separately from changing the repository, and neither implies the other.
+
+[![In Guided each change is previewed and rechecked, then takes execution approval only when a command must run, always takes mutation approval, applies only what was previewed, and verifies the observed result before continuing or stopping](./examples/github-release-guide/approval-safety-loop/approval-safety-loop.en.png)](./examples/github-release-guide/approval-safety-loop/approval-safety-loop.en.svg)
 
 - Friendly guide: [`github-release-guide` README](./skills/github-release-guide/README.md)
 - Validation material and diagrams: [synthetic scenarios, answer key, and worked outputs](./examples/github-release-guide)

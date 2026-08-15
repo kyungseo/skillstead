@@ -1,88 +1,111 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
-  <title>How one change is approved and carried out</title>
-  <desc>Every important change is previewed, checked against the current state, directly approved by the user, carried out, and verified. State changes require a new approval. Errors or possible credential exposure stop the sequence.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 660" width="1000" height="660" role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>How Guided carries out one change</title>
+  <desc>Guided begins after Assess. For one change it previews the action, rechecks the preconditions immediately before acting, asks for execution approval when a repository command must run, asks separately for mutation approval, carries out only what was previewed, and verifies the observed result before moving on or stopping. If any critical precondition changed at the recheck, the prior approval is void and the flow returns to preview.</desc>
   <style>
-    svg{ --bg:#F7F9FC; --ink:#1C2838; --muted:#607086; --edge:#65758A;
-      --band-fill:#EEF4FA; --band-line:#CFDAE8; --band-pill:#315F92;
-      --blue:#2563A9; --blue-line:#72A4D2; --blue-ink:#1B4E7B; --blue-body:#4D6177;
-      --purple:#6750A4; --purple-line:#7665AA; --purple-ink:#4F3B83; --purple-body:#5D5570;
-      --amber:#AD641E; --amber-line:#D69B51; --amber-ink:#79440F; --amber-body:#6C5843;
-      --teal:#17735C; --teal-line:#4C9D86; --teal-ink:#155C4B; --teal-body:#4E655F;
-      --green:#106853; --green-line:#3D8B79;
-      --drift:#A46027; --drift-fill:#FFF3E7; --drift-line:#D8A168; --drift-ink:#834A18;
-      --call-fill:#FFF4E7; --call-line:#DDA566; --call-head:#75420F; --call-body:#6B5844; }
-    .on-accent{ fill:#FFFFFF }
+    svg{ --bg:#F7F9FC; --ink:#1C2838; --muted:#607086; --edge:#8496AB;
+         --blue-line:#75A6D1; --blue-ink:#183F68; --blue-tint:#E3EEF8;
+         --amber:#9A5A16; --amber-line:#D69B51; --amber-ink:#70410F; --amber-tint:#FFF0DC;
+         --green-line:#5FA98B; --green-ink:#12513C; --green-tint:#E5F3EC;
+         --card:#FFFFFF; }
+    .h1{font-size:30px;font-weight:800;fill:var(--ink)}
+    .sub{font-size:16px;fill:var(--muted)}
+    .lead{font-size:13px;font-weight:800;fill:var(--edge);letter-spacing:.4px}
+    .step{font-size:17px;font-weight:800;fill:var(--blue-ink)}
+    .approve{font-size:17px;font-weight:800;fill:var(--amber-ink)}
+    .verify{font-size:17px;font-weight:800;fill:var(--green-ink)}
+    .body{font-size:13.5px;fill:var(--muted)}
+    .tag{font-size:12px;font-weight:800;letter-spacing:.4px}
+    .back{font-size:13px;font-weight:700;fill:var(--amber-ink)}
+    .branch{font-size:13px;font-weight:700;fill:var(--edge)}
+    .note{font-size:14px;fill:var(--muted)}
   </style>
   <defs>
-    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0 0l12 6-12 6z" fill="#65758A"/></marker>
-    <marker id="arrow-drift" viewBox="0 0 12 12" markerWidth="18" markerHeight="18" markerUnits="userSpaceOnUse" refX="10" refY="6" orient="auto"><path d="M0 0l12 6-12 6z" fill="#A46027"/></marker>
+    <marker id="arrow-detail" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path d="M2 2 L10 6 L2 10" fill="none" stroke="#D69B51" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="arrow-primary" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path d="M2 2 L10 6 L2 10" fill="none" stroke="#8496AB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="arrow-regular" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path d="M2 2 L10 6 L2 10" fill="none" stroke="#8496AB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
   </defs>
 
-  <rect width="1600" height="900" fill="var(--bg)"/>
+  <rect width="1000" height="660" fill="var(--bg)"/>
 
-  <!-- header -->
-  <rect x="68" y="58" width="6" height="88" rx="3" fill="var(--amber)"/>
-  <text x="98" y="96" font-size="42" font-weight="760" fill="var(--ink)">How one change is approved and carried out</text>
-  <text x="98" y="137" font-size="21" fill="var(--muted)">Important changes are rechecked, directly approved by the user, and verified afterward.</text>
+  <rect x="40" y="34" width="5" height="52" rx="2.5" fill="var(--amber)"/>
+  <text x="60" y="52" class="h1" dominant-baseline="central">One change at a time, in Guided</text>
+  <text x="60" y="82" class="sub" dominant-baseline="central">Two approval types, each scoped to what was previewed.</text>
 
-  <!-- loop band -->
-  <rect x="70" y="192" width="1460" height="420" rx="26" fill="var(--band-fill)" stroke="var(--band-line)" stroke-width="2"/>
-  <rect x="98" y="173" width="250" height="46" rx="23" fill="var(--band-pill)"/>
-  <text x="223" y="196" dominant-baseline="central" text-anchor="middle" font-size="19" font-weight="720" class="on-accent">ONE CHANGE</text>
-
-  <!-- forward arrows (card centers y=421) -->
-  <g stroke="var(--edge)" stroke-width="4" fill="none" marker-end="url(#arrow)">
-    <path d="M330 421H374"/><path d="M610 421H654"/><path d="M890 421H934"/><path d="M1170 421H1214"/>
-  </g>
-
-  <!-- step cards (y=330, h=182) -->
+  <!-- Assess is the entry condition, not a step of this loop -->
   <g>
-    <rect x="90" y="330" width="240" height="182" rx="20" fill="#FFFFFF" stroke="var(--blue-line)" stroke-width="2"/>
-    <circle cx="132" cy="365" r="22" fill="var(--blue)"/><text x="132" y="366" dominant-baseline="central" text-anchor="middle" font-size="18" font-weight="750" class="on-accent">1</text>
-    <text x="210" y="384" dominant-baseline="central" text-anchor="middle" font-size="27" font-weight="740" fill="var(--blue-ink)">Preview</text>
-    <text x="210" y="435" dominant-baseline="central" text-anchor="middle" font-size="18" fill="var(--blue-body)">What will change</text>
-    <text x="210" y="464" dominant-baseline="central" text-anchor="middle" font-size="18" fill="var(--blue-body)">impact and failure response</text>
+    <rect x="60" y="124" width="272" height="44" rx="22" fill="var(--blue-tint)" stroke="var(--blue-line)" stroke-width="1.4"/>
+    <text x="82" y="146" class="tag" fill="var(--blue-ink)" dominant-baseline="central">GUIDED ENTRY CONDITIONS MET</text>
   </g>
+  <path d="M332 146H376" fill="none" stroke="#8496AB" stroke-width="2.5" stroke-linecap="round" marker-end="url(#arrow-regular)" data-flow="regular"/>
+  <text x="390" y="146" class="note" dominant-baseline="central">then, for each change:</text>
+
+  <!-- row 1: preview and recheck -->
   <g>
-    <rect x="370" y="330" width="240" height="182" rx="20" fill="#FFFFFF" stroke="var(--purple-line)" stroke-width="2"/>
-    <circle cx="412" cy="365" r="22" fill="var(--purple)"/><text x="412" y="366" dominant-baseline="central" text-anchor="middle" font-size="18" font-weight="750" class="on-accent">2</text>
-    <text x="490" y="384" dominant-baseline="central" text-anchor="middle" font-size="27" font-weight="740" fill="var(--purple-ink)">Recheck</text>
-    <text x="490" y="435" dominant-baseline="central" text-anchor="middle" font-size="18" fill="var(--purple-body)">Visibility &#183; branch &#183; tag</text>
-    <text x="490" y="464" dominant-baseline="central" text-anchor="middle" font-size="18" fill="var(--purple-body)">confirm settings still match</text>
+    <rect x="60" y="196" width="270" height="96" rx="14" fill="var(--card)" stroke="var(--blue-line)" stroke-width="1.6"/>
+    <text x="82" y="224" class="step" dominant-baseline="central">Preview</text>
+    <text x="82" y="250" class="body" dominant-baseline="central">The exact action and target, its</text>
+    <text x="82" y="270" class="body" dominant-baseline="central">impact, and the rollback route.</text>
   </g>
+  <path d="M330 244H386" fill="none" stroke="#8496AB" stroke-width="2.5" stroke-linecap="round" marker-end="url(#arrow-primary)" data-flow="primary"/>
   <g>
-    <rect x="650" y="330" width="240" height="182" rx="20" fill="#FFFFFF" stroke="var(--amber-line)" stroke-width="3"/>
-    <circle cx="692" cy="365" r="22" fill="var(--amber)"/><text x="692" y="366" dominant-baseline="central" text-anchor="middle" font-size="18" font-weight="750" class="on-accent">3</text>
-    <text x="770" y="384" dominant-baseline="central" text-anchor="middle" font-size="27" font-weight="740" fill="var(--amber-ink)">Approve</text>
-    <text x="770" y="435" dominant-baseline="central" text-anchor="middle" font-size="18" fill="var(--amber-body)">Direct consent for this</text>
-    <text x="770" y="464" dominant-baseline="central" text-anchor="middle" font-size="18" fill="var(--amber-body)">change and target only</text>
-  </g>
-  <g>
-    <rect x="930" y="330" width="240" height="182" rx="20" fill="#FFFFFF" stroke="var(--teal-line)" stroke-width="2"/>
-    <circle cx="972" cy="365" r="22" fill="var(--teal)"/><text x="972" y="366" dominant-baseline="central" text-anchor="middle" font-size="18" font-weight="750" class="on-accent">4</text>
-    <text x="1050" y="384" dominant-baseline="central" text-anchor="middle" font-size="27" font-weight="740" fill="var(--teal-ink)">Apply change</text>
-    <text x="1050" y="435" dominant-baseline="central" text-anchor="middle" font-size="18" fill="var(--teal-body)">Carry out only what</text>
-    <text x="1050" y="464" dominant-baseline="central" text-anchor="middle" font-size="18" fill="var(--teal-body)">was previewed</text>
-  </g>
-  <g>
-    <rect x="1210" y="330" width="240" height="182" rx="20" fill="#FFFFFF" stroke="var(--green-line)" stroke-width="2"/>
-    <circle cx="1252" cy="365" r="22" fill="var(--green)"/><text x="1252" y="366" dominant-baseline="central" text-anchor="middle" font-size="18" font-weight="750" class="on-accent">5</text>
-    <text x="1330" y="384" dominant-baseline="central" text-anchor="middle" font-size="27" font-weight="740" fill="var(--teal-ink)">Verify</text>
-    <text x="1330" y="435" dominant-baseline="central" text-anchor="middle" font-size="18" fill="var(--teal-body)">Confirm the real result</text>
-    <text x="1330" y="464" dominant-baseline="central" text-anchor="middle" font-size="18" fill="var(--teal-body)">before moving on</text>
+    <rect x="392" y="196" width="270" height="96" rx="14" fill="var(--card)" stroke="var(--blue-line)" stroke-width="1.6"/>
+    <text x="414" y="224" class="step" dominant-baseline="central">Recheck</text>
+    <text x="414" y="250" class="body" dominant-baseline="central">Visibility, ref, tag and settings,</text>
+    <text x="414" y="270" class="body" dominant-baseline="central">read again just before acting.</text>
   </g>
 
-  <!-- drift feedback: Recheck top -> Preview top -->
-  <path d="M490 330V292H210V319" fill="none" stroke="var(--drift)" stroke-width="4" stroke-dasharray="7 6" marker-end="url(#arrow-drift)"/>
-  <rect x="238" y="269" width="330" height="46" rx="23" fill="var(--drift-fill)" stroke="var(--drift-line)"/>
-  <text x="403" y="292" dominant-baseline="central" text-anchor="middle" font-size="17" font-weight="700" fill="var(--drift-ink)">STATE CHANGED &#8594; PREVIEW AGAIN</text>
+  <!-- the return loop runs above the row, which leaves the band below free for the branch -->
+  <path d="M527 196V176H196V190" fill="none" stroke="#D69B51" stroke-width="2.5" stroke-dasharray="5 3.75" stroke-dashoffset="7.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-detail)" data-flow="detail"/>
+  <text x="556" y="176" class="back" dominant-baseline="central">State changed → return to Preview; approvals do not carry over</text>
 
-  <!-- visibility callout -->
-  <rect x="140" y="657" width="1320" height="175" rx="22" fill="var(--call-fill)" stroke="var(--call-line)" stroke-width="2"/>
-  <rect x="172" y="638" width="250" height="44" rx="22" fill="var(--amber)"/>
-  <text x="297" y="660" dominant-baseline="central" text-anchor="middle" font-size="18" font-weight="730" class="on-accent">BEFORE GOING PUBLIC</text>
-  <text x="190" y="711" font-size="22" font-weight="710" fill="var(--call-head)">Public copies cannot be fully recalled.</text>
-  <text x="190" y="747" font-size="20" fill="var(--call-body)">Automated scans cannot guarantee that every risk will be caught.</text>
-  <text x="190" y="779" font-size="20" fill="var(--call-body)">The guide asks for separate approval immediately before the repository becomes public.</text>
-  <text x="190" y="811" font-size="20" fill="var(--call-body)">If an error or possible credential exposure appears, it stops and follows an incident-response path.</text>
+  <!-- recheck branches: the execution approval is only on the path that runs a command -->
+  <path d="M460 292V344H196V388" fill="none" stroke="#8496AB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-regular)" data-flow="regular"/>
+  <text x="206" y="330" class="branch" dominant-baseline="central">if a command must run</text>
+  <path d="M594 292V388" fill="none" stroke="#8496AB" stroke-width="2.5" stroke-linecap="round" marker-end="url(#arrow-regular)" data-flow="regular"/>
+  <text x="610" y="330" class="branch" dominant-baseline="central">if none is needed</text>
+
+  <g>
+    <rect x="60" y="396" width="270" height="104" rx="14" fill="var(--amber-tint)" stroke="var(--amber-line)" stroke-width="1.8"/>
+    <text x="82" y="422" class="tag" fill="var(--amber-ink)" dominant-baseline="central">ONLY ON THE COMMAND PATH</text>
+    <text x="82" y="450" class="approve" dominant-baseline="central">Execution approval</text>
+    <text x="82" y="476" class="body" dominant-baseline="central">Covers that one command only.</text>
+  </g>
+  <path d="M330 448H386" fill="none" stroke="#8496AB" stroke-width="2.5" stroke-linecap="round" marker-end="url(#arrow-regular)" data-flow="regular"/>
+  <g>
+    <rect x="392" y="396" width="270" height="104" rx="14" fill="var(--amber-tint)" stroke="var(--amber-line)" stroke-width="1.8"/>
+    <text x="414" y="422" class="tag" fill="var(--amber-ink)" dominant-baseline="central">BEFORE ANY CHANGE</text>
+    <text x="414" y="450" class="approve" dominant-baseline="central">Mutation approval</text>
+    <text x="414" y="476" class="body" dominant-baseline="central">Always asked, on either path.</text>
+  </g>
+  <path d="M662 448H718" fill="none" stroke="#8496AB" stroke-width="2.5" stroke-linecap="round" marker-end="url(#arrow-regular)" data-flow="regular"/>
+  <g>
+    <rect x="724" y="396" width="216" height="104" rx="14" fill="var(--card)" stroke="var(--blue-line)" stroke-width="1.6"/>
+    <text x="746" y="436" class="step" dominant-baseline="central">Apply</text>
+    <text x="746" y="464" class="body" dominant-baseline="central">Only what was previewed.</text>
+  </g>
+
+  <!-- row 3: verify, then the branch that ends the unit -->
+  <!-- Apply hands off to Verify; the run sits in the gap between the rows so it crosses no card -->
+  <path d="M832 500V521H196V536" fill="none" stroke="#8496AB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-primary)" data-flow="primary"/>
+  <g>
+    <rect x="60" y="542" width="270" height="94" rx="14" fill="var(--green-tint)" stroke="var(--green-line)" stroke-width="1.8"/>
+    <text x="82" y="570" class="verify" dominant-baseline="central">Verify</text>
+    <text x="82" y="596" class="body" dominant-baseline="central">Confirm the observed result,</text>
+    <text x="82" y="616" class="body" dominant-baseline="central">not the expected one.</text>
+  </g>
+  <path d="M330 589H386" fill="none" stroke="#8496AB" stroke-width="2.5" stroke-linecap="round" marker-end="url(#arrow-regular)" data-flow="regular"/>
+
+  <g>
+    <rect x="392" y="542" width="270" height="94" rx="14" fill="var(--card)" stroke="#DCE3EC" stroke-width="1.6"/>
+    <text x="414" y="570" class="tag" fill="var(--ink)" dominant-baseline="central">THEN ONE OF TWO</text>
+    <text x="414" y="596" class="body" dominant-baseline="central">Next change — back to Preview</text>
+    <text x="414" y="618" class="body" dominant-baseline="central">Stop — nothing further is done</text>
+  </g>
+
+  <g>
+    <rect x="700" y="542" width="240" height="94" rx="14" fill="var(--amber-tint)" stroke="var(--amber-line)" stroke-width="1.6"/>
+    <text x="722" y="570" class="tag" fill="var(--amber-ink)" dominant-baseline="central">GOING PUBLIC</text>
+    <text x="722" y="596" class="body" dominant-baseline="central">Asked for separately, and</text>
+    <text x="722" y="616" class="body" dominant-baseline="central">a public copy cannot be recalled.</text>
+  </g>
 </svg>

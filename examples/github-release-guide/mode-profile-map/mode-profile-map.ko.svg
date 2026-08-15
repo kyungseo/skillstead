@@ -1,76 +1,77 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
-  <title>진행 방식과 릴리스 유형 선택</title>
-  <desc>Assess는 저장소를 바꾸지 않고 점검한다. Guided는 변경 내용을 먼저 보여주고 사용자가 승인한 작업만 실행한다. First-public은 비공개 GitHub 저장소를 처음 공개할 때 한 번 사용하고, version-release는 공개 후 새 버전을 릴리스할 때마다 사용한다.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 620" width="1000" height="620" role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+  <title>Assess와 Guided 중 무엇을 고를지</title>
+  <desc>Assess는 저장소를 바꾸지 않고 점검하며 Ready, Needs attention, Blocked 중 하나를 돌려준다. Guided는 Assess를 마치고 release-critical blocker를 해소한 뒤 사용자가 전환을 명시적으로 선택했을 때만 시작한다. 두 방식 모두 하나의 release profile에서 동작한다 — 비공개 저장소를 처음 공개하는 first-public, 이미 공개된 저장소의 새 버전마다 쓰는 version-release.</desc>
   <style>
     svg{ --bg:#F7F9FC; --ink:#1C2838; --muted:#607086; --edge:#8496AB;
-      --blue:#2563A9; --blue-line:#75A6D1; --blue-ink:#183F68; --blue-body:#4C6077; --blue-tint:#E3EEF8;
-      --band1-fill:#EEF5FC; --band1-line:#CADBEB;
-      --amber:#9A5A16; --amber-line:#D69B51; --amber-ink:#70410F; --amber-body:#655542; --amber-tint:#FFF0DC;
-      --purple:#6750A4; --purple-line:#8C79BF; --purple-ink:#49357C; --purple-body:#5D5570; --purple-tint:#EEE9F8;
-      --band2-fill:#F4F1FB; --band2-line:#D8CDEA;
-      --green:#17735C; --green-line:#48A087; --green-ink:#155C4B; --green-body:#4D655F; --green-tint:#E4F4EF;
-      --note-fill:#FFF5E9; --note-line:#E3B77E; --note-ink:#764612; }
-    .on-accent{ fill:#FFFFFF }
+         --blue:#2563A9; --blue-line:#75A6D1; --blue-ink:#183F68; --blue-tint:#E3EEF8;
+         --amber:#9A5A16; --amber-line:#D69B51; --amber-ink:#70410F; --amber-tint:#FFF0DC;
+         --purple-line:#8C79BF; --purple-ink:#49357C;
+         --green-line:#5FA98B; --green-ink:#12513C;
+         --card:#FFFFFF; }
+    .h1{font-size:30px;font-weight:800;fill:var(--ink)}
+    .sub{font-size:16px;fill:var(--muted)}
+    .pill{font-size:13px;font-weight:800;letter-spacing:.4px}
+    .name{font-size:21px;font-weight:800}
+    .body{font-size:15px;fill:var(--muted)}
+    .note{font-size:14px;fill:var(--muted)}
+    .gate{font-size:14px;font-weight:700;fill:var(--amber-ink)}
+    .lead{font-size:13px;font-weight:800;fill:var(--edge);letter-spacing:.4px}
   </style>
   <defs>
-    <marker id="arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="9" markerHeight="9" orient="auto"><path d="M0 0l12 6-12 6z" fill="#8496AB"/></marker>
-    <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15.5 15.5L21 21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
-    <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
-    <symbol id="ic-eye" viewBox="0 0 24 24"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.8" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
-    <symbol id="ic-tag" viewBox="0 0 24 24"><path d="M3 12l9 9 9-9-9-9H3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="8" cy="8" r="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <marker id="arrow-primary" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path d="M2 2 L10 6 L2 10" fill="none" stroke="#8496AB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
   </defs>
 
-  <rect width="1600" height="900" fill="var(--bg)"/>
+  <rect width="1000" height="620" fill="var(--bg)"/>
 
-  <!-- header -->
-  <rect x="68" y="58" width="6" height="88" rx="3" fill="var(--blue)"/>
-  <text x="98" y="96" font-size="42" font-weight="760" fill="var(--ink)">어떻게 진행할지 정한 뒤 릴리스 유형을 선택하세요</text>
-  <text x="98" y="137" font-size="21" fill="var(--muted)">Assess는 상태만 점검하고, Guided는 사용자가 승인한 변경만 실행합니다.</text>
+  <rect x="40" y="34" width="5" height="52" rx="2.5" fill="var(--blue)"/>
+  <text x="60" y="52" class="h1" dominant-baseline="central">먼저 진행 방식을 고르세요</text>
+  <text x="60" y="82" class="sub" dominant-baseline="central">Assess는 저장소를 바꾸지 않습니다. Guided는 승인한 것만 바꿉니다.</text>
 
-  <!-- band 1 · mode -->
-  <rect x="70" y="185" width="1460" height="252" rx="24" fill="var(--band1-fill)" stroke="var(--band1-line)" stroke-width="2"/>
-  <rect x="98" y="166" width="220" height="46" rx="23" fill="var(--blue)"/>
-  <text x="208" y="189" dominant-baseline="central" text-anchor="middle" font-size="19" font-weight="720" class="on-accent">1 &#183; 진행 방식 선택</text>
+  <text x="60" y="128" class="lead" dominant-baseline="central">하나를 고르세요</text>
 
   <g>
-    <rect x="115" y="240" width="640" height="150" rx="20" fill="#FFFFFF" stroke="var(--blue-line)" stroke-width="2"/>
-    <circle cx="185" cy="315" r="38" fill="var(--blue-tint)"/><use href="#ic-search" x="165" y="295" width="40" height="40" style="color:var(--blue)"/>
-    <text x="245" y="286" dominant-baseline="central" font-size="27" font-weight="740" fill="var(--blue-ink)">Assess(점검)</text>
-    <text x="245" y="326" dominant-baseline="central" font-size="20" fill="var(--blue-body)">저장소를 바꾸지 않고 준비 상태와</text>
-    <text x="245" y="355" dominant-baseline="central" font-size="20" fill="var(--blue-body)">중단 사유, 가장 안전한 다음 행동을 안내</text>
+    <rect x="60" y="146" width="400" height="150" rx="14" fill="var(--card)" stroke="var(--blue-line)" stroke-width="1.6"/>
+    <rect x="60" y="147" width="400" height="33" rx="13" fill="var(--blue-tint)"/>
+    <text x="82" y="164" class="pill" fill="var(--blue-ink)" dominant-baseline="central">읽기 전용</text>
+    <text x="82" y="212" class="name" fill="var(--blue-ink)" dominant-baseline="central">Assess</text>
+    <text x="82" y="244" class="body" dominant-baseline="central">준비 상태와 blocker를 점검하고 바꾸지는 않습니다.</text>
+    <text x="82" y="268" class="body" dominant-baseline="central">결과는 Ready · Needs attention · Blocked.</text>
   </g>
-  <g>
-    <rect x="845" y="240" width="640" height="150" rx="20" fill="#FFFFFF" stroke="var(--amber-line)" stroke-width="3"/>
-    <circle cx="915" cy="315" r="38" fill="var(--amber-tint)"/><use href="#ic-shield" x="895" y="295" width="40" height="40" style="color:var(--amber)"/>
-    <text x="975" y="286" dominant-baseline="central" font-size="27" font-weight="740" fill="var(--amber-ink)">Guided(단계별 진행)</text>
-    <text x="975" y="326" dominant-baseline="central" font-size="20" fill="var(--amber-body)">변경 내용을 먼저 보여주고</text>
-    <text x="975" y="355" dominant-baseline="central" font-size="20" fill="var(--amber-body)">사용자가 직접 승인한 작업만 실행</text>
-  </g>
-
-  <!-- reading-order connector -->
-  <line x1="800" y1="443" x2="800" y2="482" stroke="var(--edge)" stroke-width="2.5" marker-end="url(#arrow)"/>
-
-  <!-- band 2 · profile -->
-  <rect x="70" y="492" width="1460" height="252" rx="24" fill="var(--band2-fill)" stroke="var(--band2-line)" stroke-width="2"/>
-  <rect x="98" y="473" width="250" height="46" rx="23" fill="var(--purple)"/>
-  <text x="223" y="496" dominant-baseline="central" text-anchor="middle" font-size="19" font-weight="720" class="on-accent">2 &#183; 릴리스 유형 선택</text>
 
   <g>
-    <rect x="115" y="547" width="640" height="150" rx="20" fill="#FFFFFF" stroke="var(--purple-line)" stroke-width="2"/>
-    <circle cx="185" cy="622" r="38" fill="var(--purple-tint)"/><use href="#ic-eye" x="165" y="602" width="40" height="40" style="color:var(--purple)"/>
-    <text x="245" y="593" dominant-baseline="central" font-size="27" font-weight="740" fill="var(--purple-ink)">first-public</text>
-    <text x="245" y="633" dominant-baseline="central" font-size="20" fill="var(--purple-body)">비공개 GitHub 저장소를</text>
-    <text x="245" y="662" dominant-baseline="central" font-size="20" fill="var(--purple-body)">처음 공개하고 첫 릴리스를 준비합니다</text>
-  </g>
-  <g>
-    <rect x="845" y="547" width="640" height="150" rx="20" fill="#FFFFFF" stroke="var(--green-line)" stroke-width="2"/>
-    <circle cx="915" cy="622" r="38" fill="var(--green-tint)"/><use href="#ic-tag" x="895" y="602" width="40" height="40" style="color:var(--green)"/>
-    <text x="975" y="593" dominant-baseline="central" font-size="27" font-weight="740" fill="var(--green-ink)">version-release</text>
-    <text x="975" y="633" dominant-baseline="central" font-size="20" fill="var(--green-body)">이미 공개된 GitHub 저장소에서</text>
-    <text x="975" y="662" dominant-baseline="central" font-size="20" fill="var(--green-body)">새 버전을 릴리스할 때마다 사용합니다</text>
+    <rect x="540" y="146" width="400" height="150" rx="14" fill="var(--card)" stroke="var(--amber-line)" stroke-width="1.6"/>
+    <rect x="540" y="147" width="400" height="33" rx="13" fill="var(--amber-tint)"/>
+    <text x="562" y="164" class="pill" fill="var(--amber-ink)" dominant-baseline="central">저장소를 변경합니다</text>
+    <text x="562" y="212" class="name" fill="var(--amber-ink)" dominant-baseline="central">Guided</text>
+    <text x="562" y="244" class="body" dominant-baseline="central">변경 내용을 먼저 보여주고 승인한 것만</text>
+    <text x="562" y="268" class="body" dominant-baseline="central">실행합니다 — 한 번에 하나씩.</text>
   </g>
 
-  <!-- gate note -->
-  <rect x="230" y="790" width="1140" height="64" rx="18" fill="var(--note-fill)" stroke="var(--note-line)" stroke-width="2"/>
-  <text x="800" y="822" dominant-baseline="central" text-anchor="middle" font-size="21" font-weight="690" fill="var(--note-ink)">Assess 결과가 Ready이고 필요한 규칙을 모두 확인한 뒤 Guided를 시작합니다.</text>
+  <path d="M740 356V304" fill="none" stroke="#8496AB" stroke-width="2.5" stroke-linecap="round" marker-end="url(#arrow-primary)" data-flow="primary"/>
+
+  <g>
+    <rect x="500" y="356" width="440" height="126" rx="14" fill="var(--amber-tint)" stroke="var(--amber-line)" stroke-width="1.6"/>
+    <text x="524" y="384" class="pill" fill="var(--amber-ink)" dominant-baseline="central">GUIDED 진입 — 세 가지 모두</text>
+    <text x="524" y="414" class="gate" dominant-baseline="central">1 · Assess를 마쳤다</text>
+    <text x="524" y="440" class="gate" dominant-baseline="central">2 · release-critical blocker를 해소했다</text>
+    <text x="524" y="466" class="gate" dominant-baseline="central">3 · 전환을 명시적으로 선택했다</text>
+  </g>
+
+  <text x="60" y="372" class="lead" dominant-baseline="central">두 방식 공통</text>
+  <text x="60" y="400" class="note" dominant-baseline="central">두 방식 모두 하나의 release profile에서 동작합니다.</text>
+
+  <g>
+    <rect x="60" y="420" width="200" height="62" rx="12" fill="var(--card)" stroke="var(--purple-line)" stroke-width="1.6"/>
+    <text x="82" y="442" class="pill" fill="var(--purple-ink)" dominant-baseline="central">FIRST-PUBLIC</text>
+    <text x="82" y="464" class="note" dominant-baseline="central">비공개 → 공개, 한 번</text>
+  </g>
+  <g>
+    <rect x="276" y="420" width="200" height="62" rx="12" fill="var(--card)" stroke="var(--green-line)" stroke-width="1.6"/>
+    <text x="298" y="442" class="pill" fill="var(--green-ink)" dominant-baseline="central">VERSION-RELEASE</text>
+    <text x="298" y="464" class="note" dominant-baseline="central">새 버전마다</text>
+  </g>
+
+  <rect x="60" y="514" width="880" height="70" rx="12" fill="var(--card)" stroke="#DCE3EC" stroke-width="1.4"/>
+  <text x="84" y="540" class="note" fill="var(--ink)" font-weight="700" dominant-baseline="central">Assess 중에 변경을 요청해도 변경은 시작되지 않습니다.</text>
+  <text x="84" y="564" class="note" dominant-baseline="central">거절하고 Guided 전환을 제안합니다. 지원 대상은 github.com뿐입니다.</text>
 </svg>
