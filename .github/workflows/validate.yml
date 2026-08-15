@@ -32,6 +32,9 @@ jobs:
       - name: Repo validation (M1)
         run: PYTHONPATH=tools python3 -m skillstead_validate repo --repo-root .
 
+      - name: Gallery model drift (CP3B)
+        run: PYTHONPATH=tools python3 -m skillstead_validate gallery --repo-root .
+
       - name: Continuous tag checks (M3)
         run: PYTHONPATH=tools python3 -m skillstead_validate tags --main-ref origin/main --repo-root .
 

@@ -5,6 +5,7 @@ Usage:
     python3 -m skillstead_validate preflight --plan PLAN.json [--repo-root PATH]
     python3 -m skillstead_validate apply-tags --plan PLAN.json [--repo-root PATH]
     python3 -m skillstead_validate tags [--main-ref REF] [--repo-root PATH]
+    python3 -m skillstead_validate gallery [--write] [--repo-root PATH]
     python3 -m skillstead_validate cutover (--releases-file F --latest-file F | --live --repo-slug OWNER/REPO) [...]
 
 Exit status: 0 when no findings (cutover: non-red verdict), 1 otherwise,
@@ -20,6 +21,7 @@ from pathlib import Path
 import json
 
 from .cutover import run_cutover
+from .gallery import run_gallery
 from .package_check import run_repo_validation
 from .release_gate import apply_tags, preflight
 from .release_plan import PlanError, parse_plan
@@ -42,6 +44,9 @@ def main(argv: list[str] | None = None) -> int:
     tags = sub.add_parser("tags", help="continuous tag checks (M3)")
     tags.add_argument("--main-ref", default="main")
     tags.add_argument("--repo-root", type=Path, default=Path.cwd())
+    gal = sub.add_parser("gallery", help="gallery model join + drift check (CP3B)")
+    gal.add_argument("--repo-root", type=Path, default=Path.cwd())
+    gal.add_argument("--write", action="store_true", help="regenerate gallery/model.json")
     cut = sub.add_parser("cutover", help="cutover verdict evaluator (M4)")
     cut.add_argument("--repo-root", type=Path, default=Path.cwd())
     cut.add_argument("--main-ref", default="main")
@@ -105,6 +110,14 @@ def main(argv: list[str] | None = None) -> int:
         for f in findings:
             print(f, file=sys.stderr)
         print(f"skillstead_validate tags: {len(findings)} finding(s)")
+        return 1 if findings else 0
+
+    if args.mode == "gallery":
+        findings = run_gallery(args.repo_root.resolve(), write=args.write)
+        for f in findings:
+            print(f, file=sys.stderr)
+        verb = "wrote" if args.write and not findings else "checked"
+        print(f"skillstead_validate gallery: {verb}, {len(findings)} finding(s)")
         return 1 if findings else 0
 
     if args.mode == "repo":

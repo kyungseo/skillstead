@@ -1,0 +1,1351 @@
+{
+ "schemaVersion": 1,
+ "generatedBy": "skillstead_validate gallery",
+ "note": "Generated view. Every field is owned by the manifest, an input payload, a receipt or an artifact — this file is authority for none of them. `verified` attaches to the SVG only; PNGs are a present/digest inventory.",
+ "runtimeSurfaceDigest": "sha256:31f5af7ae5643fbc58d0883729b2e4fe30377bb21ce72a4fe527982d99a41401",
+ "tokens": "gallery/tokens.json",
+ "typepackCount": 9,
+ "typepacks": [
+  {
+   "id": "approval-gate",
+   "selectionSignal": "A simple request path with one approval gate or checkpoint (a->b->c; a full sequence diagram is out of scope)",
+   "spec": "types/specs/approval-gate.md",
+   "profile": "constrained-layout",
+   "support": "experimental",
+   "presets": [
+    "document-compact",
+    "social-4x5",
+    "presentation-16x9"
+   ],
+   "preferredPreset": "document-compact",
+   "treatment": "flat",
+   "fontDelivery": "portable",
+   "preset": "document-compact",
+   "stress": [
+    {
+     "id": "approval-gate-stress-cardinality",
+     "path": "types/inputs/approval-gate.stress-cardinality.yaml",
+     "preset": "presentation-16x9",
+     "count": 4,
+     "geometryExpected": "fits",
+     "covers": [
+      "cardinality-max"
+     ],
+     "residualDisposition": {
+      "bottom": 484,
+      "reason": "A 4-node band exceeds the fluid preset width (680) so the preferred preset cannot be used — the vertical breathing is the cost of choosing a wider fixed preset."
+     }
+    },
+    {
+     "id": "approval-gate-stress-copy",
+     "path": "types/inputs/approval-gate.stress-copy.yaml",
+     "preset": "document-compact",
+     "count": 3,
+     "geometryExpected": "fits",
+     "covers": [
+      "copy-boundary-candidate",
+      "gate-caption"
+     ],
+     "residualDisposition": null
+    },
+    {
+     "id": "approval-gate-stress-degrade",
+     "path": "types/inputs/approval-gate.stress-degrade.yaml",
+     "preset": "social-4x5",
+     "count": 4,
+     "geometryExpected": "needs-split",
+     "covers": [
+      "cardinality-max",
+      "gate-caption",
+      "degrade-path"
+     ],
+     "residualDisposition": null
+    }
+   ],
+   "feasibility": [
+    {
+     "preset": "document-compact",
+     "orientation": "portrait",
+     "count": 4,
+     "layout": "row",
+     "result": "needs-split"
+    },
+    {
+     "preset": "social-4x5",
+     "orientation": "portrait",
+     "count": 4,
+     "layout": "row",
+     "result": "needs-split"
+    },
+    {
+     "preset": "presentation-16x9",
+     "orientation": "landscape",
+     "count": 4,
+     "layout": "row",
+     "result": "fits"
+    }
+   ],
+   "locales": {
+    "ko": {
+     "title": "요청은 승인 게이트를 지난다",
+     "prompt": "요청이 승인 게이트를 지나 반영되는 경로를 보여줘. 4:5.",
+     "preset": "document-compact",
+     "treatment": "flat",
+     "fontDelivery": "portable",
+     "geometry": "fits",
+     "geometryExpected": "fits",
+     "residual": {
+      "top": 0,
+      "bottom": 0
+     },
+     "residualDisposition": null,
+     "consumed": [
+      "node-1",
+      "node-2",
+      "node-3",
+      "gate-1"
+     ],
+     "svg": "examples/svg-infographic/typepacks/approval-gate/approval-gate.ko.svg",
+     "svgDigest": "sha256:166a397c33345f406e9df710751b05bd5fe49db0616059111a26813448284563",
+     "receipt": "examples/svg-infographic/typepacks/approval-gate/approval-gate.ko.json",
+     "verified": true,
+     "png": {
+      "path": "examples/svg-infographic/typepacks/approval-gate/approval-gate.ko.png",
+      "digest": "sha256:590a0906f4f12953b0905d57fa4d2d4f489520cfb5c76393de9ece386d27bc31",
+      "verified": null,
+      "note": "render of the verified SVG; not itself re-verified"
+     }
+    },
+    "en": {
+     "title": "Requests pass an approval gate",
+     "prompt": "A request passing an approval gate. 4:5.",
+     "preset": "document-compact",
+     "treatment": "flat",
+     "fontDelivery": "portable",
+     "geometry": "fits",
+     "geometryExpected": "fits",
+     "residual": {
+      "top": 0,
+      "bottom": 0
+     },
+     "residualDisposition": null,
+     "consumed": [
+      "node-1",
+      "node-2",
+      "node-3",
+      "gate-1"
+     ],
+     "svg": "examples/svg-infographic/typepacks/approval-gate/approval-gate.en.svg",
+     "svgDigest": "sha256:9f1e8dd31082b30537ae9d22cacb731b27fd25fa0cf92b0c9f030681a4764e9b",
+     "receipt": "examples/svg-infographic/typepacks/approval-gate/approval-gate.en.json",
+     "verified": true,
+     "png": {
+      "path": "examples/svg-infographic/typepacks/approval-gate/approval-gate.en.png",
+      "digest": "sha256:176ad2f0fac47379f2b1953c913f5cfc51863d002897b471fb8a1a541dbe384f",
+      "verified": null,
+      "note": "render of the verified SVG; not itself re-verified"
+     }
+    }
+   }
+  },
+  {
+   "id": "before-after",
+   "selectionSignal": "Before and after — migration, modernisation, refactor outcome, trade-off comparison",
+   "spec": "types/specs/before-after.md",
+   "profile": "constrained-layout",
+   "support": "experimental",
+   "presets": [
+    "document-compact",
+    "social-4x5",
+    "presentation-16x9"
+   ],
+   "preferredPreset": "document-compact",
+   "treatment": "flat",
+   "fontDelivery": "portable",
+   "preset": "document-compact",
+   "stress": [
+    {
+     "id": "before-after-stress-cardinality",
+     "path": "types/inputs/before-after.stress-cardinality.yaml",
+     "preset": "document-compact",
+     "count": 2,
+     "geometryExpected": "fits",
+     "covers": [
+      "cardinality-max",
+      "mirrored-slots"
+     ],
+     "residualDisposition": null
+    },
+    {
+     "id": "before-after-stress-copy",
+     "path": "types/inputs/before-after.stress-copy.yaml",
+     "preset": "document-compact",
+     "count": 2,
+     "geometryExpected": "fits",
+     "covers": [
+      "cardinality-max",
+      "copy-boundary-candidate"
+     ],
+     "residualDisposition": null
+    }
+   ],
+   "feasibility": [
+    {
+     "preset": "document-compact",
+     "orientation": "portrait",
+     "count": 2,
+     "layout": "row",
+     "result": "fits"
+    },
+    {
+     "preset": "social-4x5",
+     "orientation": "portrait",
+     "count": 2,
+     "layout": "row",
+     "result": "fits"
+    },
+    {
+     "preset": "presentation-16x9",
+     "orientation": "landscape",
+     "count": 2,
+     "layout": "row",
+     "result": "fits"
+    }
+   ],
+   "locales": {
+    "ko": {
+     "title": "자동화가 배포 시간을 줄였다",
+     "prompt": "마이그레이션 전후를 두 항목으로 비교해줘. 4:5.",
+     "preset": "document-compact",
+     "treatment": "flat",
+     "fontDelivery": "portable",
+     "geometry": "fits",
+     "geometryExpected": "fits",
+     "residual": {
+      "top": 0,
+      "bottom": 0
+     },
+     "residualDisposition": null,
+     "consumed": [
+      "before",
+      "after"
+     ],
+     "svg": "examples/svg-infographic/typepacks/before-after/before-after.ko.svg",
+     "svgDigest": "sha256:e15b0bd322c545023f9383c815b68b71bede0d85b8e67b1c60c80f1fc410a5ee",
+     "receipt": "examples/svg-infographic/typepacks/before-after/before-after.ko.json",
+     "verified": true,
+     "png": {
+      "path": "examples/svg-infographic/typepacks/before-after/before-after.ko.png",
+      "digest": "sha256:c5c4d1cfdfa55bf102a4dd202882250e8136ee522b0586a3fa4e20af153f98bb",
+      "verified": null,
+      "note": "render of the verified SVG; not itself re-verified"
+     }
+    },
+    "en": {
+     "title": "Automation cut the delivery time",
+     "prompt": "Compare before and after across two slots. 4:5.",
+     "preset": "document-compact",
+     "treatment": "flat",
+     "fontDelivery": "portable",
+     "geometry": "fits",
+     "geometryExpected": "fits",
+     "residual": {
+      "top": 0,
+      "bottom": 0
+     },
+     "residualDisposition": null,
+     "consumed": [
+      "before",
+      "after"
+     ],
+     "svg": "examples/svg-infographic/typepacks/before-after/before-after.en.svg",
+     "svgDigest": "sha256:f6d7bc171359e34ab9cba5f3fd4b43d196be42dd5ab7801595593d3136bb61a5",
+     "receipt": "examples/svg-infographic/typepacks/before-after/before-after.en.json",
+     "verified": true,
+     "png": {
+      "path": "examples/svg-infographic/typepacks/before-after/before-after.en.png",
+      "digest": "sha256:2f787ee4d20cf183331f0b5f14ab31c3b2397e59d1ff3c050f06337b821037bc",
+      "verified": null,
+      "note": "render of the verified SVG; not itself re-verified"
+     }
+    }
+   }
+  },
+  {
+   "id": "cards-kpi-grid",
+   "selectionSignal": "A few key items or figures summarised as equal cards (feature highlights, principles, status counts, capability summaries; not a chart claiming data accuracy)",
+   "spec": "types/specs/cards-kpi-grid.md",
+   "profile": "constrained-layout",
+   "support": "experimental",
+   "presets": [
+    "document-compact",
+    "social-4x5",
+    "presentation-16x9"
+   ],
+   "preferredPreset": "document-compact",
+   "treatment": "flat",
+   "fontDelivery": "portable",
+   "preset": "document-compact",
+   "stress": [
+    {
+     "id": "cards-kpi-grid-stress-cardinality",
+     "path": "types/inputs/cards-kpi-grid.stress-cardinality.yaml",
+     "preset": "document-compact",
+     "count": 6,
+     "geometryExpected": "fits",
+     "covers": [
+      "cardinality-max"
+     ],
+     "residualDisposition": null
+    },
+    {
+     "id": "cards-kpi-grid-stress-copy",
+     "path": "types/inputs/cards-kpi-grid.stress-copy.yaml",
+     "preset": "document-compact",
+     "count": 4,
+     "geometryExpected": "fits",
+     "covers": [
+      "copy-boundary-candidate"
+     ],
+     "residualDisposition": null
+    },
+    {
+     "id": "cards-kpi-grid-stress-degrade",
+     "path": "types/inputs/cards-kpi-grid.stress-degrade.yaml",
+     "preset": "social-4x5",
+     "count": 6,
+     "geometryExpected": "needs-split",
+     "covers": [
+      "cardinality-max",
+      "degrade-path"
+     ],
+     "residualDisposition": null
+    }
+   ],
+   "feasibility": [
+    {
+     "preset": "document-compact",
+     "orientation": "portrait",
+     "count": 6,
+     "layout": "grid",
+     "result": "fits"
+    },
+    {
+     "preset": "social-4x5",
+     "orientation": "portrait",
+     "count": 6,
+     "layout": "grid",
+     "result": "fits"
+    },
+    {
+     "preset": "social-4x5",
+     "orientation": "portrait",
+     "count": 6,
+     "layout": "row",
+     "result": "needs-split"
+    },
+    {
+     "preset": "presentation-16x9",
+     "orientation": "landscape",
+     "count": 6,
+     "layout": "grid",
+     "result": "fits"
+    },
+    {
+     "preset": "presentation-16x9",
+     "orientation": "landscape",
+     "count": 6,
+     "layout": "row",
+     "result": "fits"
+    }
+   ],
+   "locales": {
+    "ko": {
+     "title": "핵심 4가지를 한눈에",
+     "prompt": "핵심 4가지를 동등한 카드로 요약해줘. 소셜 포스트용 4:5 비율.",
+     "preset": "document-compact",
+     "treatment": "flat",
+     "fontDelivery": "portable",
+     "geometry": "fits",
+     "geometryExpected": "fits",
+     "residual": {
+      "top": 0,
+      "bottom": 0
+     },
+     "residualDisposition": null,
+     "consumed": [
+      "observability",
+      "delivery",
+      "cost",
+      "security"
+     ],
+     "svg": "examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.ko.svg",
+     "svgDigest": "sha256:016f3f30774aa45dbebd78418edd26bf0a729bd75a68bb568d6e0561369b83a7",
+     "receipt": "examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.ko.json",
+     "verified": true,
+     "png": {
+      "path": "examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.ko.png",
+      "digest": "sha256:4c754a0208b2922c8d5844c1f282efedcef610bec53bf39ce9b969c2db8132f5",
+      "verified": null,
+      "note": "render of the verified SVG; not itself re-verified"
+     }
+    },
+    "en": {
+     "title": "Four key points at a glance",
+     "prompt": "Summarise the four key points as equal cards, 4:5 social post.",
+     "preset": "document-compact",
+     "treatment": "flat",
+     "fontDelivery": "portable",
+     "geometry": "fits",
+     "geometryExpected": "fits",
+     "residual": {
+      "top": 0,
+      "bottom": 0
+     },
+     "residualDisposition": null,
+     "consumed": [
+      "observability",
+      "delivery",
+      "cost",
+      "security"
+     ],
+     "svg": "examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.en.svg",
+     "svgDigest": "sha256:33fec63cada3ba543471a59b08c226f3d8f11e5fb5f24450ba9575687d5fe243",
+     "receipt": "examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.en.json",
+     "verified": true,
+     "png": {
+      "path": "examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.en.png",
+      "digest": "sha256:697e277b0da4a6ceef5f069e2ce10cc1afce8a39a7a5837a1ca934b1ce9a8888",
+      "verified": null,
+      "note": "render of the verified SVG; not itself re-verified"
+     }
+    }
+   }
+  },
+  {
+   "id": "decision-matrix",
+   "selectionSignal": "Options or items placed by two qualitative axes — a 2x2 priority/decision quadrant, a 3x3 risk grid",
+   "spec": "types/specs/decision-matrix.md",
+   "profile": "constrained-layout",
+   "support": "experimental",
+   "presets": [
+    "document-compact",
+    "social-4x5",
+    "presentation-16x9"
+   ],
+   "preferredPreset": "document-compact",
+   "treatment": "flat",
+   "fontDelivery": "portable",
+   "preset": "document-compact",
+   "stress": [
+    {
+     "id": "decision-matrix-stress-cardinality",
+     "path": "types/inputs/decision-matrix.stress-cardinality.yaml",
+     "preset": "presentation-16x9",
+     "count": 9,
+     "geometryExpected": "fits",
+     "covers": [
+      "cardinality-max"
+     ],
+     "residualDisposition": {
+      "bottom": 358,
+      "reason": "With the axis reservation included a 3x3 grid exceeds the fluid width — leaving 16:9 as the only declared preset wide enough. Cell height is set by content and never stretched to fill the canvas — this vertical space is the cost of gaining width."
+     }
+    },
+    {
+     "id": "decision-matrix-stress-degrade",
+     "path": "types/inputs/decision-matrix.stress-degrade.yaml",
+     "preset": "document-compact",
+     "count": 9,
+     "geometryExpected": "needs-split",
+     "covers": [
+      "cardinality-max",
+      "degrade-path"
+     ],
+     "residualDisposition": null
+    },
+    {
+     "id": "decision-matrix-stress-copy",
+     "path": "types/inputs/decision-matrix.stress-copy.yaml",
+     "preset": "document-compact",
+     "count": 4,
+     "geometryExpected": "fits",
+     "covers": [
+      "copy-boundary-candidate"
+     ],
+     "residualDisposition": null
+    }
+   ],
+   "feasibility": [
+    {
+     "preset": "document-compact",
+     "orientation": "portrait",
+     "count": 9,
+     "layout": "grid",
+     "result": "needs-split"
+    },
+    {
+     "preset": "social-4x5",
+     "orientation": "portrait",
+     "count": 9,
+     "layout": "grid",
+     "result": "fits"
+    },
+    {
+     "preset": "presentation-16x9",
+     "orientation": "landscape",
+     "count": 9,
+     "layout": "grid",
+     "result": "fits"
+    }
+   ],
+   "locales": {
+    "ko": {
+     "title": "두 축이 우선순위를 정한다",
+     "prompt": "두 축으로 옵션을 2×2 사분면에 배치해줘. 4:5.",
+     "preset": "document-compact",
+     "treatment": "flat",
+     "fontDelivery": "portable",
+     "geometry": "fits",
+     "geometryExpected": "fits",
+     "residual": {
+      "top": 0,
+      "bottom": 0
+     },
+     "residualDisposition": null,
+     "consumed": [
+      "cell-1",
+      "cell-2",
+      "cell-3",
+      "cell-4"
+     ],
+     "svg": "examples/svg-infographic/typepacks/decision-matrix/decision-matrix.ko.svg",
+     "svgDigest": "sha256:1c6c06d5c73694d89fa5c63602083cab3940e5395a3dcaa7ac4cf9a593d0d99b",
+     "receipt": "examples/svg-infographic/typepacks/decision-matrix/decision-matrix.ko.json",
+     "verified": true,
+     "png": {
+      "path": "examples/svg-infographic/typepacks/decision-matrix/decision-matrix.ko.png",
+      "digest": "sha256:8027994556216b8a4b469ff9acbd8f910a761fb4712dcda5d2de9d9fce6e126d",
+      "verified": null,
+      "note": "render of the verified SVG; not itself re-verified"
+     }
+    },
+    "en": {
+     "title": "Two axes set the priority",
+     "prompt": "Place options in a 2×2 matrix. 4:5.",
+     "preset": "document-compact",
+     "treatment": "flat",
+     "fontDelivery": "portable",
+     "geometry": "fits",
+     "geometryExpected": "fits",
+     "residual": {
+      "top": 0,
+      "bottom": 0
+     },
+     "residualDisposition": null,
+     "consumed": [
+      "cell-1",
+      "cell-2",
+      "cell-3",
+      "cell-4"
+     ],
+     "svg": "examples/svg-infographic/typepacks/decision-matrix/decision-matrix.en.svg",
+     "svgDigest": "sha256:d29504aed3cf3aa04f541ba0127095b9ca7287d736477b115a288ef62782aa25",
+     "receipt": "examples/svg-infographic/typepacks/decision-matrix/decision-matrix.en.json",
+     "verified": true,
+     "png": {
+      "path": "examples/svg-infographic/typepacks/decision-matrix/decision-matrix.en.png",
+      "digest": "sha256:e56448f49b399c31f312a777a1529dc195e40c70cd286ea218a235b190102908",
+      "verified": null,
+      "note": "render of the verified SVG; not itself re-verified"
+     }
+    }
+   }
+  },
+  {
+   "id": "layer-stack",
+   "selectionSignal": "A hierarchy that stacks on or abstracts the layer beneath it (platform stacks, runtime layers, capability models)",
+   "spec": "types/specs/layer-stack.md",
+   "profile": "constrained-layout",
+   "support": "experimental",
+   "presets": [
+    "document-compact",
+    "social-4x5",
+    "presentation-16x9"
+   ],
+   "preferredPreset": "document-compact",
+   "treatment": "flat",
+   "fontDelivery": "portable",
+   "preset": "document-compact",
+   "stress": [
+    {
+     "id": "layer-stack-stress-cardinality",
+     "path": "types/inputs/layer-stack.stress-cardinality.yaml",
+     "preset": "presentation-16x9",
+     "count": 5,
+     "geometryExpected": "fits",
+     "covers": [
+      "cardinality-max",
+      "chips-max"
+     ],
+     "residualDisposition": {
+      "bottom": 132,
+      "reason": "\\\"Vertical breathing left over from choosing a wider landscape preset to hold four chips — the band is not stretched to fill it.\\\""
+     }
+    },
+    {
+     "id": "layer-stack-stress-copy",
+     "path": "types/inputs/layer-stack.stress-copy.yaml",
+     "preset": "document-compact",
+     "count": 4,
+     "geometryExpected": "fits",
+     "covers": [
+      "copy-boundary-candidate"
+     ],
+     "residualDisposition": null
+    },
+    {
+     "id": "layer-stack-stress-degrade",
+     "path": "types/inputs/layer-stack.stress-degrade.yaml",
+     "preset": "social-4x5",
+     "count": 5,
+     "geometryExpected": "needs-split",
+     "covers": [
+      "cardinality-max",
+      "chips-max",
+      "degrade-path"
+     ],
+     "residualDisposition": null
+    }
+   ],
+   "feasibility": [
+    {
+     "preset": "document-compact",
+     "orientation": "portrait",
+     "count": 5,
+     "layout": "column",
+     "result": "fits"
+    },
+    {
+     "preset": "document-compact",
+     "orientation": "portrait",
+     "count": 5,
+     "layout": "column",
+     "result": "needs-split"
+    },
+    {
+     "preset": "social-4x5",
+     "orientation": "portrait",
+     "count": 5,
+     "layout": "column",
+     "result": "fits"
+    },
+    {
+     "preset": "social-4x5",
+     "orientation": "portrait",
+     "count": 5,
+     "layout": "column",
+     "result": "needs-split"
+    },
+    {
+     "preset": "presentation-16x9",
+     "orientation": "landscape",
+     "count": 5,
+     "layout": "column",
+     "result": "fits"
+    },
+    {
+     "preset": "presentation-16x9",
+     "orientation": "landscape",
+     "count": 5,
+     "layout": "column",
+     "result": "fits"
+    }
+   ],
+   "locales": {
+    "ko": {
+     "title": "플랫폼 역량은 층으로 쌓인다",
+     "prompt": "플랫폼 역량을 4개 계층으로 쌓아서 보여줘. 4:5.",
+     "preset": "document-compact",
+     "treatment": "flat",
+     "fontDelivery": "portable",
+     "geometry": "fits",
+     "geometryExpected": "fits",
+     "residual": {
+      "top": 0,
+      "bottom": 0
+     },
+     "residualDisposition": null,
+     "consumed": [
+      "layer-1",
+      "layer-1-chip-1",
+      "layer-1-chip-2",
+      "layer-2",
+      "layer-2-chip-1",
+      "layer-2-chip-2",
+      "layer-3",
+      "layer-3-chip-1",
+      "layer-3-chip-2",
+      "layer-4",
+      "layer-4-chip-1",
+      "layer-4-chip-2"
+     ],
+     "svg": "examples/svg-infographic/typepacks/layer-stack/layer-stack.ko.svg",
+     "svgDigest": "sha256:9d84f282db9f8055891d3659fce3aec5dc4e28b7bf90eaee1d3af04ca2af2f76",
+     "receipt": "examples/svg-infographic/typepacks/layer-stack/layer-stack.ko.json",
+     "verified": true,
+     "png": {
+      "path": "examples/svg-infographic/typepacks/layer-stack/layer-stack.ko.png",
+      "digest": "sha256:db1abf971502ac2ca523a9510159b11e4b672d84c4fb321fb5d1382486b500b8",
+      "verified": null,
+      "note": "render of the verified SVG; not itself re-verified"
+     }
+    },
+    "en": {
+     "title": "Platform capability stacks in layers",
+     "prompt": "Show the platform capability as four stacked layers. 4:5.",
+     "preset": "document-compact",
+     "treatment": "flat",
+     "fontDelivery": "portable",
+     "geometry": "fits",
+     "geometryExpected": "fits",
+     "residual": {
+      "top": 0,
+      "bottom": 0
+     },
+     "residualDisposition": null,
+     "consumed": [
+      "layer-1",
+      "layer-1-chip-1",
+      "layer-1-chip-2",
+      "layer-2",
+      "layer-2-chip-1",
+      "layer-2-chip-2",
+      "layer-3",
+      "layer-3-chip-1",
+      "layer-3-chip-2",
+      "layer-4",
+      "layer-4-chip-1",
+      "layer-4-chip-2"
+     ],
+     "svg": "examples/svg-infographic/typepacks/layer-stack/layer-stack.en.svg",
+     "svgDigest": "sha256:8bd40672c183d3bf17d67039f33d4d451a5e33d7fcd34986af855458ca1fa152",
+     "receipt": "examples/svg-infographic/typepacks/layer-stack/layer-stack.en.json",
+     "verified": true,
+     "png": {
+      "path": "examples/svg-infographic/typepacks/layer-stack/layer-stack.en.png",
+      "digest": "sha256:d076a3a6245f4c0f1db383b5fb5bbf5d505b5d9e2788bec563d746a258650978",
+      "verified": null,
+      "note": "render of the verified SVG; not itself re-verified"
+     }
+    }
+   }
+  },
+  {
+   "id": "nested-scope",
+   "selectionSignal": "Containment and scope — the inner lives inside the outer (trust zones, scope rings, platform -> app -> feature)",
+   "spec": "types/specs/nested-scope.md",
+   "profile": "constrained-layout",
+   "support": "experimental",
+   "presets": [
+    "document-compact",
+    "social-4x5",
+    "presentation-16x9"
+   ],
+   "preferredPreset": "document-compact",
+   "treatment": "flat",
+   "fontDelivery": "portable",
+   "preset": "document-compact",
+   "stress": [
+    {
+     "id": "nested-scope-stress-cardinality",
+     "path": "types/inputs/nested-scope.stress-cardinality.yaml",
+     "preset": "document-compact",
+     "count": 4,
+     "geometryExpected": "fits",
+     "covers": [
+      "cardinality-max",
+      "containment-depth"
+     ],
+     "residualDisposition": null
+    },
+    {
+     "id": "nested-scope-stress-copy",
+     "path": "types/inputs/nested-scope.stress-copy.yaml",
+     "preset": "document-compact",
+     "count": 3,
+     "geometryExpected": "fits",
+     "covers": [
+      "copy-boundary-candidate"
+     ],
+     "residualDisposition": null
+    }
+   ],
+   "feasibility": [
+    {
+     "preset": "document-compact",
+     "orientation": "portrait",
+     "count": 4,
+     "layout": "concentric",
+     "result": "fits"
+    },
+    {
+     "preset": "social-4x5",
+     "orientation": "portrait",
+     "count": 4,
+     "layout": "concentric",
+     "result": "fits"
+    },
+    {
+     "preset": "presentation-16x9",
+     "orientation": "landscape",
+     "count": 4,
+     "layout": "concentric",
+     "result": "fits"
+    }
+   ],
+   "locales": {
+    "ko": {
+     "title": "신뢰 경계는 안쪽일수록 좁다",
+     "prompt": "신뢰 경계를 3겹 동심 구조로 보여줘. 4:5.",
+     "preset": "document-compact",
+     "treatment": "flat",
+     "fontDelivery": "portable",
+     "geometry": "fits",
+     "geometryExpected": "fits",
+     "residual": {
+      "top": 0,
+      "bottom": 0
+     },
+     "residualDisposition": null,
+     "consumed": [
+      "ring-1",
+      "ring-2",
+      "ring-3"
+     ],
+     "svg": "examples/svg-infographic/typepacks/nested-scope/nested-scope.ko.svg",
+     "svgDigest": "sha256:f7938cfdca961c6d3fbc145b69f1140c4fd9ae4145ae93c03ba83b8529a305eb",
+     "receipt": "examples/svg-infographic/typepacks/nested-scope/nested-scope.ko.json",
+     "verified": true,
+     "png": {
+      "path": "examples/svg-infographic/typepacks/nested-scope/nested-scope.ko.png",
+      "digest": "sha256:4da96b21c365503d51f2930e7b69cba2a54d9190004e01ab302c9e5c0eae9480",
+      "verified": null,
+      "note": "render of the verified SVG; not itself re-verified"
+     }
+    },
+    "en": {
+     "title": "Trust narrows toward the core",
+     "prompt": "Show the trust boundary as 3 concentric scopes. 4:5.",
+     "preset": "document-compact",
+     "treatment": "flat",
+     "fontDelivery": "portable",
+     "geometry": "fits",
+     "geometryExpected": "fits",
+     "residual": {
+      "top": 0,
+      "bottom": 0
+     },
+     "residualDisposition": null,
+     "consumed": [
+      "ring-1",
+      "ring-2",
+      "ring-3"
+     ],
+     "svg": "examples/svg-infographic/typepacks/nested-scope/nested-scope.en.svg",
+     "svgDigest": "sha256:e9d4aff3855882f3750d79d7b61f64d114cea26b597567af4ffeb8b003220d70",
+     "receipt": "examples/svg-infographic/typepacks/nested-scope/nested-scope.en.json",
+     "verified": true,
+     "png": {
+      "path": "examples/svg-infographic/typepacks/nested-scope/nested-scope.en.png",
+      "digest": "sha256:a6b7c710d7982d59125cf39173a1c71e583fea73334bb3597586019d07feeac7",
+      "verified": null,
+      "note": "render of the verified SVG; not itself re-verified"
+     }
+    }
+   }
+  },
+  {
+   "id": "process-flow",
+   "selectionSignal": "Ordered steps or handoffs — processes, pipelines, data flows, review loops",
+   "spec": "types/specs/process-flow.md",
+   "profile": "constrained-layout",
+   "support": "experimental",
+   "presets": [
+    "document-compact",
+    "social-4x5",
+    "presentation-16x9"
+   ],
+   "preferredPreset": "document-compact",
+   "treatment": "flat",
+   "fontDelivery": "portable",
+   "preset": "document-compact",
+   "stress": [
+    {
+     "id": "process-flow-stress-cardinality",
+     "path": "types/inputs/process-flow.stress-cardinality.yaml",
+     "preset": "document-compact",
+     "count": 5,
+     "geometryExpected": "fits",
+     "covers": [
+      "cardinality-max"
+     ],
+     "residualDisposition": null
+    },
+    {
+     "id": "process-flow-stress-copy",
+     "path": "types/inputs/process-flow.stress-copy.yaml",
+     "preset": "document-compact",
+     "count": 4,
+     "geometryExpected": "fits",
+     "covers": [
+      "copy-boundary-candidate"
+     ],
+     "residualDisposition": null
+    },
+    {
+     "id": "process-flow-stress-degrade",
+     "path": "types/inputs/process-flow.stress-degrade.yaml",
+     "preset": "social-4x5",
+     "count": 5,
+     "geometryExpected": "needs-split",
+     "covers": [
+      "cardinality-max",
+      "degrade-path"
+     ],
+     "residualDisposition": null
+    }
+   ],
+   "feasibility": [
+    {
+     "preset": "document-compact",
+     "orientation": "portrait",
+     "count": 5,
+     "layout": "column",
+     "result": "fits"
+    },
+    {
+     "preset": "social-4x5",
+     "orientation": "portrait",
+     "count": 5,
+     "layout": "row",
+     "result": "needs-split"
+    },
+    {
+     "preset": "social-4x5",
+     "orientation": "portrait",
+     "count": 5,
+     "layout": "column",
+     "result": "fits"
+    },
+    {
+     "preset": "presentation-16x9",
+     "orientation": "landscape",
+     "count": 5,
+     "layout": "row",
+     "result": "fits"
+    },
+    {
+     "preset": "presentation-16x9",
+     "orientation": "landscape",
+     "count": 5,
+     "layout": "column",
+     "result": "fits"
+    }
+   ],
+   "locales": {
+    "ko": {
+     "title": "배포는 검증을 지나 반영된다",
+     "prompt": "배포 절차를 4단계로 위에서 아래로 보여줘. 4:5 세로.",
+     "preset": "document-compact",
+     "treatment": "flat",
+     "fontDelivery": "portable",
+     "geometry": "fits",
+     "geometryExpected": "fits",
+     "residual": {
+      "top": 0,
+      "bottom": 0
+     },
+     "residualDisposition": null,
+     "consumed": [
+      "step-1",
+      "step-2",
+      "step-3",
+      "step-4"
+     ],
+     "svg": "examples/svg-infographic/typepacks/process-flow/process-flow.ko.svg",
+     "svgDigest": "sha256:82534f5de711142cd0520345352bf67749d8c38b1175724a145c23164ec84acf",
+     "receipt": "examples/svg-infographic/typepacks/process-flow/process-flow.ko.json",
+     "verified": true,
+     "png": {
+      "path": "examples/svg-infographic/typepacks/process-flow/process-flow.ko.png",
+      "digest": "sha256:e23f8c583f482b86946e177ecef8818d6a126a643b691cfbaf34b635be2eb8ae",
+      "verified": null,
+      "note": "render of the verified SVG; not itself re-verified"
+     }
+    },
+    "en": {
+     "title": "Delivery ships through verification",
+     "prompt": "Four top-to-bottom delivery steps. 4:5 portrait.",
+     "preset": "document-compact",
+     "treatment": "flat",
+     "fontDelivery": "portable",
+     "geometry": "fits",
+     "geometryExpected": "fits",
+     "residual": {
+      "top": 0,
+      "bottom": 0
+     },
+     "residualDisposition": null,
+     "consumed": [
+      "step-1",
+      "step-2",
+      "step-3",
+      "step-4"
+     ],
+     "svg": "examples/svg-infographic/typepacks/process-flow/process-flow.en.svg",
+     "svgDigest": "sha256:d8b09a5dcfdd2e63c91ba2cc9b52b049f71a9fa054bb285992760db5756d0173",
+     "receipt": "examples/svg-infographic/typepacks/process-flow/process-flow.en.json",
+     "verified": true,
+     "png": {
+      "path": "examples/svg-infographic/typepacks/process-flow/process-flow.en.png",
+      "digest": "sha256:59f6fdce18ea8eb42068a8dd877a23e97965067f18248ccf924d57b3bed90871",
+      "verified": null,
+      "note": "render of the verified SVG; not itself re-verified"
+     }
+    }
+   }
+  },
+  {
+   "id": "roadmap-timeline",
+   "selectionSignal": "Time or phases — product phases, milestones, rollout waves, a status snapshot over time (evenly spaced, claiming no proportional duration)",
+   "spec": "types/specs/roadmap-timeline.md",
+   "profile": "constrained-layout",
+   "support": "experimental",
+   "presets": [
+    "document-compact",
+    "social-4x5",
+    "presentation-16x9"
+   ],
+   "preferredPreset": "document-compact",
+   "treatment": "flat",
+   "fontDelivery": "portable",
+   "preset": "document-compact",
+   "stress": [
+    {
+     "id": "roadmap-timeline-stress-cardinality",
+     "path": "types/inputs/roadmap-timeline.stress-cardinality.yaml",
+     "preset": "presentation-16x9",
+     "count": 5,
+     "geometryExpected": "fits",
+     "covers": [
+      "cardinality-max",
+      "status-and-marker"
+     ],
+     "residualDisposition": {
+      "bottom": 501,
+      "reason": "A timeline is a structurally thin band. Five phases need 16:9 for width — and the band is never stretched to the canvas height — so this vertical space is left over."
+     }
+    },
+    {
+     "id": "roadmap-timeline-stress-body",
+     "path": "types/inputs/roadmap-timeline.stress-body.yaml",
+     "preset": "document-compact",
+     "count": 4,
+     "geometryExpected": "fits",
+     "covers": [
+      "status-and-marker"
+     ],
+     "residualDisposition": null
+    },
+    {
+     "id": "roadmap-timeline-stress-tail-current",
+     "path": "types/inputs/roadmap-timeline.stress-tail-current.yaml",
+     "preset": "document-compact",
+     "count": 4,
+     "geometryExpected": "fits",
+     "covers": [
+      "terminal-current"
+     ],
+     "residualDisposition": null
+    },
+    {
+     "id": "roadmap-timeline-stress-copy",
+     "path": "types/inputs/roadmap-timeline.stress-copy.yaml",
+     "preset": "presentation-16x9",
+     "count": 4,
+     "geometryExpected": "fits",
+     "covers": [
+      "copy-boundary-candidate",
+      "status-and-marker"
+     ],
+     "residualDisposition": {
+      "bottom": 501,
+      "reason": "Long titles leave 16:9 as the only preset wide enough. The band height is set by content and is never stretched to fill the canvas."
+     }
+    },
+    {
+     "id": "roadmap-timeline-stress-degrade",
+     "path": "types/inputs/roadmap-timeline.stress-degrade.yaml",
+     "preset": "document-compact",
+     "count": 5,
+     "geometryExpected": "needs-split",
+     "covers": [
+      "cardinality-max",
+      "status-and-marker",
+      "degrade-path"
+     ],
+     "residualDisposition": null
+    }
+   ],
+   "feasibility": [
+    {
+     "preset": "document-compact",
+     "orientation": "portrait",
+     "count": 5,
+     "layout": "row",
+     "result": "needs-split"
+    },
+    {
+     "preset": "social-4x5",
+     "orientation": "portrait",
+     "count": 5,
+     "layout": "row",
+     "result": "needs-split"
+    },
+    {
+     "preset": "presentation-16x9",
+     "orientation": "landscape",
+     "count": 5,
+     "layout": "row",
+     "result": "fits"
+    }
+   ],
+   "locales": {
+    "ko": {
+     "title": "롤아웃은 단계로 진행한다",
+     "prompt": "롤아웃을 4개 단계로 마일스톤 카드와 함께 보여줘. 4:5.",
+     "preset": "document-compact",
+     "treatment": "flat",
+     "fontDelivery": "portable",
+     "geometry": "fits",
+     "geometryExpected": "fits",
+     "residual": {
+      "top": 0,
+      "bottom": 0
+     },
+     "residualDisposition": null,
+     "consumed": [
+      "phase-1",
+      "phase-2",
+      "phase-3",
+      "phase-4"
+     ],
+     "svg": "examples/svg-infographic/typepacks/roadmap-timeline/roadmap-timeline.ko.svg",
+     "svgDigest": "sha256:a4ff21b816ed5d08a383378af4b37e0cd5fd46629690b08273fd717fff1d0b6f",
+     "receipt": "examples/svg-infographic/typepacks/roadmap-timeline/roadmap-timeline.ko.json",
+     "verified": true,
+     "png": {
+      "path": "examples/svg-infographic/typepacks/roadmap-timeline/roadmap-timeline.ko.png",
+      "digest": "sha256:d0487c41a418f011ee6ad72ca87bc8f300918ce4ae7f67aca4bc960a18837e4c",
+      "verified": null,
+      "note": "render of the verified SVG; not itself re-verified"
+     }
+    },
+    "en": {
+     "title": "The rollout proceeds in phases",
+     "prompt": "Four rollout phases with milestone cards. 4:5.",
+     "preset": "document-compact",
+     "treatment": "flat",
+     "fontDelivery": "portable",
+     "geometry": "fits",
+     "geometryExpected": "fits",
+     "residual": {
+      "top": 0,
+      "bottom": 0
+     },
+     "residualDisposition": null,
+     "consumed": [
+      "phase-1",
+      "phase-2",
+      "phase-3",
+      "phase-4"
+     ],
+     "svg": "examples/svg-infographic/typepacks/roadmap-timeline/roadmap-timeline.en.svg",
+     "svgDigest": "sha256:500867f18825febe5413be4370226b9f8f74e8ab51d0fd33ef3454445b1a6fe5",
+     "receipt": "examples/svg-infographic/typepacks/roadmap-timeline/roadmap-timeline.en.json",
+     "verified": true,
+     "png": {
+      "path": "examples/svg-infographic/typepacks/roadmap-timeline/roadmap-timeline.en.png",
+      "digest": "sha256:5d56d66234881e0a4f37b0fbe2bc3f77da79f270b64686eed7d932f11d4d94b0",
+      "verified": null,
+      "note": "render of the verified SVG; not itself re-verified"
+     }
+    }
+   }
+  },
+  {
+   "id": "topology-component",
+   "selectionSignal": "Systems or components and their connections — request paths, cloud/network zones, service architecture with a system boundary",
+   "spec": "types/specs/topology-component.md",
+   "profile": "editorial-composition",
+   "support": "experimental",
+   "presets": [
+    "social-4x5",
+    "presentation-16x9"
+   ],
+   "preferredPreset": "social-4x5",
+   "treatment": "flat",
+   "fontDelivery": "portable",
+   "preset": "social-4x5",
+   "stress": [
+    {
+     "id": "topology-component-stress-cardinality",
+     "path": "types/inputs/topology-component.stress-cardinality.yaml",
+     "preset": "social-4x5",
+     "count": 4,
+     "geometryExpected": "fits",
+     "covers": [
+      "cardinality-max",
+      "edge-density"
+     ],
+     "residualDisposition": null
+    },
+    {
+     "id": "topology-component-stress-copy",
+     "path": "types/inputs/topology-component.stress-copy.yaml",
+     "preset": "social-4x5",
+     "count": 3,
+     "geometryExpected": "fits",
+     "covers": [
+      "copy-boundary-candidate"
+     ],
+     "residualDisposition": {
+      "bottom": 194,
+      "reason": "Even at the copy boundary the zone height derives from node geometry — so the residual is unchanged."
+     }
+    }
+   ],
+   "feasibility": [
+    {
+     "preset": "social-4x5",
+     "orientation": "portrait",
+     "count": 4,
+     "layout": "zones",
+     "result": "fits"
+    },
+    {
+     "preset": "presentation-16x9",
+     "orientation": "landscape",
+     "count": 4,
+     "layout": "zones",
+     "result": "fits"
+    }
+   ],
+   "locales": {
+    "ko": {
+     "title": "요청은 zone을 따라 흐른다",
+     "prompt": "요청 경로를 3개 zone으로 나눠 컴포넌트와 연결을 보여줘. 4:5.",
+     "preset": "social-4x5",
+     "treatment": "flat",
+     "fontDelivery": "portable",
+     "geometry": "fits",
+     "geometryExpected": "fits",
+     "residual": {
+      "top": 0,
+      "bottom": 194
+     },
+     "residualDisposition": {
+      "reason": "Zone height derives from node geometry and corridors open only as far as routing demand requires — the remaining space is declared breathing (kernel §8).",
+      "by_treatment": [
+       {
+        "treatment": "flat",
+        "bottom": 194
+       },
+       {
+        "treatment": "sketch",
+        "calibration": "hi-melody-optical-v1",
+        "bottom": 93
+       }
+      ]
+     },
+     "consumed": [
+      "zone-1",
+      "gw",
+      "waf",
+      "zone-2",
+      "api",
+      "auth",
+      "zone-3",
+      "queue",
+      "e1",
+      "e3",
+      "e2",
+      "boundary"
+     ],
+     "svg": "examples/svg-infographic/typepacks/topology-component/topology-component.ko.svg",
+     "svgDigest": "sha256:308a08f6ed81c8d93da91aeb94aeca632df665214f8a49d5e913189363cbd0b1",
+     "receipt": "examples/svg-infographic/typepacks/topology-component/topology-component.ko.json",
+     "verified": true,
+     "png": {
+      "path": "examples/svg-infographic/typepacks/topology-component/topology-component.ko.png",
+      "digest": "sha256:81db3828ccbb6c5b1c270c9028a432c2a2e57a931876e449f0afee4a0fb548ca",
+      "verified": null,
+      "note": "render of the verified SVG; not itself re-verified"
+     }
+    },
+    "en": {
+     "title": "Requests flow across the zones",
+     "prompt": "Show the request path across three zones with components and links. 4:5.",
+     "preset": "social-4x5",
+     "treatment": "flat",
+     "fontDelivery": "portable",
+     "geometry": "fits",
+     "geometryExpected": "fits",
+     "residual": {
+      "top": 0,
+      "bottom": 194
+     },
+     "residualDisposition": {
+      "reason": "Zone height derives from node geometry and corridors open only as far as routing demand requires — the remaining space is declared breathing (kernel §8).",
+      "by_treatment": [
+       {
+        "treatment": "flat",
+        "bottom": 194
+       },
+       {
+        "treatment": "sketch",
+        "calibration": "hi-melody-optical-v1",
+        "bottom": 93
+       }
+      ]
+     },
+     "consumed": [
+      "zone-1",
+      "gw",
+      "waf",
+      "zone-2",
+      "api",
+      "auth",
+      "zone-3",
+      "queue",
+      "e1",
+      "e3",
+      "e2",
+      "boundary"
+     ],
+     "svg": "examples/svg-infographic/typepacks/topology-component/topology-component.en.svg",
+     "svgDigest": "sha256:eef5808edf3e5c021e70b82d9bae2edc8831d0ce31bb75aff819a90fd5de7cc7",
+     "receipt": "examples/svg-infographic/typepacks/topology-component/topology-component.en.json",
+     "verified": true,
+     "png": {
+      "path": "examples/svg-infographic/typepacks/topology-component/topology-component.en.png",
+      "digest": "sha256:6bdac61d7a1c009f8c7565faeb7da53b8d065a9c23f49b7e82dcdd5d4bd5eed2",
+      "verified": null,
+      "note": "render of the verified SVG; not itself re-verified"
+     }
+    }
+   }
+  }
+ ]
+}
