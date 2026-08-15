@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "generatedBy": "skillstead_validate gallery",
  "note": "Generated view. Every field is owned by the manifest, an input payload, a receipt or an artifact — this file is authority for none of them. `verified` attaches to the SVG only; PNGs are a present/digest inventory.",
- "runtimeSurfaceDigest": "sha256:31f5af7ae5643fbc58d0883729b2e4fe30377bb21ce72a4fe527982d99a41401",
+ "runtimeSurfaceDigest": "sha256:333a0af7ace668e079ae8c2d00bccc797608af62e2e8951926da682743584099",
  "tokens": "gallery/tokens.json",
  "typepackCount": 9,
  "typepacks": [
@@ -107,7 +107,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/approval-gate/approval-gate.ko.svg",
-     "svgDigest": "sha256:166a397c33345f406e9df710751b05bd5fe49db0616059111a26813448284563",
+     "svgDigest": "sha256:c0f6c40e8425db9584cf19c314f27d801fdd0fff1a6286be3cacef3a88288f60",
      "receipt": "examples/svg-infographic/typepacks/approval-gate/approval-gate.ko.json",
      "verified": true,
      "evidence": {
@@ -143,7 +143,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/approval-gate/approval-gate.en.svg",
-     "svgDigest": "sha256:9f1e8dd31082b30537ae9d22cacb731b27fd25fa0cf92b0c9f030681a4764e9b",
+     "svgDigest": "sha256:16b1b42d5a98d47f4d1c26dd49e74b8eabebe4e0ad111b5450a264aee3bbe708",
      "receipt": "examples/svg-infographic/typepacks/approval-gate/approval-gate.en.json",
      "verified": true,
      "evidence": {
@@ -244,7 +244,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/before-after/before-after.ko.svg",
-     "svgDigest": "sha256:e15b0bd322c545023f9383c815b68b71bede0d85b8e67b1c60c80f1fc410a5ee",
+     "svgDigest": "sha256:22ec479346bfbe2872059948559749ebe4ffba1c08ba0b12ea678a642364dd02",
      "receipt": "examples/svg-infographic/typepacks/before-after/before-after.ko.json",
      "verified": true,
      "evidence": {
@@ -278,7 +278,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/before-after/before-after.en.svg",
-     "svgDigest": "sha256:f6d7bc171359e34ab9cba5f3fd4b43d196be42dd5ab7801595593d3136bb61a5",
+     "svgDigest": "sha256:64fc36387e36c2e2c6e3715c90ee9990c5020ca640cde7169a20eefc7d1bfbb2",
      "receipt": "examples/svg-infographic/typepacks/before-after/before-after.en.json",
      "verified": true,
      "evidence": {
@@ -405,7 +405,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.ko.svg",
-     "svgDigest": "sha256:016f3f30774aa45dbebd78418edd26bf0a729bd75a68bb568d6e0561369b83a7",
+     "svgDigest": "sha256:3a3b721d6456b78eee6bf4cb11c3d7013317fe4bd1ca01b43bc41635dc78de0a",
      "receipt": "examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.ko.json",
      "verified": true,
      "evidence": {
@@ -441,7 +441,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.en.svg",
-     "svgDigest": "sha256:33fec63cada3ba543471a59b08c226f3d8f11e5fb5f24450ba9575687d5fe243",
+     "svgDigest": "sha256:37abdc693cb58ddb21696487f23a4e5fd40a227d5f0fdfeda5f4e392b66fb64c",
      "receipt": "examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.en.json",
      "verified": true,
      "evidence": {
@@ -557,7 +557,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/decision-matrix/decision-matrix.ko.svg",
-     "svgDigest": "sha256:1c6c06d5c73694d89fa5c63602083cab3940e5395a3dcaa7ac4cf9a593d0d99b",
+     "svgDigest": "sha256:a8eeee49ac747eb4f7846e271850a1bb3c4219bb4a1a4a42a73f8c666551c918",
      "receipt": "examples/svg-infographic/typepacks/decision-matrix/decision-matrix.ko.json",
      "verified": true,
      "evidence": {
@@ -593,7 +593,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/decision-matrix/decision-matrix.en.svg",
-     "svgDigest": "sha256:d29504aed3cf3aa04f541ba0127095b9ca7287d736477b115a288ef62782aa25",
+     "svgDigest": "sha256:dd6ab952a07fbf674ed95f3214eb7a60f37e194b465d302c4da862e3b4f000aa",
      "receipt": "examples/svg-infographic/typepacks/decision-matrix/decision-matrix.en.json",
      "verified": true,
      "evidence": {
@@ -740,7 +740,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/layer-stack/layer-stack.ko.svg",
-     "svgDigest": "sha256:9d84f282db9f8055891d3659fce3aec5dc4e28b7bf90eaee1d3af04ca2af2f76",
+     "svgDigest": "sha256:03c1e29887e5edf2c5f89fb52eaa75c7394733567d78290d816cf9901ad726c0",
      "receipt": "examples/svg-infographic/typepacks/layer-stack/layer-stack.ko.json",
      "verified": true,
      "evidence": {
@@ -784,7 +784,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/layer-stack/layer-stack.en.svg",
-     "svgDigest": "sha256:8bd40672c183d3bf17d67039f33d4d451a5e33d7fcd34986af855458ca1fa152",
+     "svgDigest": "sha256:0e2ef7f4ad43ac7f3cf54e22dddb70c75e0b75cf1218fe966fd10ae7a88f834e",
      "receipt": "examples/svg-infographic/typepacks/layer-stack/layer-stack.en.json",
      "verified": true,
      "evidence": {
@@ -885,7 +885,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/nested-scope/nested-scope.ko.svg",
-     "svgDigest": "sha256:f7938cfdca961c6d3fbc145b69f1140c4fd9ae4145ae93c03ba83b8529a305eb",
+     "svgDigest": "sha256:5ecb71608d28370ef5e3f5af26dbed7e0de85b7f37c5d9ce37bc76185f431d0e",
      "receipt": "examples/svg-infographic/typepacks/nested-scope/nested-scope.ko.json",
      "verified": true,
      "evidence": {
@@ -920,7 +920,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/nested-scope/nested-scope.en.svg",
-     "svgDigest": "sha256:e9d4aff3855882f3750d79d7b61f64d114cea26b597567af4ffeb8b003220d70",
+     "svgDigest": "sha256:d6dd4a3e6a7f547f37edcc63d4a6d7d426b9a57670a32a12ac3a3a3b4fc6699f",
      "receipt": "examples/svg-infographic/typepacks/nested-scope/nested-scope.en.json",
      "verified": true,
      "evidence": {
@@ -1047,7 +1047,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/process-flow/process-flow.ko.svg",
-     "svgDigest": "sha256:82534f5de711142cd0520345352bf67749d8c38b1175724a145c23164ec84acf",
+     "svgDigest": "sha256:9f71cf1ad391bb608e31eb6dc11334d472e6804efb6a73e269bf4deec224522f",
      "receipt": "examples/svg-infographic/typepacks/process-flow/process-flow.ko.json",
      "verified": true,
      "evidence": {
@@ -1083,7 +1083,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/process-flow/process-flow.en.svg",
-     "svgDigest": "sha256:d8b09a5dcfdd2e63c91ba2cc9b52b049f71a9fa054bb285992760db5756d0173",
+     "svgDigest": "sha256:8638048b95740cdb91b7e4387f0618e8a8d58cc09e100d54788d50a09e6dbf28",
      "receipt": "examples/svg-infographic/typepacks/process-flow/process-flow.en.json",
      "verified": true,
      "evidence": {
@@ -1227,7 +1227,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/roadmap-timeline/roadmap-timeline.ko.svg",
-     "svgDigest": "sha256:a4ff21b816ed5d08a383378af4b37e0cd5fd46629690b08273fd717fff1d0b6f",
+     "svgDigest": "sha256:89baf0c982b45915c8257917c10c687667a87029c88f9cb4bde0fc94b048b187",
      "receipt": "examples/svg-infographic/typepacks/roadmap-timeline/roadmap-timeline.ko.json",
      "verified": true,
      "evidence": {
@@ -1263,7 +1263,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/roadmap-timeline/roadmap-timeline.en.svg",
-     "svgDigest": "sha256:500867f18825febe5413be4370226b9f8f74e8ab51d0fd33ef3454445b1a6fe5",
+     "svgDigest": "sha256:0db0f64c8d4205e773f15c2942742189abc2d2515a20956e266e343b63123aec",
      "receipt": "examples/svg-infographic/typepacks/roadmap-timeline/roadmap-timeline.en.json",
      "verified": true,
      "evidence": {
@@ -1317,7 +1317,7 @@
       "copy-boundary-candidate"
      ],
      "residualDisposition": {
-      "bottom": 194,
+      "bottom": 148,
       "reason": "Even at the copy boundary the zone height derives from node geometry — so the residual is unchanged."
      }
     }
@@ -1349,21 +1349,13 @@
      "geometryExpected": "fits",
      "residual": {
       "top": 0,
-      "bottom": 194
+      "bottom": 148
      },
      "residualDisposition": {
       "reason": "Zone height derives from node geometry and corridors open only as far as routing demand requires — the remaining space is declared breathing (kernel §8).",
-      "by_treatment": [
-       {
-        "treatment": "flat",
-        "bottom": 194
-       },
-       {
-        "treatment": "sketch",
-        "calibration": "hi-melody-optical-v1",
-        "bottom": 93
-       }
-      ]
+      "treatment": "flat",
+      "calibration": null,
+      "bottom": 148
      },
      "consumed": [
       "zone-1",
@@ -1379,11 +1371,9 @@
       "e2",
       "boundary"
      ],
-     "unrendered": [
-      "boundary"
-     ],
+     "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/topology-component/topology-component.ko.svg",
-     "svgDigest": "sha256:308a08f6ed81c8d93da91aeb94aeca632df665214f8a49d5e913189363cbd0b1",
+     "svgDigest": "sha256:06bb1ca14e7db2b5a15dd528592063011c26d13999f95d7a0b6fc5fc59702ef2",
      "receipt": "examples/svg-infographic/typepacks/topology-component/topology-component.ko.json",
      "verified": true,
      "evidence": {
@@ -1393,7 +1383,7 @@
      },
      "png": {
       "path": "examples/svg-infographic/typepacks/topology-component/topology-component.ko.png",
-      "digest": "sha256:81db3828ccbb6c5b1c270c9028a432c2a2e57a931876e449f0afee4a0fb548ca",
+      "digest": "sha256:3c6ab7914b7025e755e25959e83bdcc234a324cb6aae63ab2b67d7d443dc4fe8",
       "verified": null,
       "note": "render of the verified SVG; not itself re-verified"
      }
@@ -1408,21 +1398,13 @@
      "geometryExpected": "fits",
      "residual": {
       "top": 0,
-      "bottom": 194
+      "bottom": 148
      },
      "residualDisposition": {
       "reason": "Zone height derives from node geometry and corridors open only as far as routing demand requires — the remaining space is declared breathing (kernel §8).",
-      "by_treatment": [
-       {
-        "treatment": "flat",
-        "bottom": 194
-       },
-       {
-        "treatment": "sketch",
-        "calibration": "hi-melody-optical-v1",
-        "bottom": 93
-       }
-      ]
+      "treatment": "flat",
+      "calibration": null,
+      "bottom": 148
      },
      "consumed": [
       "zone-1",
@@ -1438,11 +1420,9 @@
       "e2",
       "boundary"
      ],
-     "unrendered": [
-      "boundary"
-     ],
+     "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/topology-component/topology-component.en.svg",
-     "svgDigest": "sha256:eef5808edf3e5c021e70b82d9bae2edc8831d0ce31bb75aff819a90fd5de7cc7",
+     "svgDigest": "sha256:c58d75da5c577583826a3e1e4ba771409ba7972115a362d0a8d7e2ea219ef38b",
      "receipt": "examples/svg-infographic/typepacks/topology-component/topology-component.en.json",
      "verified": true,
      "evidence": {
@@ -1452,7 +1432,7 @@
      },
      "png": {
       "path": "examples/svg-infographic/typepacks/topology-component/topology-component.en.png",
-      "digest": "sha256:6bdac61d7a1c009f8c7565faeb7da53b8d065a9c23f49b7e82dcdd5d4bd5eed2",
+      "digest": "sha256:088832f7c18fac22d7189778733dfa79f1c164dcfadc32b14bc128a61c953bac",
       "verified": null,
       "note": "render of the verified SVG; not itself re-verified"
      }

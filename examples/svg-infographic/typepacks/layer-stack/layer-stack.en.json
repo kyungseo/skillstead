@@ -44,7 +44,7 @@
   "layer-4-chip-1",
   "layer-4-chip-2"
  ],
- "artifactDigest": "sha256:8bd40672c183d3bf17d67039f33d4d451a5e33d7fcd34986af855458ca1fa152",
+ "artifactDigest": "sha256:0e2ef7f4ad43ac7f3cf54e22dddb70c75e0b75cf1218fe966fd10ae7a88f834e",
  "contentFlowBounds": {
   "x": 32,
   "y": 136,
@@ -62,13 +62,13 @@
    {
     "weight": 400,
     "sourceDigest": "3ffbacde6ab8411f1d2db54bb9b1f0b3ee2a738932033722cf0388c06aed1c93",
-    "subsetDigest": "sha256:bd0af117ce731a3ed62c44c208c5fb288845b8a9120f104a44d19ab322e58b7a",
+    "subsetDigest": "sha256:c161f22110dd2355eea4914d6ec881ba627dece99df7ea499f7218f15653e31c",
     "bytes": 19528
    },
    {
     "weight": 700,
     "sourceDigest": "2e91915fab54df71cc9598ebf608b2bdb54c6fe3c066ac61dff0bc44fca71cc7",
-    "subsetDigest": "sha256:2e7479e0a14b04d6667528ddc5d0e0435cc99976524d5f98a26fedcf2f9bc862",
+    "subsetDigest": "sha256:db5f078b91a518f508535cb8f0ce025090b0693ca8e0f97d4ff7ae6674cc4fd4",
     "bytes": 19368
    }
   ],
@@ -146,21 +146,17 @@
    "version": 1,
    "canonicalization": 1
   },
-  "executionMode": "source-development",
+  "executionMode": "installed-runtime",
   "skillRoot": "skills/svg-infographic",
   "package": {
    "id": "svg-infographic",
-   "surfaceRevision": 13
+   "surfaceRevision": 14
   },
-  "runtimeSurfaceDigest": "sha256:31f5af7ae5643fbc58d0883729b2e4fe30377bb21ce72a4fe527982d99a41401",
-  "source": {
-   "headCommit": "0976ac3f8054b2b71fb99fcc11582173a5764070",
-   "repoDirty": true,
-   "runtimeSurfaceDirty": true
-  },
+  "runtimeSurfaceDigest": "sha256:333a0af7ace668e079ae8c2d00bccc797608af62e2e8951926da682743584099",
+  "source": null,
   "producer": {
    "kind": "generator",
-   "generatorDigest": "sha256:0460941003ebc5ba8d1502eac5f10be86d6ce10de048491b24ede0f30837c28d"
+   "generatorDigest": "sha256:39f60616fa73d0587f728786e873dfb4eb289b4af9ee6ed679fdf6d4e0e1b687"
   },
   "inputs": [
    {

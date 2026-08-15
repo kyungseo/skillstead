@@ -43,12 +43,12 @@
   "e2",
   "boundary"
  ],
- "artifactDigest": "sha256:308a08f6ed81c8d93da91aeb94aeca632df665214f8a49d5e913189363cbd0b1",
+ "artifactDigest": "sha256:06bb1ca14e7db2b5a15dd528592063011c26d13999f95d7a0b6fc5fc59702ef2",
  "contentFlowBounds": {
   "x": 36,
   "y": 154,
   "w": 648,
-  "h": 516
+  "h": 562
  },
  "fontDelivery": {
   "mode": "portable",
@@ -56,19 +56,19 @@
   "policyDigest": "1fc29ca6a5bd7e1b",
   "typographyProfileDigest": "154f16e844e12cbf",
   "alias": "SkinSans-Subset",
-  "glyphs": 70,
+  "glyphs": 73,
   "faces": [
    {
     "weight": 400,
     "sourceDigest": "3ffbacde6ab8411f1d2db54bb9b1f0b3ee2a738932033722cf0388c06aed1c93",
-    "subsetDigest": "sha256:f12f26fcea17a9150f4e992eaa524d72064e3e8c193d362729d8544814bcc87a",
-    "bytes": 20124
+    "subsetDigest": "sha256:959b7708b3312a6d10f3f2697ae2352f82b96ac416d0bade15fb4c2bc06b1475",
+    "bytes": 20508
    },
    {
     "weight": 700,
     "sourceDigest": "2e91915fab54df71cc9598ebf608b2bdb54c6fe3c066ac61dff0bc44fca71cc7",
-    "subsetDigest": "sha256:c36a1356aca2efce67bbb499e9e8835f81a6578fab82386b5de2f4cfe71de5e9",
-    "bytes": 19956
+    "subsetDigest": "sha256:6b55ba30adc6af19367bf001b4a8fdb42d9400c6ea912cfad5f8bd97f31333ac",
+    "bytes": 20344
    }
   ],
   "tool": {
@@ -172,6 +172,22 @@
       "shape": "straight",
       "bends": 0,
       "travel": 64,
+      "ok": false,
+      "code": "R-THROUGH",
+      "reason": "crosses zone-label zone-3-label"
+     },
+     {
+      "shape": "straight",
+      "bends": 0,
+      "travel": 64,
+      "ok": false,
+      "code": "R-THROUGH",
+      "reason": "crosses zone-label zone-3-label"
+     },
+     {
+      "shape": "straight",
+      "bends": 0,
+      "travel": 64,
       "ok": true,
       "code": null,
       "reason": null
@@ -244,21 +260,13 @@
  "timeline": null,
  "residual": {
   "top": 0,
-  "bottom": 194
+  "bottom": 148
  },
  "residualDisposition": {
   "reason": "Zone height derives from node geometry and corridors open only as far as routing demand requires — the remaining space is declared breathing (kernel §8).",
-  "by_treatment": [
-   {
-    "treatment": "flat",
-    "bottom": 194
-   },
-   {
-    "treatment": "sketch",
-    "calibration": "hi-melody-optical-v1",
-    "bottom": 93
-   }
-  ]
+  "treatment": "flat",
+  "calibration": null,
+  "bottom": 148
  },
  "provenance": {
   "schema": {
@@ -266,21 +274,17 @@
    "version": 1,
    "canonicalization": 1
   },
-  "executionMode": "source-development",
+  "executionMode": "installed-runtime",
   "skillRoot": "skills/svg-infographic",
   "package": {
    "id": "svg-infographic",
-   "surfaceRevision": 13
+   "surfaceRevision": 14
   },
-  "runtimeSurfaceDigest": "sha256:31f5af7ae5643fbc58d0883729b2e4fe30377bb21ce72a4fe527982d99a41401",
-  "source": {
-   "headCommit": "0976ac3f8054b2b71fb99fcc11582173a5764070",
-   "repoDirty": true,
-   "runtimeSurfaceDirty": true
-  },
+  "runtimeSurfaceDigest": "sha256:333a0af7ace668e079ae8c2d00bccc797608af62e2e8951926da682743584099",
+  "source": null,
   "producer": {
    "kind": "generator",
-   "generatorDigest": "sha256:0460941003ebc5ba8d1502eac5f10be86d6ce10de048491b24ede0f30837c28d"
+   "generatorDigest": "sha256:39f60616fa73d0587f728786e873dfb4eb289b4af9ee6ed679fdf6d4e0e1b687"
   },
   "inputs": [
    {
