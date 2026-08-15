@@ -41,11 +41,13 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
 from .findings import Finding
+from .gallery_html import GALLERY_HTML, render as render_html
 
 SKILL = "skills/svg-infographic"
 EXAMPLES = "examples/svg-infographic/typepacks"
@@ -114,11 +116,30 @@ class NodeRunner:
         except (json.JSONDecodeError, KeyError) as e:
             raise GalleryError(f"preflight --json did not carry a runtime digest: {e}") from e
 
+    def source_gates(self, svg: Path) -> tuple[bool, str]:
+        """The three checks any artifact must pass regardless of how it was authored.
+
+        Featured examples predate the TypePack receipts, so this is the whole of what can be
+        claimed about them — which makes running it, rather than asserting it, the point.
+        """
+        for tool, args in ((f"{SKILL}/scripts/check-svg.mjs", []),
+                           (f"{SKILL}/scripts/check-layout.mjs", []),
+                           (f"{SKILL}/scripts/skin.mjs", ["typography-check"])):
+            r = self._run([tool, *args, str(svg)])
+            if r.returncode != 0:
+                return False, f"{Path(tool).name} exit {r.returncode}: {(r.stdout + r.stderr).strip()[:200]}"
+        return True, ""
+
     def verify(self, receipt: Path, svg: Path) -> tuple[bool, str]:
         r = self._run([f"{SKILL}/scripts/generate.mjs", "verify",
                        "--receipt", str(receipt), "--svg", str(svg)])
         out = (r.stdout + r.stderr).strip()
         return r.returncode == 0 and " 0 error(s)" in out, out
+
+
+def _rendered_entities(svg: Path) -> set:
+    """Entity ids the artifact actually carries, by the same marker the verifier reads."""
+    return set(re.findall(r'data-entity="([^"]+)"', svg.read_text(encoding="utf-8")))
 
 
 def _sha256(p: Path) -> str:
@@ -139,6 +160,16 @@ def _token(tokens: dict, dotted: str):
             return None
         node = node[part]
     return node
+
+
+# Evidence is three independent questions, not a ladder. An artifact can pass the source gates and
+# have no receipt; a chart will one day have a receipt AND a data-accuracy verdict. Ranking them
+# would force "chart is more verified than a diagram", which is not what any of these mean.
+#   pass            the check ran and succeeded
+#   none            the check applies but no evidence exists for this artifact
+#   not-applicable  the check does not apply to this kind of artifact
+def _facets(source_gates: str, receipt: str, data_accuracy: str = "not-applicable") -> dict:
+    return {"sourceGates": source_gates, "typePackReceipt": receipt, "dataAccuracy": data_accuracy}
 
 
 def _parity(ko, en):
@@ -234,11 +265,21 @@ def build_model(repo_root: Path, runner: NodeRunner | None = None) -> tuple[dict
                 "residual": receipt.get("residual"),
                 "residualDisposition": receipt.get("residualDisposition"),
                 "consumed": receipt.get("consumed") or [],
+                # Entities the receipt counts as consumed that the artifact never draws. Derived,
+                # not declared: `generate.mjs verify` exempts one id from this same check, so the
+                # gap it permits is reported here rather than described in prose that would go
+                # stale the moment the exemption is removed and the artifacts are regenerated.
+                "unrendered": [c for c in (receipt.get("consumed") or [])
+                               if c not in _rendered_entities(svg)] or None,
                 "svg": f"{EXAMPLES}/{tid}/{tid}.{loc}.svg",
                 "svgDigest": svg_digest,
                 "receipt": f"{EXAMPLES}/{tid}/{tid}.{loc}.json",
                 # Present only when every fact holds. Absent means unverified — never "assume ok".
                 "verified": all(checks.values()) or None,
+                # The same claim expressed as facets, so a surface can say what was and was not
+                # checked instead of collapsing it to one word.
+                "evidence": _facets("pass" if all(checks.values()) else "none",
+                                    "pass" if all(checks.values()) else "none"),
             }
             for field in REQUIRED_LOCALE_FIELDS:
                 if entry.get(field) in (None, "", []):
@@ -277,6 +318,31 @@ def build_model(repo_root: Path, runner: NodeRunner | None = None) -> tuple[dict
             "locales": locales,
         })
 
+    # --- featured: the editorial selection, with only the claim its evidence supports ----------
+    fx = export.get("featured") or {}
+    for err in fx.get("errors") or []:
+        findings.append(Finding("GAL-FEATURED", "gallery/featured.json", err))
+    featured = []
+    for entry in fx.get("entries") or []:
+        arts, gates_ok, detail = {}, True, ""
+        for loc, rel in (entry.get("artifacts") or {}).items():
+            svg = root / rel
+            ok, why = runner.source_gates(svg)
+            if not ok:
+                gates_ok = False
+                detail = why
+                findings.append(Finding("GAL-FEATURED", f'{entry["slug"]}/{loc}',
+                                        f"source gates failed — {why}"))
+            arts[loc] = {"svg": rel, "svgDigest": _sha256(svg)}
+        featured.append({
+            "slug": entry["slug"], "name": entry.get("name"), "caption": entry.get("caption"),
+            "reason": entry.get("reason"),
+            "artifacts": arts,
+            # Hand-authored, predating the TypePack receipts: the gates are the whole claim.
+            "evidence": _facets("pass" if gates_ok else "none",
+                                "pass" if entry.get("hasReceipt") else "none"),
+        })
+
     model = {
         "schemaVersion": 1,
         "generatedBy": "skillstead_validate gallery",
@@ -287,6 +353,16 @@ def build_model(repo_root: Path, runner: NodeRunner | None = None) -> tuple[dict
         "tokens": TOKENS_PATH,
         "typepackCount": len(entries),
         "typepacks": entries,
+        "featured": {
+            "source": fx.get("source", "gallery/featured.json"),
+            "note": "Editorial selection, transitional for Wave 1. The final composition and any "
+                    "unification of the evidence facets are settled after Wave 2 through a "
+                    "replacement audition, not automatically — a candidate replaces an entry only "
+                    "when a receipt check and a visual audition find it the better showcase, and "
+                    "retaining an entry is a valid, recorded outcome. Until then the legacy "
+                    "provenance and absent receipt stand as the facets report them.",
+            "entries": featured,
+        },
     }
     return model, findings
 
@@ -304,16 +380,28 @@ def run_gallery(repo_root: Path, write: bool = False) -> list[Finding]:
         # claim something the artifacts do not support.
         return findings
 
-    rendered = json.dumps(model, indent=1, ensure_ascii=False) + "\n"
-    target = root / MODEL_PATH
+    tokens = _read_json(root / TOKENS_PATH)
+    # The model and the page are generated together on purpose: regenerating one and forgetting the
+    # other is exactly the drift this command exists to prevent.
+    outputs = {
+        MODEL_PATH: json.dumps(model, indent=1, ensure_ascii=False) + "\n",
+        GALLERY_HTML: render_html(model, tokens),
+    }
+
     if write:
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(rendered, encoding="utf-8")
+        for rel, text in outputs.items():
+            target = root / rel
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(text, encoding="utf-8")
         return []
-    if not target.exists():
-        return [Finding("GAL-DRIFT", MODEL_PATH, "model is missing — regenerate with `gallery --write`")]
-    if target.read_text(encoding="utf-8") != rendered:
-        return [Finding("GAL-DRIFT", MODEL_PATH,
-                        "model is out of date with the manifest, inputs, receipts or artifacts "
-                        "(regenerate with `gallery --write`)")]
-    return []
+
+    drift: list[Finding] = []
+    for rel, text in outputs.items():
+        target = root / rel
+        if not target.exists():
+            drift.append(Finding("GAL-DRIFT", rel, "missing — regenerate with `gallery --write`"))
+        elif target.read_text(encoding="utf-8") != text:
+            drift.append(Finding("GAL-DRIFT", rel,
+                                 "out of date with the manifest, inputs, receipts, artifacts or "
+                                 "tokens (regenerate with `gallery --write`)"))
+    return drift

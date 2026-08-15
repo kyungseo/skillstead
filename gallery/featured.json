@@ -1,0 +1,73 @@
+{
+  "$comment": [
+    "Editorial selection for the gallery's featured showcase, and later for the README contact",
+    "sheet. It is a repository-level decision — which existing outputs best show what the skill can",
+    "do — so it lives here rather than in the package or hardcoded in a renderer, and the exporter",
+    "validates it into model.json.featured. One list, consumed by every surface.",
+    "",
+    "JSON rather than YAML on purpose: these captions are prose and will keep acquiring commas and",
+    "punctuation, which the package's minimal YAML subset parses by its own rules. JSON has no such",
+    "ambiguity, and this file needs no help from the package parser.",
+    "",
+    "There is no per-entry size control. The grid gives every artifact the same media viewport",
+    "and fits it with object-fit, so a tall topology and a wide swimlane read as one managed set",
+    "rather than as a layout that varies by entry.",
+    "",
+    "Captions stay qualitative. A caption may not contain digits, because a number here is a claim",
+    "about the artifact that nothing verifies — 'zones, boundaries and routed connectors' is",
+    "observable in the picture; '20+ connectors' is a count no gate ever checked.",
+    "",
+    "This selection is TRANSITIONAL for Wave 1. The final composition, and whether the two evidence",
+    "facets can be unified, are settled after Wave 2 lands its TypePacks — through a replacement",
+    "audition, not automatically. Until then these entries stay, and their legacy provenance and",
+    "absent receipt are stated exactly as the evidence facets report them rather than smoothed over.",
+    "",
+    "Each Wave 2 candidate is judged on its receipt and a visual audition, and replaces an entry only",
+    "when it is genuinely the better showcase. Retaining a legacy entry is a valid outcome and is",
+    "recorded with its reason."
+  ],
+  "schemaVersion": 1,
+  "id": "gallery-featured",
+  "status": "current",
+
+  "note": "Selected for how differently they are shaped, not for how many there are.",
+
+  "entries": [
+    {
+      "slug": "cloud-infra-topology",
+      "name": "Cloud topology",
+      "caption": "zones, boundaries and routed connectors",
+      "reason": "The densest structure the catalog produces — nested zones with routing that has to stay legible."
+    },
+    {
+      "slug": "agent-waiting-swimlane",
+      "name": "Branching swimlane",
+      "caption": "parallel lanes that rejoin",
+      "reason": "Shows branching and rejoin, which a single-axis process flow cannot express."
+    },
+    {
+      "slug": "agent-task-matrix",
+      "name": "Decision matrix",
+      "caption": "two qualitative axes",
+      "reason": "Position carries meaning here, so it demonstrates the axis contract rather than a layout."
+    },
+    {
+      "slug": "zero-trust-onion",
+      "name": "Nested scope",
+      "caption": "concentric trust rings",
+      "reason": "Containment as the relation, with no connectors at all."
+    },
+    {
+      "slug": "before-after-migration",
+      "name": "Before and after",
+      "caption": "mirrored comparison",
+      "reason": "Alignment carries the correspondence between the two sides."
+    },
+    {
+      "slug": "agent-system-sketch",
+      "name": "Sketch treatment",
+      "caption": "handwriting and rough stroke",
+      "reason": "The one surface treatment that is not flat, shown on a structure that is not trivial."
+    }
+  ]
+}

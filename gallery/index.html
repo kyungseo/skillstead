@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TypePack Gallery</title>
+<!-- GENERATED VIEW — do not edit by hand.
+     Source of truth: gallery/model.json + gallery/tokens.json (+ gallery/featured.json).
+     Regenerate with `python3 -m skillstead_validate gallery --write`;
+     `--check` fails when this file drifts.
+     A single generated HTML entrypoint with no external network dependencies; images are
+     repository-relative SVGs. -->
+<style>
+:root {
+  --ground: #f4f4f6;
+  --card: #ffffff;
+  --card-edge: #e0e0e7;
+  --ink: #17171d;
+  --ink-muted: #6c6c7c;
+  --verified: #1f6f4f;
+  --verified-ground: #e6f2ec;
+  --card-radius: 6px;
+  --image-radius: 4px;
+  --chip-radius: 4px;
+  --card-pad: 20px;
+  --card-gap: 20px;
+  --pair-gap: 16px;
+  --caption-gap: 7px;
+  --font-identifier: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-prose: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-caption: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --max-width: 1180px;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--ground); color: var(--ink);
+  font: 15px/1.65 var(--font-prose);
+  font-variant-numeric: tabular-nums;
+}
+.wrap { max-width: var(--max-width); margin: 0 auto; padding: 3rem 1.25rem 5rem; }
+h1 { font-size: 1.55rem; line-height: 1.25; margin: 0 0 .5rem; letter-spacing: -.015em; text-wrap: balance; }
+.lede { color: var(--ink-muted); margin: 0 0 1rem; max-width: 64ch; }
+h2.sec { font-size: 1.1rem; margin: 3rem 0 .3rem; letter-spacing: -.01em; }
+.sec-note { color: var(--ink-muted); margin: 0 0 .9rem; max-width: 70ch; font-size: 14px; }
+
+.facets { display: flex; flex-wrap: wrap; gap: .35rem; margin: 0 0 1rem; }
+.facet {
+  display: inline-flex; align-items: baseline; gap: .4rem;
+  border: 1px solid var(--card-edge); border-radius: var(--chip-radius);
+  padding: .26rem .55rem; font: 600 11px/1 var(--font-identifier); background: var(--card);
+  color: var(--ink-muted);
+}
+.facet i { font-style: normal; font-weight: 400; }
+.facet.ok { background: var(--verified-ground); color: var(--verified);
+  border-color: color-mix(in srgb, var(--verified) 25%, transparent); }
+
+.switch { display: flex; gap: .3rem; margin: 0 0 1.4rem; }
+.switch button {
+  font: 600 12px/1 var(--font-identifier); letter-spacing: .04em;
+  background: var(--card); color: var(--ink-muted);
+  border: 1px solid var(--card-edge); border-radius: var(--chip-radius);
+  padding: .42rem .7rem; cursor: pointer;
+}
+.switch button[aria-pressed="true"] { color: var(--ink); border-color: var(--ink-muted); }
+.switch button:focus-visible, summary:focus-visible, a:focus-visible {
+  outline: 2px solid var(--verified); outline-offset: 2px;
+}
+
+/* ---- featured ------------------------------------------------------------------------ */
+/* Every entry gets the same cell and the same media viewport. Sizing entries individually made the
+   row read as a layout that varies per artifact; one viewport makes six very differently shaped
+   outputs read as one managed set — which is the claim the section is making. The artifacts keep
+   their own proportions inside it via object-fit, so nothing is cropped or distorted. */
+.featured { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--pair-gap); }
+@media (max-width: 980px) { .featured { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .featured { grid-template-columns: minmax(0, 1fr); } }
+.feat {
+  background: var(--card); border: 1px solid var(--card-edge);
+  border-radius: var(--card-radius); padding: 13px;
+}
+.frame {
+  aspect-ratio: 4 / 3; background: #fff; border: 1px solid var(--card-edge);
+  border-radius: var(--image-radius); display: flex; align-items: center; justify-content: center;
+  overflow: hidden; padding: 9px;
+}
+.frame img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
+/* The frame links to the artifact itself, so full size works with no scripting at all; when
+   scripting is present the click is intercepted and shown in a dialog instead. */
+a.frame { cursor: zoom-in; text-decoration: none; }
+dialog { border: 0; padding: 0; background: transparent; max-width: 96vw; max-height: 96vh; }
+dialog::backdrop { background: rgba(20, 20, 26, .72); }
+dialog img { max-width: 96vw; max-height: 92vh; background: #fff; border-radius: 6px; display: block; }
+dialog form { text-align: right; margin-top: .5rem; }
+dialog button {
+  font: 600 12px/1 var(--font-identifier); background: var(--card); color: var(--ink);
+  border: 1px solid var(--card-edge); border-radius: var(--chip-radius); padding: .45rem .7rem;
+  cursor: pointer;
+}
+/* Captions wrap to one or two lines depending on the words. Reserving the taller of the two keeps
+   the row of cards level instead of stepping by a line height. */
+.feat .cap {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+  margin-top: 10px; min-height: 2.6em;
+}
+.feat .nm { font: 600 13px/1.3 var(--font-identifier); }
+.feat .sub { color: var(--ink-muted); font-size: 12px; text-align: right; }
+/* Featured artifacts are the argument the page opens with, so one locale fills the card rather
+   than two sharing it. With scripting the switch picks which; without it both stack, which is
+   taller but complete. */
+.feat .pair { display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr); }
+.feat figcaption {
+  color: var(--ink-muted); margin-bottom: 5px;
+  font: 600 10px/1 var(--font-caption); letter-spacing: .08em; text-transform: uppercase;
+}
+
+/* ---- catalog ------------------------------------------------------------------------- */
+.catalog { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--pair-gap); }
+@media (max-width: 900px) { .catalog { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .catalog { grid-template-columns: minmax(0, 1fr); } }
+article {
+  background: var(--card); border: 1px solid var(--card-edge);
+  border-radius: var(--card-radius); padding: 14px;
+}
+h3 { margin: 0; font: 600 13px/1.3 var(--font-identifier); letter-spacing: -.01em; }
+h3 a { color: inherit; text-decoration: none; }
+h3 a:hover { text-decoration: underline; }
+.signal {
+  color: var(--ink-muted); margin: .35rem 0 .8rem; font-size: 12.5px;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+[data-locale="ko"] .catalog .pair, [data-locale="en"] .catalog .pair { grid-template-columns: minmax(0, 1fr); }
+figure { margin: 0; min-width: 0; }
+figcaption {
+  color: var(--ink-muted); margin-bottom: var(--caption-gap);
+  font: 600 10px/1 var(--font-caption); letter-spacing: .07em; text-transform: uppercase;
+}
+details { margin-top: 12px; border-top: 1px solid var(--card-edge); padding-top: 10px; }
+summary { cursor: pointer; color: var(--ink-muted); font: 600 11px/1 var(--font-identifier); letter-spacing: .04em; }
+.detail { margin-top: 11px; display: grid; gap: 12px; }
+.detail h4 {
+  margin: 0 0 5px; font: 600 10px/1 var(--font-caption); letter-spacing: .08em;
+  text-transform: uppercase; color: var(--ink-muted);
+}
+pre {
+  margin: 0; padding: .7rem .8rem; overflow-x: auto; background: var(--ground);
+  border: 1px solid var(--card-edge); border-radius: var(--chip-radius);
+  font: 11px/1.6 var(--font-identifier); white-space: pre;
+}
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip {
+  display: inline-flex; align-items: baseline; gap: 5px; background: var(--ground);
+  border: 1px solid var(--card-edge); border-radius: var(--chip-radius);
+  padding: 3px 7px; font: 11px/1.4 var(--font-identifier);
+}
+.chip i { font-style: normal; color: var(--ink-muted); font-size: 10px; }
+table { border-collapse: collapse; width: 100%; font: 11px/1.5 var(--font-identifier); }
+th, td { text-align: left; padding: 3px 8px 3px 0; border-bottom: 1px solid var(--card-edge); }
+th { color: var(--ink-muted); font-weight: 600; }
+td.split { font-weight: 600; }
+.scroll { overflow-x: auto; }
+a { color: var(--ink); }
+.note { color: var(--ink-muted); font-size: 12px; margin: .5rem 0 0; }
+
+/* Nothing is hidden unless JS has set a locale on the root, so the no-script view is complete. */
+[data-locale="ko"] figure[data-loc="en"], [data-locale="en"] figure[data-loc="ko"] { display: none; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+<div class="wrap">
+<header>
+  <h1>Diagrams your agent can actually produce</h1>
+  <p class="lede">Every picture below was generated by this skill from a written prompt — no drawing,
+  no hand-tuned SVG. The showcase shows the range; the catalog under it is what you pick from.</p>
+  <div class="switch" id="switch" hidden>
+    <button type="button" data-set="both" aria-pressed="false">Side by side</button>
+    <button type="button" data-set="ko" aria-pressed="true">한국어</button>
+    <button type="button" data-set="en" aria-pressed="false">English</button>
+  </div>
+</header>
+
+<h2 class="sec">What it can draw</h2>
+<p class="sec-note">Six existing outputs, chosen for how differently they are shaped — a cloud
+topology, a branching swimlane, a decision matrix, nested trust rings, a mirrored comparison and the
+sketch treatment. Click any one to see it full size.</p>
+<p class="facets"><span class="facet ok"><i>source gates</i>pass</span><span class="facet none"><i>TypePack receipt</i>none</span></p>
+<div class="featured"><div class="feat"><div class="pair"><figure data-loc="ko"><figcaption>한국어</figcaption><a class="frame" href="../examples/svg-infographic/cloud-infra-topology/cloud-infra-topology.ko.svg" data-full="../examples/svg-infographic/cloud-infra-topology/cloud-infra-topology.ko.svg"><img src="../examples/svg-infographic/cloud-infra-topology/cloud-infra-topology.ko.svg" alt="Cloud topology — zones, boundaries and routed connectors (KO)" loading="lazy"></a></figure><figure data-loc="en"><figcaption>ENGLISH</figcaption><a class="frame" href="../examples/svg-infographic/cloud-infra-topology/cloud-infra-topology.en.svg" data-full="../examples/svg-infographic/cloud-infra-topology/cloud-infra-topology.en.svg"><img src="../examples/svg-infographic/cloud-infra-topology/cloud-infra-topology.en.svg" alt="Cloud topology — zones, boundaries and routed connectors (EN)" loading="lazy"></a></figure></div><div class="cap"><span class="nm">Cloud topology</span><span class="sub">zones, boundaries and routed connectors</span></div></div><div class="feat"><div class="pair"><figure data-loc="ko"><figcaption>한국어</figcaption><a class="frame" href="../examples/svg-infographic/agent-waiting-swimlane/agent-waiting-swimlane.ko.svg" data-full="../examples/svg-infographic/agent-waiting-swimlane/agent-waiting-swimlane.ko.svg"><img src="../examples/svg-infographic/agent-waiting-swimlane/agent-waiting-swimlane.ko.svg" alt="Branching swimlane — parallel lanes that rejoin (KO)" loading="lazy"></a></figure><figure data-loc="en"><figcaption>ENGLISH</figcaption><a class="frame" href="../examples/svg-infographic/agent-waiting-swimlane/agent-waiting-swimlane.en.svg" data-full="../examples/svg-infographic/agent-waiting-swimlane/agent-waiting-swimlane.en.svg"><img src="../examples/svg-infographic/agent-waiting-swimlane/agent-waiting-swimlane.en.svg" alt="Branching swimlane — parallel lanes that rejoin (EN)" loading="lazy"></a></figure></div><div class="cap"><span class="nm">Branching swimlane</span><span class="sub">parallel lanes that rejoin</span></div></div><div class="feat"><div class="pair"><figure data-loc="ko"><figcaption>한국어</figcaption><a class="frame" href="../examples/svg-infographic/agent-task-matrix/agent-task-matrix.ko.svg" data-full="../examples/svg-infographic/agent-task-matrix/agent-task-matrix.ko.svg"><img src="../examples/svg-infographic/agent-task-matrix/agent-task-matrix.ko.svg" alt="Decision matrix — two qualitative axes (KO)" loading="lazy"></a></figure><figure data-loc="en"><figcaption>ENGLISH</figcaption><a class="frame" href="../examples/svg-infographic/agent-task-matrix/agent-task-matrix.en.svg" data-full="../examples/svg-infographic/agent-task-matrix/agent-task-matrix.en.svg"><img src="../examples/svg-infographic/agent-task-matrix/agent-task-matrix.en.svg" alt="Decision matrix — two qualitative axes (EN)" loading="lazy"></a></figure></div><div class="cap"><span class="nm">Decision matrix</span><span class="sub">two qualitative axes</span></div></div><div class="feat"><div class="pair"><figure data-loc="ko"><figcaption>한국어</figcaption><a class="frame" href="../examples/svg-infographic/zero-trust-onion/zero-trust-onion.ko.svg" data-full="../examples/svg-infographic/zero-trust-onion/zero-trust-onion.ko.svg"><img src="../examples/svg-infographic/zero-trust-onion/zero-trust-onion.ko.svg" alt="Nested scope — concentric trust rings (KO)" loading="lazy"></a></figure><figure data-loc="en"><figcaption>ENGLISH</figcaption><a class="frame" href="../examples/svg-infographic/zero-trust-onion/zero-trust-onion.en.svg" data-full="../examples/svg-infographic/zero-trust-onion/zero-trust-onion.en.svg"><img src="../examples/svg-infographic/zero-trust-onion/zero-trust-onion.en.svg" alt="Nested scope — concentric trust rings (EN)" loading="lazy"></a></figure></div><div class="cap"><span class="nm">Nested scope</span><span class="sub">concentric trust rings</span></div></div><div class="feat"><div class="pair"><figure data-loc="ko"><figcaption>한국어</figcaption><a class="frame" href="../examples/svg-infographic/before-after-migration/before-after-migration.ko.svg" data-full="../examples/svg-infographic/before-after-migration/before-after-migration.ko.svg"><img src="../examples/svg-infographic/before-after-migration/before-after-migration.ko.svg" alt="Before and after — mirrored comparison (KO)" loading="lazy"></a></figure><figure data-loc="en"><figcaption>ENGLISH</figcaption><a class="frame" href="../examples/svg-infographic/before-after-migration/before-after-migration.en.svg" data-full="../examples/svg-infographic/before-after-migration/before-after-migration.en.svg"><img src="../examples/svg-infographic/before-after-migration/before-after-migration.en.svg" alt="Before and after — mirrored comparison (EN)" loading="lazy"></a></figure></div><div class="cap"><span class="nm">Before and after</span><span class="sub">mirrored comparison</span></div></div><div class="feat"><div class="pair"><figure data-loc="ko"><figcaption>한국어</figcaption><a class="frame" href="../examples/svg-infographic/agent-system-sketch/agent-system-sketch.ko.svg" data-full="../examples/svg-infographic/agent-system-sketch/agent-system-sketch.ko.svg"><img src="../examples/svg-infographic/agent-system-sketch/agent-system-sketch.ko.svg" alt="Sketch treatment — handwriting and rough stroke (KO)" loading="lazy"></a></figure><figure data-loc="en"><figcaption>ENGLISH</figcaption><a class="frame" href="../examples/svg-infographic/agent-system-sketch/agent-system-sketch.en.svg" data-full="../examples/svg-infographic/agent-system-sketch/agent-system-sketch.en.svg"><img src="../examples/svg-infographic/agent-system-sketch/agent-system-sketch.en.svg" alt="Sketch treatment — handwriting and rough stroke (EN)" loading="lazy"></a></figure></div><div class="cap"><span class="nm">Sketch treatment</span><span class="sub">handwriting and rough stroke</span></div></div></div>
+<p class="note">Hand-authored examples that predate the TypePack receipts. They clear the lint,
+layout and typography gates; no receipt exists for them, which is why the receipt facet reads
+<code>none</code> rather than being left out.</p>
+
+<h2 class="sec">Choose a TypePack</h2>
+<p class="sec-note">Nine minimum-syntax types — the catalog's regression baseline. Each card carries
+the signal that selects it and its Korean and English canonical example; open one for the prompt,
+the command template, and the point where that type stops fitting.</p>
+<p class="facets"><span class="facet ok"><i>source gates</i>pass</span><span class="facet ok"><i>TypePack receipt</i>pass</span></p>
+<p class="note">18/18 TypePack canonical artifacts pass the current package verifier.
+A known topology boundary-rendering limitation is tracked separately.</p>
+
+<div class="catalog"><article id="approval-gate"><h3><a href="#approval-gate">approval-gate</a></h3><p class="signal">A simple request path with one approval gate or checkpoint (a-&gt;b-&gt;c; a full sequence diagram is out of scope)</p><div class="pair"><figure data-loc="ko"><figcaption>한국어</figcaption><div class="frame"><img src="../examples/svg-infographic/typepacks/approval-gate/approval-gate.ko.svg" alt="approval-gate — 요청은 승인 게이트를 지난다 (KO)" loading="lazy"></div></figure><figure data-loc="en"><figcaption>ENGLISH</figcaption><div class="frame"><img src="../examples/svg-infographic/typepacks/approval-gate/approval-gate.en.svg" alt="approval-gate — Requests pass an approval gate (EN)" loading="lazy"></div></figure></div><details><summary>Prompt, command and limits</summary><div class="detail">
+<div><h4>Canonical prompt</h4><pre>ko: 요청이 승인 게이트를 지나 반영되는 경로를 보여줘. 4:5.
+en: A request passing an approval gate. 4:5.</pre></div>
+<div><h4>Command template</h4><pre># from skills/svg-infographic/
+node scripts/generate.mjs build --typepack approval-gate --case canonical \
+  --locale ko --out OUT.svg --receipt OUT.json
+node scripts/generate.mjs verify --receipt OUT.json --svg OUT.svg</pre></div>
+<div><h4>Receipt facts</h4><div class="chips"><span class="chip"><i>profile</i>constrained-layout</span><span class="chip"><i>preset</i>document-compact</span><span class="chip"><i>treatment</i>flat</span><span class="chip"><i>delivery</i>portable</span><span class="chip"><i>entities</i>4</span></div></div>
+<div><h4>Declared stress scenarios</h4><div class="scroll"><table><tr><th>scenario</th><th>preset</th><th>expected</th></tr><tr><td>stress-cardinality</td><td>presentation-16x9</td><td class="">fits</td></tr><tr><td>stress-copy</td><td>document-compact</td><td class="">fits</td></tr><tr><td>stress-degrade</td><td>social-4x5</td><td class="split">needs-split</td></tr></table></div></div><div><h4>Where it stops fitting</h4><div class="scroll"><table><tr><th>preset</th><th>count</th><th>verdict</th></tr><tr><td>document-compact</td><td>4</td><td class="split">needs-split</td></tr><tr><td>social-4x5</td><td>4</td><td class="split">needs-split</td></tr><tr><td>presentation-16x9</td><td>4</td><td class="">fits</td></tr></table></div><p class="note"><code>needs-split</code> returns a degrade receipt and no artifact — a non-success, not a smaller render.</p></div>
+<div><h4>Sources</h4><p class="note">
+<a href="../skills/svg-infographic/references/types/specs/approval-gate.md"><code>approval-gate.md</code></a> ·
+<a href="../skills/svg-infographic/references/PROMPT-GALLERY.md#approval-gate"><code>PROMPT-GALLERY.md</code></a> ·
+<a href="../examples/svg-infographic/typepacks/approval-gate/approval-gate.ko.json"><code>receipt</code></a>
+</p></div></div></details></article><article id="before-after"><h3><a href="#before-after">before-after</a></h3><p class="signal">Before and after — migration, modernisation, refactor outcome, trade-off comparison</p><div class="pair"><figure data-loc="ko"><figcaption>한국어</figcaption><div class="frame"><img src="../examples/svg-infographic/typepacks/before-after/before-after.ko.svg" alt="before-after — 자동화가 배포 시간을 줄였다 (KO)" loading="lazy"></div></figure><figure data-loc="en"><figcaption>ENGLISH</figcaption><div class="frame"><img src="../examples/svg-infographic/typepacks/before-after/before-after.en.svg" alt="before-after — Automation cut the delivery time (EN)" loading="lazy"></div></figure></div><details><summary>Prompt, command and limits</summary><div class="detail">
+<div><h4>Canonical prompt</h4><pre>ko: 마이그레이션 전후를 두 항목으로 비교해줘. 4:5.
+en: Compare before and after across two slots. 4:5.</pre></div>
+<div><h4>Command template</h4><pre># from skills/svg-infographic/
+node scripts/generate.mjs build --typepack before-after --case canonical \
+  --locale ko --out OUT.svg --receipt OUT.json
+node scripts/generate.mjs verify --receipt OUT.json --svg OUT.svg</pre></div>
+<div><h4>Receipt facts</h4><div class="chips"><span class="chip"><i>profile</i>constrained-layout</span><span class="chip"><i>preset</i>document-compact</span><span class="chip"><i>treatment</i>flat</span><span class="chip"><i>delivery</i>portable</span><span class="chip"><i>entities</i>2</span></div></div>
+<div><h4>Declared stress scenarios</h4><div class="scroll"><table><tr><th>scenario</th><th>preset</th><th>expected</th></tr><tr><td>stress-cardinality</td><td>document-compact</td><td class="">fits</td></tr><tr><td>stress-copy</td><td>document-compact</td><td class="">fits</td></tr></table></div></div><div><h4>Where it stops fitting</h4><div class="scroll"><table><tr><th>preset</th><th>count</th><th>verdict</th></tr><tr><td>document-compact</td><td>2</td><td class="">fits</td></tr><tr><td>social-4x5</td><td>2</td><td class="">fits</td></tr><tr><td>presentation-16x9</td><td>2</td><td class="">fits</td></tr></table></div><p class="note"><code>needs-split</code> returns a degrade receipt and no artifact — a non-success, not a smaller render.</p></div>
+<div><h4>Sources</h4><p class="note">
+<a href="../skills/svg-infographic/references/types/specs/before-after.md"><code>before-after.md</code></a> ·
+<a href="../skills/svg-infographic/references/PROMPT-GALLERY.md#before-after"><code>PROMPT-GALLERY.md</code></a> ·
+<a href="../examples/svg-infographic/typepacks/before-after/before-after.ko.json"><code>receipt</code></a>
+</p></div></div></details></article><article id="cards-kpi-grid"><h3><a href="#cards-kpi-grid">cards-kpi-grid</a></h3><p class="signal">A few key items or figures summarised as equal cards (feature highlights, principles, status counts, capability summaries; not a chart claiming data accuracy)</p><div class="pair"><figure data-loc="ko"><figcaption>한국어</figcaption><div class="frame"><img src="../examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.ko.svg" alt="cards-kpi-grid — 핵심 4가지를 한눈에 (KO)" loading="lazy"></div></figure><figure data-loc="en"><figcaption>ENGLISH</figcaption><div class="frame"><img src="../examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.en.svg" alt="cards-kpi-grid — Four key points at a glance (EN)" loading="lazy"></div></figure></div><details><summary>Prompt, command and limits</summary><div class="detail">
+<div><h4>Canonical prompt</h4><pre>ko: 핵심 4가지를 동등한 카드로 요약해줘. 소셜 포스트용 4:5 비율.
+en: Summarise the four key points as equal cards, 4:5 social post.</pre></div>
+<div><h4>Command template</h4><pre># from skills/svg-infographic/
+node scripts/generate.mjs build --typepack cards-kpi-grid --case canonical \
+  --locale ko --out OUT.svg --receipt OUT.json
+node scripts/generate.mjs verify --receipt OUT.json --svg OUT.svg</pre></div>
+<div><h4>Receipt facts</h4><div class="chips"><span class="chip"><i>profile</i>constrained-layout</span><span class="chip"><i>preset</i>document-compact</span><span class="chip"><i>treatment</i>flat</span><span class="chip"><i>delivery</i>portable</span><span class="chip"><i>entities</i>4</span></div></div>
+<div><h4>Declared stress scenarios</h4><div class="scroll"><table><tr><th>scenario</th><th>preset</th><th>expected</th></tr><tr><td>stress-cardinality</td><td>document-compact</td><td class="">fits</td></tr><tr><td>stress-copy</td><td>document-compact</td><td class="">fits</td></tr><tr><td>stress-degrade</td><td>social-4x5</td><td class="split">needs-split</td></tr></table></div></div><div><h4>Where it stops fitting</h4><div class="scroll"><table><tr><th>preset</th><th>count</th><th>verdict</th></tr><tr><td>document-compact</td><td>6</td><td class="">fits</td></tr><tr><td>social-4x5</td><td>6</td><td class="">fits</td></tr><tr><td>social-4x5</td><td>6</td><td class="split">needs-split</td></tr><tr><td>presentation-16x9</td><td>6</td><td class="">fits</td></tr><tr><td>presentation-16x9</td><td>6</td><td class="">fits</td></tr></table></div><p class="note"><code>needs-split</code> returns a degrade receipt and no artifact — a non-success, not a smaller render.</p></div>
+<div><h4>Sources</h4><p class="note">
+<a href="../skills/svg-infographic/references/types/specs/cards-kpi-grid.md"><code>cards-kpi-grid.md</code></a> ·
+<a href="../skills/svg-infographic/references/PROMPT-GALLERY.md#cards-kpi-grid"><code>PROMPT-GALLERY.md</code></a> ·
+<a href="../examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.ko.json"><code>receipt</code></a>
+</p></div></div></details></article><article id="decision-matrix"><h3><a href="#decision-matrix">decision-matrix</a></h3><p class="signal">Options or items placed by two qualitative axes — a 2x2 priority/decision quadrant, a 3x3 risk grid</p><div class="pair"><figure data-loc="ko"><figcaption>한국어</figcaption><div class="frame"><img src="../examples/svg-infographic/typepacks/decision-matrix/decision-matrix.ko.svg" alt="decision-matrix — 두 축이 우선순위를 정한다 (KO)" loading="lazy"></div></figure><figure data-loc="en"><figcaption>ENGLISH</figcaption><div class="frame"><img src="../examples/svg-infographic/typepacks/decision-matrix/decision-matrix.en.svg" alt="decision-matrix — Two axes set the priority (EN)" loading="lazy"></div></figure></div><details><summary>Prompt, command and limits</summary><div class="detail">
+<div><h4>Canonical prompt</h4><pre>ko: 두 축으로 옵션을 2×2 사분면에 배치해줘. 4:5.
+en: Place options in a 2×2 matrix. 4:5.</pre></div>
+<div><h4>Command template</h4><pre># from skills/svg-infographic/
+node scripts/generate.mjs build --typepack decision-matrix --case canonical \
+  --locale ko --out OUT.svg --receipt OUT.json
+node scripts/generate.mjs verify --receipt OUT.json --svg OUT.svg</pre></div>
+<div><h4>Receipt facts</h4><div class="chips"><span class="chip"><i>profile</i>constrained-layout</span><span class="chip"><i>preset</i>document-compact</span><span class="chip"><i>treatment</i>flat</span><span class="chip"><i>delivery</i>portable</span><span class="chip"><i>entities</i>4</span></div></div>
+<div><h4>Declared stress scenarios</h4><div class="scroll"><table><tr><th>scenario</th><th>preset</th><th>expected</th></tr><tr><td>stress-cardinality</td><td>presentation-16x9</td><td class="">fits</td></tr><tr><td>stress-degrade</td><td>document-compact</td><td class="split">needs-split</td></tr><tr><td>stress-copy</td><td>document-compact</td><td class="">fits</td></tr></table></div></div><div><h4>Where it stops fitting</h4><div class="scroll"><table><tr><th>preset</th><th>count</th><th>verdict</th></tr><tr><td>document-compact</td><td>9</td><td class="split">needs-split</td></tr><tr><td>social-4x5</td><td>9</td><td class="">fits</td></tr><tr><td>presentation-16x9</td><td>9</td><td class="">fits</td></tr></table></div><p class="note"><code>needs-split</code> returns a degrade receipt and no artifact — a non-success, not a smaller render.</p></div>
+<div><h4>Sources</h4><p class="note">
+<a href="../skills/svg-infographic/references/types/specs/decision-matrix.md"><code>decision-matrix.md</code></a> ·
+<a href="../skills/svg-infographic/references/PROMPT-GALLERY.md#decision-matrix"><code>PROMPT-GALLERY.md</code></a> ·
+<a href="../examples/svg-infographic/typepacks/decision-matrix/decision-matrix.ko.json"><code>receipt</code></a>
+</p></div></div></details></article><article id="layer-stack"><h3><a href="#layer-stack">layer-stack</a></h3><p class="signal">A hierarchy that stacks on or abstracts the layer beneath it (platform stacks, runtime layers, capability models)</p><div class="pair"><figure data-loc="ko"><figcaption>한국어</figcaption><div class="frame"><img src="../examples/svg-infographic/typepacks/layer-stack/layer-stack.ko.svg" alt="layer-stack — 플랫폼 역량은 층으로 쌓인다 (KO)" loading="lazy"></div></figure><figure data-loc="en"><figcaption>ENGLISH</figcaption><div class="frame"><img src="../examples/svg-infographic/typepacks/layer-stack/layer-stack.en.svg" alt="layer-stack — Platform capability stacks in layers (EN)" loading="lazy"></div></figure></div><details><summary>Prompt, command and limits</summary><div class="detail">
+<div><h4>Canonical prompt</h4><pre>ko: 플랫폼 역량을 4개 계층으로 쌓아서 보여줘. 4:5.
+en: Show the platform capability as four stacked layers. 4:5.</pre></div>
+<div><h4>Command template</h4><pre># from skills/svg-infographic/
+node scripts/generate.mjs build --typepack layer-stack --case canonical \
+  --locale ko --out OUT.svg --receipt OUT.json
+node scripts/generate.mjs verify --receipt OUT.json --svg OUT.svg</pre></div>
+<div><h4>Receipt facts</h4><div class="chips"><span class="chip"><i>profile</i>constrained-layout</span><span class="chip"><i>preset</i>document-compact</span><span class="chip"><i>treatment</i>flat</span><span class="chip"><i>delivery</i>portable</span><span class="chip"><i>entities</i>12</span></div></div>
+<div><h4>Declared stress scenarios</h4><div class="scroll"><table><tr><th>scenario</th><th>preset</th><th>expected</th></tr><tr><td>stress-cardinality</td><td>presentation-16x9</td><td class="">fits</td></tr><tr><td>stress-copy</td><td>document-compact</td><td class="">fits</td></tr><tr><td>stress-degrade</td><td>social-4x5</td><td class="split">needs-split</td></tr></table></div></div><div><h4>Where it stops fitting</h4><div class="scroll"><table><tr><th>preset</th><th>count</th><th>verdict</th></tr><tr><td>document-compact</td><td>5</td><td class="">fits</td></tr><tr><td>document-compact</td><td>5</td><td class="split">needs-split</td></tr><tr><td>social-4x5</td><td>5</td><td class="">fits</td></tr><tr><td>social-4x5</td><td>5</td><td class="split">needs-split</td></tr><tr><td>presentation-16x9</td><td>5</td><td class="">fits</td></tr><tr><td>presentation-16x9</td><td>5</td><td class="">fits</td></tr></table></div><p class="note"><code>needs-split</code> returns a degrade receipt and no artifact — a non-success, not a smaller render.</p></div>
+<div><h4>Sources</h4><p class="note">
+<a href="../skills/svg-infographic/references/types/specs/layer-stack.md"><code>layer-stack.md</code></a> ·
+<a href="../skills/svg-infographic/references/PROMPT-GALLERY.md#layer-stack"><code>PROMPT-GALLERY.md</code></a> ·
+<a href="../examples/svg-infographic/typepacks/layer-stack/layer-stack.ko.json"><code>receipt</code></a>
+</p></div></div></details></article><article id="nested-scope"><h3><a href="#nested-scope">nested-scope</a></h3><p class="signal">Containment and scope — the inner lives inside the outer (trust zones, scope rings, platform -&gt; app -&gt; feature)</p><div class="pair"><figure data-loc="ko"><figcaption>한국어</figcaption><div class="frame"><img src="../examples/svg-infographic/typepacks/nested-scope/nested-scope.ko.svg" alt="nested-scope — 신뢰 경계는 안쪽일수록 좁다 (KO)" loading="lazy"></div></figure><figure data-loc="en"><figcaption>ENGLISH</figcaption><div class="frame"><img src="../examples/svg-infographic/typepacks/nested-scope/nested-scope.en.svg" alt="nested-scope — Trust narrows toward the core (EN)" loading="lazy"></div></figure></div><details><summary>Prompt, command and limits</summary><div class="detail">
+<div><h4>Canonical prompt</h4><pre>ko: 신뢰 경계를 3겹 동심 구조로 보여줘. 4:5.
+en: Show the trust boundary as 3 concentric scopes. 4:5.</pre></div>
+<div><h4>Command template</h4><pre># from skills/svg-infographic/
+node scripts/generate.mjs build --typepack nested-scope --case canonical \
+  --locale ko --out OUT.svg --receipt OUT.json
+node scripts/generate.mjs verify --receipt OUT.json --svg OUT.svg</pre></div>
+<div><h4>Receipt facts</h4><div class="chips"><span class="chip"><i>profile</i>constrained-layout</span><span class="chip"><i>preset</i>document-compact</span><span class="chip"><i>treatment</i>flat</span><span class="chip"><i>delivery</i>portable</span><span class="chip"><i>entities</i>3</span></div></div>
+<div><h4>Declared stress scenarios</h4><div class="scroll"><table><tr><th>scenario</th><th>preset</th><th>expected</th></tr><tr><td>stress-cardinality</td><td>document-compact</td><td class="">fits</td></tr><tr><td>stress-copy</td><td>document-compact</td><td class="">fits</td></tr></table></div></div><div><h4>Where it stops fitting</h4><div class="scroll"><table><tr><th>preset</th><th>count</th><th>verdict</th></tr><tr><td>document-compact</td><td>4</td><td class="">fits</td></tr><tr><td>social-4x5</td><td>4</td><td class="">fits</td></tr><tr><td>presentation-16x9</td><td>4</td><td class="">fits</td></tr></table></div><p class="note"><code>needs-split</code> returns a degrade receipt and no artifact — a non-success, not a smaller render.</p></div>
+<div><h4>Sources</h4><p class="note">
+<a href="../skills/svg-infographic/references/types/specs/nested-scope.md"><code>nested-scope.md</code></a> ·
+<a href="../skills/svg-infographic/references/PROMPT-GALLERY.md#nested-scope"><code>PROMPT-GALLERY.md</code></a> ·
+<a href="../examples/svg-infographic/typepacks/nested-scope/nested-scope.ko.json"><code>receipt</code></a>
+</p></div></div></details></article><article id="process-flow"><h3><a href="#process-flow">process-flow</a></h3><p class="signal">Ordered steps or handoffs — processes, pipelines, data flows, review loops</p><div class="pair"><figure data-loc="ko"><figcaption>한국어</figcaption><div class="frame"><img src="../examples/svg-infographic/typepacks/process-flow/process-flow.ko.svg" alt="process-flow — 배포는 검증을 지나 반영된다 (KO)" loading="lazy"></div></figure><figure data-loc="en"><figcaption>ENGLISH</figcaption><div class="frame"><img src="../examples/svg-infographic/typepacks/process-flow/process-flow.en.svg" alt="process-flow — Delivery ships through verification (EN)" loading="lazy"></div></figure></div><details><summary>Prompt, command and limits</summary><div class="detail">
+<div><h4>Canonical prompt</h4><pre>ko: 배포 절차를 4단계로 위에서 아래로 보여줘. 4:5 세로.
+en: Four top-to-bottom delivery steps. 4:5 portrait.</pre></div>
+<div><h4>Command template</h4><pre># from skills/svg-infographic/
+node scripts/generate.mjs build --typepack process-flow --case canonical \
+  --locale ko --out OUT.svg --receipt OUT.json
+node scripts/generate.mjs verify --receipt OUT.json --svg OUT.svg</pre></div>
+<div><h4>Receipt facts</h4><div class="chips"><span class="chip"><i>profile</i>constrained-layout</span><span class="chip"><i>preset</i>document-compact</span><span class="chip"><i>treatment</i>flat</span><span class="chip"><i>delivery</i>portable</span><span class="chip"><i>entities</i>4</span></div></div>
+<div><h4>Declared stress scenarios</h4><div class="scroll"><table><tr><th>scenario</th><th>preset</th><th>expected</th></tr><tr><td>stress-cardinality</td><td>document-compact</td><td class="">fits</td></tr><tr><td>stress-copy</td><td>document-compact</td><td class="">fits</td></tr><tr><td>stress-degrade</td><td>social-4x5</td><td class="split">needs-split</td></tr></table></div></div><div><h4>Where it stops fitting</h4><div class="scroll"><table><tr><th>preset</th><th>count</th><th>verdict</th></tr><tr><td>document-compact</td><td>5</td><td class="">fits</td></tr><tr><td>social-4x5</td><td>5</td><td class="split">needs-split</td></tr><tr><td>social-4x5</td><td>5</td><td class="">fits</td></tr><tr><td>presentation-16x9</td><td>5</td><td class="">fits</td></tr><tr><td>presentation-16x9</td><td>5</td><td class="">fits</td></tr></table></div><p class="note"><code>needs-split</code> returns a degrade receipt and no artifact — a non-success, not a smaller render.</p></div>
+<div><h4>Sources</h4><p class="note">
+<a href="../skills/svg-infographic/references/types/specs/process-flow.md"><code>process-flow.md</code></a> ·
+<a href="../skills/svg-infographic/references/PROMPT-GALLERY.md#process-flow"><code>PROMPT-GALLERY.md</code></a> ·
+<a href="../examples/svg-infographic/typepacks/process-flow/process-flow.ko.json"><code>receipt</code></a>
+</p></div></div></details></article><article id="roadmap-timeline"><h3><a href="#roadmap-timeline">roadmap-timeline</a></h3><p class="signal">Time or phases — product phases, milestones, rollout waves, a status snapshot over time (evenly spaced, claiming no proportional duration)</p><div class="pair"><figure data-loc="ko"><figcaption>한국어</figcaption><div class="frame"><img src="../examples/svg-infographic/typepacks/roadmap-timeline/roadmap-timeline.ko.svg" alt="roadmap-timeline — 롤아웃은 단계로 진행한다 (KO)" loading="lazy"></div></figure><figure data-loc="en"><figcaption>ENGLISH</figcaption><div class="frame"><img src="../examples/svg-infographic/typepacks/roadmap-timeline/roadmap-timeline.en.svg" alt="roadmap-timeline — The rollout proceeds in phases (EN)" loading="lazy"></div></figure></div><details><summary>Prompt, command and limits</summary><div class="detail">
+<div><h4>Canonical prompt</h4><pre>ko: 롤아웃을 4개 단계로 마일스톤 카드와 함께 보여줘. 4:5.
+en: Four rollout phases with milestone cards. 4:5.</pre></div>
+<div><h4>Command template</h4><pre># from skills/svg-infographic/
+node scripts/generate.mjs build --typepack roadmap-timeline --case canonical \
+  --locale ko --out OUT.svg --receipt OUT.json
+node scripts/generate.mjs verify --receipt OUT.json --svg OUT.svg</pre></div>
+<div><h4>Receipt facts</h4><div class="chips"><span class="chip"><i>profile</i>constrained-layout</span><span class="chip"><i>preset</i>document-compact</span><span class="chip"><i>treatment</i>flat</span><span class="chip"><i>delivery</i>portable</span><span class="chip"><i>entities</i>4</span></div></div>
+<div><h4>Declared stress scenarios</h4><div class="scroll"><table><tr><th>scenario</th><th>preset</th><th>expected</th></tr><tr><td>stress-cardinality</td><td>presentation-16x9</td><td class="">fits</td></tr><tr><td>stress-body</td><td>document-compact</td><td class="">fits</td></tr><tr><td>stress-tail-current</td><td>document-compact</td><td class="">fits</td></tr><tr><td>stress-copy</td><td>presentation-16x9</td><td class="">fits</td></tr><tr><td>stress-degrade</td><td>document-compact</td><td class="split">needs-split</td></tr></table></div></div><div><h4>Where it stops fitting</h4><div class="scroll"><table><tr><th>preset</th><th>count</th><th>verdict</th></tr><tr><td>document-compact</td><td>5</td><td class="split">needs-split</td></tr><tr><td>social-4x5</td><td>5</td><td class="split">needs-split</td></tr><tr><td>presentation-16x9</td><td>5</td><td class="">fits</td></tr></table></div><p class="note"><code>needs-split</code> returns a degrade receipt and no artifact — a non-success, not a smaller render.</p></div>
+<div><h4>Sources</h4><p class="note">
+<a href="../skills/svg-infographic/references/types/specs/roadmap-timeline.md"><code>roadmap-timeline.md</code></a> ·
+<a href="../skills/svg-infographic/references/PROMPT-GALLERY.md#roadmap-timeline"><code>PROMPT-GALLERY.md</code></a> ·
+<a href="../examples/svg-infographic/typepacks/roadmap-timeline/roadmap-timeline.ko.json"><code>receipt</code></a>
+</p></div></div></details></article><article id="topology-component"><h3><a href="#topology-component">topology-component</a></h3><p class="signal">Systems or components and their connections — request paths, cloud/network zones, service architecture with a system boundary</p><div class="pair"><figure data-loc="ko"><figcaption>한국어</figcaption><div class="frame"><img src="../examples/svg-infographic/typepacks/topology-component/topology-component.ko.svg" alt="topology-component — 요청은 zone을 따라 흐른다 (KO)" loading="lazy"></div></figure><figure data-loc="en"><figcaption>ENGLISH</figcaption><div class="frame"><img src="../examples/svg-infographic/typepacks/topology-component/topology-component.en.svg" alt="topology-component — Requests flow across the zones (EN)" loading="lazy"></div></figure></div><details><summary>Prompt, command and limits</summary><div class="detail">
+<div><h4>Canonical prompt</h4><pre>ko: 요청 경로를 3개 zone으로 나눠 컴포넌트와 연결을 보여줘. 4:5.
+en: Show the request path across three zones with components and links. 4:5.</pre></div>
+<div><h4>Command template</h4><pre># from skills/svg-infographic/
+node scripts/generate.mjs build --typepack topology-component --case canonical \
+  --locale ko --out OUT.svg --receipt OUT.json
+node scripts/generate.mjs verify --receipt OUT.json --svg OUT.svg</pre></div>
+<div><h4>Receipt facts</h4><div class="chips"><span class="chip"><i>profile</i>editorial-composition</span><span class="chip"><i>preset</i>social-4x5</span><span class="chip"><i>treatment</i>flat</span><span class="chip"><i>delivery</i>portable</span><span class="chip"><i>entities</i>12</span></div></div>
+<div><h4>Declared stress scenarios</h4><div class="scroll"><table><tr><th>scenario</th><th>preset</th><th>expected</th></tr><tr><td>stress-cardinality</td><td>social-4x5</td><td class="">fits</td></tr><tr><td>stress-copy</td><td>social-4x5</td><td class="">fits</td></tr></table></div></div><div><h4>Where it stops fitting</h4><div class="scroll"><table><tr><th>preset</th><th>count</th><th>verdict</th></tr><tr><td>social-4x5</td><td>4</td><td class="">fits</td></tr><tr><td>presentation-16x9</td><td>4</td><td class="">fits</td></tr></table></div><p class="note"><code>needs-split</code> returns a degrade receipt and no artifact — a non-success, not a smaller render.</p></div><div><h4>Known limitation</h4><p class="note">The receipt counts <code>boundary</code> as consumed, but the current package does not draw it. Tracked separately from this gallery.</p></div>
+<div><h4>Sources</h4><p class="note">
+<a href="../skills/svg-infographic/references/types/specs/topology-component.md"><code>topology-component.md</code></a> ·
+<a href="../skills/svg-infographic/references/PROMPT-GALLERY.md#topology-component"><code>PROMPT-GALLERY.md</code></a> ·
+<a href="../examples/svg-infographic/typepacks/topology-component/topology-component.ko.json"><code>receipt</code></a>
+</p></div></div></details></article></div>
+</div>
+<dialog id="zoom"><img alt=""><form method="dialog"><button>Close</button></form></dialog>
+<script>
+// Full size is a plain link by default, so it works with no scripting. Where scripting exists the
+// click is intercepted and shown in place instead of navigating away from the gallery.
+(function () {
+  var dlg = document.getElementById("zoom");
+  if (!dlg || !dlg.showModal) return;
+  document.addEventListener("click", function (ev) {
+    var a = ev.target.closest("a.frame[data-full]");
+    if (!a) return;
+    ev.preventDefault();
+    dlg.querySelector("img").src = a.dataset.full;
+    dlg.querySelector("img").alt = a.querySelector("img").alt;
+    dlg.showModal();
+  });
+})();
+// The locale switch is the only thing that needs scripting, so it stays hidden until scripting is
+// present. Without it both locales are already on screen and every detail still opens.
+(function () {
+  var bar = document.getElementById("switch");
+  if (!bar) return;
+  bar.hidden = false;
+  function setLocale(mode) {
+    document.documentElement.dataset.locale = mode === "both" ? "" : mode;
+    bar.querySelectorAll("button").forEach(function (x) {
+      x.setAttribute("aria-pressed", String(x.dataset.set === mode));
+    });
+  }
+  // With scripting, open on one locale so a featured artifact fills its card. "Side by side" is one
+  // click away, and the no-script view already shows both.
+  setLocale("ko");
+  bar.addEventListener("click", function (ev) {
+    var b = ev.target.closest("button[data-set]");
+    if (b) setLocale(b.dataset.set);
+  });
+})();
+</script>
+</html>
