@@ -1,6 +1,6 @@
-// generate.mjs test suite — canary 생성 경로의 fail-closed 계약을 고정한다.
-// 원칙: 생성기는 내용을 발명하지 않고, 못 담는 입력을 성공으로 처리하지 않으며,
-// 선언되지 않은 dead space를 조용히 통과시키지 않는다.
+// generate.mjs test suite — pins the fail-closed contracts of the canary generation path.
+// The principles: the generator invents no content, never treats input it cannot hold as a
+// success, and never lets undeclared dead space through quietly.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
@@ -34,8 +34,9 @@ const out = (pkg, name) => path.join(path.dirname(pkg), name);
 const manifestPath = (pkg) => path.join(pkg, "references", "types", "manifest.yaml");
 const editManifest = (pkg, fn) => writeFileSync(manifestPath(pkg), fn(readFileSync(manifestPath(pkg), "utf8")));
 
-// 기본은 system delivery다 — 이 suite가 검사하는 것은 소비·receipt·degrade이지 글꼴 전달이 아니고,
-// portable subsetter는 build 전용 의존성이라 검증이 그것을 요구해서는 안 된다.
+// The default is system delivery — what this suite checks is consumption, receipts and degrade,
+// not font delivery, and the portable subsetter is a build-only dependency that verification must
+// not require.
 function build(pkg, tp, cse, loc, extra = []) {
   const svg = out(pkg, `${tp}-${cse}-${loc}.svg`), rcp = out(pkg, `${tp}-${cse}-${loc}.json`);
   const mode = extra.includes("--font-delivery") ? [] : ["--font-delivery", "system"];
@@ -43,8 +44,8 @@ function build(pkg, tp, cse, loc, extra = []) {
   return { ...r, svg, rcp };
 }
 
-// --- 성공 경로가 실제로 증거를 남기는가 --------------------------------------
-test("G-1: build는 payload entity를 전량 소비하고 digest·잔여를 receipt에 남긴다", () => {
+// --- does the success path actually leave evidence? --------------------------------------
+test("G-1: build consumes every payload entity and records the digests and residual in the receipt", () => {
   const pkg = pkgCopy();
   const b = build(pkg, "cards-kpi-grid", "canonical", "ko");
   assert.equal(b.code, 0, b.out);
@@ -59,14 +60,14 @@ test("G-1: build는 payload entity를 전량 소비하고 digest·잔여를 rece
   drop(pkg);
 });
 
-// --- 못 담는 입력은 성공이 아니다 --------------------------------------------
-test("G-2: needs-split은 exit 3 · artifact 없음 · degrade 근거를 남긴다", () => {
+// --- input that cannot be held is not a success --------------------------------------------
+test("G-2: needs-split exits 3, produces no artifact, and records the degrade reasoning", () => {
   const pkg = pkgCopy();
   const rcp = out(pkg, "degrade.json"), svg = out(pkg, "degrade.svg");
   const r = runIn(pkg, ["build", "--typepack", "cards-kpi-grid", "--case", "stress-degrade",
     "--locale", "ko", "--out", svg, "--receipt", rcp]);
   assert.equal(r.code, 3, r.out);
-  assert.equal(existsSync(svg), false, "needs-split은 artifact를 만들지 않는다");
+  assert.equal(existsSync(svg), false, "needs-split produces no artifact");
   const rc = JSON.parse(readFileSync(rcp, "utf8"));
   assert.equal(rc.status, "needs-split");
   assert.equal(rc.artifact, null);
@@ -75,8 +76,8 @@ test("G-2: needs-split은 exit 3 · artifact 없음 · degrade 근거를 남긴�
   drop(pkg);
 });
 
-// --- 내용을 발명하지 않는다 ---------------------------------------------------
-test("G-3: payload에 title이 없으면 H1을 지어내지 않고 실패한다", () => {
+// --- it invents no content ---------------------------------------------------
+test("G-3: with no title in the payload it fails rather than making up an H1", () => {
   const pkg = pkgCopy();
   const p = path.join(pkg, "references", "types", "inputs", "cards-kpi-grid.canonical.yaml");
   const src = readFileSync(p, "utf8");
@@ -87,10 +88,10 @@ test("G-3: payload에 title이 없으면 H1을 지어내지 않고 실패한다"
   drop(pkg);
 });
 
-// --- 선언되지 않은 dead space는 통과하지 않는다 -------------------------------
-test("G-4: 하단 잔여가 floor를 넘는데 선언이 없으면 실패한다", () => {
+// --- undeclared dead space does not pass -------------------------------
+test("G-4: a bottom residual over the floor with no declaration fails", () => {
   const pkg = pkgCopy();
-  // topology canonical은 고정 캔버스에서 선언된 breathing을 남긴다 — 그 선언을 지우면 통과하면 안 된다.
+  // the topology canonical leaves declared breathing room on a fixed canvas — deleting that declaration must not pass
   editManifest(pkg, (m) => m.replace(/\n *residual_disposition:\n(?: +[^\n]*\n)+?(?= *routing_expected:)/, "\n"));
   const b = build(pkg, "topology-component", "canonical", "ko");
   assert.equal(b.code, 1, b.out);
@@ -98,7 +99,7 @@ test("G-4: 하단 잔여가 floor를 넘는데 선언이 없으면 실패한다"
   drop(pkg);
 });
 
-test("G-5: 선언한 잔여가 측정치와 다르면 실패한다", () => {
+test("G-5: a declared residual that differs from the measurement fails", () => {
   const pkg = pkgCopy();
   editManifest(pkg, (m) => m.replace("{ treatment: flat, bottom: 194 }", "{ treatment: flat, bottom: 120 }"));
   const b = build(pkg, "topology-component", "canonical", "ko");
@@ -107,10 +108,10 @@ test("G-5: 선언한 잔여가 측정치와 다르면 실패한다", () => {
   drop(pkg);
 });
 
-// --- 선언되지 않은 preset은 audition으로만 --------------------------------------
-test("G-6: 미선언 preset은 --audition 없이는 거부되고, audition receipt는 비정본으로 표시된다", () => {
+// --- an undeclared preset only through an audition --------------------------------------
+test("G-6: an undeclared preset is refused without --audition, and an audition receipt is marked non-canonical", () => {
   const pkg = pkgCopy();
-  // 사본에서 document-compact를 선언 목록에서 빼 "선언되지 않은 preset" 상황을 만든다
+  // in a copy, drop document-compact from the declared list to create the "undeclared preset" situation
   editManifest(pkg, (m) => m.replace("presets: [document-compact, social-4x5, presentation-16x9]",
                                      "presets: [social-4x5, presentation-16x9]"));
   const bad = build(pkg, "cards-kpi-grid", "canonical", "ko", ["--preset", "document-compact"]);
@@ -124,8 +125,8 @@ test("G-6: 미선언 preset은 --audition 없이는 거부되고, audition recei
   drop(pkg);
 });
 
-// --- verify가 세 곳을 실제로 대조하는가 -----------------------------------------
-test("G-7: artifact가 바뀌면 verify가 digest 불일치를 잡는다", () => {
+// --- does verify really cross-check all three places? -----------------------------------------
+test("G-7: when the artifact changes, verify catches the digest mismatch", () => {
   const pkg = pkgCopy();
   const b = build(pkg, "topology-component", "canonical", "ko");
   assert.equal(b.code, 0, b.out);
@@ -136,7 +137,7 @@ test("G-7: artifact가 바뀌면 verify가 digest 불일치를 잡는다", () =>
   drop(pkg);
 });
 
-test("G-8: KO·EN entity 집합이 어긋나면 pair verify가 잡는다", () => {
+test("G-8: when the KO and EN entity sets diverge, the pair verify catches it", () => {
   const pkg = pkgCopy();
   const ko = build(pkg, "cards-kpi-grid", "canonical", "ko");
   const en = build(pkg, "cards-kpi-grid", "canonical", "en");
@@ -150,8 +151,8 @@ test("G-8: KO·EN entity 집합이 어긋나면 pair verify가 잡는다", () =>
   drop(pkg);
 });
 
-// --- font delivery 경계 ---------------------------------------------------------
-test("G-9: portable은 pinned toolchain이 없으면 full embed나 system fallback으로 새지 않고 실패한다", () => {
+// --- the font delivery boundary ---------------------------------------------------------
+test("G-9: without the pinned toolchain, portable fails rather than leaking into a full embed or a system fallback", () => {
   const pkg = pkgCopy();
   const svg = out(pkg, "portable.svg"), rcp = out(pkg, "portable.json");
   const run = (python) => {
@@ -162,12 +163,12 @@ test("G-9: portable은 pinned toolchain이 없으면 full embed나 system fallba
       "--out", svg, "--receipt", rcp, "--font-delivery", "portable"],
       { encoding: "utf8", cwd: path.join(pkg, "scripts"), env: e });
   };
-  // ① interpreter 자체가 없을 때
+  // (1) when the interpreter itself is absent
   const missing = run(path.join(path.dirname(pkg), "no-such-python"));
   assert.notEqual(missing.status, 0);
   assert.match(missing.stdout + missing.stderr, /build-only dependency/);
-  assert.equal(existsSync(svg), false, "실패했는데 artifact가 남으면 안 된다");
-  // ② interpreter는 있으나 pinned 라이브러리가 없을 때
+  assert.equal(existsSync(svg), false, "an artifact must not survive a failure");
+  // (2) when the interpreter is present but the pinned library is not
   const bare = run("/usr/bin/python3");
   assert.notEqual(bare.status, 0);
   assert.match(bare.stdout + bare.stderr, /pinned build dependency missing|does not match the pinned/);
@@ -175,9 +176,9 @@ test("G-9: portable은 pinned toolchain이 없으면 full embed나 system fallba
   drop(pkg);
 });
 
-test("G-9b: 선언한 tool 버전과 실제 실행 버전이 다르면 acceptance 생성이 실패한다", () => {
+test("G-9b: when the declared tool version differs from the one actually running, acceptance generation fails", () => {
   const sub = process.env.SVGINFO_PYTHON;
-  if (!sub || !existsSync(sub)) { console.error("  note: pinned interpreter 없음 — 버전 대조는 이 실행에서 미검증"); return; }
+  if (!sub || !existsSync(sub)) { console.error("  note: no pinned interpreter — the version comparison is unverified in this run"); return; }
   const pkg = pkgCopy();
   const pol = path.join(pkg, "references", "delivery", "font-delivery-v1.yaml");
   writeFileSync(pol, readFileSync(pol, "utf8").replace("version: 4.53.1", "version: 9.9.9"));
@@ -187,7 +188,7 @@ test("G-9b: 선언한 tool 버전과 실제 실행 버전이 다르면 acceptanc
   drop(pkg);
 });
 
-test("G-10: system 산출물은 환경 의존으로 표시되고 acceptance가 아니다", () => {
+test("G-10: a system artifact is marked environment-dependent and is not acceptance-grade", () => {
   const pkg = pkgCopy();
   const b = build(pkg, "cards-kpi-grid", "canonical", "ko");
   assert.equal(b.code, 0, b.out);
@@ -195,32 +196,32 @@ test("G-10: system 산출물은 환경 의존으로 표시되고 acceptance가 �
   assert.equal(fd.mode, "system");
   assert.equal(fd.grade, "environment-dependent");
   assert.equal(fd.faces.length, 0);
-  assert.ok(fd.policyDigest && fd.typographyProfileDigest, "어느 정책·글꼴 profile로 만들었는지 남아야 한다");
+  assert.ok(fd.policyDigest && fd.typographyProfileDigest, "which policy and font profile it was built with must be recorded");
   drop(pkg);
 });
 
-test("G-11: portable 산출물은 subset을 embed하고 근거를 남긴다 (pinned subsetter가 있을 때)", () => {
+test("G-11: a portable artifact embeds the subset and records the evidence (when the pinned subsetter is present)", () => {
   const sub = process.env.SVGINFO_PYFTSUBSET;
-  if (!sub || !existsSync(sub)) { console.error("  note: pinned subsetter 없음 — portable 양성 경로는 이 실행에서 미검증"); return; }
+  if (!sub || !existsSync(sub)) { console.error("  note: no pinned subsetter — the portable positive path is unverified in this run"); return; }
   const pkg = pkgCopy();
   const b = build(pkg, "cards-kpi-grid", "canonical", "ko", ["--font-delivery", "portable"]);
   assert.equal(b.code, 0, b.out);
   const rcv = JSON.parse(readFileSync(b.rcp, "utf8"));
   assert.equal(rcv.fontDelivery.grade, "acceptance");
-  assert.equal(rcv.fontDelivery.faces.length, 2, "선언된 400·700 face가 모두 embed돼야 한다");
+  assert.equal(rcv.fontDelivery.faces.length, 2, "both declared faces, 400 and 700, must be embedded");
   const svg = readFileSync(b.svg, "utf8");
   assert.match(svg, /@font-face\{font-family:'[^']+'/);
-  assert.ok(!/@font-face\{font-family:'[^']*Pretendard/i.test(svg), "subset은 Reserved Font Name을 쓸 수 없다");
+  assert.ok(!/@font-face\{font-family:'[^']*Pretendard/i.test(svg), "a subset may not use the Reserved Font Name");
   drop(pkg);
 });
 
-test("G-12: connector 없는 산출물의 layer 순서를 흐트러뜨리면 verify가 non-zero로 끝난다", () => {
+test("G-12: disturbing the layer order of a connector-free artifact makes verify end non-zero", () => {
   const pkg = pkgCopy();
   const b = build(pkg, "layer-stack", "canonical", "ko");
   assert.equal(b.code, 0, b.out);
   const clean = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
   assert.equal(clean.code, 0, clean.out);
-  // annotations 레이어를 맨 앞으로 옮긴다 — 기하는 그대로이고 그리는 순서만 어긋난다
+  // move the annotations layer to the very front — the geometry is unchanged and only the paint order breaks
   const svg = readFileSync(b.svg, "utf8");
   const ann = svg.match(/  <g data-layer="annotations">[\s\S]*?<\/g>\n?/);
   assert.ok(ann, "annotations layer not found");
@@ -232,12 +233,12 @@ test("G-12: connector 없는 산출물의 layer 순서를 흐트러뜨리면 ver
   drop(pkg);
 });
 
-test("G-13: SVG inventory까지 함께 지워도 입력에서 다시 계산한 verify가 잡는다", () => {
+test("G-13: deleting the SVG inventory along with it is still caught by a verify recomputed from the input", () => {
   const pkg = pkgCopy();
   const b = build(pkg, "before-after", "canonical", "ko");
   assert.equal(b.code, 0, b.out);
   assert.equal(runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]).code, 0);
-  // group annotation과 inventory 항목을 **함께** 제거한다 — 산출물 내부는 자기 일관적이다
+  // remove the group annotation and the inventory entry **together** — the artifact is internally self-consistent
   const svg = readFileSync(b.svg, "utf8");
   const stripped = svg
     .replace(/data-align-inventory="[^"]*"/, 'data-align-inventory="row:slot-deploy=2"')
@@ -249,9 +250,9 @@ test("G-13: SVG inventory까지 함께 지워도 입력에서 다시 계산한 v
   drop(pkg);
 });
 
-test("G-14: 불완전 격자에서 participant가 1인 축은 group을 만들지 않는다", () => {
+test("G-14: in an incomplete grid, an axis with a single participant forms no group", () => {
   const pkg = pkgCopy();
-  // 3열에 셀 9개는 완전 격자 — 모든 행·열이 3이다
+  // nine cells in three columns is a complete grid — every row and column has three
   const b = build(pkg, "decision-matrix", "stress-cardinality", "ko");
   assert.equal(b.code, 0, b.out);
   const svg = readFileSync(b.svg, "utf8");
@@ -260,16 +261,16 @@ test("G-14: 불완전 격자에서 participant가 1인 축은 group을 만들지
   drop(pkg);
 });
 
-// --- decision-matrix: 축 방향과 cell 배치는 축 값에서 파생돼야 한다 -----------------
-// 배열 순서로 자리를 정하면 "낮음" 행이 위로 올라가도 아무 gate가 울리지 않았다.
-// 아래 3종은 그 회귀를 각각 다른 층위에서 고정한다.
+// --- decision-matrix: axis direction and cell placement must derive from the axis values -----
+// When position came from array order, the "low" row could rise to the top and no gate rang.
+// The three tests below pin that regression at three different levels.
 
-test("G-15: 축 값이 자리를 정한다 — high/low 행을 뒤집으면 verify가 거부한다", () => {
+test("G-15: the axis values decide the position — swapping the high and low rows makes verify refuse", () => {
   const pkg = pkgCopy();
   const b = build(pkg, "decision-matrix", "canonical", "ko");
   assert.equal(b.code, 0, b.out);
   assert.equal(runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]).code, 0);
-  // 두 행의 y좌표만 맞바꾼다 — 라벨도 축도 그대로라 산출물만 보면 멀쩡하다.
+  // swap only the y coordinates of the two rows — labels and axes are untouched, so the artifact looks fine on its own
   const svg = readFileSync(b.svg, "utf8");
   const ys = [...svg.matchAll(/<rect x="[\d.]+" y="([\d.]+)"[^>]*data-align-row="matrix-r(\d)"/g)];
   const top = ys.find((m) => m[2] === "0")[1], bot = ys.find((m) => m[2] === "1")[1];
@@ -281,11 +282,11 @@ test("G-15: 축 값이 자리를 정한다 — high/low 행을 뒤집으면 veri
   drop(pkg);
 });
 
-test("G-16: 축 방향 marker가 반대 끝에 있으면 거부한다", () => {
+test("G-16: an axis direction marker at the opposite end is refused", () => {
   const pkg = pkgCopy();
   const b = build(pkg, "decision-matrix", "canonical", "ko");
   const svg = readFileSync(b.svg, "utf8");
-  // y축 marker를 아래 끝으로 옮긴다 — 선도 라벨도 그대로다.
+  // move the y-axis marker to the bottom end — the line and the labels stay as they are
   const line = svg.match(/<path data-axis="y"[^>]*d="M([\d.]+) ([\d.]+) V([\d.]+)"/);
   const [, ax, bot, top] = line;
   const moved = svg.replace(/<path data-axis-marker="y" d="[^"]*"/,
@@ -299,13 +300,13 @@ test("G-16: 축 방향 marker가 반대 끝에 있으면 거부한다", () => {
   drop(pkg);
 });
 
-test("G-17: 축 방향과 라벨을 함께 뒤집어도 cell 배치가 어긋나면 거부한다", () => {
+test("G-17: flipping the axis direction and the labels together is still refused when the cell placement disagrees", () => {
   const pkg = pkgCopy();
   const b = build(pkg, "decision-matrix", "canonical", "ko");
   const svg = readFileSync(b.svg, "utf8");
-  // 산출물만 보면 **완전히 자기 일관적**이 되도록 전부 뒤집는다: positive=down,
-  // marker를 아래 끝으로, 두 끝 라벨 교환, 그리고 cell 행까지 교환.
-  // "y는 위로 자란다"는 계약과 원본 축 값이 없으면 이 산출물은 통과해버린다.
+  // Flip everything so the artifact is **entirely self-consistent** on its own: positive=down,
+  // the marker at the bottom end, the two endpoint labels swapped, and the cell rows swapped too.
+  // Without the "y grows upward" contract and the original axis values, this artifact would pass.
   const line = svg.match(/<path data-axis="y"[^>]*d="M([\d.]+) ([\d.]+) V([\d.]+)"/);
   const [, ax, bot] = line;
   const hi = svg.match(/<text data-axis-end="y:high"[^>]*>([^<]*)</)[1];
@@ -323,13 +324,13 @@ test("G-17: 축 방향과 라벨을 함께 뒤집어도 cell 배치가 어긋나
   writeFileSync(b.svg, f);
   const r = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
   assert.notEqual(r.code, 0, r.out);
-  // 두 층위가 함께 걸린다: 축 방향 계약(위가 positive)과 입력 축 값이 정한 실제 자리.
+  // Two levels catch it together: the axis direction contract (up is positive) and the actual position the input axis values fix.
   assert.match(r.out, /E-GEN-AXIS/);
   assert.match(r.out, /E-GEN-MATRIX-PLACE/);
   drop(pkg);
 });
 
-test("G-18: ordinal 축은 connector가 아니다 — routing audit 대상이 되지 않는다", () => {
+test("G-18: an ordinal axis is not a connector — it is not a subject of the routing audit", () => {
   const pkg = pkgCopy();
   const b = build(pkg, "decision-matrix", "canonical", "ko");
   const svg = readFileSync(b.svg, "utf8");
@@ -340,8 +341,9 @@ test("G-18: ordinal 축은 connector가 아니다 — routing audit 대상이 �
   drop(pkg);
 });
 
-// --- roadmap-timeline: 위치는 입력이 정하고, 상태는 색 없이도 구분된다 -----------------
-// 이 타입의 뜻은 "순서"다. 그래서 좌표·순서·marker 위치를 모두 **원본 입력에서 재계산해** 대조한다.
+// --- roadmap-timeline: the input fixes position, and status reads without colour ------------
+// What this type means is "order". So coordinates, order and marker position are all **recomputed
+// from the original input** and compared.
 
 const skinManifest = (pkg) => {
   const r = spawnSync(process.execPath, [path.join(pkg, "scripts", "skin.mjs"), "manifest"],
@@ -353,13 +355,13 @@ const tlEdit = (pkg, tid, fn) => {
   writeFileSync(f, fn(readFileSync(f, "utf8")));
 };
 
-test("G-19: 등간격은 계산값이다 — 한 phase만 옮기면 verify가 거부한다", () => {
+test("G-19: even spacing is a computed value — moving one phase alone makes verify refuse", () => {
   const pkg = pkgCopy();
   const b = build(pkg, "roadmap-timeline", "canonical", "ko");
   assert.equal(b.code, 0, b.out);
   assert.equal(runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]).code, 0);
   const svg = readFileSync(b.svg, "utf8");
-  // phase 하나를 통째로 옮긴다(underlay·dot·ring·label 전부) — 자기 일관적인 이동이다.
+  // move one phase wholesale (underlay, dot, ring and label) — a self-consistent displacement
   const grp = svg.match(/<g data-comp-entity="phase-3"[\s\S]*?<\/g>/)[0];
   const cx = Number(grp.match(/<circle[^>]*cx="([\d.]+)"/)[1]);
   const moved = grp.replace(new RegExp(`cx="${cx}"`, "g"), `cx="${cx + 24}"`)
@@ -371,7 +373,7 @@ test("G-19: 등간격은 계산값이다 — 한 phase만 옮기면 verify가 �
   drop(pkg);
 });
 
-test("G-20: now marker 위치는 after_phase가 정한다 — 옮기면 거부한다", () => {
+test("G-20: after_phase fixes the now-marker position — moving it is refused", () => {
   const pkg = pkgCopy();
   const b = build(pkg, "roadmap-timeline", "canonical", "ko");
   const svg = readFileSync(b.svg, "utf8");
@@ -383,7 +385,7 @@ test("G-20: now marker 위치는 after_phase가 정한다 — 옮기면 거부�
   drop(pkg);
 });
 
-test("G-21: after_phase가 없는 phase이거나 current가 아니면 입력에서 거부한다", () => {
+test("G-21: an after_phase naming a phase that does not exist, or one that is not current, is refused at input", () => {
   for (const [mutate, why] of [
     [(s) => s.replace('after_phase: "phase-2"', 'after_phase: "phase-9"'), /not an existing phase id/],
     [(s) => s.replace('after_phase: "phase-2"', 'after_phase: "phase-3"'), /must name the phase whose status is "current"/],
@@ -397,10 +399,10 @@ test("G-21: after_phase가 없는 phase이거나 current가 아니면 입력에�
   }
 });
 
-test("G-22: 마지막 phase가 current인데 marker가 있으면 거부한다", () => {
+test("G-22: a marker present while the last phase is current is refused", () => {
   const pkg = pkgCopy();
-  // tail-current 입력에 marker를 되돌려 넣는다 — 뒤에 놓을 ordinal interval이 없다.
-  const marker = ['now_marker:', '  after_phase: "phase-4"', '  label:', '    ko: "지금"', '    en: "Now"', ''].join("\n");
+  // put the marker back into a tail-current input — there is no ordinal interval left to place it after
+  const marker = ['now_marker:', '  after_phase: "phase-4"', '  label:', /* lang-allow: ko-fixture */ '    ko: "지금"', '    en: "Now"', ''].join("\n");
   tlEdit(pkg, "stress-tail-current", (s) => s.trimEnd() + "\n" + marker);
   const r = skinManifest(pkg);
   assert.notEqual(r.code, 0, r.out);
@@ -408,9 +410,9 @@ test("G-22: 마지막 phase가 current인데 marker가 있으면 거부한다", 
   drop(pkg);
 });
 
-test("G-23: status가 시간 순서와 모순이면 거부한다", () => {
+test("G-23: a status contradicting the temporal order is refused", () => {
   const pkg = pkgCopy();
-  // done → future 로 바꿔 future 가 current 앞에 오게 만든다.
+  // change done to future so that a future comes before the current one
   tlEdit(pkg, "canonical", (s) => s.replace('status: "done"', 'status: "future"'));
   const r = skinManifest(pkg);
   assert.notEqual(r.code, 0, r.out);
@@ -418,7 +420,7 @@ test("G-23: status가 시간 순서와 모순이면 거부한다", () => {
   drop(pkg);
 });
 
-test("G-24: 상태는 색만으로 구분되지 않는다 — ring이 안 보이면 거부한다", () => {
+test("G-24: status is not distinguished by colour alone — an invisible ring is refused", () => {
   for (const [mutate, code] of [
     [(s) => s.replace(/(data-dot-ring="current"[^>]*stroke-width=")[\d.]+/, "$10"), /ring stroke 0 is below the visible floor/],
     [(s) => s.replace(/(<circle data-dot-ring="current" cx="[\d.]+" cy="[\d.]+" r=")[\d.]+/, "$19"), /leaves no visible gap/],
@@ -434,7 +436,7 @@ test("G-24: 상태는 색만으로 구분되지 않는다 — ring이 안 보이
   }
 });
 
-test("G-25: timeline receipt는 exact schema다 — 누락·추가·타입·길이·union 모순을 거부한다", () => {
+test("G-25: the timeline receipt is an exact schema — omissions, additions, wrong types, wrong lengths and union contradictions are refused", () => {
   const muts = [
     [(t) => { delete t.timeline.axis.step; }, /missing required field "step"/],
     [(t) => { t.timeline.extra = 1; }, /undeclared field "extra"/],
@@ -457,7 +459,7 @@ test("G-25: timeline receipt는 exact schema다 — 누락·추가·타입·길�
   }
 });
 
-test("G-26: 날짜 domain은 이 타입에 없다 — 입력이 들고 오면 거부한다", () => {
+test("G-26: the date domain does not belong to this type — an input bringing it is refused", () => {
   const pkg = pkgCopy();
   const b = build(pkg, "roadmap-timeline", "canonical", "ko");
   tlEdit(pkg, "canonical", (s) => s.replace('  - id: "phase-1"', '  - id: "phase-1"\n    date: "2026-01-01"'));
@@ -466,12 +468,12 @@ test("G-26: 날짜 domain은 이 타입에 없다 — 입력이 들고 오면 �
   drop(pkg);
 });
 
-test("G-27: 축은 모든 state marker 뒤에 그려져야 한다 — 순서를 뒤집으면 거부한다", () => {
+test("G-27: the axis must be drawn behind every state marker — reversing the order is refused", () => {
   const pkg = pkgCopy();
   const b = build(pkg, "roadmap-timeline", "canonical", "ko");
   assert.equal(b.code, 0, b.out);
   const svg = readFileSync(b.svg, "utf8");
-  // 축 rect를 dot 뒤로 옮긴다 — 좌표는 그대로라 기하 검사만으로는 잡히지 않는다.
+  // move the axis rect after the dots — the coordinates are unchanged, so a geometry check alone would not catch it
   const ax = svg.match(/<rect[^>]*data-axis="x"[^>]*\/>/)[0];
   writeFileSync(b.svg, svg.replace(ax, "").replace("</svg>", `${ax}\n</svg>`));
   const r = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
@@ -480,7 +482,7 @@ test("G-27: 축은 모든 state marker 뒤에 그려져야 한다 — 순서를 
   drop(pkg);
 });
 
-test("G-28: 투명한 future dot은 거부한다 — 축 rail이 비친다", () => {
+test("G-28: a transparent future dot is refused — the axis rail shows through", () => {
   for (const [mutate, why] of [
     [(s) => s.replace(/(<circle cx="[\d.]+" cy="[\d.]+" r="[\d.]+" )fill="#F7F7F5" data-fill-role="canvas"( stroke="#636A75")/, '$1fill="none"$2'), /no fill — the axis rail shows through/],
     [(s) => s.replace(/<circle[^>]*data-dot-underlay="future"[^>]*\/>/, ""), /carries no background underlay/],
@@ -498,14 +500,14 @@ test("G-28: 투명한 future dot은 거부한다 — 축 rail이 비친다", () 
   }
 });
 
-// --- treatment axis: sketch는 이름이 아니라 산출물로 증명된다 -------------------------
-// flat이 canonical/default이고 sketch는 opt-in experimental preview다. 아래는 그 경계를
-// 이름이 아니라 **산출물**에서 지키는지 고정한다.
+// --- the treatment axis: sketch is proven by the artifact, not by its name ------------------
+// flat is canonical and the default; sketch is an opt-in experimental preview. The tests below pin
+// whether that boundary holds in the **artifact** rather than in the name.
 
 const TX = ["--treatment", "sketch", "--font-delivery", "portable"];
 const hasSubsetter = () => Boolean(process.env.SVGINFO_PYTHON && existsSync(process.env.SVGINFO_PYTHON));
 
-test("G-29: registry가 허용하지 않는 treatment는 거부한다", () => {
+test("G-29: a treatment the registry does not allow is refused", () => {
   const pkg = pkgCopy();
   const r = runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical",
     "--locale", "ko", "--treatment", "watercolour", "--out", out(pkg, "x.svg"), "--receipt", out(pkg, "x.json")]);
@@ -514,7 +516,7 @@ test("G-29: registry가 허용하지 않는 treatment는 거부한다", () => {
   drop(pkg);
 });
 
-test("G-30: dark × sketch는 미지원 조합으로 거부한다", () => {
+test("G-30: dark with sketch is refused as an unsupported combination", () => {
   const pkg = pkgCopy();
   const r = runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical",
     "--locale", "ko", "--treatment", "sketch", "--mode", "dark", "--out", out(pkg, "x.svg"), "--receipt", out(pkg, "x.json")]);
@@ -523,7 +525,7 @@ test("G-30: dark × sketch는 미지원 조합으로 거부한다", () => {
   drop(pkg);
 });
 
-test("G-31: overlay가 registry에서 빠지면 sketch를 선택할 수 없다", () => {
+test("G-31: with the overlay missing from the registry, sketch cannot be selected", () => {
   const pkg = pkgCopy();
   const reg = path.join(pkg, "references", "skins", "registry.yaml");
   writeFileSync(reg, readFileSync(reg, "utf8").replace(/^overlays:\n  sketch: .*$/m, "overlays: {}"));
@@ -534,8 +536,8 @@ test("G-31: overlay가 registry에서 빠지면 sketch를 선택할 수 없다",
   drop(pkg);
 });
 
-test("G-32: sketch 구조가 일부만 빠져도 verify가 거부한다", () => {
-  if (!hasSubsetter()) { console.error("  note: pinned subsetter 없음 — sketch 구조 negative 미검증"); return; }
+test("G-32: even a partially missing sketch structure is refused by verify", () => {
+  if (!hasSubsetter()) { console.error("  note: no pinned subsetter — the sketch-structure negative is unverified"); return; }
   const muts = [
     [(s) => s.replace(/ data-treatment-paper="1"/, " data-was-paper=\"1\""), /no treatment paper surface/],
     [(s) => s.replace(/<defs data-treatment-defs="sketch">/, "<defs>"), /does not declare the "sketch" treatment defs/],
@@ -558,7 +560,7 @@ test("G-32: sketch 구조가 일부만 빠져도 verify가 거부한다", () => 
   }
 });
 
-test("G-33: sketch receipt로 flat 산출물을 통과시킬 수 없다 (silent flat fallback)", () => {
+test("G-33: a sketch receipt cannot pass off a flat artifact (the silent flat fallback)", () => {
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
   const fsvg = out(pkg, "f.svg"), frcp = out(pkg, "f.json");
@@ -567,9 +569,9 @@ test("G-33: sketch receipt로 flat 산출물을 통과시킬 수 없다 (silent 
     "--font-delivery", "portable", "--out", fsvg, "--receipt", frcp]).code, 0);
   assert.equal(runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko",
     ...TX, "--out", ssvg, "--receipt", srcp]).code, 0);
-  // flat과 sketch가 실제로 다른 산출물이어야 한다 — 이름만 바뀐 것은 treatment가 아니다.
+  // flat and sketch must genuinely be different artifacts — a changed name alone is not a treatment
   assert.notEqual(readFileSync(fsvg, "utf8"), readFileSync(ssvg, "utf8"));
-  // sketch receipt + flat artifact = 조용한 fallback. 거부돼야 한다.
+  // a sketch receipt plus a flat artifact is the quiet fallback. It must be refused.
   const s = JSON.parse(readFileSync(srcp, "utf8"));
   s.artifactDigest = JSON.parse(readFileSync(frcp, "utf8")).artifactDigest;
   writeFileSync(srcp, JSON.stringify(s));
@@ -579,7 +581,7 @@ test("G-33: sketch receipt로 flat 산출물을 통과시킬 수 없다 (silent 
   drop(pkg);
 });
 
-test("G-34: portable sketch는 embedded alias가 stack을 이끈다 (implicit fallback 금지)", () => {
+test("G-34: in a portable sketch the embedded alias leads the stack (no implicit fallback)", () => {
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
   const svg = out(pkg, "s.svg"), rcp = out(pkg, "s.json");
@@ -588,7 +590,7 @@ test("G-34: portable sketch는 embedded alias가 stack을 이끈다 (implicit fa
   const text = readFileSync(svg, "utf8");
   assert.match(text, /style="font-family:'SkinSans-Subset','Hi Melody'/);
   assert.match(text, /@font-face/);
-  // alias를 stack에서 떨어뜨리면 설치 글꼴에 의존하게 된다 — 거부돼야 한다.
+  // dropping the alias out of the stack makes it depend on an installed font — it must be refused
   writeFileSync(svg, text.replace(/font-family:'SkinSans-Subset',/, "font-family:"));
   const r = runIn(pkg, ["verify", "--receipt", rcp, "--svg", svg]);
   assert.notEqual(r.code, 0, r.out);
@@ -596,9 +598,9 @@ test("G-34: portable sketch는 embedded alias가 stack을 이끈다 (implicit fa
   drop(pkg);
 });
 
-// --- allowedPortInterval: layout이 증명한 구간을 router가 소비한다 --------------------
+// --- allowedPortInterval: the router consumes the interval the layout proved --------------------
 
-test("G-35: interval 밖 port는 verify가 거부한다", () => {
+test("G-35: a port outside the interval is refused by verify", () => {
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
   const svg = out(pkg, "s.svg"), rcp = out(pkg, "s.json");
@@ -606,11 +608,11 @@ test("G-35: interval 밖 port는 verify가 거부한다", () => {
     "--locale", "ko", ...TX, "--out", svg, "--receipt", rcp]).code, 0);
   const t = JSON.parse(readFileSync(rcp, "utf8"));
   const pc = t.routing.portConstraints;
-  assert.ok(pc?.length, "sketch topology는 entry interval을 선언해야 한다");
-  // 선택된 port를 구간 밖으로 옮긴다(선언은 그대로) — 재측정이 잡아야 한다.
+  assert.ok(pc?.length, "a sketch topology must declare its entry interval");
+  // move the chosen port outside the interval (leaving the declaration alone) — re-measurement must catch it
   const text = readFileSync(svg, "utf8");
   const m = new RegExp(`data-route-id="${pc[0].edge}"[^>]*?\\sd="(M[^"]+)"`).exec(text);
-  // 경로 전체를 왼쪽으로 옮긴다 — attach x가 구간 밖으로 나가야 한다.
+  // shift the whole path left — the attach x must end up outside the interval
   const moved = m[1].replace(/([ML])([\d.]+)/g, (_, cmd, x) => `${cmd}${Number(x) - 200}`);
   writeFileSync(svg, text.replace(`d="${m[1]}"`, `d="${moved}"`));
   const r = runIn(pkg, ["verify", "--receipt", rcp, "--svg", svg]);
@@ -619,13 +621,13 @@ test("G-35: interval 밖 port는 verify가 거부한다", () => {
   drop(pkg);
 });
 
-test("G-36: node port 범위를 벗어난 interval 선언은 거부한다", () => {
+test("G-36: an interval declaration exceeding the node's port range is refused", () => {
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
   const svg = out(pkg, "s.svg"), rcp = out(pkg, "s.json");
   runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko", ...TX, "--out", svg, "--receipt", rcp]);
   const t = JSON.parse(readFileSync(rcp, "utf8"));
-  t.routing.portConstraints[0].allowed.hi += 500;   // node 밖까지 허용한다고 주장
+  t.routing.portConstraints[0].allowed.hi += 500;   // claiming to allow positions outside the node
   writeFileSync(rcp, JSON.stringify(t));
   const r = runIn(pkg, ["verify", "--receipt", rcp, "--svg", svg]);
   assert.notEqual(r.code, 0, r.out);
@@ -633,13 +635,13 @@ test("G-36: node port 범위를 벗어난 interval 선언은 거부한다", () =
   drop(pkg);
 });
 
-test("G-37: label clearance를 만족하지 않는 interval은 거부한다", () => {
+test("G-37: an interval that does not satisfy the label clearance is refused", () => {
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
   const svg = out(pkg, "s.svg"), rcp = out(pkg, "s.json");
   runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko", ...TX, "--out", svg, "--receipt", rcp]);
   const t = JSON.parse(readFileSync(rcp, "utf8"));
-  t.routing.portConstraints[0].allowed.lo -= 120;   // label 쪽으로 구간을 넓혔다고 주장
+  t.routing.portConstraints[0].allowed.lo -= 120;   // claiming the interval was widened toward the label
   writeFileSync(rcp, JSON.stringify(t));
   const r = runIn(pkg, ["verify", "--receipt", rcp, "--svg", svg]);
   assert.notEqual(r.code, 0, r.out);
@@ -647,51 +649,51 @@ test("G-37: label clearance를 만족하지 않는 interval은 거부한다", ()
   drop(pkg);
 });
 
-test("G-38: 합법 구간이 기존 sweep 밖에 있어도 라우팅된다 (interval 소비 증거)", () => {
+test("G-38: routing succeeds even when the legal interval lies outside the old sweep (evidence the interval is consumed)", () => {
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
   const svg = out(pkg, "s.svg"), rcp = out(pkg, "s.json");
   const b = runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko", ...TX, "--out", svg, "--receipt", rcp]);
   assert.equal(b.code, 0, b.out);
   const t = JSON.parse(readFileSync(rcp, "utf8"));
-  // 큰 손글씨에서 label이 넓어져도 3개 edge가 모두 살아 있어야 한다.
-  assert.equal(t.routing.routes.length, 3, "1.8x에서도 전 edge가 라우팅돼야 한다");
+  // even as the handwriting grows and the labels widen, all three edges must survive
+  assert.equal(t.routing.routes.length, 3, "every edge must still route at 1.8x");
   assert.equal(t.routing.problems.length, 0);
-  for (const c of t.routing.portConstraints) assert.ok(c.allowed.hi > c.allowed.lo, "구간은 finite이고 비어 있지 않다");
+  for (const c of t.routing.portConstraints) assert.ok(c.allowed.hi > c.allowed.lo, "the interval is finite and non-empty");
   drop(pkg);
 });
 
-test("G-39: straight-first와 결정성은 interval 아래에서도 유지된다", () => {
+test("G-39: straight-first and determinism hold under the interval too", () => {
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
   const a = out(pkg, "a.svg"), ar = out(pkg, "a.json"), c = out(pkg, "c.svg"), cr = out(pkg, "c.json");
   runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko", ...TX, "--out", a, "--receipt", ar]);
   runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko", ...TX, "--out", c, "--receipt", cr]);
-  assert.equal(readFileSync(a, "utf8"), readFileSync(c, "utf8"), "같은 입력은 같은 산출물이어야 한다");
+  assert.equal(readFileSync(a, "utf8"), readFileSync(c, "utf8"), "the same input must give the same artifact");
   const t = JSON.parse(readFileSync(ar, "utf8"));
-  for (const rt of t.routing.routes) assert.equal(rt.path, "straight", `${rt.id}은 직선이어야 한다(불필요한 dogleg 금지)`);
+  for (const rt of t.routing.routes) assert.equal(rt.path, "straight", `${rt.id} must be straight (no needless dogleg)`);
   assert.equal(t.routing.problems.length, 0);
   drop(pkg);
 });
 
-test("G-40: 후보 수가 안전 상한을 넘으면 조용히 자르지 않고 명시 실패한다", async () => {
+test("G-40: when the candidate count passes the safety cap it fails explicitly rather than truncating quietly", async () => {
   const { routeEdges, ROUTE_DEFAULTS } = await import("./route-orthogonal.mjs");
   const K = ROUTE_DEFAULTS;
-  // 파생 후보 수 = floor((hi-lo)/portSpreadStep)+1. 상한 64를 넘기려면 겹치는 구간 폭 > 768px.
-  const W = (64 + 4) * K.portSpreadStep;                 // 816px → 후보 69개
+  // derived candidate count = floor((hi-lo)/portSpreadStep)+1. Passing the cap of 64 needs an overlap wider than 768px.
+  const W = (64 + 4) * K.portSpreadStep;                 // 816px -> 69 candidates
   const nodes = { a: { x: 0, y: 0, w: W, h: 60 }, b: { x: 0, y: 300, w: W, h: 60 } };
   const plan = { classified: [{ id: "e1", from: "a", to: "b", weight: "primary", dashed: false }] };
   const r = routeEdges({ nodes, zones: [], plan, frame: { x: -20, y: -20, w: W + 40, h: 420 }, degradeLevel: 0 });
   assert.ok(r.problems.some((p) => /safety cap/.test(p)),
-    `cap 초과가 명시 실패여야 한다: problems=${JSON.stringify(r.problems)} routes=${r.routes.length}`);
-  assert.ok((r.diagnostics ?? []).some((d) => d.code === "R-CANDIDATE-CAP"), "R-CANDIDATE-CAP 진단이 남아야 한다");
-  assert.equal(r.routes.length, 0, "잘라낸 뒤 성공으로 처리하지 않는다");
+    `passing the cap must be an explicit failure: problems=${JSON.stringify(r.problems)} routes=${r.routes.length}`);
+  assert.ok((r.diagnostics ?? []).some((d) => d.code === "R-CANDIDATE-CAP"), "an R-CANDIDATE-CAP diagnostic must be recorded");
+  assert.equal(r.routes.length, 0, "it is not treated as a success after truncation");
 });
 
-test("G-41: treatment 항목이 없는 잔여 선언은 fail-closed다", () => {
+test("G-41: a residual declaration with no entry for the treatment fails closed", () => {
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
-  // sketch 항목을 지운다 — flat 값을 재사용해 통과시키면 안 된다.
+  // delete the sketch entry — reusing the flat value to pass must not happen
   editManifest(pkg, (t) => t.replace(/\n *- \{ treatment: sketch, calibration: [^}]*\}/, ""));
   const r = runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical",
     "--locale", "ko", ...TX, "--out", out(pkg, "s.svg"), "--receipt", out(pkg, "s.json")]);
@@ -700,7 +702,7 @@ test("G-41: treatment 항목이 없는 잔여 선언은 fail-closed다", () => {
   drop(pkg);
 });
 
-test("G-42: calibration ID가 다르면 잔여 선언을 쓰지 않는다", () => {
+test("G-42: a differing calibration ID means the residual declaration is not used", () => {
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
   editManifest(pkg, (t) => t.replace("calibration: hi-melody-optical-v1", "calibration: hi-melody-optical-v0"));
@@ -711,7 +713,7 @@ test("G-42: calibration ID가 다르면 잔여 선언을 쓰지 않는다", () =
   drop(pkg);
 });
 
-test("G-43: 잔여는 exact-match다 — 선언보다 작아도 통과하지 않는다", () => {
+test("G-43: the residual is an exact match — smaller than declared does not pass either", () => {
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
   editManifest(pkg, (t) => t.replace("{ treatment: sketch, calibration: hi-melody-optical-v1, bottom: 93 }",

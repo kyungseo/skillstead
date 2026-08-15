@@ -1,6 +1,6 @@
 # Sketch preset (Tier 2) — tidy hand-drawn
 
-An **opt-in** visual preset: paper background, Korean-capable handwriting font, rough hand-drawn strokes, and highlighter accents. Offer it only when the user asks for a hand-drawn / sketchnote / 손글씨 feel — the flat premium style stays the default.
+An **opt-in** visual preset: paper background, Korean-capable handwriting font, rough hand-drawn strokes, and highlighter accents. Offer it only when the user asks for a hand-drawn / sketchnote / handwritten feel — the flat premium style stays the default.
 
 **Identity: "tidy hand-drawn."** The *surface* becomes hand-drawn; the *structure* does not. The layout pass, text budgets, and pre-render checklist from `SKILL.md` apply unchanged — alignment stays computed, spacing stays even, text stays real and editable. Do **not** fake organic imperfection (random misalignment, per-element wobble in placement). That precision is the deliberate difference from image-model sketchnotes: crisp layout, hand feel.
 
@@ -73,7 +73,7 @@ No platform ships a Korean handwriting font, so the SVG must embed one as a base
 pyftsubset assets/fonts/HiMelody-Regular.ttf --text-file=used-chars.txt \
   --flavor=woff2 --output-file=hand-subset.woff2 --layout-features='*' --hinting
 # 3. base64-embed hand-subset.woff2 as @font-face { font-family:'HiMelody-Subset'; ... }
-# 4. verify: node scripts/skin.mjs typography-check out.svg  (renderer도 자동 실행)
+# 4. verify: node scripts/skin.mjs typography-check out.svg  (also runs the renderer)
 ```
 
 - No `fonttools` available → **do not silently fall back to a full embed** (the bundled TTF is ~12MB; a full embed is a ~16MB SVG and nonconforming). Offer to set up the subset tool (`pip install fonttools`) or propose the flat treatment instead.

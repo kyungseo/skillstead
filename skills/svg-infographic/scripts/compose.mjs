@@ -1,22 +1,23 @@
 #!/usr/bin/env node
-// compose.mjs — composition contract tooling (design-kernel composition 계약).
+// compose.mjs — composition contract tooling (the design-kernel composition contract).
 //
-// Three schemas, three commands (수명·소유자 분리 — 혼합 금지):
-//   plan    <plan.yaml>                 Composition Plan v1 검증 (scene 저작 문서)
+// Three schemas, three commands (separate lifetimes and owners — never mixed):
+//   plan    <plan.yaml>                 verify a Composition Plan v1 (the scene authoring document)
 //   compose <plan.yaml> --fragments <dir> --out <svg> [--receipt <json>]
-//                                       translation-only 배치 + namespace rewrite +
-//                                       Composition Receipt v1 산출 (needs-split은
+//                                       translation-only placement + namespace rewrite +
+//                                       producing a Composition Receipt v1 (needs-split is
 //                                       exit 3 non-success)
 //   verify  <composite.svg> --receipt <json> --plan <plan.yaml>
-//                                       최종 SVG를 재측정해 receipt와 대조 —
-//                                       receipt가 source만 보고 꾸며낸 값이면 fail
+//                                       re-measure the final SVG and compare it with the
+//                                       receipt — a value the receipt invented from the
+//                                       source alone fails
 //
-// 경계(CP1 provable subset):
-//   - layout_template: vertical-stack 고정 (slot-a=top, slot-b=bottom)
-//   - 변환: translation-only, scale=1 — scale/rotate/skew는 거부
-//   - bounded composition: primary 정확히 1 + supporting 1..2, nested 거부
-//   - semantic binding은 선 없는 대응(번호/label), connector_edge만 port routing
-//   - identity: instance 간 skin/typography/pageFrame/kernel/iconSet 동일성 검사
+// Boundaries (the CP1 provable subset):
+//   - layout_template: fixed to vertical-stack (slot-a=top, slot-b=bottom)
+//   - transforms: translation-only, scale=1 — scale/rotate/skew are refused
+//   - bounded composition: exactly 1 primary plus 1..2 supporting; nesting is refused
+//   - a semantic binding is a line-free correspondence (number or label); only connector_edge does port routing
+//   - identity: skin/typography/pageFrame/kernel/iconSet are checked identical across instances
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
@@ -28,7 +29,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const skinCli = path.join(here, "skin.mjs");
 const sha16 = (b) => createHash("sha256").update(b).digest("hex").slice(0, 16);
 
-// ---------- minimal YAML (skin.mjs와 동일 subset: nested maps, lists, inline map/array) ----------
+// ---------- minimal YAML (the same subset as skin.mjs: nested maps, lists, inline map/array) ----------
 function parseInlineMap(v, file, line) {
   const out = {};
   const body = v.slice(1, -1).trim();
@@ -166,13 +167,13 @@ export function validatePlan(planPath, manifestPath) {
       }
     }
   }
-  // bounded composition: primary 정확히 1 + supporting 1..2
+  // bounded composition: exactly 1 primary plus 1..2 supporting
   if (primary !== 1) errors.push(`plan: exactly one primary instance is required (got ${primary})`);
   if (supporting < 1 || supporting > 2) errors.push(`plan: supporting instances must be 1..2 (got ${supporting}) — a lone primary needs no composition; more modules need an owner gate`);
   if (tmpl) {
     for (const sid of Object.keys(plan.slots ?? {})) if (!tmpl.slots[sid]) errors.push(`plan: slot "${sid}" is not defined by template "${plan.layout_template}"`);
   }
-  // semantic bindings — 선 없는 대응
+  // semantic bindings — line-free correspondence
   const keys = new Set();
   for (const b of plan.semantic_bindings ?? []) {
     if (!b.key) errors.push("plan: semantic binding without key");
@@ -184,7 +185,7 @@ export function validatePlan(planPath, manifestPath) {
       if (!e.entity_id) errors.push(`plan: binding "${b.key}" endpoint missing entity_id`);
     }
   }
-  // connector edges — port 참조 구조 검증 (호환·anchor는 compose/receipt 단계)
+  // connector edges — verify the port reference structure (compatibility and anchors come at the compose/receipt stage)
   for (const e of plan.connector_edges ?? []) {
     for (const end of ["from", "to"]) {
       const ref = e[end];
@@ -192,7 +193,7 @@ export function validatePlan(planPath, manifestPath) {
       if (!ref?.port) errors.push(`plan: connector edge ${end} missing port id`);
     }
   }
-  // header — h1은 1~2줄(문자열 또는 문자열 목록), style은 header treatment 선택
+  // header — h1 is 1-2 lines (a string or a list of strings); style picks the header treatment
   const hdrV = plan.header ?? {};
   const HK = ["eyebrow", "h1", "subtitle", "style"];
   for (const k of Object.keys(hdrV)) if (!HK.includes(k)) errors.push(`plan: header unknown field "${k}"`);
@@ -200,7 +201,7 @@ export function validatePlan(planPath, manifestPath) {
     errors.push("plan: header.h1 as a list must hold 1..2 non-empty lines");
   if (hdrV.style !== undefined && !["locator", "title-keyline"].includes(hdrV.style))
     errors.push(`plan: header.style must be locator|title-keyline (got "${hdrV.style}")`);
-  // reading order — instance 집합과 정확히 일치
+  // reading order — exactly the same set as the instances
   const ro = plan.reading_order ?? [];
   if (ro.length !== ids.size || ro.some((r) => !ids.has(r)) || new Set(ro).size !== ro.length)
     errors.push(`plan: reading_order must list every instance exactly once`);
@@ -208,11 +209,12 @@ export function validatePlan(planPath, manifestPath) {
   return { plan, planDigest, errors };
 }
 
-// ---------- rhythm: module connector run 실측 ----------
-// data-stroke-role="muted" path의 세로 run 길이(절대 V 세그먼트, provable subset).
-// TypePack이 rhythm.connector_run_band를 선언하면 compose(variant 선택)와
-// verify(최종 SVG 재측정)가 각각 대조한다 — residual을 connector 신장으로 흡수하는
-// 것을 금지하는 계약(dead space 최소화보다 관계 밀도·가독성이 우선).
+// ---------- rhythm: measuring the module connector run ----------
+// The vertical run length of data-stroke-role="muted" paths (absolute V segments, the provable
+// subset). When a TypePack declares rhythm.connector_run_band, compose (variant selection) and
+// verify (re-measuring the final SVG) each check against it — the contract forbidding residual
+// space from being absorbed by stretching connectors (relation density and legibility outrank
+// minimising dead space).
 export function connectorRunsOf(svgBody) {
   const runs = [];
   for (const m of svgBody.matchAll(/<path((?:[^>"']|"[^"]*"|'[^']*')*?)\/?>/g)) {
@@ -232,7 +234,7 @@ export function connectorRunsOf(svgBody) {
         }
       } else if (op === "V") { for (const v of nums) { runs.push(Math.abs(v - y)); y = v; } }
       else if (op === "H") { for (const v of nums) x = v; }
-      // 그 외 op는 measuredBoundsStrict가 provable subset 밖으로 이미 거부한다
+      // any other op is already refused by measuredBoundsStrict as outside the provable subset
     }
   }
   return runs;
@@ -245,10 +247,11 @@ export function bandViolations(runs, band) {
 }
 
 // ---------- geometry helpers (provable subset: rect/circle + stroke/2) ----------
-// CP1 지원 geometry: rect, circle, line, path(M/L/H/V 절대좌표). text/tspan은 정적
-// 파서로 증명 불가 — browser 측정 bounds(evidence)를 opts.textBoxes로 받아 union하며,
-// evidence 없이 text가 존재하면 명시적 오류다. fragment 내부의 transform은 종류를
-// 불문하고 fail-closed다(instance wrapper의 translate는 caller가 벗겨서 전달).
+// Geometry CP1 supports: rect, circle, line, path (absolute M/L/H/V). text and tspan cannot be
+// proven by a static parser — browser-measured bounds (evidence) arrive as opts.textBoxes and are
+// unioned in, and text present without evidence is an explicit error. A transform inside a
+// fragment fails closed whatever its kind (the caller strips the instance wrapper's translate
+// before passing it in).
 export function measuredBoundsStrict(svgBody, opts = {}) {
   let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
   const errors = [];
@@ -295,15 +298,15 @@ export function measuredBoundsStrict(svgBody, opts = {}) {
     } else if (name === "text") {
       textCount++;
     } else if (name === "tspan") {
-      // text 하위 — text 단위 evidence로 커버
+      // inside text — covered by the per-text evidence
     } else if (["g", "title", "desc"].includes(name)) {
-      // 허용 컨테이너/메타 (transform은 위에서 전면 거부)
+      // permitted containers and metadata (transforms were refused outright above)
     } else {
       errors.push(`<${name}> is outside the CP1 provable fragment subset`);
     }
   }
-  // text evidence 대조: 존재하는 text 수와 측정 evidence 수가 일치해야 하며,
-  // evidence가 없으면 unverified 명시 실패다
+  // Check the text evidence: the number of text elements present must match the number of
+  // measurements, and no evidence is an explicit unverified failure
   const boxes = opts.textBoxes ?? null;
   if (textCount > 0 && !boxes) errors.push(`${textCount} text element(s) without measured bounds evidence — text is unverifiable statically (provide browser-measured textBounds)`);
   if (boxes) {
@@ -316,7 +319,7 @@ export const textMarkupDigestOf = (body) => {
   const canon = [...body.matchAll(/<text((?:[^>"']|"[^"]*"|'[^']*')*?)>([\s\S]*?)<\/text>/g)].map((m) => {
     const attrs = [...m[1].matchAll(/([A-Za-z:-]+)\s*=\s*("([^"]*)"|'([^']*)')/g)]
       .map((a) => [a[1], a[3] ?? a[4]])
-      .filter(([k]) => !k.startsWith("data-"))   // namespace prefix 차이는 배치가 아님
+      .filter(([k]) => !k.startsWith("data-"))   // a namespace prefix difference is not a placement difference
       .sort((a, b) => a[0].localeCompare(b[0]))
       .map(([k, v]) => `${k}=${v}`).join(";");
     const inner = m[2].replace(/<tspan((?:[^>"']|"[^"]*"|'[^']*')*?)>/g, (mm, raw) => {
@@ -339,22 +342,22 @@ const round1 = (v) => Math.round(v * 10) / 10;
 export function namespaceBody(body, prefix) {
   const ids = new Set([...body.matchAll(/\bid\s*=\s*("([A-Za-z0-9_-]+)"|'([A-Za-z0-9_-]+)')/g)].map((m) => m[2] ?? m[3]));
   const ren = (id) => `${prefix}-${id}`;
-  // id 선언 (양쪽 quote·spaced =)
+  // id declarations (either quote style, spaced =)
   body = body.replace(/\bid\s*=\s*("([A-Za-z0-9_-]+)"|'([A-Za-z0-9_-]+)')/g, (mm, q, d, sq) => `id="${ren(d ?? sq)}"`);
   // url(#…)
   body = body.replace(/url\(#([A-Za-z0-9_-]+)\)/g, (mm, id) => ids.has(id) ? `url(#${ren(id)})` : mm);
   // href / xlink:href
   body = body.replace(/\b(xlink:href|href)\s*=\s*("#([A-Za-z0-9_-]+)"|'#([A-Za-z0-9_-]+)')/g,
     (mm, attr, q, d, sq) => { const id = d ?? sq; return ids.has(id) ? `${attr}="#${ren(id)}"` : mm; });
-  // 복수 ID ARIA references
+  // multi-ID ARIA references
   body = body.replace(/\b(aria-labelledby|aria-describedby)\s*=\s*("([^"]*)"|'([^']*)')/g,
     (mm, attr, q, d, sq) => `${attr}="${(d ?? sq).split(/\s+/).filter(Boolean).map((id) => ids.has(id) ? ren(id) : id).join(" ")}"`);
-  // layout/cluster/port/entity 참조 계열 (quote·spacing 중립)
+  // the layout/cluster/port/entity reference family (quote- and spacing-neutral)
   body = body.replace(/data-(layout-container|layout-parent|layout-item|layout-group|cluster-id|cluster|layout-title|comp-entity|comp-port)\s*=\s*("([^"]+)"|'([^']+)')/g,
     (mm, k, q, d, sq) => `data-${k}="${prefix}-${d ?? sq}"`);
   return body;
 }
-// rewrite 이후: dangling reference와 duplicate id는 조립 오류다
+// After the rewrite: a dangling reference or a duplicate id is an assembly error
 export function checkRefs(svg) {
   const errors = [];
   const ids = new Map();
@@ -372,8 +375,8 @@ export function checkRefs(svg) {
   return errors;
 }
 
-// 자식 CLI(JSON) 실행 — 실패를 조용한 JSON 파손이 아니라 진단으로 드러낸다
-// (자식 preflight 거부·usage 오류 등이 SyntaxError로 둔갑하지 않도록).
+// Running a child CLI (JSON) — a failure surfaces as a diagnostic rather than quietly corrupt
+// JSON (so a child's preflight refusal or usage error is not disguised as a SyntaxError).
 function spawnJson(args, label) {
   const r = spawnSync(process.execPath, args, { encoding: "utf8" });
   if (r.status !== 0) {
@@ -395,7 +398,7 @@ function compose(planPath, opts) {
     ...(plan.page.support && plan.page.support !== "none" ? ["--support", plan.page.support] : []), "--json"],
     "skin.mjs pageframe");
   const cb = pf.regions.contentBox;
-  // vertical-stack: slot 예산은 contentBox와 정확히 일치해야 한다 (fail-closed)
+  // vertical-stack: the slot budget must match the contentBox exactly (fail-closed)
   const ha = Number(plan.slots["slot-a"].height), hb = Number(plan.slots["slot-b"].height);
   const gap = Number(plan.slot_gap ?? 24);
   if (ha + gap + hb !== cb.h) { console.error(`  ERROR compose: slot budget ${ha}+${gap}+${hb} != contentBox ${cb.h}`); process.exit(1); }
@@ -408,14 +411,15 @@ function compose(planPath, opts) {
   const problems = [];
   for (const inst of plan.instances) {
     const slot = slotRects[inst.slot_id];
-    // variant 선택: base가 slot에 맞지 않으면 manifest 선언 variants 순서로 시도 — Composition이 선택
+    // Variant selection: if base does not fit the slot, try the variants in the order the manifest declares — Composition chooses
     const tryVariants = [inst.variant ?? "base"];
     const packs = loadManifest(opts.manifest, []);
     for (const v of packs?.[inst.typepack]?.composition?.variants ?? []) if (!tryVariants.includes(v.id)) tryVariants.push(v.id);
-    // 잔여 공간 정책(1/2): 단순 면적 최대화가 아니라 TypePack이 선언한 rhythm band
-    // 안에서 slot을 가장 채우는 variant를 선택한다 — connector 신장으로 residual을
-    // 흡수하는 variant는 선택 자격이 없고, raw 좌표 patch·글자/화살표 확대도 금지.
-    // 합법적으로 더 채울 수 없으면 남는 공간은 residual_disposition으로 정직하게 선언한다.
+    // Residual-space policy (1 of 2): not plain area maximisation — pick the variant that fills
+    // the slot most within the rhythm band the TypePack declares. A variant that absorbs the
+    // residual by stretching connectors is not eligible, and patching raw coordinates or
+    // enlarging text and arrows is likewise forbidden. When no more can legally be filled, the
+    // leftover space is honestly declared through residual_disposition.
     const band = packs?.[inst.typepack]?.composition?.rhythm?.connector_run_band ?? null;
     let chosen = null;
     const rhythmRejected = [];
@@ -425,8 +429,9 @@ function compose(planPath, opts) {
       let frag, rcp;
       try { frag = readFileSync(svgP, "utf8"); rcp = JSON.parse(readFileSync(rcpP, "utf8")); } catch { continue; }
       if (band) {
-        // 변조/비정형 fragment는 body 추출이 실패할 수 있다 — band 검사는 전체 문서로
-        // 수행해도 동일하고(connector는 svg 안에만 있다), 무결성은 sourceDigest가 잡는다
+        // Body extraction can fail on a tampered or irregular fragment — running the band check
+        // over the whole document is equivalent (connectors live only inside the svg), and
+        // sourceDigest is what catches the integrity problem
         const bad = bandViolations(connectorRunsOf(frag.match(/<svg[^>]*>([\s\S]*)<\/svg>/)?.[1] ?? frag), band);
         if (bad.length) { rhythmRejected.push(`${variant} (connector run ${round1(bad[0])}px outside ${band.min}..${band.max})`); continue; }
       }
@@ -440,17 +445,17 @@ function compose(planPath, opts) {
       continue;
     }
     const { variant, frag, rcp } = chosen;
-    // fragment 계약: page 요소(header-cluster 등) 금지
+    // the fragment contract: page-level elements (a header-cluster and the like) are forbidden
     if (/data-layout-role\s*=\s*["']header-cluster["']/.test(frag)) { problems.push(`instance "${inst.instance_id}": fragment contains page header elements — fragments own only their local topology`); continue; }
-    // receipt 무결성: sourceDigest 대조 + usedBounds 재측정 대조 (stale/조작 receipt 차단)
+    // receipt integrity: check sourceDigest, and re-measure against usedBounds (blocking stale or tampered receipts)
     const fragSha = createHash("sha256").update(frag).digest("hex").slice(0, 16);
     if (rcp.sourceDigest && rcp.sourceDigest !== fragSha) { problems.push(`instance "${inst.instance_id}": fragment sourceDigest mismatch (receipt ${rcp.sourceDigest}, file ${fragSha})`); continue; }
     if (!rcp.sourceDigest) { problems.push(`instance "${inst.instance_id}": fragment receipt missing sourceDigest`); continue; }
     const body = frag.match(/<svg[^>]*>([\s\S]*)<\/svg>\s*$/)[1];
-    // text bounds evidence: 방식·입력 digest·내용 digest가 fragment와 묶여야 한다(stale 거부)
+    // text bounds evidence: the method, input digest and content digest must be bound to the fragment (stale evidence is refused)
     const fragTextCount = [...body.matchAll(/<text[\s>]/g)].length;
     if (fragTextCount === 0) {
-      // text-free fragment 계약: textDigest/textMarkupDigest/textMeasure = null, textBounds = []
+      // the text-free fragment contract: textDigest/textMarkupDigest/textMeasure = null, textBounds = []
       for (const k of ["textDigest", "textMarkupDigest", "textMeasure"])
         if (rcp[k] != null) problems.push(`instance "${inst.instance_id}": text-free fragment must record ${k}: null (got ${JSON.stringify(rcp[k])})`);
       if (!Array.isArray(rcp.textBounds) || rcp.textBounds.length !== 0)
@@ -466,7 +471,7 @@ function compose(planPath, opts) {
       if (Math.abs(meas.bounds.x - rb.x) > 1 || Math.abs(meas.bounds.y - rb.y) > 1 || Math.abs(meas.bounds.w - rb.w) > 1 || Math.abs(meas.bounds.h - rb.h) > 1)
         problems.push(`instance "${inst.instance_id}": fragment receipt usedBounds ${JSON.stringify(rb)} != measured ${JSON.stringify(meas.bounds)}`);
     }
-    // port 계약 완결(R1-P4): capability 대조·유일성·cardinality·anchor·normal
+    // completing the port contract (R1-P4): capability check, uniqueness, cardinality, anchor, normal
     const packsForPorts = loadManifest(opts.manifest, []);
     const caps = packsForPorts?.[inst.typepack]?.composition?.ports ?? [];
     const capByTemplate = Object.fromEntries(caps.map((c) => [c.template, c]));
@@ -499,7 +504,7 @@ function compose(planPath, opts) {
       else { const [lo, hi] = card.split(".."); ok = n >= Number(lo) && (hi === "n" || n <= Number(hi)); }
       if (!ok) problems.push(`instance "${inst.instance_id}": template "${tpl}" has ${n} actual port(s) but capability cardinality is "${card}"`);
     }
-    // translation-only 배치: 수평 중앙, 상단 정렬
+    // translation-only placement: centred horizontally, aligned to the top
     const dx = round1(slot.x + (slot.w - rcp.usedBounds.w) / 2 - rcp.usedBounds.x);
     const dy = round1(slot.y - rcp.usedBounds.y);
     const nsBody = namespaceBody(body, inst.instance_id);
@@ -515,7 +520,7 @@ function compose(planPath, opts) {
       textBounds: (rcp.textBounds ?? []).map((b) => ({ x: round1(b.x + dx), y: round1(b.y + dy), w: b.w, h: b.h })),
       degrade: variant === "base" ? null : { selectedVariant: variant, lost: rcp.degradeLost ?? "variant-declared reduction (see fragment receipt)" } });
   }
-  // semantic binding: endpoint entity가 실제 fragment receipt entities에 존재해야 한다(R1-P2)
+  // semantic binding: an endpoint entity must exist among the actual fragment receipt entities (R1-P2)
   const entByInstance = Object.fromEntries(recInstances.map((r) => [r.instance_id, new Set(r.entities)]));
   for (const b of plan.semantic_bindings ?? []) {
     for (const e of b.endpoints ?? []) {
@@ -524,7 +529,7 @@ function compose(planPath, opts) {
         problems.push(`binding "${b.key}": entity "${e.entity_id}" does not exist in instance "${e.instance_id}" (ghost endpoint)`);
     }
   }
-  // 선언된 완전성: binding_complete_over에 오른 instance는 전 entity가 최소 1개 binding에 참여
+  // Declared completeness: on an instance listed in binding_complete_over, every entity takes part in at least one binding
   for (const covId of plan.binding_complete_over ?? []) {
     const set = entByInstance[covId];
     if (!set) continue;
@@ -532,11 +537,11 @@ function compose(planPath, opts) {
     for (const ent of set) if (!bound.has(ent) && ent !== "root")
       problems.push(`binding coverage: entity "${ent}" of "${covId}" is not bound — declared complete coverage is missing a pair`);
   }
-  // identity 동일성 (instance 간)
+  // identity equality (across instances)
   const idents = recInstances.map((r) => JSON.stringify(r.identity));
   const identityConsistent = idents.length > 0 && idents.every((x) => x === idents[0]);
   if (!identityConsistent && recInstances.length) problems.push("identity digests differ across instances — all modules must share one skin/typography/pageframe/kernel contract");
-  // connector edges (micro-fixture 경로): port 존재·kind/direction 호환 + 세로 corridor 검증
+  // connector edges (the micro-fixture path): port existence, kind/direction compatibility, and the vertical corridor check
   const edges = [];
   for (const e of plan.connector_edges ?? []) {
     const from = recInstances.find((r) => r.instance_id === e.from.instance_id)?.ports.find((p) => p.id === e.from.port);
@@ -551,7 +556,7 @@ function compose(planPath, opts) {
       d: `M${from.anchor.x} ${from.anchor.y + 8} V${to.anchor.y - 8}` });
     bodies.push(`<g data-comp-connectors="true"><path d="M${from.anchor.x} ${from.anchor.y + 8} V${to.anchor.y - 8}" fill="none" data-stroke-role="edge-line" stroke="#2E6DA4" stroke-width="2.5" marker-end="url(#comp-ah)"/></g>`);
   }
-  // 한 port는 CP1에서 edge 1개까지만 사용한다
+  // In CP1 one port carries at most one edge
   const usedPorts = new Map();
   for (const e of plan.connector_edges ?? []) {
     for (const end of ["from", "to"]) {
@@ -562,11 +567,12 @@ function compose(planPath, opts) {
   for (const [key, n] of usedPorts) if (n > 1) problems.push(`port ${key} participates in ${n} edges (CP1 limit: 1)`);
   if (problems.length && status === "ok") status = "invalid";
   const hdr = plan.header ?? {};
-  // header treatment: 좌표 상수가 아니라 pageframe headerScale에서 파생한다.
-  // - title-keyline(canonical default): H1 line-box에서만 파생한 세로 keyline.
-  //   locator와 중복 표시 금지, eyebrow/H1/subtitle 텍스트 시작선은 하나로 정렬,
-  //   gap/pad/width는 scale profile 소유
-  // - locator(대안 variant): eyebrow 앞 square locator, marker-label-row 산식(중앙 일치)
+  // header treatment: derived from the pageframe headerScale, not from coordinate constants.
+  // - title-keyline (the canonical default): a vertical keyline derived from the H1 line-box
+  //   alone. Never shown together with the locator; the eyebrow, H1 and subtitle text start on
+  //   one alignment; gap, pad and width belong to the scale profile
+  // - locator (the alternative variant): a square locator before the eyebrow, following the
+  //   marker-label-row formula (centres agree)
   const hs = pf.headerScale;
   const hStyle = hdr.style ?? "title-keyline";
   const textX = 40, h1Y = 92;
@@ -602,9 +608,10 @@ function compose(planPath, opts) {
   </g>
   ${bodies.join("\n  ")}
 </svg>`;
-  // 잔여 공간 정책(2): 최종 배치 후 contentFlowBounds와 contentBox residual을 기록하고,
-  // page 하단 잔여는 plan의 명시적 residual_disposition 선언과 일치해야 한다 —
-  // 임계값 발명 없이 "채울 수 있는 만큼 채우고, 남는 것은 선언한다"
+  // Residual-space policy (2 of 2): after the final placement, record contentFlowBounds and the
+  // contentBox residual; the leftover at the page bottom must match the plan's explicit
+  // residual_disposition declaration — "fill what can be filled, declare what is left", with no
+  // invented threshold
   let contentFlowBounds = null, residual = null;
   if (recInstances.length) {
     const xs1 = Math.min(...recInstances.map((r) => r.usedBounds.x));
@@ -623,7 +630,7 @@ function compose(planPath, opts) {
     }
     if (problems.length && status === "ok") status = "invalid";
   }
-  // namespace rewrite 이후 dangling reference·duplicate id는 조립 실패다 (최종 SVG 기준)
+  // After the namespace rewrite, a dangling reference or a duplicate id is an assembly failure (judged on the final SVG)
   for (const re of checkRefs(svg)) { problems.push(`assembly: ${re}`); if (status === "ok") status = "invalid"; }
   const receipt = { schemaVersion: 1, kind: "composition-receipt", planId: plan.id, planDigest,
     layoutTemplate: plan.layout_template, page: { preset: plan.page.preset, canvas: pf.canvas },
@@ -632,7 +639,7 @@ function compose(planPath, opts) {
     instances: recInstances, connectorEdges: edges,
     semanticBindings: plan.semantic_bindings ?? [], readingOrder: plan.reading_order,
     identityConsistent, status, problems,
-    budget: { h1Count: 1, h1ScaleTexts: 1, note: "focal/tint/connector 집계는 measured/advisory — threshold 미정의(계약)" } };
+    budget: { h1Count: 1, h1ScaleTexts: 1, note: "the focal/tint/connector tallies are measured and advisory — no threshold is defined (by contract)" } };
   if (opts.receipt) writeFileSync(opts.receipt, JSON.stringify(receipt, null, 1));
   if (status === "ok" && opts.out) writeFileSync(opts.out, svg.replace(/[ \t]+$/gm, ""));
   console.log(`compose ${plan.id} — status=${status}, instances=${recInstances.length}/${plan.instances.length}${problems.length ? `\n  ` + problems.join("\n  ") : ""}`);
@@ -647,7 +654,7 @@ function verify(svgPath, opts) {
   const { plan, planDigest: livePlanDigest, errors: pErr } = validatePlan(opts.plan, opts.manifest);
   errors.push(...pErr);
   const packsV = opts.manifest ? loadManifest(opts.manifest, []) : null;
-  // Receipt v1 strict schema — receipt의 어떤 필드도 무검증 신뢰하지 않는다(R1-P1)
+  // Receipt v1 strict schema — no field of a receipt is trusted unverified (R1-P1)
   const RK = ["schemaVersion", "kind", "planId", "planDigest", "layoutTemplate", "page", "resolvedSlots",
     "slotGap", "contentFlowBounds", "residual", "residualDisposition", "instances", "connectorEdges",
     "semanticBindings", "readingOrder", "identityConsistent", "status", "problems", "budget"];
@@ -655,9 +662,9 @@ function verify(svgPath, opts) {
   for (const k of RK) if (!(k in receipt)) errors.push(`E-COMP-SCHEMA receipt missing field "${k}"`);
   if (receipt.schemaVersion !== 1 || receipt.kind !== "composition-receipt") errors.push("E-COMP-SCHEMA receipt identity invalid");
   if (receipt.status !== "ok" || (receipt.problems ?? []).length) errors.push(`E-COMP-STATUS receipt status "${receipt.status}" with ${receipt.problems?.length ?? 0} problem(s) — only clean ok passes verify`);
-  // planDigest는 plan 파일에서 재계산해 대조
+  // planDigest is recomputed from the plan file and compared
   if (receipt.planDigest !== livePlanDigest) errors.push(`E-COMP-FORGED receipt planDigest ${receipt.planDigest} != recomputed ${livePlanDigest}`);
-  // slots/page는 Plan+PageFrame에서 재계산해 대조
+  // slots and page are recomputed from Plan plus PageFrame and compared
   if (plan) {
     const h1LinesV = Array.isArray(plan.header?.h1) ? plan.header.h1.length : 1;
     const pfR = spawnJson([skinCli, "pageframe", plan.page.preset,
@@ -669,7 +676,7 @@ function verify(svgPath, opts) {
     if (JSON.stringify(expectSlots) !== JSON.stringify(receipt.resolvedSlots)) errors.push("E-COMP-FORGED receipt resolvedSlots != recomputed from plan + pageframe");
     if (JSON.stringify(pfR.canvas) !== JSON.stringify(receipt.page?.canvas)) errors.push("E-COMP-FORGED receipt page.canvas != pageframe receipt");
   }
-  // live SSoT digest 대조 — 서로 같기만 한 가짜 digest를 거부(R1-P1)
+  // compare against the live SSoT digests — a fake digest that is merely self-consistent is refused (R1-P1)
   const live = {};
   try {
     const rj = spawnJson([skinCli, "resolve", "current", "--mode", "light", "--json"], "skin.mjs resolve");
@@ -685,7 +692,7 @@ function verify(svgPath, opts) {
         errors.push(`E-COMP-LIVE instance "${inst.instance_id}" ${k} "${inst.identity?.[k]}" != live registry "${v}"`);
     }
   }
-  // instance receipt nested strict schema (P1-1) — 필드 삭제로 검사를 무력화할 수 없다
+  // the nested strict schema for an instance receipt (P1-1) — deleting a field cannot disable the check
   const IK = ["instance_id", "typepack", "variant", "module_role", "slot_id", "translate",
     "usedBounds", "ports", "entities", "identity", "degrade", "textDigest", "textMarkupDigest",
     "textBounds", "textMeasure"];
@@ -694,26 +701,26 @@ function verify(svgPath, opts) {
     for (const k of Object.keys(inst)) if (!IK.includes(k)) errors.push(`E-COMP-SCHEMA ${ctx} unknown field "${k}"`);
     for (const k of IK) if (!(k in inst)) errors.push(`E-COMP-SCHEMA ${ctx} missing field "${k}"`);
   }
-  // receipt instance 집합 = plan 집합 (svg 집합 대조는 아래 domOrder 검사와 합쳐 3-way)
+  // the receipt instance set equals the plan set (the svg set is compared in the domOrder check below, making it 3-way)
   const rIds = (receipt.instances ?? []).map((r) => r.instance_id);
   const pIds = (plan?.instances ?? []).map((i) => i.instance_id);
   for (const id of pIds) if (!rIds.includes(id)) errors.push(`E-COMP-MISSING receipt drops instance "${id}" declared in the plan`);
   for (const id of rIds) if (!pIds.includes(id)) errors.push(`E-COMP-EXTRA receipt contains undeclared instance "${id}"`);
-  // instance group 추출 + DOM 순서
+  // extract the instance groups plus their DOM order
   const domOrder = [];
   const groups = {};
   const re = /<g data-comp-instance="([a-z0-9-]+)" data-comp-slot="([a-z0-9-]+)" transform="translate\((-?[\d.]+),(-?[\d.]+)\)(?:[^)]*)\)?">/g;
   let m2;
   const idxs = [];
   while ((m2 = re.exec(svg))) { domOrder.push(m2[1]); idxs.push({ id: m2[1], slot: m2[2], dx: Number(m2[3]), dy: Number(m2[4]), start: m2.index }); }
-  // slice 경계: 다음 comp group(instance 또는 connectors) 또는 문서 끝
+  // the slice boundary: the next comp group (an instance or connectors) or the end of the document
   const boundaries = [...svg.matchAll(/<g data-comp-(?:instance|connectors)/g)].map((b) => b.index);
   for (let i = 0; i < idxs.length; i++) {
     const nb = boundaries.find((b) => b > idxs[i].start);
     const end = nb ?? svg.length;
     groups[idxs[i].id] = { ...idxs[i], body: svg.slice(idxs[i].start, end) };
   }
-  // translation-only 강제: instance transform에 scale/rotate가 섞이면 거부
+  // enforce translation-only: an instance transform mixing in scale or rotate is refused
   for (const g of svg.matchAll(/<g data-comp-instance="[a-z0-9-]+"[^>]*transform="([^"]+)"/g)) {
     if (!/^translate\(-?[\d.]+,-?[\d.]+\)$/.test(g[1])) errors.push(`E-COMP-TRANSFORM instance transform must be translation-only (got "${g[1]}")`);
   }
@@ -721,14 +728,14 @@ function verify(svgPath, opts) {
   for (const id of planIds) if (!groups[id]) errors.push(`E-COMP-MISSING instance "${id}" declared in the plan is absent from the composite`);
   for (const id of domOrder) if (!planIds.includes(id)) errors.push(`E-COMP-EXTRA composite contains undeclared instance "${id}"`);
   if (new Set(domOrder).size !== domOrder.length) errors.push("E-COMP-DUP duplicate instance groups in the composite");
-  // usedBounds: receipt 값이 아니라 최종 SVG에서 재측정 — receipt 조작 방지
+  // usedBounds: re-measured from the final SVG rather than taken from the receipt — receipt-tamper resistance
   for (const inst of receipt.instances ?? []) {
     const g = groups[inst.instance_id];
     if (!g) continue;
     const innerBody = g.body.replace(/^<g data-comp-instance[^>]*>/, "");
     const compositeTextCount = [...innerBody.matchAll(/<text[\s>]/g)].length;
     if (compositeTextCount === 0) {
-      // text-free instance 계약: 정확히 이 null 조합만 허용 (release-blocking P2)
+      // the text-free instance contract: exactly this all-null combination is allowed (release-blocking P2)
       const wantNull = { textDigest: inst.textDigest, textMarkupDigest: inst.textMarkupDigest, textMeasure: inst.textMeasure };
       for (const [k, v] of Object.entries(wantNull))
         if (v != null) errors.push(`E-COMP-SCHEMA instance "${inst.instance_id}" has no text but "${k}" is ${JSON.stringify(v)} — text-free instances must record null`);
@@ -736,7 +743,7 @@ function verify(svgPath, opts) {
         errors.push(`E-COMP-SCHEMA instance "${inst.instance_id}" has no text but textBounds is not []`);
     }
     if (compositeTextCount > 0) {
-      // text 보유 instance: evidence 전 필드 필수 — 삭제/공백은 schema error (P1-1)
+      // an instance carrying text: every evidence field is required — deletion or blanks are a schema error (P1-1)
       const needs = { textDigest: inst.textDigest, textMarkupDigest: inst.textMarkupDigest, textBounds: inst.textBounds, textMeasure: inst.textMeasure };
       for (const [k, v] of Object.entries(needs))
         if (v == null || v === "" || (Array.isArray(v) && v.length === 0))
@@ -748,19 +755,19 @@ function verify(svgPath, opts) {
       if (inst.textMeasure?.texts != null && inst.textMeasure.texts !== compositeTextCount)
         errors.push(`E-COMP-SCHEMA instance "${inst.instance_id}" textMeasure.texts ${inst.textMeasure.texts} != composite text count ${compositeTextCount}`);
     }
-    // composite text 내용·배치가 evidence와 일치해야 한다 (조작·교체 거부)
+    // the composite text's content and placement must match the evidence (tampering or substitution is refused)
     if (inst.textDigest && textDigestOf(innerBody) !== inst.textDigest)
       errors.push(`E-COMP-RECEIPT-TEXT instance "${inst.instance_id}" text content digest ${textDigestOf(innerBody)} != receipt ${inst.textDigest} — text was altered after measurement`);
     if (inst.textMarkupDigest && textMarkupDigestOf(innerBody) !== inst.textMarkupDigest)
       errors.push(`E-COMP-RECEIPT-TEXT instance "${inst.instance_id}" text markup digest mismatch — text placement/typography changed after measurement (x/y/font/anchor/tspan)`);
-    // textBounds는 이미 전역 좌표(compose가 translate 반영) — local 합산을 위해 역변환
+    // textBounds is already in global coordinates (compose applied the translate) — invert it to sum in local space
     const localTextBoxes = (inst.textBounds ?? []).map((b) => ({ x: b.x - g.dx, y: b.y - g.dy, w: b.w, h: b.h }));
     const mm2 = measuredBoundsStrict(innerBody, { textBoxes: localTextBoxes });
     for (const ge of mm2.errors) errors.push(`E-COMP-UNVERIFIED-GEOM instance "${inst.instance_id}": ${ge}`);
     const local = mm2.bounds;
     if (!local) { errors.push(`E-COMP-UNMEASURABLE instance "${inst.instance_id}" has no provable geometry`); continue; }
     const meas = { x: round1(local.x + 0), y: round1(local.y + 0), w: round1(local.w), h: round1(local.h) };
-    // group body 좌표는 로컬(fragment) 좌표 + translate — 측정에 translate 반영
+    // the group body coordinates are local (fragment) plus the translate — the measurement applies the translate
     const tx = { x: round1(local.x + g.dx), y: round1(local.y + g.dy), w: round1(local.w), h: round1(local.h) };
     const rb = inst.usedBounds;
     if (Math.abs(tx.x - rb.x) > 1 || Math.abs(tx.y - rb.y) > 1 || Math.abs(tx.w - rb.w) > 1 || Math.abs(tx.h - rb.h) > 1)
@@ -768,14 +775,14 @@ function verify(svgPath, opts) {
     const slot = receipt.resolvedSlots[inst.slot_id];
     if (tx.x < slot.x - 0.5 || tx.y < slot.y - 0.5 || tx.x + tx.w > slot.x + slot.w + 0.5 || tx.y + tx.h > slot.y + slot.h + 0.5)
       errors.push(`E-COMP-BOUNDS instance "${inst.instance_id}" used bounds escape slot ${inst.slot_id}`);
-    // rhythm band: 최종 SVG에서 connector run 재측정 — pack 조회는 plan(typepack) 기준
-    // (receipt typepack 위조로 band를 우회할 수 없다)
+    // rhythm band: re-measure the connector run from the final SVG — the pack is looked up by the
+    // plan's typepack (so forging the receipt's typepack cannot bypass the band)
     const planTp = (plan?.instances ?? []).find((pi) => pi.instance_id === inst.instance_id)?.typepack;
     const bandV = packsV?.[planTp]?.composition?.rhythm?.connector_run_band ?? null;
     if (bandV) for (const r of bandViolations(connectorRunsOf(innerBody), bandV))
       errors.push(`E-COMP-RHYTHM instance "${inst.instance_id}" connector run ${round1(r)}px outside declared band ${bandV.min}..${bandV.max} — residual must not be absorbed by stretching connector runs`);
   }
-  // contentFlowBounds/residual 재계산 대조 (조작 방지) + disposition 정책
+  // recompute and compare contentFlowBounds and residual (tamper resistance), plus the disposition policy
   if (receipt.instances?.length && plan) {
     const xs1 = Math.min(...receipt.instances.map((r) => r.usedBounds.x));
     const ys1 = Math.min(...receipt.instances.map((r) => r.usedBounds.y));
@@ -796,20 +803,20 @@ function verify(svgPath, opts) {
         errors.push(`E-COMP-RESIDUAL page bottom residual ${expResidual.bottom}px lacks a matching explicit residual_disposition — large dead space must never pass silently`);
     }
   }
-  // slot 간 overlap 금지
+  // slots must not overlap
   const sr = Object.entries(receipt.resolvedSlots ?? {});
   for (let i = 0; i < sr.length; i++) for (let j = i + 1; j < sr.length; j++) {
     const [aId, a] = sr[i], [bId, b] = sr[j];
     if (a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h)
       errors.push(`E-COMP-OVERLAP slots ${aId} and ${bId} overlap`);
   }
-  // reading order: traversal=explicit → DOM 순서가 선언과 일치
+  // reading order: with traversal=explicit the DOM order must match the declaration
   if (plan?.traversal === "explicit") {
     const ro = plan.reading_order ?? [];
     if (JSON.stringify(domOrder) !== JSON.stringify(ro))
       errors.push(`E-COMP-ORDER DOM order [${domOrder.join(", ")}] != declared reading_order [${ro.join(", ")}]`);
   }
-  // entity 집합: 최종 SVG의 data-comp-entity가 receipt entities와 1:1 (R1-P2)
+  // the entity set: data-comp-entity in the final SVG is 1:1 with the receipt entities (R1-P2)
   for (const inst of receipt.instances ?? []) {
     const g = groups[inst.instance_id];
     if (!g) continue;
@@ -817,15 +824,15 @@ function verify(svgPath, opts) {
     for (const ent of inst.entities ?? []) if (!found.has(ent)) errors.push(`E-COMP-ENTITY instance "${inst.instance_id}" entity "${ent}" missing from the composite`);
     for (const ent of found) if (!(inst.entities ?? []).includes(ent)) errors.push(`E-COMP-ENTITY composite carries undeclared entity "${ent}" in "${inst.instance_id}"`);
   }
-  // identity 동일성
+  // identity equality
   if (receipt.identityConsistent === false) errors.push("E-COMP-IDENTITY receipt reports inconsistent module identities");
   const idents = (receipt.instances ?? []).map((r) => JSON.stringify(r.identity));
   if (idents.length && !idents.every((x) => x === idents[0])) errors.push("E-COMP-IDENTITY module identity digests differ");
-  // duplicate SVG id 전역
+  // duplicate SVG ids across the whole document
   const seen = new Map();
   for (const mm of svg.matchAll(/id\s*=\s*"([A-Za-z0-9_-]+)"/g)) seen.set(mm[1], (seen.get(mm[1]) ?? 0) + 1);
   for (const [id, n] of seen) if (n > 1) errors.push(`E-COMP-DUPID svg id "${id}" appears ${n} times`);
-  // 최종 composite text runtime 재측정 (기본 on — 가장 정직한 binding; 상속 스타일까지 커버)
+  // runtime re-measurement of the final composite text (on by default — the most honest binding; it covers inherited styles too)
   if (!opts.noBrowser) {
     const mtCli = path.join(here, "measure-text.mjs");
     const mr = spawnSync(process.execPath, [mtCli, svgPath], { encoding: "utf8", timeout: 60000 });
@@ -850,17 +857,17 @@ function verify(svgPath, opts) {
       } catch { errors.push("E-COMP-TEXT-RUNTIME unparseable browser measurement"); }
     }
   }
-  // page budget machine gate(R1-P2p): semantic role 기반 H1 정확히 1 — header 소유
+  // the page budget machine gate (R1-P2p): exactly one H1 by semantic role — owned by the header
   const roleH1 = [...svg.matchAll(/data-layout-role\s*=\s*["']cluster-h1["']/g)].length;
   if (roleH1 !== 1) errors.push(`E-COMP-H1 composite must carry exactly one cluster-h1 role (found ${roleH1})`);
   for (const [iid, g] of Object.entries(groups)) {
     if (/data-layout-role\s*=\s*["'](cluster-h1|page-title-header)["']/.test(g.body))
       errors.push(`E-COMP-H1 instance "${iid}" carries a page-heading role — module headings stay at section scale`);
   }
-  // 보조 측정(advisory): H1급 font-size 텍스트 수 — 판정이 아니라 기록
+  // supporting measurement (advisory): how many texts carry an H1-scale font-size — recorded, not adjudicated
   const h1Scale = [...svg.matchAll(/<text[^>]*font-size\s*=\s*["'](2[89]|[3-9]\d)/g)].length;
   if (roleH1 === 1 && h1Scale > 1) errors.push(`E-COMP-H1 ${h1Scale - 1} module text(s) at H1 scale (>=28px) compete with the page H1 — keep module headings at section scale`);
-  // budget receipt 필수 field
+  // required fields of the budget receipt
   const BK = ["h1Count", "h1ScaleTexts", "note"];
   for (const k of BK) if (!(k in (receipt.budget ?? {}))) errors.push(`E-COMP-SCHEMA receipt.budget missing "${k}"`);
   const receiptOut = { schemaVersion: 1, command: "compose-verify", file: path.basename(svgPath), instances: domOrder.length,
@@ -870,11 +877,11 @@ function verify(svgPath, opts) {
     console.log(`verify ${path.basename(svgPath)} — instances ${domOrder.length}, ${errors.length} error(s)${opts.noBrowser ? " [static-only — bounded, not acceptance-grade]" : ""}`);
     for (const e of errors) console.log(`  ERROR ${e}`);
   }
-  // exit 계약: 0 = 완전 검증 성공(browser 포함) · 1 = 오류 · 3 = static-only bounded(비성공)
+  // exit contract: 0 = fully verified success (browser included) / 1 = error / 3 = static-only bounded (not a success)
   process.exit(errors.length ? 1 : opts.noBrowser ? 3 : 0);
 }
 
-// ---------- CLI (entrypoint guard: import 시 실행 금지 — realpath parity) ----------
+// ---------- CLI (entrypoint guard: never runs on import — realpath parity) ----------
 import { realpathSync } from "node:fs";
 function isEntrypoint() {
   if (!process.argv[1]) return false;
@@ -891,8 +898,8 @@ const opt = (name, def = null) => {
   return i >= 0 ? argv[i + 1] : def;
 };
 const KNOWN = ["--fragments", "--out", "--receipt", "--plan", "--manifest", "--json", "--no-browser"];
-// package-owned lookup(manifest)은 resolve 시점에 containment 검사 — plan/fragment/
-// out은 사용자 입력이므로 대상이 아니다(입력은 digest로 묶는다).
+// A package-owned lookup (the manifest) is containment-checked at resolve time — plan, fragment
+// and out are user input and so are not subjects of that check (input is bound by digest instead).
 for (const a of argv.filter((x) => x.startsWith("--"))) if (!KNOWN.includes(a)) { console.error(`unknown option for compose: ${a}`); process.exit(2); }
 const defaultManifest = path.resolve(here, "..", "references", "types", "manifest.yaml");
 const manifestPath = guardPackagePath(opt("manifest", defaultManifest), "composition manifest");

@@ -1,70 +1,75 @@
 #!/usr/bin/env node
-// route-orthogonal.mjs — 방향 있는 연결선을 결정적으로 배선한다.
+// route-orthogonal.mjs — routes directed connectors deterministically.
 //
-// 이 모듈이 소유하는 것은 **배선 문법**이다: node별 side port 선택, corridor·lane 할당,
-// rounded orthogonal path, arrowhead와 target clearance. 개별 좌표 patch는 없다 —
-// 좌표는 전부 여기서 계산되고, 호출자는 배선 수요(reserve)를 받아 배치를 넓힐 뿐이다.
+// What this module owns is the **routing grammar**: choosing a side port per node, allocating
+// corridors and lanes, the rounded orthogonal path, the arrowhead and the target clearance. There
+// are no one-off coordinate patches — every coordinate is computed here, and the caller only takes
+// the routing demand (reserve) and widens its layout accordingly.
 //
-// 배선 규칙(요약):
-//   1) 주 흐름은 top→down 한 방향으로 고정한다.
-//   2) port는 dominant axis와 의미 방향이 정한다 — 세로 이동은 top/bottom, 가로 이동은 left/right.
-//      한 변에 여러 edge가 붙으면 attach point를 균등 분산하고 최소 간격을 강제한다(fan-out).
-//   3) 세로 이동은 zone 사이 corridor의 **lane**을 하나씩 차지한다. lane은 겹치지 않는다.
-//   4) 한 zone을 건너뛰는 edge는 지나가는 zone을 관통하지 않고 **side channel**로 우회한다.
-//   5) 같은 행에서 인접하지 않은 두 node는 그 사이 node를 관통하지 않고 zone 안 bypass lane을 쓴다.
-//   6) 교차가 남으면 덜 중요한 선(async/secondary, 동률이면 뒤에 선언된 선)에 hop을 넣는다.
-//   7) 합법 경로를 못 찾으면 겹쳐 그리지 않고 degrade ladder를 적용하고, 그래도 안 되면 needs-split.
+// The routing rules, in brief:
+//   1) The main flow is fixed to one direction, top to bottom.
+//   2) The port follows the dominant axis and the semantic direction — top/bottom for vertical
+//      travel, left/right for horizontal. When several edges attach to one side the attach points
+//      are spread evenly and a minimum spacing is enforced (fan-out).
+//   3) Vertical travel takes one **lane** each in the corridor between zones. Lanes never overlap.
+//   4) An edge skipping a zone detours through a **side channel** rather than cutting through the zone it passes.
+//   5) Two non-adjacent nodes in the same row use a bypass lane inside the zone instead of cutting through the node between them.
+//   6) Where a crossing remains, the hop goes on the less important line (async/secondary, or the later-declared line on a tie).
+//   7) When no legal path is found it does not draw over itself: it applies the degrade ladder, and failing that returns needs-split.
 //
-// 좌표는 호출자가 준 절대 좌표계를 그대로 쓴다. 이 모듈은 SVG를 만들지 않고 **경로와 근거**를
-// 돌려준다(문자열 조립은 호출자 몫, 감사는 auditTopology가 산출물에서 다시 잰다).
+// Coordinates stay in the absolute system the caller supplied. This module builds no SVG; it
+// returns **paths and the reasoning behind them** (string assembly is the caller's job, and
+// auditTopology re-measures the artifact for the audit).
 
 export const ROUTE_DEFAULTS = {
-  laneGap: 12,        // 나란히 달리는 선 사이 최소 간격 — 각 선이 독립적으로 추적돼야 한다
-  portGap: 12,        // 한 변에서 attach point 사이 최소 간격
-  targetGap: 10,      // arrow tip과 target 경계 사이 간격(spec 8–12px)
-  stub: 24,           // 우회 시 port에서 빠져나오는 직선(= endpointStub)
-  radius: 8,          // 모서리 quarter-arc 반경
+  laneGap: 12,        // minimum spacing between lines running alongside — each must stay independently traceable
+  portGap: 12,        // minimum spacing between attach points on one side
+  targetGap: 10,      // the gap between the arrow tip and the target boundary (spec: 8-12px)
+  stub: 24,           // the straight run leaving the port on a detour (= endpointStub)
+  radius: 8,          // the quarter-arc radius at a corner
   hopRadius: 6,
-  maxBends: 5,        // stub·lane·stub 구조에서 나올 수 있는 최대 꺾임
-  corridorMargin: 14, // corridor 위아래로 남기는 여백
-  channelMargin: 16,  // side channel과 zone 사이 여백
+  maxBends: 5,        // the most bends a stub-lane-stub structure can produce
+  corridorMargin: 14, // the margin left above and below a corridor
+  channelMargin: 16,  // the margin between a side channel and a zone
   maxHops: 6,
-  // 아래 길이는 외부 수치를 옮겨 온 것이 아니라 **우리 arrow scale과 모서리 반경에서 유도**한다.
-  portInset: 16,          // = 2×radius. 둥근 모서리를 피해 port를 두는 여백
-  minSegment: 16,         // = 2×radius. 두 모서리가 한 구간을 나눠 가질 수 있는 최소 길이
-  minInteriorSegment: 24, // = 3×radius. 꺾임과 꺾임 사이가 이보다 짧으면 꺾임이 아니라 흠집으로 읽힌다
-  endpointStub: 24,       // = markerWidth(11.25) + targetGap(10) + 여유. 화살촉이 직선 위에 온전히 앉는다
-  portSpreadStep: 12,     // = laneGap. 같은 변의 port는 이 간격으로 **대칭** 분산한다
-  collinearOverlapMax: 8, // = radius. 무관한 두 선이 이만큼 나란히 겹치면 한 선으로 읽힌다
-  outerClearance: 14,     // = laneGap + stroke 한 쌍. container border와 route가 한 선으로 붙어 보이지 않는 최소 간격
-  labelPad: 10,           // label bounds를 이만큼 부풀려 obstacle로 쓴다(글자와 선의 독립 간격)
-  minShaft: 26,      // marker 뒤로 실제 선이 보여야 한다(authoring §3)
+  // The lengths below are not numbers copied from elsewhere — they are **derived from our own
+  // arrow scale and corner radius**.
+  portInset: 16,          // = 2 x radius. The margin that keeps a port clear of the rounded corner
+  minSegment: 16,         // = 2 x radius. The shortest span two corners can share
+  minInteriorSegment: 24, // = 3 x radius. Any shorter between two bends and it reads as a nick, not a bend
+  endpointStub: 24,       // = markerWidth (11.25) + targetGap (10) + slack. The arrowhead sits wholly on a straight run
+  portSpreadStep: 12,     // = laneGap. Ports on one side spread **symmetrically** at this interval
+  collinearOverlapMax: 8, // = radius. Two unrelated lines overlapping this far read as one line
+  outerClearance: 14,     // = laneGap + a pair of strokes. The least spacing at which a container border and a route do not read as one line
+  labelPad: 10,           // label bounds are inflated by this much and used as an obstacle (keeping text and line independently readable)
+  minShaft: 26,      // a real line must be visible behind the marker (authoring §3)
 };
 
 const K = ROUTE_DEFAULTS;
 const r1 = (v) => Math.round(v * 10) / 10;
 const byId = (list) => new Map(list.map((x) => [x.id, x]));
 
-// --- 배선 수요 ---------------------------------------------------------------
-// 배치 전에 "이 edge 집합을 그리려면 어디에 얼마나 공간이 필요한가"를 먼저 답한다.
-// 배치가 먼저 확정되고 배선이 그 틈에 끼워 맞춰지면, 결국 관통·중첩으로 끝난다.
+// --- routing demand ---------------------------------------------------------------
+// Before the layout, answer "where and how much space does drawing this edge set need?". If the
+// layout is settled first and the routing squeezed into whatever gaps remain, it ends in
+// cut-throughs and overlaps.
 export function planChannels({ zoneOrder, nodeZone, nodeIndex, edges }) {
   const zi = new Map(zoneOrder.map((z, i) => [z, i]));
-  const corridorLanes = new Map();   // corridor index(=위 zone index) -> lane 수
-  const intraLanes = new Map();      // zone id -> bypass lane 수
+  const corridorLanes = new Map();   // corridor index (= the index of the zone above) -> lane count
+  const intraLanes = new Map();      // zone id -> bypass lane count
   const sideLanes = { left: 0, right: 0 };
   const classified = [];
   for (const e of edges) {
     const a = zi.get(nodeZone.get(e.from)), b = zi.get(nodeZone.get(e.to));
     if (a === undefined || b === undefined) { classified.push({ ...e, kindPath: "unknown" }); continue; }
     if (a === b) {
-      // 같은 행에서 인접하지 않으면 사이 node를 관통하지 않도록 bypass lane이 필요하다.
+      // Non-adjacent within a row needs a bypass lane so the node between is not cut through.
       const gap = Math.abs((nodeIndex.get(e.from) ?? 0) - (nodeIndex.get(e.to) ?? 0));
       classified.push({ ...e, kindPath: "intra", zone: nodeZone.get(e.from), direct: gap <= 1 });
     } else if (Math.abs(a - b) === 1) {
       classified.push({ ...e, kindPath: "adjacent", corridor: Math.min(a, b), down: b > a });
     } else {
-      // zone을 건너뛰는 edge: 출발 corridor → side channel → 도착 corridor로 우회한다.
+      // An edge skipping a zone detours: departure corridor -> side channel -> arrival corridor.
       const down = b > a;
       classified.push({ ...e, kindPath: "skip", from_i: a, to_i: b, down,
         corridorOut: down ? a : a - 1, corridorIn: down ? b - 1 : b, side: down ? "right" : "left" });
@@ -81,15 +86,15 @@ export function planChannels({ zoneOrder, nodeZone, nodeIndex, edges }) {
     return n === 0 ? 2 * K.corridorMargin : 2 * K.corridorMargin + (n - 1) * K.laneGap;
   };
   const channelWidth = (side) => (sideLanes[side] === 0 ? 0 : K.channelMargin + (sideLanes[side] - 1) * K.laneGap + K.stub);
-  const directPairs = new Map();   // zone id -> 직결 intra edge 수
+  const directPairs = new Map();   // zone id -> count of direct intra edges
   for (const e of classified) if (e.kindPath === "intra" && e.direct)
     directPairs.set(e.zone, (directPairs.get(e.zone) ?? 0) + 1);
-  // 직결 connector가 지나갈 자리: target gap 양쪽 + 최소 shaft
+  // Room for a direct connector to pass: a target gap on each side plus the minimum shaft
   const nodeGap = (zid) => (directPairs.get(zid) ? 2 * K.targetGap + K.minShaft : 16);
   return { classified, corridorLanes, intraLanes, sideLanes, corridorHeight, channelWidth, directPairs, nodeGap };
 }
 
-// 진단마다 "무엇을 바꾸면 되는지" 하나씩만 제안한다 — 전체를 다시 그리지 않기 위해서다.
+// Each diagnostic proposes just one "change this" — so the whole thing need not be redrawn.
 function fixesFor(code) {
   switch (code) {
     case "R-THROUGH": return ["reflow the row so the endpoints share a column", "let this secondary edge use the outer corridor"];
@@ -100,32 +105,32 @@ function fixesFor(code) {
   }
 }
 
-// --- 배치 정렬 요청 ------------------------------------------------------------
-// routing이 배치 결과를 무조건 받아들이면 주 흐름이 지그재그가 된다. primary edge가
-// 직선으로 이어질 수 있도록 **행 안에서 slot 순서를 바꿔** 같은 column을 확보한다.
-// (좌표를 임의로 옮기지 않는다 — 행은 여전히 등간격 group이다.)
+// --- layout alignment request ------------------------------------------------------------
+// If routing simply accepts whatever the layout produced, the main flow zigzags. To let primary
+// edges run straight, it **reorders slots within a row** to secure a shared column. (No coordinate
+// is moved arbitrarily — the row remains an evenly spaced group.)
 export function alignRows({ zoneOrder, nodeOrder, nodeZone, edges }) {
   const order = new Map([...nodeOrder].map(([z, list]) => [z, [...list]]));
   const zi = new Map(zoneOrder.map((z, i) => [z, i]));
   const moves = [];
   for (const e of edges) {
-    if ((e.weight ?? "primary") !== "primary") continue;          // 우회는 secondary의 몫이다
+    if ((e.weight ?? "primary") !== "primary") continue;          // detours are secondary's business
     const za = nodeZone.get(e.from), zb = nodeZone.get(e.to);
     if (za === undefined || zb === undefined || za === zb) continue;
     if (Math.abs(zi.get(za) - zi.get(zb)) !== 1) continue;
     const A = order.get(za), B = order.get(zb);
-    if (!A || !B || A.length !== B.length) continue;               // 행 크기가 다르면 slot이 대응하지 않는다
+    if (!A || !B || A.length !== B.length) continue;               // rows of different size have no slot correspondence
     const ia = A.indexOf(e.from), ib = B.indexOf(e.to);
     if (ia < 0 || ib < 0 || ia === ib) continue;
-    [B[ia], B[ib]] = [B[ib], B[ia]];                               // 같은 slot으로 맞춘다
+    [B[ia], B[ib]] = [B[ib], B[ia]];                               // line them up in the same slot
     moves.push({ edge: e.id, zone: zb, moved: e.to, from: ib, to: ia });
   }
   return { order, moves };
 }
 
-// --- 경로 생성 ---------------------------------------------------------------
-// 비용 순서(사전식): ① 꺾임 수 ② lane 이동량 ③ 선언 순서.
-// 장애물이 없으면 직선이 이긴다 — 작은 좌표 이동을 아끼려고 꺾지 않는다.
+// --- path generation ---------------------------------------------------------------
+// Cost order (lexicographic): (1) bend count, (2) lane travel, (3) declaration order.
+// With no obstacle the straight run wins — it never bends just to save a small coordinate move.
 export function routeEdges({ nodes, zones, plan, frame, degradeLevel = 0 }) {
   const problems = [], routes = [], attempts = [], diagnostics = [];
   const active = plan.classified.filter((e) => degradeLevel < 3 || (e.weight ?? "primary") !== "secondary");
@@ -134,17 +139,17 @@ export function routeEdges({ nodes, zones, plan, frame, degradeLevel = 0 }) {
     ...Object.entries(nodes).map(([id, b]) => ({ id, kind: "node", x: b.x, y: b.y, w: b.w, h: b.h })),
     ...zones.filter((z) => z.labelBox).map((z) => ({ id: `${z.id}-label`, kind: "zone-label", ...z.labelBox })),
   ];
-  // 흐름 축(top→down)을 각 edge에 실어 준다 — 단조성 판정의 기준이다.
+  // Carry the flow axis (top to bottom) on each edge — it is the basis of the monotonicity test.
   for (const e of active) {
     const A = nodes[e.from], B = nodes[e.to];
     if (A && B) e.flowAxis = (B.y + B.h / 2) - (A.y + A.h / 2) >= 0 ? 1 : -1;
   }
-  // primary를 먼저 배선한다 — 주 흐름이 직선 자리를 먼저 가진다.
+  // Route the primaries first — the main flow gets first claim on the straight positions.
   const ordered = [...active].sort((a, b) =>
     ((a.weight ?? "primary") === "primary" ? 0 : 1) - ((b.weight ?? "primary") === "primary" ? 0 : 1));
 
-  const placed = [];                       // 이미 확정된 경로(그와 겹치는 lane은 쓸 수 없다)
-  const usedPorts = new Map();             // `${node}|${side}` -> [좌표]
+  const placed = [];                       // paths already settled (a lane overlapping them is unusable)
+  const usedPorts = new Map();             // `${node}|${side}` -> [coordinates]
 
   for (const e of ordered) {
     const A = nodes[e.from], B = nodes[e.to];
@@ -160,12 +165,12 @@ export function routeEdges({ nodes, zones, plan, frame, degradeLevel = 0 }) {
     }
     const all = candidates(e, A, B, nodes, zones, frame, usedPorts, { isReturn });
     if (all.capOverflow) {
-      // 후보 공간이 안전 상한을 넘었다 — 잘라내고 "없다"고 말하지 않는다.
+      // The candidate space passed the safety cap — it does not truncate and then claim "there were none".
       diagnostics.push({ ...all.capOverflow, supportedFixes: ["narrow the allowed port interval", "increase the lane gap"] });
       problems.push(`edge ${e.id}: the allowed port interval yields more candidates than the safety cap — narrow the interval instead of truncating the search`);
       continue;
     }
-    // 되돌이는 주 흐름과 같은 축도, 같은 면도 쓰지 않는다 — 반대 방향 화살촉이 한 면에 몰리면 읽히지 않는다.
+    // A return uses neither the main flow's axis nor its face — arrowheads pointing opposite ways crowded onto one face do not read.
     const cands = isReturn ? all.filter((c) => c.kind === "side-channel") : all;
     const tried = [];
     let chosen = null;
@@ -195,7 +200,7 @@ export function routeEdges({ nodes, zones, plan, frame, degradeLevel = 0 }) {
     routes.push(rt); placed.push(rt);
   }
 
-  // 남은 교차는 덜 중요한 선에 다리를 놓는다(교차 자체를 피할 후보가 없을 때만 여기 온다)
+  // Remaining crossings get a bridge on the less important line (reached only when no candidate avoided the crossing itself)
   const prio = (rt) => (rt.style === "dashed" ? 0 : 1) + (rt.weight === "secondary" ? 0 : 1);
   for (let i = 0; i < routes.length; i++) for (let j = i + 1; j < routes.length; j++) {
     const A = routes[i], B = routes[j];
@@ -215,17 +220,19 @@ export function routeEdges({ nodes, zones, plan, frame, degradeLevel = 0 }) {
     legendRequired: styles.has("solid") && styles.has("dashed") };
 }
 
-// 후보 생성 — 꺾임이 적은 것부터. 좌표는 전부 여기서 계산한다.
-// 지배 축 한 방향만 만들면 "그 방향이 막혔다"는 이유로 멀쩡한 1-bend를 놓친다.
+// Candidate generation — fewest bends first. Every coordinate is computed here.
+// Generating only the dominant axis would miss a perfectly good 1-bend on the grounds that "that
+// direction was blocked".
 function candidates(e, A, B, nodes, zones, frame, usedPorts, opt = {}) {
   const out = [];
   const dx = (B.x + B.w / 2) - (A.x + A.w / 2), dy = (B.y + B.h / 2) - (A.y + A.h / 2);
   const vOut = dy > 0 ? "bottom" : "top", vIn = dy > 0 ? "top" : "bottom";
   const hOut = dx > 0 ? "right" : "left", hIn = dx > 0 ? "left" : "right";
   const vertical = Math.abs(dy) >= Math.abs(dx);
-  // allowedPortInterval: layout이 label bounds·node bounds·clearance에서 이미 증명한
-  // **합법 port 구간**이다. router는 그 안에서만 후보를 만들고, 없으면 기존과 완전히 같다.
-  // 구간은 node의 실제 port 범위와 교집합을 내며, 교집합이 비면 fail-closed다.
+  // allowedPortInterval: the **legal port interval** the layout already proved from label bounds,
+  // node bounds and clearance. The router generates candidates only inside it; with none given,
+  // behaviour is exactly as before. The interval is intersected with the node's own port range,
+  // and an empty intersection fails closed.
   const allow = e.allowedPortInterval ?? null;
   const ivRaw = (n, side) => side === "top" || side === "bottom"
     ? { lo: n.x + K.portInset, hi: n.x + n.w - K.portInset, axis: "x" }
@@ -245,34 +252,37 @@ function candidates(e, A, B, nodes, zones, frame, usedPorts, opt = {}) {
     : side === "left" ? { x: n.x - K.targetGap, y: v } : { x: n.x + n.w + K.targetGap, y: v };
   const free = (nid, side, v) => !(usedPorts.get(`${nid}|${side}`) ?? []).some((u) => Math.abs(u - v) < K.portGap);
   const center = (n, axis) => axis === "x" ? n.x + n.w / 2 : n.y + n.h / 2;
-  // 원하는 자리부터 바깥으로 훑어 **비어 있는** port를 고른다 — 자리가 찼다고 후보를 버리지 않는다.
+  // Sweep outward from the wished-for position to find a **free** port — a taken position does not discard the candidate.
   const pick = (nid, n, side, wish) => {
     const i = iv(n, side);
     for (const v of nudge(clamp(wish, i.lo, i.hi), i.lo, i.hi)) if (free(nid, side, v)) return v;
     return null;
   };
 
-  // ① 0-bend — port 구간이 겹치면 공통 좌표를 골라 완전한 직선으로 잇는다(sliding port).
-  //    주 흐름을 직선으로 확보하는 것이 이 router의 첫 번째 규칙이다.
+  // (1) 0-bend — where the port intervals overlap, pick a shared coordinate and join them in a
+  //     perfectly straight run (a sliding port). Securing the main flow as a straight run is this
+  //     router's first rule.
   for (const [sf, st] of [[vOut, vIn], [hOut, hIn]]) {
     const a = iv(A, sf), b = iv(B, st);
     if (a.axis !== b.axis) continue;
     const lo = Math.max(a.lo, b.lo), hi = Math.min(a.hi, b.hi);
     if (lo > hi) continue;
-    // 동률인 0-bend 후보가 여럿이면 "어느 중심을 지키는가"로 고른다:
-    //   ① 같은 side에 다른 연결이 없으면 source center
-    //   ② source center가 target 구간 밖이면 target center
-    //   ③ 둘 다 불가능할 때만 구간 중앙
+    // With several tied 0-bend candidates, choose by "whose centre is held":
+    //   (1) the source centre, when no other connection shares the side
+    //   (2) the target centre, when the source centre falls outside the target interval
+    //   (3) the middle of the interval, only when neither is possible
     const sc = center(A, a.axis), tc = center(B, b.axis);
     const shared = (usedPorts.get(`${e.from}|${sf}`) ?? []).length > 0 || (usedPorts.get(`${e.to}|${st}`) ?? []).length > 0;
     const wish = !shared && sc >= lo && sc <= hi ? sc
       : (tc >= lo && tc <= hi ? tc : (lo + hi) / 2);
-    // 겹치는 구간 안에서 **여러 직선 후보**를 낸다 — 첫 좌표가 장애물(예: zone label)에 막혔다고
-    // 직선이라는 모양 자체를 포기하면, 옆으로 조금만 옮기면 되는 경우에도 꺾이게 된다.
-    // 후보 수는 임의 상수가 아니라 **구간 폭 / lane gap**에서 나온다 — 구간이 좁으면 적고
-    // 넓으면 그만큼 많다. 순서는 wish에서 바깥으로, 즉 straight-first와 결정성을 유지한다.
-    // 후보 수는 구간 폭에서 나온다. 안전 상한에 닿으면 **조용히 잘라내지 않고** 진단으로 남긴다 —
-    // 잘린 뒤 "후보가 없었다"고 보고하면 실패 근거가 거짓이 된다.
+    // Produce **several straight candidates** within the overlap — abandoning the straight shape
+    // itself because the first coordinate is blocked by an obstacle (a zone label, say) would put
+    // a bend in even where a small sideways move would do. The candidate count is no arbitrary
+    // constant: it comes from **interval width / lane gap** — fewer for a narrow interval, more
+    // for a wide one. The order runs outward from the wish, preserving straight-first and
+    // determinism. When the count reaches the safety cap it is **not truncated quietly** but
+    // recorded as a diagnostic — reporting "there were no candidates" after a truncation would
+    // make the stated grounds for failure false.
     const want = Math.max(1, Math.floor((hi - lo) / K.portSpreadStep) + 1);
     const CAND_CAP = 64;
     if (want > CAND_CAP) {
@@ -289,7 +299,7 @@ function candidates(e, A, B, nodes, zones, frame, usedPorts, opt = {}) {
       if (++made >= cap) break;
     }
   }
-  // ② 1-bend — 한 축으로 나가 다른 축으로 들어간다. 두 조합을 모두 만든다.
+  // (2) 1-bend — leave on one axis and enter on the other. Both combinations are generated.
   for (const [sf, st] of [[vOut, hIn], [hOut, vIn]]) {
     const a = iv(A, sf), b = iv(B, st);
     const v0 = pick(e.from, A, sf, center(A, a.axis)), v1 = pick(e.to, B, st, center(B, b.axis));
@@ -298,7 +308,7 @@ function candidates(e, A, B, nodes, zones, frame, usedPorts, opt = {}) {
     const corner = a.axis === "x" ? { x: p0.x, y: p2.y } : { x: p2.x, y: p0.y };
     out.push(mk("elbow", [p0, corner, p2], sf, st, [[e.from, sf, p0], [e.to, st, p2]]));
   }
-  // ③ 2-bend — 중간 lane을 지나 같은 면으로 들어간다(정당한 dogleg)
+  // (3) 2-bend — cross an intermediate lane and enter on the same face (a legitimate dogleg)
   for (const [sf, st] of [[vOut, vIn], [hOut, hIn]]) {
     const a = iv(A, sf), b = iv(B, st);
     if (a.axis !== b.axis) continue;
@@ -310,8 +320,9 @@ function candidates(e, A, B, nodes, zones, frame, usedPorts, opt = {}) {
     const c2 = a.axis === "x" ? { x: p3.x, y: mid } : { x: mid, y: p3.y };
     out.push(mk("dogleg", [p0, c1, c2, p3], sf, st, [[e.from, sf, p0], [e.to, st, p3]], mid));
   }
-  // ④ side channel — 우회. **경로 모양은 선언한 port 면에서 유도한다**(지배 축이 아니라).
-  //    좌/우 면으로 나가면 첫 구간은 가로 바깥, 마지막 구간은 가로 안쪽이어야 한다.
+  // (4) side channel — the detour. **The path shape derives from the declared port faces**, not
+  //     from the dominant axis. Leaving on a left/right face means the first segment runs
+  //     horizontally outward and the last horizontally inward.
   const hasZones = zones.length > 0;
   const zx1 = hasZones ? Math.min(...zones.map((z) => z.x)) : frame.x + K.channelMargin;
   const zx2 = hasZones ? Math.max(...zones.map((z) => z.x + z.w)) : frame.x + frame.w - K.channelMargin;
@@ -327,7 +338,7 @@ function candidates(e, A, B, nodes, zones, frame, usedPorts, opt = {}) {
     && !(hasZones && c > zy1 - K.outerClearance && c < zy2 + K.outerClearance);
 
   if (opt.isReturn) {
-    // 되돌이: 좌/우 면으로 나가 세로 channel을 타고 같은 면으로 들어온다.
+    // The return: leave on a left/right face, ride a vertical channel, and enter on the same face.
     for (const side of ["left", "right"]) {
       const cx = side === "left" ? chanX[1] : chanX[0];
       if (!insideFrameX(cx)) continue;
@@ -335,7 +346,7 @@ function candidates(e, A, B, nodes, zones, frame, usedPorts, opt = {}) {
       const v0 = pick(e.from, A, side, center(A, a.axis)), v1 = pick(e.to, B, side, center(B, b.axis));
       if (v0 == null || v1 == null) continue;
       const p0 = at(A, side, v0), p3 = tip(B, side, v1);
-      // 첫 구간 가로 바깥 → 세로 channel → 마지막 구간 가로 안쪽
+      // first segment horizontally outward -> vertical channel -> last segment horizontally inward
       if (side === "left" ? !(cx < p0.x && cx < p3.x) : !(cx > p0.x && cx > p3.x)) continue;
       out.push(mk("side-channel", [p0, { x: cx, y: p0.y }, { x: cx, y: p3.y }, p3],
         side, side, [[e.from, side, p0], [e.to, side, p3]], cx));
@@ -365,7 +376,7 @@ function candidates(e, A, B, nodes, zones, frame, usedPorts, opt = {}) {
         hOut, hIn, [[e.from, hOut, p0], [e.to, hIn, p5]], cy));
     }
   }
-  // 사전식 정렬: 꺾임 수 → lane 이동량 → 모양 이름(결정성)
+  // Lexicographic sort: bend count -> lane travel -> shape name (for determinism)
   const rank = (k) => ["straight", "elbow", "dogleg", "side-channel"].indexOf(k);
   return out.sort((p, q) => p.bends - q.bends || rank(p.kind) - rank(q.kind) || p.travel - q.travel);
 }
@@ -378,9 +389,10 @@ function mk(kind, pts, sideFrom, sideTo, ports, lane = null) {
   return { kind: bends === 0 ? "straight" : kind, bends, travel, points, sideFrom, sideTo, ports, lane };
 }
 const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
-// 겹치는 구간 안에서 원하는 좌표부터 바깥으로 훑는다 — 결정적 순서
-// 같은 변에 여러 connector가 붙으면 중심을 기준으로 **대칭·결정적**으로 분산한다.
-// 연결이 하나뿐이면 분산하지 않는다 — 직선을 흔들 이유가 없다.
+// Sweep outward from the wished-for coordinate within the overlap — a deterministic order.
+// When several connectors attach to one side they spread **symmetrically and deterministically**
+// about the centre. With only one connection there is no spreading — no reason to disturb a
+// straight run.
 function nudge(v, lo, hi) {
   const out = [v];
   for (let d = K.portSpreadStep; d <= hi - lo; d += K.portSpreadStep) {
@@ -389,12 +401,12 @@ function nudge(v, lo, hi) {
   }
   return out;
 }
-// 후보를 떨어뜨리는 이유를 문자열로 돌려준다(통과면 null) — 실패 근거가 곧 receipt다
+// Returns the reason a candidate is dropped as a string (null if it passes) — the grounds for failure are themselves the receipt
 function reject(c, e, obstacles, placed) {
   const segs = segments(c.points);
   if (!segs.length) return { code: "R-DEGENERATE", why: "degenerate path" };
   const len = ([a, b]) => Math.hypot(b.x - a.x, b.y - a.y);
-  // 첫·마지막 구간은 화살촉과 port가 앉을 직선이다.
+  // The first and last segments are the straight runs the arrowhead and the port sit on.
   if (len(segs[0]) < K.endpointStub)
     return { code: "R-ENDPOINT-STUB", why: `first segment ${r1(len(segs[0]))}px < ${K.endpointStub}px endpoint stub` };
   if (len(segs[segs.length - 1]) < K.endpointStub)
@@ -405,7 +417,7 @@ function reject(c, e, obstacles, placed) {
   }
   for (const sg of segs) if (len(sg) < K.minSegment)
     return { code: "R-MIN-SEGMENT", why: `segment ${r1(len(sg))}px < ${K.minSegment}px` };
-  // 주 흐름은 단조롭다 — primary가 흐름 축을 거슬러 올라가면 되돌이로 읽힌다.
+  // The main flow is monotonic — a primary running back against the flow axis reads as a return.
   if ((e.weight ?? "primary") === "primary" && e.flowAxis) {
     const sign = Math.sign(e.flowAxis);
     for (const [a, b] of segs) {
@@ -462,7 +474,7 @@ function reject(c, e, obstacles, placed) {
       const ov = parallelOverlap(a1, a2, b1, b2);
       if (ov == null) continue;
       if (ov.gap >= K.laneGap - 0.51) continue;
-      // 관계가 있는 선끼리는 port 분산으로 이미 떨어져 있어야 하고, 무관한 선은 겹치면 한 선으로 읽힌다.
+      // Related lines should already be apart through port spreading, and unrelated lines that overlap read as one line.
       if (ov.overlap >= (related ? K.minInteriorSegment : K.collinearOverlapMax))
         return { code: related ? "R-LANE" : "R-COLLINEAR",
           why: `runs ${r1(ov.gap)}px from route ${rt.id} for ${r1(ov.overlap)}px — ${related ? "same-endpoint lanes must stay one lane apart" : "unrelated lines this close read as one"}` };
@@ -471,7 +483,7 @@ function reject(c, e, obstacles, placed) {
   return null;
 }
 
-// 경로를 SVG path d로 — 모서리는 quarter-arc, 교차는 hop
+// Path to an SVG path d — corners as quarter-arcs, crossings as hops
 export function pathData(route, radius = K.radius) {
   const p = route.points;
   if (p.length < 2) return "";
@@ -486,7 +498,7 @@ export function pathData(route, radius = K.radius) {
   }
   return d + segTo(start, p[p.length - 1], route);
 }
-// 직선 구간 — 이 구간을 지나는 교차점에는 hop(반원)을 넣는다
+// A straight segment — crossings falling on it get a hop (a semicircle)
 function segTo(from, to, route) {
   const hops = (route.hops ?? []).filter((h) => onSeg(from, to, h));
   const horizontal = Math.abs(from.y - to.y) < 0.01;
@@ -506,9 +518,9 @@ function segTo(from, to, route) {
   return out + ` L${r1(to.x)} ${r1(to.y)}`;
 }
 
-// --- 산출물 감사 -------------------------------------------------------------
-// 의도가 아니라 **기록된 바이트**를 다시 잰다. 지원하는 경로 문법은 우리가 생성하는
-// 절대 M/L/Q/a 부분집합이며, 그 밖의 문법은 통과가 아니라 "증명 불가"로 보고한다.
+// --- artifact audit -------------------------------------------------------------
+// It re-measures the **recorded bytes**, not the intent. The supported path syntax is the absolute
+// M/L/Q/a subset we generate; anything else is reported as "cannot prove", not as a pass.
 export function auditTopology(svg) {
   const errors = [], notes = [];
   const nodeRects = [...svg.matchAll(/<rect([^>]*?)data-entity="([^"]+)"([^>]*)\/>/g)]
@@ -550,7 +562,7 @@ export function auditTopology(svg) {
       errors.push(`A-STUB ${p.id}: an endpoint segment is shorter than the ${K.endpointStub}px stub — the arrowhead does not sit on a straight run`);
     for (let i = 1; i < segs.length - 1; i++) if (L(segs[i]) < K.minInteriorSegment)
       errors.push(`A-DOGLEG ${p.id}: interior segment ${r1(L(segs[i]))}px < ${K.minInteriorSegment}px (micro-dogleg)`);
-    // 장애물이 없고 port 구간이 겹치는데 꺾였다면 직선을 놓친 것이다
+    // With no obstacle and overlapping port intervals, a bend means a straight run was missed
     const src = boxes.get(p.from), dst = boxes.get(p.to);
     if (src && dst && segs.length > 1) {
       const overlapX = Math.min(src.x + src.w, dst.x + dst.w) - Math.max(src.x, dst.x) >= 2 * K.portInset;
@@ -577,7 +589,7 @@ export function auditTopology(svg) {
         if (segRect(a, c, { x: b.x, y: b.y, w: b.w, h: b.h })) { errors.push(`A-THROUGH ${p.id}: crosses node ${id}`); break; }
     }
   }
-  // 교차·lane 중첩
+  // crossings and lane overlap
   const ids = [...polys.keys()];
   for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) {
     const A = polys.get(ids[i]), B = polys.get(ids[j]);
@@ -601,7 +613,7 @@ export function auditTopology(svg) {
       break;
     }
   if (layersOnly) { checkLayerOrder(svg, errors); return { errors, notes: ["no annotated routes in this artifact — paint layers still checked"] }; }
-  // --- port 방향: 선언된 side가 아니라 **실제 첫·마지막 구간**으로 다시 계산한다 -----------
+  // --- port direction: recomputed from the **actual first and last segments**, not the declared side ---
   for (const p of paths) {
     const poly = polys.get(p.id);
     if (!poly) continue;
@@ -630,8 +642,8 @@ export function auditTopology(svg) {
       errors.push(`A-PORT-DIR ${p.id}: enters the ${tFace} face heading ${dirOf(segs2[segs2.length - 1])} — the last segment must run ${inward[tFace]}`);
   }
   checkLayerOrder(svg, errors);
-  // --- visibility: 기하가 아니라 **가려지는지**를 따로 본다 ---------------------------
-  // connector 뒤에 오는 불투명 면이 선 위를 덮으면, 선은 존재해도 끊겨 보인다.
+  // --- visibility: judged separately from geometry — **is it occluded?** ---------------
+  // An opaque surface drawn after the connector covers the line: it exists, yet reads as broken.
   const opaque = [...svg.matchAll(/<rect([^>]*)\/>/g)].map((m) => {
     const at = m[1], f = (at.match(/\bfill="([^"]+)"/) ?? [])[1];
     if (!f || f === "none" || /fill-opacity="0(\.0+)?"/.test(at)) return null;
@@ -644,8 +656,8 @@ export function auditTopology(svg) {
     if (!poly) continue;
     const idx = svg.indexOf(`data-route-id="${p.id}"`);
     for (const r of opaque) {
-      if (r.at < idx) continue;                       // 앞에 그려진 면은 선을 가리지 않는다
-      if (r.x <= 0.5 && r.y <= 0.5) continue;        // 캔버스 바탕은 항상 맨 뒤에 있다
+      if (r.at < idx) continue;                       // a surface drawn before does not occlude the line
+      if (r.x <= 0.5 && r.y <= 0.5) continue;        // the canvas ground is always at the very back
       for (const [a, b] of segments(poly)) if (segRect(a, b, r)) {
         errors.push(`A-OCCLUDED ${p.id}: an opaque surface drawn after the connector covers it at ${r1(a.x)},${r1(a.y)} — the line exists in geometry but reads as broken`);
         break;
@@ -658,8 +670,9 @@ export function auditTopology(svg) {
   return { errors, notes };
 }
 
-// paint order는 선언이 아니라 **DOM 순서**로 검증한다.
-// canvas → container 배경/테두리 → connector와 marker → node surface → icon·text·label·legend
+// Paint order is verified by **DOM order**, not by declaration.
+// canvas -> container background/border -> connectors and markers -> node surfaces -> icons, text,
+// labels and legends
 function checkLayerOrder(svg, errors) {
   const LAYERS = ["containers", "connectors", "nodes", "annotations"];
   const marks = [...svg.matchAll(/<g[^>]*data-layer="([a-z]+)"/g)].map((m) => ({ name: m[1], at: m.index }));
@@ -676,7 +689,7 @@ function checkLayerOrder(svg, errors) {
   for (const m of svg.matchAll(/<path[^>]*data-route-id="([^"]+)"/g))
     if (conn && (m.index < conn.from || m.index > conn.to))
       errors.push(`A-LAYER ${m[1]}: a connector is drawn outside the connectors layer`);
-  // node surface 규칙은 **connector의 endpoint**에만 적용한다 — 선이 그 아래로 지나가야 하는 면이 그것뿐이다.
+  // The node-surface rule applies only to a **connector's endpoints** — those are the only surfaces a line must pass beneath.
   const endpoints = new Set([...svg.matchAll(/data-route-(?:from|to)="([^"]+)"/g)].map((m) => m[1]));
   for (const m of svg.matchAll(/<rect[^>]*data-entity="([^"]+)"/g))
     if (nodesSpan && endpoints.has(m[1]) && (m.index < nodesSpan.from || m.index > nodesSpan.to))
@@ -703,7 +716,7 @@ function dedupe(pts) {
     const last = out[out.length - 1];
     if (!last || Math.abs(last.x - p.x) > 0.01 || Math.abs(last.y - p.y) > 0.01) out.push({ x: p.x, y: p.y });
   }
-  // 일직선 위 중간점 제거
+  // drop midpoints that sit on a straight run
   for (let i = 1; i < out.length - 1; ) {
     const a = out[i - 1], b = out[i], c = out[i + 1];
     if ((Math.abs(a.x - b.x) < 0.01 && Math.abs(b.x - c.x) < 0.01) ||
@@ -732,7 +745,7 @@ export function segRect(a, b, rect) {
   const x1 = Math.min(a.x, b.x), x2 = Math.max(a.x, b.x);
   const y1 = Math.min(a.y, b.y), y2 = Math.max(a.y, b.y);
   const rx2 = rect.x + (rect.w ?? rect.width), ry2 = rect.y + (rect.h ?? rect.height);
-  const eps = 0.5;   // 경계에 스치는 것은 관통이 아니다
+  const eps = 0.5;   // grazing the boundary is not a cut-through
   return x2 > rect.x + eps && x1 < rx2 - eps && y2 > rect.y + eps && y1 < ry2 - eps;
 }
 function rectGap(p, box) {
@@ -742,7 +755,7 @@ function rectGap(p, box) {
 }
 function crossPoint(a1, a2, b1, b2) {
   const aH = Math.abs(a1.y - a2.y) < 0.01, bH = Math.abs(b1.y - b2.y) < 0.01;
-  if (aH === bH) return null;                 // 평행은 교차가 아니다(중첩은 별도 검사)
+  if (aH === bH) return null;                 // parallel is not a crossing (overlap is checked separately)
   const [h1, h2] = aH ? [a1, a2] : [b1, b2];
   const [v1, v2] = aH ? [b1, b2] : [a1, a2];
   const x = v1.x, y = h1.y;
@@ -778,7 +791,7 @@ function overlapParallel(a1, a2, b1, b2) {
   }
   return false;
 }
-// hop(반원)이 놓인 자리 — 그 지점의 교차는 이미 다리를 놓은 것이다
+// Where a hop (semicircle) sits — the crossing at that point already has its bridge
 function hopArcs(d) {
   const out = [];
   const toks = d.match(/[MLQa][^MLQa]*/g) ?? [];
@@ -793,9 +806,9 @@ function hopArcs(d) {
 }
 const bridged = (p, hops) => hops.some((h) => Math.abs(h.x - p.x) <= K.hopRadius + 1.5 && Math.abs(h.y - p.y) <= K.hopRadius + 1.5);
 
-// 우리가 생성하는 절대 M/L/Q/a 부분집합만 해석한다 — 그 밖은 null(증명 불가)
+// Parses only the absolute M/L/Q/a subset we generate — anything else returns null (cannot prove)
 function parsePath(d) {
-  if (!d || /[cshtCSHTVv]/.test(d.replace(/[Aa]/g, ""))) { /* H/V는 쓰지 않는다 */ }
+  if (!d || /[cshtCSHTVv]/.test(d.replace(/[Aa]/g, ""))) { /* we do not emit H/V */ }
   const toks = d.match(/[MLQa][^MLQa]*/g);
   if (!toks) return null;
   const pts = [];
@@ -806,14 +819,14 @@ function parsePath(d) {
     if (op === "M") { cur = { x: n[0], y: n[1] }; pts.push(cur); }
     else if (op === "L") { cur = { x: n[0], y: n[1] }; pts.push(cur); }
     else if (op === "Q") {
-      // quarter-arc는 **모서리**다: 호의 시작점을 꼭짓점(제어점)으로 되돌리고 호 자체는 구간으로 세지 않는다.
+      // A quarter-arc is a **corner**: the arc's start point becomes the vertex (control point) again, and the arc itself is not counted as a segment.
       pts.pop();
       pts.push({ x: n[0], y: n[1] });
       cur = { x: n[2], y: n[3] };
     }
     else if (op === "a" && cur) {
-      // hop(반원)은 같은 직선 위의 다리다 — 꼭짓점으로 세면 12px짜리 가짜 곁가지가 생긴다.
-      // 직전이 모서리(Q)였다면 그 꼭짓점은 지우지 않는다.
+      // A hop (semicircle) is a bridge on the same straight run — counting it as a vertex would
+      // invent a spurious 12px jog. If the previous op was a corner (Q), that vertex is kept.
       if (prevOp === "L") pts.pop();
       cur = { x: cur.x + n[5], y: cur.y + n[6] };
     }

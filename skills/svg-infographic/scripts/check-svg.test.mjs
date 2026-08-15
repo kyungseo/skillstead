@@ -266,7 +266,7 @@ test("CJK weighting catches Korean overflow that a Latin-width estimate would mi
   const { errors } = lint("korean-overflow.svg");
   assert.ok(rulesOf(errors).includes("E-TEXT"));
   // Same character count in Latin at the same size would fit the 220px box:
-  const text = "근거와 종료 조건이 남는 검토 워크플로";
+  const text = /* lang-allow: ko-fixture */ "근거와 종료 조건이 남는 검토 워크플로";
   const latinEquivalent = "a".repeat([...text].length);
   const swapped = fixture("korean-overflow.svg").replace(text, latinEquivalent);
   const { errors: latinErrors } = lintSvg(swapped, "korean-as-latin.svg");
@@ -372,7 +372,7 @@ test("header-cluster negative: declared breathing budget violated", () => {
   const r = lint("header-cluster-breathing.svg");
   assert.ok(r.errors.some((e) => /breathing/.test(e.message)));
 });
-// --- title-keyline (H-C K2): H1 line-box 파생 산식 fail-closed -------------
+// --- title-keyline (H-C K2): the H1 line-box derivation is fail-closed -------------
 test("title-keyline positive: computed title-only keyline (one line)", () => {
   const r = lint("header-cluster-keyline-ko1.svg");
   assert.equal(r.errors.length, 0, JSON.stringify(r.errors));

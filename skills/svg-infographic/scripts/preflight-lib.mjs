@@ -1,20 +1,22 @@
-// preflight-lib.mjs — package 소비 경계와 provenance의 기계 계약 (Wave 1 CP0).
+// preflight-lib.mjs — the machine contract for the package consumption boundary and provenance (Wave 1 CP0).
 //
-// 두 실행 문맥은 요구가 다르므로 **모드를 분리**한다. 하나로 묶으면 개발용 규칙이
-// 설치된 skill의 정상 실행까지 막는다(CP0-R1-F1).
+// The two execution contexts have different requirements, so the **modes are separate**.
+// Merging them would let a development-only rule block the normal execution of an installed
+// skill (CP0-R1-F1).
 //
-//   source-development  이 package를 소유한 repository 안에서 작업할 때.
-//                       expected root는 작업 repository(cwd의 git root +
-//                       skills/svg-infographic)가 정하고, 실행 중인 entrypoint가 그
-//                       아래가 아니면 거부한다 — stale 설치본이 자기 자신을 정당화하지
-//                       못한다. Wave acceptance artifact는 이 모드의 provenance만 인정.
-//   installed-runtime   설치된 package를 사용자 프로젝트에서 실행할 때.
-//                       package root는 실행 entrypoint에서 찾고 사용자 cwd나 git 유무에
-//                       의존하지 않는다. source commit 동일성은 주장하지 않고 installed
-//                       package identity만 기록한다.
+//   source-development  when working inside the repository that owns this package.
+//                       The expected root is set by the working repository (the git root of
+//                       cwd plus skills/svg-infographic), and an entrypoint running outside
+//                       it is refused — a stale installed copy cannot vouch for itself. Wave
+//                       acceptance artifacts accept provenance from this mode only.
+//   installed-runtime   when running an installed package inside a user project.
+//                       The package root is found from the running entrypoint and does not
+//                       depend on the user's cwd or on git being present. It claims no source
+//                       commit identity and records only the installed package identity.
 //
-// 모드는 느슨한 쪽으로 선택할 수 없다: 작업 repository가 이 package를 소유하면 항상
-// source-development이며, 그 상태에서 외부 entrypoint 실행은 오류다.
+// The mode cannot be chosen in the looser direction: if the working repository owns this
+// package the mode is always source-development, and running an outside entrypoint in that
+// state is an error.
 import { readFileSync, readdirSync, realpathSync, lstatSync, existsSync } from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
@@ -39,7 +41,7 @@ export function isUnder(target, root) {
   return target === root || target.startsWith(root + path.sep);
 }
 
-// ---------- minimal YAML subset (package-surface manifest 전용) ----------
+// ---------- minimal YAML subset (for the package-surface manifest only) ----------
 export function parseSurfaceManifest(text, label = "package-surface.yaml") {
   const doc = { entries: [] };
   let section = null;
@@ -132,7 +134,7 @@ export function classify(files, manifest) {
 }
 
 // ---------- digests ----------
-// framing: path + NUL + byteLength + NUL + bytes, 상대경로 정렬. 절대경로·mtime 제외.
+// framing: path + NUL + byteLength + NUL + bytes, sorted by relative path. Absolute paths and mtime excluded.
 export function digestFiles(skillRoot, relFiles) {
   const h = createHash("sha256");
   for (const rel of [...relFiles].sort()) {
@@ -155,14 +157,16 @@ export function digestSets(skillRoot, kinds, manifest) {
 }
 
 // ---------- import closure ----------
-// side-effect import와 export-from까지 포함하고, 비정적 dynamic import는 fail-closed다.
-// relative import는 실제 resolved 파일의 존재와 containment까지 확인한다(CP0-R1-F4).
+// It covers side-effect imports and export-from as well, and a non-static dynamic import is
+// fail-closed. For a relative import it also checks that the resolved file exists and is
+// contained (CP0-R1-F4).
 const PRODUCTION_KINDS = ["production-entrypoint", "production-lib"];
 export function importClosure(skillRoot, kinds) {
   const problems = [];
-  // block comment·전용 주석 줄·template literal은 코드가 아니다 — 스캐너 자신의
-  // 진단 문자열까지 import로 오탐하지 않도록 먼저 마스킹한다. backtick은 문자 코드로
-  // 만든다: 정규식 소스에 backtick을 두면 그 자신이 template 경계를 어긋나게 한다.
+  // Block comments, comment-only lines and template literals are not code — they are masked
+  // first so the scanner does not misread even its own diagnostic strings as imports. The
+  // backtick is built from a character code: putting one in the regex source would itself
+  // throw off the template boundaries.
   const BT = String.fromCharCode(96);
   const TEMPLATE = new RegExp(BT + "(?:\\\\.|[^" + BT + "\\\\])*" + BT, "g");
   const strip = (src) => src
@@ -176,7 +180,7 @@ export function importClosure(skillRoot, kinds) {
     const specs = [];
     for (const m of src.matchAll(/(?:^|\n)\s*(?:import|export)\s[^;]*?from\s*["']([^"']+)["']/g)) specs.push(m[1]);
     for (const m of src.matchAll(/(?:^|\n)\s*import\s*["']([^"']+)["']\s*;?/g)) specs.push(m[1]);   // side-effect import
-    // `import (x)`·`import/*c*/(x)`·줄바꿈 변형까지 잡는다(주석은 앞서 공백으로 치환됨).
+    // Catches `import (x)`, `import/*c*/(x)` and newline variants too (comments were already replaced with spaces).
     for (const m of src.matchAll(/\bimport\s*\(\s*([^)]*)\)/g)) {
       const arg = m[1].trim();
       const lit = arg.match(/^["']([^"']+)["']$/);
@@ -201,7 +205,7 @@ function gitRoot(cwd) {
   try { return realpathSync(r.stdout.trim()); } catch { return null; }
 }
 
-// 설치 문맥의 package root: 실행 entrypoint에서 위로 올라가며 surface manifest를 찾는다.
+// The package root in an installed context: walk up from the running entrypoint looking for the surface manifest.
 export function findPackageRoot(entryReal) {
   let dir = path.dirname(entryReal);
   for (let i = 0; i < 8; i++) {
@@ -213,15 +217,17 @@ export function findPackageRoot(entryReal) {
   return null;
 }
 
-// 기본값은 항상 installed-runtime이다. source-development는 **명시적 opt-in**이며
-// (canonical Wave runner의 --require-mode 또는 자식에게 전달된 mode), opt-in이라도
-// 아래 소유 증거를 모두 만족할 때만 성립한다 — 디렉터리에 package를 복사해 둔 임의
-// repository가 Wave acceptance 모드를 주장하지 못하게 한다(CP0-R1B-F1).
+// The default is always installed-runtime. source-development is an **explicit opt-in**
+// (the canonical Wave runner's --require-mode, or a mode handed down to a child), and even
+// then it holds only when every ownership proof below is satisfied — so an arbitrary
+// repository that merely copied the package into a directory cannot claim the Wave
+// acceptance mode (CP0-R1B-F1).
 export function resolveExecution({ entrypointUrl, cwd = process.cwd(), requireMode = null } = {}) {
   const requested = requireMode ?? process.env[EXECUTION_MODE_ENV] ?? null;
   if (requested && !MODES.includes(requested)) fail(`unknown execution mode "${requested}"`);
-  // entrypoint를 주지 않은 라이브러리 호출(생성 script가 provenance를 만드는 경우 등)에는
-  // 이 파일 자신이 기준이다 — 실행 중인 코드가 어느 package의 것인지는 그것으로 정해진다.
+  // For a library call with no entrypoint given (a generator script producing provenance, for
+  // instance) this file itself is the reference — that is what settles which package the
+  // running code belongs to.
   const entry = realpathSync(fileURLToPath(entrypointUrl ?? import.meta.url));
   const installedRoot = findPackageRoot(entry);
   if (!installedRoot) fail(`cannot locate the package root from the running entrypoint — a package must contain ${SURFACE_MANIFEST.join("/")}`);
@@ -238,8 +244,8 @@ export function resolveExecution({ entrypointUrl, cwd = process.cwd(), requireMo
       fail(`the running entrypoint is outside the package owned by this working repository — entrypoint ${entry}, expected under ${sourceRoot} (a stale or copied installation cannot validate itself)`);
     if (sourceRoot !== installedRoot)
       fail(`the running package (${installedRoot}) is not the package owned by this working repository (${sourceRoot})`);
-    // 소유 증거: package identity 파일이 이 repository에 **추적되고 있어야** 한다.
-    // 단순히 복사해 둔 디렉터리는 source-development를 주장할 수 없다.
+    // Ownership proof: the package identity file must be **tracked** in this repository.
+    // A directory that was merely copied in cannot claim source-development.
     const tracked = spawnSync("git", ["ls-files", "--error-unmatch", "--", `${SKILL_LOCATOR}/${SURFACE_MANIFEST.join("/")}`],
       { cwd: repoRoot, encoding: "utf8" });
     if (tracked.status !== 0)
@@ -255,7 +261,7 @@ export function resolveExecution({ entrypointUrl, cwd = process.cwd(), requireMo
   if (requireMode && ctx.mode !== requireMode)
     fail(`this operation requires ${requireMode} execution but resolved ${ctx.mode}`);
 
-  // 상속된 expected root는 신뢰가 아니라 대조 대상이다.
+  // An inherited expected root is something to check against, not something to trust.
   const inheritedRoot = process.env[EXPECTED_ROOT_ENV];
   if (inheritedRoot) {
     let real;
@@ -265,7 +271,7 @@ export function resolveExecution({ entrypointUrl, cwd = process.cwd(), requireMo
   return { ...ctx, requestedMode: requested };
 }
 
-// ---------- main entry: 매 실행 재검증 ----------
+// ---------- main entry: re-verified on every run ----------
 let current = null;
 
 export function runPreflight({ entrypointUrl, cwd = process.cwd(), requireMode = null } = {}) {
@@ -296,9 +302,10 @@ export function preflight(opts = {}) {
 
 export function state() { return current; }
 
-// ---------- 간접 경로 containment ----------
-// registry가 고른 profile, manifest 간접 경로, CLI로 전달된 package-owned 경로는
-// resolve 시점에 검사한다. 사용자 입력(SVG·plan·출력)과 browser 실행 파일은 대상이 아니다.
+// ---------- containment of indirect paths ----------
+// A profile chosen by the registry, an indirect path from the manifest and a package-owned
+// path passed on the CLI are all checked at resolve time. User input (SVG, plan, output) and
+// the browser executable are not subjects of this check.
 export function assertPackagePath(target, label) {
   const st = current ?? runPreflight({});
   let real;
@@ -319,21 +326,22 @@ export function guardPackagePath(target, label) {
 }
 
 // ---------- provenance ----------
-// 재계산 가능한 값(verified)과 실행 시점 기록(informational)을 구분한다. informational은
-// 검증된 주장이 아니라 증거이며, 실제 testedCommit은 package 밖 clean CI acceptance
-// receipt가 기록한다.
+// Recomputable values (verified) are kept apart from run-time records (informational).
+// Informational values are evidence, not verified claims; the real testedCommit is recorded by
+// a clean CI acceptance receipt outside the package.
 export const PROVENANCE_SCHEMA = { name: "svg-infographic-provenance", version: 1, canonicalization: 1 };
 export const RECEIPT_SCHEMA = { name: "svg-infographic-preflight-receipt", version: 1 };
 export const PROVENANCE_FIELDS = ["schema", "executionMode", "skillRoot", "package", "runtimeSurfaceDigest", "source", "producer", "inputs", "browser"];
-// 검증 수준을 실제 검사에 맞춰 3단으로 나눈다 — verifier가 형식만 본 값을
-// "verified"로 부르지 않는다(CP0-R1B-F3).
+// The verification level is split three ways to match what is actually checked — a verifier
+// never calls a value it only shape-checked "verified" (CP0-R1B-F3).
 export const PROVENANCE_EVIDENCE = {
-  // 현재 package에서 다시 계산해 대조한 값
+  // Values recomputed from the current package and compared
   recomputed: ["executionMode", "skillRoot", "package", "runtimeSurfaceDigest"],
-  // 형태·union 규칙만 확인한 값 (원본 locator를 받은 artifact verifier가 digest를
-  // 재계산할 때만 recomputed로 승격된다). source 블록도 **구조**는 검사한다.
+  // Values checked only for shape and union rules (promoted to recomputed only when an
+  // artifact verifier holding the original locator recomputes the digest). The source block
+  // has its **structure** checked too.
   shapeValidated: ["schema", "producer", "inputs", "browser", "source.structure"],
-  // 실행 시점 기록 — 재계산 불가능하며 authenticity claim이 아니다
+  // Run-time records — not recomputable, and not an authenticity claim
   informational: ["source.values"],
 };
 
@@ -392,7 +400,7 @@ export function provenance({ producer, inputs = [], browser = null, cwd = proces
   };
 }
 
-// receipt 값은 신뢰하지 않고 현재 package에서 재계산·재검증한다.
+// Receipt values are not trusted: they are recomputed and re-verified against the current package.
 export function verifyProvenance(prov, { cwd = process.cwd() } = {}) {
   const st = current ?? runPreflight({ cwd });
   const errors = [];
@@ -419,8 +427,9 @@ export function verifyProvenance(prov, { cwd = process.cwd() } = {}) {
     if (!DIGEST_RE.test(String(i?.digest))) errors.push("E-PROV-DIGEST every input digest must be sha256:<64 hex>");
     for (const k of Object.keys(i ?? {})) if (!["role", "digest"].includes(k)) push(`input has unknown field "${k}"`);
   }
-  // source는 재계산 불가능한 실행 시점 증거다 — 존재 규칙과 형태만 검증하며
-  // "검증된 주장"으로 취급하지 않는다(PROVENANCE_EVIDENCE.informational).
+  // source is run-time evidence that cannot be recomputed — only its presence rules and shape
+  // are verified, and it is not treated as a "verified claim"
+  // (PROVENANCE_EVIDENCE.informational).
   if (prov.executionMode === "source-development") {
     if (!prov.source || typeof prov.source !== "object")
       errors.push("E-PROV-SOURCE source-development provenance requires a source block (informational evidence)");
@@ -441,7 +450,7 @@ export function verifyProvenance(prov, { cwd = process.cwd() } = {}) {
   return errors;
 }
 
-// preflight identity receipt(세 digest 증명)의 strict schema 검증.
+// Strict schema verification of the preflight identity receipt (the three-digest proof).
 export function verifyIdentityReceipt(doc, { cwd = process.cwd() } = {}) {
   const st = current ?? runPreflight({ cwd });
   const errors = [];

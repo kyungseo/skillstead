@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="400" height="120">
-  <!-- 라벨 열을 가로로 예약한 band: 내용(chip)은 예약 경계 뒤에서 좌우 대칭으로 놓인다 -->
+  <!-- a left reservation withheld from padding and symmetry judgement -->
   <rect data-layout-container="band" data-min-pad="16" data-layout-count="3"
         data-reserve-left="120" data-symmetry="x"
         x="20" y="20" width="360" height="80" fill="#F4F8FC" stroke="#DEE0E2" stroke-width="1"/>

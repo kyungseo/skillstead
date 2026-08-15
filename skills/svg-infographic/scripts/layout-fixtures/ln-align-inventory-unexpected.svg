@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 220" width="420" height="220">
-  <!-- inventory에 없는 group이 산출물에 추가됐다 -->
+  <!-- a group exists in the artifact but is absent from the inventory -->
   <g data-align-inventory="row:slot-1=2">
     <rect data-align-row="slot-1" data-align-row-count="2" x="20" y="20" width="170" height="60" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1"/>
     <rect data-align-row="slot-1" data-align-row-count="2" x="230" y="20" width="170" height="60" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1"/>

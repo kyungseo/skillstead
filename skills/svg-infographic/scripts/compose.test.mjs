@@ -1,4 +1,4 @@
-// compose.mjs 계약 테스트 — negative 실효성 + receipt 조작 방지 (composition CP1)
+// compose.mjs contract tests — whether the negatives bite, plus receipt-tamper resistance (composition CP1)
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
@@ -16,43 +16,43 @@ const run = (args) => {
   const r = spawnSync(process.execPath, [path.join(here, "compose.mjs"), ...args], { encoding: "utf8" });
   return { code: r.status, out: (r.stdout ?? "") + (r.stderr ?? "") };
 };
-// 공용 산출물: 대표 fixture를 tmp에 compose
+// Shared artifact: compose the representative fixture into tmp
 const td = fs.mkdtempSync(path.join(os.tmpdir(), "compose-t-"));
 const OUT = path.join(td, "c.svg"), RCP = path.join(td, "c.json");
 const built = run(["compose", path.join(FIX, "plan-cards-tree.yaml"), "--fragments", path.join(FIX, "fragments"), ...M, "--out", OUT, "--receipt", RCP]);
 
-test("대표 fixture: plan-compose-verify 전 경로 통과", () => {
+test("representative fixture: the whole plan-compose-verify path passes", () => {
   assert.equal(built.code, 0, built.out);
   const r = run(["verify", OUT, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M]);
   assert.equal(r.code, 0, r.out);
 });
-test("plan: primary 1 + supporting 1~2 한도 초과 거부", () => {
+test("plan: exceeding the limit of 1 primary plus 1-2 supporting is refused", () => {
   const r = run(["plan", path.join(FIX, "plan-too-many.yaml"), ...M]);
   assert.equal(r.code, 1);
   assert.match(r.out, /supporting instances must be 1\.\.2/);
 });
-test("plan: 중복 instance_id 거부", () => {
+test("plan: a duplicate instance_id is refused", () => {
   const r = run(["plan", path.join(FIX, "plan-dup-instance.yaml"), ...M]);
   assert.equal(r.code, 1);
   assert.match(r.out, /duplicate instance_id/);
 });
-test("plan: 비composable typepack 거부 (nested 포함 경로)", () => {
+test("plan: a non-composable typepack is refused (including on the nested path)", () => {
   const r = run(["plan", path.join(FIX, "plan-not-composable.yaml"), ...M]);
   assert.equal(r.code, 1);
   assert.match(r.out, /is not composable/);
 });
-test("compose: 존재하지 않는 실제 port 참조는 실패", () => {
+test("compose: referencing an actual port that does not exist fails", () => {
   const r = run(["compose", path.join(FIX, "plan-bad-port.yaml"), "--fragments", path.join(FIX, "fragments"), ...M, "--out", path.join(td, "x.svg"), "--receipt", path.join(td, "x.json")]);
   assert.equal(r.code, 1);
   assert.match(r.out, /missing actual port/);
 });
-test("compose: 어떤 variant도 slot에 맞지 않으면 needs-split non-success", () => {
+test("compose: when no variant fits the slot the result is a needs-split non-success", () => {
   const r = run(["compose", path.join(FIX, "plan-needs-split.yaml"), "--fragments", path.join(FIX, "fragments"), ...M, "--out", path.join(td, "y.svg"), "--receipt", path.join(td, "y.json")]);
   assert.equal(r.code, 3);
   assert.match(r.out, /needs-split/);
   assert.match(r.out, /splitting into a separate page/);
 });
-test("micro: 호환 port 2개를 실제 connector 1개로 연결 (positive routing)", () => {
+test("micro: two compatible ports joined by one real connector (positive routing)", () => {
   const o = path.join(td, "m.svg"), rc = path.join(td, "m.json");
   const r = run(["compose", path.join(FIX, "plan-connector-micro.yaml"), "--fragments", path.join(FIX, "fragments"), ...M, "--out", o, "--receipt", rc]);
   assert.equal(r.code, 0, r.out);
@@ -60,16 +60,16 @@ test("micro: 호환 port 2개를 실제 connector 1개로 연결 (positive routi
   const v = run(["verify", o, "--receipt", rc, "--plan", path.join(FIX, "plan-connector-micro.yaml"), ...M]);
   assert.equal(v.code, 0, v.out);
 });
-test("verify: receipt usedBounds 조작은 재측정으로 거부 (receipt 조작 방지)", () => {
+test("verify: tampering with receipt usedBounds is refused on re-measurement (receipt-tamper resistance)", () => {
   const rcp = JSON.parse(fs.readFileSync(RCP, "utf8"));
-  rcp.instances[0].usedBounds.h -= 40;   // "슬롯에 맞는 것처럼" 축소 조작
+  rcp.instances[0].usedBounds.h -= 40;   // shrunk to look "as if it fits the slot"
   const bad = path.join(td, "bad1.json");
   fs.writeFileSync(bad, JSON.stringify(rcp));
   const r = run(["verify", OUT, "--receipt", bad, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M]);
   assert.equal(r.code, 1);
   assert.match(r.out, /E-COMP-RECEIPT .*receipts must reflect the artifact/);
 });
-test("verify: 선언 instance가 composite에서 빠지면 거부", () => {
+test("verify: a declared instance missing from the composite is refused", () => {
   const svg = fs.readFileSync(OUT, "utf8");
   const cut = svg.replace(/<g data-comp-instance="tree-1"[\s\S]*$/, "</svg>");
   const p = path.join(td, "bad2.svg");
@@ -78,9 +78,9 @@ test("verify: 선언 instance가 composite에서 빠지면 거부", () => {
   assert.equal(r.code, 1);
   assert.match(r.out, /E-COMP-MISSING instance "tree-1"/);
 });
-test("verify: DOM 순서가 선언 reading_order와 다르면 거부", () => {
+test("verify: a DOM order differing from the declared reading_order is refused", () => {
   const svg = fs.readFileSync(OUT, "utf8");
-  // 두 instance group 블록을 통째로 교환
+  // swap the two instance group blocks wholesale
   const mA = svg.match(/<g data-comp-instance="cards-1"[\s\S]*?(?=<g data-comp-instance="tree-1")/);
   const mB = svg.match(/<g data-comp-instance="tree-1"[\s\S]*?(?=<\/svg>)/);
   const swapped = svg.replace(mA[0], "__A__").replace(mB[0], "__B__").replace("__A__", mB[0]).replace("__B__", mA[0]);
@@ -90,7 +90,7 @@ test("verify: DOM 순서가 선언 reading_order와 다르면 거부", () => {
   assert.equal(r.code, 1);
   assert.match(r.out, /E-COMP-ORDER/);
 });
-test("verify: fragment 간 duplicate SVG id 거부", () => {
+test("verify: a duplicate SVG id across fragments is refused", () => {
   const svg = fs.readFileSync(OUT, "utf8").replace("</svg>", '<rect id="comp-dup" width="1" height="1" fill="#FFFFFF"/><rect id="comp-dup" width="1" height="1" fill="#FFFFFF"/></svg>');
   const p = path.join(td, "bad4.svg");
   fs.writeFileSync(p, svg);
@@ -98,7 +98,7 @@ test("verify: fragment 간 duplicate SVG id 거부", () => {
   assert.equal(r.code, 1);
   assert.match(r.out, /E-COMP-DUPID/);
 });
-test("verify: module identity digest 불일치 거부", () => {
+test("verify: a module identity digest mismatch is refused", () => {
   const rcp = JSON.parse(fs.readFileSync(RCP, "utf8"));
   rcp.instances[1].identity.typographyProfileDigest = "cfx-typo-9999";
   const p = path.join(td, "bad5.json");
@@ -107,7 +107,7 @@ test("verify: module identity digest 불일치 거부", () => {
   assert.equal(r.code, 1);
   assert.match(r.out, /E-COMP-IDENTITY/);
 });
-test("verify: instance transform은 translation-only만 허용", () => {
+test("verify: an instance transform may be translation-only", () => {
   const svg = fs.readFileSync(OUT, "utf8").replace(/transform="translate\((-?[\d.]+),(-?[\d.]+)\)"/, 'transform="translate($1,$2) scale(0.9)"');
   const p = path.join(td, "bad6.svg");
   fs.writeFileSync(p, svg);
@@ -115,7 +115,7 @@ test("verify: instance transform은 translation-only만 허용", () => {
   assert.equal(r.code, 1);
   assert.match(r.out, /E-COMP-TRANSFORM/);
 });
-test("verify: H1 단일성 page budget gate", () => {
+test("verify: the single-H1 page budget gate", () => {
   const svg = fs.readFileSync(OUT, "utf8").replace("</svg>", '<text font-size="30" x="40" y="880" fill="#252B35">second h1</text></svg>');
   const p = path.join(td, "bad7.svg");
   fs.writeFileSync(p, svg);
@@ -124,8 +124,8 @@ test("verify: H1 단일성 page budget gate", () => {
   assert.match(r.out, /E-COMP-H1/);
 });
 
-// ---- CP1 중간 리뷰 요구 재현(R1) ----
-test("R1-1a: forged planDigest는 재계산 대조로 거부", () => {
+// ---- reproducing the CP1 interim review requirements (R1) ----
+test("R1-1a: a forged planDigest is refused on recomputation", () => {
   const rcp = JSON.parse(fs.readFileSync(RCP, "utf8"));
   rcp.planDigest = "0000000000000000";
   const p = path.join(td, "r1a.json");
@@ -134,7 +134,7 @@ test("R1-1a: forged planDigest는 재계산 대조로 거부", () => {
   assert.equal(r.code, 1);
   assert.match(r.out, /E-COMP-FORGED receipt planDigest/);
 });
-test("R1-1b: 전 instance에 동일한 가짜 digest를 넣어도 live 대조로 거부", () => {
+test("R1-1b: putting the same fake digest on every instance is still refused against the live comparison", () => {
   const rcp = JSON.parse(fs.readFileSync(RCP, "utf8"));
   for (const i of rcp.instances) i.identity.typographyProfileDigest = "feedfeedfeedfeed";
   const p = path.join(td, "r1b.json");
@@ -143,7 +143,7 @@ test("R1-1b: 전 instance에 동일한 가짜 digest를 넣어도 live 대조로
   assert.equal(r.code, 1);
   assert.match(r.out, /E-COMP-LIVE .*typographyProfileDigest .*!= live registry/);
 });
-test("R1-2a: receipt에서 instance 행 삭제는 plan 대조로 거부", () => {
+test("R1-2a: deleting an instance row from the receipt is refused against the plan", () => {
   const rcp = JSON.parse(fs.readFileSync(RCP, "utf8"));
   rcp.instances = rcp.instances.slice(0, 1);
   const p = path.join(td, "r2a.json");
@@ -152,7 +152,7 @@ test("R1-2a: receipt에서 instance 행 삭제는 plan 대조로 거부", () => 
   assert.equal(r.code, 1);
   assert.match(r.out, /E-COMP-MISSING receipt drops instance/);
 });
-test("R1-2b: receipt status/problems가 clean이 아니면 거부", () => {
+test("R1-2b: a receipt whose status or problems are not clean is refused", () => {
   const rcp = JSON.parse(fs.readFileSync(RCP, "utf8"));
   rcp.problems = ["smuggled"];
   const p = path.join(td, "r2b.json");
@@ -161,17 +161,17 @@ test("R1-2b: receipt status/problems가 clean이 아니면 거부", () => {
   assert.equal(r.code, 1);
   assert.match(r.out, /E-COMP-STATUS/);
 });
-test("R1-3: ghost semantic entity는 compose에서 거부", () => {
+test("R1-3: a ghost semantic entity is refused at compose", () => {
   const r = run(["compose", path.join(FIX, "plan-ghost-entity.yaml"), "--fragments", path.join(FIX, "fragments"), ...M, "--out", path.join(td, "r3.svg"), "--receipt", path.join(td, "r3.json")]);
   assert.equal(r.code, 1);
   assert.match(r.out, /ghost endpoint/);
 });
-test("R1-3b: 선언된 binding 완전성에서 한 쌍이 빠지면 거부", () => {
+test("R1-3b: one missing pair in the declared binding completeness is refused", () => {
   const r = run(["compose", path.join(FIX, "plan-missing-binding.yaml"), "--fragments", path.join(FIX, "fragments"), ...M, "--out", path.join(td, "r3b.svg"), "--receipt", path.join(td, "r3b.json")]);
   assert.equal(r.code, 1);
   assert.match(r.out, /binding coverage: .*is not bound/);
 });
-test("R1-4a: slot 밖으로 뻗는 path는 재측정으로 거부", () => {
+test("R1-4a: a path reaching outside the slot is refused on re-measurement", () => {
   const svg = fs.readFileSync(OUT, "utf8").replace('<g data-comp-instance="tree-1"', '<g data-comp-instance="tree-1"').replace(/(<g data-comp-instance="tree-1"[^>]*>)/, '$1<path d="M10 10 L900 900" stroke="#B45A50" stroke-width="8" fill="none"/>');
   const p = path.join(td, "r4a.svg");
   fs.writeFileSync(p, svg);
@@ -179,7 +179,7 @@ test("R1-4a: slot 밖으로 뻗는 path는 재측정으로 거부", () => {
   assert.equal(r.code, 1);
   assert.match(r.out, /E-COMP-RECEIPT|E-COMP-BOUNDS/);
 });
-test("R1-4b: 미지원 geometry(곡선)는 silent 제외가 아니라 명시 실패", () => {
+test("R1-4b: unsupported geometry (a curve) is an explicit failure, not a silent exclusion", () => {
   const svg = fs.readFileSync(OUT, "utf8").replace(/(<g data-comp-instance="tree-1"[^>]*>)/, '$1<path d="M10 10 C 40 40 60 60 90 90" stroke="#636A75" fill="none"/>');
   const p = path.join(td, "r4b.svg");
   fs.writeFileSync(p, svg);
@@ -187,7 +187,7 @@ test("R1-4b: 미지원 geometry(곡선)는 silent 제외가 아니라 명시 실
   assert.equal(r.code, 1);
   assert.match(r.out, /E-COMP-UNVERIFIED-GEOM/);
 });
-test("R1-5a: 미선언 capability template의 actual port는 거부", () => {
+test("R1-5a: an actual port from an undeclared capability template is refused", () => {
   const fd = fs.mkdtempSync(path.join(os.tmpdir(), "frag-"));
   for (const f of fs.readdirSync(path.join(FIX, "fragments"))) fs.copyFileSync(path.join(FIX, "fragments", f), path.join(fd, f));
   const rp = path.join(fd, "summary-cards.receipt.json");
@@ -198,7 +198,7 @@ test("R1-5a: 미선언 capability template의 actual port는 거부", () => {
   assert.equal(r.code, 1);
   assert.match(r.out, /undeclared capability template/);
 });
-test("R1-5b: capability cardinality(정확히 4) 위반은 거부", () => {
+test("R1-5b: violating the capability cardinality (exactly 4) is refused", () => {
   const fd = fs.mkdtempSync(path.join(os.tmpdir(), "frag-"));
   for (const f of fs.readdirSync(path.join(FIX, "fragments"))) fs.copyFileSync(path.join(FIX, "fragments", f), path.join(fd, f));
   const rp = path.join(fd, "summary-cards.receipt.json");
@@ -209,10 +209,10 @@ test("R1-5b: capability cardinality(정확히 4) 위반은 거부", () => {
   assert.equal(r.code, 1);
   assert.match(r.out, /cardinality is "4"/);
 });
-test("R1-5c: fragment sourceDigest mismatch(stale receipt)는 거부", () => {
+test("R1-5c: a fragment sourceDigest mismatch (a stale receipt) is refused", () => {
   const fd = fs.mkdtempSync(path.join(os.tmpdir(), "frag-"));
   for (const f of fs.readdirSync(path.join(FIX, "fragments"))) fs.copyFileSync(path.join(FIX, "fragments", f), path.join(fd, f));
-  const sp = path.join(fd, "tree.spacious.svg");   // 최대-채움 정책으로 선택되는 variant를 변조
+  const sp = path.join(fd, "tree.spacious.svg");   // tamper with the variant the maximum-fill policy selects
   fs.writeFileSync(sp, fs.readFileSync(sp, "utf8") + "<!-- mutated -->");
   const r = run(["compose", path.join(FIX, "plan-cards-tree.yaml"), "--fragments", fd, ...M, "--out", path.join(td, "r5c.svg"), "--receipt", path.join(td, "r5c.json")]);
   assert.equal(r.code, 1);
@@ -220,7 +220,7 @@ test("R1-5c: fragment sourceDigest mismatch(stale receipt)는 거부", () => {
 });
 
 // ---- namespace adversarial (R1-P5) ----
-test("R1-6: single quote·spaced·xlink·복수 ARIA namespace rewrite + dangling 검사", async () => {
+test("R1-6: single-quote, spaced, xlink and multiple-ARIA namespace rewrites, plus the dangling check", async () => {
   const { namespaceBody, checkRefs } = await import("./compose.mjs");
   const adv = `<defs><clipPath id = 'clip-x'><rect width="10" height="10"/></clipPath></defs>
 <g clip-path="url(#clip-x)"><rect id='r-one' width="5" height="5" fill="#FFFFFF"/>
@@ -235,8 +235,8 @@ test("R1-6: single quote·spaced·xlink·복수 ARIA namespace rewrite + danglin
   assert.ok(dangling.some((e) => e.includes('dangling reference "#inst1-r-one"')), JSON.stringify(dangling));
 });
 
-// ---- CP1 geometry correction 재현(R2) ----
-test("R2-1: fragment 내부 nested translate는 fail-closed", () => {
+// ---- reproducing the CP1 geometry corrections (R2) ----
+test("R2-1: a nested translate inside a fragment fails closed", () => {
   const svg = fs.readFileSync(OUT, "utf8").replace(/<g data-comp-entity="cards-1-card-1">/, '<g data-comp-entity="cards-1-card-1" transform="translate(900,0)">');
   const p = path.join(td, "r21.svg");
   fs.writeFileSync(p, svg);
@@ -244,20 +244,20 @@ test("R2-1: fragment 내부 nested translate는 fail-closed", () => {
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /E-COMP-UNVERIFIED-GEOM .*transform .*fail-closed/);
 });
-test("R2-2a: composite text를 긴 문자열로 교체하면 content digest로 거부", () => {
-  const svg = fs.readFileSync(OUT, "utf8").replace(">핵심 1<", ">이 텍스트는 측정 이후에 몰래 바뀐 매우 매우 매우 매우 매우 매우 긴 한국어 문자열입니다 overflowing far beyond the page<");
+test("R2-2a: replacing composite text with a long string is refused by the content digest", () => {
+  const svg = fs.readFileSync(OUT, "utf8").replace(/* lang-allow: ko-fixture */ ">핵심 1<", /* lang-allow: ko-fixture */ ">이 텍스트는 측정 이후에 몰래 바뀐 매우 매우 매우 매우 매우 매우 긴 한국어 문자열입니다 overflowing far beyond the page<");
   const p = path.join(td, "r22a.svg");
   fs.writeFileSync(p, svg);
   const r = run(["verify", p, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /E-COMP-RECEIPT-TEXT .*text was altered after measurement/);
 });
-test("R2-2b: 긴 KO/EN 텍스트 fragment는 정직한 browser 측정으로 spill이 잡힌다 (browser)", () => {
+test("R2-2b: a long KO/EN text fragment has its spill caught by honest browser measurement (browser)", () => {
   const fd = fs.mkdtempSync(path.join(os.tmpdir(), "frag-"));
   for (const f of fs.readdirSync(path.join(FIX, "fragments"))) fs.copyFileSync(path.join(FIX, "fragments", f), path.join(fd, f));
   const sp = path.join(fd, "summary-cards.svg");
-  fs.writeFileSync(sp, fs.readFileSync(sp, "utf8").replace(">핵심 1<", ">이 카드 제목은 슬롯 오른쪽 경계를 한참 넘어가는 매우 긴 한국어와 English mixed 문자열입니다 and it keeps going<"));
-  // 정직 재측정: measure-text로 textBounds·digest·sourceDigest 갱신
+  fs.writeFileSync(sp, fs.readFileSync(sp, "utf8").replace(/* lang-allow: ko-fixture */ ">핵심 1<", /* lang-allow: ko-fixture */ ">이 카드 제목은 슬롯 오른쪽 경계를 한참 넘어가는 매우 긴 한국어와 English mixed 문자열입니다 and it keeps going<"));
+  // honest re-measurement: refresh textBounds, digest and sourceDigest through measure-text
   const mt = spawnSync(process.execPath, [path.join(here, "measure-text.mjs"), sp], { encoding: "utf8", timeout: 60000 });
   assert.equal(mt.status, 0, mt.stdout + mt.stderr);
   const tm = JSON.parse(mt.stdout);
@@ -269,7 +269,7 @@ test("R2-2b: 긴 KO/EN 텍스트 fragment는 정직한 browser 측정으로 spil
   rcp.textBounds = tm.texts.map((x) => ({ x: x.x, y: x.y, w: x.w, h: x.h }));
   rcp.sourceDigest = sha16(frag);
   rcp.textMeasure = { method: "browser-getBBox", inputDigest: sha16(frag), texts: tm.texts.length };
-  // textDigest·usedBounds도 정직 갱신
+  // textDigest and usedBounds are refreshed honestly too
   const body = frag.match(/<svg[^>]*>([\s\S]*)<\/svg>\s*$/)[1];
   const texts = [...body.matchAll(/<text[^>]*>([\s\S]*?)<\/text>/g)].map((m) => m[1].replace(/<[^>]+>/g, "").trim());
   rcp.textDigest = sha16(texts.join("\u0001"));
@@ -277,18 +277,18 @@ test("R2-2b: 긴 KO/EN 텍스트 fragment는 정직한 browser 측정으로 spil
   rcp.usedBounds.w = maxX - rcp.usedBounds.x;
   fs.writeFileSync(rcpP, JSON.stringify(rcp));
   const r = run(["compose", path.join(FIX, "plan-cards-tree.yaml"), "--fragments", fd, ...M, "--out", path.join(td, "r22b.svg"), "--receipt", path.join(td, "r22b.json")]);
-  assert.notEqual(r.code, 0, r.out);   // 폭 초과 → needs-split(3) — 어느 쪽이든 non-zero
+  assert.notEqual(r.code, 0, r.out);   // over width -> needs-split (3) — non-zero either way
   assert.match(r.out, /needs-split|invalid/);
 });
-test("R2-3: 정상 KO text fragment는 evidence와 함께 통과", () => {
-  // KO 대표 fixture — browser rebind 포함 verify
+test("R2-3: a sound KO text fragment passes together with its evidence", () => {
+  // the representative KO fixture — verified including the browser rebind
   const r = run(["verify", OUT, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M]);
   assert.equal(r.code, 0, r.out);
 });
-test("R2-4: text-measure inputDigest가 fragment와 다르면 stale evidence로 거부", () => {
+test("R2-4: a text-measure inputDigest differing from the fragment is refused as stale evidence", () => {
   const fd = fs.mkdtempSync(path.join(os.tmpdir(), "frag-"));
   for (const f of fs.readdirSync(path.join(FIX, "fragments"))) fs.copyFileSync(path.join(FIX, "fragments", f), path.join(fd, f));
-  const rcpP = path.join(fd, "tree.spacious.receipt.json");   // 최대-채움 정책이 선택하는 variant
+  const rcpP = path.join(fd, "tree.spacious.receipt.json");   // the variant the maximum-fill policy selects
   const rcp = JSON.parse(fs.readFileSync(rcpP, "utf8"));
   rcp.textMeasure.inputDigest = "beefbeefbeefbeef";
   fs.writeFileSync(rcpP, JSON.stringify(rcp));
@@ -297,8 +297,8 @@ test("R2-4: text-measure inputDigest가 fragment와 다르면 stale evidence로 
   assert.match(r.out, /stale text evidence/);
 });
 
-// ---- 최종 text-geometry binding 재현(R3) ----
-test("R3-1: 내용 동일 + x=900 이동은 markup digest로 거부(정적 계층 단독)", () => {
+// ---- reproducing the final text-geometry binding (R3) ----
+test("R3-1: same content moved to x=900 is refused by the markup digest (the static layer alone)", () => {
   const svg = fs.readFileSync(OUT, "utf8").replace(/<text x="14" y="62"/, '<text x="900" y="62"');
   const p = path.join(td, "r31.svg");
   fs.writeFileSync(p, svg);
@@ -306,7 +306,7 @@ test("R3-1: 내용 동일 + x=900 이동은 markup digest로 거부(정적 계�
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /E-COMP-RECEIPT-TEXT .*text markup digest mismatch/);
 });
-test("R3-2: 내용 동일 + font-size 확대는 markup digest로 거부", () => {
+test("R3-2: same content with an enlarged font-size is refused by the markup digest", () => {
   const svg = fs.readFileSync(OUT, "utf8").replace('font-size="16"', 'font-size="34"');
   const p = path.join(td, "r32.svg");
   fs.writeFileSync(p, svg);
@@ -314,15 +314,15 @@ test("R3-2: 내용 동일 + font-size 확대는 markup digest로 거부", () => 
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /E-COMP-RECEIPT-TEXT .*text markup digest mismatch/);
 });
-test("R3-3: tspan dx/dy 주입은 markup digest로 거부", () => {
-  const svg = fs.readFileSync(OUT, "utf8").replace(">핵심 1<", '><tspan dx="500">핵심 1</tspan><');
+test("R3-3: injecting tspan dx/dy is refused by the markup digest", () => {
+  const svg = fs.readFileSync(OUT, "utf8").replace(/* lang-allow: ko-fixture */ ">핵심 1<", /* lang-allow: ko-fixture */ '><tspan dx="500">핵심 1</tspan><');
   const p = path.join(td, "r33.svg");
   fs.writeFileSync(p, svg);
   const r = run(["verify", p, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M, "--no-browser"]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /E-COMP-RECEIPT-TEXT/);
 });
-test("R3-4: 상속 typography 변경(상위 g style)은 browser 재측정으로 거부", () => {
+test("R3-4: changing inherited typography (an ancestor g style) is refused on browser re-measurement", () => {
   const svg = fs.readFileSync(OUT, "utf8").replace(/<g data-comp-entity="cards-1-card-1">/, '<g data-comp-entity="cards-1-card-1" style="letter-spacing:8px">');
   const p = path.join(td, "r34.svg");
   fs.writeFileSync(p, svg);
@@ -330,7 +330,7 @@ test("R3-4: 상속 typography 변경(상위 g style)은 browser 재측정으로 
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /E-COMP-TEXT-RUNTIME .*drift beyond tolerance/);
 });
-test("R3-5: 정상 EN composite는 browser rebind 포함 전 경로 통과", () => {
+test("R3-5: a sound EN composite passes the whole path including the browser rebind", () => {
   const o = path.join(td, "en.svg"), rc = path.join(td, "en.json");
   const r = run(["compose", path.join(FIX, "plan-cards-tree-en.yaml"), "--fragments", path.join(FIX, "fragments-en"), ...M, "--out", o, "--receipt", rc]);
   assert.equal(r.code, 0, r.out);
@@ -338,8 +338,8 @@ test("R3-5: 정상 EN composite는 browser rebind 포함 전 경로 통과", () 
   assert.equal(v.code, 0, v.out);
 });
 
-// ---- fail-closed 보정 재현(R4) ----
-test("R4-1: textMarkupDigest 삭제 + x=900은 nested schema로 거부", () => {
+// ---- reproducing the fail-closed corrections (R4) ----
+test("R4-1: deleting textMarkupDigest and moving to x=900 is refused by the nested schema", () => {
   const rcp = JSON.parse(fs.readFileSync(RCP, "utf8"));
   delete rcp.instances[0].textMarkupDigest;
   const rp = path.join(td, "r41.json");
@@ -351,14 +351,15 @@ test("R4-1: textMarkupDigest 삭제 + x=900은 nested schema로 거부", () => {
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /E-COMP-SCHEMA instance "cards-1" missing field "textMarkupDigest"/);
 });
-test("R4-2: --no-browser는 clean artifact에서도 bounded non-success(exit 3)", () => {
+test("R4-2: --no-browser is a bounded non-success (exit 3) even on a clean artifact", () => {
   const r = run(["verify", OUT, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M, "--no-browser"]);
   assert.equal(r.code, 3, r.out);
   assert.match(r.out, /static-only .*bounded, not acceptance-grade/);
 });
-test("R4-3: 기본 verify에서 browser 불가면 hard failure(exit 1)", () => {
-  // 측정기 부재는 env override가 아니라 **package 사본에서 측정기 자체를 고장내어**
-  // 재현한다 — production 경로에 주입 스위치를 두지 않기 위해서다(CP0-R1-F2).
+test("R4-3: in the default verify, no browser is a hard failure (exit 1)", () => {
+  // The absence of the measurer is reproduced by **breaking the measurer itself in a copy of the
+  // package**, not by an env override — so that no injection switch sits on the production path
+  // (CP0-R1-F2).
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "compose-pkg-"));
   const pkg = path.join(dir, "svg-infographic");
   assert.equal(spawnSync("cp", ["-R", path.join(here, ".."), pkg], { encoding: "utf8" }).status, 0);
@@ -374,20 +375,20 @@ test("R4-3: 기본 verify에서 browser 불가면 hard failure(exit 1)", () => {
   assert.match(r0.stdout, /E-COMP-TEXT-RUNTIME browser text re-measure unavailable/);
   fs.rmSync(dir, { recursive: true, force: true });
 });
-test("R4-4: 기본 verify + browser 측정은 완전 성공(exit 0)", () => {
+test("R4-4: the default verify plus browser measurement is a full success (exit 0)", () => {
   const r = run(["verify", OUT, "--receipt", RCP, "--plan", path.join(FIX, "plan-cards-tree.yaml"), ...M]);
   assert.equal(r.code, 0, r.out);
 });
 
-// ---- text-free fragment 계약(P2, release-blocking) ----
-test("P2-1: icon-only fragment는 null 조합 receipt로 전 경로 통과", () => {
+// ---- the text-free fragment contract (P2, release-blocking) ----
+test("P2-1: an icon-only fragment passes the whole path with an all-null receipt", () => {
   const o = path.join(td, "ib.svg"), rc = path.join(td, "ib.json");
   const r = run(["compose", path.join(FIX, "plan-cards-iconband.yaml"), "--fragments", path.join(FIX, "fragments"), ...M, "--out", o, "--receipt", rc]);
   assert.equal(r.code, 0, r.out);
   const v = run(["verify", o, "--receipt", rc, "--plan", path.join(FIX, "plan-cards-iconband.yaml"), ...M]);
   assert.equal(v.code, 0, v.out);
 });
-test("P2-2: text-free fragment가 null 아닌 text evidence를 실으면 거부", () => {
+test("P2-2: a text-free fragment carrying non-null text evidence is refused", () => {
   const fd = fs.mkdtempSync(path.join(os.tmpdir(), "frag-"));
   for (const f of fs.readdirSync(path.join(FIX, "fragments"))) fs.copyFileSync(path.join(FIX, "fragments", f), path.join(fd, f));
   const rp = path.join(fd, "icon-band.receipt.json");
@@ -399,21 +400,22 @@ test("P2-2: text-free fragment가 null 아닌 text evidence를 실으면 거부"
   assert.match(r.out, /text-free fragment must record textDigest: null/);
 });
 
-// ---- residual-space 계약(R5) ----
-test("R5-1: rhythm band 안 최대-채움 variant 자동 선택(spacious)과 residual receipt", () => {
+// ---- the residual-space contract (R5) ----
+test("R5-1: automatic selection of the maximum-fill variant within the rhythm band (spacious), and the residual receipt", () => {
   const rcp = JSON.parse(fs.readFileSync(RCP, "utf8"));
   const tree = rcp.instances.find((i) => i.instance_id === "tree-1");
   assert.equal(tree.variant, "spacious");
   assert.ok(rcp.contentFlowBounds && rcp.residual);
   assert.ok(Math.abs(rcp.residual.bottom - 143) <= 2, JSON.stringify(rcp.residual));
 });
-// ---- visual-rhythm band 계약(P1B) ----
-test("P1B-1: connector run이 band를 벗어난 variant는 자동 선택 자격이 없다", () => {
+// ---- the visual-rhythm band contract (P1B) ----
+test("P1B-1: a variant whose connector run leaves the band is not eligible for automatic selection", () => {
   const fd = fs.mkdtempSync(path.join(os.tmpdir(), "frag-"));
   for (const f of fs.readdirSync(path.join(FIX, "fragments"))) fs.copyFileSync(path.join(FIX, "fragments", f), path.join(fd, f));
   const sp = path.join(fd, "tree.spacious.svg");
-  // drop run 96 -> 152 (base와 receipt는 그대로) — band 56..108 위반이라 base로 후퇴하고,
-  // base의 residual은 선언값과 어긋나므로 정직하게 non-success가 된다
+  // drop run 96 -> 152 (base and receipt unchanged) — it violates the band 56..108 so it falls
+  // back to base, and base's residual disagrees with the declared value, so it honestly becomes
+  // a non-success
   fs.writeFileSync(sp, fs.readFileSync(sp, "utf8").replaceAll(" 168 V264", " 168 V320"));
   const rc = path.join(td, "p1b1.json");
   const r = run(["compose", path.join(FIX, "plan-cards-tree.yaml"), "--fragments", fd, ...M, "--out", path.join(td, "p1b1.svg"), "--receipt", rc]);
@@ -422,7 +424,7 @@ test("P1B-1: connector run이 band를 벗어난 variant는 자동 선택 자격�
   assert.equal(rcp.instances.find((i) => i.instance_id === "tree-1").variant, "base");
   assert.match(r.out, /residual_disposition\.bottom 143px != measured/);
 });
-test("P1B-2: 최종 SVG의 connector 신장은 verify 재측정으로 거부(E-COMP-RHYTHM)", () => {
+test("P1B-2: stretching a connector in the final SVG is refused on verify re-measurement (E-COMP-RHYTHM)", () => {
   const svg = fs.readFileSync(OUT, "utf8").replace("V264", "V320");
   const p = path.join(td, "p1b2.svg");
   fs.writeFileSync(p, svg);
@@ -430,12 +432,12 @@ test("P1B-2: 최종 SVG의 connector 신장은 verify 재측정으로 거부(E-C
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /E-COMP-RHYTHM .*connector run 152px outside declared band 56\.\.108/);
 });
-test("R5-2: 선언 없는 page bottom residual은 non-success", () => {
+test("R5-2: an undeclared page-bottom residual is a non-success", () => {
   const r = run(["compose", path.join(FIX, "plan-residual-undeclared.yaml"), "--fragments", path.join(FIX, "fragments"), ...M, "--out", path.join(td, "r52.svg"), "--receipt", path.join(td, "r52.json")]);
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /residual .*undeclared/);
 });
-test("R5-3: forged contentFlowBounds/residual은 재계산으로 거부", () => {
+test("R5-3: a forged contentFlowBounds or residual is refused on recomputation", () => {
   const rcp = JSON.parse(fs.readFileSync(RCP, "utf8"));
   rcp.residual = { top: 0, bottom: 0 };
   const p = path.join(td, "r53.json");
@@ -445,8 +447,8 @@ test("R5-3: forged contentFlowBounds/residual은 재계산으로 거부", () => 
   assert.match(r.out, /E-COMP-FORGED receipt residual/);
 });
 
-// ---- marker-label-row primitive(P2) + header default(P3 확정) ----
-test("P2-3: default는 title-keyline, locator variant는 명시 선택 시 산식(52/56)대로", () => {
+// ---- the marker-label-row primitive (P2) plus the header default (settled in P3) ----
+test("P2-3: the default is title-keyline; the locator variant follows the formula (52/56) when explicitly chosen", () => {
   const svg = fs.readFileSync(OUT, "utf8");
   assert.match(svg, /cluster-keyline/);
   assert.doesNotMatch(svg, /cluster-locator/);
@@ -466,23 +468,23 @@ const mkPlan = (name, mut) => {
   fs.writeFileSync(p, mut(src));
   return p;
 };
-test("P3-1: canonical default(title-keyline)가 H1 line-box에서 파생되고 locator를 대체한다 (browser verify)", () => {
+test("P3-1: the canonical default (title-keyline) derives from the H1 line-box and replaces the locator (browser verify)", () => {
   const p = mkPlan("k2-1.yaml", (s2) => s2);
   const o = path.join(td, "k2-1.svg"), rc = path.join(td, "k2-1.json");
   const r = run(["compose", p, "--fragments", path.join(FIX, "fragments"), ...M, "--out", o, "--receipt", rc]);
   assert.equal(r.code, 0, r.out);
   const svg = fs.readFileSync(o, "utf8");
-  // pageframe headerScale 파생: width 4, gap 12(x=24), pad 7(y=71, h=42)
+  // derived from the pageframe headerScale: width 4, gap 12 (x=24), pad 7 (y=71, h=42)
   assert.match(svg, /cluster-keyline[^>]*x="24" y="71" width="4" height="42"/);
   assert.doesNotMatch(svg, /cluster-locator/);
   assert.match(svg, /cluster-eyebrow[^>]*x="40"/);
   const v = run(["verify", o, "--receipt", rc, "--plan", p, ...M]);
   assert.equal(v.code, 0, v.out);
 });
-test("P3-2: 2줄 H1 — keyline이 두 line-box를 덮고 slot 예산은 pageframe --h1-lines 2와 일치", () => {
+test("P3-2: a two-line H1 — the keyline covers both line-boxes and the slot budget matches pageframe --h1-lines 2", () => {
   const p = mkPlan("k2-2.yaml", (s2) => s2
     .replace("header:\n", "header:\n  style: title-keyline\n")
-    .replace('h1: "핵심 4가지와 전체 구조"', 'h1:\n    - "핵심 4가지 요약과"\n    - "전체 구조의 대응 관계"')
+    .replace(/* lang-allow: ko-fixture */ 'h1: "핵심 4가지와 전체 구조"', /* lang-allow: ko-fixture */ 'h1:\n    - "핵심 4가지 요약과"\n    - "전체 구조의 대응 관계"')
     .replace("slot-b: { height: 528 }", "slot-b: { height: 494 }")
     .replace("bottom: 143", "bottom: 109"));
   const o = path.join(td, "k2-2.svg"), rc = path.join(td, "k2-2.json");
@@ -494,8 +496,8 @@ test("P3-2: 2줄 H1 — keyline이 두 line-box를 덮고 slot 예산은 pagefra
   const rcp = JSON.parse(fs.readFileSync(rc, "utf8"));
   assert.equal(rcp.resolvedSlots["slot-a"].y, 188);
 });
-test("P3-3: 2줄 초과 h1과 미지정 header style은 plan에서 거부", () => {
-  const p3 = mkPlan("k2-bad.yaml", (s2) => s2.replace('h1: "핵심 4가지와 전체 구조"', 'h1:\n    - "one"\n    - "two"\n    - "three"'));
+test("P3-3: an h1 over two lines, or an unspecified header style, is refused at plan", () => {
+  const p3 = mkPlan("k2-bad.yaml", (s2) => s2.replace(/* lang-allow: ko-fixture */ 'h1: "핵심 4가지와 전체 구조"', 'h1:\n    - "one"\n    - "two"\n    - "three"'));
   const r = run(["plan", p3, ...M]);
   assert.equal(r.code, 1);
   assert.match(r.out, /header\.h1 as a list must hold 1\.\.2/);

@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 120" width="420" height="120">
-  <!-- 오른쪽 패널의 annotation이 빠졌다 — 남은 하나만으로 통과하면 안 된다 -->
+  <!-- one panel keeps its row annotation, the mirror does not — the count no longer matches -->
   <rect data-align-row="slot-1" data-align-row-count="2" x="20" y="20" width="170" height="60" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1"/>
   <rect x="230" y="20" width="170" height="60" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1"/>
 </svg>

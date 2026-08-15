@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 // treatment.mjs — surface treatment resolver.
 //
-// 소유권 경계(이 파일이 지키는 것):
-//   generator     : treatment 선택과 artifact 구조 생성        (generate.mjs)
-//   treatment     : paper·rough filter·highlight 등 시각 처리   ← 이 파일
-//   typography    : face·weight·subset·license                 (typography-v1.yaml)
-//   materializer  : semantic paint 값 갱신만                    (skin.mjs materializeSvg)
+// Ownership boundary (what this file keeps):
+//   generator     : selects the treatment and builds the artifact structure (generate.mjs)
+//   treatment     : paper, rough filters, highlight — the visual surface     <- this file
+//   typography    : face, weight, subset, license                 (typography-v1.yaml)
+//   materializer  : semantic paint values only                    (skin.mjs materializeSvg)
 //
-// 그래서 여기서는 filter와 paper·highlight만 만들고 **글꼴을 고르지 않으며**,
-// palette role 값을 다시 칠하지도 않는다. 반대로 materializer에 filter를 넣지 않는다.
+// So this file makes filters, paper and highlight and **never picks a font**, nor repaints
+// palette role values. Conversely, filters never move into the materializer.
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -19,7 +19,7 @@ const refs = path.join(here, "..", "references");
 
 export const TREATMENTS = ["flat", "sketch"];
 
-// registry가 허용한 overlay만 treatment로 선택할 수 있다 — 파일이 있다고 쓰지 않는다.
+// Only an overlay the registry selects may be used as a treatment — a file existing is not authorisation.
 export function loadTreatment(name, mode = "light") {
   if (!TREATMENTS.includes(name)) throw new Error(`unknown treatment "${name}" (${TREATMENTS.join("|")})`);
   if (name === "flat") return { name, mode, overlay: null, filters: [], paper: null, highlight: null };
@@ -28,7 +28,7 @@ export function loadTreatment(name, mode = "light") {
   if (!sel) throw new Error(`treatment "${name}" is not selected by the skin registry — an overlay file alone does not authorise it`);
   const overlay = parseYaml(readFileSync(path.join(refs, "skins", `${sel}.yaml`), "utf8"), `${sel}.yaml`);
   if (overlay.kind !== "surface-treatment") throw new Error(`registry selects "${sel}" for treatment "${name}" but it is not a surface-treatment overlay`);
-  // dark × sketch는 시각 승인 전까지 거부한다(overlay가 선언한 제약).
+  // dark x sketch stays refused until it is visually approved (the overlay declares this).
   if (mode !== "light") throw new Error(`unsupported combination: ${mode} + ${name} (this kernel supports light only)`);
   const t = overlay.tokens ?? {};
   for (const k of ["paper", "sketch-ink", "highlight"])
@@ -36,7 +36,7 @@ export function loadTreatment(name, mode = "light") {
   return {
     name, mode, overlay: sel,
     paper: t.paper, ink: t["sketch-ink"], highlight: t.highlight,
-    // 수치는 overlay 선언에서 읽는다 — 이 파일에 상수를 다시 적지 않는다.
+    // Numbers come from the overlay declaration — no constants are restated here.
     filters: ["rough-box", "rough-line"].map((id) => ({ id, spec: String(overlay.treatment?.[id] ?? "") })),
   };
 }
@@ -46,8 +46,8 @@ const num = (spec, key, fallback) => {
   return m ? Number(m[1]) : fallback;
 };
 
-// filter defs는 treatment가 소유한다. 전면 userSpaceOnUse 영역을 쓰는 이유는
-// authoring E-FILTERBOUNDS에 적혀 있다 — 퍼센트 영역은 직선에서 붕괴한다.
+// The treatment owns its filter defs. The reason for a full-canvas userSpaceOnUse region is
+// recorded in authoring E-FILTERBOUNDS — percentage regions collapse on straight strokes.
 export function treatmentDefs(t, canvas) {
   if (t.name === "flat") return "";
   const region = ` x="0" y="0" width="${canvas.w}" height="${canvas.h}" filterUnits="userSpaceOnUse"`;
@@ -60,13 +60,13 @@ export function treatmentDefs(t, canvas) {
   }).join("\n");
 }
 
-// paper는 canvas role을 **대체**하는 것이 아니라 그 위에 깔리는 treatment 표면이다.
+// Paper does not **replace** the canvas role; it is the treatment surface laid over it.
 export function paperRect(t, canvas) {
   return t.name === "flat" ? ""
     : `  <rect data-treatment-paper="1" x="0" y="0" width="${canvas.w}" height="${canvas.h}" fill="${t.paper}" data-paint-static="true"/>`;
 }
 
-// displacement가 실제로 얼마나 밀어낼 수 있는지 — containment 검사가 이 값을 쓴다.
+// How far the displacement can actually push — the containment check consumes this.
 export function displacementBound(t) {
   return t.name === "flat" ? 0 : Math.max(0, ...t.filters.map(({ spec }) => num(spec, "scale", 3)));
 }

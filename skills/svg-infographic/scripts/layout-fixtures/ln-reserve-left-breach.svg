@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="400" height="120">
-  <!-- 첫 chip이 예약된 라벨 열 안으로 들어갔다 — 예약이 거짓이 된다 -->
+  <!-- a child crosses into the declared left reservation -->
   <rect data-layout-container="band" data-min-pad="16" data-layout-count="2"
         data-reserve-left="120" data-symmetry="x"
         x="20" y="20" width="360" height="80" fill="#F4F8FC" stroke="#DEE0E2" stroke-width="1"/>

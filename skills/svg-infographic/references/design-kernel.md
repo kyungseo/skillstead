@@ -107,20 +107,20 @@ add/remove is a kernel migration, not a profile edit.
 
 ## 4. Typography (canonical — SSoT: `references/typography/typography-v1.yaml`)
 
-Typography는 palette/treatment와 독립된 축으로, family/face/weight/style·fallback·
-synthetic 정책·asset/embed 정책·license를 **typography profile**이 단일 소유한다
-(registry `current.typography` 선택; 크기·행간은 PageFrame scale band 소유 유지).
-sketch face는 audition으로 **Hi Melody**가 선정됐다(design review, 2026-08-13) — regular
-단일 face, role weight 400 정규화, shipped sketch 산출물은 glyph subset embed
-(`assets/fonts/` 원본 + license). `skin.mjs typography-check`가 최종 산출물(단독·
-composite 모두)의 effective font cascade를 fail-closed 검증하고, `font-probe.mjs`가
-runtime receipt(computed family + FontFaceSet load check — rendered-face 증명 아님을
-명시)를 남긴다.
+Typography is an axis independent of palette and treatment: family/face/weight/style,
+fallback, the synthetic policy, the asset/embed policy and the license are owned solely by
+the **typography profile** (selected by registry `current.typography`; size and leading stay
+with the PageFrame scale band). The sketch face was chosen by audition as **Hi Melody**
+(design review, 2026-08-13) — a single regular face, role weight normalised to 400, and
+shipped sketch artifacts embed a glyph subset (originals plus license in `assets/fonts/`).
+`skin.mjs typography-check` verifies the effective font cascade of the final artifact
+(standalone and composite alike) fail-closed, and `font-probe.mjs` leaves a runtime receipt
+(computed family plus a FontFaceSet load check — explicitly not proof of the rendered face).
 
-- **flat** (KO/EN 공용): **Pretendard**, fallback `Inter, -apple-system,
+- **flat** (shared KO/EN): **Pretendard**, fallback `Inter, -apple-system,
   BlinkMacSystemFont, "Segoe UI", sans-serif` (system fonts — no embed).
-- **sketch** (KO/EN 공용): **embedded Hi Melody subset**, weight **400** 고정,
-  fallback `Pretendard, sans-serif` (명시적 secondary role에서만).
+- **sketch** (shared KO/EN): an **embedded Hi Melody subset**, weight fixed at **400**,
+  fallback `Pretendard, sans-serif` (only in an explicit secondary role).
 - No remote font loading (Google Fonts included) — outputs stay self-contained.
 - The fallback chain carries no dedicated CJK entry: when Pretendard is unavailable,
   KO glyphs resolve through the OS cascade (flat treatment only — sketch embeds its

@@ -39,7 +39,7 @@ import { preflight, guardPackagePath, state, isUnder } from "./preflight-lib.mjs
 
 // --- minimal YAML subset parser (nested maps, scalars, "- item" lists, comments) ---
 function parseInlineMap(v, file, line) {
-  // flat scalar inline map: { k: v, k2: v2 } — 중첩 없음
+  // flat scalar inline map: { k: v, k2: v2 } — no nesting
   const out = {};
   const body = v.slice(1, -1).trim();
   if (!body) return out;
@@ -92,8 +92,8 @@ export function parseYaml(text, file) {
     const m = trimmed.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
     if (!m) throw new Error(`${file}:${i + 1} unsupported YAML line: ${trimmed}`);
     const [, key, valRaw] = m;
-    // 같은 mapping에서 key가 두 번 나오면 조용히 덮어쓰지 않는다 — 뒤 선언이 앞 선언을
-    // 지우면 검증기가 통과시킨 것과 사람이 읽은 것이 달라진다.
+    // A key appearing twice in one mapping is not silently overwritten — if the later declaration
+    // erased the earlier one, what the validator passed and what a person read would differ.
     if (Object.prototype.hasOwnProperty.call(parent.obj, key))
       throw new Error(`${file}:${i + 1} duplicate key "${key}" in the same mapping`);
     if (valRaw === "") {
@@ -105,8 +105,8 @@ export function parseYaml(text, file) {
       let v = valRaw.trim();
       if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1);
       else if (v === "null") v = null;
-      // inline map은 이미 boolean으로 바꾼다 — block 형식만 문자열로 두면 같은 값이
-      // 표기 방식에 따라 다른 타입이 되어 검증기가 조용히 갈린다.
+      // Inline maps already convert to boolean — leaving only the block form as a string would
+      // make the same value take different types by notation, splitting the validator quietly.
       else if (v === "true") v = true;
       else if (v === "false") v = false;
       else if (v === "[]") v = [];
@@ -175,17 +175,18 @@ const OVERLAY_TOKENS = ["paper", "sketch-ink", "highlight"];
 const STATUSES = ["candidate", "current", "frozen", "deprecated"];
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-// SKIN_SKINS_DIR: 대체 profile 디렉터리(부정 fixture 등). 값이 무엇이든 파일을 읽는
-// 시점에 containment 검사를 통과해야 하므로 package 밖을 가리킬 수 없다 — 주석이
-// 아니라 gate가 경계를 강제한다.
+// SKIN_SKINS_DIR: an alternative profile directory (for negative fixtures and the like). Whatever
+// its value, it must clear the containment check when the file is read, so it cannot point outside
+// the package — the boundary is enforced by the gate, not by this comment.
 const skinsDir = process.env.SKIN_SKINS_DIR
   ? path.resolve(process.env.SKIN_SKINS_DIR)
   : path.resolve(here, "..", "references", "skins");
 const sha = (buf) => createHash("sha256").update(buf).digest("hex").slice(0, 16);
 
 function readYaml(p) {
-  // profile·registry·manifest는 package-owned 표면이다 — resolve 시점에 containment 검사
-  // (registry indirect pointer나 extends가 package 밖으로 새는 경로를 막는다).
+  // Profiles, the registry and the manifest are package-owned surfaces — containment is checked at
+  // resolve time (blocking the path where a registry indirect pointer or an extends leaks outside
+  // the package).
   guardPackagePath(p, "profile/registry/manifest");
   const text = readFileSync(p, "utf8");
   return { doc: parseYaml(text, p), digest: sha(text) };
@@ -216,8 +217,9 @@ function loadTypography(errors, overridePath = null) {
     for (const k of Object.keys(cfg)) if (!TK.includes(k)) errors.push(`typography: ${t}: unknown field "${k}"`);
     if (cfg.synthetic !== "forbidden") errors.push(`typography: ${t}: synthetic must be "forbidden" (synthetic bold/italic is never allowed)`);
     if ("weight-policy" in cfg && cfg["weight-policy"] !== "normalize-400") errors.push(`typography: ${t}: unknown weight-policy "${cfg["weight-policy"]}"`);
-    // optical_calibration: base type scale을 바꾸지 않고 **face의 시각 크기**만 보정하는
-    // named token이다. band는 보정의 최소 단위이고, 파일별·문자열별 보정은 표현할 수 없다.
+    // optical_calibration: a named token that corrects only the **optical size of the face**
+    // without changing the base type scale. The band is the smallest unit of correction; per-file
+    // or per-string correction cannot be expressed.
     if ("optical_calibration" in cfg) {
       const oc = cfg.optical_calibration;
       if (!oc || typeof oc !== "object") errors.push(`typography: ${t}: optical_calibration must be a map`);
@@ -260,7 +262,7 @@ function loadTypography(errors, overridePath = null) {
       } catch { errors.push(`typography: ${t}: ${label} not found at ${rel}`); }
     };
     if (A.policy === "bundled") {
-      // face가 여럿이면 weight별로 각각 pin한다 — "이 글꼴을 쓴다"가 아니라 "이 바이트를 쓴다"가 계약이다.
+      // With several faces, each weight is pinned separately — the contract is "these bytes", not "this font".
       if (Array.isArray(A.faces)) {
         const declaredWeights = new Set();
         for (const [i, f] of A.faces.entries()) {
@@ -272,7 +274,7 @@ function loadTypography(errors, overridePath = null) {
             errors.push(`typography: ${t}: asset.faces[${i}] requires original_filename (upstream provenance)`);
           checkAsset(f.path, f.digest, `asset.faces[${i}]`);
         }
-        // 선언한 weight는 전부 asset이 있어야 한다 — synthetic이 금지된 이상 빠진 weight는 그릴 수 없다.
+        // Every declared weight needs its asset — with synthetic forbidden, a missing weight cannot be drawn.
         for (const loc of TYPO_LOCALES)
           for (const w of (cfg.locales?.[loc]?.weights ?? []))
             if (!declaredWeights.has(Number(w)))
@@ -297,7 +299,7 @@ function loadTypography(errors, overridePath = null) {
             const ld = createHash("sha256").update(lbuf).digest("hex");
             if (ld !== Li.evidence_digest) errors.push(`typography: ${t}: license.evidence digest mismatch`);
           }
-          // RFN 선언과 실제 license 본문이 어긋나면 어느 쪽이든 잘못이다.
+          // If the RFN declaration and the actual licence text disagree, one of them is wrong either way.
           const hasRfn = /with Reserved Font Name/i.test(lbuf.toString("utf8"));
           if (hasRfn && (Li.rfn ?? []).length === 0)
             errors.push(`typography: ${t}: license text declares a Reserved Font Name but license.rfn is empty`);
@@ -312,8 +314,8 @@ function loadTypography(errors, overridePath = null) {
 
 
 // --- derived geometry floors -------------------------------------------------
-// 수치 SSoT는 manifest params이고, **산식의 소유자는 이 helper 하나**다.
-// spec은 기호식만 설명하고, validator와 renderer는 이 함수를 함께 쓴다.
+// The SSoT for the numbers is the manifest params, and **this one helper owns the formula**.
+// The spec explains only the symbolic form; the validator and the renderer both call this function.
 export const PANEL_FLOOR_COMPONENTS = ["panelPad", "panelHeaderH", "slotMinH", "slotGap", "minSlots"];
 export function derivePanelFloor(params = {}) {
   if (!PANEL_FLOOR_COMPONENTS.some((k) => params[k] !== undefined)) return { declared: false };
@@ -328,12 +330,14 @@ export function derivePanelFloor(params = {}) {
 
 
 // --- alignment inventory -----------------------------------------------------
-// 정렬 group이 **통째로 빠지면** participant annotation만으로는 알 수 없다.
-// 그래서 기대 group 목록을 입력 cardinality에서 따로 파생하고, 산출물이 그것을 선언하게 한다.
-// 규칙: 참여자가 2 미만인 축은 정렬 관계가 없으므로 **group을 만들지 않는다**
-//       (불완전 격자도 지원하되 singleton group은 존재 자체가 없다 — 모순을 남기지 않는다).
-// decision-matrix: 자리는 배열 순서가 아니라 **축 값**이 정한다.
-// x tier는 낮음→높음이 왼→오, y tier는 낮음→높음이 아래→위이므로 row는 뒤집어 센다.
+// When an alignment group goes missing **in its entirety**, participant annotations alone cannot
+// tell. So the expected group list is derived separately from the input cardinality, and the
+// artifact is made to declare it.
+// The rule: an axis with fewer than two participants has no alignment relation and so **forms no
+// group** (incomplete grids are supported, but a singleton group simply does not exist — no
+// contradiction is left behind).
+// decision-matrix: position is fixed by the **axis values**, not by array order.
+// x tiers run low-to-high left-to-right and y tiers low-to-high bottom-to-top, so rows count in reverse.
 export function deriveMatrixPlacement(input) {
   const xt = input.axes?.x?.tiers ?? [], yt = input.axes?.y?.tiers ?? [];
   const cols = xt.length, rows = yt.length;
@@ -366,7 +370,7 @@ export const serializeAlignInventory = (inv) =>
   inv.map((g) => `${g.axis}:${g.id}=${g.count}`).join(";");
 
 // --- font delivery policy ------------------------------------------------------
-// 글꼴 정체성은 typography SSoT가, **전달 방식**은 이 profile이 소유한다.
+// Font identity belongs to the typography SSoT; **how it is delivered** belongs to this profile.
 export function loadDelivery(errors, typo = null) {
   const p = path.resolve(skinsDir, "..", "delivery", "font-delivery-v1.yaml");
   let doc, digest;
@@ -391,7 +395,7 @@ export function loadDelivery(errors, typo = null) {
     if (m.embed === "subset") {
       if (m.format !== "woff2") errors.push(`delivery: ${id}: embedded format must be woff2`);
       if (typeof m.alias !== "string" || !m.alias.trim()) errors.push(`delivery: ${id}: subset embedding requires an alias`);
-      // OFL: subset은 Modified Version이다. 예약된 이름을 alias로 쓰면 라이선스 위반이다.
+      // OFL: a subset is a Modified Version. Using the reserved name as the alias violates the licence.
       for (const n of rfn)
         if (String(m.alias).toLowerCase().includes(n.toLowerCase()))
           errors.push(`delivery: ${id}: alias "${m.alias}" contains the Reserved Font Name "${n}" — a subset is a Modified Version and must not use it`);
@@ -418,7 +422,7 @@ export function loadDelivery(errors, typo = null) {
   return { doc, digest };
 }
 
-// 결정적 stack 직렬화 — face + fallback을 CSS 규칙(공백 포함 family만 quote)으로
+// Deterministic stack serialisation — face plus fallback under the CSS rule (quote only families containing spaces)
 function serializeStack(face, fallback) {
   return [face, ...fallback].map((f) => /[ ]/.test(f) && !f.startsWith("-") ? `"${f}"` : f).join(", ");
 }
@@ -609,8 +613,9 @@ function resolveTokens(prof, deriv, mode) {
 }
 
 // --- strict CLI parsing -------------------------------------------------------
-// tombstone 본문은 코드가 소유하는 결정적 문자열이다 — 검사와 생성이 같은 template을
-// 쓰므로 문구를 바꿔도 문서와 검사가 어긋나지 않는다(skin.mjs tombstones --write).
+// The tombstone body is a deterministic string the code owns — check and generation share one
+// template, so changing the wording cannot make the document and the check disagree
+// (skin.mjs tombstones --write).
 function canonicalTombstone(title, tid) {
   return `## ${title}\n\n**Migrated to TypePack \`${tid}\`.** Rules: [\`types/specs/${tid}.md\`](types/specs/${tid}.md) ·\n` +
     `routing: [\`types/selection.md\`](types/selection.md).\n`;
@@ -714,13 +719,14 @@ function materializeSvg(text, tokens) {
 }
 
 // ---- TypePack input payload schema (CP2A-R1B) ---------------------------------
-// 입력은 prompt 문장이 아니라 **구조화 payload**가 SSoT다. 공통 primitive(exact key,
-// localized text, stable id, grapheme budget)와 TypePack별 validator를 분리하고,
-// root·entity 모두 unknown field를 fail-closed로 거부한다.
+// The SSoT for input is a **structured payload**, not a prompt sentence. The shared primitives
+// (exact key, localized text, stable id, grapheme budget) are kept apart from the per-TypePack
+// validators, and unknown fields are refused fail-closed at both root and entity level.
 //
-// 문자 상한의 지위: label처럼 spec이 실제 문자 수를 정한 곳은 pre-render hard gate이지만,
-// "1줄/2줄"로만 정의된 copy는 문자 수로 line fit을 증명할 수 없다. 후자는
-// **authoring sanity ceiling**이며 실제 줄 수·overflow는 CP2B browser measurement가 정한다.
+// The standing of a character ceiling: where the spec fixes an actual character count — a label,
+// say — it is a pre-render hard gate. But copy defined only as "one line / two lines" cannot have
+// its line fit proven by a character count. The latter is an **authoring sanity ceiling**; the real
+// line count and any overflow are settled by the CP2B browser measurement.
 const LOCALES = ["ko", "en"];
 const ICON_SET = ["activity", "rocket", "coins", "shield", "database", "cloud", "lock",
   "gauge", "layers", "route", "flag", "check", "clock", "users", "server", "queue"];
@@ -728,7 +734,7 @@ const graphemes = (str) => {
   try { return [...new Intl.Segmenter(undefined, { granularity: "grapheme" }).segment(String(str))].length; }
   catch { return [...String(str)].length; }   // code point fallback
 };
-// budget kind: "hard" = spec이 문자 수를 정함 · "sanity" = 줄 수 계약의 작성 상한
+// budget kind: "hard" = the spec fixes the character count / "sanity" = an authoring ceiling under a line-count contract
 const B = (ko, en, kind = "sanity") => ({ ko, en, kind });
 
 const INPUT_SCHEMA = {
@@ -774,20 +780,21 @@ const INPUT_SCHEMA = {
   },
   "decision-matrix": {
     root: ["axes", "cells"], collection: "cells",
-    // 위치가 곧 주장이므로 cell은 **어느 축 값에 속하는지**를 선언한다(x/y = tier id).
-    // name은 선택이다 — 없으면 두 축 tier label에서 파생해 "낮음-높음" 같은 모호한 문안을 없앤다.
+    // Position is itself the claim, so a cell declares **which axis values it belongs to**
+    // (x/y = tier id). name is optional — without it the name derives from the two tier labels,
+    // which removes vague copy like "low-high".
     entity: { required: { x: "tier", y: "tier", trait: B(30, 44) },
       optional: { name: B(16, 24), action: B(20, 30), examples: "examples" } },
     limits: { maxExamples: 2, exampleBudget: B(20, 30), tiers: [2, 3] },
   },
 };
 
-// covers는 선언 label이 아니라 payload에서 **관측**된다. 선언한 축이 실제로 관측되지
-// 않으면 허위 coverage이므로 거부한다.
+// covers is **observed** in the payload, not taken from a declared label. A declared axis that is
+// not actually observed is false coverage and is refused.
 const COVERS_VOCAB = ["cardinality-max", "copy-boundary-candidate", "optionals-max",
   "edge-density", "containment-depth", "mirrored-slots", "status-and-marker",
   "gate-caption", "chips-max", "degrade-path", "terminal-current"];
-// audit 대상 축: 관측되면 반드시 선언돼야 한다(선언 ⊆ 관측 뿐 아니라 그 역도 성립).
+// Audited axes: whatever is observed must be declared (not only declared within observed, but the converse too).
 const AUDITABLE_COVERS = ["cardinality-max", "copy-boundary-candidate", "optionals-max",
   "edge-density", "containment-depth", "mirrored-slots", "status-and-marker", "chips-max", "degrade-path", "terminal-current"];
 
@@ -801,7 +808,7 @@ function localized(v, budget, ctx, report, required = true) {
     if (lim && n > lim) report(`${ctx}.${loc} is ${n} graphemes, over the ${lim} ${budget.kind === "hard" ? "budget" : "authoring sanity ceiling"}`);
   }
 }
-// receipt가 독립 entity로 소비할 수 있는 하위 요소는 모두 kebab-case + scope 내 unique다.
+// Every sub-element a receipt can consume as an independent entity is kebab-case and unique within its scope.
 function subIds(items, ctx, report) {
   const seen = new Set();
   for (const it of items ?? []) {
@@ -820,7 +827,7 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
   if (!sc) return new Set();
   const META = ["schema_version", "kind", "typepack", "case", "preset", "layout", "cols", "floor", "count", "prompt_ko", "prompt_en", "title"];
   exactKeys(doc, [...META, ...sc.root], "payload root", report);
-  // H1은 산출물의 결론 문장이다 — generator가 발명하지 못하도록 입력이 소유한다.
+  // The H1 is the artifact's concluding sentence — the input owns it so the generator cannot invent it.
   localized(doc.title, B(30, 46), "payload title", report);
   const list = doc[sc.collection];
   const observed = new Set();
@@ -835,7 +842,7 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
     else if (ids.has(e.id)) report(`duplicate ${sc.collection} entity id "${e.id}"`);
     else ids.add(e.id);
     for (const [f, budget] of Object.entries(req)) {
-      if (budget === "tier") continue;      // 축 tier 참조는 타입별 validator가 소유
+      if (budget === "tier") continue;      // axis tier references belong to the per-type validator
       if (budget === "status") { if (!["done", "current", "future"].includes(e[f])) report(`entity "${e.id}" status must be done|current|future`); continue; }
       if (budget === "card") {
         if (e[f] === undefined) { report(`entity "${e.id}" is missing its required milestone card`); continue; }
@@ -856,7 +863,7 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
         for (const ch of e[f]) { exactKeys(ch, ["id", "label"], `chip "${ch.id}"`, report); localized(ch.label, sc.limits.chipBudget, `chip "${ch.id}" label`, report); }
         continue;
       }
-      if (budget === "nodes") continue;      // 타입별 validator가 소유
+      if (budget === "nodes") continue;      // owned by the per-type validator
       if (budget === "card") {
         exactKeys(e[f], ["title", "body"], `entity "${e.id}" card`, report);
         localized(e[f].title, sc.limits.cardTitle, `entity "${e.id}" card.title`, report);
@@ -873,7 +880,7 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
       localized(e[f], budget, `entity "${e.id}" ${f}`, report, false);
     }
   }
-  // ---- 타입별 validator + observed coverage ----
+  // ---- per-type validators plus observed coverage ----
   const V = {
     "cards-kpi-grid": () => {
       if (list.every((c) => c.icon !== undefined && c.numeral !== undefined)) observed.add("optionals-max");
@@ -978,8 +985,9 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
     "roadmap-timeline": () => {
       const cur = list.filter((x) => x.status === "current").length;
       if (cur !== 1) report(`exactly one phase must be "current" (found ${cur})`);
-      // 축이 뜻하는 것은 순서다. "current 하나"만 보면 future → done → current 처럼
-      // 시간과 모순된 배열이 통과한다. 상태는 반드시 done* current future* 순이다.
+      // What the axis means is order. Checking only for "exactly one current" would let an
+      // arrangement contradicting time — future, done, current — pass. The statuses must run
+      // done* current future*.
       const rank = { done: 0, current: 1, future: 2 };
       let prev = -1, mono = true;
       for (const p of list) {
@@ -992,9 +1000,10 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
       if (doc.now_marker !== undefined) {
         exactKeys(doc.now_marker, ["label", "after_phase"], "now_marker", report);
         localized(doc.now_marker.label, B(12, 18), "now_marker label", report);
-        // marker 위치는 입력이 말한다 — renderer가 추론하지 않는다. after_phase는 current와
-        // 같아야 하므로 값 자체는 중복이지만, marker만 옮기고 current를 두고 온 경우를
-        // **조용한 모순 대신 오류**로 만든다(검사되는 중복).
+        // The input states the marker position; the renderer does not infer it. after_phase must
+        // equal the current phase, so the value is redundant — but the redundancy is checked, which
+        // turns "the marker moved and current stayed behind" into **an error rather than a quiet
+        // contradiction**.
         const ap = doc.now_marker.after_phase;
         if (ap === undefined) report("now_marker requires after_phase — the marker position is input data, not something the generator may infer");
         else if (!ids.has(ap)) report(`now_marker after_phase "${ap}" is not an existing phase id`);
@@ -1005,7 +1014,7 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
       }
       const st = new Set(list.map((x) => x.status));
       if (st.has("done") && st.has("current") && st.has("future") && doc.now_marker !== undefined) observed.add("status-and-marker");
-      // C-06이 fail-closed로 다루는 조합의 **합법 쪽**이다: 마지막이 current인데 marker가 없다.
+      // The **legal side** of the combination C-06 handles fail-closed: the last phase is current and there is no marker.
       if (curIdx === list.length - 1 && doc.now_marker === undefined) observed.add("terminal-current");
     },
     "decision-matrix": () => {
@@ -1029,7 +1038,7 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
         }
         tierIds[a] = seen;
       }
-      // cell은 배열 순서가 아니라 축 값으로 자리를 갖는다 — 같은 칸을 두 번 주장할 수 없다.
+      // A cell takes its position from the axis values, not from array order — the same square cannot be claimed twice.
       const taken = new Map();
       for (const c of list) {
         for (const a of ["x", "y"]) {
@@ -1051,20 +1060,21 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
 
 export function observedCoverage(doc, tid, declaredCount, fitMax, geometryExpected, extra) {
   const obs = new Set(extra ?? []);
-  // cardinality·degrade는 schema 유무와 무관하게 선언값으로 관측된다(fixture typepack 포함)
+  // Cardinality and degrade are observed from the declared values regardless of whether a schema exists (fixture typepacks included)
   if (Number(declaredCount) === Number(fitMax)) obs.add("cardinality-max");
   if (geometryExpected === "needs-split") obs.add("degrade-path");
   const sc = INPUT_SCHEMA[tid];
   if (!sc) return obs;
   const list = doc[sc.collection] ?? [];
   if (tid === "nested-scope" && list.length === Number(fitMax)) obs.add("containment-depth");
-  // copy-boundary-candidate: 필수 localized field 중 하나라도 선언 상한의 85% 이상.
-  // 이름 그대로 **후보**이며, 실제 line fit은 CP2B의 browser measurement가 확정한다.
+  // copy-boundary-candidate: any required localized field at 85% or more of its declared ceiling.
+  // It is a **candidate**, as the name says; the real line fit is settled by the CP2B browser
+  // measurement.
   const texts = [];
   for (const e of list) {
     for (const [f, budget] of Object.entries({ ...sc.entity.required, ...sc.entity.optional }))
       if (typeof budget !== "string") texts.push([e[f], budget]);
-    // 타입별로 실제 문안이 사는 곳도 함께 본다(collection 밖의 nested text)
+    // Also look where the actual copy lives per type (nested text outside the collection)
     for (const ch of e.items ?? []) texts.push([ch.label, sc.limits.chipBudget]);
     for (const n of e.nodes ?? []) texts.push([n.name, sc.limits.nodeName]);
     for (const ex of e.examples ?? []) texts.push([ex.text, sc.limits.exampleBudget]);
@@ -1072,7 +1082,7 @@ export function observedCoverage(doc, tid, declaredCount, fitMax, geometryExpect
   }
   for (const sl of doc.slots ?? []) { texts.push([sl.before, sc.limits.slotBudget]); texts.push([sl.after, sc.limits.slotBudget]); }
   if (doc.gate?.criterion) texts.push([doc.gate.criterion, { ko: 30, en: 48 }]);
-  // KO/EN이 모두 1급이므로 한 언어만 경계인 것은 후보가 아니다 — 각 locale에 witness 필요
+  // KO and EN are both first-class, so being at the boundary in one language alone is not a candidate — each locale needs a witness
   const witness = { ko: false, en: false };
   for (const [v, b2] of texts) for (const loc of LOCALES)
     if (v?.[loc] && b2?.[loc] && graphemes(v[loc]) >= Math.ceil(b2[loc] * 0.85)) witness[loc] = true;
@@ -1212,8 +1222,9 @@ function main() {
       contentHeight = Number(po["--content-height"]);
       if (!Number.isFinite(contentHeight) || contentHeight <= 0) fail(2, "--content-height must be a positive number");
     }
-    // optical scale은 base type scale을 **덮어쓰지 않는다** — 이 실행에 한해 header 지표를
-    // 보정한 사본을 만들고, header region 높이도 PageFrame이 그 값으로 다시 계산한다.
+    // The optical scale **does not overwrite** the base type scale — for this run alone it makes a
+    // copy with corrected header metrics, and PageFrame recomputes the header region height from
+    // those values too.
     const os = po["--optical-scale"] === undefined ? 1 : Number(po["--optical-scale"]);
     if (!Number.isFinite(os) || os < 1 || os > 3) fail(2, "--optical-scale must be a factor between 1 and 3");
     const Peff = os === 1 ? P : { ...P, header: Object.fromEntries(Object.entries(P.header).map(([k, v]) => [k, Math.round(Number(v) * os)])) };
@@ -1221,11 +1232,11 @@ function main() {
     const out = computePageFrame(Peff, opts);
     if (!out.fluid && (out.contentBox.h == null || out.contentBox.h <= 0)) fail(1, `preset ${preset}: computed contentBox height is not positive (${out.contentBox.h}) — canvas too small for the requested regions`);
     if (out.contentBox.w <= 0) fail(1, `preset ${preset}: computed contentBox width is not positive (${out.contentBox.w})`);
-    // headerScale: 파일별 수기 상수가 아니라 profile에서 파생된 header 지표 —
-    // title-keyline 등 header treatment는 이 값만 소비한다
+    // headerScale: header metrics derived from the profile, not per-file manual constants — header
+    // treatments such as title-keyline consume only these values
     const HIm = P["header-internal"];
     const headerScale = {
-      // nominal은 profile이 소유하고, resolved는 optical calibration이 적용된 값이다.
+      // nominal belongs to the profile; resolved is the value with the optical calibration applied.
       nominal: { eyebrow: P.header.eyebrow, h1: P.header.h1, subtitle: P.header.subtitle },
       opticalScale: os,
       eyebrow: Peff.header.eyebrow, h1: Peff.header.h1, subtitle: Peff.header.subtitle,
@@ -1244,8 +1255,8 @@ function main() {
     process.exit(0);
   }
   if (cmd === "tombstones") {
-    // migrated archetype section을 canonical template에서 재생성한다 — 7종 이행에서
-    // 손으로 같은 문구를 복제하지 않게 하고, 문구 변경도 한 곳에서 이뤄지게 한다.
+    // Regenerate migrated archetype sections from the canonical template — so the same wording is
+    // not hand-copied across the seven migrations, and a wording change happens in one place.
     const to = parseOptions("tombstones", restAll);
     const mPath = path.resolve(here, "..", "references", "types", "manifest.yaml");
     const archPath = path.resolve(here, "..", "references", "archetypes.md");
@@ -1282,9 +1293,9 @@ function main() {
     process.exit(errors.length ? 1 : 0);
   }
   if (cmd === "selection") {
-    // selection table은 손으로 유지하는 사본이 아니라 manifest에서 **파생된 view**다.
-    // manifest의 selection_signal이 SSoT이고, 이 명령이 view를 생성(--write)하거나
-    // 커밋된 view가 manifest와 어긋났는지 검증(--check)한다.
+    // The selection table is a **view derived** from the manifest, not a hand-maintained copy.
+    // The manifest's selection_signal is the SSoT, and this command either generates the view
+    // (--write) or checks whether the committed view has drifted from the manifest (--check).
     const so = parseOptions("selection", restAll);
     const mPath = path.resolve(here, "..", "references", "types", "manifest.yaml");
     const viewPath = path.resolve(here, "..", "references", "types", "selection.md");
@@ -1296,7 +1307,7 @@ function main() {
     try { mj = JSON.parse(mr.stdout); } catch { errors.push("selection: manifest validation did not return JSON"); }
     if (mj && mj.errors.length) errors.push(`selection: manifest is invalid (${mj.errors.length} error(s)) — fix the manifest before deriving the view`);
     const packs = (doc.typepacks ?? []).slice().sort((a, b) => String(a.id).localeCompare(String(b.id)));
-    // 라우팅 view는 discovery copy다 — gated type은 노출하지 않고 개수만 남긴다.
+    // The routing view is discovery copy — a gated type is not exposed, only counted.
     const shown = packs.filter((p) => p.support !== "gated");
     const gated = packs.length - shown.length;
     const anchors = new Set();
@@ -1305,9 +1316,9 @@ function main() {
       anchors.add(p.canonical_prompt);
     }
     const esc = (v) => String(v).replace(/\|/g, "\\|");
-    // spec 링크는 view 파일 위치 기준 상대경로여야 한다(manifest의 spec은 references/ 기준)
+    // Spec links must be relative to the view file's location (the manifest's spec paths are relative to references/)
     const specHref = (spec) => path.relative(path.dirname(viewPath), path.resolve(here, "..", "references", String(spec))).split(path.sep).join("/");
-    // experimental은 preview다 — core와 같은 안정성으로 읽히지 않게 표시한다.
+    // experimental means preview — marked so it does not read with the same stability as core.
     const maturity = (p) => p.support === "core" ? "core" : "experimental (preview)";
     const promptCell = (p) => p.canonical_prompt?.status === "bound"
       ? `\`${p.canonical_prompt.anchor}\``
@@ -1323,22 +1334,23 @@ function main() {
       "",
       "# TypePack selection",
       "",
-      "무엇을 보여줄지에서 시작해 TypePack을 고른다. 각 행의 spec이 그 타입의 입력 계약·",
-      "레이아웃 수식·검증 체크리스트를 소유한다. `experimental (preview)`는 example과",
-      "검증 증거가 아직 등록되지 않은 상태이므로 `core`와 같은 안정성으로 읽지 않는다.",
+      "Start from what you want to show and pick a TypePack. Each row's spec owns that type's",
+      "input contract, layout formulas and verification checklist. `experimental (preview)` means",
+      "no example or verification evidence is registered yet, so do not read it as being as stable",
+      "as `core`.",
       "",
-      "| 내용 신호 | TypePack | profile | maturity | spec | canonical prompt |",
+      "| Content signal | TypePack | profile | maturity | spec | canonical prompt |",
       "| --- | --- | --- | --- | --- | --- |",
       ...rows,
       "",
       "## Registered but not routable",
       "",
       gated
-        ? "아래 TypePack은 등록되어 있으나 라우팅 대상이 아니다. 감사 가능하도록 사유와 해제 조건을 남긴다."
-        : "현재 없음. (gated TypePack은 라우팅에서 빠지되 여기에 사유와 해제 조건이 남는다.)",
+        ? "The TypePacks below are registered but not routed to. The reason and the release condition are recorded here so this stays auditable."
+        : "None at present. (A gated TypePack drops out of routing, but its reason and release condition stay here.)",
       "",
       ...(gated ? ["| TypePack | gate reason | release condition |", "| --- | --- | --- |", ...gatedRows, ""] : []),
-      `등록된 TypePack ${packs.length}개 중 ${shown.length}개가 라우팅 대상이다.`,
+      `${shown.length} of the ${packs.length} registered TypePacks are routed to.`,
       "",
     ].join("\n");
     const readView = () => { try { return readFileSync(viewPath, "utf8"); } catch { return null; } };
@@ -1346,7 +1358,7 @@ function main() {
     const driftedBefore = current !== view;
     let wrote = false;
     if (so["--write"]) {
-      // 생성 view를 package에 쓰는 것은 개발 작업이다 — 설치 실행에서는 허용하지 않는다.
+      // Writing a generated view into the package is development work — not allowed in an installed run.
       if (state()?.mode !== "source-development")
         fail(1, "selection --write requires source-development execution (run it from the repository that owns the package)");
       if (!errors.length) { writeFileSync(viewPath, view); wrote = true; }
@@ -1354,7 +1366,7 @@ function main() {
       if (current === null) errors.push("selection: references/types/selection.md is missing — regenerate it with --write");
       else if (driftedBefore) errors.push("selection: references/types/selection.md is out of date with the manifest (regenerate with --write)");
     }
-    // drift 상태는 쓰기 전/후를 구분한다 — 동기화에 성공했는데 drifted가 남으면 안 된다.
+    // The drift state distinguishes before and after the write — a successful sync must not leave drifted behind.
     const driftedAfter = readView() !== view;
     const receipt = { schemaVersion: 1, command: "selection", kernelVersion: "kernel-v1",
       registered: packs.length, shown: shown.length, gated,
@@ -1387,12 +1399,13 @@ function main() {
     process.exit(errors.length ? 1 : 0);
   }
   if (cmd === "typography-check") {
-    // 정적 effective-font 검증 (composite wrapper font 유실 차단).
-    // 규칙: sketch scope(root data-treatment="sketch" 또는 wrapper data-typography-scope)
-    // 안의 모든 text/tspan은 (a) scope family로 해석되거나 (b) 명시적 secondary
-    // annotation을 가져야 한다. 단독 pre-gate 결과로 composite 검사를 대체할 수 없다 —
-    // 이 명령은 최종 파일 자체를 검사한다. 증거 수준: computed cascade (rendered-face
-    // proof 아님 — runtime 확인은 font-probe.mjs가 별도 수준으로 기록).
+    // Static effective-font verification (blocking a lost composite wrapper font).
+    // The rule: every text/tspan inside a sketch scope (root data-treatment="sketch", or a wrapper
+    // data-typography-scope) must either (a) resolve to the scope family or (b) carry an explicit
+    // secondary annotation. A standalone pre-gate result cannot stand in for the composite check —
+    // this command inspects the final file itself. Evidence level: computed cascade (not
+    // rendered-face proof — the runtime confirmation is recorded at its own level by
+    // font-probe.mjs).
     const files = restAll.filter((a) => !a.startsWith("--"));
     const tco = parseOptions("typography-check", restAll.filter((a) => a.startsWith("--")));
     if (!files.length) fail(2, "typography-check requires at least one SVG path");
@@ -1429,7 +1442,7 @@ function main() {
       };
       const famOf = (tag) => attrOf(tag, "font-family") ?? styleOf(tag, "font-family");
       const weightOf = (tag) => attrOf(tag, "font-weight") ?? styleOf(tag, "font-weight");
-      // stack: [ {scope, family} ] — g/svg 진입 시 push
+      // stack: [ {scope, family} ] — pushed on entering a g or svg
       const stack = [];
       let texts = 0;
       for (const m of src.matchAll(/<(\/?)([A-Za-z][A-Za-z0-9-]*)((?:[^>"']|"[^"]*"|'[^']*')*?)(\/?)>/g)) {
@@ -1438,7 +1451,7 @@ function main() {
         const fam = famOf(m[0]);
         const scopeAttr = attrOf(m[0], "data-typography-scope")
           ?? (name === "svg" && rootSketch ? (embedded[0] ?? sk.locales.ko.face) : null);
-        // F2: weight도 상속 stack으로 계산 (상위 g의 style/attr 700 상속 검출)
+        // F2: weight is computed through the inheritance stack too (catching a 700 inherited from an ancestor g's style or attribute)
         const w0 = weightOf(m[0]);
         const frame = { scope: scopeAttr ?? stack.at(-1)?.scope ?? null,
                         family: fam ? firstFam(fam) : stack.at(-1)?.family ?? null,
@@ -1486,7 +1499,7 @@ function main() {
     const packs = doc.typepacks;
     if (!Array.isArray(packs)) errors.push("manifest: typepacks must be an array");
     const ids = new Set(), fixtureIds = new Set(), exampleIds = new Set(), fixturePaths = new Set(), inputIds = new Set();
-    // live PageFrame receipt를 preset별로 한 번만 계산해 재사용한다(문서 상수 복사 금지)
+    // Compute the live PageFrame receipt once per preset and reuse it (never copy constants out of the docs)
     const pfCache = new Map();
     const pageframeFor = (preset) => {
       if (pfCache.has(preset)) return pfCache.get(preset);
@@ -1512,13 +1525,13 @@ function main() {
         try { readFileSync(specPath); } catch { errors.push(`manifest: ${id}: spec path not found (${p.spec})`); }
       }
       if (!p.selection_signal) errors.push(`manifest: ${id}: missing selection_signal`);
-      // full locked-schema validation (kernel 계약 전체)
+      // full locked-schema validation (the whole kernel contract)
       const FIELDS = ["id", "selection_signal", "profile", "support", "spec", "presets",
         "orientations", "verifier", "receipt_schema", "fixtures", "examples",
         "required_roles", "optional_aliases", "canonical_prompt", "annexes", "gate",
         "migration_origin", "legacy_section", "fit", "inputs", "composition", "preferred_preset"];
       for (const k of Object.keys(p)) if (!FIELDS.includes(k)) errors.push(`manifest: ${id}: unknown field "${k}" (locked schema: ${FIELDS.join("/")})`);
-      for (const k of FIELDS) if (k !== "composition" && !(k in p)) errors.push(`manifest: ${id}: missing field "${k}"`); // composition은 optional capability (absent => composable: false)
+      for (const k of FIELDS) if (k !== "composition" && !(k in p)) errors.push(`manifest: ${id}: missing field "${k}"`); // composition is an optional capability (absent => composable: false)
       let pfPresets = [];
       try { pfPresets = Object.keys(readYaml(path.resolve(here, "..", "references", "skins", "pageframe-v1.yaml")).doc.presets || {}); } catch { errors.push("manifest: cannot load pageframe registry for preset validation"); }
       if ("presets" in p) {
@@ -1534,8 +1547,8 @@ function main() {
         try { readFileSync(path.resolve(path.dirname(mPath), "..", String(p.verifier))); } catch { errors.push(`manifest: ${id}: verifier path not found (${p.verifier})`); }
       }
       if ("fixtures" in p) {
-        // fixture는 경로 문자열이 아니라 증거 entry다 — 종류·preset·확장자까지 고정해야
-        // "core 승격 = 아무 파일 경로 하나"가 되지 않는다.
+        // A fixture is an evidence entry, not a path string — pinning its kind, preset and
+        // extension is what stops "promotion to core" from meaning "any one file path".
         if (!Array.isArray(p.fixtures)) errors.push(`manifest: ${id}: fixtures must be an array`);
         else for (const f of p.fixtures) {
           if (!f || typeof f !== "object") { errors.push(`manifest: ${id}: fixture must be { id, kind, preset, path }`); continue; }
@@ -1550,15 +1563,15 @@ function main() {
           const abs = path.resolve(path.dirname(mPath), "..", fp);
           if (!isUnder(abs, path.resolve(here, ".."))) errors.push(`manifest: ${id}: fixture "${f.id}" path escapes the package`);
           else { try { readFileSync(abs); } catch { errors.push(`manifest: ${id}: fixture path not found (${fp})`); } }
-          // 같은 artifact를 positive와 baseline-red로, 또는 여러 preset으로 재사용하면
-          // 증거가 아니라 등록 metadata가 된다.
+          // Reusing one artifact as both positive and baseline-red, or across several presets,
+          // turns it from evidence into registration metadata.
           const fkey = `${id}::${fp}`;
           if (fixturePaths.has(fkey)) errors.push(`manifest: ${id}: fixture artifact "${fp}" is registered more than once — one artifact proves one (kind, preset) claim`);
           else fixturePaths.add(fkey);
         }
       }
-      // example은 실제 gallery anchor와 연결되는 증거다 — core 승격은 그 연결이
-      // 실제로 해소될 때만 가능하다(아래 promotion 검사).
+      // An example is evidence tied to a real gallery anchor — promotion to core is possible only
+      // when that link actually resolves (see the promotion check below).
       if ("examples" in p) {
         if (!Array.isArray(p.examples)) errors.push(`manifest: ${id}: examples must be an array`);
         else for (const ex of p.examples) {
@@ -1567,8 +1580,8 @@ function main() {
           if (!ex.id || !/^[a-z0-9][a-z0-9-]*$/.test(String(ex.id))) errors.push(`manifest: ${id}: invalid example id "${ex.id}"`);
           else if (exampleIds.has(ex.id)) errors.push(`manifest: ${id}: duplicate example id "${ex.id}"`);
           else exampleIds.add(ex.id);
-          // gallery locator는 canonical gallery 파일로 제한한다 — 아무 문서의 heading을
-          // example 증거로 등록하는 경로를 막는다.
+          // The gallery locator is restricted to the canonical gallery file — blocking the path
+          // where any document's heading gets registered as example evidence.
           if (!/^PROMPT-GALLERY\.md#[a-z0-9][a-z0-9-]*$/.test(String(ex.gallery_anchor ?? "")))
             errors.push(`manifest: ${id}: example "${ex.id}" gallery_anchor must be PROMPT-GALLERY.md#<kebab-anchor> (the canonical gallery is the only example registry)`);
         }
@@ -1580,7 +1593,7 @@ function main() {
       const MANIFEST_ALIASES = ["edge", "api", "compute", "data", "external", "icon"];
       if ("optional_aliases" in p && (!Array.isArray(p.optional_aliases) || p.optional_aliases.some((a) => !MANIFEST_ALIASES.includes(a))))
         errors.push(`manifest: ${id}: optional_aliases must be an array within ${MANIFEST_ALIASES.join("/")}`);
-      // canonical_prompt: reserved(형식·유일성만) | bound(실제 파일·anchor 존재 요구)
+      // canonical_prompt: reserved (format and uniqueness only) | bound (requires the file and anchor to exist)
       const cp = p.canonical_prompt;
       if (!cp || typeof cp !== "object") errors.push(`manifest: ${id}: canonical_prompt must be { status, anchor }`);
       else {
@@ -1589,7 +1602,7 @@ function main() {
         const am = /^([A-Za-z0-9._-]+\.md)#([a-z0-9][a-z0-9-]*)$/.exec(String(cp.anchor ?? ""));
         if (!am) errors.push(`manifest: ${id}: canonical_prompt.anchor must match <file>.md#<kebab-anchor>`);
         else if (cp.status === "bound") {
-          // bound는 연결 완료 주장이다 — 대상 파일과 anchor가 실제로 있어야 한다
+          // bound is a claim that the link is complete — the target file and anchor must really exist
           const target = path.resolve(path.dirname(mPath), "..", am[1]);
           let text = null;
           try { text = readFileSync(target, "utf8"); } catch { errors.push(`manifest: ${id}: canonical_prompt is bound but ${am[1]} does not exist in the package`); }
@@ -1608,8 +1621,9 @@ function main() {
       } else if (p.gate !== null) errors.push(`manifest: ${id}: gate must be null unless support is gated`);
       if (!(p.legacy_section === null || typeof p.legacy_section === "string"))
         errors.push(`manifest: ${id}: legacy_section must be null or the archetypes.md heading it replaces`);
-      // ---- fit 계약: 수식 변수는 문서 산문이 아니라 여기(SSoT)에 있고, feasibility는
-      // 선언값이 아니라 **live PageFrame contentBox로 재계산**해 대조한다.
+      // ---- the fit contract: the formula variables live here (the SSoT) rather than in document
+      // prose, and feasibility is **recomputed against the live PageFrame contentBox** rather than
+      // taken from the declared value.
       const posInt = (v) => Number.isInteger(Number(v)) && Number(v) > 0;
       let computeFit = null;
       const fit = p.fit;
@@ -1617,17 +1631,18 @@ function main() {
       else {
         for (const k of Object.keys(fit)) if (!["cardinality", "params", "footprint", "feasibility", "floor_basis"].includes(k))
           errors.push(`manifest: ${id}: fit unknown field "${k}"`);
-        // floor_basis: 이 수치가 기하 가정인지(geometry) 실제 렌더로 확인된 값인지(rendered).
-        // Wave 1은 geometry가 정직한 기본값이고, CP2B stress render 이후에만 rendered로 승격한다.
+        // floor_basis: whether this number is a geometric assumption (geometry) or a value
+        // confirmed by an actual render (rendered). For Wave 1 geometry is the honest default, and
+        // promotion to rendered comes only after the CP2B stress render.
         if (!["geometry", "rendered"].includes(fit.floor_basis))
           errors.push(`manifest: ${id}: fit.floor_basis must be geometry|rendered (geometry = not yet confirmed by an actual render)`);
         else if (fit.floor_basis === "rendered")
-          // rendered는 증거가 있어야 하는 주장이다. CP2B에서 floor_evidence(preset·locale·
-          // stress fixture locator + digest)가 원자적으로 들어오기 전까지는 자기 선언으로
-          // 승격할 수 없으므로 거부한다.
+          // rendered is a claim that requires evidence. Until CP2B brings floor_evidence (preset,
+          // locale, stress fixture locator plus digest) in atomically, it cannot be promoted by
+          // self-declaration, so it is refused.
           errors.push(`manifest: ${id}: fit.floor_basis "rendered" requires the CP2B floor_evidence contract (preset/locale stress fixtures with digests) — it cannot be self-declared`);
         const card = fit.cardinality ?? {};
-        // floor 산식은 derivePanelFloor가 소유한다(renderer도 같은 함수를 쓴다).
+        // derivePanelFloor owns the floor formula (the renderer calls the same function).
         {
           const f = derivePanelFloor(fit.params ?? {});
           if (f.declared && f.missing?.length) errors.push(`manifest: ${id}: derived floor needs ${f.missing.join(", ")}`);
@@ -1641,8 +1656,8 @@ function main() {
         for (const [k, v] of Object.entries(prm)) {
           const n = Number(v);
           if (!Number.isFinite(n)) { errors.push(`manifest: ${id}: fit.params.${k} must be a number (got ${v})`); continue; }
-          // 최소 크기·inset은 양수여야 하고 gap·여백은 음수일 수 없다 — 음수 gap으로
-          // 허위 fit을 만드는 경로를 막는다.
+          // Minimum sizes and insets must be positive and gaps and margins cannot be negative —
+          // blocking the path where a negative gap manufactures a false fit.
           if (/(ItemMinW|ItemMinH|inset|itemMinW|itemMinH|nodeMinW|nodeMinH)$/.test(k) && !(n > 0))
             errors.push(`manifest: ${id}: fit.params.${k} must be positive (got ${n})`);
           else if (n < 0) errors.push(`manifest: ${id}: fit.params.${k} must be >= 0 (got ${n})`);
@@ -1650,14 +1665,14 @@ function main() {
         const need = (n) => { if (!Number.isFinite(Number(prm[n]))) { errors.push(`manifest: ${id}: fit.params.${n} is required by the declared layouts`); return NaN; } return Number(prm[n]); };
         const compute = computeFit = (fp) => {
           const n = Number(fp.count), ex = { w: Number(fp.extraW ?? 0), h: Number(fp.extraH ?? 0) };
-          // floor 이름으로 base/compact/wide 등 서로 다른 content floor를 고른다
+          // The floor name selects among different content floors — base, compact, wide and so on
           const fl = fp.floor && fp.floor !== "base" ? fp.floor : null;
           const iw = fl ? need(`${fl}ItemMinW`) : need("itemMinW");
           const ih = fl ? need(`${fl}ItemMinH`) : need("itemMinH");
           const gx = Number(prm.gapX ?? prm.gap ?? 0), gy = Number(prm.gapY ?? prm.gap ?? 0);
           if (fp.layout === "zones") {
-            // 계층형: 가장 넓은 zone(노드 행)과 가장 깊은 stack(zone 수)을 동시에 만족하는
-            // 경계 상자 — 어떤 합법 구성도 이 안에 들어간다.
+            // Hierarchical: the bounding box satisfying both the widest zone (a node row) and the
+            // deepest stack (the zone count) at once — every legal configuration fits inside it.
             const npz = need("maxNodesPerZone"), pad = need("zonePad"), band = need("zoneLabelBand"), zgap = need("zoneGap");
             return { w: npz * iw + (npz - 1) * gx + 2 * pad + ex.w,
                      h: n * (band + ih + 2 * pad) + (n - 1) * zgap + ex.h };
@@ -1690,7 +1705,7 @@ function main() {
         }
         if (!(fit.footprint ?? []).some((fp) => Number(fp.count) === Number(card.max)))
           errors.push(`manifest: ${id}: fit.footprint must cover the maximum cardinality (${card.max})`);
-        // feasibility: 선언 결과를 live contentBox로 재계산해 대조한다(문서 상수 재복사 금지)
+        // feasibility: the declared outcome is recomputed against the live contentBox and compared (never re-copy constants from the docs)
         const seen = new Set(), seenTuple = new Set();
         for (const fs of fit.feasibility ?? []) {
           for (const k of Object.keys(fs)) if (!["preset", "orientation", "count", "layout", "floor", "result"].includes(k)) errors.push(`manifest: ${id}: fit.feasibility unknown field "${k}"`);
@@ -1704,13 +1719,13 @@ function main() {
           if (!fp) { errors.push(`manifest: ${id}: fit.feasibility(count ${fs.count}, ${fs.layout}, floor ${fs.floor ?? "base"}) has no matching footprint`); continue; }
           const pf = pageframeFor(fs.preset);
           if (!pf) { errors.push(`manifest: ${id}: cannot resolve PageFrame contentBox for "${fs.preset}"`); continue; }
-          // orientation은 TypePack 선언과 **실제 preset의 orientation** 양쪽과 맞아야 한다
+          // orientation must agree both with the TypePack declaration and with **the preset's actual orientation**
           if (Array.isArray(p.orientations) && !p.orientations.includes(fs.orientation))
             errors.push(`manifest: ${id}: fit.feasibility orientation "${fs.orientation}" is not declared by this typepack`);
           if (pf.orientation !== fs.orientation)
             errors.push(`manifest: ${id}: fit.feasibility(${fs.preset}) declares orientation "${fs.orientation}" but the preset is "${pf.orientation}"`);
           const cb = pf.regions.contentBox;
-          // fluid 캔버스에서는 높이가 제약이 아니다(캔버스가 내용을 따라간다) — 폭만 판정한다.
+          // On a fluid canvas height is not a constraint (the canvas follows the content) — only width is judged.
           const fits = fp.w <= cb.w && (pf.regions.fluid || fp.h <= cb.h);
           const want = fits ? "fits" : "needs-split";
           if (fs.result !== want)
@@ -1723,8 +1738,9 @@ function main() {
         for (const pr of (Array.isArray(p.presets) ? p.presets : []))
           if (!seen.has(`${pr}:${card.max}`)) errors.push(`manifest: ${id}: fit.feasibility must cover preset "${pr}" at the maximum cardinality (${card.max})`);
       }
-      // ---- CP2A 입력 계약(R1 반영): canonical 1건 + stress **scenario 목록**.
-      // 입력은 구조화 payload가 SSoT이고, stress는 위험 축(covers)별로 나뉜다.
+      // ---- the CP2A input contract (with R1 applied): one canonical plus a **list of stress
+      // scenarios**. The SSoT for input is the structured payload, and stress is divided by risk
+      // axis (covers).
       const inp = p.inputs;
       if (!inp || typeof inp !== "object") errors.push(`manifest: ${id}: inputs block is required (canonical + stress scenarios)`);
       else {
@@ -1747,9 +1763,11 @@ function main() {
           try { ({ doc: idoc } = readYaml(iabs)); } catch { errors.push(`manifest: ${id}: inputs.${cse} file not found (${ip})`); }
           if (Array.isArray(p.presets) && !p.presets.includes(c.preset)) errors.push(`manifest: ${id}: inputs.${cse} preset "${c.preset}" is not declared`);
           if (!posInt(c.count)) errors.push(`manifest: ${id}: inputs.${cse} count must be a positive integer`);
-          // 기하 판정: 선언된 배치를 계산해 live contentBox와 대조하고 expected와 맞춘다
-          // 같은 구성의 footprint가 선언한 extra(축 라벨 등)를 함께 반영한다 —
-          // 시나리오 판정과 footprint 판정이 다른 수치를 쓰면 두 계약이 갈린다.
+          // Geometric judgement: compute the declared arrangement, compare it with the live
+          // contentBox and match it against expected. It also applies whatever extra the same
+          // configuration's footprint declared (axis labels and the like) — if the scenario
+          // judgement and the footprint judgement used different numbers the two contracts would
+          // diverge.
           const fpMatch = (Array.isArray(p.fit?.footprint) ? p.fit.footprint : []).find((f) =>
             Number(f.count) === Number(c.count) && f.layout === c.layout
             && String(f.cols ?? "") === String(c.cols ?? "") && String(f.floor ?? "base") === String(c.floor ?? "base"));
@@ -1787,25 +1805,25 @@ function main() {
                 errors.push(`manifest: ${id}: stress "${c.id}" covers cardinality-max but count ${c.count} != fit.cardinality.max (${fit?.cardinality?.max})`);
             }
           }
-          // 입력 파일 무결성 + 구조화 payload 검증
+          // input file integrity plus structured-payload validation
           if (idoc) {
             if (Number(idoc.schema_version) !== 1 || idoc.kind !== "typepack-input")
               errors.push(`manifest: ${id}: inputs.${cse} file identity invalid (schema_version 1 + kind typepack-input)`);
             if (idoc.typepack !== id) errors.push(`manifest: ${id}: inputs.${cse} file declares typepack "${idoc.typepack}"`);
-            // 파일의 case는 시나리오 id와 결합된다 — 한 파일을 여러 시나리오가 겸용할 수 없다
+            // A file's case is bound to the scenario id — one file cannot serve several scenarios
             const wantCase = cse === "canonical" ? "canonical" : String(c.id).slice(String(id).length + 1);
             if (idoc.case !== wantCase) errors.push(`manifest: ${id}: input file case "${idoc.case}" != scenario "${wantCase}"`);
             for (const k of ["preset", "layout", "count"])
               if (String(idoc[k]) !== String(c[k])) errors.push(`manifest: ${id}: inputs.${cse} file ${k} "${idoc[k]}" != manifest "${c[k]}"`);
-            for (const loc of ["ko", "en"]) if (!idoc[`prompt_${loc}`]) errors.push(`manifest: ${id}: inputs.${cse} prompt_${loc} is required (intent 설명)`);
+            for (const loc of ["ko", "en"]) if (!idoc[`prompt_${loc}`]) errors.push(`manifest: ${id}: inputs.${cse} prompt_${loc} is required (explaining the intent)`);
             const obsExtra = validateInputPayload(idoc, id, c.count, (m) => errors.push(`manifest: ${id}: inputs.${cse} payload — ${m}`));
             if (cse === "stress") {
-              // covers는 선언 label이 아니라 payload에서 관측돼야 한다 — 허위 coverage 차단
+              // covers must be observed in the payload, not taken from a declared label — blocking false coverage
               const obs = observedCoverage(idoc, id, c.count, fit?.cardinality?.max, c.geometry_expected, obsExtra);
               const decl = new Set(Array.isArray(c.covers) ? c.covers : []);
               for (const v of decl)
                 if (!obs.has(v)) errors.push(`manifest: ${id}: stress "${c.id}" declares covers "${v}" but the payload does not exhibit it (observed: ${[...obs].join(", ") || "none"})`);
-              // audit view이므로 양방향이다 — 관측된 감사 대상 축이 선언에서 빠지면 오류
+              // being an audit view it works both ways — an observed audited axis missing from the declaration is an error
               for (const v of obs)
                 if (AUDITABLE_COVERS.includes(v) && !decl.has(v))
                   errors.push(`manifest: ${id}: stress "${c.id}" payload exhibits "${v}" but it is not declared in covers (declared coverage must equal observed auditable coverage)`);
@@ -1813,28 +1831,28 @@ function main() {
           }
         }
         if (!maxCardScenario) errors.push(`manifest: ${id}: at least one stress scenario must cover "cardinality-max"`);
-        // canonical input은 fit이 선언한 대표 cardinality를 기준점으로 쓴다
+        // The canonical input takes the representative cardinality fit declared as its reference point
         if (inp.canonical && Number(inp.canonical.count) !== Number(fit?.cardinality?.canonical))
           errors.push(`manifest: ${id}: inputs.canonical count ${inp.canonical.count} != fit.cardinality.canonical (${fit?.cardinality?.canonical})`);
-        // feasibility에 needs-split tuple이 있으면 degrade 경로를 시험하는 입력도 있어야 한다
+        // If feasibility contains a needs-split tuple there must also be an input exercising the degrade path
         const hasNeedsSplit = (fit?.feasibility ?? []).some((f) => f.result === "needs-split");
         const hasDegradeInput = (Array.isArray(inp.stress) ? inp.stress : []).some((x) => x.geometry_expected === "needs-split");
         if (hasNeedsSplit && !hasDegradeInput)
           errors.push(`manifest: ${id}: fit.feasibility declares a needs-split tuple, so at least one stress input must exercise the degrade path (geometry_expected: needs-split)`);
-        // copy 경계 후보는 payload schema를 가진 TypePack(=실제 카탈로그)에만 요구한다.
+        // The copy-boundary candidate is required only of TypePacks that have a payload schema (the real catalogue).
         if (INPUT_SCHEMA[id] && !coversSeen.has("copy-boundary-candidate"))
-          errors.push(`manifest: ${id}: at least one stress scenario must cover "copy-boundary-candidate" (KO/EN 경계 문안 후보 — 실제 line fit은 CP2B가 확정)`);
+          errors.push(`manifest: ${id}: at least one stress scenario must cover "copy-boundary-candidate" (a KO/EN boundary-copy candidate — the real line fit is settled by CP2B)`);
       }
-      // migration origin: Wave 1의 기존 archetype 이행 타입은 legacy section을 반드시 명시한다
+      // migration origin: a Wave 1 type migrated from an existing archetype must name its legacy section
       if (!["legacy", "new"].includes(p.migration_origin)) errors.push(`manifest: ${id}: migration_origin must be legacy|new`);
       else if (p.migration_origin === "legacy" && !p.legacy_section)
         errors.push(`manifest: ${id}: migration_origin "legacy" requires legacy_section (the archetypes.md heading it replaces)`);
       else if (p.migration_origin === "new" && p.legacy_section !== null)
         errors.push(`manifest: ${id}: migration_origin "new" must not claim a legacy_section`);
-      // 정확성을 주장하는 표면은 verifier와 receipt schema locator가 함께 있어야 한다
-      // 의미 주장(정확성·위상)을 하는 표면은 verifier와 receipt schema locator를 함께 요구한다.
-      // topology annex도 같은 gate를 받는다 — spec의 "core는 verifier 이후" 문구와 validator가
-      // 어긋나 있으면 계약이 아니라 문구다.
+      // A surface making a semantic claim (accuracy, topology) must have both a verifier and a
+      // receipt schema locator. The topology annex passes the same gate — if the spec's "core comes
+      // after the verifier" sentence and the validator disagreed, it would be wording rather than
+      // a contract.
       const semanticBearing = p.profile === "exact-parametric" || (p.annexes ?? []).some((a2) => ["data-accuracy", "topology"].includes(a2));
       const accuracyBearing = semanticBearing;
       if (p.receipt_schema !== null && p.receipt_schema !== undefined) {
@@ -1846,12 +1864,12 @@ function main() {
         if (!p.verifier) errors.push(`manifest: ${id}: a semantic-claim typepack (exact-parametric, data-accuracy or topology annex) requires a machine verifier before it may claim "core"`);
         if (!p.receipt_schema) errors.push(`manifest: ${id}: a semantic-claim typepack requires a receipt_schema locator before it may claim "core"`);
       }
-      // 승격 증거: core는 문자열이나 아무 경로로 얻을 수 없다
+      // Promotion evidence: core cannot be obtained by a string or by just any path
       if (p.support === "core") {
         const exs = Array.isArray(p.examples) ? p.examples : [];
         if (exs.length === 0) errors.push(`manifest: ${id}: support "core" requires at least one registered example (promotion evidence)`);
         for (const ex of exs) {
-          // example은 실제 gallery anchor로 해소돼야 한다 — 존재하지 않는 id는 증거가 아니다
+          // An example must resolve to a real gallery anchor — a non-existent id is not evidence
           const gm = /^([A-Za-z0-9._-]+\.md)#([a-z0-9][a-z0-9-]*)$/.exec(String(ex?.gallery_anchor ?? ""));
           if (!gm) { errors.push(`manifest: ${id}: example "${ex?.id}" cannot support "core" without a resolvable gallery_anchor`); continue; }
           const gp = path.resolve(path.dirname(mPath), "..", gm[1]);
@@ -1900,8 +1918,9 @@ function main() {
           }
         }
         if ("rhythm" in C) {
-          // TypePack 소유 visual-rhythm band — residual을 connector 신장으로 흡수하는
-          // variant를 금지하는 선언(연장 상한은 pack이 정하고 compose/verify가 강제)
+          // The TypePack-owned visual-rhythm band — the declaration forbidding a variant that
+          // absorbs residual by stretching connectors (the pack sets the extension ceiling and
+          // compose/verify enforce it)
           const RK2 = ["connector_run_band"];
           for (const k of Object.keys(C.rhythm ?? {})) if (!RK2.includes(k)) errors.push(`manifest: ${id}: composition.rhythm unknown field "${k}"`);
           const B = C.rhythm?.connector_run_band;
@@ -1919,9 +1938,9 @@ function main() {
         }
       }
     }
-    // ---- registration closure: manifest가 등록 invariant를 완결적으로 소유한다 ----
-    // inventory·legacy closure는 **package의 canonical registry**에만 적용한다.
-    // 임의 YAML을 schema 검증용으로 넘긴 경우(부정 fixture 등)에는 대상이 아니다.
+    // ---- registration closure: the manifest owns the registration invariants completely ----
+    // The inventory and legacy closures apply only to **the package's canonical registry**. An
+    // arbitrary YAML passed in for schema validation (a negative fixture, say) is not a subject.
     const canonicalManifest = path.resolve(here, "..", "references", "types", "manifest.yaml");
     const isCanonical = path.resolve(mPath) === canonicalManifest;
     const specsDir = path.resolve(path.dirname(mPath), "specs");
@@ -1943,7 +1962,7 @@ function main() {
     const specSeen = new Map(), anchorSeen = new Map(), legacySeen = new Map();
     for (const p of packs || []) {
       const id = p.id;
-      // spec path 유일성 — 두 TypePack이 같은 spec을 가리킬 수 없다
+      // spec path uniqueness — two TypePacks cannot point at the same spec
       if (p.spec) {
         if (specSeen.has(p.spec)) errors.push(`manifest: ${id}: spec "${p.spec}" is already claimed by "${specSeen.get(p.spec)}" (spec paths are 1:1)`);
         else specSeen.set(p.spec, id);
@@ -1957,7 +1976,7 @@ function main() {
         if (legacySeen.has(p.legacy_section)) errors.push(`manifest: ${id}: legacy_section "${p.legacy_section}" is already claimed by "${legacySeen.get(p.legacy_section)}"`);
         else legacySeen.set(p.legacy_section, id);
       }
-      // spec identity + 필수 절 완결성
+      // spec identity plus completeness of the required sections
       if (!p.spec) continue;
       let text = null;
       try { text = readFileSync(path.resolve(path.dirname(mPath), "..", String(p.spec)), "utf8"); } catch { continue; }
@@ -1967,8 +1986,8 @@ function main() {
       if (Number(meta.spec_schema_version) !== 1) errors.push(`manifest: ${id}: spec_schema_version must be 1 (got ${meta.spec_schema_version})`);
       if (meta.typepack_id !== id) errors.push(`manifest: ${id}: spec declares typepack_id "${meta.typepack_id}" — spec and manifest identity must match`);
       if (meta.profile !== p.profile) errors.push(`manifest: ${id}: spec declares profile "${meta.profile}" but the manifest says "${p.profile}"`);
-      // 제목 존재만으로는 계약이 아니다 — 각 절은 실제 본문을 가져야 하고,
-      // annex는 필수 하위 절까지 갖춰야 한다(heading 한 줄 추가로 충족 불가).
+      // A heading existing is not a contract — each section must have real body text, and an annex
+      // must carry its required subsections too (adding one heading line does not satisfy it).
       const sectionBody = (level, title) => {
         const re = new RegExp(`^#{${level}}\\s+${title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*$`, "m");
         const m = re.exec(text);
@@ -1994,21 +2013,21 @@ function main() {
         }
       }
     }
-    // inventory closure: specs 트리와 manifest는 정확히 1:1이다 (orphan spec 금지)
+    // inventory closure: the specs tree and the manifest are exactly 1:1 (no orphan spec)
     if (isCanonical) {
       let specFiles = [];
       try { specFiles = readdirSync(specsDir).filter((f) => f.endsWith(".md")).sort(); } catch { errors.push("manifest: types/specs directory is missing"); }
       const declared = new Set([...specSeen.keys()].map((sp) => path.basename(String(sp))));
       for (const f of specFiles) if (!declared.has(f)) errors.push(`manifest: orphan spec "types/specs/${f}" is not registered by any typepack`);
     }
-    // legacy 이중 규범 금지: 등록된 TypePack의 archetype section은 pointer tombstone이어야 한다
+    // No dual legacy norm: the archetype section of a registered TypePack must be a pointer tombstone
     if (isCanonical && legacySeen.size) {
       let arch = null;
       try { arch = readFileSync(path.resolve(path.dirname(mPath), "..", "archetypes.md"), "utf8"); } catch { errors.push("manifest: archetypes.md not readable for legacy closure"); }
       if (arch !== null) {
         const secs = arch.split(/^## /m).slice(1).map((b) => ({ title: b.split("\n")[0].trim(), body: b }));
-        // tombstone은 keyword 유무가 아니라 **결정적 canonical body**와 정확히 일치해야 한다.
-        // 추가 규칙 문장을 덧붙이는 우회를 막는다.
+        // A tombstone must match the **deterministic canonical body** exactly, not merely contain a
+        // keyword. This blocks the bypass of appending extra rule sentences.
         for (const [title, id] of legacySeen) {
           const sec = secs.find((x) => x.title === title);
           if (!sec) { errors.push(`manifest: ${id}: legacy_section "${title}" not found in archetypes.md`); continue; }
@@ -2016,7 +2035,7 @@ function main() {
           if (sec.body.replace(/^/, "## ").trim() !== want)
             errors.push(`manifest: ${id}: archetypes.md "${title}" is not the canonical tombstone — it must contain only the TypePack pointer (no extra rules); regenerate it exactly as:\n${want}`);
         }
-        // 주인 없는 tombstone 금지: legacy_section을 null로 돌려 검사를 빠져나갈 수 없다
+        // No ownerless tombstone: setting legacy_section back to null cannot slip past the check
         for (const sec of secs) {
           if (!/Migrated to TypePack/.test(sec.body)) continue;
           if (!legacySeen.has(sec.title))
@@ -2177,7 +2196,7 @@ function main() {
   receipt.contrast = contrastMatrix(ctx.prof, [mode]); // always in the resolve receipt
   receipt.tokens = tokens;
   receipt.resolvedDigest = sha(JSON.stringify(tokens));
-  // typography는 독립 축이지만 소비자가 한 번에 받도록 resolve receipt에 동봉한다
+  // Typography is an independent axis, but it rides along in the resolve receipt so a consumer gets it in one go
   const typoErrors = [];
   const typo = loadTypography(typoErrors);
   if (typoErrors.length) { receipt.errors.push(...typoErrors); printReceipt(receipt, opts["--json"]); process.exit(1); }
