@@ -309,9 +309,13 @@ typepacks:
         # comparison would pass stale declarations and excessive content expansion.
         residual_disposition:
           reason: "Zone height derives from node geometry and corridors open only as far as routing demand requires — the remaining space is declared breathing (kernel §8)."
+          # sketch is not declared here. With the boundary frame reserved its residual falls below
+          # the disposition floor, so the gate never consults an entry — a declared number nothing
+          # compares against is a claim without a check. The measurement itself is not lost: the
+          # receipt carries residual.bottom. If a future change pushes it back over the floor the
+          # absence fails closed, and the entry is added from that measurement.
           by_treatment:
-            - { treatment: flat, bottom: 194 }
-            - { treatment: sketch, calibration: hi-melody-optical-v1, bottom: 93 }
+            - { treatment: flat, bottom: 148 }
         routing_expected: routable
       stress:
         - id: topology-component-stress-cardinality
@@ -327,7 +331,7 @@ typepacks:
           preset: social-4x5
           layout: zones
           count: 3
-          residual_disposition: { bottom: 194, reason: "Even at the copy boundary the zone height derives from node geometry — so the residual is unchanged." }
+          residual_disposition: { bottom: 148, reason: "Even at the copy boundary the zone height derives from node geometry — so the residual is unchanged." }
           routing_expected: routable
           geometry_expected: fits
           covers: [copy-boundary-candidate]

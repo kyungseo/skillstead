@@ -313,6 +313,13 @@ def render(model: dict, tokens: dict) -> str:
     # evidence, and repeating it per card would be six copies of one sentence.
     feat_ev = feat[0]["evidence"] if feat else {}
 
+    # Passing the verifier is not the same as drawing everything the receipt counts, so the summary
+    # says so only while that is true. Derived from the same field as the per-pack note: a sentence
+    # about a limitation must disappear with the limitation, not outlive it in the copy.
+    gaps = sorted({t["id"] for t in packs for e in t["locales"].values() if e.get("unrendered")})
+    gaps_note = (" A known " + ", ".join(g.split("-")[0] for g in gaps)
+                 + " rendering limitation is tracked separately.") if gaps else ""
+
     return f"""<!doctype html>
 <html lang="en">
 <meta charset="utf-8">
@@ -354,8 +361,7 @@ layout and typography gates; no receipt exists for them, which is why the receip
 the signal that selects it and its Korean and English canonical example; open one for the prompt,
 the command template, and the point where that type stops fitting.</p>
 {_facet_line((packs[0]["locales"]["ko"]["evidence"] if packs else {}), ("sourceGates", "typePackReceipt"))}
-<p class="note">{verified}/{total} TypePack canonical artifacts pass the current package verifier.
-A known topology boundary-rendering limitation is tracked separately.</p>
+<p class="note">{verified}/{total} TypePack canonical artifacts pass the current package verifier.{gaps_note}</p>
 
 <div class="catalog">{"".join(_catalog_card(t) for t in packs)}</div>
 </div>

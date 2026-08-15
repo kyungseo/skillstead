@@ -394,41 +394,40 @@ class GalleryModelFixtures(unittest.TestCase):
         h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
         self.assertNotIn("TypePack canonical examples verified", h)
         self.assertIn("pass the current package verifier", h)
-        self.assertIn("tracked separately", h)
 
-    def test_an_entity_the_artifact_never_draws_is_reported_not_hidden(self):
-        """The verifier exempts one id from its own artifact check; the model reports the gap."""
+    def test_every_entity_the_receipt_counts_is_actually_drawn(self):
+        """The regression this guards: a receipt crediting an entity no artifact shows."""
         model, _ = build_model(self.repo)
-        gaps = {(t["id"], loc): e["unrendered"]
+        gaps = {f'{t["id"]}/{loc}': e["unrendered"]
                 for t in model["typepacks"] for loc, e in t["locales"].items()
                 if e.get("unrendered")}
-        self.assertTrue(gaps, "the known boundary gap disappeared without the model noticing")
-        for ids in gaps.values():
-            self.assertEqual(ids, ["boundary"], gaps)
-
+        self.assertEqual(gaps, {}, "consumed but never drawn")
         h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
-        # Shown on exactly the packs that have a gap — not on every card, and not nowhere.
-        self.assertEqual(h.count("Known limitation"),
-                         len({tid for tid, _ in gaps}), gaps)
-        self.assertIn("does not draw it", h)
+        self.assertNotIn("Known limitation", h)
+        self.assertNotIn("tracked separately", h,
+                         "with no gap left, the page must not keep describing one")
 
-    def test_a_pack_with_nothing_unrendered_carries_no_limitation_note(self):
-        """The note is derived, so it must vanish on its own once the entity is drawn."""
+    def test_a_gap_that_reappears_is_reported_on_the_page_not_hidden(self):
+        """The note is derived, so an artifact that stops drawing an entity must resurface it."""
         tid = "topology-component"
         for loc in ("ko", "en"):
             svg = self.repo / EXAMPLES / tid / f"{tid}.{loc}.svg"
             t = svg.read_text(encoding="utf-8")
-            # Stand in for the fix: give the artifact the entity it was already credited with.
-            svg.write_text(t.replace("</svg>", '<g data-entity="boundary"></g></svg>'),
-                           encoding="utf-8")
-        # The edit invalidates the artifact digest, so this pack also stops being verified. That
-        # is a side effect of the stand-in, not the subject: what is asserted is only that the
-        # note follows the gap.
+            # Take the entity marker back off the boundary — the artifact stops showing what the
+            # receipt still counts. (The digest also stops matching; that is a side effect of the
+            # stand-in, not the subject.)
+            stripped = t.replace(' data-entity="boundary"', "", 1)
+            self.assertNotEqual(stripped, t, "the fixture must actually remove the marker")
+            svg.write_text(stripped, encoding="utf-8")
+
         model, _ = build_model(self.repo)
         pack = next(t for t in model["typepacks"] if t["id"] == tid)
-        self.assertIsNone(pack["locales"]["ko"].get("unrendered"))
+        self.assertEqual(pack["locales"]["ko"].get("unrendered"), ["boundary"])
         tokens = json.loads((self.repo / TOKENS_PATH).read_text(encoding="utf-8"))
-        self.assertNotIn("Known limitation", render(model, tokens))
+        h = render(model, tokens)
+        self.assertEqual(h.count("Known limitation"), 1)
+        self.assertIn("does not draw it", h)
+        self.assertIn("tracked separately", h, "and the summary says so too")
 
     def test_a_caption_carrying_a_number_is_refused(self):
         """A count in a caption is a claim about the artifact that no gate checks."""

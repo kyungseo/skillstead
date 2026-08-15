@@ -32,6 +32,14 @@ function runIn(pkg, args) {
 }
 const out = (pkg, name) => path.join(path.dirname(pkg), name);
 const manifestPath = (pkg) => path.join(pkg, "references", "types", "manifest.yaml");
+// The declared value is read from the package under test, not written into the assertion. A literal
+// here goes stale the moment the layout legitimately changes, and then the fixture passes for the
+// wrong reason: the edit silently becomes a no-op and the build it was meant to break succeeds.
+const flatResidualEntry = (pkg) => {
+  const m = readFileSync(manifestPath(pkg), "utf8").match(/\{ treatment: flat, bottom: (\d+) \}/);
+  assert.ok(m, "topology-component must declare a flat residual entry for these fixtures to mean anything");
+  return { text: m[0], bottom: Number(m[1]) };
+};
 const editManifest = (pkg, fn) => writeFileSync(manifestPath(pkg), fn(readFileSync(manifestPath(pkg), "utf8")));
 
 // The default is system delivery — what this suite checks is consumption, receipts and degrade,
@@ -101,7 +109,8 @@ test("G-4: a bottom residual over the floor with no declaration fails", () => {
 
 test("G-5: a declared residual that differs from the measurement fails", () => {
   const pkg = pkgCopy();
-  editManifest(pkg, (m) => m.replace("{ treatment: flat, bottom: 194 }", "{ treatment: flat, bottom: 120 }"));
+  const e5 = flatResidualEntry(pkg);
+  editManifest(pkg, (m) => m.replace(e5.text, `{ treatment: flat, bottom: ${e5.bottom + 40} }`));
   const b = build(pkg, "topology-component", "canonical", "ko");
   assert.equal(b.code, 1, b.out);
   assert.match(b.out, /does not match the measured/);
@@ -690,37 +699,147 @@ test("G-40: when the candidate count passes the safety cap it fails explicitly r
   assert.equal(r.routes.length, 0, "it is not treated as a success after truncation");
 });
 
-test("G-41: a residual declaration with no entry for the treatment fails closed", () => {
-  if (!hasSubsetter()) return;
+// --- boundary: declared, drawn, contained, and absent when not declared -------------------
+const inputPath = (pkg, name) => path.join(pkg, "references", "types", "inputs", name);
+
+test("G-44: a declared boundary is drawn, carries its entity, and owns the zones as a container", () => {
   const pkg = pkgCopy();
-  // delete the sketch entry — reusing the flat value to pass must not happen
-  editManifest(pkg, (t) => t.replace(/\n *- \{ treatment: sketch, calibration: [^}]*\}/, ""));
-  const r = runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical",
-    "--locale", "ko", ...TX, "--out", out(pkg, "s.svg"), "--receipt", out(pkg, "s.json")]);
-  assert.notEqual(r.code, 0, r.out);
-  assert.match(r.out, /declares no entry for treatment "sketch"/);
+  const b = build(pkg, "topology-component", "canonical", "ko");
+  assert.equal(b.code, 0, b.out);
+  const svg = readFileSync(b.svg, "utf8"), rcp = JSON.parse(readFileSync(b.rcp, "utf8"));
+  assert.ok(rcp.consumed.includes("boundary"), "the receipt counts it");
+  assert.match(svg, /data-entity="boundary"/, "and the artifact draws it");
+  assert.match(svg, /data-layout-container="boundary"/, "as a layout container, not decoration");
+  const zoneCount = svg.match(/data-layout-parent="boundary"/g)?.length ?? 0;
+  assert.ok(zoneCount >= 2, `every zone must declare the boundary as its parent (got ${zoneCount})`);
+  // compose pairs receipt entities with data-comp-entity 1:1 and exempts nothing, so a receipt
+  // entity the fragment never draws makes the composite fail. That is the second way this defect
+  // showed up; the invariant is asserted here on the real artifact.
+  const comp = new Set([...svg.matchAll(/data-comp-entity="([^"]+)"/g)].map((m) => m[1]));
+  assert.deepEqual([...comp].sort(), [...new Set(rcp.consumed)].sort(),
+    "the drawn entity set and the receipt's consumed set must be the same set");
   drop(pkg);
 });
 
-test("G-42: a differing calibration ID means the residual declaration is not used", () => {
+test("G-45: an artifact that drops the boundary group fails the consumption check", () => {
+  const pkg = pkgCopy();
+  const b = build(pkg, "topology-component", "canonical", "ko");
+  assert.equal(b.code, 0, b.out);
+  const svg = readFileSync(b.svg, "utf8");
+  const stripped = svg.replace(/ {2}<g data-comp-entity="boundary"[\s\S]*?<\/g>\n/, "");
+  assert.notEqual(stripped, svg, "the fixture must actually remove the group, or it proves nothing");
+  writeFileSync(b.svg, stripped);
+  const r = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
+  assert.notEqual(r.code, 0, r.out);
+  assert.match(r.out, /E-GEN-CONSUME.*boundary/, r.out);
+  drop(pkg);
+});
+
+test("G-46: with no boundary declared nothing is drawn, counted, or reserved", () => {
+  const pkg = pkgCopy();
+  const withBoundary = build(pkg, "topology-component", "canonical", "ko");
+  assert.equal(withBoundary.code, 0, withBoundary.out);
+  const before = JSON.parse(readFileSync(withBoundary.rcp, "utf8"));
+
+  const f = inputPath(pkg, "topology-component.canonical.yaml");
+  const src = readFileSync(f, "utf8");
+  const cut = src.replace(/\nboundary:\n(?: {2}.*\n| {4}.*\n)*/, "\n");
+  assert.notEqual(cut, src, "the fixture must actually drop the boundary block");
+  writeFileSync(f, cut);
+  // the declaration it was measured against no longer applies once the frame stops reserving space
+  const e = flatResidualEntry(pkg);
+  editManifest(pkg, (t) => t.replace(e.text, `{ treatment: flat, bottom: ${e.bottom + 46} }`));
+
+  const b = build(pkg, "topology-component", "canonical", "ko");
+  assert.equal(b.code, 0, b.out);
+  const svg = readFileSync(b.svg, "utf8"), rcp = JSON.parse(readFileSync(b.rcp, "utf8"));
+  assert.ok(!rcp.consumed.includes("boundary"), "nothing to count");
+  assert.equal(svg.match(/data-entity="boundary"/), null, "nothing to draw");
+  assert.equal(svg.match(/data-layout-parent="boundary"/), null, "and no orphan parent reference");
+  // the zones get the space back: the reservation is real, not cosmetic
+  assert.ok(rcp.residual.bottom > before.residual.bottom,
+    `the reserved band must return to the page (${before.residual.bottom} -> ${rcp.residual.bottom})`);
+  drop(pkg);
+});
+
+test("G-47: the boundary geometry is the same in both locales", () => {
+  const pkg = pkgCopy();
+  const frames = ["ko", "en"].map((loc) => {
+    const b = build(pkg, "topology-component", "canonical", loc);
+    assert.equal(b.code, 0, b.out);
+    const m = readFileSync(b.svg, "utf8").match(/<rect ([^>]*data-layout-container="boundary"[^>]*)\/>/);
+    assert.ok(m, `${loc}: no boundary frame`);
+    return Object.fromEntries(["x", "y", "width", "height"].map((k) =>
+      [k, m[1].match(new RegExp(`${k}="([-\\d.]+)"`))?.[1]]));
+  });
+  assert.deepEqual(frames[0], frames[1], "the frame must not move with the language");
+  drop(pkg);
+});
+
+// --- the receipt attributes the disposition it actually applied ---------------------------
+test("G-48: below the floor no disposition is attributed", () => {
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
-  editManifest(pkg, (t) => t.replace("calibration: hi-melody-optical-v1", "calibration: hi-melody-optical-v0"));
-  const r = runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical",
-    "--locale", "ko", ...TX, "--out", out(pkg, "s.svg"), "--receipt", out(pkg, "s.json")]);
-  assert.notEqual(r.code, 0, r.out);
-  assert.match(r.out, /declares no entry for treatment "sketch"/);
+  const b = build(pkg, "topology-component", "canonical", "ko", TX);
+  assert.equal(b.code, 0, b.out);
+  const rcp = JSON.parse(readFileSync(b.rcp, "utf8"));
+  assert.ok(rcp.residual.bottom > 0, "there is still a measurement to report");
+  assert.equal(rcp.residualDisposition, null,
+    "nothing was compared, so nothing may be credited — least of all another treatment's entry");
+  drop(pkg);
+});
+
+test("G-49: above the floor the receipt carries the entry that was applied, not the whole declaration", () => {
+  const pkg = pkgCopy();
+  const b = build(pkg, "topology-component", "canonical", "ko");
+  assert.equal(b.code, 0, b.out);
+  const d = JSON.parse(readFileSync(b.rcp, "utf8")).residualDisposition;
+  assert.equal(d.treatment, "flat");
+  assert.equal(d.bottom, flatResidualEntry(pkg).bottom);
+  assert.equal(d.calibration, null);
+  assert.ok(!("by_treatment" in d), "the scenario's other entries are not this artifact's disposition");
+  drop(pkg);
+});
+
+test("G-41: a residual declaration with no entry for the treatment fails closed", () => {
+  const pkg = pkgCopy();
+  // delete the only entry — falling back to some other treatment's value must not happen
+  const e = flatResidualEntry(pkg);
+  // an edit that quietly matches nothing would let the build succeed and the fixture "pass" for the
+  // wrong reason, so the removal is asserted before it is used
+  editManifest(pkg, (t) => {
+    const cut = t.replace(new RegExp(`\\n\\s*- \\{ treatment: flat, bottom: ${e.bottom} \\}`), "");
+    assert.notEqual(cut, t, "the flat entry must actually be removed");
+    return cut;
+  });
+  assert.throws(() => flatResidualEntry(pkg), "and it must be gone from the copy");
+  const b = build(pkg, "topology-component", "canonical", "ko");
+  assert.notEqual(b.code, 0, b.out);
+  assert.match(b.out, /declares no entry for treatment "flat"/);
+  drop(pkg);
+});
+
+// COVERAGE-GAP SENTINEL — not a behavioural fixture.
+// This does NOT verify the calibration-keyed residual lookup. That branch has no subject: with the
+// boundary frame reserved, no pack or case reaches the residual floor while a calibration is active,
+// so the lookup cannot be driven end to end and must not be counted as covered anywhere.
+// What is asserted is the absence itself, so the gap stays visible instead of going quiet. The day a
+// calibration-keyed entry exists again this fails, and a real behavioural fixture must replace it.
+// Tracked with the Wave 2 treatment-axis alignment candidate.
+test("G-42 (sentinel): no declared scenario reaches the residual floor under a calibration — the lookup stays unverified", () => {
+  const pkg = pkgCopy();
+  const m = readFileSync(manifestPath(pkg), "utf8");
+  assert.equal(m.match(/calibration: [a-z0-9-]+/g), null,
+    "a calibration-keyed residual entry exists again — restore the end-to-end G-42 that drives it through a build");
   drop(pkg);
 });
 
 test("G-43: the residual is an exact match — smaller than declared does not pass either", () => {
-  if (!hasSubsetter()) return;
   const pkg = pkgCopy();
-  editManifest(pkg, (t) => t.replace("{ treatment: sketch, calibration: hi-melody-optical-v1, bottom: 93 }",
-    "{ treatment: sketch, calibration: hi-melody-optical-v1, bottom: 300 }"));
-  const r = runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical",
-    "--locale", "ko", ...TX, "--out", out(pkg, "s.svg"), "--receipt", out(pkg, "s.json")]);
-  assert.notEqual(r.code, 0, r.out);
-  assert.match(r.out, /does not match the measured/);
+  const e = flatResidualEntry(pkg);
+  editManifest(pkg, (t) => t.replace(e.text, `{ treatment: flat, bottom: ${e.bottom + 150} }`));
+  const b = build(pkg, "topology-component", "canonical", "ko");
+  assert.notEqual(b.code, 0, b.out);
+  assert.match(b.out, /does not match the measured/);
   drop(pkg);
 });

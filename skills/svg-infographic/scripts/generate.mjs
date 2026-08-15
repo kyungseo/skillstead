@@ -212,6 +212,29 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
   const corridorReserve = 2 * K.labelPad + K.laneGap + K.outerClearance;
   const labelLineH = (n) => Math.round(F.fs(12) * 1.5 * n + 4);
 
+  // A declared boundary is a **container, not an overlay**. It reserves its padding and label band
+  // first and the zone layout then runs inside what is left; reserving afterwards would put the
+  // frame on top of the zone borders or push it past the content box, because the first zone starts
+  // at the content-box top and the zones already span its full width minus the side channels.
+  // The label is measured on whichever of KO and EN is wider, for the same reason the zone labels
+  // are: the geometry must not vary by language.
+  const bpad = 12;
+  let bband = 0, bWrap = null;
+  if (input.boundary) {
+    const bMaxW = cb.w - 2 * bpad - 2 * K.labelPad;
+    bWrap = ["ko", "en"].map((lc) => wrapLines(String(input.boundary.label?.[lc] ?? ""), bMaxW, F.fs(12), true, 1));
+    if (bWrap.some((x) => x.overflow)) {
+      console.error(`generate: boundary label does not fit the ${r1(bMaxW)}px band on one line — shorten it or widen the preset`);
+      process.exit(1);
+    }
+    bband = Math.round(F.fs(12) * 1.5 + 4);
+  }
+  // The box the zone layout actually gets. With no boundary it **is** the content box, so a diagram
+  // that declares none keeps its existing geometry to the pixel.
+  const ib = input.boundary
+    ? { x: cb.x + bpad, y: cb.y + bband + bpad, w: cb.w - 2 * bpad, h: cb.h - bband - 2 * bpad }
+    : cb;
+
   // 1) Ask for the routing demand first — if the layout sets first, the lines end up cutting through or overlapping.
   const nodeZone = new Map(), nodeIndex = new Map();
   zones.forEach((z) => (z.nodes ?? []).forEach((nd, i) => { nodeZone.set(nd.id, z.id); nodeIndex.set(nd.id, i); }));
@@ -231,7 +254,7 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
 
   // 2) The layout widens to meet that demand: side channels come out of the width, corridor lanes out of the height.
   const chL = plan.channelWidth("left"), chR = plan.channelWidth("right");
-  const zoneX = cb.x + chL, zoneW = cb.w - chL - chR;
+  const zoneX = ib.x + chL, zoneW = ib.w - chL - chR;
   const corridors = [];
   for (let i = 0; i + 1 < nz; i++) corridors.push(plan.corridorHeight(i));
   const corridorTotal = corridors.reduce((a, b) => a + b, 0);
@@ -253,13 +276,13 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
   }
   const labelLines = Math.max(1, ...[...labelWrap.values()].flat().map((x) => x.lines.length));
   const band = labelLines === 1 ? Math.round(F.fs(12) * 1.5 + 4) : labelLineH(labelLines);
-  const nodeH = Math.min(96, (cb.h - corridorTotal - nz * (band + 2 * pad + maxIntra)) / nz);
+  const nodeH = Math.min(96, (ib.h - corridorTotal - nz * (band + 2 * pad + maxIntra)) / nz);
   const zoneH = (zid) => band + 2 * pad + nodeH + intraH(zid);
 
   // One spacing serves every row — differing per row would misalign the columns of the same slot and break the straight runs.
   const nodeGap = Math.max(...zones.map((z) => plan.nodeGap(z.id)));
   const containers = [], connectors = [], nodeArt = [], consumed = [], nodeBox = {}, zoneBoxes = [];
-  let zy = cb.y;
+  let zy = ib.y;
   zones.forEach((z, zi) => {
     const zh = zoneH(z.id);
     consumed.push(z.id);
@@ -340,13 +363,25 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
   // Draw in the order zone frame (background) -> connector -> node (the z-order: connectors go
   // before the cards so a line is not hidden behind one, though the rule remains that the routing
   // itself avoids the cards).
-  // Paint order: zone frame -> connector -> node -> zone label.
+  // Paint order: boundary frame -> zone frame -> connector -> node -> label.
   // The label goes on last, sitting **above** the lines with an opaque mask (the lines pass behind it).
   const labels = [];
+  // The boundary goes in first so every zone sits on top of it, and it is declared as the layout
+  // parent of the zones rather than merely drawn around them — the containment is then checked
+  // rather than assumed. (Nesting a container inside a container is the same shape nested-scope
+  // already uses for its rings.)
+  const bFrame = input.boundary
+    ? { x: cb.x, y: cb.y, w: cb.w, h: contentBottom + bpad - cb.y }
+    : null;
+  if (bFrame) {
+    containers.push(`  <g data-comp-entity="boundary" data-entity="boundary" data-layout-role="boundary">
+    <rect x="${r1(bFrame.x)}" y="${r1(bFrame.y)}" width="${r1(bFrame.w)}" height="${r1(bFrame.h)}" rx="18" fill="none" stroke="#B9C2CC" stroke-width="1.5" stroke-dasharray="7 5" data-stroke-role="rule" data-layout-container="boundary" data-min-pad="${bpad}" data-reserve-top="${bband}" data-layout-count="${nz}"/>
+  </g>`);
+  }
   zoneBoxes.forEach((zb, zi) => {
     const z = zones[zi], ns = rowOf(z);
     containers.push(`  <g data-comp-entity="${z.id}" data-entity="${z.id}" data-layout-role="zone">
-    <rect x="${r1(zb.x)}" y="${r1(zb.y)}" width="${r1(zb.w)}" height="${r1(zb.h)}" rx="14" fill="#F4F8FC" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface-tint" data-stroke-role="rule" data-layout-container="${z.id}" data-min-pad="${pad}" data-reserve-top="${band}" data-layout-count="${ns.length}"/>
+    <rect x="${r1(zb.x)}" y="${r1(zb.y)}" width="${r1(zb.w)}" height="${r1(zb.h)}" rx="14" fill="#F4F8FC" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface-tint" data-stroke-role="rule" data-layout-container="${z.id}"${bFrame ? ' data-layout-parent="boundary"' : ""} data-min-pad="${pad}" data-reserve-top="${band}" data-layout-count="${ns.length}"/>
     <g data-layout-group="${z.id}-row" data-distribution="equal-gap" data-axis="x" data-group-count="${ns.length}"></g>
   </g>`);
     labels.push(`  <g data-layout-role="zone-label" data-label-bounds="${r1(zb.labelBox.x)},${r1(zb.labelBox.y)},${r1(zb.labelBox.w)},${r1(zb.labelBox.h)}">
@@ -360,6 +395,12 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
         : `<text font-size="${F.fs(12)}" font-weight="700" fill="#636A75" data-fill-role="muted" dominant-baseline="central">${tspans(L, zb.x + pad, y0, lh)}</text>`; })()}
   </g>`);
   });
+  if (bFrame) {
+    const bText = bWrap[loc === "ko" ? 0 : 1].lines[0] ?? "";
+    labels.push(`  <g data-layout-role="boundary-label">
+    <text x="${r1(bFrame.x + bpad + K.labelPad)}" y="${r1(bFrame.y + bband / 2 + 2)}" font-size="${F.fs(12)}" font-weight="700" fill="#8A939E" data-fill-role="muted" dominant-baseline="central">${esc(bText)}</text>
+  </g>`);
+  }
 
   const EDGE = "#7C93AB";
   for (const rt of routed.routes) {
@@ -409,7 +450,9 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
   ];
   return {
     body: defs + "\n" + body.join("\n"), consumed,
-    bounds: { x: cb.x, y: cb.y, w: cb.w, h: contentBottom - cb.y + legendH },
+    // The frame is content: the bounds (and through them contentFlowBounds and the residual)
+    // must include it, or the page would report breathing room the diagram is already using.
+    bounds: { x: cb.x, y: cb.y, w: cb.w, h: (bFrame ? bFrame.y + bFrame.h : contentBottom) - cb.y + legendH },
     routing: {
       degradeLevel: routed.degradeLevel, ladder, portConstraints, problems: routed.problems, hops: routed.hopCount,
       alignment: aligned.moves, attempts: routed.attempts, diagnostics: routed.diagnostics,
@@ -1223,6 +1266,10 @@ ${body}
   const residual = { top: r1(fb.y - cb.y), bottom: r1(cb.y + cb.h - (fb.y + fb.h)) };
   const RESIDUAL_TOL = 8, RESIDUAL_FLOOR = 0.08;
   const decl = sc.residual_disposition ?? null;
+  // What the receipt reports is the disposition that was **applied**, not the scenario's whole
+  // declaration. Below the floor nothing is compared, so there is nothing to attribute; copying the
+  // full by_treatment list in would credit this artifact with entries written for other treatments.
+  let appliedDisposition = null;
   if (residual.bottom > RESIDUAL_FLOOR * cb.h) {
     if (!decl) {
       console.error(`generate: bottom residual ${residual.bottom}px (${Math.round(100 * residual.bottom / cb.h)}% of the contentBox) exceeds the ${Math.round(100 * RESIDUAL_FLOOR)}% floor and the scenario declares no residual_disposition — declare it with a reason or choose a preset/variant that fills the page`);
@@ -1237,6 +1284,8 @@ ${body}
       console.error(`generate: declared residual_disposition.bottom ${want.bottom}px does not match the measured ${residual.bottom}px (tol ${RESIDUAL_TOL}px, treatment ${tx.name}${want.calibration ? ` + ${want.calibration}` : ""})`);
       process.exit(1);
     }
+    appliedDisposition = { reason: decl.reason ?? null, treatment: tx.name,
+      calibration: want.calibration ?? null, bottom: Number(want.bottom) };
   }
   const delivery = fontDelivery(opt("font-delivery"));
   const embedded = embedSubset(svg, delivery, tx.name);
@@ -1268,7 +1317,7 @@ ${body}
     routing: R.routing ?? null,
     matrix: R.matrix ?? null,
     timeline: R.timeline ?? null,
-    residual, residualDisposition: decl,
+    residual, residualDisposition: appliedDisposition,
     provenance: provenance({ producer: { kind: "generator", generatorDigest: sha(readFileSync(fileURLToPath(import.meta.url))) },
       inputs: [{ role: "typepack-input", digest: inputDigest }] }) };
   writeFileSync(rcp, JSON.stringify(receipt, null, 1) + "\n");
@@ -1624,6 +1673,11 @@ function residualEntry(decl, tx, TS) {
   }
   // A single declaration is for flat only — using it with a treatment on would disagree with the measurement.
   if (tx.name !== "flat") return { error: `residual_disposition is declared once (flat only) but treatment "${tx.name}" is active — declare it per treatment with by_treatment` };
+  // The by_treatment branch checks this; without the same check here a declaration whose entries
+  // were emptied falls through to an undefined bottom, and `Math.abs(NaN - measured) > tol` is
+  // false — so a malformed declaration would pass the gate by accident.
+  if (!Number.isFinite(Number(decl.bottom)))
+    return { error: `residual_disposition declares no entry for treatment "${tx.name}" with a numeric bottom` };
   return { bottom: decl.bottom, calibration: null };
 }
 
@@ -1653,7 +1707,7 @@ function verify(argv) {
       const svg = readFileSync(svgP, "utf8");
       if (sha(svg) !== rcp.artifactDigest) errors.push("E-GEN-ARTIFACT artifact digest != receipt");
       const inSvg = new Set([...svg.matchAll(/data-entity="([^"]+)"/g)].map((m) => m[1]));
-      for (const i of ids) if (!inSvg.has(i) && i !== "boundary") errors.push(`E-GEN-CONSUME artifact is missing entity "${i}"`);
+      for (const i of ids) if (!inSvg.has(i)) errors.push(`E-GEN-CONSUME artifact is missing entity "${i}"`);
       for (const i of inSvg) if (!ids.includes(i) && i !== "legend") errors.push(`E-GEN-INVENT artifact carries invented entity "${i}"`);
       // The alignment inventory does not trust the artifact either — it is re-derived from the original input and compared.
       const expectedInv = serializeAlignInventory(deriveAlignInventory(rcp.typepack, input, { cols: rcp.cols ?? undefined }));
