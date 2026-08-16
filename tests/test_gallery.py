@@ -11,6 +11,7 @@ join works on data shaped the way the test author imagined it.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import shutil
@@ -504,6 +505,175 @@ class GalleryModelFixtures(unittest.TestCase):
         (self.repo / RENDER_RECEIPT).unlink()
         details = " ".join(f.detail for f in self._render_findings())
         self.assertIn("missing", details, details or "no GAL-RENDER finding")
+
+    # --- the arrowhead must clear the label chip it points past -------------------------
+    # The chevron is emitted from one description in generate.mjs; these are the numbers that
+    # description produces. Read here rather than restated so an edit to the marker shows up as a
+    # failure to re-derive, not as a silently stale constant.
+    E1_PORT = "M215.3 318 L215.3 382"
+    CHIP_RIGHT = 196.5          # painted right edge of the zone-2 label chip
+    WING = 4.708333             # marker lateral painted extent, primary weight
+    OUTER_CLEARANCE = 14        # the existing corridor rule, not a new constant
+
+    def _topology(self, loc: str) -> str:
+        return (self.repo / EXAMPLES / "topology-component" / f"topology-component.{loc}.svg").read_text()
+
+    def test_the_arrowhead_does_not_intersect_the_label_chip(self):
+        """The defect this pins: the port cleared the chip but the wings did not, and a later paint
+        hid one of them. What must clear the chip is everything the edge paints."""
+        for loc in ("ko", "en"):
+            t = self._topology(loc)
+            x = float(re.search(r'data-route-id="e1"[^>]*\sd="M([\d.]+)', t).group(1))
+            chip = re.search(r'<rect x="60" y="362" width="([\d.]+)"', t)
+            self.assertIsNotNone(chip, "the fixture must find the chip it is measuring against")
+            self.assertAlmostEqual(60 + float(chip.group(1)), self.CHIP_RIGHT, places=3)
+            left_wing = x - self.WING
+            self.assertGreater(left_wing, self.CHIP_RIGHT, f"{loc}: a wing is over the chip")
+            self.assertGreaterEqual(round(left_wing - self.CHIP_RIGHT, 3), self.OUTER_CLEARANCE,
+                                    f"{loc}: clearing by arithmetic alone is not clearing")
+
+    def test_the_other_vertical_edge_still_passes(self):
+        """e3 was never the defect and must not be moved by the fix for e1."""
+        for loc in ("ko", "en"):
+            self.assertIn('data-route-id="e3"', self._topology(loc))
+            self.assertIn("M234.5 488 L234.5 552", self._topology(loc))
+
+    def test_the_two_locales_route_identically(self):
+        """Routing geometry is fixed on the wider of KO and EN, so it cannot vary by language."""
+        geom = [re.findall(r'(?:^|\s)(?:d|x|y|width|height|points)="([^"]+)"', self._topology(l))
+                for l in ("ko", "en")]
+        self.assertEqual(geom[0], geom[1])
+
+    # Geometry fingerprint per artifact: sha256 of every coordinate-bearing attribute value, in
+    # document order, truncated. Comparing against git HEAD cannot work here — the fixture copy
+    # commits the working tree, so HEAD is whatever is being tested. These pin the absolute state
+    # instead, which is what "the other sixteen did not move" actually means.
+    #
+    # To refresh after an intended geometry change, re-run the printer in the docstring below and
+    # replace the entry. Refreshing every entry at once to make a red test green defeats the pin.
+    GEOMETRY = {
+        "approval-gate.en.svg": "efe9995f30bc9a3b", "approval-gate.ko.svg": "00aec18cf4232ed2",
+        "before-after.en.svg": "06016bd0fbfa726a", "before-after.ko.svg": "06016bd0fbfa726a",
+        "cards-kpi-grid.en.svg": "9d1d91f82dbe16e5", "cards-kpi-grid.ko.svg": "9d1d91f82dbe16e5",
+        "decision-matrix.en.svg": "e844d57f7ff4a297", "decision-matrix.ko.svg": "e844d57f7ff4a297",
+        "layer-stack.en.svg": "61cfd4b35d32ba61", "layer-stack.ko.svg": "61cfd4b35d32ba61",
+        "nested-scope.en.svg": "92fc9f71eebb51a3", "nested-scope.ko.svg": "92fc9f71eebb51a3",
+        "process-flow.en.svg": "1d54b83952932af0", "process-flow.ko.svg": "1d54b83952932af0",
+        "roadmap-timeline.en.svg": "fdbc798b58f9bb2d", "roadmap-timeline.ko.svg": "fdbc798b58f9bb2d",
+        "topology-component.en.svg": "f3a8822d54d7127c", "topology-component.ko.svg": "f3a8822d54d7127c",
+    }
+    GEOM_ATTRS = (r'(?:^|\s)(?:d|x|y|width|height|x1|y1|x2|y2|cx|cy|rx|ry|r|transform|points)'
+                  r'="([^"]+)"')
+
+    def test_no_artifact_moved_except_where_it_was_meant_to(self):
+        """printer: re.findall(GEOM_ATTRS, svg) -> sha256("\n".join(...)).hexdigest()[:16]"""
+        seen = {}
+        for svg in sorted((self.repo / EXAMPLES).glob("*/*.svg")):
+            toks = re.findall(self.GEOM_ATTRS, svg.read_text(encoding="utf-8"))
+            seen[svg.name] = hashlib.sha256("\n".join(toks).encode()).hexdigest()[:16]
+        self.assertEqual(seen, self.GEOMETRY)
+
+    def test_the_approved_move_is_the_one_that_is_there(self):
+        """Naming the port explicitly: a fingerprint says something changed, not what it became."""
+        for loc in ("ko", "en"):
+            self.assertIn(self.E1_PORT, self._topology(loc))
+            self.assertNotIn("M198.5 318 L198.5 382", self._topology(loc))
+
+    def test_the_nested_depth_ramp_reads_inward(self):
+        """The rollback exists for this: each ring must be darker than the one outside it."""
+        def lum(h):
+            r, g, b = (int(h[i:i + 2], 16) for i in (1, 3, 5))
+            return 0.2126 * r + 0.7152 * g + 0.0722 * b
+        for loc in ("ko", "en"):
+            t = (self.repo / EXAMPLES / "nested-scope" / f"nested-scope.{loc}.svg").read_text()
+            rings = sorted({(float(re.search(r'(?:^|\s)width="([\d.]+)"', s).group(1)),
+                             re.search(r'fill="(#[0-9A-Fa-f]{6})"', s).group(1))
+                            for s in re.findall(r"<rect[^>]*>", t)
+                            if 'data-fill-role="surface-tint"' in s and re.search(r'fill="#', s)},
+                           reverse=True)
+            self.assertGreaterEqual(len(rings), 3, "the fixture needs the whole ladder")
+            steps = [lum(c) for _, c in rings]
+            self.assertEqual(steps, sorted(steps, reverse=True), f"{loc}: {steps} is not monotone")
+
+    # --- the palette gate: what it covers, and the exact debt it still carries -----------
+    PALETTE_EXEMPT = {
+        "cloud-infra-topology", "agent-waiting-swimlane", "agent-task-matrix",
+        "zero-trust-onion", "before-after-migration", "agent-system-sketch",
+    }
+    # colour -> {typepack: occurrences across both locales}. Pinned exactly: this is a dated debt,
+    # not a tolerance band. A new colour, a new pack, or a higher count is a regression.
+    #
+    # Every entry names a step current-v1 does not declare, which is why the semantic rollback keeps
+    # it rather than snapping to the nearest token:
+    #   #7C93AB  a line tone between `rule` and `focus` — without it a connector reads as an accent
+    #   #F4F8FC #C7D3DE #DCE9F4 #E9F1F8  a depth ramp; one `surface-tint` cannot be monotone
+    #   #B9C2CC  a boundary that is not just one more card border
+    #   #8A5D22 #D8B075 #FBF3E6  the amber semantic family's fill/border/ink split
+    PALETTE_DEBT = {
+        "#7C93AB": {"approval-gate": 8, "process-flow": 10, "topology-component": 14},
+        "#B9C2CC": {"topology-component": 2},
+        "#C7D3DE": {"nested-scope": 6},
+        "#F4F8FC": {"nested-scope": 2},
+        "#DCE9F4": {"nested-scope": 2},
+        "#E9F1F8": {"nested-scope": 2},
+        "#8A5D22": {"approval-gate": 2},
+        "#D8B075": {"approval-gate": 2},
+        "#FBF3E6": {"approval-gate": 2},
+    }
+
+    def _palette(self, svg, profile="current"):
+        args = [NODE, f"skills/svg-infographic/scripts/check-svg.mjs"]
+        if profile:
+            args += ["--palette-profile", profile]
+        out = subprocess.run(args + [str(svg)], cwd=self.repo, capture_output=True, text=True)
+        return out.stdout + out.stderr
+
+    def test_no_canonical_artifact_carries_a_palette_error(self):
+        """The canonical eighteen have no exception. This is the gate, not a preference."""
+        bad = []
+        for svg in sorted((self.repo / EXAMPLES).glob("*/*.svg")):
+            if "E-PALETTE" in self._palette(svg):
+                bad.append(svg.name)
+        self.assertEqual(bad, [], "canonical artifacts must clear the current palette profile")
+
+    def test_the_canonical_palette_debt_is_exactly_the_recorded_one(self):
+        """Nine colours current-v1 cannot express, 52 occurrences, in named packs. Fails if the
+        debt grows, moves to another pack, or quietly shrinks by re-snapping a semantic step."""
+        found: dict[str, dict[str, int]] = {}
+        for svg in sorted((self.repo / EXAMPLES).glob("*/*.svg")):
+            pack = svg.parent.name
+            for hexv in re.findall(r"hex (#[0-9A-Fa-f]{6})", self._palette(svg)):
+                found.setdefault(hexv.upper(), {}).setdefault(pack, 0)
+                found[hexv.upper()][pack] += 1
+        self.assertEqual(found, self.PALETTE_DEBT)
+        self.assertEqual(sum(sum(v.values()) for v in found.values()), 52)
+
+    def test_the_palette_exception_is_a_named_list_not_a_featured_wildcard(self):
+        """A new featured entry must declare `current` and pass; it cannot inherit the exception."""
+        model, _ = build_model(self.repo)
+        entries = model["featured"]["entries"]
+        exempt = {e["slug"] for e in entries if e.get("paletteProfile") == "legacy-unprofiled"}
+        self.assertEqual(exempt, self.PALETTE_EXEMPT,
+                         "the exception list changed — a retained entry must migrate, not linger")
+        for e in entries:
+            self.assertIn(e.get("paletteProfile"), ("current", "legacy-unprofiled"), e["slug"])
+            if e["paletteProfile"] == "legacy-unprofiled":
+                self.assertTrue(e.get("paletteNote"), f'{e["slug"]}: an exception states its reason')
+
+    def test_an_undeclared_featured_entry_is_refused(self):
+        p = self.repo / FEATURED
+        d = json.loads(p.read_text())
+        del d["entries"][0]["paletteProfile"]
+        p.write_text(json.dumps(d, indent=1, ensure_ascii=False), encoding="utf-8")
+        findings = run_gallery(self.repo)
+        self.assertIn("GAL-FEATURED", {f.check for f in findings})
+        self.assertTrue(any("paletteProfile" in f.detail for f in findings), findings)
+
+    def test_the_public_claim_does_not_mention_the_palette(self):
+        """Featured clears lint, layout and typography. The sheet and the page must not imply more."""
+        for rel in (GALLERY_HTML, sheet_paths("ko")[0], sheet_paths("en")[0]):
+            t = (self.repo / rel).read_text(encoding="utf-8")
+            self.assertNotIn("palette", t.lower(), f"{rel} implies a palette claim")
 
     # --- what surface_revision is actually bound to -------------------------------------
     def _digests(self) -> dict:

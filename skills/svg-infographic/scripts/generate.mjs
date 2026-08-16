@@ -24,12 +24,39 @@ import { parseYaml, derivePanelFloor, deriveAlignInventory, serializeAlignInvent
 import { loadTreatment, treatmentDefs, paperRect, displacementBound, filterAttr } from "./treatment.mjs";
 import { estimateWidth } from "./check-svg.mjs";
 import { planChannels, routeEdges, pathData, auditTopology, alignRows, ROUTE_DEFAULTS } from "./route-orthogonal.mjs";
+import { residualDisposition } from "./residual-disposition.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const skinCli = path.join(here, "skin.mjs");
 const sha = (b) => `sha256:${createHash("sha256").update(b).digest("hex")}`;
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const r1 = (n) => Math.round(n * 10) / 10;
+
+// The arrowhead is wider than the line it terminates, so a clearance measured against the shaft
+// alone is not a clearance at all. One description serves both the emitted <marker> and the
+// clearance the router must keep, so the two can never drift apart.
+const ARROWHEAD = {
+  viewBox: 12,
+  refY: 6,
+  d: "M2 2 L10 6 L2 10",
+  strokeWidth: 2,
+  markerWidth: (shaft) => r1(4.5 * shaft),
+  // Half the painted spread measured *across* the run: the wing tips' offset from the axis, plus
+  // the round cap. Read off the path above rather than restated, so editing the chevron moves it.
+  lateralHalf(shaft) {
+    const wing = Math.max(...[...this.d.matchAll(/[ML]\s*[\d.]+\s+([\d.]+)/g)]
+      .map((m) => Math.abs(Number(m[1]) - this.refY)));
+    return (wing + this.strokeWidth / 2) * (this.markerWidth(shaft) / this.viewBox);
+  },
+};
+// Weight is the only thing that picks a marker, so the shaft follows from it in one place.
+const SHAFT = (weight) => (weight === "primary" ? 2.5 : 2.2);
+// The lowest port coordinate that clears a label chip. Used once when the interval is built and
+// again when the artifact is audited against it — two derivations would be two contracts.
+const portFloor = (nodeX, chipRight, weight) => Math.max(
+  nodeX + ROUTE_DEFAULTS.portInset,
+  chipRight === -Infinity ? -Infinity
+    : Math.ceil((chipRight + ARROWHEAD.lateralHalf(SHAFT(weight)) + ROUTE_DEFAULTS.outerClearance) * 10) / 10);
 
 function spawnJson(args, label) {
   const r = spawnSync(process.execPath, args, { encoding: "utf8" });
@@ -310,15 +337,24 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
   // is, nothing entering from outside the zone) the router is unconstrained.
   const zoneOf = new Map();
   for (const zb of zoneBoxes) for (const nd of (zones.find((z) => z.id === zb.id)?.nodes ?? [])) zoneOf.set(nd.id, zb);
-  const entryInterval = (nid) => {
+  const entryInterval = (nid, weight) => {
     const zb = zoneOf.get(nid), nb = nodeBox[nid];
     if (!zb || !zb.labelBox || !nb) return null;
     const lb = zb.labelBox;
-    // The label is a hard obstacle — the interval starts at the label's right edge plus the
-    // clearance. What the layout guarantees goes as far as "the port is not underneath the label";
-    // the spacing between line and label is enforced by the router's own obstacle rules. Being
-    // stricter here would move the routing of existing (unconstrained) artifacts for no reason.
-    const lo = Math.max(nb.x + K.portInset, lb.x + lb.w);
+    // The label is a hard obstacle. What has to clear it is not the centre line but **everything
+    // the edge paints** — the arrowhead spreads sideways well past the shaft, and an interval that
+    // only kept the line out let a wing land under the label chip, where a later paint hid it.
+    // The spread comes from the marker this weight actually uses, so primary and secondary each
+    // get their own footprint. Rounded up: rounding a clearance down is not a clearance.
+    // Three terms, none of which stands in for another:
+    //   chipRight  the edge actually **painted** — the chip is emitted with rounded coordinates,
+    //              so clearing the unrounded box still leaves the wing over it by the difference.
+    //              It already carries the label's own labelPad; that pads the text, not the route.
+    //   wing       everything the edge paints sideways. The shaft is not the whole arrow.
+    //   clearance  the existing corridor rule: the least spacing at which a border and a route do
+    //              not read as one line. Not duplicated anywhere upstream of this interval.
+    const chipRight = r1(lb.x) + r1(lb.w);
+    const lo = portFloor(nb.x, chipRight, weight);
     const hi = nb.x + nb.w - K.portInset;
     if (!(lo <= hi)) return null;                    // with no legal interval, declare nothing (which differs from declaring no constraint)
     return { lo: r1(lo), hi: r1(hi), axis: "x" };
@@ -326,7 +362,7 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
   const constrain = (list) => list.map((e) => {
     const from = zoneOf.get(e.from), to = zoneOf.get(e.to);
     if (!from || !to || from.id === to.id) return e;   // routing within one zone does not cross the band
-    const iv = entryInterval(e.to);
+    const iv = entryInterval(e.to, e.weight);
     if (!iv) return e;
     // The constraint applies **only when needed**. If the natural port (the midpoint of the two
     // nodes) already lies clear of the label, no interval is declared — that keeps the candidates,
@@ -381,11 +417,11 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
   zoneBoxes.forEach((zb, zi) => {
     const z = zones[zi], ns = rowOf(z);
     containers.push(`  <g data-comp-entity="${z.id}" data-entity="${z.id}" data-layout-role="zone">
-    <rect x="${r1(zb.x)}" y="${r1(zb.y)}" width="${r1(zb.w)}" height="${r1(zb.h)}" rx="14" fill="#F4F8FC" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface-tint" data-stroke-role="rule" data-layout-container="${z.id}"${bFrame ? ' data-layout-parent="boundary"' : ""} data-min-pad="${pad}" data-reserve-top="${band}" data-layout-count="${ns.length}"/>
+    <rect x="${r1(zb.x)}" y="${r1(zb.y)}" width="${r1(zb.w)}" height="${r1(zb.h)}" rx="14" fill="#E4EDF3" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface-tint" data-stroke-role="rule" data-layout-container="${z.id}"${bFrame ? ' data-layout-parent="boundary"' : ""} data-min-pad="${pad}" data-reserve-top="${band}" data-layout-count="${ns.length}"/>
     <g data-layout-group="${z.id}-row" data-distribution="equal-gap" data-axis="x" data-group-count="${ns.length}"></g>
   </g>`);
     labels.push(`  <g data-layout-role="zone-label" data-label-bounds="${r1(zb.labelBox.x)},${r1(zb.labelBox.y)},${r1(zb.labelBox.w)},${r1(zb.labelBox.h)}">
-    <rect x="${r1(zb.labelBox.x)}" y="${r1(zb.labelBox.y)}" width="${r1(zb.labelBox.w)}" height="${r1(zb.labelBox.h)}" rx="4" fill="#F4F8FC" data-fill-role="surface-tint"/>
+    <rect x="${r1(zb.labelBox.x)}" y="${r1(zb.labelBox.y)}" width="${r1(zb.labelBox.w)}" height="${r1(zb.labelBox.h)}" rx="4" fill="#E4EDF3" data-fill-role="surface-tint"/>
     ${(() => { const L = labelWrap.get(z.id)[loc === "ko" ? 0 : 1].lines, lh = F.fs(12) * 1.5,
         y0 = zb.y + (band - (L.length - 1) * lh) / 2 + 4;
       // On a single line, keep the existing single-text form — changing the markup where there is
@@ -398,14 +434,14 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
   if (bFrame) {
     const bText = bWrap[loc === "ko" ? 0 : 1].lines[0] ?? "";
     labels.push(`  <g data-layout-role="boundary-label">
-    <text x="${r1(bFrame.x + bpad + K.labelPad)}" y="${r1(bFrame.y + bband / 2 + 2)}" font-size="${F.fs(12)}" font-weight="700" fill="#8A939E" data-fill-role="muted" dominant-baseline="central">${esc(bText)}</text>
+    <text x="${r1(bFrame.x + bpad + K.labelPad)}" y="${r1(bFrame.y + bband / 2 + 2)}" font-size="${F.fs(12)}" font-weight="700" fill="#636A75" data-fill-role="muted" dominant-baseline="central">${esc(bText)}</text>
   </g>`);
   }
 
-  const EDGE = "#7C93AB";
+  const EDGE = "#7C93AB";   // outside current-v1: the profile has no line tone between rule and focus
   for (const rt of routed.routes) {
     consumed.push(rt.id);
-    const shaft = rt.weight === "primary" ? 2.5 : 2.2;
+    const shaft = SHAFT(rt.weight);
     const mk = rt.weight === "primary" ? "ah-primary" : "ah-secondary";
     connectors.push(`  <g data-comp-entity="${rt.id}" data-entity="${rt.id}"><path data-route-id="${rt.id}" data-route-from="${rt.from}" data-route-to="${rt.to}" data-route-kind="${rt.kindPath}" data-route-weight="${rt.weight}" d="${pathData(rt)}" fill="none" data-stroke-role="edge-line" stroke="${EDGE}" stroke-width="${shaft}" stroke-linecap="round" stroke-linejoin="round"${rt.style === "dashed" ? ' stroke-dasharray="5 4"' : ""} marker-end="url(#${mk})"/></g>`);
   }
@@ -428,7 +464,7 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
     const items = keys.map(([style, label], i) => {
       const x = lx + i * 260;
       return `    <g data-layout-role="legend-key">
-      <path d="M${r1(x)} ${r1(ly)} L${r1(x + 34)} ${r1(ly)}" fill="none" stroke="${EDGE}" stroke-width="2.2"${style === "dashed" ? ' stroke-dasharray="5 4"' : ""} marker-end="url(#ah-secondary)"/>
+      <path d="M${r1(x)} ${r1(ly)} L${r1(x + 34)} ${r1(ly)}" fill="none" data-stroke-role="edge-line" stroke="${EDGE}" stroke-width="2.2"${style === "dashed" ? ' stroke-dasharray="5 4"' : ""} marker-end="url(#ah-secondary)"/>
       <text x="${r1(x + 56)}" y="${r1(ly)}" font-size="${F.fs(12)}" fill="#636A75" data-fill-role="muted" dominant-baseline="central">${esc(label)}</text>
     </g>`;
     }).join("\n");
@@ -438,8 +474,8 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
   if (input.boundary) consumed.push("boundary");
   const defs = `  <defs>
     ${["ah-primary", "ah-secondary"].map((id, i) => {
-      const shaft = i === 0 ? 2.5 : 2.2, mw = r1(4.5 * shaft);
-      return `<marker id="${id}" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="${mw}" markerHeight="${mw}" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M2 2 L10 6 L2 10" fill="none" data-stroke-role="edge-line" stroke="${EDGE}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></marker>`;
+      const mw = ARROWHEAD.markerWidth(SHAFT(i === 0 ? "primary" : "secondary"));
+      return `<marker id="${id}" viewBox="0 0 ${ARROWHEAD.viewBox} ${ARROWHEAD.viewBox}" refX="9" refY="${ARROWHEAD.refY}" markerWidth="${mw}" markerHeight="${mw}" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="${ARROWHEAD.d}" fill="none" data-stroke-role="edge-line" stroke="${EDGE}" stroke-width="${ARROWHEAD.strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/></marker>`;
     }).join("\n    ")}
   </defs>`;
   const body = [
@@ -560,7 +596,7 @@ function renderApprovalGate(input, loc, cb, sc, tp) {
     const pw = 28 + estimateWidth(label, 12, true, 0) + 16;   // room for the icon (28) + the text + the right margin
     const px = mid.x - pw / 2, py = rowY - pillGap - pillH;
     labels.push(`  <g data-comp-entity="${g.id}" data-entity="${g.id}" data-layout-role="gate">
-    <path d="M${r1(mid.x)} ${r1(py + pillH)} V${r1(mid.y)}" fill="none" stroke="#B07A31" stroke-width="1.4" stroke-dasharray="3 3" data-stroke-role="warning"/>
+    <path d="M${r1(mid.x)} ${r1(py + pillH)} V${r1(mid.y)}" fill="none" stroke="#B08434" stroke-width="1.4" stroke-dasharray="3 3" data-stroke-role="warning"/>
     <rect x="${r1(px)}" y="${r1(py)}" width="${r1(pw)}" height="${pillH}" rx="${pillH / 2}" fill="#FBF3E6" stroke="#D8B075" stroke-width="1" data-fill-role="surface-tint" data-stroke-role="warning"/>
     ${icon("check", px + 16, py + pillH / 2, 13)}
     <text x="${r1(px + 28)}" y="${r1(py + pillH / 2)}" font-size="12" font-weight="700" fill="#8A5D22" data-fill-role="warning" dominant-baseline="central">${esc(label)}</text>
@@ -579,15 +615,15 @@ function renderApprovalGate(input, loc, cb, sc, tp) {
 
 // The assembly the two renderers share — layer order and the routing receipt are produced in one place only.
 function assemble({ routed, consumed, zoneArt, nodeArt, labels, bounds }) {
-  const EDGE = "#7C93AB";
+  const EDGE = "#7C93AB";   // outside current-v1: the profile has no line tone between rule and focus
   const connectors = routed.routes.map((rt) => {
-    const shaft = rt.weight === "primary" ? 2.5 : 2.2;
-    return `  <g data-comp-entity="${rt.id}"><path data-route-id="${rt.id}" data-route-from="${rt.from}" data-route-to="${rt.to}" data-route-kind="${rt.kindPath}" data-route-weight="${rt.weight}" data-route-role="${rt.role ?? "flow"}" d="${pathData(rt)}" fill="none" data-stroke-role="edge-line" stroke="${EDGE}" stroke-width="${shaft}" stroke-linecap="round" stroke-linejoin="round"${rt.style === "dashed" ? ' stroke-dasharray="5 4"' : ""} marker-end="url(#${rt.weight === "primary" ? "ah-primary" : "ah-secondary"})"/></g>`;
+    const shaft = SHAFT(rt.weight);
+    return `  <g data-comp-entity="${rt.id}"><path data-route-id="${rt.id}" data-route-from="${rt.from}" data-route-to="${rt.to}" data-route-kind="${rt.kindPath}" data-route-weight="${rt.weight}" data-route-role="${rt.role ?? "flow"}" d="${pathData(rt)}" fill="none" data-stroke-role="edge-line" stroke="${EDGE}" stroke-width="${shaft}" stroke-linecap="round" stroke-linejoin="round"${rt.style === "dashed" ? ' stroke-dasharray="5 4"' : ""} marker-end="url(#ah-${rt.weight === "primary" ? "primary" : "secondary"})"/></g>`;
   });
   const defs = `  <defs>
     ${["ah-primary", "ah-secondary"].map((id, i) => {
-      const shaft = i === 0 ? 2.5 : 2.2, mw = r1(4.5 * shaft);
-      return `<marker id="${id}" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="${mw}" markerHeight="${mw}" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M2 2 L10 6 L2 10" fill="none" data-stroke-role="edge-line" stroke="${EDGE}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></marker>`;
+      const mw = ARROWHEAD.markerWidth(SHAFT(i === 0 ? "primary" : "secondary"));
+      return `<marker id="${id}" viewBox="0 0 ${ARROWHEAD.viewBox} ${ARROWHEAD.viewBox}" refX="9" refY="${ARROWHEAD.refY}" markerWidth="${mw}" markerHeight="${mw}" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="${ARROWHEAD.d}" fill="none" data-stroke-role="edge-line" stroke="${EDGE}" stroke-width="${ARROWHEAD.strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/></marker>`;
     }).join("\n    ")}
   </defs>`;
   const body = [defs,
@@ -645,7 +681,7 @@ function renderLayerStack(input, loc, cb, sc, tp) {
 
     const chipY = y + h / 2 - 13;
     bandArt.push(`  <g data-comp-entity="${L.id}" data-entity="${L.id}" data-layout-role="band">
-    <rect x="${r1(cb.x)}" y="${r1(y)}" width="${r1(bandW)}" height="${r1(h)}" rx="12" fill="#F4F8FC" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface-tint" data-stroke-role="rule" data-layout-item="layer-stack" data-layout-container="${L.id}" data-min-pad="${pad}" data-layout-count="${m}"${m ? ` data-reserve-left="${r1(labelCol)}" data-symmetry="x"` : ""}/>
+    <rect x="${r1(cb.x)}" y="${r1(y)}" width="${r1(bandW)}" height="${r1(h)}" rx="12" fill="#E4EDF3" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface-tint" data-stroke-role="rule" data-layout-item="layer-stack" data-layout-container="${L.id}" data-min-pad="${pad}" data-layout-count="${m}"${m ? ` data-reserve-left="${r1(labelCol)}" data-symmetry="x"` : ""}/>
     <text x="${r1(cb.x + pad)}" y="${r1(y + h / 2)}" font-size="15" font-weight="700" fill="#252B35" data-fill-role="ink" dominant-baseline="central">${esc(L.label[loc])}</text>
   </g>`);
     if (m) {
@@ -684,6 +720,7 @@ function renderNestedScope(input, loc, cb, sc, tp) {
   const h0 = Math.min(cb.h, Number(P.itemMinH ?? 96) + 2 * (n - 1) * inset);
   const x0 = cb.x + (cb.w - w0) / 2;
   const consumed = [], art = [], labels = [];
+  // A monotone ladder needs more steps than current-v1 declares; the pale end is off-profile.
   const tint = ["#F4F8FC", "#E9F1F8", "#DCE9F4", "#CFE0F0"];
   let box = { x: x0, y: cb.y, w: w0, h: h0 };
   const labelWidest = Math.max(...["ko", "en"].flatMap((lc) => rings.map((rg) => estimateWidth(rg.label[lc], 13, true, 0))));
@@ -697,7 +734,7 @@ function renderNestedScope(input, loc, cb, sc, tp) {
     // A ring label is measured within its own band (the top inset) — that band, not the whole ring, is the reference.
     const stripH = last ? Math.min(inset, box.h) : inset;
     labels.push(`  <g data-layout-role="ring-label" data-label-bounds="${r1(box.x)},${r1(box.y)},${r1(box.w)},${r1(stripH)}">
-    <text x="${r1(box.x + box.w / 2)}" y="${r1(box.y + stripH / 2)}" font-size="13" font-weight="700" fill="#3C4657" data-fill-role="ink" text-anchor="middle" dominant-baseline="central">${esc(rg.label[loc])}</text>
+    <text x="${r1(box.x + box.w / 2)}" y="${r1(box.y + stripH / 2)}" font-size="13" font-weight="700" fill="#252B35" data-fill-role="ink" text-anchor="middle" dominant-baseline="central">${esc(rg.label[loc])}</text>
   </g>`);
     if (last && rg.core_icon)
       labels.push(`  <g data-layout-role="core-icon">${icon(rg.core_icon, box.x + box.w / 2, box.y + stripH + (box.h - stripH) / 2, 26)}</g>`);
@@ -757,7 +794,7 @@ function renderBeforeAfter(input, loc, cb, sc, tp) {
     const px = cb.x + pi * (panelW + gutter);
     consumed.push(p.id);
     containers.push(`  <g data-comp-entity="${p.id}" data-entity="${p.id}" data-layout-role="panel">
-    <rect x="${r1(px)}" y="${r1(cb.y)}" width="${r1(panelW)}" height="${r1(panelH)}" rx="14" fill="${pi === 0 ? "#F4F8FC" : "#EFF5EC"}" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface-tint" data-stroke-role="rule" data-layout-container="${p.id}" data-min-pad="${pad}" data-reserve-top="${headH}" data-layout-count="${slots.length}" data-symmetry="x"/>
+    <rect x="${r1(px)}" y="${r1(cb.y)}" width="${r1(panelW)}" height="${r1(panelH)}" rx="14" fill="${pi === 0 ? "#E4EDF3" : "#ECF4F1"}" stroke="#DEE0E2" stroke-width="1" data-fill-role="${pi === 0 ? "surface-tint" : "compute-fill"}" data-stroke-role="rule" data-layout-container="${p.id}" data-min-pad="${pad}" data-reserve-top="${headH}" data-layout-count="${slots.length}" data-symmetry="x"/>
     <text x="${r1(px + pad)}" y="${r1(cb.y + headH / 2 + 3)}" font-size="13" font-weight="700" fill="#636A75" data-fill-role="muted" dominant-baseline="central">${esc(p.title[loc])}</text>
   </g>`);
     let y = cb.y + headH + pad;
@@ -766,7 +803,7 @@ function renderBeforeAfter(input, loc, cb, sc, tp) {
       const changed = st.change === "changed";
       // The same slot shares one row id across both panels — the alignment is the correspondence.
       nodeArt.push(`  <g data-comp-entity="${p.id}-${st.id}">
-    <rect x="${r1(px + pad)}" y="${r1(y)}" width="${r1(panelW - 2 * pad)}" height="${r1(rowH[si])}" rx="9" fill="#FFFFFF" stroke="${changed && pi === 1 ? "#9BC3A5" : "#DEE0E2"}" stroke-width="1" data-fill-role="surface" data-stroke-role="rule" data-layout-parent="${p.id}" data-layout-item="${p.id}-rows" data-align-row="slot-${st.id}" data-align-row-count="${panels.length}"/>
+    <rect x="${r1(px + pad)}" y="${r1(y)}" width="${r1(panelW - 2 * pad)}" height="${r1(rowH[si])}" rx="9" fill="#FFFFFF" stroke="${changed && pi === 1 ? "#3F8F72" : "#DEE0E2"}" stroke-width="1" data-fill-role="surface" data-stroke-role="rule" data-layout-parent="${p.id}" data-layout-item="${p.id}-rows" data-align-row="slot-${st.id}" data-align-row-count="${panels.length}"/>
     <text font-size="13" fill="#252B35" data-fill-role="ink" dominant-baseline="central">${tspans(t.lines, px + pad + 12, y + rowH[si] / 2 - (t.lines.length - 1) * 8.5, 17)}</text>
   </g>`);
       y += rowH[si] + rowGap;
@@ -1264,29 +1301,16 @@ ${body}
   // is allowed only where the scenario declared it explicitly (undeclared dead space is a non-success).
   const fb = R.bounds;
   const residual = { top: r1(fb.y - cb.y), bottom: r1(cb.y + cb.h - (fb.y + fb.h)) };
-  const RESIDUAL_TOL = 8, RESIDUAL_FLOOR = 0.08;
-  const decl = sc.residual_disposition ?? null;
   // What the receipt reports is the disposition that was **applied**, not the scenario's whole
   // declaration. Below the floor nothing is compared, so there is nothing to attribute; copying the
   // full by_treatment list in would credit this artifact with entries written for other treatments.
-  let appliedDisposition = null;
-  if (residual.bottom > RESIDUAL_FLOOR * cb.h) {
-    if (!decl) {
-      console.error(`generate: bottom residual ${residual.bottom}px (${Math.round(100 * residual.bottom / cb.h)}% of the contentBox) exceeds the ${Math.round(100 * RESIDUAL_FLOOR)}% floor and the scenario declares no residual_disposition — declare it with a reason or choose a preset/variant that fills the page`);
-      process.exit(1);
-    }
-    // A residual declaration is **the value that matches the measurement, not a maximum** — a
-    // one-sided comparison would pass both a stale declaration and excessive content expansion.
-    // The measurement differs per treatment, so the entries are per treatment too.
-    const want = residualEntry(decl, tx, TS);
-    if (want.error) { console.error(`generate: ${want.error}`); process.exit(1); }
-    if (Math.abs(Number(want.bottom) - residual.bottom) > RESIDUAL_TOL) {
-      console.error(`generate: declared residual_disposition.bottom ${want.bottom}px does not match the measured ${residual.bottom}px (tol ${RESIDUAL_TOL}px, treatment ${tx.name}${want.calibration ? ` + ${want.calibration}` : ""})`);
-      process.exit(1);
-    }
-    appliedDisposition = { reason: decl.reason ?? null, treatment: tx.name,
-      calibration: want.calibration ?? null, bottom: Number(want.bottom) };
-  }
+  // The decision itself lives in residual-disposition.mjs so it can be tested at its own
+  // boundaries rather than only where some TypePack's layout happens to land.
+  const verdict = residualDisposition({ residual, contentHeight: cb.h,
+    declaration: sc.residual_disposition ?? null, treatment: tx.name,
+    calibration: TS.calibration?.id ?? null });
+  if (verdict.error) { console.error(`generate: ${verdict.error}`); process.exit(1); }
+  const appliedDisposition = verdict.disposition;
   const delivery = fontDelivery(opt("font-delivery"));
   const embedded = embedSubset(svg, delivery, tx.name);
   // Having chosen a treatment, the artifact must actually be that treatment. A changed name that
@@ -1637,8 +1661,10 @@ function auditPortIntervals(svg, rcp) {
     // Find the label covering this node and rebuild the interval with the same formula the layout used.
     const over = labels.filter((l) => l.y <= n.y && l.x < n.x + n.w && l.x + l.w > n.x);
     const right = over.length ? Math.max(...over.map((l) => l.x + l.w)) : -Infinity;
-    // It uses the **same formula** as the layout — the spacing between line and label is enforced by the router.
-    const lo = r1(Math.max(n.x + K.portInset, right === -Infinity ? -Infinity : right));
+    // The **same formula** as the layout, down to the marker footprint: the weight is re-read from
+    // the artifact rather than taken from the receipt, so a receipt cannot vouch for itself.
+    const weight = (svg.match(new RegExp(`data-route-id="${c.edge}"[^>]*?\\sdata-route-weight="([^"]+)"`)) ?? [])[1];
+    const lo = r1(portFloor(n.x, right, weight));
     const hi = r1(n.x + n.w - K.portInset);
     if (Math.abs(lo - Number(c.allowed.lo)) > 0.5 || Math.abs(hi - Number(c.allowed.hi)) > 0.5)
       errs.push(`E-PORT-INTERVAL edge "${c.edge}" declares [${c.allowed.lo}, ${c.allowed.hi}] but the layout metric recomputes [${lo}, ${hi}]`);
@@ -1659,27 +1685,6 @@ function auditPortIntervals(svg, rcp) {
   return errs;
 }
 
-
-// Looking up a residual declaration: a missing treatment (plus calibration) entry, or a differing
-// ID, is **fail-closed**. Passing without an entry would reopen "undeclared dead space".
-function residualEntry(decl, tx, TS) {
-  const calId = TS.calibration?.id ?? null;
-  if (Array.isArray(decl.by_treatment)) {
-    const hit = decl.by_treatment.find((e) => e.treatment === tx.name
-      && (e.calibration === undefined ? calId === null : e.calibration === calId));
-    if (!hit) return { error: `residual_disposition declares no entry for treatment "${tx.name}"${calId ? ` + calibration "${calId}"` : ""} — declare the measured value instead of reusing another treatment's` };
-    if (!Number.isFinite(Number(hit.bottom))) return { error: `residual_disposition entry for "${tx.name}" has no numeric bottom` };
-    return { bottom: hit.bottom, calibration: hit.calibration ?? null };
-  }
-  // A single declaration is for flat only — using it with a treatment on would disagree with the measurement.
-  if (tx.name !== "flat") return { error: `residual_disposition is declared once (flat only) but treatment "${tx.name}" is active — declare it per treatment with by_treatment` };
-  // The by_treatment branch checks this; without the same check here a declaration whose entries
-  // were emptied falls through to an undefined bottom, and `Math.abs(NaN - measured) > tol` is
-  // false — so a malformed declaration would pass the gate by accident.
-  if (!Number.isFinite(Number(decl.bottom)))
-    return { error: `residual_disposition declares no entry for treatment "${tx.name}" with a numeric bottom` };
-  return { bottom: decl.bottom, calibration: null };
-}
 
 function verify(argv) {
   const opt = (n, d = null) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };

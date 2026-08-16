@@ -44,7 +44,7 @@
   "layer-4-chip-1",
   "layer-4-chip-2"
  ],
- "artifactDigest": "sha256:03c1e29887e5edf2c5f89fb52eaa75c7394733567d78290d816cf9901ad726c0",
+ "artifactDigest": "sha256:1e10d8befccf734aa1a2eef248ceafdbf4ab1e70cee52bf6b399d27a515186b5",
  "contentFlowBounds": {
   "x": 32,
   "y": 136,
@@ -62,13 +62,13 @@
    {
     "weight": 400,
     "sourceDigest": "3ffbacde6ab8411f1d2db54bb9b1f0b3ee2a738932033722cf0388c06aed1c93",
-    "subsetDigest": "sha256:855651f6a9f9fe3a042a855c06568315e93c1127a78334baf0a7e5c4d4d58c85",
+    "subsetDigest": "sha256:b5836b2a32bf3d18d399712fe9b7d94e2c956ab13864e71e3965210f88020a82",
     "bytes": 17440
    },
    {
     "weight": 700,
     "sourceDigest": "2e91915fab54df71cc9598ebf608b2bdb54c6fe3c066ac61dff0bc44fca71cc7",
-    "subsetDigest": "sha256:eff8d70e30a1473409cb39cd22306aba82bfc1a48b16b99191ca89a4497645e2",
+    "subsetDigest": "sha256:2ab550a9cc77464a9a03249e28d25a8a1460c15718e31bf3852fdec6878aa47e",
     "bytes": 17312
    }
   ],
@@ -77,7 +77,7 @@
    "brotli": "1.1.0",
    "python": "3.14.6"
   },
-  "wrapperDigest": "sha256:061bce4a288e30c4805190080342a5d15f08f4729915ca56a42d2be6806b4a30",
+  "wrapperDigest": "sha256:f265dff7e9041e5c90e8fea0b92f43b2ba1e278e812ad6af2d28d6864a6c527f",
   "identity": [
    {
     "weight": 400,
@@ -150,13 +150,13 @@
   "skillRoot": "skills/svg-infographic",
   "package": {
    "id": "svg-infographic",
-   "surfaceRevision": 14
+   "surfaceRevision": 15
   },
-  "runtimeSurfaceDigest": "sha256:333a0af7ace668e079ae8c2d00bccc797608af62e2e8951926da682743584099",
+  "runtimeSurfaceDigest": "sha256:bf113f9dbd0736bf8951e32bf49ff0d9c843d7fe4fb4d4c18ecc8095ec60f4a2",
   "source": null,
   "producer": {
    "kind": "generator",
-   "generatorDigest": "sha256:39f60616fa73d0587f728786e873dfb4eb289b4af9ee6ed679fdf6d4e0e1b687"
+   "generatorDigest": "sha256:85aa370f6c5c5207999ca2882397bbf717e1609e9c11daa28ae56b1bf7366bdb"
   },
   "inputs": [
    {

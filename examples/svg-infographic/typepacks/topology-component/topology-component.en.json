@@ -43,7 +43,7 @@
   "e2",
   "boundary"
  ],
- "artifactDigest": "sha256:c58d75da5c577583826a3e1e4ba771409ba7972115a362d0a8d7e2ea219ef38b",
+ "artifactDigest": "sha256:265f6d742f7d95709ef8453c3a5947377223b21c2356dac49564389f90437874",
  "contentFlowBounds": {
   "x": 36,
   "y": 154,
@@ -61,13 +61,13 @@
    {
     "weight": 400,
     "sourceDigest": "3ffbacde6ab8411f1d2db54bb9b1f0b3ee2a738932033722cf0388c06aed1c93",
-    "subsetDigest": "sha256:5d0c1ea426cf8e2001942aa34c51ad90628f54a2f640c6ca06e7fb1772b7d80a",
+    "subsetDigest": "sha256:05f239426cf8a518e90c474215f3ac804cd2bba6ceeb920a128f352e54da5e67",
     "bytes": 22632
    },
    {
     "weight": 700,
     "sourceDigest": "2e91915fab54df71cc9598ebf608b2bdb54c6fe3c066ac61dff0bc44fca71cc7",
-    "subsetDigest": "sha256:9d8a8a84631278f5a9547ba20e03f3276b5cfffe517c8d094fa887ce550a3063",
+    "subsetDigest": "sha256:f4256b9b25ab6fc11f7c7c8a0a7baffa458a5e2879c5b720409aa3c650c0420b",
     "bytes": 22440
    }
   ],
@@ -76,7 +76,7 @@
    "brotli": "1.1.0",
    "python": "3.14.6"
   },
-  "wrapperDigest": "sha256:061bce4a288e30c4805190080342a5d15f08f4729915ca56a42d2be6806b4a30",
+  "wrapperDigest": "sha256:f265dff7e9041e5c90e8fea0b92f43b2ba1e278e812ad6af2d28d6864a6c527f",
   "identity": [
    {
     "weight": 400,
@@ -123,7 +123,18 @@
  "routing": {
   "degradeLevel": 0,
   "ladder": [],
-  "portConstraints": [],
+  "portConstraints": [
+   {
+    "edge": "e1",
+    "endpoint": "to",
+    "node": "api",
+    "allowed": {
+     "lo": 215.3,
+     "hi": 321,
+     "axis": "x"
+    }
+   }
+  ],
   "problems": [],
   "hops": 0,
   "alignment": [],
@@ -278,13 +289,13 @@
   "skillRoot": "skills/svg-infographic",
   "package": {
    "id": "svg-infographic",
-   "surfaceRevision": 14
+   "surfaceRevision": 15
   },
-  "runtimeSurfaceDigest": "sha256:333a0af7ace668e079ae8c2d00bccc797608af62e2e8951926da682743584099",
+  "runtimeSurfaceDigest": "sha256:bf113f9dbd0736bf8951e32bf49ff0d9c843d7fe4fb4d4c18ecc8095ec60f4a2",
   "source": null,
   "producer": {
    "kind": "generator",
-   "generatorDigest": "sha256:39f60616fa73d0587f728786e873dfb4eb289b4af9ee6ed679fdf6d4e0e1b687"
+   "generatorDigest": "sha256:85aa370f6c5c5207999ca2882397bbf717e1609e9c11daa28ae56b1bf7366bdb"
   },
   "inputs": [
    {

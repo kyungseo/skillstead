@@ -26,6 +26,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      # The package's own suite subsets fonts, and its subsetter-dependent fixtures used to skip
+      # themselves silently when the toolchain was absent — which is what CI looked like, so those
+      # fixtures had never run here. The pins match references/delivery/font-delivery-v1.yaml; a
+      # mismatch is refused by the wrapper itself, so drift cannot pass as an acceptance build.
+      - name: Pinned font subsetter
+        run: |
+          python3 -m venv /tmp/svginfo-fonts
+          /tmp/svginfo-fonts/bin/pip install --quiet 'fonttools==4.53.1' 'brotli==1.1.0'
+          /tmp/svginfo-fonts/bin/python -c "import fontTools, importlib.metadata as m; print('fonttools', fontTools.version, 'brotli', m.version('brotli'))"
+
+      - name: Package suite (svg-infographic, strict)
+        env:
+          SVGINFO_PYTHON: /tmp/svginfo-fonts/bin/python
+          SVGINFO_STRICT: "1"        # absence of the subsetter fails here; it never silently skips
+        run: bash skills/svg-infographic/scripts/run-tests.sh
+
       - name: Validator self-tests (fixtures)
         run: python3 -m unittest discover -s tests
 
