@@ -270,11 +270,13 @@ function candidates(e, A, B, nodes, zones, frame, usedPorts, opt = {}) {
     // With several tied 0-bend candidates, choose by "whose centre is held":
     //   (1) the source centre, when no other connection shares the side
     //   (2) the target centre, when the source centre falls outside the target interval
-    //   (3) the middle of the interval, only when neither is possible
+    //   (3) otherwise the legal position **nearest** the run the two centres wanted. Jumping to
+    //       the middle of a wide interval would answer a few units of obstruction with a move of
+    //       tens, which reads as a mis-drawn edge rather than a cleared one.
     const sc = center(A, a.axis), tc = center(B, b.axis);
     const shared = (usedPorts.get(`${e.from}|${sf}`) ?? []).length > 0 || (usedPorts.get(`${e.to}|${st}`) ?? []).length > 0;
     const wish = !shared && sc >= lo && sc <= hi ? sc
-      : (tc >= lo && tc <= hi ? tc : (lo + hi) / 2);
+      : (tc >= lo && tc <= hi ? tc : clamp((sc + tc) / 2, lo, hi));
     // Produce **several straight candidates** within the overlap — abandoning the straight shape
     // itself because the first coordinate is blocked by an obstacle (a zone label, say) would put
     // a bend in even where a small sideways move would do. The candidate count is no arbitrary

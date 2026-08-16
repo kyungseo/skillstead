@@ -4,6 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync, existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -514,7 +515,25 @@ test("G-28: a transparent future dot is refused — the axis rail shows through"
 // whether that boundary holds in the **artifact** rather than in the name.
 
 const TX = ["--treatment", "sketch", "--font-delivery", "portable"];
-const hasSubsetter = () => Boolean(process.env.SVGINFO_PYTHON && existsSync(process.env.SVGINFO_PYTHON));
+// The topology fixtures below reached for `sketch` only because 1.8x type widens the zone labels.
+// What each one states is a canonical guarantee, so it is asserted on the canonical baseline —
+// which is also the only baseline the manifest declares feasibility against (design-kernel 7g).
+const FD = ["--font-delivery", "portable"];
+// A fixture that skips itself is not a passing fixture. Locally the subsetter is optional, and a
+// skip says so out loud; in CI (SVGINFO_STRICT=1) its absence is a failure, because "we never ran
+// the check" and "the check passed" must never look the same in a green run.
+let skipped = 0;
+const hasSubsetter = () => {
+  if (process.env.SVGINFO_PYTHON && existsSync(process.env.SVGINFO_PYTHON)) return true;
+  if (process.env.SVGINFO_STRICT) {
+    throw new Error("SVGINFO_STRICT: the pinned subsetter is required — set SVGINFO_PYTHON to an "
+      + "interpreter carrying the pinned fontTools/brotli. Skipping is a local convenience only.");
+  }
+  skipped += 1;
+  console.error(`  SKIPPED (no pinned subsetter): this fixture did not run [${skipped} so far]`);
+  return false;
+};
+process.on("exit", () => { if (skipped) console.error(`\n# skipped ${skipped} (no pinned subsetter)`); });
 
 test("G-29: a treatment the registry does not allow is refused", () => {
   const pkg = pkgCopy();
@@ -556,7 +575,7 @@ test("G-32: even a partially missing sketch structure is refused by verify", () 
   for (const [mutate, why] of muts) {
     const pkg = pkgCopy();
     const svg = out(pkg, "s.svg"), rcp = out(pkg, "s.json");
-    const b = runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical",
+    const b = runIn(pkg, ["build", "--typepack", "process-flow", "--case", "canonical",
       "--locale", "ko", ...TX, "--out", svg, "--receipt", rcp]);
     assert.equal(b.code, 0, b.out);
     const before = readFileSync(svg, "utf8"), after = mutate(before);
@@ -574,9 +593,9 @@ test("G-33: a sketch receipt cannot pass off a flat artifact (the silent flat fa
   const pkg = pkgCopy();
   const fsvg = out(pkg, "f.svg"), frcp = out(pkg, "f.json");
   const ssvg = out(pkg, "s.svg"), srcp = out(pkg, "s.json");
-  assert.equal(runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko",
+  assert.equal(runIn(pkg, ["build", "--typepack", "process-flow", "--case", "canonical", "--locale", "ko",
     "--font-delivery", "portable", "--out", fsvg, "--receipt", frcp]).code, 0);
-  assert.equal(runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko",
+  assert.equal(runIn(pkg, ["build", "--typepack", "process-flow", "--case", "canonical", "--locale", "ko",
     ...TX, "--out", ssvg, "--receipt", srcp]).code, 0);
   // flat and sketch must genuinely be different artifacts — a changed name alone is not a treatment
   assert.notEqual(readFileSync(fsvg, "utf8"), readFileSync(ssvg, "utf8"));
@@ -594,7 +613,7 @@ test("G-34: in a portable sketch the embedded alias leads the stack (no implicit
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
   const svg = out(pkg, "s.svg"), rcp = out(pkg, "s.json");
-  assert.equal(runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical",
+  assert.equal(runIn(pkg, ["build", "--typepack", "process-flow", "--case", "canonical",
     "--locale", "ko", ...TX, "--out", svg, "--receipt", rcp]).code, 0);
   const text = readFileSync(svg, "utf8");
   assert.match(text, /style="font-family:'SkinSans-Subset','Hi Melody'/);
@@ -614,10 +633,10 @@ test("G-35: a port outside the interval is refused by verify", () => {
   const pkg = pkgCopy();
   const svg = out(pkg, "s.svg"), rcp = out(pkg, "s.json");
   assert.equal(runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical",
-    "--locale", "ko", ...TX, "--out", svg, "--receipt", rcp]).code, 0);
+    "--locale", "ko", ...FD, "--out", svg, "--receipt", rcp]).code, 0);
   const t = JSON.parse(readFileSync(rcp, "utf8"));
   const pc = t.routing.portConstraints;
-  assert.ok(pc?.length, "a sketch topology must declare its entry interval");
+  assert.ok(pc?.length, "a topology must declare its entry interval");
   // move the chosen port outside the interval (leaving the declaration alone) — re-measurement must catch it
   const text = readFileSync(svg, "utf8");
   const m = new RegExp(`data-route-id="${pc[0].edge}"[^>]*?\\sd="(M[^"]+)"`).exec(text);
@@ -634,7 +653,7 @@ test("G-36: an interval declaration exceeding the node's port range is refused",
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
   const svg = out(pkg, "s.svg"), rcp = out(pkg, "s.json");
-  runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko", ...TX, "--out", svg, "--receipt", rcp]);
+  runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko", ...FD, "--out", svg, "--receipt", rcp]);
   const t = JSON.parse(readFileSync(rcp, "utf8"));
   t.routing.portConstraints[0].allowed.hi += 500;   // claiming to allow positions outside the node
   writeFileSync(rcp, JSON.stringify(t));
@@ -648,7 +667,7 @@ test("G-37: an interval that does not satisfy the label clearance is refused", (
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
   const svg = out(pkg, "s.svg"), rcp = out(pkg, "s.json");
-  runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko", ...TX, "--out", svg, "--receipt", rcp]);
+  runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko", ...FD, "--out", svg, "--receipt", rcp]);
   const t = JSON.parse(readFileSync(rcp, "utf8"));
   t.routing.portConstraints[0].allowed.lo -= 120;   // claiming the interval was widened toward the label
   writeFileSync(rcp, JSON.stringify(t));
@@ -662,11 +681,11 @@ test("G-38: routing succeeds even when the legal interval lies outside the old s
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
   const svg = out(pkg, "s.svg"), rcp = out(pkg, "s.json");
-  const b = runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko", ...TX, "--out", svg, "--receipt", rcp]);
+  const b = runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko", ...FD, "--out", svg, "--receipt", rcp]);
   assert.equal(b.code, 0, b.out);
   const t = JSON.parse(readFileSync(rcp, "utf8"));
-  // even as the handwriting grows and the labels widen, all three edges must survive
-  assert.equal(t.routing.routes.length, 3, "every edge must still route at 1.8x");
+  // every edge survives the interval the label clearance imposes
+  assert.equal(t.routing.routes.length, 3, "every edge must still route under full clearance");
   assert.equal(t.routing.problems.length, 0);
   for (const c of t.routing.portConstraints) assert.ok(c.allowed.hi > c.allowed.lo, "the interval is finite and non-empty");
   drop(pkg);
@@ -676,8 +695,8 @@ test("G-39: straight-first and determinism hold under the interval too", () => {
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
   const a = out(pkg, "a.svg"), ar = out(pkg, "a.json"), c = out(pkg, "c.svg"), cr = out(pkg, "c.json");
-  runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko", ...TX, "--out", a, "--receipt", ar]);
-  runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko", ...TX, "--out", c, "--receipt", cr]);
+  runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko", ...FD, "--out", a, "--receipt", ar]);
+  runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko", ...FD, "--out", c, "--receipt", cr]);
   assert.equal(readFileSync(a, "utf8"), readFileSync(c, "utf8"), "the same input must give the same artifact");
   const t = JSON.parse(readFileSync(ar, "utf8"));
   for (const rt of t.routing.routes) assert.equal(rt.path, "straight", `${rt.id} must be straight (no needless dogleg)`);
@@ -777,16 +796,83 @@ test("G-47: the boundary geometry is the same in both locales", () => {
 });
 
 // --- the receipt attributes the disposition it actually applied ---------------------------
-test("G-48: below the floor no disposition is attributed", () => {
+test("G-50: the same input gives the same bytes across a second boundary", () => {
+  // The subsetter used to stamp the wall clock into head.modified, so two builds agreed only when
+  // they happened to land in the same second. The sleep is the point: it puts the two builds on
+  // opposite sides of a tick, which is exactly the case that used to differ.
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
-  const b = build(pkg, "topology-component", "canonical", "ko", TX);
-  assert.equal(b.code, 0, b.out);
-  const rcp = JSON.parse(readFileSync(b.rcp, "utf8"));
-  assert.ok(rcp.residual.bottom > 0, "there is still a measurement to report");
-  assert.equal(rcp.residualDisposition, null,
-    "nothing was compared, so nothing may be credited — least of all another treatment's entry");
+  const args = (n) => ["build", "--typepack", "topology-component", "--case", "canonical",
+    "--locale", "ko", ...FD, "--out", out(pkg, `${n}.svg`), "--receipt", out(pkg, `${n}.json`)];
+  assert.equal(runIn(pkg, args("a")).code, 0);
+  const t0 = Date.now();
+  while (Date.now() - t0 < 1100) { /* cross a one-second tick before the second build */ }
+  assert.equal(runIn(pkg, args("b")).code, 0);
+  const digest = (n) => createHash("sha256").update(readFileSync(out(pkg, `${n}.svg`))).digest("hex");
+  assert.equal(digest("a"), digest("b"), "the artifact must not carry the clock it was built at");
+  const ra = JSON.parse(readFileSync(out(pkg, "a.json"), "utf8"));
+  const rb = JSON.parse(readFileSync(out(pkg, "b.json"), "utf8"));
+  assert.deepEqual(ra.fontDelivery.faces.map((f) => f.subsetDigest),
+                   rb.fontDelivery.faces.map((f) => f.subsetDigest),
+                   "and the receipt's own subset digests must agree with it");
   drop(pkg);
+});
+
+test("G-49: topology-component under sketch fails closed on the corridor it cannot clear", () => {
+  // The limitation recorded in design-kernel 7g, pinned so it cannot disappear quietly and cannot
+  // drift into some other failure. At 1.8x the zone-3 label chip leaves the legal port floor at
+  // 322.8 while api's own bottom edge stops at 321 — 1.8px short of any full-clearance straight
+  // run. Relaxing the clearance for a preview is the one repair this fixture exists to forbid.
+  if (!hasSubsetter()) return;
+  const pkg = pkgCopy();
+  const svg = out(pkg, "s.svg"), rcp = out(pkg, "s.json");
+  const b = runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical",
+    "--locale", "ko", ...TX, "--out", svg, "--receipt", rcp]);
+  assert.notEqual(b.code, 0, "a preview that cannot hold the clearance must not produce an artifact");
+  assert.match(b.out, /routing_expected routable but routing failed/,
+    "it fails against the canonical declaration, which is the only one there is");
+  assert.match(b.out, /edge e3: no legal route/, "and it names the edge, not just the type");
+  assert.ok(!existsSync(svg), "no artifact is written for a refused route");
+  drop(pkg);
+});
+
+test("G-48: the floor decides, and below it the declaration is never read", async () => {
+  // Tested against the decision module rather than an artifact: no declared TypePack/treatment
+  // combination lands strictly between 0 and the floor, so an artifact-level fixture could only
+  // reach this branch by an accident of layout — and would go quiet the moment that accident moved.
+  const { residualDisposition, RESIDUAL_FLOOR, RESIDUAL_TOL } = await import("./residual-disposition.mjs");
+  const H = 1000, floor = RESIDUAL_FLOOR * H;          // 80
+  // Reading any property of this is the failure. `if (!declaration)` is a truthiness test on the
+  // object itself, so an untouched trap passes through it.
+  const trap = new Proxy({}, { get(_, k) { throw new Error(`declaration read below the floor: ${String(k)}`); } });
+  const decl = { reason: "declared breathing", by_treatment: [
+    { treatment: "flat", bottom: 120 }, { treatment: "sketch", bottom: 300 }] };
+
+  // (1) below the floor — null, and nothing is consulted
+  assert.deepEqual(residualDisposition({ residual: { bottom: floor - 1 }, contentHeight: H,
+    declaration: trap, treatment: "flat" }), { disposition: null });
+
+  // (2) exactly at the floor — the contract is `>`, so still null, still no read
+  assert.deepEqual(residualDisposition({ residual: { bottom: floor }, contentHeight: H,
+    declaration: trap, treatment: "flat" }), { disposition: null });
+
+  // (3) above the floor — the matching entry is consulted and exact-matched
+  const ok = residualDisposition({ residual: { bottom: 120 }, contentHeight: H,
+    declaration: decl, treatment: "flat" });
+  assert.deepEqual(ok.disposition, { reason: "declared breathing", treatment: "flat",
+    calibration: null, bottom: 120 });
+
+  // another treatment's entry must not stand in for a missing one
+  const leak = residualDisposition({ residual: { bottom: 120 }, contentHeight: H,
+    declaration: { by_treatment: [{ treatment: "sketch", bottom: 120 }] }, treatment: "flat" });
+  assert.match(leak.error, /declares no entry for treatment "flat"/);
+  // and the entry that is found must match the measurement, not merely bound it
+  const stale = residualDisposition({ residual: { bottom: 120 + RESIDUAL_TOL + 1 }, contentHeight: H,
+    declaration: decl, treatment: "flat" });
+  assert.match(stale.error, /does not match the measured/);
+  // above the floor with nothing declared is undeclared dead space
+  assert.match(residualDisposition({ residual: { bottom: 120 }, contentHeight: H,
+    declaration: null, treatment: "flat" }).error, /declares no residual_disposition/);
 });
 
 test("G-49: above the floor the receipt carries the entry that was applied, not the whole declaration", () => {

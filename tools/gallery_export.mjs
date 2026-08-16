@@ -60,6 +60,15 @@ if (!existsSync(featuredPath)) {
     if (/\d/.test(String(entry.caption ?? "")))
       featured.errors.push(`featured "${slug}" caption carries a digit — captions stay qualitative `
         + `because a count is a claim no gate checks (got "${entry.caption}")`);
+    // The palette profile is declared per entry and never inherited. `legacy-unprofiled` is a dated
+    // exception for the six v0.8-era entries, not a default a new one can drift into.
+    const PALETTE = new Set(["current", "legacy-unprofiled"]);
+    if (!PALETTE.has(entry.paletteProfile ?? ""))
+      featured.errors.push(`featured "${slug}" must declare paletteProfile (current | legacy-unprofiled) `
+        + `— a new entry passes the current gate, and an exception has to be stated, not assumed`);
+    if (entry.paletteProfile === "legacy-unprofiled" && !entry.paletteNote)
+      featured.errors.push(`featured "${slug}" claims legacy-unprofiled without paletteNote — `
+        + `an exception carries its reason and its disposition condition`);
     if (entry.span !== undefined)
       featured.errors.push(`featured "${slug}" declares span — the grid sizes every entry the same, `
         + `so a per-entry size control would be a field nothing reads`);
@@ -73,7 +82,9 @@ if (!existsSync(featuredPath)) {
     // Recorded, not required: these are hand-authored examples that predate the TypePack receipts.
     const receipt = existsSync(path.join(dir, `${slug}.ko.json`));
     featured.entries.push({ slug, name: entry.name, caption: entry.caption, reason: entry.reason,
-                            artifacts: art, hasReceipt: receipt });
+                            artifacts: art, hasReceipt: receipt,
+                            paletteProfile: entry.paletteProfile,
+                            paletteNote: entry.paletteNote ?? null });
   }
   if (!featured.entries.length && !featured.errors.length)
     featured.errors.push("gallery/featured.json declares no entry");

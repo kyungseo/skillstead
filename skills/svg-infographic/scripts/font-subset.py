@@ -73,7 +73,11 @@ def main():
         fail(6, "no text to subset")
 
     try:
-        font = TTFont(a.face)
+        # recalcTimestamp=False keeps the source face's own head.modified instead of stamping the
+        # wall clock at save time. Without it the same font and the same glyph set produce different
+        # bytes depending on which second the build lands in, and no artifact is reproducible.
+        # checkSumAdjustment is still recalculated on save, from these fixed bytes.
+        font = TTFont(a.face, recalcTimestamp=False)
         opts = subset.Options()
         opts.flavor = "woff2"
         opts.layout_features = ["*"]

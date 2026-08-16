@@ -122,13 +122,19 @@ class NodeRunner:
         except (json.JSONDecodeError, KeyError) as e:
             raise GalleryError(f"preflight --json did not carry a runtime digest: {e}") from e
 
-    def source_gates(self, svg: Path) -> tuple[bool, str]:
+    def source_gates(self, svg: Path, palette: str | None = "current") -> tuple[bool, str]:
         """The three checks any artifact must pass regardless of how it was authored.
 
         Featured examples predate the TypePack receipts, so this is the whole of what can be
         claimed about them — which makes running it, rather than asserting it, the point.
+
+        `palette=None` drops only the paint check, and only for an entry that declares the
+        exception in featured.json. Everything else still runs, and the canonical artifacts have no
+        exception at all: without the profile argument check-svg skips paint entirely, which is how
+        90 out-of-profile hexes sat in them unseen — the check existed, nothing ran it.
         """
-        for tool, args in ((f"{SKILL}/scripts/check-svg.mjs", []),
+        svg_args = ["--palette-profile", palette] if palette else []
+        for tool, args in ((f"{SKILL}/scripts/check-svg.mjs", svg_args),
                            (f"{SKILL}/scripts/check-layout.mjs", []),
                            (f"{SKILL}/scripts/skin.mjs", ["typography-check"])):
             r = self._run([tool, *args, str(svg)])
@@ -333,7 +339,9 @@ def build_model(repo_root: Path, runner: NodeRunner | None = None) -> tuple[dict
         arts, gates_ok, detail = {}, True, ""
         for loc, rel in (entry.get("artifacts") or {}).items():
             svg = root / rel
-            ok, why = runner.source_gates(svg)
+            # the exception is read from this entry's own declaration, never assumed
+            ok, why = runner.source_gates(
+                svg, None if entry.get("paletteProfile") == "legacy-unprofiled" else "current")
             if not ok:
                 gates_ok = False
                 detail = why
@@ -343,6 +351,8 @@ def build_model(repo_root: Path, runner: NodeRunner | None = None) -> tuple[dict
         featured.append({
             "slug": entry["slug"], "name": entry.get("name"), "caption": entry.get("caption"),
             "reason": entry.get("reason"),
+            "paletteProfile": entry.get("paletteProfile"),
+            "paletteNote": entry.get("paletteNote"),
             "artifacts": arts,
             # Hand-authored, predating the TypePack receipts: the gates are the whole claim.
             "evidence": _facets("pass" if gates_ok else "none",

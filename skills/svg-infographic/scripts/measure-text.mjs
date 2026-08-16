@@ -23,13 +23,42 @@ const browser = resolveBrowser();
 if (!browser) { console.error("measure-text: no Chromium-based browser found"); process.exit(6); }
 
 const dir = mkdtempSync(path.join(tmpdir(), "measure-text-"));
-const html = `<!doctype html><meta charset="utf-8"><body>
+// Measurement is done against the **package's own** face, not whatever the host happens to have
+// installed. The fragments declare `Pretendard` first and the package owns Pretendard v1.3.9 under
+// assets/fonts, but a machine that has its own copy measured differently from one that has none —
+// which is how a receipt recorded on a laptop disagreed with the same fragment in CI by ~10%.
+// The alias is measurement-only so it can never collide with an installed family of the same name,
+// and the path is resolved from this file rather than the working directory.
+const FONT_ALIAS = "SkillsteadPretendardMeasure";
+const fontsDir = path.join(fileURLToPath(new URL(".", import.meta.url)), "..", "assets", "fonts");
+const faceUrl = (f) => pathToFileURL(path.join(fontsDir, f)).href;
+const fontFace = `
+@font-face { font-family: "${FONT_ALIAS}"; font-weight: 400; font-style: normal;
+             src: url("${faceUrl("Pretendard-Regular.otf")}") format("opentype"); }
+@font-face { font-family: "${FONT_ALIAS}"; font-weight: 700; font-style: normal;
+             src: url("${faceUrl("Pretendard-Bold.otf")}") format("opentype"); }
+/* No OS stack behind it: a fragment must be measured on the declared face or not at all. The
+   load check below is what makes that fail-closed rather than a silent default-font fallback. */
+svg text { font-family: "${FONT_ALIAS}"; }
+`;
+const html = `<!doctype html><meta charset="utf-8"><style>${fontFace}</style><body>
 ${svg}
 <pre id="mt-out"></pre>
 <script>
 (async () => {
   const out = { texts: [] };
   try {
+    // KO and EN both, at both weights the fragments use: a face that resolves for Latin but not
+    // for Hangul would otherwise measure half the corpus against a fallback.
+    for (const weight of [400, 700]) {
+      for (const sample of ["\uBC30\uD3EC \uD30C\uC774\uD504\uB77C\uC778", "Deploy pipeline"]) {
+        const faces = await document.fonts.load(weight + ' 15px "${FONT_ALIAS}"', sample);
+        if (!faces.length) throw new Error("no face matched " + weight + " for " + JSON.stringify(sample));
+        for (const f of faces) {
+          if (f.status !== "loaded") throw new Error("face " + f.family + " " + f.weight + " is " + f.status);
+        }
+      }
+    }
     await document.fonts.ready;
     const svgRoot = document.querySelector("svg");
     for (const t of document.querySelectorAll("svg text")) {

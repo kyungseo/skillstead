@@ -17,6 +17,14 @@
 #                                                   # sections 1–9 must be complete, the
 #                                                   # path must be unique, and the specs
 #                                                   # tree must have no orphan file
+#   routing_expected / geometry_expected:
+#                     scenario feasibility, declared against the canonical `flat` baseline.
+#                     Deliberately NOT treatment-aware: a feasibility field that varied by
+#                     treatment would make an experimental preview a party to what this package
+#                     promises. A treatment that cannot meet a declaration is recorded as a
+#                     preview limitation in design-kernel 7g and fails closed at build time —
+#                     it never softens the declaration. (Known: topology-component x sketch
+#                     does not route; see design-kernel 7g for the measurement.)
 #   presets:          supported output presets (PageFrame registry ids, e.g. social-4x5)
 #   orientations:     supported orientations (portrait | landscape | square) — kept
 #                     separate from presets; preset ids never encode orientation

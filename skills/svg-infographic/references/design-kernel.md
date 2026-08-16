@@ -455,6 +455,30 @@ Geometry, copy, semantic ids and reading order are identical across treatments. 
 patches coordinates; if a face's metrics would overflow, the shared budget is recomputed or the build
 fails closed.
 
+### What a scenario declaration covers
+
+Every `routing_expected` and `geometry_expected` in `references/types/manifest.yaml` is declared
+**against the canonical `flat` baseline**. The schema is deliberately not treatment-aware: a
+feasibility field that varied by treatment would make an experimental preview a party to what the
+package promises. A treatment that cannot meet a declaration therefore does not weaken it — it is
+recorded here as a preview limitation and fails closed at build time.
+
+**`topology-component` × `sketch` does not route.** At 1.8x the zone labels grow until the label
+chip leaves no full-clearance straight corridor for `e3`:
+
+| | |
+| --- | --- |
+| port ceiling on `api`'s bottom edge | `60 + 277 − portInset 16` = **321** |
+| lowest legal port past the zone-3 chip | `ceil(chipRight 304 + wing 4.71 + outerClearance 14)` = **322.8** |
+| shortfall | **1.8px** |
+
+The port attaches to `api`'s own bottom edge, so it cannot reach past that node's width — this is a
+geometric ceiling, not layout slack. Neither exit is available: bending to clear it would give up
+the straight run the routing contract holds for this type, and letting the label wrap to two lines
+costs 67px of band against 33px of residual, overflowing the page by 34px. The clearance is not
+relaxed per treatment; a safety margin that quietly thins where it is hardest to hold is not a
+margin. The build refuses with `R-NO-ROUTE` on `e3` rather than emitting a thinner-cleared artifact.
+
 ## 8. Composition (multi-type scenes)
 
 One page is not limited to one type. A scene may combine TypePacks — summary cards

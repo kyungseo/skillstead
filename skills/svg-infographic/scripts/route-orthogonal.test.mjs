@@ -136,6 +136,26 @@ test("R-11: with no obstacle and overlapping port intervals the result must be a
   assert.ok(codes(bent).includes("A-STRAIGHT"), bent.errors.join("\n"));
 });
 
+test("R-27: a small obstruction moves the port just clear of it, not to the middle of the interval", () => {
+  // a and c share a centre at x=120. An allowed interval that starts a few units to its right is
+  // what a label chip plus the arrowhead's own width produces. Answering that with the midpoint of
+  // a wide interval would swing the run tens of units and read as a mis-drawn edge.
+  const LO = 128, HI = 240;
+  const edges = [{ id: "e1", from: "a", to: "c", allowedPortInterval: { to: { lo: LO, hi: HI, axis: "x" } } }];
+  const stage = { nodes: NODES, zones: ZONES, plan: planFor(edges), frame: { x: 0, y: 0, w: 440, h: 340 } };
+  const out = routeEdges(stage);
+  const r = out.routes[0];
+  const x = r.points[0].x;
+
+  assert.equal(x, LO, `a ${LO - 120}px obstruction must cost ${LO - 120}px, not a jump to ${(LO + HI) / 2}`);
+  assert.ok(x >= LO && x <= HI, "and the port stays inside the interval it was given");
+  assert.equal(r.bends, 0, pathData(r));
+  assert.equal(r.kindPath, "straight", "clearing an obstacle sideways must not buy a bend");
+  assert.equal(r.points.at(-1).x, x, "both ends move together — the run stays vertical");
+  // same input, same port: the choice is derived, never sampled
+  assert.equal(pathData(routeEdges(stage).routes[0]), pathData(r));
+});
+
 test("R-12: with only one connection the ports are not spread", () => {
   const one = routeEdges({ nodes: NODES, zones: ZONES, plan: planFor([{ id: "e1", from: "a", to: "c" }]), frame: { x: 0, y: 0, w: 440, h: 340 } });
   const two = routeEdges({ nodes: NODES, zones: ZONES, plan: planFor([{ id: "e1", from: "a", to: "c" }, { id: "e2", from: "a", to: "d" }]), frame: { x: 0, y: 0, w: 440, h: 340 } });
