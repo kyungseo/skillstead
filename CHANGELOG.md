@@ -6,7 +6,9 @@ Granular, per-change entries begin at the first public release. Earlier developm
 
 ## [Unreleased]
 
-Repository-level changes since the last dated entry. No version is assigned and no release is cut.
+Repository-level changes since the last dated entry.
+
+## 2026-08-16
 
 ### Gallery
 
