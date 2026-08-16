@@ -1,14 +1,196 @@
 {
- "schemaVersion": 1,
+ "schemaVersion": 2,
  "generatedBy": "skillstead_validate gallery",
- "note": "Generated view. Every field is owned by the manifest, an input payload, a receipt or an artifact — this file is authority for none of them. `verified` attaches to the SVG only; PNGs are a present/digest inventory.",
- "runtimeSurfaceDigest": "sha256:5a89c6eeb2daebf88be963a8428fc46940a321c89e718d51076b8f403c513fe5",
+ "note": "Generated view. Every field is owned by the manifest, locale catalog, an input payload, a receipt or an artifact — this file is authority for none of them. `verified` attaches to the SVG only; PNGs are a present/digest inventory.",
+ "runtimeSurfaceDigest": "sha256:12819c706448cb154730024e8db459dd469bc8a0159df235ffd16e6d710ec2b4",
  "tokens": "gallery/tokens.json",
+ "presentation": {
+  "source": "gallery/locale.json",
+  "copy": {
+   "pageTitle": {
+    "en": "TypePack Gallery",
+    "ko": "TypePack 갤러리"
+   },
+   "heroTitle": {
+    "en": "Diagrams your agent can actually produce",
+    "ko": "에이전트가 실제로 만들 수 있는 다이어그램"
+   },
+   "heroLede": {
+    "en": "The Featured set shows the range of outputs made with this skill. The generated TypePack catalog under it is where you choose a bounded diagram type and inspect its evidence.",
+    "ko": "Featured 영역에서는 이 스킬로 만든 여러 형태의 결과를 볼 수 있습니다. 이어지는 generated TypePack 카탈로그에서는 범위가 정해진 다이어그램 타입을 고르고 검증 근거를 확인할 수 있습니다."
+   },
+   "languageLabel": {
+    "en": "Language",
+    "ko": "언어"
+   },
+   "viewLabel": {
+    "en": "Artifact view",
+    "ko": "결과 보기"
+   },
+   "korean": {
+    "en": "Korean",
+    "ko": "한국어"
+   },
+   "english": {
+    "en": "English",
+    "ko": "영어"
+   },
+   "singleView": {
+    "en": "Selected language",
+    "ko": "선택한 언어"
+   },
+   "bothView": {
+    "en": "Side by side",
+    "ko": "나란히 보기"
+   },
+   "featuredTitle": {
+    "en": "What it can draw",
+    "ko": "어떤 결과를 만들 수 있나요?"
+   },
+   "featuredNote": {
+    "en": "Six existing outputs, chosen for how differently they are shaped — a cloud topology, a branching swimlane, a decision matrix, nested trust rings, a mirrored comparison and the sketch treatment. Click any one to see it full size.",
+    "ko": "서로 다른 형태를 보여 주는 기존 결과 여섯 가지입니다. 클라우드 토폴로지, 분기형 스윔레인, 의사결정 매트릭스, 중첩된 신뢰 경계, 변경 전후 비교, 스케치 표현을 골랐습니다. 이미지를 누르면 원본 크기로 볼 수 있습니다."
+   },
+   "featuredLegacyNote": {
+    "en": "These hand-authored examples predate TypePack receipts. They pass the lint, layout and typography gates, but have no receipt; that is why the receipt facet says none instead of disappearing.",
+    "ko": "이 예제들은 TypePack receipt가 도입되기 전에 수작업으로 작성되었습니다. lint·layout·typography gate는 통과하지만 receipt는 없습니다. 그래서 receipt 항목을 생략하지 않고 none으로 표시합니다."
+   },
+   "catalogTitle": {
+    "en": "Choose a TypePack",
+    "ko": "TypePack 고르기"
+   },
+   "catalogNote": {
+    "en": "Nine minimum-syntax types form the catalog's regression baseline. Each card shows when to select the type and its Korean and English canonical example. Open the details for the prompt, command template and the point where that type stops fitting.",
+    "ko": "최소 문법으로 정의한 아홉 가지 타입이 카탈로그의 회귀 검증 기준을 이룹니다. 각 카드에는 선택 기준과 한국어·영어 canonical 예제가 있습니다. 세부 정보를 열면 prompt, command template과 해당 타입이 더는 한 화면에 맞지 않는 경계를 확인할 수 있습니다."
+   },
+   "currentVerifier": {
+    "en": "TypePack canonical artifacts pass the current package verifier.",
+    "ko": "TypePack canonical artifact가 현재 패키지 검증기를 통과합니다."
+   },
+   "trackedLimitation": {
+    "en": "A known rendering limitation is tracked separately for",
+    "ko": "알려진 렌더링 한계를 별도로 추적하는 TypePack:"
+   },
+   "sourcePolicy": {
+    "en": "Specification and prompt links follow the current main branch.",
+    "ko": "명세와 prompt 링크는 현재 main 브랜치를 따릅니다."
+   },
+   "detailSummary": {
+    "en": "Prompt, command and limits",
+    "ko": "Prompt, command와 한계"
+   },
+   "canonicalPrompt": {
+    "en": "Canonical prompt",
+    "ko": "Canonical prompt"
+   },
+   "commandTemplate": {
+    "en": "Command template",
+    "ko": "Command template"
+   },
+   "receiptFacts": {
+    "en": "Receipt facts",
+    "ko": "Receipt 정보"
+   },
+   "whereStops": {
+    "en": "Where it stops fitting",
+    "ko": "한 화면에 맞지 않는 경계"
+   },
+   "declaredStress": {
+    "en": "Declared stress scenarios",
+    "ko": "선언된 stress scenario"
+   },
+   "knownLimitation": {
+    "en": "Known limitation",
+    "ko": "알려진 한계"
+   },
+   "sources": {
+    "en": "Sources",
+    "ko": "출처"
+   },
+   "needsSplitNote": {
+    "en": "needs-split returns a degrade receipt and no artifact — a non-success, not a smaller render.",
+    "ko": "needs-split은 degrade receipt만 반환하고 artifact는 만들지 않습니다. 더 작게 렌더링한 성공 결과가 아니라 명시적인 non-success입니다."
+   },
+   "unrenderedOne": {
+    "en": "The receipt counts this entity as consumed, but the current package does not draw it. It is tracked separately from this gallery.",
+    "ko": "receipt에는 이 entity가 consumed로 기록되지만 현재 패키지는 화면에 그리지 않습니다. 이 한계는 갤러리와 별도로 추적합니다."
+   },
+   "unrenderedMany": {
+    "en": "The receipt counts these entities as consumed, but the current package does not draw them. They are tracked separately from this gallery.",
+    "ko": "receipt에는 이 entity들이 consumed로 기록되지만 현재 패키지는 화면에 그리지 않습니다. 이 한계는 갤러리와 별도로 추적합니다."
+   },
+   "tablePreset": {
+    "en": "preset",
+    "ko": "preset"
+   },
+   "tableCount": {
+    "en": "count",
+    "ko": "개수"
+   },
+   "tableVerdict": {
+    "en": "verdict",
+    "ko": "판정"
+   },
+   "tableScenario": {
+    "en": "scenario",
+    "ko": "scenario"
+   },
+   "tableExpected": {
+    "en": "expected",
+    "ko": "예상 결과"
+   },
+   "factProfile": {
+    "en": "profile",
+    "ko": "profile"
+   },
+   "factPreset": {
+    "en": "preset",
+    "ko": "preset"
+   },
+   "factTreatment": {
+    "en": "treatment",
+    "ko": "treatment"
+   },
+   "factDelivery": {
+    "en": "delivery",
+    "ko": "delivery"
+   },
+   "factEntities": {
+    "en": "entities",
+    "ko": "entity 수"
+   },
+   "facetSourceGates": {
+    "en": "source gates",
+    "ko": "source gate"
+   },
+   "facetTypePackReceipt": {
+    "en": "TypePack receipt",
+    "ko": "TypePack receipt"
+   },
+   "facetDataAccuracy": {
+    "en": "data accuracy",
+    "ko": "데이터 정확성"
+   },
+   "verdictPass": {
+    "en": "pass",
+    "ko": "통과"
+   },
+   "verdictNone": {
+    "en": "none",
+    "ko": "없음"
+   },
+   "close": {
+    "en": "Close",
+    "ko": "닫기"
+   }
+  }
+ },
  "typepackCount": 9,
  "typepacks": [
   {
    "id": "approval-gate",
    "selectionSignal": "A simple request path with one approval gate or checkpoint (a->b->c; a full sequence diagram is out of scope)",
+   "selectionSignalKo": "하나의 승인 gate 또는 checkpoint가 있는 단순 요청 경로에 사용합니다. 전체 sequence diagram은 범위에 포함하지 않습니다.",
    "spec": "types/specs/approval-gate.md",
    "profile": "constrained-layout",
    "support": "experimental",
@@ -163,6 +345,7 @@
   {
    "id": "before-after",
    "selectionSignal": "Before and after — migration, modernisation, refactor outcome, trade-off comparison",
+   "selectionSignalKo": "마이그레이션, 현대화, 리팩터링 결과나 trade-off를 변경 전과 후로 비교할 때 사용합니다.",
    "spec": "types/specs/before-after.md",
    "profile": "constrained-layout",
    "support": "experimental",
@@ -298,6 +481,7 @@
   {
    "id": "cards-kpi-grid",
    "selectionSignal": "A few key items or figures summarised as equal cards (feature highlights, principles, status counts, capability summaries; not a chart claiming data accuracy)",
+   "selectionSignalKo": "소수의 핵심 항목이나 수치를 같은 크기의 카드로 요약할 때 사용합니다. 기능, 원칙, 상태 수, capability 요약에는 맞지만 데이터 정확성을 주장하는 chart에는 맞지 않습니다.",
    "spec": "types/specs/cards-kpi-grid.md",
    "profile": "constrained-layout",
    "support": "experimental",
@@ -461,6 +645,7 @@
   {
    "id": "decision-matrix",
    "selectionSignal": "Options or items placed by two qualitative axes — a 2x2 priority/decision quadrant, a 3x3 risk grid",
+   "selectionSignalKo": "선택지나 항목을 두 개의 정성적 축에 배치할 때 사용합니다. 2×2 우선순위·의사결정 사분면이나 3×3 risk grid가 해당합니다.",
    "spec": "types/specs/decision-matrix.md",
    "profile": "constrained-layout",
    "support": "experimental",
@@ -613,6 +798,7 @@
   {
    "id": "layer-stack",
    "selectionSignal": "A hierarchy that stacks on or abstracts the layer beneath it (platform stacks, runtime layers, capability models)",
+   "selectionSignalKo": "플랫폼 stack, runtime layer, capability model처럼 아래 계층 위에 쌓이거나 아래 계층을 추상화하는 구조에 사용합니다.",
    "spec": "types/specs/layer-stack.md",
    "profile": "constrained-layout",
    "support": "experimental",
@@ -804,6 +990,7 @@
   {
    "id": "nested-scope",
    "selectionSignal": "Containment and scope — the inner lives inside the outer (trust zones, scope rings, platform -> app -> feature)",
+   "selectionSignalKo": "trust zone, scope ring, platform → app → feature처럼 안쪽 범위가 바깥 범위에 포함되는 관계에 사용합니다.",
    "spec": "types/specs/nested-scope.md",
    "profile": "constrained-layout",
    "support": "experimental",
@@ -940,6 +1127,7 @@
   {
    "id": "process-flow",
    "selectionSignal": "Ordered steps or handoffs — processes, pipelines, data flows, review loops",
+   "selectionSignalKo": "process, pipeline, data flow, review loop처럼 순서가 있는 단계나 handoff에 사용합니다.",
    "spec": "types/specs/process-flow.md",
    "profile": "constrained-layout",
    "support": "experimental",
@@ -1103,6 +1291,7 @@
   {
    "id": "roadmap-timeline",
    "selectionSignal": "Time or phases — product phases, milestones, rollout waves, a status snapshot over time (evenly spaced, claiming no proportional duration)",
+   "selectionSignalKo": "제품 단계, milestone, rollout wave처럼 시간이나 phase를 보여 줄 때 사용합니다. 간격은 균등하며 실제 기간 비율을 주장하지 않습니다.",
    "spec": "types/specs/roadmap-timeline.md",
    "profile": "constrained-layout",
    "support": "experimental",
@@ -1283,6 +1472,7 @@
   {
    "id": "topology-component",
    "selectionSignal": "Systems or components and their connections — request paths, cloud/network zones, service architecture with a system boundary",
+   "selectionSignalKo": "request path, cloud·network zone, system boundary가 있는 service architecture처럼 시스템·component와 그 연결을 보여 줄 때 사용합니다.",
    "spec": "types/specs/topology-component.md",
    "profile": "editorial-composition",
    "support": "experimental",
@@ -1458,6 +1648,8 @@
     "slug": "cloud-infra-topology",
     "name": "Cloud topology",
     "caption": "zones, boundaries and routed connectors",
+    "nameKo": "클라우드 토폴로지",
+    "captionKo": "zone, boundary와 경로가 정해진 connector",
     "reason": "The densest structure the catalog produces — nested zones with routing that has to stay legible.",
     "paletteProfile": "legacy-unprofiled",
     "paletteNote": "v0.8-era artifact: carries variable paint or unannotated canonical hexes; exempt from the current palette gate until the Wave 2 replacement audition judges it replace-or-retain",
@@ -1481,6 +1673,8 @@
     "slug": "agent-waiting-swimlane",
     "name": "Branching swimlane",
     "caption": "parallel lanes that rejoin",
+    "nameKo": "분기형 스윔레인",
+    "captionKo": "나뉘었다가 다시 합쳐지는 병렬 lane",
     "reason": "Shows branching and rejoin, which a single-axis process flow cannot express.",
     "paletteProfile": "legacy-unprofiled",
     "paletteNote": "v0.8-era artifact: carries variable paint or unannotated canonical hexes; exempt from the current palette gate until the Wave 2 replacement audition judges it replace-or-retain",
@@ -1504,6 +1698,8 @@
     "slug": "agent-task-matrix",
     "name": "Decision matrix",
     "caption": "two qualitative axes",
+    "nameKo": "의사결정 매트릭스",
+    "captionKo": "두 개의 정성적 축",
     "reason": "Position carries meaning here, so it demonstrates the axis contract rather than a layout.",
     "paletteProfile": "legacy-unprofiled",
     "paletteNote": "v0.8-era artifact: carries variable paint or unannotated canonical hexes; exempt from the current palette gate until the Wave 2 replacement audition judges it replace-or-retain",
@@ -1527,6 +1723,8 @@
     "slug": "zero-trust-onion",
     "name": "Nested scope",
     "caption": "concentric trust rings",
+    "nameKo": "중첩된 범위",
+    "captionKo": "겹겹이 놓인 신뢰 경계",
     "reason": "Containment as the relation, with no connectors at all.",
     "paletteProfile": "legacy-unprofiled",
     "paletteNote": "v0.8-era artifact: carries variable paint or unannotated canonical hexes; exempt from the current palette gate until the Wave 2 replacement audition judges it replace-or-retain",
@@ -1550,6 +1748,8 @@
     "slug": "before-after-migration",
     "name": "Before and after",
     "caption": "mirrored comparison",
+    "nameKo": "변경 전과 후",
+    "captionKo": "대칭 구조로 비교",
     "reason": "Alignment carries the correspondence between the two sides.",
     "paletteProfile": "legacy-unprofiled",
     "paletteNote": "v0.8-era artifact: carries variable paint or unannotated canonical hexes; exempt from the current palette gate until the Wave 2 replacement audition judges it replace-or-retain",
@@ -1573,6 +1773,8 @@
     "slug": "agent-system-sketch",
     "name": "Sketch treatment",
     "caption": "handwriting and rough stroke",
+    "nameKo": "스케치 표현",
+    "captionKo": "손글씨와 거친 선",
     "reason": "The one surface treatment that is not flat, shown on a structure that is not trivial.",
     "paletteProfile": "legacy-unprofiled",
     "paletteNote": "v0.8-era artifact: carries variable paint or unannotated canonical hexes; exempt from the current palette gate until the Wave 2 replacement audition judges it replace-or-retain",
