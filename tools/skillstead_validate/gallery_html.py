@@ -194,7 +194,7 @@ dialog button {{
 @media (max-width: 620px) {{ .catalog {{ grid-template-columns: minmax(0, 1fr); }} }}
 article {{
   background: var(--card); border: 1px solid var(--card-edge);
-  border-radius: var(--card-radius); padding: 14px;
+  border-radius: var(--card-radius); padding: 14px; min-width: 0;
 }}
 h3 {{ margin: 0; font: 600 13px/1.3 var(--font-identifier); letter-spacing: -.01em; }}
 h3 a {{ color: inherit; text-decoration: none; }}
@@ -211,12 +211,14 @@ figcaption {{
 }}
 details {{ margin-top: 12px; border-top: 1px solid var(--card-edge); padding-top: 10px; }}
 summary {{ cursor: pointer; color: var(--ink-muted); font: 600 11px/1 var(--font-identifier); letter-spacing: .04em; }}
-.detail {{ margin-top: 11px; display: grid; gap: 12px; }}
+.detail {{ margin-top: 11px; display: grid; gap: 12px; min-width: 0; }}
+.detail > * {{ min-width: 0; }}
 .detail h4 {{
   margin: 0 0 5px; font: 600 10px/1 var(--font-caption); letter-spacing: .08em;
   text-transform: uppercase; color: var(--ink-muted);
 }}
 pre {{
+  width: 100%; max-width: 100%; min-width: 0;
   margin: 0; padding: .7rem .8rem; overflow-x: auto; background: var(--ground);
   border: 1px solid var(--card-edge); border-radius: var(--chip-radius);
   font: 11px/1.6 var(--font-identifier); white-space: pre;
@@ -244,6 +246,19 @@ a {{ color: var(--ink); }}
 [data-view="single"] .catalog .pair {{ grid-template-columns: minmax(0, 1fr); }}
 [data-copy-loc] + [data-copy-loc]::before {{ content: " / "; color: var(--ink-muted); }}
 [data-locale] [data-copy-loc] + [data-copy-loc]::before {{ content: none; }}
+/* Once scripting selects a locale, reserve the taller of the two copy variants instead of
+   rebuilding the page around whichever language happens to be visible. The hidden variant stays
+   in the same grid cell for sizing only. Without scripting the bilingual fallback remains the
+   complete sequential view above. */
+[data-locale] .stable-copy {{ display: grid; }}
+[data-locale] .stable-copy > [data-copy-loc] {{
+  display: block; grid-area: 1 / 1; min-width: 0;
+}}
+[data-locale] .signal > [data-copy-loc] {{
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}}
+[data-locale="ko"] .stable-copy > [data-copy-loc="en"],
+[data-locale="en"] .stable-copy > [data-copy-loc="ko"] {{ visibility: hidden; }}
 @media (prefers-reduced-motion: reduce) {{ * {{ transition: none !important; }} }}"""
 
 
@@ -266,9 +281,9 @@ def _featured_card(f: dict) -> str:
         figs += (f'<figure data-loc="{loc}" lang="{loc}"><figcaption>{_e(LOCALE_LABEL[loc])}</figcaption>'
                  f'{_frame("../" + art["svg"], alt, zoom=True)}</figure>')
     return (f'<div class="feat"><div class="pair">{figs}</div>'
-            f'<div class="cap"><span class="nm">'
+            f'<div class="cap"><span class="nm stable-copy">'
             f'{_bi_value(f.get("name"), f.get("nameKo"))}</span>'
-            f'<span class="sub">{_bi_value(f.get("caption"), f.get("captionKo"))}</span>'
+            f'<span class="sub stable-copy">{_bi_value(f.get("caption"), f.get("captionKo"))}</span>'
             f'</div></div>')
 
 
@@ -287,7 +302,7 @@ def _detail(t: dict, copy: dict) -> str:
     boundary = (f'<div><h4>{_bi(copy, "whereStops")}</h4><div class="scroll"><table>'
                 f'<tr><th>{_bi(copy, "tablePreset")}</th><th>{_bi(copy, "tableCount")}</th>'
                 f'<th>{_bi(copy, "tableVerdict")}</th></tr>{rows}</table></div>'
-                f'<p class="note">{_bi(copy, "needsSplitNote")}</p></div>') if rows else ""
+                f'<p class="note stable-copy">{_bi(copy, "needsSplitNote")}</p></div>') if rows else ""
 
     stress = ""
     if t.get("stress"):
@@ -337,7 +352,7 @@ def _catalog_card(t: dict, copy: dict) -> str:
         figs += (f'<figure data-loc="{loc}" lang="{loc}"><figcaption>{_e(LOCALE_LABEL[loc])}</figcaption>'
                  f'{_frame("../" + e["svg"], alt)}</figure>')
     return (f'<article id="{_e(t["id"])}"><h3><a href="#{_e(t["id"])}">{_e(t["id"])}</a></h3>'
-            f'<p class="signal">{_bi_value(t.get("selectionSignal"), t.get("selectionSignalKo"))}</p>'
+            f'<p class="signal stable-copy">{_bi_value(t.get("selectionSignal"), t.get("selectionSignalKo"))}</p>'
             f'<div class="pair">{figs}</div>{_detail(t, copy)}</article>')
 
 
@@ -375,8 +390,8 @@ def render(model: dict, tokens: dict) -> str:
 </style>
 <div class="wrap">
 <header>
-  <h1>{_bi(copy, "heroTitle")}</h1>
-  <p class="lede">{_bi(copy, "heroLede")}</p>
+  <h1 class="stable-copy">{_bi(copy, "heroTitle")}</h1>
+  <p class="lede stable-copy">{_bi(copy, "heroLede")}</p>
   <div class="controls" id="controls" hidden>
     <fieldset class="switch" id="language-switch"><legend>{_bi(copy, "languageLabel")}</legend>
       <button type="button" data-language="ko" aria-pressed="true">한국어</button>
@@ -389,19 +404,19 @@ def render(model: dict, tokens: dict) -> str:
   </div>
 </header>
 
-<h2 class="sec">{_bi(copy, "featuredTitle")}</h2>
-<p class="sec-note">{_bi(copy, "featuredNote")}</p>
+<h2 class="sec stable-copy">{_bi(copy, "featuredTitle")}</h2>
+<p class="sec-note stable-copy">{_bi(copy, "featuredNote")}</p>
 {_facet_line(feat_ev, ("sourceGates", "typePackReceipt"), copy)}
 <div class="featured">{"".join(_featured_card(f) for f in feat)}</div>
-<p class="note">{_bi(copy, "featuredLegacyNote")}</p>
+<p class="note stable-copy">{_bi(copy, "featuredLegacyNote")}</p>
 
-<h2 class="sec">{_bi(copy, "catalogTitle")}</h2>
-<p class="sec-note">{_bi(copy, "catalogNote")}</p>
+<h2 class="sec stable-copy">{_bi(copy, "catalogTitle")}</h2>
+<p class="sec-note stable-copy">{_bi(copy, "catalogNote")}</p>
 {_facet_line((packs[0]["locales"]["ko"]["evidence"] if packs else {}), ("sourceGates", "typePackReceipt"), copy)}
 <p class="note">{verified}/{total} {_bi(copy, "currentVerifier")}{gaps_note}</p>
 
 <div class="catalog">{"".join(_catalog_card(t, copy) for t in packs)}</div>
-<p class="note source-policy">{_bi(copy, "sourcePolicy")}</p>
+<p class="note source-policy stable-copy">{_bi(copy, "sourcePolicy")}</p>
 </div>
 <dialog id="zoom"><img alt=""><form method="dialog"><button>{_bi(copy, "close")}</button></form></dialog>
 <script>
