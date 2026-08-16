@@ -341,7 +341,8 @@ class GalleryModelFixtures(unittest.TestCase):
         tokens = json.loads((self.repo / TOKENS_PATH).read_text(encoding="utf-8"))
         h = render(model, tokens)
         import re
-        feat = re.search(r'<div class="featured">(.*?)</div>\s*<p class="note">', h, re.S).group(1)
+        feat = re.search(r'<div class="featured">(.*?)</div>\s*<p class="note(?: [^"]*)?">',
+                         h, re.S).group(1)
         self.assertEqual(feat.count('data-loc="ko"'), 6)
         self.assertEqual(feat.count('data-loc="en"'), 6)
         self.assertIn('function setLanguage(loc)', h)
@@ -352,6 +353,28 @@ class GalleryModelFixtures(unittest.TestCase):
         self.assertIn('setView("single")', h)
         self.assertIn("에이전트가 실제로 만들 수 있는 다이어그램", h)
         self.assertIn("Diagrams your agent can actually produce", h)
+
+    def test_scripted_locale_switch_reserves_the_taller_copy(self):
+        """Switching language must not rebuild the page around the active copy's line count.
+
+        The no-JS fallback still shows both locales sequentially; only the scripted state overlays
+        the pair and keeps the hidden locale in layout for sizing.
+        """
+        h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
+        for marker in ('class="stable-copy"', 'class="lede stable-copy"',
+                       'class="sec-note stable-copy"', 'class="signal stable-copy"',
+                       'class="nm stable-copy"', 'class="sub stable-copy"'):
+            self.assertIn(marker, h)
+        self.assertIn('[data-locale] .stable-copy { display: grid; }', h)
+        self.assertIn('grid-area: 1 / 1', h)
+        self.assertIn('visibility: hidden', h)
+
+    def test_catalog_details_are_width_bounded(self):
+        """Long prompts and commands scroll inside a card instead of widening its grid item."""
+        h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
+        self.assertIn('padding: 14px; min-width: 0;', h)
+        self.assertIn('.detail > * { min-width: 0; }', h)
+        self.assertIn('width: 100%; max-width: 100%; min-width: 0;', h)
 
     def test_gallery_locale_table_exactly_matches_the_manifest(self):
         locale = json.loads((self.repo / LOCALE_PATH).read_text(encoding="utf-8"))
