@@ -2,164 +2,84 @@
 
 **English** · [한국어](./README.ko.md)
 
-Real outputs from the [`svg-infographic`](../../skills/svg-infographic) skill. Each example is a flat, structural visual shipped as source SVG + 2× PNG, in English and Korean, with the prompt that generated it.
-
-Every example was created for this repository using synthetic, non-client, non-confidential content. Together they cover several archetypes the skill supports.
-
-![svg-infographic gallery preview](./gallery-preview.en.png)
-
-_The preview above highlights six examples, including two made with the sketch preset. All fourteen examples are listed below._
-
-## Gallery
-
-### 1. Technical infographic — flagship
-
-Concept infographics: nested/onion models + icon cards.
-
-[![The 4 Layers of AI Engineering](./technical-infographic/technical-infographic.en.png)](./technical-infographic)
-
-→ [`technical-infographic/`](./technical-infographic) · English + 한국어
-
-### 2. Before / after migration
-
-Comparison archetype: two equal panels, semantic colors, ✓/✕ points.
-
-[![Monolith to microservices](./before-after-migration/before-after-migration.en.png)](./before-after-migration)
-
-→ [`before-after-migration/`](./before-after-migration) · English + 한국어
-
-### 3. Process / data flow
-
-Flow archetype: left-to-right nodes with icons and arrows (a RAG query pipeline).
-
-[![RAG query pipeline](./process-flow/process-flow.en.png)](./process-flow)
-
-→ [`process-flow/`](./process-flow) · English + 한국어
-
-### 4. Roadmap / timeline
-
-Timeline archetype: phases, status dots, a "now" marker, milestone cards.
-
-[![Product roadmap](./roadmap/roadmap.en.png)](./roadmap)
-
-→ [`roadmap/`](./roadmap) · English + 한국어
-
-### 5. Cloud infrastructure topology
-
-Architecture/topology proof: zones, components with icon badges, request-path arrows.
-
-[![Azure reference topology](./cloud-infra-topology/cloud-infra-topology.en.png)](./cloud-infra-topology)
-
-→ [`cloud-infra-topology/`](./cloud-infra-topology) · English + 한국어
-
-### 6. Skill overview — self-demo
-
-The skill introducing itself: the diagram types it makes, how it works, scope.
-
-[![svg-infographic overview](./skill-overview/skill-overview.en.png)](./skill-overview)
-
-→ [`skill-overview/`](./skill-overview) · English + 한국어
-
-### 7. AI code review loop
-
-Flow archetype (feature demo): left-to-right cards with an emphasized "key step",
-a legend, and a dashed feedback loop — an AI-in-the-loop PR review cycle.
-
-[![AI code review loop](./ai-code-review-loop/ai-code-review-loop.en.png)](./ai-code-review-loop)
-
-→ [`ai-code-review-loop/`](./ai-code-review-loop) · English + 한국어
-
-### 8. AI agent task selection matrix
-
-Decision-matrix archetype: a 2×2 quadrant grid with axis labels and direction
-arrows, a number badge + icon per quadrant, recommendation pills, and one
-emphasized quadrant — choosing an AI agent's execution mode by scope and
-uncertainty.
-
-[![AI agent task selection matrix](./agent-task-matrix/agent-task-matrix.en.png)](./agent-task-matrix)
-
-→ [`agent-task-matrix/`](./agent-task-matrix) · English + 한국어
-
-### 9. CI/CD artifact promotion
-
-Pipeline archetype: a build-once / promote-the-same-digest release model across
-three labelled bands — build, promote (dev → test → prod behind an approval
-gate), and release fix (a test bug produces a new RC).
-
-[![Release candidate artifact promotion](./ci-cd-artifact-promotion/ci-cd-artifact-promotion.en.png)](./ci-cd-artifact-promotion)
-
-→ [`ci-cd-artifact-promotion/`](./ci-cd-artifact-promotion) · English + 한국어
-
-### 10. Issue tracker ↔ CI/CD approval flow
-
-Flow + state-rail archetype: an issue key threads commit → build → test →
-approval → prod deploy, with a parallel issue-state rail (Open → In Progress →
-In Test → Approved → Deployed) and the approval gate modelled as a state
-transition.
-
-[![Issue tracker CI/CD approval flow](./issue-tracker-cicd-approval-flow/issue-tracker-cicd-approval-flow.en.png)](./issue-tracker-cicd-approval-flow)
-
-→ [`issue-tracker-cicd-approval-flow/`](./issue-tracker-cicd-approval-flow) · English + 한국어
-
-### 11. Zero trust onion model
-
-Nested/onion archetype: four concentric rings with a uniform computed inset,
-light-to-saturated color progression, ring labels in each ring's top strip, and
-an emphasized least-privilege data core.
-
-[![Zero trust onion model](./zero-trust-onion/zero-trust-onion.en.png)](./zero-trust-onion)
-
-→ [`zero-trust-onion/`](./zero-trust-onion) · English + 한국어
-
-### 12. Agent waiting-alert swimlane
-
-Flow archetype, swimlane variant: agent session states and user actions in two
-lanes with aligned stage columns, an emphasized "waiting" step, and labelled
-dashed cross-lane arrows (alert down, one-click approval up).
-
-[![Agent waiting-alert swimlane](./agent-waiting-swimlane/agent-waiting-swimlane.en.png)](./agent-waiting-swimlane)
-
-→ [`agent-waiting-swimlane/`](./agent-waiting-swimlane) · English + 한국어
-
-### 13. Incident response loop — sketch preset
-
-The first **sketch preset** example ("tidy hand-drawn"): paper background,
-subset-embedded Korean handwriting font, rough strokes, underline highlighter —
-with the layout still computed. A detect → triage → respond → recover → retro
-loop with a minor-issue branch to the backlog.
-
-[![Incident response loop, sketch preset](./incident-response-sketch/incident-response-sketch.en.png)](./incident-response-sketch)
-
-→ [`incident-response-sketch/`](./incident-response-sketch) · English + 한국어
-
-### 14. Agent system map — sketch preset
-
-A **sketch preset** component architecture: Context, Memory, and Tools feed a
-central Orchestrator; Guardrails and Evaluation sit below, with evaluation
-feeding corrections back into the loop. It shows that the tidy hand-drawn
-surface works beyond process flows while the topology stays computed.
-
-[![Agent system map, sketch preset](./agent-system-sketch/agent-system-sketch.en.png)](./agent-system-sketch)
-
-→ [`agent-system-sketch/`](./agent-system-sketch) · English + 한국어
-
-## v0.8.0 release graphic
-
-[![Skillstead v0.8.0 runtime support: Claude Code and Codex on verified macOS and Windows environments](./release-announcement/skillstead-v080-runtime-support.ko.png)](./release-announcement/skillstead-v080-runtime-support.ko.svg)
-
-The editable SVG and 2× PNG summarize the evidence-bounded runtime support added in v0.8.0. The Windows card
-refers specifically to the recorded Windows 11 ARM64 VM Codex App run, not every Windows environment.
-
-## Quality bar (every example passes)
-
-- [x] Source lint reports zero hard errors across the 28 bilingual gallery SVGs; transform-related warnings were reviewed in the 2× PNGs
-- [x] The v0.8.0 release graphic reports zero source-lint errors and warnings
-- [x] SVG and PNG dimensions match (PNG is exactly 2× the SVG viewBox)
-- [x] No text overflow; text vertically centered in its box
-- [x] No tofu — Korean/CJK glyphs render correctly
-- [x] `<title>` / `<desc>` present for accessibility
-- [x] No host-specific or client paths in the source
-- [x] Icons render (no broken `<use>` references); paired boxes have visible gutters
+A technical index of the artifacts checked into this repository. It is not a gallery — for browsing what the
+skill produces, open the **[gallery](../../gallery/index.html)**, which is generated from these same files and
+states the evidence each one carries.
+
+What lives here, and what each class is proved to:
+
+| Class | Path | Evidence |
+| --- | --- | --- |
+| Canonical TypePack artifacts | [`typepacks/`](./typepacks) | Built by `generate.mjs` with a receipt; source lint and layout pass; the current palette profile reports **zero errors** against a pinned warning debt of 9 colours / 52 occurrences; `generate.mjs verify` re-measures each against its receipt |
+| Transitional legacy examples | the directories below | Source lint, layout and typography only. No receipt — they predate the TypePack contract |
+| Historical release asset | [`release-announcement/`](./release-announcement) | Frozen at publication. Kept as a record, not maintained against current contracts |
+
+## Canonical TypePack artifacts
+
+Nine types, each in English and Korean, with a receipt beside every artifact. These are the regression surface:
+a change to the package that alters what they draw shows up here first.
+
+```text
+typepacks/<type>/<type>.{ko,en}.svg    # source
+typepacks/<type>/<type>.{ko,en}.png    # exact 2× export
+typepacks/<type>/<type>.{ko,en}.json   # receipt: what was consumed, measured, and which package built it
+```
+
+`approval-gate` · `before-after` · `cards-kpi-grid` · `decision-matrix` · `layer-stack` · `nested-scope` ·
+`process-flow` · `roadmap-timeline` · `topology-component`
+
+Request phrasing and the build command for each type are in
+[`references/PROMPT-GALLERY.md`](../../skills/svg-infographic/references/PROMPT-GALLERY.md).
+
+## Transitional legacy examples
+
+Made before the TypePack contract, kept because they cover request shapes the canonical set does not yet reach.
+Six of them are the gallery's current featured selection (marked ★) and are **due for replacement in Wave 2** —
+a retained entry migrates to the then-current contracts or is dropped.
+
+Each directory holds the source SVG, its 2× PNG in both languages, and the prompt that produced it.
+
+| Directory | |
+| --- | --- |
+| [`agent-system-sketch`](./agent-system-sketch) | ★ sketch preset |
+| [`agent-task-matrix`](./agent-task-matrix) | ★ |
+| [`agent-waiting-swimlane`](./agent-waiting-swimlane) | ★ |
+| [`before-after-migration`](./before-after-migration) | ★ |
+| [`cloud-infra-topology`](./cloud-infra-topology) | ★ |
+| [`zero-trust-onion`](./zero-trust-onion) | ★ |
+| [`ai-code-review-loop`](./ai-code-review-loop) | |
+| [`ci-cd-artifact-promotion`](./ci-cd-artifact-promotion) | |
+| [`incident-response-sketch`](./incident-response-sketch) | sketch preset |
+| [`issue-tracker-cicd-approval-flow`](./issue-tracker-cicd-approval-flow) | |
+| [`process-flow`](./process-flow) | |
+| [`roadmap`](./roadmap) | |
+| [`skill-overview`](./skill-overview) | |
+| [`technical-infographic`](./technical-infographic) | |
+
+Every one was created for this repository from synthetic, non-client, non-confidential content.
+
+## Historical release asset
+
+[`release-announcement/`](./release-announcement) holds the graphic published with `v0.8.0`. It is frozen at the
+state it was published in and is not re-verified against current contracts; the Windows claim on that card refers
+to the recorded Windows 11 ARM64 VM Codex App run, not every Windows environment.
+
+## What each class is checked for
+
+Stated per class rather than as one claim over everything.
+
+**Canonical TypePack artifacts** — source lint reports zero errors. Against the current palette profile they
+carry **zero errors and a pinned warning debt of 9 colours across 52 occurrences** — steps the profile cannot yet
+express, fixed by colour, pack and count so the debt cannot grow or move unnoticed. Layout containers, bindings
+and reservations are re-measured; PNG is exactly 2× the SVG viewBox; the receipt is re-verified against the
+artifact, so an entity it counts but the drawing never shows is an error.
+
+**Transitional legacy examples** — source lint, layout and typography pass. They are not measured against the
+current palette profile and carry no receipt.
+
+**Canonical TypePack artifacts and transitional legacy examples** (not the historical release asset, which is
+frozen) — no text overflow, no tofu in Korean/CJK, `<title>`/`<desc>` present, no host-specific or client paths,
+icons resolve, paired boxes keep visible gutters.
 
 ## Runtime and rendering evidence
 
@@ -174,7 +94,7 @@ documented in [`references/authoring.md`](../../skills/svg-infographic/reference
 
 | Environment | Browser | en/ko SVG → 2× PNG | Status |
 | --- | --- | --- | --- |
-| macOS | Chrome (headless) | all 14 paired examples + fresh Claude Code/Codex briefs | ✅ verified — exact 2×, no tofu, material parity |
+| macOS | Chrome (headless) | the paired legacy examples + fresh Claude Code/Codex briefs | ✅ verified — exact 2×, no tofu, material parity |
 | Windows 11 ARM64 VM | Chrome | fresh Codex App actual bilingual fixture | ✅ verified — install, discovery, correction, exact 2× render |
 | Linux / WSL | Chrome / Chromium | documented canonical and manual paths | ⏳ render verification pending (install Noto Sans CJK/KR for Korean) |
 
