@@ -17,11 +17,12 @@
 # stored only as detached evidence or a CI artifact.
 
 schema_version: 1
-surface_revision: 16
+surface_revision: 17
 
 canonicalization:
-  version: 1
+  version: 2
   digest: sha256
+  runtime_normalization: SKILL.md-frontmatter-metadata.version-to-@VERSION@
   path_encoding: utf8-relative-posix
   ordering: codepoint-sort-on-relative-path
   framing: path-NUL-bytelength-NUL-bytes

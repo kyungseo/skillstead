@@ -12,7 +12,8 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  provenance, verifyProvenance, PREFLIGHT_EXIT, digestFiles, runPreflight, RECEIPT_SCHEMA,
+  provenance, verifyProvenance, PREFLIGHT_EXIT, digestFiles, normalizeSkillMetadataVersion,
+  runPreflight, RECEIPT_SCHEMA,
   PROVENANCE_EVIDENCE,
 } from "./preflight-lib.mjs";
 
@@ -455,6 +456,34 @@ test("editing an agent-facing view moves runtimeSurfaceDigest, not just the tree
   // And it is runtime, not verification — a normative view is not test material.
   assert.equal(after.verificationSurfaceDigest, before.verificationSurfaceDigest,
     "an agent-facing view must not be classified into the verification surface");
+});
+
+test("canonicalization v2 ignores only SKILL.md frontmatter metadata.version at runtime", () => {
+  const pkg = copyPackage(path.join(tmp("canon-version"), "svg-infographic"));
+  const before = digestsOf(pkg);
+  const skill = path.join(pkg, "SKILL.md");
+  fs.writeFileSync(skill, fs.readFileSync(skill, "utf8").replace(
+    /^(\s+version:\s*)\S+$/m, (_line, prefix) => `${prefix}9.8.7`));
+  const after = digestsOf(pkg);
+  assert.equal(after.runtimeSurfaceDigest, before.runtimeSurfaceDigest,
+    "release bookkeeping must not stale canonical runtime receipts");
+  assert.notEqual(after.packageTreeDigest, before.packageTreeDigest,
+    "the installed package bytes still changed and the raw tree identity must record that");
+});
+
+test("canonicalization v2 keeps the rest of SKILL.md runtime-sensitive", () => {
+  const pkg = copyPackage(path.join(tmp("canon-body"), "svg-infographic"));
+  const before = digestsOf(pkg);
+  fs.appendFileSync(path.join(pkg, "SKILL.md"), "\n<!-- runtime guidance changed -->\n");
+  const after = digestsOf(pkg);
+  assert.notEqual(after.runtimeSurfaceDigest, before.runtimeSurfaceDigest);
+  assert.notEqual(after.packageTreeDigest, before.packageTreeDigest);
+});
+
+test("metadata.version normalization is confined to the first frontmatter metadata mapping", () => {
+  const src = "---\nname: x\nmetadata:\n  version: 1.2.3\nother:\n  version: keep\n---\nbody version: 1.2.3\n";
+  assert.equal(normalizeSkillMetadataVersion(src),
+    "---\nname: x\nmetadata:\n  version: @VERSION@\nother:\n  version: keep\n---\nbody version: 1.2.3\n");
 });
 
 test("editing a test moves verificationSurfaceDigest, not the runtime surface", () => {

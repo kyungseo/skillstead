@@ -11,7 +11,7 @@ Skillstead의 각 스킬은 폴더 하나로 설치할 수 있는 독립 패키�
 
 | 스킬 폴더 | 현재 고정 태그 | 지원 실행 환경 |
 | --- | --- | --- |
-| `svg-infographic` | `svg-infographic/v0.9.0` | Claude Code와 Codex |
+| `svg-infographic` | `svg-infographic/v0.10.0` | Claude Code와 Codex |
 | `docs-claim-check` | `docs-claim-check/v0.9.1` | Claude Code |
 | `github-release-guide` | `github-release-guide/v0.9.0` | Claude Code와 Codex |
 | `writing-quality-editor` | `writing-quality-editor/v0.11.0` | Claude Code와 Codex |

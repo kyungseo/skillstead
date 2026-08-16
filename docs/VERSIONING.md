@@ -106,6 +106,19 @@ has to be written into the changelog entry.
 
 Changes outside `skills/<name>/` — the root README, `docs/`, `examples/` — do not version any skill.
 
+### Runtime digest normalization
+
+Release payload comparison and a package's runtime digest answer different questions. Payload comparison decides
+whether a release is justified; runtime identity decides whether generated output can change. A package may exclude
+the `metadata.version` scalar from its runtime digest only when its package-surface manifest declares that rule and
+the executable implementation is parity-tested against `tools/skillstead_validate/normalize.py`.
+
+`svg-infographic` canonicalization v2 applies exactly this one normalization: the value of
+`SKILL.md` frontmatter `metadata.version` becomes the sentinel `@VERSION@` while computing
+`runtimeSurfaceDigest`. The raw bytes still contribute to `packageTreeDigest`. The rest of `SKILL.md` — including
+other frontmatter fields and the whole body — remains byte-sensitive. Expanding the normalized surface requires a
+new canonicalization version; it cannot be done as an implementation convenience.
+
 ## Baseline
 
 All four skills start at `0.8.0`. That number is a transition point, not a claim about how much each

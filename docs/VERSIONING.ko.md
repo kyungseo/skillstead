@@ -103,6 +103,18 @@ M1은 현재의 모든 스킬/버전 조합이 루트 CHANGELOG에서 정확히
 
 `skills/<name>/` 바깥의 변경 — 루트 README, `docs/`, `examples/` — 은 어떤 스킬의 버전도 올리지 않습니다.
 
+### Runtime digest normalization
+
+release payload 비교와 패키지 runtime digest는 서로 다른 질문에 답합니다. payload 비교는 릴리스할 변경이
+있는지 판단하고, runtime identity는 생성 결과가 달라질 수 있는지 판단합니다. 패키지가
+`metadata.version` 값을 runtime digest에서 제외하려면 package-surface manifest에 그 규칙을 선언하고,
+실행 코드가 `tools/skillstead_validate/normalize.py`와 같은 결과를 내는지 parity test로 고정해야 합니다.
+
+`svg-infographic` canonicalization v2는 정확히 한 필드만 normalize합니다. `runtimeSurfaceDigest`를 계산할 때
+`SKILL.md` frontmatter의 `metadata.version` 값을 `@VERSION@` sentinel로 바꾸지만, 원본 byte는
+`packageTreeDigest`에 그대로 포함합니다. 다른 frontmatter 필드와 `SKILL.md` 본문 전체는 계속 byte-sensitive합니다.
+normalize 범위를 넓히려면 새 canonicalization version이 필요하며 구현 편의를 위해 조용히 확장할 수 없습니다.
+
 ## 기준 릴리스
 
 네 스킬 모두 `0.8.0`에서 시작합니다. 이 숫자는 각 스킬이 그만큼 바뀌었다는 뜻이 아니라 전환 지점을

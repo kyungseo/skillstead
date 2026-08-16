@@ -20,8 +20,9 @@ editorial selection, and the durable gallery already offers the full catalog und
 TypePack*. A different set in the README would give the project two image systems that drift apart;
 consuming the same SSoT means a Wave 2 replacement edits one file and both surfaces follow.
 
-**No prose in the sheet.** Cells carry the entry name — set in `featured.json`, Latin — and nothing
-else. A locale caption inside the image would need a CJK face embedded in the sheet itself, which
+**The locale boundary is intentional.** The KO sheet embeds KO artifacts and the EN sheet embeds EN artifacts,
+but both keep the same English evidence frame and Latin entry names. This is a compact review surface, not the
+localized gallery page. A locale caption inside the image would need a CJK face embedded in the sheet itself, which
 means either a second font-subsetting path in the repository layer or a PNG that renders differently
 on whichever machine built it. The words belong in the README, where GitHub renders them with its
 own fonts and a screen reader can reach them.

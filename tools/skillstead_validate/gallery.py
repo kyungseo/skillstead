@@ -5,10 +5,12 @@ answer: which TypePacks are routable, what do their verified examples look like,
 receipts actually record. Building that answer three times would let three surfaces drift apart, so
 it is built once, here, and written to `gallery/model.json`.
 
-**The model owns nothing.** It joins four surfaces, each of which stays the authority for its own
-fields:
+**The model owns nothing.** It joins the package and repository presentation surfaces. Each stays
+the authority for its own fields:
 
     manifest.yaml          TypePack identity, selection signal, presets, declared fit boundaries
+    gallery/locale.json    repository-owned KO display signals and bilingual page copy
+    gallery/featured.json  editorial selection and localized Featured metadata
     input payload (.yaml)  KO/EN prompts and titles
     receipt (.json)        preset, treatment, fontDelivery, geometry, residual, consumed, provenance
     artifact (.svg)        bytes, and the digest over them
@@ -59,8 +61,21 @@ SKILL = "skills/svg-infographic"
 EXAMPLES = "examples/svg-infographic/typepacks"
 MODEL_PATH = "gallery/model.json"
 TOKENS_PATH = "gallery/tokens.json"
+LOCALE_PATH = "gallery/locale.json"
 EXPORTER = "tools/gallery_export.mjs"
 LOCALES = ("ko", "en")
+
+REQUIRED_COPY_KEYS = (
+    "pageTitle", "heroTitle", "heroLede", "languageLabel", "viewLabel", "korean", "english",
+    "singleView", "bothView", "featuredTitle", "featuredNote", "featuredLegacyNote",
+    "catalogTitle", "catalogNote", "currentVerifier", "trackedLimitation", "sourcePolicy",
+    "detailSummary", "canonicalPrompt", "commandTemplate", "receiptFacts", "whereStops",
+    "declaredStress", "knownLimitation", "sources", "needsSplitNote", "unrenderedOne",
+    "unrenderedMany", "tablePreset", "tableCount", "tableVerdict", "tableScenario",
+    "tableExpected", "factProfile", "factPreset", "factTreatment", "factDelivery",
+    "factEntities", "facetSourceGates", "facetTypePackReceipt", "facetDataAccuracy",
+    "verdictPass", "verdictNone", "close",
+)
 
 # Tokens the surfaces cannot render without. Missing any of these is a build failure, not a default.
 REQUIRED_TOKEN_KEYS = (
@@ -194,7 +209,7 @@ def _parity(ko, en):
 
 
 def build_model(repo_root: Path, runner: NodeRunner | None = None) -> tuple[dict, list[Finding]]:
-    """Join the four surfaces into the generated view. Findings are fatal to the build."""
+    """Join package, artifact, editorial, token and locale surfaces. Findings are fatal."""
     findings: list[Finding] = []
     root = repo_root.resolve()
     runner = runner or NodeRunner(root)
@@ -212,6 +227,36 @@ def build_model(repo_root: Path, runner: NodeRunner | None = None) -> tuple[dict
     payloads = export.get("payloads") or {}
     if not packs:
         raise GalleryError("the manifest declares no routable TypePack")
+
+    locale_p = root / LOCALE_PATH
+    if not locale_p.exists():
+        raise GalleryError(f"{LOCALE_PATH} is missing — the public page has no locale authority")
+    presentation = _read_json(locale_p)
+    if presentation.get("schemaVersion") != 1:
+        findings.append(Finding("GAL-LOCALE", LOCALE_PATH, "schemaVersion must be 1"))
+    copy = presentation.get("copy") or {}
+    missing_copy = sorted(set(REQUIRED_COPY_KEYS) - set(copy))
+    extra_copy = sorted(set(copy) - set(REQUIRED_COPY_KEYS))
+    if missing_copy or extra_copy:
+        findings.append(Finding(
+            "GAL-LOCALE", LOCALE_PATH,
+            f"copy keys must match the renderer contract (missing={missing_copy}, extra={extra_copy})"))
+    for key, value in copy.items():
+        if not isinstance(value, dict) or set(value) != set(LOCALES) or any(
+                not isinstance(value.get(loc), str) or not value.get(loc).strip() for loc in LOCALES):
+            findings.append(Finding(
+                "GAL-LOCALE", LOCALE_PATH, f'copy "{key}" must contain non-empty ko and en strings'))
+    selection_ko = presentation.get("typepackSelectionKo") or {}
+    pack_ids = {str(pack.get("id")) for pack in packs}
+    if set(selection_ko) != pack_ids:
+        findings.append(Finding(
+            "GAL-LOCALE", LOCALE_PATH,
+            "typepackSelectionKo keys must exactly match routable manifest TypePack ids "
+            f"(missing={sorted(pack_ids - set(selection_ko))}, extra={sorted(set(selection_ko) - pack_ids)})"))
+    for tid, value in selection_ko.items():
+        if not isinstance(value, str) or not value.strip():
+            findings.append(Finding("GAL-LOCALE", LOCALE_PATH,
+                                    f'typepackSelectionKo["{tid}"] must be a non-empty string'))
 
     live_digest = runner.runtime_surface_digest()
 
@@ -308,6 +353,7 @@ def build_model(repo_root: Path, runner: NodeRunner | None = None) -> tuple[dict
         entries.append({
             "id": tid,
             "selectionSignal": pack.get("selection_signal"),
+            "selectionSignalKo": selection_ko.get(tid),
             "spec": pack.get("spec"),
             "profile": pack.get("profile"),
             "support": pack.get("support"),
@@ -350,6 +396,7 @@ def build_model(repo_root: Path, runner: NodeRunner | None = None) -> tuple[dict
             arts[loc] = {"svg": rel, "svgDigest": _sha256(svg)}
         featured.append({
             "slug": entry["slug"], "name": entry.get("name"), "caption": entry.get("caption"),
+            "nameKo": entry.get("nameKo"), "captionKo": entry.get("captionKo"),
             "reason": entry.get("reason"),
             "paletteProfile": entry.get("paletteProfile"),
             "paletteNote": entry.get("paletteNote"),
@@ -360,13 +407,17 @@ def build_model(repo_root: Path, runner: NodeRunner | None = None) -> tuple[dict
         })
 
     model = {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "generatedBy": "skillstead_validate gallery",
-        "note": "Generated view. Every field is owned by the manifest, an input payload, a receipt "
-                "or an artifact — this file is authority for none of them. `verified` attaches to "
+        "note": "Generated view. Every field is owned by the manifest, locale catalog, an input "
+                "payload, a receipt or an artifact — this file is authority for none of them. `verified` attaches to "
                 "the SVG only; PNGs are a present/digest inventory.",
         "runtimeSurfaceDigest": live_digest,
         "tokens": TOKENS_PATH,
+        "presentation": {
+            "source": LOCALE_PATH,
+            "copy": copy,
+        },
         "typepackCount": len(entries),
         "typepacks": entries,
         "featured": {
