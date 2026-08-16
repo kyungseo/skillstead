@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "generatedBy": "skillstead_validate gallery",
  "note": "Generated view. Every field is owned by the manifest, an input payload, a receipt or an artifact — this file is authority for none of them. `verified` attaches to the SVG only; PNGs are a present/digest inventory.",
- "runtimeSurfaceDigest": "sha256:580f891f55b7237a53d07d23b39dc46609a38984901ca39cf0bc97c77b95c9de",
+ "runtimeSurfaceDigest": "sha256:5a89c6eeb2daebf88be963a8428fc46940a321c89e718d51076b8f403c513fe5",
  "tokens": "gallery/tokens.json",
  "typepackCount": 9,
  "typepacks": [
@@ -107,7 +107,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/approval-gate/approval-gate.ko.svg",
-     "svgDigest": "sha256:03349267c92f5c8299fd13a4cb00b1aa2e2b0a986bd4401f5ccbf26d80f2bf54",
+     "svgDigest": "sha256:696bd63e37da9c4c3eaf1be2556c00a70505779a8951ad990d595133e5fc5380",
      "receipt": "examples/svg-infographic/typepacks/approval-gate/approval-gate.ko.json",
      "verified": true,
      "evidence": {
@@ -143,7 +143,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/approval-gate/approval-gate.en.svg",
-     "svgDigest": "sha256:1002f19ccc3974277973601cf5a7cac6657308a167b741d9179042f1d775618d",
+     "svgDigest": "sha256:1d5f999cb1320eca0693d16405b281ca2c5130383ea30831fba3efb4d8f6a7a1",
      "receipt": "examples/svg-infographic/typepacks/approval-gate/approval-gate.en.json",
      "verified": true,
      "evidence": {
@@ -405,7 +405,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.ko.svg",
-     "svgDigest": "sha256:eadadbc6872feab1fb0c091b6710c6d77c91a08e941b34e16e0b25b26d6ea9e2",
+     "svgDigest": "sha256:5a75bd3e76cf3e628d9a80b3552afd03117a687a37e54f99f98468009ceacda2",
      "receipt": "examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.ko.json",
      "verified": true,
      "evidence": {
@@ -441,7 +441,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.en.svg",
-     "svgDigest": "sha256:d03b85ec820a752583d80f92e6e44f57fbb8c9e3d9cc8475280df6e1626686be",
+     "svgDigest": "sha256:09f152e33909b57049a924baac833259bc6ddbb17fc3689a133ad249f5c0de16",
      "receipt": "examples/svg-infographic/typepacks/cards-kpi-grid/cards-kpi-grid.en.json",
      "verified": true,
      "evidence": {
@@ -885,7 +885,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/nested-scope/nested-scope.ko.svg",
-     "svgDigest": "sha256:2aeca5bae5330fa1166297b09f858464356e308d8606e20dece67193d82e1de7",
+     "svgDigest": "sha256:34f583b2a9d50917f137c12bed697d5917d73915fe27ed3e9e5bc2f449a6b8e8",
      "receipt": "examples/svg-infographic/typepacks/nested-scope/nested-scope.ko.json",
      "verified": true,
      "evidence": {
@@ -920,7 +920,7 @@
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/nested-scope/nested-scope.en.svg",
-     "svgDigest": "sha256:54eeac6b0b6e44e5348ef91b35274709bf27041bc24c39e8af29aed7d82f14cc",
+     "svgDigest": "sha256:ffca178e681a34cb6f287640b177e18a8a33ede0d162674419268176c441a2c8",
      "receipt": "examples/svg-infographic/typepacks/nested-scope/nested-scope.en.json",
      "verified": true,
      "evidence": {
@@ -1290,11 +1290,25 @@
     "social-4x5",
     "presentation-16x9"
    ],
-   "preferredPreset": "social-4x5",
+   "preferredPreset": "presentation-16x9",
    "treatment": "flat",
    "fontDelivery": "portable",
-   "preset": "social-4x5",
+   "preset": "presentation-16x9",
    "stress": [
+    {
+     "id": "topology-component-stress-wave1-reference",
+     "path": "types/inputs/topology-component.stress-wave1-reference.yaml",
+     "preset": "social-4x5",
+     "count": 3,
+     "geometryExpected": "fits",
+     "covers": [
+      "wave1-reference"
+     ],
+     "residualDisposition": {
+      "bottom": 148,
+      "reason": "Wave 1 canonical geometry is retained as a bounded reference while the tracked canonical moves to the approved compact flagship."
+     }
+    },
     {
      "id": "topology-component-stress-cardinality",
      "path": "types/inputs/topology-component.stress-cardinality.yaml",
@@ -1320,6 +1334,18 @@
       "bottom": 148,
       "reason": "Even at the copy boundary the zone height derives from node geometry — so the residual is unchanged."
      }
+    },
+    {
+     "id": "topology-component-stress-primitive-coverage",
+     "path": "types/inputs/topology-component.stress-primitive-coverage.yaml",
+     "preset": "presentation-16x9",
+     "count": 4,
+     "geometryExpected": "fits",
+     "covers": [
+      "cardinality-max",
+      "primitive-coverage"
+     ],
+     "residualDisposition": null
     }
    ],
    "feasibility": [
@@ -1340,40 +1366,32 @@
    ],
    "locales": {
     "ko": {
-     "title": "요청은 zone을 따라 흐른다",
-     "prompt": "요청 경로를 3개 zone으로 나눠 컴포넌트와 연결을 보여줘. 4:5.",
-     "preset": "social-4x5",
+     "title": "요청은 서비스까지 한눈에 흐른다",
+     "prompt": "사용자에서 게이트웨이와 서비스로 이어지는 대표 architecture 흐름을 보여줘. 16:9.",
+     "preset": "presentation-16x9",
      "treatment": "flat",
      "fontDelivery": "portable",
      "geometry": "fits",
      "geometryExpected": "fits",
      "residual": {
       "top": 0,
-      "bottom": 148
+      "bottom": 22
      },
-     "residualDisposition": {
-      "reason": "Zone height derives from node geometry and corridors open only as far as routing demand requires — the remaining space is declared breathing (kernel §8).",
-      "treatment": "flat",
-      "calibration": null,
-      "bottom": 148
-     },
+     "residualDisposition": null,
      "consumed": [
-      "zone-1",
-      "gw",
-      "waf",
-      "zone-2",
-      "api",
-      "auth",
-      "zone-3",
-      "queue",
-      "e1",
-      "e3",
-      "e2",
+      "zone-interaction",
+      "client",
+      "zone-edge",
+      "gateway",
+      "zone-application",
+      "service",
+      "request-client-gateway",
+      "request-gateway-service",
       "boundary"
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/topology-component/topology-component.ko.svg",
-     "svgDigest": "sha256:aed0c31552f9a9e8d02e68b57d7740ab41f149b9c5fa93384a0493f0cfac5502",
+     "svgDigest": "sha256:eb8772044b313e2054b3d91bfe96ad1c606eae0143c4b486835e972ab29cbe3b",
      "receipt": "examples/svg-infographic/typepacks/topology-component/topology-component.ko.json",
      "verified": true,
      "evidence": {
@@ -1383,46 +1401,38 @@
      },
      "png": {
       "path": "examples/svg-infographic/typepacks/topology-component/topology-component.ko.png",
-      "digest": "sha256:103d18de5d50cb3a8b8369156239f37725817032af028ec8a8e02214dc264887",
+      "digest": "sha256:1fb32884a6e2c38884b3fc5f40f1d81a40d36e8dfd204a9d265463bd465b72ba",
       "verified": null,
       "note": "render of the verified SVG; not itself re-verified"
      }
     },
     "en": {
-     "title": "Requests flow across the zones",
-     "prompt": "Show the request path across three zones with components and links. 4:5.",
-     "preset": "social-4x5",
+     "title": "The request path stays visible at a glance",
+     "prompt": "Show the representative architecture flow from user to gateway to service. 16:9.",
+     "preset": "presentation-16x9",
      "treatment": "flat",
      "fontDelivery": "portable",
      "geometry": "fits",
      "geometryExpected": "fits",
      "residual": {
       "top": 0,
-      "bottom": 148
+      "bottom": 22
      },
-     "residualDisposition": {
-      "reason": "Zone height derives from node geometry and corridors open only as far as routing demand requires — the remaining space is declared breathing (kernel §8).",
-      "treatment": "flat",
-      "calibration": null,
-      "bottom": 148
-     },
+     "residualDisposition": null,
      "consumed": [
-      "zone-1",
-      "gw",
-      "waf",
-      "zone-2",
-      "api",
-      "auth",
-      "zone-3",
-      "queue",
-      "e1",
-      "e3",
-      "e2",
+      "zone-interaction",
+      "client",
+      "zone-edge",
+      "gateway",
+      "zone-application",
+      "service",
+      "request-client-gateway",
+      "request-gateway-service",
       "boundary"
      ],
      "unrendered": null,
      "svg": "examples/svg-infographic/typepacks/topology-component/topology-component.en.svg",
-     "svgDigest": "sha256:265f6d742f7d95709ef8453c3a5947377223b21c2356dac49564389f90437874",
+     "svgDigest": "sha256:c2e159f28f9f34d536fcce9f6ab052403cb1c1646a7f294ad3027f5ef39a5e8f",
      "receipt": "examples/svg-infographic/typepacks/topology-component/topology-component.en.json",
      "verified": true,
      "evidence": {
@@ -1432,7 +1442,7 @@
      },
      "png": {
       "path": "examples/svg-infographic/typepacks/topology-component/topology-component.en.png",
-      "digest": "sha256:0f55925b06a471c3ee0721a5510fd1ee920cea1a14adc7be3da49fbab7343def",
+      "digest": "sha256:1667b655d8c5e79d31a47b8a83df672e375e5eb340fb5b745def01fc369975c1",
       "verified": null,
       "note": "render of the verified SVG; not itself re-verified"
      }

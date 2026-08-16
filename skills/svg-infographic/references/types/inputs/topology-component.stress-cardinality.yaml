@@ -4,6 +4,7 @@ typepack: topology-component
 case: stress-cardinality
 preset: social-4x5
 layout: zones
+variant: regular
 count: 4
 prompt_ko: "요청 경로를 4개 zone으로 나누고 연결을 최대 밀도로 보여줘. 4:5."
 prompt_en: "Four zones with the request path at maximum edge density. 4:5."
@@ -20,11 +21,13 @@ zones:
         name:
           ko: "게이트웨이"
           en: "Gateway"
+        kind: "gateway"
         icon: "route"
       - id: "waf"
         name:
           ko: "방화벽"
           en: "WAF"
+        kind: "gateway"
         icon: "shield"
   - id: "zone-2"
     label:
@@ -35,16 +38,19 @@ zones:
         name:
           ko: "API 서비스"
           en: "API service"
+        kind: "service"
         icon: "server"
       - id: "auth"
         name:
           ko: "인증 서비스"
           en: "Auth service"
+        kind: "service"
         icon: "lock"
       - id: "job"
         name:
           ko: "작업 처리기"
           en: "Job worker"
+        kind: "compute"
         icon: "gauge"
   - id: "zone-3"
     label:
@@ -55,11 +61,13 @@ zones:
         name:
           ko: "메시지 큐"
           en: "Message queue"
+        kind: "queue"
         icon: "queue"
       - id: "stream"
         name:
           ko: "스트림 처리"
           en: "Stream processor"
+        kind: "compute"
         icon: "activity"
   - id: "zone-4"
     label:
@@ -70,11 +78,13 @@ zones:
         name:
           ko: "기본 데이터베이스"
           en: "Primary database"
+        kind: "database"
         icon: "database"
       - id: "cache"
         name:
           ko: "캐시"
           en: "Cache"
+        kind: "cache"
         icon: "layers"
 edges:
   - id: "e1"

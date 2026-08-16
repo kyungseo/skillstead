@@ -17,7 +17,7 @@
 # stored only as detached evidence or a CI artifact.
 
 schema_version: 1
-surface_revision: 15
+surface_revision: 16
 
 canonicalization:
   version: 1
@@ -36,6 +36,8 @@ entries:
   # --- production surface ---------------------------------------------------
   - { path: scripts/preflight.mjs, kind: production-entrypoint }
   - { path: scripts/generate.mjs, kind: production-entrypoint }
+  - { path: scripts/icon-registry.mjs, kind: production-lib }
+  - { path: scripts/topology-contract.mjs, kind: production-lib }
   - { path: scripts/route-orthogonal.mjs, kind: production-lib }
   - { path: scripts/residual-disposition.mjs, kind: production-lib }
   - { path: scripts/font-subset.py, kind: build-tool }

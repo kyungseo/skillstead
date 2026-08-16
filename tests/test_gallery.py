@@ -510,8 +510,8 @@ class GalleryModelFixtures(unittest.TestCase):
     # The chevron is emitted from one description in generate.mjs; these are the numbers that
     # description produces. Read here rather than restated so an edit to the marker shows up as a
     # failure to re-derive, not as a silently stale constant.
-    E1_PORT = "M215.3 318 L215.3 382"
-    CHIP_RIGHT = 196.5          # painted right edge of the zone-2 label chip
+    E1_PORT = "M800 405 L800 469"
+    CHIP_RIGHT = 229.2          # painted right edge of the first compact zone label chip
     WING = 4.708333             # marker lateral painted extent, primary weight
     OUTER_CLEARANCE = 14        # the existing corridor rule, not a new constant
 
@@ -523,20 +523,20 @@ class GalleryModelFixtures(unittest.TestCase):
         hid one of them. What must clear the chip is everything the edge paints."""
         for loc in ("ko", "en"):
             t = self._topology(loc)
-            x = float(re.search(r'data-route-id="e1"[^>]*\sd="M([\d.]+)', t).group(1))
-            chip = re.search(r'<rect x="60" y="362" width="([\d.]+)"', t)
+            x = float(re.search(r'data-route-id="request-client-gateway"[^>]*\sd="M([\d.]+)', t).group(1))
+            chip = re.search(r'<rect x="69" y="244" width="([\d.]+)"', t)
             self.assertIsNotNone(chip, "the fixture must find the chip it is measuring against")
-            self.assertAlmostEqual(60 + float(chip.group(1)), self.CHIP_RIGHT, places=3)
+            self.assertAlmostEqual(69 + float(chip.group(1)), self.CHIP_RIGHT, places=3)
             left_wing = x - self.WING
             self.assertGreater(left_wing, self.CHIP_RIGHT, f"{loc}: a wing is over the chip")
             self.assertGreaterEqual(round(left_wing - self.CHIP_RIGHT, 3), self.OUTER_CLEARANCE,
                                     f"{loc}: clearing by arithmetic alone is not clearing")
 
     def test_the_other_vertical_edge_still_passes(self):
-        """e3 was never the defect and must not be moved by the fix for e1."""
+        """The second compact request edge keeps the same centred straight-run contract."""
         for loc in ("ko", "en"):
-            self.assertIn('data-route-id="e3"', self._topology(loc))
-            self.assertIn("M234.5 488 L234.5 552", self._topology(loc))
+            self.assertIn('data-route-id="request-gateway-service"', self._topology(loc))
+            self.assertIn("M800 607 L800 671", self._topology(loc))
 
     def test_the_two_locales_route_identically(self):
         """Routing geometry is fixed on the wider of KO and EN, so it cannot vary by language."""
@@ -560,7 +560,7 @@ class GalleryModelFixtures(unittest.TestCase):
         "nested-scope.en.svg": "92fc9f71eebb51a3", "nested-scope.ko.svg": "92fc9f71eebb51a3",
         "process-flow.en.svg": "1d54b83952932af0", "process-flow.ko.svg": "1d54b83952932af0",
         "roadmap-timeline.en.svg": "fdbc798b58f9bb2d", "roadmap-timeline.ko.svg": "fdbc798b58f9bb2d",
-        "topology-component.en.svg": "f3a8822d54d7127c", "topology-component.ko.svg": "f3a8822d54d7127c",
+        "topology-component.en.svg": "a6734af77b8a21cd", "topology-component.ko.svg": "a6734af77b8a21cd",
     }
     GEOM_ATTRS = (r'(?:^|\s)(?:d|x|y|width|height|x1|y1|x2|y2|cx|cy|rx|ry|r|transform|points)'
                   r'="([^"]+)"')
@@ -573,11 +573,11 @@ class GalleryModelFixtures(unittest.TestCase):
             seen[svg.name] = hashlib.sha256("\n".join(toks).encode()).hexdigest()[:16]
         self.assertEqual(seen, self.GEOMETRY)
 
-    def test_the_approved_move_is_the_one_that_is_there(self):
+    def test_the_compact_canonical_uses_the_approved_centerline(self):
         """Naming the port explicitly: a fingerprint says something changed, not what it became."""
         for loc in ("ko", "en"):
             self.assertIn(self.E1_PORT, self._topology(loc))
-            self.assertNotIn("M198.5 318 L198.5 382", self._topology(loc))
+            self.assertIn('data-node-variant="compact"', self._topology(loc))
 
     def test_the_nested_depth_ramp_reads_inward(self):
         """The rollback exists for this: each ring must be darker than the one outside it."""
@@ -610,7 +610,7 @@ class GalleryModelFixtures(unittest.TestCase):
     #   #B9C2CC  a boundary that is not just one more card border
     #   #8A5D22 #D8B075 #FBF3E6  the amber semantic family's fill/border/ink split
     PALETTE_DEBT = {
-        "#7C93AB": {"approval-gate": 8, "process-flow": 10, "topology-component": 14},
+        "#7C93AB": {"approval-gate": 8, "process-flow": 10, "topology-component": 8},
         "#B9C2CC": {"topology-component": 2},
         "#C7D3DE": {"nested-scope": 6},
         "#F4F8FC": {"nested-scope": 2},
@@ -637,7 +637,7 @@ class GalleryModelFixtures(unittest.TestCase):
         self.assertEqual(bad, [], "canonical artifacts must clear the current palette profile")
 
     def test_the_canonical_palette_debt_is_exactly_the_recorded_one(self):
-        """Nine colours current-v1 cannot express, 52 occurrences, in named packs. Fails if the
+        """Nine colours current-v1 cannot express, 46 occurrences, in named packs. Fails if the
         debt grows, moves to another pack, or quietly shrinks by re-snapping a semantic step."""
         found: dict[str, dict[str, int]] = {}
         for svg in sorted((self.repo / EXAMPLES).glob("*/*.svg")):
@@ -646,7 +646,7 @@ class GalleryModelFixtures(unittest.TestCase):
                 found.setdefault(hexv.upper(), {}).setdefault(pack, 0)
                 found[hexv.upper()][pack] += 1
         self.assertEqual(found, self.PALETTE_DEBT)
-        self.assertEqual(sum(sum(v.values()) for v in found.values()), 52)
+        self.assertEqual(sum(sum(v.values()) for v in found.values()), 46)
 
     def test_the_palette_exception_is_a_named_list_not_a_featured_wildcard(self):
         """A new featured entry must declare `current` and pass; it cannot inherit the exception."""

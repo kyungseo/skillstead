@@ -33,6 +33,6 @@
   <g data-layout-role="ring-label" data-label-bounds="192,224,296,44">
     <text x="340" y="246" font-size="13" font-weight="700" fill="#252B35" data-fill-role="ink" text-anchor="middle" dominant-baseline="central">내부 서비스망</text>
   </g>
-  <g data-layout-role="core-icon"><g transform="translate(327,281) scale(1.1)"><path d="M6 11 H18 V20 H6 Z M9 11 V8 A3 3 0 0 1 15 8 V11" fill="none" data-stroke-role="focus" stroke="#2E6DA4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g></g>
+  <g data-layout-role="core-icon"><g data-icon-id="lock" transform="translate(327,281) scale(1.1)"><path d="M6 11 H18 V20 H6 Z M9 11 V8 A3 3 0 0 1 15 8 V11" fill="none" data-stroke-role="focus" stroke="#2E6DA4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g></g>
   </g>
 </svg>

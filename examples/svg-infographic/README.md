@@ -10,7 +10,7 @@ What lives here, and what each class is proved to:
 
 | Class | Path | Evidence |
 | --- | --- | --- |
-| Canonical TypePack artifacts | [`typepacks/`](./typepacks) | Built by `generate.mjs` with a receipt; source lint and layout pass; the current palette profile reports **zero errors** against a pinned warning debt of 9 colours / 52 occurrences; `generate.mjs verify` re-measures each against its receipt |
+| Canonical TypePack artifacts | [`typepacks/`](./typepacks) | Built by `generate.mjs` with a receipt; source lint and layout pass; the current palette profile reports **zero errors** against a pinned warning debt of 9 colours / 46 occurrences; `generate.mjs verify` re-measures each against its receipt |
 | Transitional legacy examples | the directories below | Source lint, layout and typography only. No receipt — they predate the TypePack contract |
 | Historical release asset | [`release-announcement/`](./release-announcement) | Frozen at publication. Kept as a record, not maintained against current contracts |
 
@@ -69,7 +69,7 @@ to the recorded Windows 11 ARM64 VM Codex App run, not every Windows environment
 Stated per class rather than as one claim over everything.
 
 **Canonical TypePack artifacts** — source lint reports zero errors. Against the current palette profile they
-carry **zero errors and a pinned warning debt of 9 colours across 52 occurrences** — steps the profile cannot yet
+carry **zero errors and a pinned warning debt of 9 colours across 46 occurrences** — steps the profile cannot yet
 express, fixed by colour, pack and count so the debt cannot grow or move unnoticed. Layout containers, bindings
 and reservations are re-measured; PNG is exactly 2× the SVG viewBox; the receipt is re-verified against the
 artifact, so an entity it counts but the drawing never shows is an error.

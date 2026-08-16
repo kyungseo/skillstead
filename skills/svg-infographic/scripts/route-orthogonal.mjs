@@ -58,6 +58,7 @@ export function planChannels({ zoneOrder, nodeZone, nodeIndex, edges }) {
   const corridorLanes = new Map();   // corridor index (= the index of the zone above) -> lane count
   const intraLanes = new Map();      // zone id -> bypass lane count
   const sideLanes = { left: 0, right: 0 };
+  const returnSides = { left: false, right: false };
   const classified = [];
   for (const e of edges) {
     const a = zi.get(nodeZone.get(e.from)), b = zi.get(nodeZone.get(e.to));
@@ -80,18 +81,25 @@ export function planChannels({ zoneOrder, nodeZone, nodeIndex, edges }) {
     if (e.kindPath === "adjacent") bump(e.corridor);
     else if (e.kindPath === "skip") { bump(e.corridorOut); bump(e.corridorIn); sideLanes[e.side] += 1; }
     else if (e.kindPath === "intra" && !e.direct) intraLanes.set(e.zone, (intraLanes.get(e.zone) ?? 0) + 1);
+    // A reverse event is semantically forward (producer -> consumer) but geometrically a return.
+    // Reserve its left side-channel before layout so candidate generation has a real corridor.
+    if (e.kindPath === "adjacent" && e.semanticKind === "event" && e.down === false) {
+      sideLanes.left += 1;
+      returnSides.left = true;
+    }
   }
   const corridorHeight = (i) => {
     const n = corridorLanes.get(i) ?? 0;
     return n === 0 ? 2 * K.corridorMargin : 2 * K.corridorMargin + (n - 1) * K.laneGap;
   };
-  const channelWidth = (side) => (sideLanes[side] === 0 ? 0 : K.channelMargin + (sideLanes[side] - 1) * K.laneGap + K.stub);
+  const channelWidth = (side) => (sideLanes[side] === 0 ? 0
+    : K.channelMargin + (sideLanes[side] - 1) * K.laneGap + K.stub + (returnSides[side] ? K.targetGap : 0));
   const directPairs = new Map();   // zone id -> count of direct intra edges
   for (const e of classified) if (e.kindPath === "intra" && e.direct)
     directPairs.set(e.zone, (directPairs.get(e.zone) ?? 0) + 1);
   // Room for a direct connector to pass: a target gap on each side plus the minimum shaft
   const nodeGap = (zid) => (directPairs.get(zid) ? 2 * K.targetGap + K.minShaft : 16);
-  return { classified, corridorLanes, intraLanes, sideLanes, corridorHeight, channelWidth, directPairs, nodeGap };
+  return { classified, corridorLanes, intraLanes, sideLanes, returnSides, corridorHeight, channelWidth, directPairs, nodeGap };
 }
 
 // Each diagnostic proposes just one "change this" — so the whole thing need not be redrawn.
@@ -156,7 +164,10 @@ export function routeEdges({ nodes, zones, plan, frame, degradeLevel = 0 }) {
     if (!A || !B) { problems.push(`edge ${e.id}: unknown endpoint`); continue; }
     e.__zones = zones;
     const isReturn = e.flowAxis < 0;
-    if (isReturn && (e.weight ?? "primary") === "primary") {
+    // Event direction is producer -> consumer, so queue -> worker may legitimately travel against
+    // the page's request/dependency depth. It still uses the bounded return side-channel; only an
+    // undeclared reverse request/dependency remains a monotonicity error.
+    if (isReturn && (e.weight ?? "primary") === "primary" && e.semanticKind !== "event") {
       diagnostics.push({ code: "R-MONOTONIC", subject: e.id,
         evidence: { note: "a primary edge runs against the page flow" },
         supportedFixes: fixesFor("R-MONOTONIC") });
@@ -195,6 +206,7 @@ export function routeEdges({ nodes, zones, plan, frame, degradeLevel = 0 }) {
     }
     const rt = { id: e.id, from: e.from, to: e.to, kindPath: chosen.kind, role: isReturn ? "return" : "flow",
       sideFrom: chosen.sideFrom, sideTo: chosen.sideTo, weight: e.weight ?? "primary",
+      semanticKind: e.semanticKind ?? null, semanticDirection: e.semanticDirection ?? null,
       style: e.dashed ? "dashed" : "solid", points: chosen.points, bends: chosen.bends,
       travel: r1(chosen.travel), targetGap: K.targetGap, lane: chosen.lane ?? null, hops: [] };
     routes.push(rt); placed.push(rt);
@@ -341,8 +353,17 @@ function candidates(e, A, B, nodes, zones, frame, usedPorts, opt = {}) {
 
   if (opt.isReturn) {
     // The return: leave on a left/right face, ride a vertical channel, and enter on the same face.
+    // Keep the channel far enough outside the zone that the final run still has an endpoint stub
+    // after the target gap is removed. The ordinary outer-clearance line is safe for a border but
+    // too close for an arrowhead-bearing return segment.
+    // Without explicit zone boxes, derive the channel from the node envelope. Using the generic
+    // frame-side channel as the base would subtract the endpoint reserve twice and erase an
+    // otherwise legal return corridor.
+    const returnX1 = hasZones ? zx1 : Math.min(...Object.values(nodes).map((n) => n.x));
+    const returnX2 = hasZones ? zx2 : Math.max(...Object.values(nodes).map((n) => n.x + n.w));
+    const returnChanX = [returnX2 + K.endpointStub + K.targetGap, returnX1 - K.endpointStub - K.targetGap];
     for (const side of ["left", "right"]) {
-      const cx = side === "left" ? chanX[1] : chanX[0];
+      const cx = side === "left" ? returnChanX[1] : returnChanX[0];
       if (!insideFrameX(cx)) continue;
       const a = iv(A, side), b = iv(B, side);
       const v0 = pick(e.from, A, side, center(A, a.axis)), v1 = pick(e.to, B, side, center(B, b.axis));

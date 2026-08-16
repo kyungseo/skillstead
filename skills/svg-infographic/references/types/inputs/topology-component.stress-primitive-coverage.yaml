@@ -1,0 +1,130 @@
+schema_version: 1
+kind: typepack-input
+typepack: topology-component
+case: stress-primitive-coverage
+preset: presentation-16x9
+layout: zones
+variant: regular
+purpose: full-primitive-specimen
+count: 4
+prompt_ko: "대표 architecture primitive 10종을 의미 kind와 registry icon으로 모두 보여줘. 16:9."
+prompt_en: "Show all ten representative architecture primitives with semantic kinds and registry icons. 16:9."
+title:
+  ko: "Architecture primitive 전체 표본"
+  en: "Full architecture primitive specimen"
+zones:
+  - id: "zone-external"
+    label:
+      ko: "사용자와 외부"
+      en: "Users and external"
+    nodes:
+      - id: "client"
+        name:
+          ko: "사용자 클라이언트"
+          en: "User client"
+        kind: "client"
+        icon: "users"
+      - id: "provider"
+        name:
+          ko: "외부 제공자"
+          en: "External provider"
+        kind: "external-provider"
+        icon: "network"
+  - id: "zone-edge"
+    label:
+      ko: "엣지"
+      en: "Edge"
+    nodes:
+      - id: "gateway"
+        name:
+          ko: "게이트웨이"
+          en: "Gateway"
+        kind: "gateway"
+        icon: "route"
+  - id: "zone-application"
+    label:
+      ko: "애플리케이션"
+      en: "Application"
+    nodes:
+      - id: "worker"
+        name:
+          ko: "워커"
+          en: "Worker"
+        kind: "worker"
+        icon: "gear"
+      - id: "service"
+        name:
+          ko: "서비스"
+          en: "Service"
+        kind: "service"
+        icon: "api"
+      - id: "observability"
+        name:
+          ko: "관측성"
+          en: "Observability"
+        kind: "observability"
+        icon: "activity"
+  - id: "zone-data"
+    label:
+      ko: "데이터와 메시징"
+      en: "Data and messaging"
+    nodes:
+      - id: "queue"
+        name:
+          ko: "이벤트 버스"
+          en: "Event bus"
+        kind: "event-bus"
+        icon: "queue"
+      - id: "database"
+        name:
+          ko: "데이터베이스"
+          en: "Database"
+        kind: "database"
+        icon: "database"
+      - id: "cache"
+        name:
+          ko: "캐시"
+          en: "Cache"
+        kind: "cache"
+        icon: "layers"
+      - id: "object-storage"
+        name:
+          ko: "오브젝트 저장소"
+          en: "Object storage"
+        kind: "object-storage"
+        icon: "doc"
+edges:
+  - id: "request-client-gateway"
+    from: "client"
+    to: "gateway"
+    kind: "request"
+    delivery: "sync"
+    visibility: "public"
+  - id: "request-gateway-service"
+    from: "gateway"
+    to: "service"
+    kind: "request"
+    delivery: "sync"
+    visibility: "private"
+  - id: "dependency-service-database"
+    from: "service"
+    to: "database"
+    kind: "dependency"
+    delivery: "sync"
+    visibility: "private"
+  - id: "dependency-service-queue"
+    from: "service"
+    to: "queue"
+    kind: "dependency"
+    delivery: "async"
+    visibility: "private"
+  - id: "event-queue-worker"
+    from: "queue"
+    to: "worker"
+    kind: "event"
+    delivery: "async"
+    visibility: "private"
+boundary:
+  label:
+    ko: "시스템 경계"
+    en: "System boundary"

@@ -4,10 +4,10 @@
  "typepack": "topology-component",
  "case": "topology-component-canonical",
  "locale": "ko",
- "preset": "social-4x5",
+ "preset": "presentation-16x9",
  "cols": null,
  "presetDeclared": true,
- "presetPreferred": "social-4x5",
+ "presetPreferred": "presentation-16x9",
  "presetsSupported": [
   "social-4x5",
   "presentation-16x9"
@@ -15,7 +15,7 @@
  "audition": false,
  "layout": "zones",
  "count": 3,
- "inputDigest": "sha256:a5e97b7e01a2cc51aae41da99e6247803e7644894f077bb4c3f747598f85d7d2",
+ "inputDigest": "sha256:b9897da9a8cccb3365819b01da50d0a022aed62e05547d04a4d69c4540e06752",
  "geometry": "fits",
  "geometryExpected": "fits",
  "routingExpected": "routable",
@@ -24,31 +24,28 @@
   "h": 482
  },
  "contentBox": {
-  "w": 648,
-  "h": 710
+  "w": 1504,
+  "h": 652
  },
  "status": "ok",
  "artifact": "topology-component.ko.svg",
  "consumed": [
-  "zone-1",
-  "gw",
-  "waf",
-  "zone-2",
-  "api",
-  "auth",
-  "zone-3",
-  "queue",
-  "e1",
-  "e3",
-  "e2",
+  "zone-interaction",
+  "client",
+  "zone-edge",
+  "gateway",
+  "zone-application",
+  "service",
+  "request-client-gateway",
+  "request-gateway-service",
   "boundary"
  ],
- "artifactDigest": "sha256:aed0c31552f9a9e8d02e68b57d7740ab41f149b9c5fa93384a0493f0cfac5502",
+ "artifactDigest": "sha256:eb8772044b313e2054b3d91bfe96ad1c606eae0143c4b486835e972ab29cbe3b",
  "contentFlowBounds": {
-  "x": 36,
-  "y": 154,
-  "w": 648,
-  "h": 562
+  "x": 48,
+  "y": 200,
+  "w": 1504,
+  "h": 630
  },
  "fontDelivery": {
   "mode": "portable",
@@ -56,19 +53,19 @@
   "policyDigest": "1fc29ca6a5bd7e1b",
   "typographyProfileDigest": "154f16e844e12cbf",
   "alias": "SkinSans-Subset",
-  "glyphs": 73,
+  "glyphs": 56,
   "faces": [
    {
     "weight": 400,
     "sourceDigest": "3ffbacde6ab8411f1d2db54bb9b1f0b3ee2a738932033722cf0388c06aed1c93",
-    "subsetDigest": "sha256:d96a10fa598f4dd14009c05a523ab4fd979c56c25e3fe3e275ac9d2f249b3231",
-    "bytes": 20508
+    "subsetDigest": "sha256:404d372a6d445160b8265347151b6382604596517aee0eb410cb2980bf42148a",
+    "bytes": 16436
    },
    {
     "weight": 700,
     "sourceDigest": "2e91915fab54df71cc9598ebf608b2bdb54c6fe3c066ac61dff0bc44fca71cc7",
-    "subsetDigest": "sha256:3f6fbe99515b1bd2d23c8ba307f13245cce5746689f8cbc6a421434d00b31bfe",
-    "bytes": 20344
+    "subsetDigest": "sha256:3df78c2cd1c1c4cf658d09fd42cc33cb79c08be1dfdae9bf8b40145cd4d52b79",
+    "bytes": 16276
    }
   ],
   "tool": {
@@ -123,24 +120,13 @@
  "routing": {
   "degradeLevel": 0,
   "ladder": [],
-  "portConstraints": [
-   {
-    "edge": "e1",
-    "endpoint": "to",
-    "node": "api",
-    "allowed": {
-     "lo": 215.3,
-     "hi": 321,
-     "axis": "x"
-    }
-   }
-  ],
+  "portConstraints": [],
   "problems": [],
   "hops": 0,
   "alignment": [],
   "attempts": [
    {
-    "edge": "e1",
+    "edge": "request-client-gateway",
     "candidates": [
      {
       "shape": "straight",
@@ -153,65 +139,12 @@
     ]
    },
    {
-    "edge": "e3",
+    "edge": "request-gateway-service",
     "candidates": [
      {
       "shape": "straight",
       "bends": 0,
       "travel": 64,
-      "ok": false,
-      "code": "R-THROUGH",
-      "reason": "crosses zone-label zone-3-label"
-     },
-     {
-      "shape": "straight",
-      "bends": 0,
-      "travel": 64,
-      "ok": false,
-      "code": "R-THROUGH",
-      "reason": "crosses zone-label zone-3-label"
-     },
-     {
-      "shape": "straight",
-      "bends": 0,
-      "travel": 64,
-      "ok": false,
-      "code": "R-THROUGH",
-      "reason": "crosses zone-label zone-3-label"
-     },
-     {
-      "shape": "straight",
-      "bends": 0,
-      "travel": 64,
-      "ok": false,
-      "code": "R-THROUGH",
-      "reason": "crosses zone-label zone-3-label"
-     },
-     {
-      "shape": "straight",
-      "bends": 0,
-      "travel": 64,
-      "ok": false,
-      "code": "R-THROUGH",
-      "reason": "crosses zone-label zone-3-label"
-     },
-     {
-      "shape": "straight",
-      "bends": 0,
-      "travel": 64,
-      "ok": true,
-      "code": null,
-      "reason": null
-     }
-    ]
-   },
-   {
-    "edge": "e2",
-    "candidates": [
-     {
-      "shape": "straight",
-      "bends": 0,
-      "travel": 36,
       "ok": true,
       "code": null,
       "reason": null
@@ -220,14 +153,16 @@
    }
   ],
   "diagnostics": [],
-  "legend": true,
+  "legend": false,
   "demoted": [],
   "routes": [
    {
-    "id": "e1",
-    "from": "gw",
-    "to": "api",
+    "id": "request-client-gateway",
+    "from": "client",
+    "to": "gateway",
     "path": "straight",
+    "semanticKind": "request",
+    "semanticDirection": "consumer-to-provider",
     "ports": [
      "bottom",
      "top"
@@ -238,69 +173,138 @@
     "hops": 0
    },
    {
-    "id": "e3",
-    "from": "api",
-    "to": "queue",
+    "id": "request-gateway-service",
+    "from": "gateway",
+    "to": "service",
     "path": "straight",
+    "semanticKind": "request",
+    "semanticDirection": "consumer-to-provider",
     "ports": [
      "bottom",
      "top"
     ],
     "bends": 0,
-    "style": "dashed",
-    "targetGap": 10,
-    "hops": 0
-   },
-   {
-    "id": "e2",
-    "from": "api",
-    "to": "auth",
-    "path": "straight",
-    "ports": [
-     "right",
-     "left"
-    ],
-    "bends": 0,
-    "style": "dashed",
+    "style": "solid",
     "targetGap": 10,
     "hops": 0
    }
   ]
  },
+ "topology": {
+  "schemaVersion": 1,
+  "variant": "compact",
+  "coverage": "representative-core-primitives",
+  "primitiveSet": [
+   "actor",
+   "gateway",
+   "service"
+  ],
+  "nodes": [
+   {
+    "id": "client",
+    "zone": "zone-interaction",
+    "kind": "actor",
+    "declaredKind": "client",
+    "icon": "users",
+    "iconSource": "registry"
+   },
+   {
+    "id": "gateway",
+    "zone": "zone-edge",
+    "kind": "gateway",
+    "declaredKind": "gateway",
+    "icon": "route",
+    "iconSource": "registry"
+   },
+   {
+    "id": "service",
+    "zone": "zone-application",
+    "kind": "service",
+    "declaredKind": "service",
+    "icon": "api",
+    "iconSource": "registry"
+   }
+  ],
+  "edges": [
+   {
+    "id": "request-client-gateway",
+    "from": "client",
+    "to": "gateway",
+    "kind": "request",
+    "direction": "consumer-to-provider",
+    "delivery": "sync",
+    "visibility": "public"
+   },
+   {
+    "id": "request-gateway-service",
+    "from": "gateway",
+    "to": "service",
+    "kind": "request",
+    "direction": "consumer-to-provider",
+    "delivery": "sync",
+    "visibility": "public"
+   }
+  ],
+  "structure": {
+   "zones": [
+    "zone-interaction",
+    "zone-edge",
+    "zone-application"
+   ],
+   "boundary": true
+  },
+  "contract": {
+   "zonePadding": 9,
+   "nodePadding": 9,
+   "iconSize": 36,
+   "nodeTextSize": 24,
+   "zoneLabelSize": 16,
+   "nodeHeightMax": 128,
+   "nodeWidthMax": 720,
+   "portInset": 16,
+   "targetGap": 10,
+   "outerClearance": 14
+  },
+  "verification": {
+   "primitiveAndVariant": "verified",
+   "reachability": "unverified",
+   "cycles": "unverified",
+   "completeness": "unverified"
+  }
+ },
  "matrix": null,
  "timeline": null,
  "residual": {
   "top": 0,
-  "bottom": 148
+  "bottom": 22
  },
- "residualDisposition": {
-  "reason": "Zone height derives from node geometry and corridors open only as far as routing demand requires — the remaining space is declared breathing (kernel §8).",
-  "treatment": "flat",
-  "calibration": null,
-  "bottom": 148
- },
+ "residualDisposition": null,
  "provenance": {
   "schema": {
    "name": "svg-infographic-provenance",
    "version": 1,
    "canonicalization": 1
   },
-  "executionMode": "installed-runtime",
+  "executionMode": "source-development",
   "skillRoot": "skills/svg-infographic",
   "package": {
    "id": "svg-infographic",
-   "surfaceRevision": 15
+   "surfaceRevision": 16
   },
-  "runtimeSurfaceDigest": "sha256:580f891f55b7237a53d07d23b39dc46609a38984901ca39cf0bc97c77b95c9de",
-  "source": null,
+  "runtimeSurfaceDigest": "sha256:5a89c6eeb2daebf88be963a8428fc46940a321c89e718d51076b8f403c513fe5",
+  "source": {
+   "headCommit": "b67f0f8e7703963dffca6168ca5836e44f3236a6",
+   "repoDirty": true,
+   "runtimeSurfaceDirty": true
+  },
   "producer": {
    "kind": "generator",
-   "generatorDigest": "sha256:85aa370f6c5c5207999ca2882397bbf717e1609e9c11daa28ae56b1bf7366bdb"
+   "generatorDigest": "sha256:6385ee4dbd7a5b332cee75f243a8e03b1f9125155f0b4c0c52aa1ab0c99852b2"
   },
   "inputs": [
    {
     "role": "typepack-input",
-    "digest": "sha256:a5e97b7e01a2cc51aae41da99e6247803e7644894f077bb4c3f747598f85d7d2"
+    "digest": "sha256:b9897da9a8cccb3365819b01da50d0a022aed62e05547d04a4d69c4540e06752"
    }
   ],
   "browser": null
