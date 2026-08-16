@@ -2,159 +2,83 @@
 
 [English](./README.md) · **한국어**
 
-[`svg-infographic`](../../skills/svg-infographic)으로 직접 만든 결과물입니다. 각 예제는 평면형 구조 시각
-자료이며, 영문판과 한국어판의 SVG 원본, 2× PNG와 제작에 사용한 프롬프트를 함께 제공합니다.
-
-모든 내용은 실제 고객이나 기밀 자료와 무관하게 만든 가상 예제입니다. 전체 예제를 통해 스킬이 지원하는
-여러 다이어그램 유형을 확인할 수 있습니다.
-
-![svg-infographic 갤러리 미리보기](./gallery-preview.ko.png)
-
-_위 이미지는 sketch 프리셋으로 만든 두 작품을 포함해 대표 예제 6개를 모았습니다. 전체 14개 예제는
-아래에서 확인할 수 있습니다._
-
-## 갤러리
-
-### 1. 대표 기술 인포그래픽
-
-중첩·온니언 모델과 아이콘 카드를 결합한 개념 인포그래픽입니다.
-
-[![AI 엔지니어링의 4가지 레이어](./technical-infographic/technical-infographic.ko.png)](./technical-infographic)
-
-→ [`technical-infographic/`](./technical-infographic) · English + 한국어
-
-### 2. 마이그레이션 전 / 후 비교
-
-높이가 같은 두 패널, 의미에 따른 색상과 ✓/✕ 표시를 사용한 비교 예제입니다.
-
-[![모놀리스 → 마이크로서비스](./before-after-migration/before-after-migration.ko.png)](./before-after-migration)
-
-→ [`before-after-migration/`](./before-after-migration) · English + 한국어
-
-### 3. 프로세스 / 데이터 플로우
-
-아이콘과 화살표를 따라 왼쪽에서 오른쪽으로 읽는 RAG 질의 파이프라인입니다.
-
-[![RAG 질의 파이프라인](./process-flow/process-flow.ko.png)](./process-flow)
-
-→ [`process-flow/`](./process-flow) · English + 한국어
-
-### 4. 로드맵 / 타임라인
-
-단계, 상태 표시점, "현재" 마커와 마일스톤 카드로 구성한 타임라인입니다.
-
-[![제품 로드맵](./roadmap/roadmap.ko.png)](./roadmap)
-
-→ [`roadmap/`](./roadmap) · English + 한국어
-
-### 5. 클라우드 인프라 토폴로지
-
-구역, 아이콘 배지가 있는 구성 요소와 요청 경로 화살표를 사용한 아키텍처·토폴로지 예제입니다.
-
-[![Azure 레퍼런스 토폴로지](./cloud-infra-topology/cloud-infra-topology.ko.png)](./cloud-infra-topology)
-
-→ [`cloud-infra-topology/`](./cloud-infra-topology) · English + 한국어
-
-### 6. 스킬 자체 소개
-
-스킬이 만들 수 있는 다이어그램, 동작 방식과 범위를 한 장에 소개합니다.
-
-[![svg-infographic 개요](./skill-overview/skill-overview.ko.png)](./skill-overview)
-
-→ [`skill-overview/`](./skill-overview) · English + 한국어
-
-### 7. AI 코드 리뷰 루프
-
-강조된 핵심 단계, 범례와 점선 피드백 루프를 사용해 AI가 참여하는 PR 검토 과정을 왼쪽에서 오른쪽으로 보여줍니다.
-
-[![AI 코드 리뷰 루프](./ai-code-review-loop/ai-code-review-loop.ko.png)](./ai-code-review-loop)
-
-→ [`ai-code-review-loop/`](./ai-code-review-loop) · English + 한국어
-
-### 8. AI 에이전트 작업 선택 매트릭스
-
-범위와 불확실성을 두 축으로 삼은 2×2 의사결정 매트릭스입니다. 각 사분면에 번호, 아이콘과 권장
-방식을 배치하고 한 사분면을 강조합니다.
-
-[![AI 에이전트 작업 선택 매트릭스](./agent-task-matrix/agent-task-matrix.ko.png)](./agent-task-matrix)
-
-→ [`agent-task-matrix/`](./agent-task-matrix) · English + 한국어
-
-### 9. CI/CD 아티팩트 승격
-
-한 번 빌드한 동일 digest를 승격하는 릴리스 모델입니다. 빌드, 승인 게이트를 거치는
-dev → test → prod 승격, test에서 버그를 발견했을 때 새 RC를 만드는 흐름을 세 영역으로 나눴습니다.
-
-[![릴리스 후보 아티팩트 승격](./ci-cd-artifact-promotion/ci-cd-artifact-promotion.ko.png)](./ci-cd-artifact-promotion)
-
-→ [`ci-cd-artifact-promotion/`](./ci-cd-artifact-promotion) · English + 한국어
-
-### 10. 이슈 트래커 ↔ CI/CD 승인 연동 흐름
-
-하나의 이슈 키가 커밋 → 빌드 → test → 승인 → prod 배포를 잇습니다. 옆에는
-Open → In Progress → In Test → Approved → Deployed 상태 변화를 나란히 배치하고, 승인 게이트를
-이슈 상태 전이로 표현했습니다.
-
-[![이슈 트래커 CI/CD 승인 연동 흐름](./issue-tracker-cicd-approval-flow/issue-tracker-cicd-approval-flow.ko.png)](./issue-tracker-cicd-approval-flow)
-
-→ [`issue-tracker-cicd-approval-flow/`](./issue-tracker-cicd-approval-flow) · English + 한국어
-
-### 11. Zero Trust 온니언 모델
-
-균일한 간격으로 계산한 동심 링 네 개, 바깥에서 안쪽으로 진해지는 색, 각 링 위쪽의 라벨과 강조된
-최소 권한 데이터 코어로 구성했습니다.
-
-[![Zero Trust 온니언 모델](./zero-trust-onion/zero-trust-onion.ko.png)](./zero-trust-onion)
-
-→ [`zero-trust-onion/`](./zero-trust-onion) · English + 한국어
-
-### 12. Agent 대기 알림 swimlane
-
-에이전트 세션 상태와 사용자 행동을 두 swimlane에 배치했습니다. 각 단계를 같은 가로 위치에 맞추고,
-"승인 대기"를 강조했으며, 점선 화살표로 알림과 원클릭 승인 흐름을 연결했습니다.
-
-[![Agent 대기 알림 swimlane](./agent-waiting-swimlane/agent-waiting-swimlane.ko.png)](./agent-waiting-swimlane)
-
-→ [`agent-waiting-swimlane/`](./agent-waiting-swimlane) · English + 한국어
-
-### 13. 장애 대응 루프 — sketch 프리셋
-
-첫 **sketch 프리셋** 예제입니다. 계산된 배치 위에 종이 배경, 일부 글자만 포함한 한국어 손글씨 폰트,
-거친 선과 밑줄형 형광펜을 적용했습니다. 감지 → 분류 → 대응 → 복구 → 회고 흐름에서 경미한 이슈는
-백로그로 분기됩니다.
-
-[![장애 대응 루프, sketch 프리셋](./incident-response-sketch/incident-response-sketch.ko.png)](./incident-response-sketch)
-
-→ [`incident-response-sketch/`](./incident-response-sketch) · English + 한국어
-
-### 14. 에이전트 시스템 구성도 — sketch 프리셋
-
-**Sketch 프리셋**으로 만든 구성도입니다. Context, Memory와 Tool이 중앙 Orchestrator에 연결되고,
-아래에 배치한 Guardrail과 평가 중 평가 결과는 보정 흐름으로 되돌아갑니다. 정돈된 손그림 표현을
-프로세스 흐름뿐 아니라 계산된 토폴로지에도 적용할 수 있음을 보여줍니다.
-
-[![Agent system map, sketch 프리셋](./agent-system-sketch/agent-system-sketch.ko.png)](./agent-system-sketch)
-
-→ [`agent-system-sketch/`](./agent-system-sketch) · English + 한국어
-
-## v0.8.0 릴리스 이미지
-
-[![Skillstead v0.8.0 실행 환경 지원: 검증된 macOS와 Windows 환경의 Claude Code와 Codex](./release-announcement/skillstead-v080-runtime-support.ko.png)](./release-announcement/skillstead-v080-runtime-support.ko.svg)
-
-편집 가능한 SVG와 2× PNG에 v0.8.0에서 추가된 실행 환경 지원과 그 검증 범위를 정리했습니다.
-Windows 카드는 모든 Windows 환경이 아니라 Windows 11 ARM64 VM에서 수행한 Codex App 검증을
-뜻합니다.
-
-## 품질 기준 (모든 예제 통과)
-
-- [x] 영문·한국어 갤러리 SVG 28개에서 source lint hard error 0건, transform 관련 warning은 2× PNG에서 직접 확인
-- [x] v0.8.0 릴리스 이미지는 source lint error와 warning 모두 0건
-- [x] SVG와 PNG 크기 일치 (PNG는 SVG viewBox의 정확히 2×)
-- [x] 텍스트 넘침 없음, 박스 안 세로 중앙 정렬
-- [x] 한국어/CJK 글자가 네모 상자로 깨지지 않고 정상적으로 표시됨
-- [x] 접근성용 `<title>` / `<desc>` 포함
-- [x] 원본에 특정 컴퓨터나 고객의 경로가 없음
-- [x] 아이콘이 정상적으로 표시되고 깨진 `<use>` 참조가 없으며, 나란한 박스 사이에 충분한 간격이 있음
+이 저장소에 들어 있는 산출물의 기술 인덱스입니다. 갤러리가 아닙니다 — 스킬이 무엇을 만들어내는지 둘러보려면
+**[갤러리](../../gallery/index.html)** 를 여세요. 갤러리는 여기 있는 같은 파일에서 생성되며, 각 항목이 어떤
+검증 근거를 갖는지 함께 표시합니다.
+
+여기 무엇이 있고, 각 분류가 무엇까지 증명되는지는 이렇습니다.
+
+| 분류 | 경로 | 검증 근거 |
+| --- | --- | --- |
+| Canonical TypePack 산출물 | [`typepacks/`](./typepacks) | `generate.mjs`가 receipt와 함께 생성. source lint·layout 통과. 현행 palette profile에서 **error 0건**, 고정된 warning debt 9색·52건. `generate.mjs verify`가 receipt와 대조해 재측정 |
+| 과도기 legacy 예제 | 아래 디렉터리들 | source lint·layout·typography까지만. receipt 없음 — TypePack 계약 이전에 만들어졌습니다 |
+| 과거 릴리스 자산 | [`release-announcement/`](./release-announcement) | 공개 시점에 고정. 기록으로 보존하며 현행 계약으로 재검증하지 않습니다 |
+
+## Canonical TypePack 산출물
+
+9개 타입을 각각 영어·한국어로 만들고, 모든 산출물 옆에 receipt를 둡니다. 회귀를 감지하는 표면이 바로
+여기입니다 — 패키지 변경이 그림을 바꾸면 가장 먼저 드러납니다.
+
+```text
+typepacks/<type>/<type>.{ko,en}.svg    # source
+typepacks/<type>/<type>.{ko,en}.png    # 정확한 2× export
+typepacks/<type>/<type>.{ko,en}.json   # receipt: 무엇을 소비·측정했고 어떤 패키지가 만들었는지
+```
+
+`approval-gate` · `before-after` · `cards-kpi-grid` · `decision-matrix` · `layer-stack` · `nested-scope` ·
+`process-flow` · `roadmap-timeline` · `topology-component`
+
+각 타입의 요청 문구와 생성 명령은
+[`references/PROMPT-GALLERY.md`](../../skills/svg-infographic/references/PROMPT-GALLERY.md)에 있습니다.
+
+## 과도기 legacy 예제
+
+TypePack 계약 이전에 만들어졌고, canonical 세트가 아직 다루지 못하는 요청 형태를 담고 있어 유지합니다.
+이 중 6개는 갤러리의 현재 Featured 선정(★)이며 **Wave 2에서 교체 대상**입니다 — 남기기로 판정된 항목은
+그때의 현행 계약으로 이행하거나 내려갑니다.
+
+각 디렉터리에는 source SVG, 두 언어의 2× PNG, 그리고 그것을 만든 프롬프트가 들어 있습니다.
+
+| 디렉터리 | |
+| --- | --- |
+| [`agent-system-sketch`](./agent-system-sketch) | ★ sketch 프리셋 |
+| [`agent-task-matrix`](./agent-task-matrix) | ★ |
+| [`agent-waiting-swimlane`](./agent-waiting-swimlane) | ★ |
+| [`before-after-migration`](./before-after-migration) | ★ |
+| [`cloud-infra-topology`](./cloud-infra-topology) | ★ |
+| [`zero-trust-onion`](./zero-trust-onion) | ★ |
+| [`ai-code-review-loop`](./ai-code-review-loop) | |
+| [`ci-cd-artifact-promotion`](./ci-cd-artifact-promotion) | |
+| [`incident-response-sketch`](./incident-response-sketch) | sketch 프리셋 |
+| [`issue-tracker-cicd-approval-flow`](./issue-tracker-cicd-approval-flow) | |
+| [`process-flow`](./process-flow) | |
+| [`roadmap`](./roadmap) | |
+| [`skill-overview`](./skill-overview) | |
+| [`technical-infographic`](./technical-infographic) | |
+
+모두 이 저장소를 위해 가상의, 고객과 무관한, 비공개 정보가 없는 내용으로 만들었습니다.
+
+## 과거 릴리스 자산
+
+[`release-announcement/`](./release-announcement)에는 `v0.8.0`과 함께 공개한 이미지가 있습니다. 공개 당시
+상태로 고정돼 있으며 현행 계약으로 재검증하지 않습니다. 그 카드의 Windows 항목은 기록된 Windows 11 ARM64 VM
+Codex App 실행을 가리키며 모든 Windows 환경을 뜻하지 않습니다.
+
+## 분류별 점검 범위
+
+전체를 하나로 묶어 주장하지 않고 분류별로 적습니다.
+
+**Canonical TypePack 산출물** — source lint 오류 0건. 현행 palette profile 기준으로 **error 0건이며 warning은
+9색 52건으로 고정**돼 있습니다 — profile이 아직 표현하지 못하는 단계이며, 색·pack·발생 수까지 묶어 두어
+debt가 늘거나 옮겨가면 드러납니다. layout container·binding·reservation을 재측정. PNG는 SVG viewBox의 정확히
+2×. receipt를 산출물과 대조 검증하므로, receipt가 세지만 그림에 없는 요소는 오차가 아니라 오류입니다.
+
+**과도기 legacy 예제** — source lint·layout·typography 통과. 현행 palette profile로는 측정하지 않으며
+receipt가 없습니다.
+
+**Canonical TypePack 산출물과 과도기 legacy 예제** (고정된 과거 릴리스 자산은 제외) — 텍스트 넘침 없음,
+한국어·CJK tofu 없음, `<title>`/`<desc>` 존재, 호스트·고객 경로 없음, 아이콘 참조 정상,
+짝을 이루는 박스의 여백 유지.
 
 ## 실행 환경 및 렌더링 검증
 

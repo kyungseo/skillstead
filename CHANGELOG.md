@@ -4,6 +4,33 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## [Unreleased]
+
+Repository-level changes since the last dated entry. No version is assigned and no release is cut.
+
+### Gallery
+
+- **A published gallery.** `gallery/index.html` is now the single human-facing surface for browsing what
+  `svg-infographic` produces — six featured outputs and the nine TypePacks with their evidence, in English,
+  Korean or side by side. It is built from the verified artifacts rather than hand-kept: the counts, evidence
+  facets and per-artifact notes on the page are derived from the receipts and re-checked against them, so those
+  fields cannot drift from what was built. Prose the page carries around them is not machine-checked.
+- **README contact sheet.** The image at the top of the README is generated from the same featured selection the
+  gallery uses, so the two cannot drift apart. A render receipt records the sources it was built from; a stale
+  sheet is caught rather than silently shown.
+- **Evidence is stated per artifact, not per page.** TypePack artifacts carry receipts; the transitional legacy
+  featured entries carry lint, layout and typography results only. The gallery says which is which instead of
+  averaging them into one claim.
+
+### Verification
+
+- **The package suite now runs in CI.** Its font-subsetting fixtures used to skip themselves whenever the pinned
+  toolchain was absent — which is what CI looked like, so those fixtures had never actually run there. CI now
+  supplies the pinned `fontTools`/`brotli` and refuses to skip. Three defects that had been invisible surfaced
+  and were fixed: text measurement that depended on a font installed on one machine, a build clock leaking into
+  artifact bytes, and a test writing into the tree another test was scanning.
+- **Gallery drift and repository validation** run on every pull request alongside the existing checks.
+
 ## 2026-08-09
 
 ### Repository

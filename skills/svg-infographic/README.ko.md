@@ -256,17 +256,42 @@ Claude Code 또는 Codex의 skills 디렉터리에 패키지를 복사합니다.
 ├── README.ko.md              # 이 문서
 ├── CHANGELOG.md              # 이 스킬의 릴리스 이력
 ├── LICENSE.txt               # Apache-2.0 전문(패키지와 함께 이동)
+├── assets/
+│   └── fonts/                # 번들 서체와 OFL 고지(Pretendard, Hi Melody)
 ├── references/
+│   ├── design-kernel.md      # 패키지 전체가 따르는 계약
 │   ├── archetypes.md         # 다이어그램 유형별 골격, 시각 표현 지침, 점검 항목
 │   ├── authoring.md          # 상세 규칙, 아이콘 모음, 수동 렌더링 대안
-│   └── sketch.md             # 선택형 정돈된 손그림 프리셋(종이·손글씨·거친 선)
+│   ├── sketch.md             # 선택형 정돈된 손그림 프리셋(종이·손글씨·거친 선)
+│   ├── PROMPT-GALLERY.md     # TypePack별 요청 문구와 생성 명령
+│   ├── package-surface.yaml  # 어떤 파일이 어떤 digest에 속하는지 — 구성원 SSoT
+│   ├── language-policy.yaml  # English-canonical이어야 하는 범위
+│   ├── delivery/             # 폰트 전달 정책(portable / system)
+│   ├── skins/                # palette profile, 파생 규칙, PageFrame, registry
+│   ├── typography/           # 서체 family·face·라이선스
+│   ├── types/                # TypePack manifest, 타입별 spec과 입력
+│   ├── media/                # canonical skin contact sheet
+│   └── legacy/               # 대체된 계약의 출처 보존본
 └── scripts/
-    ├── check-svg.mjs         # source lint gate(Node.js 18 이상, 표준 라이브러리만 사용)
-    ├── check-svg.test.mjs    # fixture regression test
-    ├── fixtures/             # 정상·오류·warning case
+    ├── generate.mjs          # TypePack 생성과 receipt 검증(진입점)
+    ├── check-svg.mjs         # source lint gate, --palette-profile 포함
+    ├── check-layout.mjs      # layout container·binding·reservation gate
+    ├── check-language.mjs    # normative surface의 English-canonical 가드
+    ├── compose.mjs           # 다중 fragment 합성과 receipt
+    ├── skin.mjs              # profile resolve·validate, manifest, delivery, typography-check
+    ├── preflight.mjs         # digest 계산과 패키지 무결성
+    ├── measure-text.mjs      # 브라우저 텍스트 측정(번들 서체, fail-closed)
     ├── render.mjs            # shell 공통 표준 lint → browser 렌더링 → 2× 검증
-    ├── render.test.mjs       # renderer 탐색과 lifecycle regression test
-    └── render.sh             # render.mjs를 호출하는 얇은 Bash wrapper
+    ├── render.sh             # render.mjs를 호출하는 얇은 Bash wrapper
+    ├── font-probe.mjs        # 런타임 폰트 로드·computed 확인
+    ├── font-subset.py        # OFL 준수 subsetter(빌드 전용, fontTools·brotli 고정)
+    ├── route-orthogonal.mjs  # connector 배선(lib)
+    ├── treatment.mjs         # surface treatment resolver(lib)
+    ├── residual-disposition.mjs  # residual floor 판정(lib)
+    ├── preflight-lib.mjs     # digest helper(lib)
+    ├── run-tests.sh          # 전체 suite. SVGINFO_STRICT=1이면 skip을 거부한다
+    ├── *.test.mjs            # 위 각 script에 대응하는 suite
+    └── fixtures/ …           # 영역별 fixture 트리(layout, skin, compose, legacy)
 ```
 
 macOS, Linux와 Windows에서 전역 또는 프로젝트 경로에 설치하는 명령은

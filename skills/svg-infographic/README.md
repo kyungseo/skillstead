@@ -240,17 +240,42 @@ project. The skill is a multi-file package, so copy the whole folder:
 ├── README.ko.md              # Korean guide
 ├── CHANGELOG.md              # per-skill release history
 ├── LICENSE.txt               # Apache-2.0 full text (travels with the package)
+├── assets/
+│   └── fonts/                # bundled faces + their OFL notices (Pretendard, Hi Melody)
 ├── references/
+│   ├── design-kernel.md      # the contract the whole package answers to
 │   ├── archetypes.md         # archetype catalog: skeletons, premium recipe, checks
 │   ├── authoring.md          # detailed rules, icon set, manual render fallback
-│   └── sketch.md             # opt-in tidy hand-drawn preset (paper, handwriting, rough)
+│   ├── sketch.md             # opt-in tidy hand-drawn preset (paper, handwriting, rough)
+│   ├── PROMPT-GALLERY.md     # request phrasing per TypePack, with the build command
+│   ├── package-surface.yaml  # which files belong to which digest — the membership SSoT
+│   ├── language-policy.yaml  # what must be English-canonical
+│   ├── delivery/             # font delivery policy (portable vs system)
+│   ├── skins/                # palette profiles, derivation, PageFrame, registry
+│   ├── typography/           # families, faces, licensing
+│   ├── types/                # TypePack manifest, per-type specs and inputs
+│   ├── media/                # canonical skin contact sheet
+│   └── legacy/               # superseded contracts kept for provenance
 └── scripts/
-    ├── check-svg.mjs         # source lint gate (Node.js 18+, standard library only)
-    ├── check-svg.test.mjs    # fixture regression tests
-    ├── fixtures/             # valid, error, and warning cases
-    ├── render.mjs            # canonical cross-shell lint → browser render → 2× verification
-    ├── render.test.mjs       # renderer discovery and lifecycle regression tests
-    └── render.sh             # thin Bash wrapper for render.mjs
+    ├── generate.mjs          # TypePack build + receipt verify (entry point)
+    ├── check-svg.mjs         # source lint gate, incl. --palette-profile
+    ├── check-layout.mjs      # layout container / binding / reservation gate
+    ├── check-language.mjs    # English-canonical guard for the normative surface
+    ├── compose.mjs           # multi-fragment composition and its receipts
+    ├── skin.mjs              # profile resolve/validate, manifest, delivery, typography-check
+    ├── preflight.mjs         # digest computation and package integrity
+    ├── measure-text.mjs      # browser text measurement (bundled face, fail-closed)
+    ├── render.mjs            # canonical lint → browser render → 2× verification
+    ├── render.sh             # thin Bash wrapper for render.mjs
+    ├── font-probe.mjs        # runtime font load/computed check
+    ├── font-subset.py        # OFL-safe subsetter (build-only; pinned fontTools + brotli)
+    ├── route-orthogonal.mjs  # connector routing (lib)
+    ├── treatment.mjs         # surface treatment resolver (lib)
+    ├── residual-disposition.mjs  # residual floor decision (lib)
+    ├── preflight-lib.mjs     # digest helpers (lib)
+    ├── run-tests.sh          # the whole suite; SVGINFO_STRICT=1 refuses to skip
+    ├── *.test.mjs            # one suite per script above
+    └── fixtures/ …           # per-area fixture trees (layout, skin, compose, legacy)
 ```
 
 GitHub install commands (global and project scope) for macOS, Linux, and Windows are in [`docs/INSTALL.md`](https://github.com/kyungseo/skillstead/blob/main/docs/INSTALL.md).

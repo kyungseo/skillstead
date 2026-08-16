@@ -11,6 +11,40 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [Unreleased]
+
+Wave 1 rebuilt how this skill is asked for and how its output is proved. Nothing here is released yet —
+`metadata.version` stays `0.9.0` until a version is assigned.
+
+- **TypePacks.** Nine named diagram types (process flow, approval gate, topology, layer stack, nested scope,
+  before/after, cards KPI grid, decision matrix, roadmap timeline) replace free-form archetype selection. Each
+  is picked from the content signals in `references/types/manifest.yaml`, built with `scripts/generate.mjs`, and
+  documented with a request phrasing in `references/PROMPT-GALLERY.md`.
+- **Receipts.** A build now emits a receipt beside the artifact recording what was consumed, what was measured,
+  the font delivery used, and which package surface produced it. `generate.mjs verify` re-measures the artifact
+  against that receipt rather than trusting it — an entity the receipt counts but the drawing never shows is an
+  error, not a rounding difference.
+- **Surface treatments.** `--treatment sketch` is an opt-in experimental preview with its own paper surface,
+  handwriting face and rough strokes. It is fail-closed on the artifact, not on the flag: a renamed flat render
+  is refused. Copy, semantic ids and reading order are preserved across treatments, and a treatment never
+  patches coordinates — where a face's metrics change the shared budget, the layout is recomputed or the build
+  fails closed rather than nudged into place. Measured geometry therefore does differ: at 1.8x the handwriting
+  face widens labels enough that `topology-component` does not route under `sketch`, and that limitation is
+  recorded in `references/design-kernel.md` §7g rather than met by thinning the clearance it cannot hold.
+- **Layout containers and boundaries.** Zones, boundaries and reservations are declared in the artifact and
+  re-measured, so a container that says it holds something must actually contain it. A declared topology boundary
+  is drawn as a real container instead of being counted but omitted.
+- **Connector clearance.** The interval a connector may attach within now reserves the arrowhead's own painted
+  width and the corridor clearance, not just the line. An arrowhead used to land under a zone label chip and be
+  covered by it.
+- **Palette contract.** `check-svg.mjs --palette-profile` compares every paint against a declared profile.
+  Canonical artifacts carry zero palette errors; the colours a profile cannot yet express are recorded as a
+  bounded, pinned debt rather than quietly rounded to the nearest token.
+- **Reproducible portable output.** A subset embedded in an artifact no longer carries the clock it was built
+  at, so the same input and the same glyph set produce the same bytes.
+- **Text measurement.** Fragment text bounds are measured against the package's own bundled face, loaded and
+  verified before measuring. Measurement no longer depends on which fonts the machine happens to have installed.
+
 ## [0.9.0] — 2026-08-09
 
 - Added opt-in source layout contracts for panel title/subtitle/divider budgets and icon-text card center alignment,
