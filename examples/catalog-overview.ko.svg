@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" width="1400" height="900" role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 868" width="1400" height="868" role="img" style="font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif">
   <title>Skillstead 스킬 하나만 사용하거나 릴리스 흐름으로 연결하는 방법</title>
   <desc>프로젝트 자료에서 writing-quality-editor와 svg-infographic을 각각 사용할 수 있고, 필요하면 docs-claim-check와 github-release-guide로 이어집니다. 모든 스킬은 독립적으로 설치할 수 있습니다.</desc>
   <style>
@@ -17,15 +17,15 @@
     <symbol id="ic-release" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M5 13v7h14v-7"/><path d="M8 20h8"/></symbol>
   </defs>
 
-  <rect width="1400" height="900" rx="28" fill="var(--bg)"/>
+  <rect width="1400" height="868" rx="28" fill="var(--bg)"/>
   <rect x="72" y="58" width="6" height="62" rx="3" fill="var(--blue)"/>
   <text x="98" y="72" class="muted" font-size="16" font-weight="800" letter-spacing="1.2">SKILLSTEAD · 스킬 조합 가이드</text>
   <text x="98" y="119" class="ink" font-size="42" font-weight="850">작업에 맞게 고르세요. 연결은 필요할 때만.</text>
   <text x="98" y="151" class="muted" font-size="17">글·시각 자료·근거 확인·승인 단계를 다루되, 각 스킬은 서로 의존하지 않는 독립 패키지입니다.</text>
 
   <rect x="60" y="180" width="1280" height="450" rx="24" fill="#F9FBFE" stroke="var(--hair)" stroke-width="1.5"/>
-  <rect x="84" y="196" width="240" height="34" rx="17" fill="var(--slate)"/>
-  <text x="204" y="213" class="on-accent label" text-anchor="middle" dominant-baseline="central">선택형 릴리스 흐름</text>
+  <rect x="84" y="196" width="254" height="34" rx="17" fill="var(--slate)"/>
+  <text x="211" y="213" class="on-accent label" text-anchor="middle" dominant-baseline="central">선택형 릴리스 흐름</text>
 
   <path d="M290 390H302V337H331" fill="none" stroke="#A9B4C2" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
   <path d="M302 390V482H331" fill="none" stroke="#A9B4C2" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
@@ -35,8 +35,8 @@
 
   <g filter="url(#shadow)">
     <rect x="90" y="245" width="200" height="300" rx="20" class="stage" stroke="var(--slate)"/>
-    <rect x="110" y="265" width="80" height="32" rx="16" fill="var(--slate)"/>
-    <text x="150" y="281" class="on-accent label" text-anchor="middle" dominant-baseline="central">시작</text>
+    <rect x="110" y="265" width="89" height="32" rx="16" fill="var(--slate)"/>
+    <text x="154" y="281" class="on-accent label" text-anchor="middle" dominant-baseline="central">시작</text>
     <circle cx="190" cy="345" r="36" fill="var(--slate-soft)"/>
     <use href="#ic-doc" x="170" y="325" width="40" height="40" style="color:var(--slate)"/>
     <text x="190" y="409" class="ink" font-size="21" font-weight="800" text-anchor="middle">프로젝트 자료</text>
@@ -47,8 +47,8 @@
 
   <g>
     <rect x="340" y="215" width="480" height="360" rx="22" fill="var(--blue-soft)" stroke="#BED5ED" stroke-width="1.5"/>
-    <rect x="365" y="231" width="176" height="34" rx="17" fill="var(--blue)"/>
-    <text x="453" y="248" class="on-accent label" text-anchor="middle" dominant-baseline="central">작성하고 설명하기</text>
+    <rect x="365" y="231" width="194" height="34" rx="17" fill="var(--blue)"/>
+    <text x="462" y="248" class="on-accent label" text-anchor="middle" dominant-baseline="central">작성하고 설명하기</text>
 
     <g filter="url(#shadow)">
       <rect x="370" y="282" width="420" height="110" rx="18" class="skill" stroke="var(--teal)"/>
@@ -71,20 +71,20 @@
 
   <g filter="url(#shadow)">
     <rect x="870" y="245" width="200" height="300" rx="20" class="stage" stroke="var(--violet)"/>
-    <rect x="874" y="265" width="115" height="32" rx="16" fill="var(--violet)"/>
-    <text x="931" y="281" class="on-accent label" text-anchor="middle" dominant-baseline="central">공개 문구 검증</text>
+    <rect x="890" y="265" width="160" height="32" rx="16" fill="var(--violet)"/>
+    <text x="970" y="281" class="on-accent label" text-anchor="middle" dominant-baseline="central">공개 문구 검증</text>
     <circle cx="970" cy="345" r="36" fill="var(--violet-soft)"/>
     <use href="#ic-check" x="950" y="325" width="40" height="40" style="color:var(--violet)"/>
     <text x="970" y="409" class="ink skill-name" text-anchor="middle">docs-claim-check</text>
     <text x="970" y="446" class="muted body" text-anchor="middle"><tspan x="970">공개할 주장을</tspan><tspan x="970" dy="24">제공된 근거와 대조</tspan></text>
     <rect x="890" y="493" width="160" height="30" rx="15" fill="var(--violet-soft)"/>
-    <text x="970" y="508" fill="var(--violet)" class="small" font-weight="700" text-anchor="middle" dominant-baseline="central">확인한 근거 안에서 판정</text>
+    <text x="970" y="508" fill="var(--violet)" class="small" font-weight="700" text-anchor="middle" dominant-baseline="central">근거 안에서만 판정</text>
   </g>
 
   <g filter="url(#shadow)">
     <rect x="1110" y="245" width="200" height="300" rx="20" class="stage" stroke="var(--amber)"/>
-    <rect x="1135" y="265" width="150" height="32" rx="16" fill="var(--amber)"/>
-    <text x="1210" y="281" class="on-accent label" text-anchor="middle" dominant-baseline="central">공개 GitHub 저장소</text>
+    <rect x="1130" y="265" width="146" height="32" rx="16" fill="var(--amber)"/>
+    <text x="1203" y="281" class="on-accent label" text-anchor="middle" dominant-baseline="central">공개 저장소</text>
     <circle cx="1210" cy="345" r="36" fill="var(--amber-soft)"/>
     <use href="#ic-release" x="1190" y="325" width="40" height="40" style="color:var(--amber)"/>
     <text x="1210" y="400" class="ink skill-name" text-anchor="middle"><tspan x="1210">github-release-</tspan><tspan x="1210" dy="23">guide</tspan></text>
@@ -94,19 +94,19 @@
   </g>
 
   <g filter="url(#shadow)">
-    <rect x="110" y="680" width="360" height="128" rx="18" fill="var(--panel)" stroke="var(--teal)" stroke-width="1.25"/>
-    <circle cx="154" cy="724" r="23" fill="var(--teal-soft)"/><text x="154" y="724" fill="var(--teal)" font-size="20" font-weight="850" text-anchor="middle" dominant-baseline="central">1</text>
-    <text x="190" y="716" class="ink" font-size="19" font-weight="800">필요한 스킬만 설치</text>
-    <text x="190" y="746" class="muted body"><tspan x="190">사용할 스킬의 전체 폴더만</tspan><tspan x="190" dy="23">복사하면 됩니다.</tspan></text>
+    <rect x="110" y="660" width="360" height="128" rx="18" fill="var(--panel)" stroke="var(--teal)" stroke-width="1.25"/>
+    <circle cx="154" cy="704" r="23" fill="var(--teal-soft)"/><text x="154" y="704" fill="var(--teal)" font-size="20" font-weight="850" text-anchor="middle" dominant-baseline="central">1</text>
+    <text x="190" y="696" class="ink" font-size="19" font-weight="800">필요한 스킬만 설치</text>
+    <text x="190" y="726" class="muted body"><tspan x="190">사용할 스킬의 전체 폴더만</tspan><tspan x="190" dy="23">복사하면 됩니다.</tspan></text>
 
-    <rect x="520" y="680" width="360" height="128" rx="18" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.25"/>
-    <circle cx="564" cy="724" r="23" fill="var(--blue-soft)"/><text x="564" y="724" fill="var(--blue)" font-size="20" font-weight="850" text-anchor="middle" dominant-baseline="central">2</text>
-    <text x="600" y="716" class="ink" font-size="19" font-weight="800">필요할 때 조합</text>
-    <text x="600" y="746" class="muted body"><tspan x="600">이 흐름은 활용 예시이며 필수</tspan><tspan x="600" dy="23">의존 관계가 아닙니다.</tspan></text>
+    <rect x="520" y="660" width="360" height="128" rx="18" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.25"/>
+    <circle cx="564" cy="704" r="23" fill="var(--blue-soft)"/><text x="564" y="704" fill="var(--blue)" font-size="20" font-weight="850" text-anchor="middle" dominant-baseline="central">2</text>
+    <text x="600" y="696" class="ink" font-size="19" font-weight="800">필요할 때 조합</text>
+    <text x="600" y="726" class="muted body"><tspan x="600">이 흐름은 활용 예시이며 필수</tspan><tspan x="600" dy="23">의존 관계가 아닙니다.</tspan></text>
 
-    <rect x="930" y="680" width="360" height="128" rx="18" fill="var(--panel)" stroke="var(--violet)" stroke-width="1.25"/>
-    <circle cx="974" cy="724" r="23" fill="var(--violet-soft)"/><text x="974" y="724" fill="var(--violet)" font-size="20" font-weight="850" text-anchor="middle" dominant-baseline="central">3</text>
-    <text x="1010" y="716" class="ink" font-size="19" font-weight="800">바뀐 산출물은 다시 확인</text>
-    <text x="1010" y="746" class="muted body"><tspan x="1010">공개할 내용이 달라지면 앞 단계의</tspan><tspan x="1010" dy="23">점검으로 돌아갑니다.</tspan></text>
+    <rect x="930" y="660" width="360" height="128" rx="18" fill="var(--panel)" stroke="var(--violet)" stroke-width="1.25"/>
+    <circle cx="974" cy="704" r="23" fill="var(--violet-soft)"/><text x="974" y="704" fill="var(--violet)" font-size="20" font-weight="850" text-anchor="middle" dominant-baseline="central">3</text>
+    <text x="1010" y="696" class="ink" font-size="19" font-weight="800">바뀐 산출물은 다시 확인</text>
+    <text x="1010" y="726" class="muted body"><tspan x="1010">공개할 내용이 달라지면 앞 단계의</tspan><tspan x="1010" dy="23">점검으로 돌아갑니다.</tspan></text>
   </g>
 </svg>
