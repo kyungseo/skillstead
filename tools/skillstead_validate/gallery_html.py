@@ -13,13 +13,13 @@ data-accuracy verdict. Collapsing that into "more verified" would say something 
 mean. Each facet reads pass / none / not-applicable, and the page prints only the facets that
 actually apply to what it is showing.
 
-Both sections switch locale together, and both stay fully visible without scripting: the switch is
-hidden until JS reveals it, and `<details>` opens on its own. The fallback is the whole page, not a
-reduced one.
+Both sections switch language together while the single/side-by-side artifact view remains an independent
+choice. Everything stays fully visible without scripting: the controls are hidden until JS reveals them, and
+`<details>` opens on its own. The fallback is the whole bilingual page, not a reduced one.
 
-Everything is derived — copy from the payloads through the model, geometry facts from the receipts,
-the featured selection from `gallery/featured.json`, and every colour, radius and step from
-`gallery/tokens.json`.
+Everything is derived — artifact copy from payloads, presentation copy from `gallery/locale.json`, geometry
+facts from receipts, the featured selection from `gallery/featured.json`, and every colour, radius and step
+from `gallery/tokens.json`.
 
 Images point at the **SVG**, because that is what the gates and the verifier re-checked. The featured
 artifacts differ widely in aspect ratio, and the section's claim is that they are one managed set, so
@@ -31,21 +31,40 @@ dialog instead.
 from __future__ import annotations
 
 import html
+import json
 from pathlib import Path
 
 GALLERY_HTML = "gallery/index.html"
 GITHUB_DOC_BASE = ("https://github.com/kyungseo/skillstead/blob/main/"
                    "skills/svg-infographic/references")
 LOCALE_LABEL = {"ko": "한국어", "en": "ENGLISH"}
-FACET_LABEL = {"sourceGates": "source gates", "typePackReceipt": "TypePack receipt",
-               "dataAccuracy": "data accuracy"}
+FACET_COPY_KEY = {"sourceGates": "facetSourceGates", "typePackReceipt": "facetTypePackReceipt",
+                  "dataAccuracy": "facetDataAccuracy"}
 
 
 def _e(v) -> str:
     return html.escape("" if v is None else str(v), quote=True)
 
 
-def _facet_line(evidence: dict, show: tuple[str, ...]) -> str:
+def _copy(copy: dict, key: str, loc: str) -> str:
+    return str((copy.get(key) or {}).get(loc) or "")
+
+
+def _bi(copy: dict, key: str, *, tag: str = "span", cls: str = "") -> str:
+    attr = f' class="{_e(cls)}"' if cls else ""
+    return "".join(
+        f'<{tag}{attr} data-copy-loc="{loc}" lang="{loc}">{_e(_copy(copy, key, loc))}</{tag}>'
+        for loc in ("ko", "en")
+    )
+
+
+def _bi_value(en: object, ko: object, *, tag: str = "span", cls: str = "") -> str:
+    attr = f' class="{_e(cls)}"' if cls else ""
+    return (f'<{tag}{attr} data-copy-loc="ko" lang="ko">{_e(ko)}</{tag}>'
+            f'<{tag}{attr} data-copy-loc="en" lang="en">{_e(en)}</{tag}>')
+
+
+def _facet_line(evidence: dict, show: tuple[str, ...], copy: dict) -> str:
     """Print the facets that apply, each with its own verdict. `not-applicable` stays unprinted —
     naming a check that does not apply tells the reader nothing and crowds the ones that do."""
     parts = []
@@ -54,7 +73,9 @@ def _facet_line(evidence: dict, show: tuple[str, ...]) -> str:
         if val in (None, "not-applicable"):
             continue
         cls = "ok" if val == "pass" else "none"
-        parts.append(f'<span class="facet {cls}"><i>{_e(FACET_LABEL[key])}</i>{_e(val)}</span>')
+        verdict = "verdictPass" if val == "pass" else "verdictNone"
+        parts.append(f'<span class="facet {cls}"><i>{_bi(copy, FACET_COPY_KEY[key])}</i>'
+                     f'{_bi(copy, verdict)}</span>')
     return f'<p class="facets">{"".join(parts)}</p>' if parts else ""
 
 
@@ -103,7 +124,12 @@ h2.sec {{ font-size: 1.1rem; margin: 3rem 0 .3rem; letter-spacing: -.01em; }}
 .facet.ok {{ background: var(--verified-ground); color: var(--verified);
   border-color: color-mix(in srgb, var(--verified) 25%, transparent); }}
 
-.switch {{ display: flex; gap: .3rem; margin: 0 0 1.4rem; }}
+.controls {{ display: flex; flex-wrap: wrap; gap: .65rem 1rem; margin: 0 0 1.4rem; }}
+.switch {{ display: flex; align-items: center; gap: .3rem; margin: 0; padding: 0; border: 0; }}
+.switch legend {{
+  float: left; margin-right: .35rem; color: var(--ink-muted);
+  font: 600 11px/1 var(--font-identifier); letter-spacing: .04em;
+}}
 .switch button {{
   font: 600 12px/1 var(--font-identifier); letter-spacing: .04em;
   background: var(--card); color: var(--ink-muted);
@@ -178,7 +204,6 @@ h3 a:hover {{ text-decoration: underline; }}
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
 }}
 .pair {{ display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }}
-[data-locale="ko"] .catalog .pair, [data-locale="en"] .catalog .pair {{ grid-template-columns: minmax(0, 1fr); }}
 figure {{ margin: 0; min-width: 0; }}
 figcaption {{
   color: var(--ink-muted); margin-bottom: var(--caption-gap);
@@ -211,8 +236,14 @@ td.split {{ font-weight: 600; }}
 a {{ color: var(--ink); }}
 .note {{ color: var(--ink-muted); font-size: 12px; margin: .5rem 0 0; }}
 
-/* Nothing is hidden unless JS has set a locale on the root, so the no-script view is complete. */
-[data-locale="ko"] figure[data-loc="en"], [data-locale="en"] figure[data-loc="ko"] {{ display: none; }}
+/* Nothing is hidden until JS sets both state axes. The no-script page exposes both prose locales
+   and both artifact locales; language choice and side-by-side viewing stay independent. */
+[data-locale="ko"] [data-copy-loc="en"], [data-locale="en"] [data-copy-loc="ko"] {{ display: none; }}
+[data-view="single"][data-locale="ko"] figure[data-loc="en"],
+[data-view="single"][data-locale="en"] figure[data-loc="ko"] {{ display: none; }}
+[data-view="single"] .catalog .pair {{ grid-template-columns: minmax(0, 1fr); }}
+[data-copy-loc] + [data-copy-loc]::before {{ content: " / "; color: var(--ink-muted); }}
+[data-locale] [data-copy-loc] + [data-copy-loc]::before {{ content: none; }}
 @media (prefers-reduced-motion: reduce) {{ * {{ transition: none !important; }} }}"""
 
 
@@ -229,29 +260,34 @@ def _featured_card(f: dict) -> str:
         art = (f.get("artifacts") or {}).get(loc)
         if not art:
             continue
-        alt = f'{f.get("name")} — {f.get("caption")} ({loc.upper()})'
-        figs += (f'<figure data-loc="{loc}"><figcaption>{_e(LOCALE_LABEL[loc])}</figcaption>'
+        name = f.get("nameKo") if loc == "ko" else f.get("name")
+        caption = f.get("captionKo") if loc == "ko" else f.get("caption")
+        alt = f'{name} — {caption} ({loc.upper()})'
+        figs += (f'<figure data-loc="{loc}" lang="{loc}"><figcaption>{_e(LOCALE_LABEL[loc])}</figcaption>'
                  f'{_frame("../" + art["svg"], alt, zoom=True)}</figure>')
     return (f'<div class="feat"><div class="pair">{figs}</div>'
-            f'<div class="cap"><span class="nm">{_e(f.get("name"))}</span>'
-            f'<span class="sub">{_e(f.get("caption"))}</span></div></div>')
+            f'<div class="cap"><span class="nm">'
+            f'{_bi_value(f.get("name"), f.get("nameKo"))}</span>'
+            f'<span class="sub">{_bi_value(f.get("caption"), f.get("captionKo"))}</span>'
+            f'</div></div>')
 
 
-def _detail(t: dict) -> str:
+def _detail(t: dict, copy: dict) -> str:
     ko, en = t["locales"]["ko"], t["locales"]["en"]
-    facts = [("profile", t.get("profile")), ("preset", t.get("preset")),
-             ("treatment", t.get("treatment")), ("delivery", t.get("fontDelivery")),
-             ("entities", len(ko.get("consumed") or []))]
-    chips = "".join(f'<span class="chip"><i>{_e(k)}</i>{_e(v)}</span>' for k, v in facts if v not in (None, ""))
+    facts = [("factProfile", t.get("profile")), ("factPreset", t.get("preset")),
+             ("factTreatment", t.get("treatment")), ("factDelivery", t.get("fontDelivery")),
+             ("factEntities", len(ko.get("consumed") or []))]
+    chips = "".join(f'<span class="chip"><i>{_bi(copy, k)}</i>{_e(v)}</span>'
+                    for k, v in facts if v not in (None, ""))
 
     rows = "".join(
         f'<tr><td>{_e(f.get("preset"))}</td><td>{_e(f.get("count"))}</td>'
         f'<td class="{"split" if f.get("result") == "needs-split" else ""}">{_e(f.get("result"))}</td></tr>'
         for f in (t.get("feasibility") or []))
-    boundary = (f'<div><h4>Where it stops fitting</h4><div class="scroll"><table>'
-                f'<tr><th>preset</th><th>count</th><th>verdict</th></tr>{rows}</table></div>'
-                f'<p class="note"><code>needs-split</code> returns a degrade receipt and no artifact '
-                f'— a non-success, not a smaller render.</p></div>') if rows else ""
+    boundary = (f'<div><h4>{_bi(copy, "whereStops")}</h4><div class="scroll"><table>'
+                f'<tr><th>{_bi(copy, "tablePreset")}</th><th>{_bi(copy, "tableCount")}</th>'
+                f'<th>{_bi(copy, "tableVerdict")}</th></tr>{rows}</table></div>'
+                f'<p class="note">{_bi(copy, "needsSplitNote")}</p></div>') if rows else ""
 
     stress = ""
     if t.get("stress"):
@@ -260,8 +296,9 @@ def _detail(t: dict) -> str:
             f'<td>{_e(s.get("preset"))}</td>'
             f'<td class="{"split" if s.get("geometryExpected") == "needs-split" else ""}">'
             f'{_e(s.get("geometryExpected"))}</td></tr>' for s in t["stress"])
-        stress = (f'<div><h4>Declared stress scenarios</h4><div class="scroll"><table>'
-                  f'<tr><th>scenario</th><th>preset</th><th>expected</th></tr>{items}</table></div></div>')
+        stress = (f'<div><h4>{_bi(copy, "declaredStress")}</h4><div class="scroll"><table>'
+                  f'<tr><th>{_bi(copy, "tableScenario")}</th><th>{_bi(copy, "tablePreset")}</th>'
+                  f'<th>{_bi(copy, "tableExpected")}</th></tr>{items}</table></div></div>')
 
     # A template, not a runnable line: the output paths are placeholders and it runs from the
     # package directory, so both are stated rather than implied.
@@ -273,41 +310,41 @@ def _detail(t: dict) -> str:
     # Shown only where it is true, and derived from the model rather than asserted here, so the
     # note disappears on its own once the renderer draws the entity and the artifacts regenerate.
     unrendered = sorted({e for loc in ("ko", "en") for e in (t["locales"][loc].get("unrendered") or [])})
-    limit = (f'<div><h4>Known limitation</h4><p class="note">The receipt counts '
+    limit = (f'<div><h4>{_bi(copy, "knownLimitation")}</h4><p class="note">'
              + ", ".join(f"<code>{_e(u)}</code>" for u in unrendered)
-             + f' as consumed, but the current package does not draw '
-             + ("it" if len(unrendered) == 1 else "them")
-             + '. Tracked separately from this gallery.</p></div>') if unrendered else ""
+             + " — " + _bi(copy, "unrenderedOne" if len(unrendered) == 1 else "unrenderedMany")
+             + '</p></div>') if unrendered else ""
 
     spec = str(t.get("spec") or "")
-    return f"""<details><summary>Prompt, command and limits</summary><div class="detail">
-<div><h4>Canonical prompt</h4><pre>ko: {_e(ko.get('prompt'))}
+    return f"""<details><summary>{_bi(copy, "detailSummary")}</summary><div class="detail">
+<div><h4>{_bi(copy, "canonicalPrompt")}</h4><pre>ko: {_e(ko.get('prompt'))}
 en: {_e(en.get('prompt'))}</pre></div>
-<div><h4>Command template</h4><pre>{_e(cmd)}</pre></div>
-<div><h4>Receipt facts</h4><div class="chips">{chips}</div></div>
+<div><h4>{_bi(copy, "commandTemplate")}</h4><pre>{_e(cmd)}</pre></div>
+<div><h4>{_bi(copy, "receiptFacts")}</h4><div class="chips">{chips}</div></div>
 {stress}{boundary}{limit}
-<div><h4>Sources</h4><p class="note">
+<div><h4>{_bi(copy, "sources")}</h4><p class="note">
 <a href="{GITHUB_DOC_BASE}/{_e(spec)}"><code>{_e(Path(spec).name)}</code></a> ·
 <a href="{GITHUB_DOC_BASE}/PROMPT-GALLERY.md#{_e(t['id'])}"><code>PROMPT-GALLERY.md</code></a> ·
 <a href="../{_e(ko.get('receipt'))}"><code>receipt</code></a>
 </p></div></div></details>"""
 
 
-def _catalog_card(t: dict) -> str:
+def _catalog_card(t: dict, copy: dict) -> str:
     figs = ""
     for loc in ("ko", "en"):
         e = t["locales"][loc]
         alt = f'{t["id"]} — {e.get("title")} ({loc.upper()})'
-        figs += (f'<figure data-loc="{loc}"><figcaption>{_e(LOCALE_LABEL[loc])}</figcaption>'
+        figs += (f'<figure data-loc="{loc}" lang="{loc}"><figcaption>{_e(LOCALE_LABEL[loc])}</figcaption>'
                  f'{_frame("../" + e["svg"], alt)}</figure>')
     return (f'<article id="{_e(t["id"])}"><h3><a href="#{_e(t["id"])}">{_e(t["id"])}</a></h3>'
-            f'<p class="signal">{_e(t.get("selectionSignal"))}</p>'
-            f'<div class="pair">{figs}</div>{_detail(t)}</article>')
+            f'<p class="signal">{_bi_value(t.get("selectionSignal"), t.get("selectionSignalKo"))}</p>'
+            f'<div class="pair">{figs}</div>{_detail(t, copy)}</article>')
 
 
 def render(model: dict, tokens: dict) -> str:
     packs = model.get("typepacks") or []
     feat = (model.get("featured") or {}).get("entries") or []
+    copy = (model.get("presentation") or {}).get("copy") or {}
     verified = sum(1 for t in packs for e in t["locales"].values() if e.get("verified"))
     total = sum(len(t["locales"]) for t in packs)
 
@@ -319,16 +356,16 @@ def render(model: dict, tokens: dict) -> str:
     # says so only while that is true. Derived from the same field as the per-pack note: a sentence
     # about a limitation must disappear with the limitation, not outlive it in the copy.
     gaps = sorted({t["id"] for t in packs for e in t["locales"].values() if e.get("unrendered")})
-    gaps_note = (" A known " + ", ".join(g.split("-")[0] for g in gaps)
-                 + " rendering limitation is tracked separately.") if gaps else ""
+    gaps_note = (" " + _bi(copy, "trackedLimitation") + " "
+                 + ", ".join(gaps) + ".") if gaps else ""
 
     return f"""<!doctype html>
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TypePack Gallery</title>
+<title>{_e(_copy(copy, "pageTitle", "en"))}</title>
 <!-- GENERATED VIEW — do not edit by hand.
-     Source of truth: gallery/model.json + gallery/tokens.json (+ gallery/featured.json).
+     Source of truth: gallery/model.json + gallery/tokens.json (+ gallery/featured.json + gallery/locale.json).
      Regenerate with `python3 -m skillstead_validate gallery --write`;
      `--check` fails when this file drifts.
      A single generated HTML entrypoint with no external network dependencies; images are
@@ -338,38 +375,35 @@ def render(model: dict, tokens: dict) -> str:
 </style>
 <div class="wrap">
 <header>
-  <h1>Diagrams your agent can actually produce</h1>
-  <p class="lede">Every picture below was generated by this skill from a written prompt — no drawing,
-  no hand-tuned SVG. The showcase shows the range; the catalog under it is what you pick from.</p>
-  <div class="switch" id="switch" hidden>
-    <button type="button" data-set="both" aria-pressed="false">Side by side</button>
-    <button type="button" data-set="ko" aria-pressed="true">한국어</button>
-    <button type="button" data-set="en" aria-pressed="false">English</button>
+  <h1>{_bi(copy, "heroTitle")}</h1>
+  <p class="lede">{_bi(copy, "heroLede")}</p>
+  <div class="controls" id="controls" hidden>
+    <fieldset class="switch" id="language-switch"><legend>{_bi(copy, "languageLabel")}</legend>
+      <button type="button" data-language="ko" aria-pressed="true">한국어</button>
+      <button type="button" data-language="en" aria-pressed="false">English</button>
+    </fieldset>
+    <fieldset class="switch" id="view-switch"><legend>{_bi(copy, "viewLabel")}</legend>
+      <button type="button" data-view="single" aria-pressed="true">{_bi(copy, "singleView")}</button>
+      <button type="button" data-view="both" aria-pressed="false">{_bi(copy, "bothView")}</button>
+    </fieldset>
   </div>
 </header>
 
-<h2 class="sec">What it can draw</h2>
-<p class="sec-note">Six existing outputs, chosen for how differently they are shaped — a cloud
-topology, a branching swimlane, a decision matrix, nested trust rings, a mirrored comparison and the
-sketch treatment. Click any one to see it full size.</p>
-{_facet_line(feat_ev, ("sourceGates", "typePackReceipt"))}
+<h2 class="sec">{_bi(copy, "featuredTitle")}</h2>
+<p class="sec-note">{_bi(copy, "featuredNote")}</p>
+{_facet_line(feat_ev, ("sourceGates", "typePackReceipt"), copy)}
 <div class="featured">{"".join(_featured_card(f) for f in feat)}</div>
-<p class="note">Hand-authored examples that predate the TypePack receipts. They clear the lint,
-layout and typography gates; no receipt exists for them, which is why the receipt facet reads
-<code>none</code> rather than being left out.</p>
+<p class="note">{_bi(copy, "featuredLegacyNote")}</p>
 
-<h2 class="sec">Choose a TypePack</h2>
-<p class="sec-note">Nine minimum-syntax types — the catalog's regression baseline. Each card carries
-the signal that selects it and its Korean and English canonical example; open one for the prompt,
-the command template, and the point where that type stops fitting.</p>
-{_facet_line((packs[0]["locales"]["ko"]["evidence"] if packs else {}), ("sourceGates", "typePackReceipt"))}
-<p class="note">{verified}/{total} TypePack canonical artifacts pass the current package verifier.{gaps_note}</p>
+<h2 class="sec">{_bi(copy, "catalogTitle")}</h2>
+<p class="sec-note">{_bi(copy, "catalogNote")}</p>
+{_facet_line((packs[0]["locales"]["ko"]["evidence"] if packs else {}), ("sourceGates", "typePackReceipt"), copy)}
+<p class="note">{verified}/{total} {_bi(copy, "currentVerifier")}{gaps_note}</p>
 
-<div class="catalog">{"".join(_catalog_card(t) for t in packs)}</div>
-<p class="note source-policy">Specification and prompt links follow the current <code>main</code>
-branch. 명세와 프롬프트 링크는 현재 <code>main</code> 브랜치를 따릅니다.</p>
+<div class="catalog">{"".join(_catalog_card(t, copy) for t in packs)}</div>
+<p class="note source-policy">{_bi(copy, "sourcePolicy")}</p>
 </div>
-<dialog id="zoom"><img alt=""><form method="dialog"><button>Close</button></form></dialog>
+<dialog id="zoom"><img alt=""><form method="dialog"><button>{_bi(copy, "close")}</button></form></dialog>
 <script>
 // Full size is a plain link by default, so it works with no scripting. Where scripting exists the
 // click is intercepted and shown in place instead of navigating away from the gallery.
@@ -385,24 +419,37 @@ branch. 명세와 프롬프트 링크는 현재 <code>main</code> 브랜치를 �
     dlg.showModal();
   }});
 }})();
-// The locale switch is the only thing that needs scripting, so it stays hidden until scripting is
-// present. Without it both locales are already on screen and every detail still opens.
+// Language and artifact view are independent. The controls stay hidden without scripting, where
+// both prose locales and both artifacts are already available and every detail still opens.
 (function () {{
-  var bar = document.getElementById("switch");
-  if (!bar) return;
-  bar.hidden = false;
-  function setLocale(mode) {{
-    document.documentElement.dataset.locale = mode === "both" ? "" : mode;
-    bar.querySelectorAll("button").forEach(function (x) {{
-      x.setAttribute("aria-pressed", String(x.dataset.set === mode));
+  var controls = document.getElementById("controls");
+  var language = document.getElementById("language-switch");
+  var view = document.getElementById("view-switch");
+  if (!controls || !language || !view) return;
+  controls.hidden = false;
+  function setLanguage(loc) {{
+    document.documentElement.dataset.locale = loc;
+    document.documentElement.lang = loc;
+    document.title = loc === "ko" ? {json.dumps(_copy(copy, "pageTitle", "ko"), ensure_ascii=False)} : {json.dumps(_copy(copy, "pageTitle", "en"), ensure_ascii=False)};
+    language.querySelectorAll("button[data-language]").forEach(function (x) {{
+      x.setAttribute("aria-pressed", String(x.dataset.language === loc));
     }});
   }}
-  // With scripting, open on one locale so a featured artifact fills its card. "Side by side" is one
-  // click away, and the no-script view already shows both.
-  setLocale("ko");
-  bar.addEventListener("click", function (ev) {{
-    var b = ev.target.closest("button[data-set]");
-    if (b) setLocale(b.dataset.set);
+  function setView(mode) {{
+    document.documentElement.dataset.view = mode;
+    view.querySelectorAll("button[data-view]").forEach(function (x) {{
+      x.setAttribute("aria-pressed", String(x.dataset.view === mode));
+    }});
+  }}
+  setLanguage("ko");
+  setView("single");
+  language.addEventListener("click", function (ev) {{
+    var b = ev.target.closest("button[data-language]");
+    if (b) setLanguage(b.dataset.language);
+  }});
+  view.addEventListener("click", function (ev) {{
+    var b = ev.target.closest("button[data-view]");
+    if (b) setView(b.dataset.view);
   }});
 }})();
 </script>

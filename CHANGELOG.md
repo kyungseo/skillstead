@@ -21,6 +21,15 @@ Repository-level changes since the last dated entry. No version is assigned and 
 - **Evidence is stated per artifact, not per page.** TypePack artifacts carry receipts; the transitional legacy
   featured entries carry lint, layout and typography results only. The gallery says which is which instead of
   averaging them into one claim.
+- **Full page localization.** Language selection now changes the page prose, Featured metadata, TypePack selection
+  signals, detail labels, alt text and document language independently from the single/side-by-side artifact view.
+  Korean display signals live in the repository gallery and must exactly match the package's TypePack ids.
+
+### Skills
+
+- `svg-infographic` `0.10.0` — nine TypePacks with generated receipts, semantic architecture primitives,
+  fail-closed icon selection, compact/regular topology variants, and canonicalization v2 for clean release
+  provenance. These are representative core types, not an exhaustive catalog.
 
 ### Verification
 

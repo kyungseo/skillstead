@@ -23,12 +23,13 @@ maintainer references.
 
 ### Explore the SVG gallery
 
-[![Six outputs from svg-infographic: a cloud topology, a branching swimlane, a decision matrix, nested trust rings, a before-and-after migration, and a sketch-treatment system map](./gallery/contact-sheet.en.png)](./gallery/index.html)
+[![Six outputs from svg-infographic: a cloud topology, a branching swimlane, a decision matrix, nested trust rings, a before-and-after migration, and a sketch-treatment system map](./gallery/contact-sheet.en.png)](https://kyungseo.github.io/skillstead/gallery/)
 
 `svg-infographic` covers more than conventional architecture boxes. The six above were chosen for how
 differently they are shaped; they clear the lint, layout and typography gates, and they predate the TypePack
 receipts, so no receipt is claimed for them. The gallery behind the image carries the nine TypePacks with their
-receipts alongside these. [Open the gallery](./gallery/index.html), or
+receipts alongside these. The contact sheet intentionally keeps an English evidence frame around the locale-specific
+artifacts; the live gallery localizes the full page. [Open the live gallery](https://kyungseo.github.io/skillstead/gallery/), or
 [browse the legacy examples and the verified TypePack catalog](./examples/svg-infographic).
 
 ### Use one skill—or combine them across a release
@@ -44,7 +45,7 @@ required pipeline: start with the skill you need, skip the others, and recheck a
 
 | Skill | Best for | Version | Runtime support | Maturity |
 | --- | --- | --- | --- | --- |
-| [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | `0.9.0` | Supported: Claude Code + Codex | Stable |
+| [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | `0.10.0` | Supported: Claude Code + Codex | Stable |
 | [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | `0.9.1` | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | `0.9.0` | Supported: Claude Code + Codex | Stable |
 | [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | `0.11.0` | Supported: Claude Code + Codex | Beta |
@@ -75,6 +76,7 @@ Use it for architecture and cloud topology, process or approval flows, before/af
 layer models, qualitative matrices, and Korean/CJK-ready technical one-pagers.
 
 - Friendly guide: [`svg-infographic` README](./skills/svg-infographic/README.md)
+- Live gallery: [featured outputs and the verified TypePack catalog](https://kyungseo.github.io/skillstead/gallery/)
 - Examples: [legacy examples and the verified TypePack catalog](./examples/svg-infographic)
 - Name the skill: `Use svg-infographic to turn this migration plan into an editable technical infographic.`
 - Or ask naturally: `Turn this migration plan into an editable technical SVG and verified 2× PNG. Show the output path before creating files.`

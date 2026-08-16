@@ -18,6 +18,7 @@
 | --- | --- | --- | --- |
 | M1 | 저장소 검증 — package 구조, `metadata.version` ↔ 스킬별 CHANGELOG 일치와 루트 CHANGELOG의 현재 버전 수록 여부(I-1), 카탈로그 `Version` 열(I-7), package 완전성(I-9), 라이선스 사본 바이트 일치, active identity 예약어 | 모든 PR, `main` push, 매일 schedule | `PYTHONPATH=tools python3 -m skillstead_validate repo` |
 | M2 | 릴리스 preflight와 tag 생성 — 통상 payload diff gate와 exact-record baseline 분기, bump 단계 검사(I-6), inventory·retirement 보호(I-10), major transition 승인, 신규 skill 최초 릴리스, tag 고유성 | 릴리스 제안 시. dry-run 가능 | `… preflight --plan PLAN.json` / `… apply-tags --plan PLAN.json` (`git push --atomic`으로 remote에 발행. push 실패 시 local ref rollback) |
+| M2-SVG | `svg-infographic` artifact release gate — exact canonical inventory, clean source identity, package pair 검증, 2× PNG 크기, staging→repository byte 동일성과 source/artifact commit 경계 | 해당 스킬의 M2 preflight 전. read-only | `… svg-release-artifacts --staging STAGING --source-commit SHA [--compare-repository] [--artifact-commit SHA]` |
 | M3 | tag·retirement history 지속 검사 — 모든 namespaced tag의 I-2·I-5·I-8, durable expected-target 관계, retirement record 지속성과 identity 재활성화를 매 실행 검사 | 모든 PR, push, tag 생성/삭제, 매일 schedule | `… tags --main-ref origin/main` |
 | M4 | cutover verdict — cutover record·INSTALL pin·baseline ref·GitHub Releases에 대한 ordered evaluator | CI 상시 + 모든 릴리스 작업 전후 | `… cutover --live --repo-slug OWNER/REPO` |
 | M5 | canonical release wrapper — **GitHub Release 작업의 유일한 지원 경로** | 수동 또는 `release` workflow | `… release --request REQUEST.json --repo-slug OWNER/REPO [--dry-run]` |
@@ -37,6 +38,16 @@ action별 request boolean 제약(request는 의도한 최종 상태와 같아야
 `apply-tags`를 통해서만 일어납니다. wrapper는 tag를 만들지 않습니다(모든 create에
 `--verify-tag`). `gh release …` 직접 호출은 **지원되지 않는 경로**입니다 — 저장소 ruleset에는
 admin bypass가 있으므로 이 경계는 hard guarantee가 아니라 discipline입니다.
+
+`svg-infographic`은 M2 전에 clean source commit에서 만든 repository 밖 staging directory를 M2-SVG로
+검사합니다. canonical file은 정확히 54개(아홉 TypePack × 두 locale × SVG·receipt·PNG)여야 하며,
+receipt canonicalization v2, surface revision 17, 선택한 source commit, clean source flag, live runtime digest,
+package verifier 통과와 SVG viewBox의 정확히 두 배인 PNG 크기를 요구합니다. `--compare-repository`는 복사한
+byte의 완전 일치를 추가로 검사합니다. artifact commit 뒤 `--artifact-commit`을 사용하면 source commit의
+descendant인지, canonical artifact delta가 source snapshot과 staging의 byte가 실제로 다른 파일과 정확히
+일치하는지 확인합니다. 추가 delta는 `gallery/model.json`·`gallery/index.html`만 허용합니다. 결정론적으로
+같은 SVG·PNG byte는 Git delta에 나타날 필요가 없습니다. package runtime과 contact sheet는 움직일 수
+없습니다. 이 명령은 검사만 수행합니다. 생성·복사·commit·tag는 계속 별도 승인 단계입니다.
 
 **발행 직후 재관측 (M5).** 발행 직후에 보낸 읽기는 아직 따라잡지 못한 replica에서 응답할 수 있어,
 방금 만든 release가 빠진 목록이 돌아오기도 합니다. wrapper는 **그 경우만** 재시도하며, 판별 기준은

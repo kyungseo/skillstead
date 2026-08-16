@@ -196,19 +196,19 @@
   "schema": {
    "name": "svg-infographic-provenance",
    "version": 1,
-   "canonicalization": 1
+   "canonicalization": 2
   },
   "executionMode": "source-development",
   "skillRoot": "skills/svg-infographic",
   "package": {
    "id": "svg-infographic",
-   "surfaceRevision": 16
+   "surfaceRevision": 17
   },
-  "runtimeSurfaceDigest": "sha256:5a89c6eeb2daebf88be963a8428fc46940a321c89e718d51076b8f403c513fe5",
+  "runtimeSurfaceDigest": "sha256:12819c706448cb154730024e8db459dd469bc8a0159df235ffd16e6d710ec2b4",
   "source": {
-   "headCommit": "b67f0f8e7703963dffca6168ca5836e44f3236a6",
-   "repoDirty": true,
-   "runtimeSurfaceDirty": true
+   "headCommit": "f7d78e44973970df460b363508967b9fe3683ea5",
+   "repoDirty": false,
+   "runtimeSurfaceDirty": false
   },
   "producer": {
    "kind": "generator",

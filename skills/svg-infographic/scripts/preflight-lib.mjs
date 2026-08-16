@@ -83,8 +83,9 @@ export function loadSurfaceManifest(skillRoot) {
   const doc = parseSurfaceManifest(readFileSync(p, "utf8"));
   if (doc.schema_version !== 1) fail(`package-surface schema_version must be 1 (got ${doc.schema_version})`);
   if (!Number.isFinite(Number(doc.surface_revision))) fail("package-surface surface_revision must be a number");
-  if (Number(doc.canonicalization?.version) !== 1 || doc.canonicalization?.digest !== "sha256")
-    fail("package-surface canonicalization must declare version 1 + sha256");
+  if (Number(doc.canonicalization?.version) !== 2 || doc.canonicalization?.digest !== "sha256"
+      || doc.canonicalization?.runtime_normalization !== "SKILL.md-frontmatter-metadata.version-to-@VERSION@")
+    fail("package-surface canonicalization must declare version 2 + sha256 + the exact SKILL.md metadata.version normalization");
   if (!doc.entries.length) fail("package-surface declares no entries");
   return doc;
 }
@@ -134,11 +135,47 @@ export function classify(files, manifest) {
 }
 
 // ---------- digests ----------
+// Runtime canonicalization has one deliberately narrow exception: release bookkeeping changes the
+// package tree identity, but `SKILL.md` frontmatter metadata.version does not change generation
+// behaviour. This is a semantic port of tools/skillstead_validate/normalize.py; the body and every
+// other frontmatter scalar stay byte-sensitive.
+export function normalizeSkillMetadataVersion(text) {
+  const lines = text.match(/[^\r\n]*(?:\r\n|\r|\n|$)/g)?.filter((line, i, all) =>
+    !(i === all.length - 1 && line === "")) ?? [];
+  const out = [];
+  let delimiters = 0;
+  let currentTop = null;
+  for (const line of lines) {
+    const stripped = line.trim();
+    if (stripped === "---" && delimiters < 2) {
+      delimiters += 1;
+      out.push(line);
+      continue;
+    }
+    if (delimiters === 1) {
+      if (line && !/^\s/u.test(line[0])) currentTop = line.split(":", 1)[0].trim();
+      else if (currentTop === "metadata") {
+        const withoutLf = line.replace(/\n+$/, "");
+        const m = withoutLf.match(/^(\s+version:\s*)\S+(\s*)$/u);
+        if (m) {
+          out.push(`${m[1]}@VERSION@${m[2]}\n`);
+          continue;
+        }
+      }
+    }
+    out.push(line);
+  }
+  return out.join("");
+}
+
 // framing: path + NUL + byteLength + NUL + bytes, sorted by relative path. Absolute paths and mtime excluded.
-export function digestFiles(skillRoot, relFiles) {
+export function digestFiles(skillRoot, relFiles, { normalizeRuntime = false } = {}) {
   const h = createHash("sha256");
   for (const rel of [...relFiles].sort()) {
-    const bytes = readFileSync(path.join(skillRoot, rel));
+    const raw = readFileSync(path.join(skillRoot, rel));
+    const bytes = normalizeRuntime && rel === "SKILL.md"
+      ? Buffer.from(normalizeSkillMetadataVersion(raw.toString("utf8")), "utf8")
+      : raw;
     h.update(Buffer.from(rel, "utf8"));
     h.update(Buffer.from([0]));
     h.update(Buffer.from(String(bytes.length), "utf8"));
@@ -152,7 +189,11 @@ export function digestSets(skillRoot, kinds, manifest) {
   const sets = manifest.digest_sets ?? {};
   const out = {};
   for (const [name, wanted] of Object.entries(sets))
-    out[name] = digestFiles(skillRoot, [...kinds.entries()].filter(([, k]) => wanted.includes(k)).map(([f]) => f));
+    out[name] = digestFiles(
+      skillRoot,
+      [...kinds.entries()].filter(([, k]) => wanted.includes(k)).map(([f]) => f),
+      { normalizeRuntime: name === "runtimeSurfaceDigest" },
+    );
   return out;
 }
 
@@ -283,7 +324,11 @@ export function runPreflight({ entrypointUrl, cwd = process.cwd(), requireMode =
   if (ambiguous.length) fail(`package-surface classifies ${ambiguous.length} file(s) more than once: ${ambiguous.slice(0, 5).join(", ")}`);
   if (missing.length) fail(`package-surface declares missing file(s): ${missing.join(", ")}`);
   const runtimeKinds = manifest.digest_sets?.runtimeSurfaceDigest ?? [];
-  const runtimeSurfaceDigest = digestFiles(skillRoot, [...kinds.entries()].filter(([, k]) => runtimeKinds.includes(k)).map(([f]) => f));
+  const runtimeSurfaceDigest = digestFiles(
+    skillRoot,
+    [...kinds.entries()].filter(([, k]) => runtimeKinds.includes(k)).map(([f]) => f),
+    { normalizeRuntime: true },
+  );
   process.env[EXPECTED_ROOT_ENV] = skillRoot;
   process.env[EXECUTION_MODE_ENV] = mode;
   current = { mode, requestedMode, repoRoot, skillRoot, manifest, kinds, files, runtimeSurfaceDigest };
@@ -329,7 +374,7 @@ export function guardPackagePath(target, label) {
 // Recomputable values (verified) are kept apart from run-time records (informational).
 // Informational values are evidence, not verified claims; the real testedCommit is recorded by
 // a clean CI acceptance receipt outside the package.
-export const PROVENANCE_SCHEMA = { name: "svg-infographic-provenance", version: 1, canonicalization: 1 };
+export const PROVENANCE_SCHEMA = { name: "svg-infographic-provenance", version: 1, canonicalization: 2 };
 export const RECEIPT_SCHEMA = { name: "svg-infographic-preflight-receipt", version: 1 };
 export const PROVENANCE_FIELDS = ["schema", "executionMode", "skillRoot", "package", "runtimeSurfaceDigest", "source", "producer", "inputs", "browser"];
 // The verification level is split three ways to match what is actually checked — a verifier

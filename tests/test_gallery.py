@@ -24,7 +24,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 
 from skillstead_validate.gallery import (  # noqa: E402
-    EXAMPLES, MODEL_PATH, TOKENS_PATH, GalleryError, NodeRunner, build_model, run_gallery,
+    EXAMPLES, LOCALE_PATH, MODEL_PATH, TOKENS_PATH, GalleryError, NodeRunner, build_model, run_gallery,
 )
 from skillstead_validate.contact_sheet import RENDER_RECEIPT, sheet_paths  # noqa: E402
 from skillstead_validate.gallery_html import GALLERY_HTML, GITHUB_DOC_BASE, render  # noqa: E402
@@ -119,12 +119,14 @@ class GalleryModelFixtures(unittest.TestCase):
         self.assertNotEqual(_git(self.repo, "status", "--porcelain").stdout.strip(), "")
         self.assertEqual(self.checks(), set())
 
-    def test_model_joins_all_four_surfaces(self):
+    def test_model_joins_all_authority_surfaces(self):
         model, findings = build_model(self.repo)
         self.assertEqual(findings, [])
+        self.assertEqual(model["schemaVersion"], 2)
         self.assertEqual(model["typepackCount"], 9)
         for t in model["typepacks"]:
             self.assertTrue(t["selectionSignal"], f"{t['id']}: manifest field missing")
+            self.assertTrue(t["selectionSignalKo"], f"{t['id']}: gallery Korean signal missing")
             for loc, e in t["locales"].items():
                 self.assertTrue(e["prompt"], f"{t['id']}/{loc}: payload prompt missing")
                 self.assertTrue(e["title"], f"{t['id']}/{loc}: payload title missing")
@@ -323,19 +325,49 @@ class GalleryModelFixtures(unittest.TestCase):
         on the root, the switch never appears without scripting, and detail opens on its own — so
         both sections and every prompt remain reachable."""
         h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
-        self.assertIn('id="switch" hidden', h)
-        for rule in ('[data-locale="ko"] figure[data-loc="en"]', '[data-locale="en"] figure[data-loc="ko"]'):
+        self.assertIn('id="controls" hidden', h)
+        self.assertIsNone(re.search(r'<html[^>]*data-locale=', h),
+                          "no-JS root must not hide either locale")
+        for rule in ('[data-view="single"][data-locale="ko"] figure[data-loc="en"]',
+                     '[data-view="single"][data-locale="en"] figure[data-loc="ko"]'):
             self.assertIn(rule, h)
+        self.assertIn('data-copy-loc="ko" lang="ko"', h)
+        self.assertIn('data-copy-loc="en" lang="en"', h)
         self.assertEqual(h.count("<details>"), 9)
 
-    def test_featured_switches_locale_with_the_catalog(self):
-        """The switch is one control for the whole page: featured artifacts carry data-loc exactly
-        as catalog thumbnails do, so a locale choice cannot apply to one section only."""
-        h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
+    def test_language_and_artifact_view_are_independent(self):
+        """Language changes prose, alt selection and html.lang; view changes only artifact pairing."""
+        model, _ = build_model(self.repo)
+        tokens = json.loads((self.repo / TOKENS_PATH).read_text(encoding="utf-8"))
+        h = render(model, tokens)
         import re
         feat = re.search(r'<div class="featured">(.*?)</div>\s*<p class="note">', h, re.S).group(1)
         self.assertEqual(feat.count('data-loc="ko"'), 6)
         self.assertEqual(feat.count('data-loc="en"'), 6)
+        self.assertIn('function setLanguage(loc)', h)
+        self.assertIn('document.documentElement.lang = loc', h)
+        self.assertIn('function setView(mode)', h)
+        self.assertIn('document.documentElement.dataset.view = mode', h)
+        self.assertIn('setLanguage("ko")', h)
+        self.assertIn('setView("single")', h)
+        self.assertIn("에이전트가 실제로 만들 수 있는 다이어그램", h)
+        self.assertIn("Diagrams your agent can actually produce", h)
+
+    def test_gallery_locale_table_exactly_matches_the_manifest(self):
+        locale = json.loads((self.repo / LOCALE_PATH).read_text(encoding="utf-8"))
+        model, _ = build_model(self.repo)
+        ids = {t["id"] for t in model["typepacks"]}
+        self.assertEqual(set(locale["typepackSelectionKo"]), ids)
+        self.assertTrue(all(v.strip() for v in locale["typepackSelectionKo"].values()))
+
+    def test_gallery_locale_key_drift_fails_closed(self):
+        p = self.repo / LOCALE_PATH
+        locale = json.loads(p.read_text(encoding="utf-8"))
+        locale["typepackSelectionKo"].pop("topology-component")
+        p.write_text(json.dumps(locale, ensure_ascii=False), encoding="utf-8")
+        findings = run_gallery(self.repo)
+        self.assertIn("GAL-LOCALE", {f.check for f in findings})
+        self.assertTrue(any("exactly match" in f.detail for f in findings), findings)
 
     def test_page_alt_text_names_the_type_and_the_artifact(self):
         """Alt text describes the picture. The selection signal says when to reach for the type,
@@ -361,7 +393,9 @@ class GalleryModelFixtures(unittest.TestCase):
                              f'{t["id"]}: the selection signal must not be used as alt text')
         for f in model["featured"]["entries"]:
             for loc in ("ko", "en"):
-                self.assertIn(f'{f["name"]} — {f["caption"]} ({loc.upper()})', alts,
+                name = f["nameKo"] if loc == "ko" else f["name"]
+                caption = f["captionKo"] if loc == "ko" else f["caption"]
+                self.assertIn(f'{name} — {caption} ({loc.upper()})', alts,
                               f'{f["slug"]}/{loc}: featured alt text describes the picture too')
 
     def test_page_shows_the_verified_svg_not_the_png(self):
@@ -400,7 +434,7 @@ class GalleryModelFixtures(unittest.TestCase):
         self.assertEqual(len(links), 18, "nine specs and nine prompt anchors are public")
         self.assertCountEqual(links, expected, "public document links must follow the TypePack model")
         self.assertIn("Specification and prompt links follow the current", h)
-        self.assertIn("명세와 프롬프트 링크는 현재", h)
+        self.assertIn("명세와 prompt 링크는 현재", h)
 
     def test_page_example_links_match_the_pages_artifact(self):
         """Pages keeps only SVG/JSON examples, so every public link must use those formats."""
@@ -419,6 +453,9 @@ class GalleryModelFixtures(unittest.TestCase):
         got = model["featured"]["entries"]
         self.assertEqual([e["slug"] for e in got], [e["slug"] for e in declared],
                          "the model must publish exactly what the editorial file selects")
+        for source, rendered in zip(declared, got):
+            self.assertEqual(rendered["nameKo"], source["name_ko"])
+            self.assertEqual(rendered["captionKo"], source["caption_ko"])
         for e in got:
             self.assertTrue(e["artifacts"].get("ko") and e["artifacts"].get("en"))
             self.assertTrue(e["reason"], f'{e["slug"]}: a selection without a reason is not editorial')
@@ -436,7 +473,10 @@ class GalleryModelFixtures(unittest.TestCase):
         h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
         model, _ = build_model(self.repo)
         n = sum(1 for t in model["typepacks"] for e in t["locales"].values() if e["verified"])
-        self.assertIn(f"{n}/{n} TypePack canonical artifacts pass", h)
+        copy = json.loads((self.repo / LOCALE_PATH).read_text(encoding="utf-8"))["copy"]
+        self.assertIn(f"{n}/{n} ", h)
+        self.assertIn(copy["currentVerifier"]["ko"], h)
+        self.assertIn(copy["currentVerifier"]["en"], h)
         self.assertNotIn(f"{n + len(model['featured']['entries'])}/", h)
 
     # --- README contact sheet ---------------------------------------------------------
@@ -487,7 +527,7 @@ class GalleryModelFixtures(unittest.TestCase):
             t = (self.repo / name).read_text(encoding="utf-8")
             m = re.search(r'!\[([^\]]+)\]\(\./gallery/contact-sheet\.' + loc + r'\.png\)\]\(([^)]+)\)', t)
             self.assertIsNotNone(m, f"{name}: the sheet must be present and wrapped in a link")
-            self.assertEqual(m.group(2), "./gallery/index.html", name)
+            self.assertEqual(m.group(2), "https://kyungseo.github.io/skillstead/gallery/", name)
             self.assertTrue((self.repo / "gallery/index.html").exists())
             alts.append(m.group(1))
         self.assertNotEqual(alts[0], alts[1], "each locale describes the picture in its own language")

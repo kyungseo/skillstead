@@ -55,11 +55,12 @@ if (!existsSync(featuredPath)) {
     if (!slug) { featured.errors.push("featured entry has no slug"); continue; }
     if (seen.has(slug)) { featured.errors.push(`featured "${slug}" is listed twice`); continue; }
     seen.add(slug);
-    for (const field of ["name", "caption", "reason"])
+    for (const field of ["name", "name_ko", "caption", "caption_ko", "reason"])
       if (!entry[field]) featured.errors.push(`featured "${slug}" is missing ${field}`);
-    if (/\d/.test(String(entry.caption ?? "")))
-      featured.errors.push(`featured "${slug}" caption carries a digit — captions stay qualitative `
-        + `because a count is a claim no gate checks (got "${entry.caption}")`);
+    for (const field of ["caption", "caption_ko"])
+      if (/\d/.test(String(entry[field] ?? "")))
+        featured.errors.push(`featured "${slug}" ${field} carries a digit — captions stay qualitative `
+          + `because a count is a claim no gate checks (got "${entry[field]}")`);
     // The palette profile is declared per entry and never inherited. `legacy-unprofiled` is a dated
     // exception for the six v0.8-era entries, not a default a new one can drift into.
     const PALETTE = new Set(["current", "legacy-unprofiled"]);
@@ -81,7 +82,9 @@ if (!existsSync(featuredPath)) {
     }
     // Recorded, not required: these are hand-authored examples that predate the TypePack receipts.
     const receipt = existsSync(path.join(dir, `${slug}.ko.json`));
-    featured.entries.push({ slug, name: entry.name, caption: entry.caption, reason: entry.reason,
+    featured.entries.push({ slug, name: entry.name, nameKo: entry.name_ko,
+                            caption: entry.caption, captionKo: entry.caption_ko,
+                            reason: entry.reason,
                             artifacts: art, hasReceipt: receipt,
                             paletteProfile: entry.paletteProfile,
                             paletteNote: entry.paletteNote ?? null });

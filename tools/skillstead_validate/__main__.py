@@ -28,6 +28,7 @@ from .release_plan import PlanError, parse_plan
 from .tag_check import run_tag_checks
 from .transport import TransportError, fetch_latest, fetch_releases
 from .wrapper import RequestError, parse_request, run_wrapper
+from .svg_release_artifacts import check_release_artifacts
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -47,6 +48,12 @@ def main(argv: list[str] | None = None) -> int:
     gal = sub.add_parser("gallery", help="gallery model join + drift check (CP3B)")
     gal.add_argument("--repo-root", type=Path, default=Path.cwd())
     gal.add_argument("--write", action="store_true", help="regenerate gallery/model.json")
+    svgrel = sub.add_parser("svg-release-artifacts", help="release-only clean provenance and exact-copy gate")
+    svgrel.add_argument("--repo-root", type=Path, default=Path.cwd())
+    svgrel.add_argument("--staging", type=Path, required=True)
+    svgrel.add_argument("--source-commit", required=True)
+    svgrel.add_argument("--compare-repository", action="store_true")
+    svgrel.add_argument("--artifact-commit")
     cut = sub.add_parser("cutover", help="cutover verdict evaluator (M4)")
     cut.add_argument("--repo-root", type=Path, default=Path.cwd())
     cut.add_argument("--main-ref", default="main")
@@ -61,6 +68,17 @@ def main(argv: list[str] | None = None) -> int:
     rel.add_argument("--repo-slug", required=True)
     rel.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
+
+    if args.mode == "svg-release-artifacts":
+        findings = check_release_artifacts(
+            args.repo_root, args.staging, args.source_commit,
+            compare_repository=args.compare_repository,
+            artifact_commit=args.artifact_commit,
+        )
+        for f in findings:
+            print(f, file=sys.stderr)
+        print(f"skillstead_validate svg-release-artifacts: {len(findings)} finding(s)")
+        return 1 if findings else 0
 
     if args.mode == "release":
         try:

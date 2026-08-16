@@ -20,6 +20,7 @@ verdict, never a silent pass.
 | --- | --- | --- | --- |
 | M1 | Repository validation — package structure, `metadata.version` ↔ per-skill CHANGELOG and root CHANGELOG current-version coverage (I-1), catalog `Version` columns (I-7), package completeness (I-9), licence copy byte-equality, and reserved active identities | every PR, push to `main`, daily schedule | `PYTHONPATH=tools python3 -m skillstead_validate repo` |
 | M2 | Release preflight and tag creation — ordinary payload-diff gate plus the exact-record baseline branch, bump-step check (I-6), inventory/retirement guard (I-10), major-transition approval, new-skill initial release, tag uniqueness | invoked for a proposed release; dry-runnable | `… preflight --plan PLAN.json` / `… apply-tags --plan PLAN.json` (publishes to the remote with `git push --atomic`; a push failure rolls local refs back) |
+| M2-SVG | `svg-infographic` artifact release gate — exact canonical inventory, clean source identity, package pair verification, 2× PNG dimensions, staging-to-repository byte identity and source/artifact commit boundary | before its M2 preflight; read-only | `… svg-release-artifacts --staging STAGING --source-commit SHA [--compare-repository] [--artifact-commit SHA]` |
 | M3 | Continuous tag and retirement-history checks — I-2, I-5, I-8, the durable expected-target relation for every namespaced tag, and retirement-record persistence/reactivation on every run | every PR, push, tag create/delete, daily schedule | `… tags --main-ref origin/main` |
 | M4 | Cutover verdict — the ordered evaluator over the cutover record, INSTALL pins, baseline refs, and GitHub Releases | CI runs + before/after every release operation | `… cutover --live --repo-slug OWNER/REPO` |
 | M5 | Canonical release wrapper — **the only supported path for GitHub Release operations** | manual, or the `release` workflow | `… release --request REQUEST.json --repo-slug OWNER/REPO [--dry-run]` |
@@ -42,6 +43,16 @@ happens only through `apply-tags`, which re-runs the preflight first. The
 wrapper never creates tags (`--verify-tag` on every create). Calling `gh
 release …` directly is an **unsupported path** — repository rulesets carry
 admin bypasses, so this boundary is discipline, not a hard guarantee.
+
+For `svg-infographic`, M2-SVG runs first against an out-of-tree staging directory made from the clean source
+commit. It requires exactly 54 canonical files (nine TypePacks × two locales × SVG, receipt and PNG), receipt
+canonicalization v2, surface revision 17, the selected source commit, clean source flags, the live runtime digest,
+package-verifier success and a PNG exactly twice the SVG viewBox. `--compare-repository` adds byte-for-byte copy
+verification. After the artifact commit, `--artifact-commit` requires a descendant whose canonical-artifact delta
+is exactly the files whose staged bytes differ from the source snapshot; only `gallery/model.json` and
+`gallery/index.html` may additionally differ. Deterministically identical SVG or PNG bytes need not appear in the
+Git delta. The package runtime and contact sheet may not move.
+The command only inspects. Generation, copy, commit and tag operations remain separate approved steps.
 
 **Post-publish re-read (M5).** A read issued immediately after a publish can
 come back from a replica that has not caught up, listing releases without the

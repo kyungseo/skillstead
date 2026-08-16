@@ -16,6 +16,8 @@
   "Captions stay qualitative. A caption may not contain digits, because a number here is a claim",
   "about the artifact that nothing verifies — 'zones, boundaries and routed connectors' is",
   "observable in the picture; '20+ connectors' is a count no gate ever checked.",
+  "English name/caption and Korean name_ko/caption_ko are repository presentation metadata.",
+  "The contact sheet deliberately keeps the English pair; the live gallery selects the matching locale.",
   "",
   "This selection is TRANSITIONAL for Wave 1. The final composition, and whether the two evidence",
   "facets can be unified, are settled after Wave 2 lands its TypePacks — through a replacement",
@@ -41,7 +43,9 @@
   {
    "slug": "cloud-infra-topology",
    "name": "Cloud topology",
+   "name_ko": "클라우드 토폴로지",
    "caption": "zones, boundaries and routed connectors",
+   "caption_ko": "zone, boundary와 경로가 정해진 connector",
    "reason": "The densest structure the catalog produces — nested zones with routing that has to stay legible.",
    "paletteProfile": "legacy-unprofiled",
    "paletteNote": "v0.8-era artifact: carries variable paint or unannotated canonical hexes; exempt from the current palette gate until the Wave 2 replacement audition judges it replace-or-retain"
@@ -49,7 +53,9 @@
   {
    "slug": "agent-waiting-swimlane",
    "name": "Branching swimlane",
+   "name_ko": "분기형 스윔레인",
    "caption": "parallel lanes that rejoin",
+   "caption_ko": "나뉘었다가 다시 합쳐지는 병렬 lane",
    "reason": "Shows branching and rejoin, which a single-axis process flow cannot express.",
    "paletteProfile": "legacy-unprofiled",
    "paletteNote": "v0.8-era artifact: carries variable paint or unannotated canonical hexes; exempt from the current palette gate until the Wave 2 replacement audition judges it replace-or-retain"
@@ -57,7 +63,9 @@
   {
    "slug": "agent-task-matrix",
    "name": "Decision matrix",
+   "name_ko": "의사결정 매트릭스",
    "caption": "two qualitative axes",
+   "caption_ko": "두 개의 정성적 축",
    "reason": "Position carries meaning here, so it demonstrates the axis contract rather than a layout.",
    "paletteProfile": "legacy-unprofiled",
    "paletteNote": "v0.8-era artifact: carries variable paint or unannotated canonical hexes; exempt from the current palette gate until the Wave 2 replacement audition judges it replace-or-retain"
@@ -65,7 +73,9 @@
   {
    "slug": "zero-trust-onion",
    "name": "Nested scope",
+   "name_ko": "중첩된 범위",
    "caption": "concentric trust rings",
+   "caption_ko": "겹겹이 놓인 신뢰 경계",
    "reason": "Containment as the relation, with no connectors at all.",
    "paletteProfile": "legacy-unprofiled",
    "paletteNote": "v0.8-era artifact: carries variable paint or unannotated canonical hexes; exempt from the current palette gate until the Wave 2 replacement audition judges it replace-or-retain"
@@ -73,7 +83,9 @@
   {
    "slug": "before-after-migration",
    "name": "Before and after",
+   "name_ko": "변경 전과 후",
    "caption": "mirrored comparison",
+   "caption_ko": "대칭 구조로 비교",
    "reason": "Alignment carries the correspondence between the two sides.",
    "paletteProfile": "legacy-unprofiled",
    "paletteNote": "v0.8-era artifact: carries variable paint or unannotated canonical hexes; exempt from the current palette gate until the Wave 2 replacement audition judges it replace-or-retain"
@@ -81,7 +93,9 @@
   {
    "slug": "agent-system-sketch",
    "name": "Sketch treatment",
+   "name_ko": "스케치 표현",
    "caption": "handwriting and rough stroke",
+   "caption_ko": "손글씨와 거친 선",
    "reason": "The one surface treatment that is not flat, shown on a structure that is not trivial.",
    "paletteProfile": "legacy-unprofiled",
    "paletteNote": "v0.8-era artifact: carries variable paint or unannotated canonical hexes; exempt from the current palette gate until the Wave 2 replacement audition judges it replace-or-retain"

@@ -11,10 +11,10 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
-## [Unreleased]
+## [0.10.0] — 2026-08-16
 
-Wave 1 rebuilt how this skill is asked for and how its output is proved. Nothing here is released yet —
-`metadata.version` stays `0.9.0` until a version is assigned.
+This release rebuilds how the skill is selected, generated and verified. The nine core TypePacks are a
+representative architecture and infographic set, not an exhaustive catalog.
 
 - **TypePacks.** Nine named diagram types (process flow, approval gate, topology, layer stack, nested scope,
   before/after, cards KPI grid, decision matrix, roadmap timeline) replace free-form archetype selection. Each
@@ -44,6 +44,12 @@ Wave 1 rebuilt how this skill is asked for and how its output is proved. Nothing
   at, so the same input and the same glyph set produce the same bytes.
 - **Text measurement.** Fragment text bounds are measured against the package's own bundled face, loaded and
   verified before measuring. Measurement no longer depends on which fonts the machine happens to have installed.
+- **Architecture primitives.** The topology TypePack now uses semantic `node.kind` and `edge.kind` contracts,
+  a shared icon registry, fail-closed unknown-icon handling, compact/regular variants, and explicit port,
+  clearance, padding and system-boundary checks.
+- **Runtime identity.** Provenance canonicalization v2 excludes only the `metadata.version` bookkeeping scalar
+  from `runtimeSurfaceDigest`. The raw package tree still records version changes, while every other byte in
+  `SKILL.md` remains runtime-sensitive.
 
 ## [0.9.0] — 2026-08-09
 
