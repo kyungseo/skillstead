@@ -27,7 +27,7 @@ from skillstead_validate.gallery import (  # noqa: E402
     EXAMPLES, MODEL_PATH, TOKENS_PATH, GalleryError, NodeRunner, build_model, run_gallery,
 )
 from skillstead_validate.contact_sheet import RENDER_RECEIPT, sheet_paths  # noqa: E402
-from skillstead_validate.gallery_html import GALLERY_HTML, render  # noqa: E402
+from skillstead_validate.gallery_html import GALLERY_HTML, GITHUB_DOC_BASE, render  # noqa: E402
 
 FEATURED = "gallery/featured.json"
 
@@ -307,11 +307,16 @@ class GalleryModelFixtures(unittest.TestCase):
         self.assertNotEqual(before, after)
         self.assertIn("#123456", after)
 
-    def test_page_makes_no_external_request(self):
+    def test_page_makes_no_external_resource_request(self):
+        """Navigation may leave the site, but loading the page must not fetch remote resources."""
+        import re
         h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
-        self.assertNotIn("http://", h)
-        self.assertNotIn("https://", h)
+        self.assertIsNone(re.search(r'(?:src|srcset|poster|action)="https?://', h))
+        self.assertIsNone(re.search(r'<link\b[^>]*href="https?://', h))
+        self.assertIsNone(re.search(r'url\(["\']?https?://', h))
         self.assertNotIn("@import", h)
+        self.assertNotIn("fetch(", h)
+        self.assertNotIn("XMLHttpRequest", h)
 
     def test_page_shows_both_locales_without_scripting(self):
         """The no-JS state is the complete view. Nothing is hidden unless scripting has put a locale
@@ -374,6 +379,37 @@ class GalleryModelFixtures(unittest.TestCase):
         links = set(re.findall(r'(?:src|href)="(\.\./[^"#]+)(?:#[^"]*)?"', h))
         missing = [l for l in sorted(links) if not (self.repo / "gallery" / l).exists()]
         self.assertEqual(missing, [], "repository -> package relative links must resolve")
+
+    def test_page_document_links_are_the_exact_public_set(self):
+        import re
+        h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
+        model, _ = build_model(self.repo)
+        links = re.findall(r'href="(https://github\.com/kyungseo/skillstead/blob/main/'
+                           r'skills/svg-infographic/references/[^"]+)"', h)
+        expected = []
+        prompt_gallery = self.repo / "skills/svg-infographic/references/PROMPT-GALLERY.md"
+        prompt_text = prompt_gallery.read_text(encoding="utf-8")
+        for t in model["typepacks"]:
+            spec = t["spec"]
+            expected.extend((f"{GITHUB_DOC_BASE}/{spec}",
+                             f"{GITHUB_DOC_BASE}/PROMPT-GALLERY.md#{t['id']}"))
+            self.assertTrue((self.repo / "skills/svg-infographic/references" / spec).is_file(),
+                            f"{t['id']}: public spec link target must exist")
+            self.assertIn(f"## {t['id']}\n", prompt_text,
+                          f"{t['id']}: public Prompt Gallery anchor must have a heading")
+        self.assertEqual(len(links), 18, "nine specs and nine prompt anchors are public")
+        self.assertCountEqual(links, expected, "public document links must follow the TypePack model")
+        self.assertIn("Specification and prompt links follow the current", h)
+        self.assertIn("명세와 프롬프트 링크는 현재", h)
+
+    def test_page_example_links_match_the_pages_artifact(self):
+        """Pages keeps only SVG/JSON examples, so every public link must use those formats."""
+        import re
+        h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
+        links = set(re.findall(r'(?:src|href)="\.\./(examples/[^"#]+)', h))
+        self.assertTrue(links, "the gallery must publish example assets")
+        unsupported = sorted(link for link in links if Path(link).suffix not in {".svg", ".json"})
+        self.assertEqual(unsupported, [], "Pages deploys only gallery-linked SVG and JSON formats")
 
     # ---- featured: an editorial list with only the claim its evidence supports -----------
 

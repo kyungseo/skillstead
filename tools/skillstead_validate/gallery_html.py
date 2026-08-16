@@ -34,6 +34,8 @@ import html
 from pathlib import Path
 
 GALLERY_HTML = "gallery/index.html"
+GITHUB_DOC_BASE = ("https://github.com/kyungseo/skillstead/blob/main/"
+                   "skills/svg-infographic/references")
 LOCALE_LABEL = {"ko": "한국어", "en": "ENGLISH"}
 FACET_LABEL = {"sourceGates": "source gates", "typePackReceipt": "TypePack receipt",
                "dataAccuracy": "data accuracy"}
@@ -285,8 +287,8 @@ en: {_e(en.get('prompt'))}</pre></div>
 <div><h4>Receipt facts</h4><div class="chips">{chips}</div></div>
 {stress}{boundary}{limit}
 <div><h4>Sources</h4><p class="note">
-<a href="../skills/svg-infographic/references/{_e(spec)}"><code>{_e(Path(spec).name)}</code></a> ·
-<a href="../skills/svg-infographic/references/PROMPT-GALLERY.md#{_e(t['id'])}"><code>PROMPT-GALLERY.md</code></a> ·
+<a href="{GITHUB_DOC_BASE}/{_e(spec)}"><code>{_e(Path(spec).name)}</code></a> ·
+<a href="{GITHUB_DOC_BASE}/PROMPT-GALLERY.md#{_e(t['id'])}"><code>PROMPT-GALLERY.md</code></a> ·
 <a href="../{_e(ko.get('receipt'))}"><code>receipt</code></a>
 </p></div></div></details>"""
 
@@ -364,6 +366,8 @@ the command template, and the point where that type stops fitting.</p>
 <p class="note">{verified}/{total} TypePack canonical artifacts pass the current package verifier.{gaps_note}</p>
 
 <div class="catalog">{"".join(_catalog_card(t) for t in packs)}</div>
+<p class="note source-policy">Specification and prompt links follow the current <code>main</code>
+branch. 명세와 프롬프트 링크는 현재 <code>main</code> 브랜치를 따릅니다.</p>
 </div>
 <dialog id="zoom"><img alt=""><form method="dialog"><button>Close</button></form></dialog>
 <script>
