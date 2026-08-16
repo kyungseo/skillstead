@@ -64,6 +64,10 @@ TOKENS_PATH = "gallery/tokens.json"
 LOCALE_PATH = "gallery/locale.json"
 EXPORTER = "tools/gallery_export.mjs"
 LOCALES = ("ko", "en")
+LEGACY_FEATURED_HEADER_ROLES = (
+    'data-layout-role="page-title-header"',
+    'data-layout-role="title-rail"',
+)
 
 REQUIRED_COPY_KEYS = (
     "pageTitle", "heroTitle", "heroLede", "languageLabel", "viewLabel", "korean", "english",
@@ -393,6 +397,14 @@ def build_model(repo_root: Path, runner: NodeRunner | None = None) -> tuple[dict
                 detail = why
                 findings.append(Finding("GAL-FEATURED", f'{entry["slug"]}/{loc}',
                                         f"source gates failed — {why}"))
+            source = svg.read_text(encoding="utf-8")
+            if any(role in source for role in LEGACY_FEATURED_HEADER_ROLES):
+                gates_ok = False
+                findings.append(Finding(
+                    "GAL-FEATURED", f'{entry["slug"]}/{loc}',
+                    "public Featured artifact uses the rejected legacy vertical title rail — "
+                    "migrate it to the header-cluster/cluster-keyline contract",
+                ))
             arts[loc] = {"svg": rel, "svgDigest": _sha256(svg)}
         featured.append({
             "slug": entry["slug"], "name": entry.get("name"), "caption": entry.get("caption"),

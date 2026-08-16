@@ -1656,11 +1656,11 @@
     "artifacts": {
      "ko": {
       "svg": "examples/svg-infographic/cloud-infra-topology/cloud-infra-topology.ko.svg",
-      "svgDigest": "sha256:baa2fc0676ec4656a402db24c5c80f6d6b6f2074f99b23bb8f8683393c930657"
+      "svgDigest": "sha256:654717f6e71931d5a643925ea89989aae7a4e8b60edae4772d5a997afeb345fd"
      },
      "en": {
       "svg": "examples/svg-infographic/cloud-infra-topology/cloud-infra-topology.en.svg",
-      "svgDigest": "sha256:6ce6cce45d657ece4897bae64c13dcf56b2673471364847d0980942ea280f8c5"
+      "svgDigest": "sha256:dcc12d6faacf35f5b37ec5a8dda1d9dbb1fc43ba93ee57e897df7c148e738e4e"
      }
     },
     "evidence": {
@@ -1681,11 +1681,11 @@
     "artifacts": {
      "ko": {
       "svg": "examples/svg-infographic/agent-waiting-swimlane/agent-waiting-swimlane.ko.svg",
-      "svgDigest": "sha256:cd5c9ea2b4fb8d916bc2452b2d89e6f8048b4e752c62c7a84f706b0e5c8d3ccd"
+      "svgDigest": "sha256:6a725b3db8a221cbc660cdf4c69b8b03b0a2446b97b601ad7d2ca380f53b7933"
      },
      "en": {
       "svg": "examples/svg-infographic/agent-waiting-swimlane/agent-waiting-swimlane.en.svg",
-      "svgDigest": "sha256:502bd98a5fca9c2e049a962c79bac8a7a1a5948571d93ae45263756124a4a1cc"
+      "svgDigest": "sha256:9daf782c93ae10436373d80a67fdfa67129478007a04d048a75ba887c17ff9cf"
      }
     },
     "evidence": {
@@ -1706,11 +1706,11 @@
     "artifacts": {
      "ko": {
       "svg": "examples/svg-infographic/agent-task-matrix/agent-task-matrix.ko.svg",
-      "svgDigest": "sha256:c1f77b769ea27158ea520c33a42e6f01e93b72b10cba1d4e806cb47ba3965494"
+      "svgDigest": "sha256:78e0df45c3595c137085fda56655fad767226b74434004ef9687e5011ffb2340"
      },
      "en": {
       "svg": "examples/svg-infographic/agent-task-matrix/agent-task-matrix.en.svg",
-      "svgDigest": "sha256:38217df80a418db993bba234de96d149875c4097e38a7a527713101a015ac654"
+      "svgDigest": "sha256:fdbf970f359d6cb2ef7e03a8cb7cb2dc6f2283c5adde3c66f455080d6d705255"
      }
     },
     "evidence": {
@@ -1731,11 +1731,11 @@
     "artifacts": {
      "ko": {
       "svg": "examples/svg-infographic/zero-trust-onion/zero-trust-onion.ko.svg",
-      "svgDigest": "sha256:5417f8005fac0c3e60f0ea3c8403720711e684db6ef7f4888fbd2cb9ba0de21e"
+      "svgDigest": "sha256:412abb9cb16b1287ea914e4cba753bfa9057a4145abc921e162621ff6b69ee21"
      },
      "en": {
       "svg": "examples/svg-infographic/zero-trust-onion/zero-trust-onion.en.svg",
-      "svgDigest": "sha256:32191b7b7086e7ccb87b1fe3530df6b1e37e4f441fc880d2638b0486b9add0f0"
+      "svgDigest": "sha256:b8d56a2e5b1e009d06429a068f24c444d1ae1d34cee0bbe77e9164d7f5eb3753"
      }
     },
     "evidence": {
@@ -1756,11 +1756,11 @@
     "artifacts": {
      "ko": {
       "svg": "examples/svg-infographic/before-after-migration/before-after-migration.ko.svg",
-      "svgDigest": "sha256:89be1ec0271fc2486c1576c7f1bde84fb6c753fb1d90c2cee7b6f36ecc4f854b"
+      "svgDigest": "sha256:41715f0ef62f786639e6007d419a4f98e1f60e77d7b84e695581e4608835c0c0"
      },
      "en": {
       "svg": "examples/svg-infographic/before-after-migration/before-after-migration.en.svg",
-      "svgDigest": "sha256:820c4c3cf06766a3d6a40556e390079e9d48e665dfb2e74cd061f187f781a41b"
+      "svgDigest": "sha256:96ddf2df7e6cf9eb2d36a7d2a79c4111d963249037f30e4dad51f2ca0157501a"
      }
     },
     "evidence": {

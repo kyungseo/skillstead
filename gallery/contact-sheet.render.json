@@ -11,28 +11,28 @@
   "ko": {
    "sourceSvg": {
     "path": "gallery/contact-sheet.ko.svg",
-    "digest": "sha256:f95b75a2511a46214be452638c3b8d179192917ca50695fed365466c4df371dc"
+    "digest": "sha256:3ca0b7788d46eed6062af59e80c4371003afc0088345777ed408ec75fb9d9eac"
    },
    "inputs": [
     {
      "path": "examples/svg-infographic/cloud-infra-topology/cloud-infra-topology.ko.png",
-     "digest": "sha256:8f7f96bf3d727b075ed565d9e0f12cf0cbc7bfb348ef3cd271e1fca4116f7c80"
+     "digest": "sha256:a37b51388f401e099c49c5c89b99961cec2eb5963c0bb6c05546c7b3e7c798e7"
     },
     {
      "path": "examples/svg-infographic/agent-waiting-swimlane/agent-waiting-swimlane.ko.png",
-     "digest": "sha256:150c032eefd8ac69a65d4254927702c8a640e13e7559a000840dfbc9afd87c21"
+     "digest": "sha256:6d82a02605c4b98fa004cea195be8d16aeb94be8ce2e75fca4d45ed1199aefe1"
     },
     {
      "path": "examples/svg-infographic/agent-task-matrix/agent-task-matrix.ko.png",
-     "digest": "sha256:769253f6ce9daa9a98e42c1e283a29a7021a25c0d2834737f1229355ace267dc"
+     "digest": "sha256:1ea419b8d09999cecebe801d423c047a1d1ece494e84c4bcc0f7b7377bf2384c"
     },
     {
      "path": "examples/svg-infographic/zero-trust-onion/zero-trust-onion.ko.png",
-     "digest": "sha256:c61f7f67e9a9350579c9db7e7459b930587d61e36fb23f32ebf4dacf5a42bcf8"
+     "digest": "sha256:e7997760d51e45d10a6f4bff3c913e26903a0fa2482001950708252bf2e6792c"
     },
     {
      "path": "examples/svg-infographic/before-after-migration/before-after-migration.ko.png",
-     "digest": "sha256:6a6383fbea0198b258b33391b730f03b5c77210d00f62813c2e7f148d7384a03"
+     "digest": "sha256:098c0c1e4bfd8dc6ced92cf727b3a2f57be53756592783432a1850a2e0389c82"
     },
     {
      "path": "examples/svg-infographic/agent-system-sketch/agent-system-sketch.ko.png",
@@ -41,7 +41,7 @@
    ],
    "output": {
     "path": "gallery/contact-sheet.ko.png",
-    "digest": "sha256:a7d22641758f8c829106ffb98a6865624a5409426e01eafa53cecab6feff3fd5",
+    "digest": "sha256:652bfb716876c05a5db2bbefec661220110e491219424fa0c8365884e7c6f7a8",
     "pixels": [
      2160,
      1448
@@ -51,28 +51,28 @@
   "en": {
    "sourceSvg": {
     "path": "gallery/contact-sheet.en.svg",
-    "digest": "sha256:853e7013b09e255fbbd312ffd5787f0fd3c5f854f22427c720914c49c66c0003"
+    "digest": "sha256:891dc35e7a0156cb4aebb0b04ba6702d28ee87469bc364217c9e342758175905"
    },
    "inputs": [
     {
      "path": "examples/svg-infographic/cloud-infra-topology/cloud-infra-topology.en.png",
-     "digest": "sha256:fb0c34324899717190c73a720e11bd7d3e7bbab854f7c44b7f7caef6b450f79e"
+     "digest": "sha256:ccec4101665027ffdd2fd598cda971c7726019ef36fc1e7d385827f64e71c151"
     },
     {
      "path": "examples/svg-infographic/agent-waiting-swimlane/agent-waiting-swimlane.en.png",
-     "digest": "sha256:0210e5e785b0ef3e527c130c889beb54992d241432e5ec4a7e74a4ee5a33aaed"
+     "digest": "sha256:bc942cdd3356bf58b46f83c3c05adbd1c138f578031c1ce10736bc08f24975b0"
     },
     {
      "path": "examples/svg-infographic/agent-task-matrix/agent-task-matrix.en.png",
-     "digest": "sha256:56e638ad3c07c666081e6a7cffb15edfc6bef6985c1e3877f68ca32b457e946a"
+     "digest": "sha256:52c5d4f6bdd471d1c6b84f56c4fdd45c7b6c040829ee1b9139643d1883b953d6"
     },
     {
      "path": "examples/svg-infographic/zero-trust-onion/zero-trust-onion.en.png",
-     "digest": "sha256:c1ea0ac5978f35534a0209e70b00252e46f656f89cf315a1a8d5fc309040ead8"
+     "digest": "sha256:1f43d83cb93b0a4955857b73cb77e37015f6207f300bb4328bb99219bfda0922"
     },
     {
      "path": "examples/svg-infographic/before-after-migration/before-after-migration.en.png",
-     "digest": "sha256:b4558ab2073ec0d3f08d9444090f7441fef865ae348c67c8ebff7be66c23da19"
+     "digest": "sha256:be35218c82bd9b8bbe01a437ccb3c82741899efd61e2ad916cb71979e734d7fe"
     },
     {
      "path": "examples/svg-infographic/agent-system-sketch/agent-system-sketch.en.png",
@@ -81,7 +81,7 @@
    ],
    "output": {
     "path": "gallery/contact-sheet.en.png",
-    "digest": "sha256:00372110ac12739024885d3efa3ef401b35e5ccca96c2d75186a099ea6835fdc",
+    "digest": "sha256:229ac15f825e26f1305c89aec6fafecd3f6cfe732dd2c7d531a51c5925aff13a",
     "pixels": [
      2160,
      1448

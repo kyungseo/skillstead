@@ -26,13 +26,12 @@
 
   <rect width="1400" height="900" fill="var(--bg)"/>
 
-  <!-- header: rail from eyebrowTop(64) to titleBottom(139) -->
-  <g data-layout-role="page-title-header" data-layout-rail-padding-top="16"
-     data-layout-rail-padding-bottom="0" data-layout-subtitle-gap="12" data-layout-tolerance="2">
-    <rect data-layout-role="title-rail" x="48" y="48" width="6" height="91" rx="3" fill="var(--primary)"/>
-    <text data-layout-role="title-eyebrow" class="eyebrow" x="76" y="72" font-size="16" dominant-baseline="middle">ACCESS MODEL</text>
-    <text data-layout-role="title-line" class="h1" x="76" y="118" font-size="42" dominant-baseline="middle">Zero Trust — nothing inherits trust</text>
-    <text data-layout-role="title-subtitle" class="sub" x="76" y="176" font-size="18" dominant-baseline="middle">Every layer re-establishes trust per request — reaching the network proves nothing</text>
+  <!-- header: computed title-keyline from the H1 line box (42px + 11px pad per side) -->
+  <g data-layout-role="header-cluster" data-layout-tolerance="2">
+    <rect data-layout-role="cluster-keyline" x="52" y="86" width="6" height="64" rx="3" fill="var(--primary)"/>
+    <text data-layout-role="cluster-eyebrow" class="eyebrow" x="76" y="72" font-size="16" dominant-baseline="central">ACCESS MODEL</text>
+    <text data-layout-role="cluster-h1" class="h1" x="76" y="118" font-size="42" dominant-baseline="central">Zero Trust — nothing inherits trust</text>
+    <text data-layout-role="cluster-subtitle" class="sub" x="76" y="176" font-size="18" dominant-baseline="central">Every layer re-establishes trust per request — reaching the network proves nothing</text>
   </g>
 
   <!-- nested rings: uniform 60px inset -->

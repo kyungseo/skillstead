@@ -42,13 +42,12 @@
 
   <rect width="1300" height="1070" fill="var(--bg)"/>
 
-  <!-- header: rail from eyebrowTop(64) to titleBottom(138) -->
-  <g data-layout-role="page-title-header" data-layout-rail-padding-top="16"
-     data-layout-rail-padding-bottom="0" data-layout-subtitle-gap="12" data-layout-tolerance="2">
-    <rect data-layout-role="title-rail" x="48" y="48" width="6" height="90" rx="3" fill="var(--primary)"/>
-    <text data-layout-role="title-eyebrow" class="eyebrow" x="76" y="72" font-size="16" dominant-baseline="middle">의사결정 매트릭스</text>
-    <text data-layout-role="title-line" class="h1" x="76" y="118" font-size="40" dominant-baseline="middle">AI Agent 작업 유형 선택 매트릭스</text>
-    <text data-layout-role="title-subtitle" class="sub" x="76" y="176" font-size="17" dominant-baseline="middle">범위와 불확실성이 agent에게 맡기는 방식을 정한다</text>
+  <!-- header: computed title-keyline from the H1 line box (40px + 10px pad per side) -->
+  <g data-layout-role="header-cluster" data-layout-tolerance="2">
+    <rect data-layout-role="cluster-keyline" x="53" y="88" width="6" height="60" rx="3" fill="var(--primary)"/>
+    <text data-layout-role="cluster-eyebrow" class="eyebrow" x="76" y="72" font-size="16" dominant-baseline="central">의사결정 매트릭스</text>
+    <text data-layout-role="cluster-h1" class="h1" x="76" y="118" font-size="40" dominant-baseline="central">AI Agent 작업 유형 선택 매트릭스</text>
+    <text data-layout-role="cluster-subtitle" class="sub" x="76" y="176" font-size="17" dominant-baseline="central">범위와 불확실성이 agent에게 맡기는 방식을 정한다</text>
   </g>
 
   <!-- axes -->

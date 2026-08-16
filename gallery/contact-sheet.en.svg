@@ -4,27 +4,27 @@
   <rect data-layout-container="sheet" x="20.0" y="20.0" width="1040.0" height="684.0" fill="none" stroke="none" data-min-pad="16.0" data-reserve-top="80.0" data-layout-count="6"/>
   <text x="36.0" y="56.0" font-size="20" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#17171d" dominant-baseline="central">What it can draw</text>
   <text x="36.0" y="80.0" font-size="13" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#6c6c7c" dominant-baseline="central">6 selected outputs · EN · lint, layout and typography gates pass · no TypePack receipt</text>
-  <g data-cell="cloud-infra-topology" data-artifact-digest="sha256:6ce6cce45d657ece4897bae64c13dcf56b2673471364847d0980942ea280f8c5">
+  <g data-cell="cloud-infra-topology" data-artifact-digest="sha256:dcc12d6faacf35f5b37ec5a8dda1d9dbb1fc43ba93ee57e897df7c148e738e4e">
     <rect x="36.0" y="116.0" width="322.7" height="276.0" rx="6" fill="#ffffff" stroke="#e0e0e7" stroke-width="1" data-layout-parent="sheet" data-layout-item="sheet-row-0" data-align-row="sheet-r0" data-align-row-count="3"/>
     <image href="../examples/svg-infographic/cloud-infra-topology/cloud-infra-topology.en.png" x="111.9" y="116.0" width="170.8" height="242.0" preserveAspectRatio="none"/>
     <text x="197.3" y="376.0" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#17171d">Cloud topology</text>
   </g>
-  <g data-cell="agent-waiting-swimlane" data-artifact-digest="sha256:502bd98a5fca9c2e049a962c79bac8a7a1a5948571d93ae45263756124a4a1cc">
+  <g data-cell="agent-waiting-swimlane" data-artifact-digest="sha256:9daf782c93ae10436373d80a67fdfa67129478007a04d048a75ba887c17ff9cf">
     <rect x="378.7" y="116.0" width="322.7" height="276.0" rx="6" fill="#ffffff" stroke="#e0e0e7" stroke-width="1" data-layout-parent="sheet" data-layout-item="sheet-row-0" data-align-row="sheet-r0" data-align-row-count="3"/>
     <image href="../examples/svg-infographic/agent-waiting-swimlane/agent-waiting-swimlane.en.png" x="378.7" y="142.5" width="322.7" height="189.0" preserveAspectRatio="none"/>
     <text x="540.0" y="376.0" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#17171d">Branching swimlane</text>
   </g>
-  <g data-cell="agent-task-matrix" data-artifact-digest="sha256:38217df80a418db993bba234de96d149875c4097e38a7a527713101a015ac654">
+  <g data-cell="agent-task-matrix" data-artifact-digest="sha256:fdbf970f359d6cb2ef7e03a8cb7cb2dc6f2283c5adde3c66f455080d6d705255">
     <rect x="721.3" y="116.0" width="322.7" height="276.0" rx="6" fill="#ffffff" stroke="#e0e0e7" stroke-width="1" data-layout-parent="sheet" data-layout-item="sheet-row-0" data-align-row="sheet-r0" data-align-row-count="3"/>
     <image href="../examples/svg-infographic/agent-task-matrix/agent-task-matrix.en.png" x="735.7" y="116.0" width="294.0" height="242.0" preserveAspectRatio="none"/>
     <text x="882.7" y="376.0" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#17171d">Decision matrix</text>
   </g>
-  <g data-cell="zero-trust-onion" data-artifact-digest="sha256:32191b7b7086e7ccb87b1fe3530df6b1e37e4f441fc880d2638b0486b9add0f0">
+  <g data-cell="zero-trust-onion" data-artifact-digest="sha256:b8d56a2e5b1e009d06429a068f24c444d1ae1d34cee0bbe77e9164d7f5eb3753">
     <rect x="36.0" y="412.0" width="322.7" height="276.0" rx="6" fill="#ffffff" stroke="#e0e0e7" stroke-width="1" data-layout-parent="sheet" data-layout-item="sheet-row-1" data-align-row="sheet-r1" data-align-row-count="3"/>
     <image href="../examples/svg-infographic/zero-trust-onion/zero-trust-onion.en.png" x="36.0" y="429.3" width="322.7" height="207.4" preserveAspectRatio="none"/>
     <text x="197.3" y="672.0" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#17171d">Nested scope</text>
   </g>
-  <g data-cell="before-after-migration" data-artifact-digest="sha256:820c4c3cf06766a3d6a40556e390079e9d48e665dfb2e74cd061f187f781a41b">
+  <g data-cell="before-after-migration" data-artifact-digest="sha256:96ddf2df7e6cf9eb2d36a7d2a79c4111d963249037f30e4dad51f2ca0157501a">
     <rect x="378.7" y="412.0" width="322.7" height="276.0" rx="6" fill="#ffffff" stroke="#e0e0e7" stroke-width="1" data-layout-parent="sheet" data-layout-item="sheet-row-1" data-align-row="sheet-r1" data-align-row-count="3"/>
     <image href="../examples/svg-infographic/before-after-migration/before-after-migration.en.png" x="378.7" y="423.5" width="322.7" height="219.0" preserveAspectRatio="none"/>
     <text x="540.0" y="672.0" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#17171d">Before and after</text>
