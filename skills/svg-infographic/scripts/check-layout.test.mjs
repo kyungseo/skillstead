@@ -4,10 +4,21 @@ import assert from "node:assert";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import fs from "node:fs";
+import os from "node:os";
 import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const FIX = path.join(here, "layout-fixtures");
+// A derived fixture is written **outside** the package tree. Written next to its source it would
+// appear and vanish inside a directory other suites walk while they run — check-language reads this
+// same tree in parallel, and a file that disappears between readdir and stat crashed it. The
+// directory is unique per call so parallel runs never share one, and the cleanup is in `finally`
+// so a failing assertion still leaves the tree as it found it.
+function withDerived(name, body) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "check-layout-"));
+  try { return body(path.join(dir, name)); }
+  finally { fs.rmSync(dir, { recursive: true, force: true }); }
+}
 function run(files) {
   try {
     return { code: 0, out: execFileSync("node", [path.join(here, "check-layout.mjs"), ...files], { encoding: "utf8" }) };
@@ -72,20 +83,20 @@ test("P1-3 spaced-equals and quote combinations participate just the same (closi
 });
 test("P1-3 a defect in a spaced-equals annotation is still detected (no downgrade to treating it as unannotated)", () => {
   const src = fs.readFileSync(path.join(FIX, "ln-gap-drift.svg"), "utf8");
-  const tmp = path.join(FIX, "temp-spaced-neg.svg");
-  fs.writeFileSync(tmp, src.replace(/(data-[a-z-]+)="([^"]*)"/g, "$1 = \"$2\""));
-  const r = run([tmp]);
-  fs.unlinkSync(tmp);
+  const r = withDerived("spaced-neg.svg", (tmp) => {
+    fs.writeFileSync(tmp, src.replace(/(data-[a-z-]+)="([^"]*)"/g, "$1 = \"$2\""));
+    return run([tmp]);
+  });
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /E-LAYOUT-GAP/);
 });
 test("P1-4 small drift: moving the frame alone and leaving the components behind is a binding error", () => neg("ln-cluster-drift.svg", /E-LAYOUT-BINDING .*drifted from its declared offset/));
 test("P1-4 an undeclared data-cluster-at is a schema error (containment alone cannot claim atomicity)", () => {
   const src = fs.readFileSync(path.join(FIX, "ln-cluster-drift.svg"), "utf8");
-  const tmp = path.join(FIX, "temp-noat.svg");
-  fs.writeFileSync(tmp, src.replace(/ data-cluster-at="[^"]*"/g, ""));
-  const r = run([tmp]);
-  fs.unlinkSync(tmp);
+  const r = withDerived("noat.svg", (tmp) => {
+    fs.writeFileSync(tmp, src.replace(/ data-cluster-at="[^"]*"/g, ""));
+    return run([tmp]);
+  });
   assert.equal(r.code, 1);
   assert.match(r.out, /missing data-cluster-at/);
 });
@@ -104,10 +115,10 @@ test("P2 an unknown CLI option exits 2", () => {
 test("data-layout-unverified exits 3 (an explicit review state, not a success)", () => {
   const p = path.join(FIX, "ln-transform.svg");
   const src = fs.readFileSync(p, "utf8");
-  const tmp = path.join(FIX, "temp-unverified-fixture.svg");
-  fs.writeFileSync(tmp, src.replace('data-layout-parent="p" ', 'data-layout-parent="p" data-layout-unverified="rotated badge — manual review" '));
-  const r = run([tmp]);
-  fs.unlinkSync(tmp);
+  const r = withDerived("unverified-fixture.svg", (tmp) => {
+    fs.writeFileSync(tmp, src.replace('data-layout-parent="p" ', 'data-layout-parent="p" data-layout-unverified="rotated badge — manual review" '));
+    return run([tmp]);
+  });
   assert.equal(r.code, 3, r.out);
   assert.match(r.out, /explicit review state, not a pass/);
 });
