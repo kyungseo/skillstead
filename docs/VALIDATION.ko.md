@@ -44,9 +44,10 @@ admin bypass가 있으므로 이 경계는 hard guarantee가 아니라 disciplin
 receipt canonicalization v2, surface revision 17, 선택한 source commit, clean source flag, live runtime digest,
 package verifier 통과와 SVG viewBox의 정확히 두 배인 PNG 크기를 요구합니다. `--compare-repository`는 복사한
 byte의 완전 일치를 추가로 검사합니다. artifact commit 뒤 `--artifact-commit`을 사용하면 source commit의
-descendant인지, delta가 54개와 `gallery/model.json`·`gallery/index.html`만인지 확인합니다. package runtime과
-contact sheet는 움직일 수 없습니다. 이 명령은 검사만 수행합니다. 생성·복사·commit·tag는 계속 별도 승인
-단계입니다.
+descendant인지, canonical artifact delta가 source snapshot과 staging의 byte가 실제로 다른 파일과 정확히
+일치하는지 확인합니다. 추가 delta는 `gallery/model.json`·`gallery/index.html`만 허용합니다. 결정론적으로
+같은 SVG·PNG byte는 Git delta에 나타날 필요가 없습니다. package runtime과 contact sheet는 움직일 수
+없습니다. 이 명령은 검사만 수행합니다. 생성·복사·commit·tag는 계속 별도 승인 단계입니다.
 
 **발행 직후 재관측 (M5).** 발행 직후에 보낸 읽기는 아직 따라잡지 못한 replica에서 응답할 수 있어,
 방금 만든 release가 빠진 목록이 돌아오기도 합니다. wrapper는 **그 경우만** 재시도하며, 판별 기준은

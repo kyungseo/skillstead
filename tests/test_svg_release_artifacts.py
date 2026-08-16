@@ -98,6 +98,26 @@ class SvgReleaseArtifactGate(unittest.TestCase):
         artifact = _git(self.repo, "rev-parse", "HEAD")
         self.assertEqual(self.check(compare_repository=True, artifact_commit=artifact), [])
 
+    def test_deterministic_artifacts_need_not_appear_in_the_commit_delta(self) -> None:
+        _git(self.repo, "add", "examples")
+        _git(self.repo, "commit", "-qm", "baseline artifacts")
+        self.source = _git(self.repo, "rev-parse", "HEAD")
+        for root in (self.repo, self.staging):
+            for receipt_path in (root / EXAMPLES).glob("*/*.json"):
+                receipt = json.loads(receipt_path.read_text())
+                receipt["provenance"]["source"]["headCommit"] = self.source
+                receipt_path.write_text(json.dumps(receipt))
+        (self.repo / "gallery").mkdir()
+        (self.repo / "gallery/model.json").write_text("{}\n")
+        (self.repo / "gallery/index.html").write_text("<html></html>\n")
+        _git(self.repo, "add", "examples", "gallery")
+        _git(self.repo, "commit", "-qm", "deterministic artifact refresh")
+        artifact = _git(self.repo, "rev-parse", "HEAD")
+
+        changed = set(_git(self.repo, "diff", "--name-only", self.source, artifact).splitlines())
+        self.assertFalse(any(path.endswith((".svg", ".png")) for path in changed))
+        self.assertEqual(self.check(compare_repository=True, artifact_commit=artifact), [])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -39,6 +39,13 @@ def _git(repo: Path, *args: str) -> subprocess.CompletedProcess:
     return subprocess.run(["git", *args], cwd=repo, capture_output=True, text=True)
 
 
+def _source_blob(repo: Path, source_commit: str, rel: str) -> bytes | None:
+    result = subprocess.run(
+        ["git", "show", f"{source_commit}:{rel}"], cwd=repo, capture_output=True,
+    )
+    return result.stdout if result.returncode == 0 else None
+
+
 def _png_size(path: Path) -> tuple[int, int]:
     data = path.read_bytes()[:24]
     if len(data) < 24 or data[:8] != b"\x89PNG\r\n\x1a\n":
@@ -191,11 +198,17 @@ def check_release_artifacts(
         else:
             changed = set(_git(repo, "diff", "--name-only", source_commit, artifact_commit).stdout.splitlines())
             allowed = expected | DERIVED_OUTPUTS
-            if changed != allowed:
+            required = {
+                rel for rel in expected
+                if _source_blob(repo, source_commit, rel) != (staging / rel).read_bytes()
+            }
+            missing = required - changed
+            extra = changed - allowed
+            if missing or extra:
                 findings.append(Finding(
                     "SVG-REL-COMMIT", artifact_commit,
-                    f"artifact commit delta differs (missing={sorted(allowed - changed)}, "
-                    f"extra={sorted(changed - allowed)})"))
+                    f"artifact commit delta differs (missing={sorted(missing)}, "
+                    f"extra={sorted(extra)})"))
             if any(path.startswith("skills/svg-infographic/") for path in changed):
                 findings.append(Finding("SVG-REL-RUNTIME", artifact_commit,
                                         "artifact commit changes the package runtime surface"))

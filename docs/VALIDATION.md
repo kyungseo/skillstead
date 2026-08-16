@@ -48,8 +48,10 @@ For `svg-infographic`, M2-SVG runs first against an out-of-tree staging director
 commit. It requires exactly 54 canonical files (nine TypePacks × two locales × SVG, receipt and PNG), receipt
 canonicalization v2, surface revision 17, the selected source commit, clean source flags, the live runtime digest,
 package-verifier success and a PNG exactly twice the SVG viewBox. `--compare-repository` adds byte-for-byte copy
-verification. After the artifact commit, `--artifact-commit` requires a descendant whose delta is exactly those
-54 files plus `gallery/model.json` and `gallery/index.html`; the package runtime and contact sheet may not move.
+verification. After the artifact commit, `--artifact-commit` requires a descendant whose canonical-artifact delta
+is exactly the files whose staged bytes differ from the source snapshot; only `gallery/model.json` and
+`gallery/index.html` may additionally differ. Deterministically identical SVG or PNG bytes need not appear in the
+Git delta. The package runtime and contact sheet may not move.
 The command only inspects. Generation, copy, commit and tag operations remain separate approved steps.
 
 **Post-publish re-read (M5).** A read issued immediately after a publish can

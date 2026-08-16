@@ -434,7 +434,7 @@ class GalleryModelFixtures(unittest.TestCase):
         self.assertEqual(len(links), 18, "nine specs and nine prompt anchors are public")
         self.assertCountEqual(links, expected, "public document links must follow the TypePack model")
         self.assertIn("Specification and prompt links follow the current", h)
-        self.assertIn("명세와 프롬프트 링크는 현재", h)
+        self.assertIn("명세와 prompt 링크는 현재", h)
 
     def test_page_example_links_match_the_pages_artifact(self):
         """Pages keeps only SVG/JSON examples, so every public link must use those formats."""
@@ -473,7 +473,10 @@ class GalleryModelFixtures(unittest.TestCase):
         h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
         model, _ = build_model(self.repo)
         n = sum(1 for t in model["typepacks"] for e in t["locales"].values() if e["verified"])
-        self.assertIn(f"{n}/{n} TypePack canonical artifacts pass", h)
+        copy = json.loads((self.repo / LOCALE_PATH).read_text(encoding="utf-8"))["copy"]
+        self.assertIn(f"{n}/{n} ", h)
+        self.assertIn(copy["currentVerifier"]["ko"], h)
+        self.assertIn(copy["currentVerifier"]["en"], h)
         self.assertNotIn(f"{n + len(model['featured']['entries'])}/", h)
 
     # --- README contact sheet ---------------------------------------------------------
@@ -524,7 +527,7 @@ class GalleryModelFixtures(unittest.TestCase):
             t = (self.repo / name).read_text(encoding="utf-8")
             m = re.search(r'!\[([^\]]+)\]\(\./gallery/contact-sheet\.' + loc + r'\.png\)\]\(([^)]+)\)', t)
             self.assertIsNotNone(m, f"{name}: the sheet must be present and wrapped in a link")
-            self.assertEqual(m.group(2), "./gallery/index.html", name)
+            self.assertEqual(m.group(2), "https://kyungseo.github.io/skillstead/gallery/", name)
             self.assertTrue((self.repo / "gallery/index.html").exists())
             alts.append(m.group(1))
         self.assertNotEqual(alts[0], alts[1], "each locale describes the picture in its own language")
