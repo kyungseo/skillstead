@@ -43,13 +43,12 @@
 
   <rect width="720" height="1020" fill="var(--bg)"/>
 
-  <!-- header: rail from eyebrowTop(51) to titleBottom(106) -->
-  <g data-layout-role="page-title-header" data-layout-rail-padding-top="16"
-     data-layout-rail-padding-bottom="0" data-layout-subtitle-gap="12" data-layout-tolerance="2">
-    <rect data-layout-role="title-rail" x="36" y="35" width="5" height="71" rx="2.5" fill="var(--primary)"/>
-    <text data-layout-role="title-eyebrow" class="eyebrow" x="60" y="58" font-size="14" dominant-baseline="middle">REFERENCE TOPOLOGY</text>
-    <text data-layout-role="title-line" class="h1" x="60" y="92" font-size="28" dominant-baseline="middle">Azure reference topology</text>
-    <text data-layout-role="title-subtitle" class="sub" x="60" y="130" font-size="14" dominant-baseline="middle">Request path — Application Gateway → APIM → AKS → PostgreSQL</text>
+  <!-- header: computed title-keyline from the H1 line box (28px + 7px pad per side) -->
+  <g data-layout-role="header-cluster" data-layout-tolerance="2">
+    <rect data-layout-role="cluster-keyline" x="44" y="71" width="4" height="42" rx="2" fill="var(--primary)"/>
+    <text data-layout-role="cluster-eyebrow" class="eyebrow" x="60" y="58" font-size="14" dominant-baseline="central">REFERENCE TOPOLOGY</text>
+    <text data-layout-role="cluster-h1" class="h1" x="60" y="92" font-size="28" dominant-baseline="central">Azure reference topology</text>
+    <text data-layout-role="cluster-subtitle" class="sub" x="60" y="130" font-size="14" dominant-baseline="central">Request path — Application Gateway → APIM → AKS → PostgreSQL</text>
   </g>
 
   <!-- client -->

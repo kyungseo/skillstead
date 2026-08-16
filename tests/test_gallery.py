@@ -61,7 +61,10 @@ def _copy_repo(dst: Path) -> Path:
     # This list is deliberately narrow, not exhaustive. Adding a fixture that reads a root document
     # not named here means adding it here too — otherwise the fixture silently checks the committed
     # version and passes while the working tree says something else.
-    for rel in ("gallery", EXAMPLES, "skills/svg-infographic", "tools",
+    # Featured examples live beside `typepacks/`, and dirty-tree validation must copy both. Copying
+    # only EXAMPLES made a pre-commit Featured edit disappear inside the fixture clone, so the test
+    # exercised HEAD while the real working tree carried the candidate bytes.
+    for rel in ("gallery", str(Path(EXAMPLES).parent), "skills/svg-infographic", "tools",
                 "README.md", "README.ko.md"):
         src = REPO / rel
         if not src.exists():
@@ -885,6 +888,21 @@ class GalleryModelFixtures(unittest.TestCase):
         findings = run_gallery(self.repo)
         self.assertIn("GAL-FEATURED", {f.check for f in findings})
         self.assertTrue(any("source gates failed" in f.detail for f in findings), findings)
+
+    def test_a_featured_artifact_cannot_restore_the_legacy_title_rail(self):
+        """The package keeps a legacy rail lint contract for old standalone examples, but the
+        public Featured surface must use the current bounded title-keyline composition."""
+        svg = self.repo / "examples/svg-infographic/cloud-infra-topology/cloud-infra-topology.en.svg"
+        current = svg.read_text(encoding="utf-8")
+        legacy = current.replace(
+            'data-layout-role="cluster-keyline"', 'data-layout-role="title-rail"', 1)
+        self.assertNotEqual(legacy, current, "the fixture must actually restore the legacy role")
+        svg.write_text(legacy, encoding="utf-8")
+
+        findings = run_gallery(self.repo)
+        self.assertIn("GAL-FEATURED", {f.check for f in findings})
+        self.assertTrue(any("rejected legacy vertical title rail" in f.detail
+                            for f in findings), findings)
 
     def test_editorial_file_missing_fails_the_build(self):
         (self.repo / FEATURED).unlink()

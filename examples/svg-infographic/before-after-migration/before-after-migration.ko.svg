@@ -34,13 +34,12 @@
 
   <rect width="1120" height="760" fill="var(--bg)"/>
 
-  <!-- header: rail from eyebrowTop(60) to titleBottom(128) -->
-  <g data-layout-role="page-title-header" data-layout-rail-padding-top="16"
-     data-layout-rail-padding-bottom="0" data-layout-subtitle-gap="12" data-layout-tolerance="2">
-    <rect data-layout-role="title-rail" x="44" y="44" width="6" height="84" rx="3" fill="var(--primary)"/>
-    <text data-layout-role="title-eyebrow" class="eyebrow" x="72" y="68" font-size="16" dominant-baseline="middle">마이그레이션</text>
-    <text data-layout-role="title-line" class="h1" x="72" y="110" font-size="36" dominant-baseline="middle">모놀리스 → 마이크로서비스</text>
-    <text data-layout-role="title-subtitle" class="sub" x="72" y="156" font-size="17" dominant-baseline="middle">공유 단위 하나가 배포·스케일·장애를 각자 감당하는 서비스로 갈라진다</text>
+  <!-- header: computed title-keyline from the H1 line box (36px + 9px pad per side) -->
+  <g data-layout-role="header-cluster" data-layout-tolerance="2">
+    <rect data-layout-role="cluster-keyline" x="52" y="83" width="5" height="54" rx="2.5" fill="var(--primary)"/>
+    <text data-layout-role="cluster-eyebrow" class="eyebrow" x="72" y="68" font-size="16" dominant-baseline="central">마이그레이션</text>
+    <text data-layout-role="cluster-h1" class="h1" x="72" y="110" font-size="36" dominant-baseline="central">모놀리스 → 마이크로서비스</text>
+    <text data-layout-role="cluster-subtitle" class="sub" x="72" y="156" font-size="17" dominant-baseline="central">공유 단위 하나가 배포·스케일·장애를 각자 감당하는 서비스로 갈라진다</text>
   </g>
 
   <!-- ============ BEFORE panel ============ -->

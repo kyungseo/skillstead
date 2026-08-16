@@ -46,13 +46,12 @@
 
   <rect width="1400" height="820" fill="var(--bg)"/>
 
-  <!-- header: rail from eyebrowTop(64) to titleBottom(139) -->
-  <g data-layout-role="page-title-header" data-layout-rail-padding-top="16"
-     data-layout-rail-padding-bottom="0" data-layout-subtitle-gap="12" data-layout-tolerance="2">
-    <rect data-layout-role="title-rail" x="48" y="48" width="6" height="91" rx="3" fill="var(--primary)"/>
-    <text data-layout-role="title-eyebrow" class="eyebrow" x="76" y="72" font-size="16" dominant-baseline="middle">세션 흐름</text>
-    <text data-layout-role="title-line" class="h1" x="76" y="118" font-size="42" dominant-baseline="middle">대기 알림이 agent 유휴 시간을 없앤다</text>
-    <text data-layout-role="title-subtitle" class="sub" x="76" y="176" font-size="18" dominant-baseline="middle">agent 상태와 사용자의 행동을 나란히 — 승인 때문에 실행이 멈추지 않는다</text>
+  <!-- header: computed title-keyline from the H1 line box (42px + 11px pad per side) -->
+  <g data-layout-role="header-cluster" data-layout-tolerance="2">
+    <rect data-layout-role="cluster-keyline" x="52" y="86" width="6" height="64" rx="3" fill="var(--primary)"/>
+    <text data-layout-role="cluster-eyebrow" class="eyebrow" x="76" y="72" font-size="16" dominant-baseline="central">세션 흐름</text>
+    <text data-layout-role="cluster-h1" class="h1" x="76" y="118" font-size="42" dominant-baseline="central">대기 알림이 agent 유휴 시간을 없앤다</text>
+    <text data-layout-role="cluster-subtitle" class="sub" x="76" y="176" font-size="18" dominant-baseline="central">agent 상태와 사용자의 행동을 나란히 — 승인 때문에 실행이 멈추지 않는다</text>
   </g>
 
   <!-- lane A -->
