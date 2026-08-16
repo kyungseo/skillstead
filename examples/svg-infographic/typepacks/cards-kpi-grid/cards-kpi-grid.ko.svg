@@ -14,25 +14,25 @@
   <g data-layout-group="cards-row-1" data-distribution="equal-gap" data-axis="x" data-group-count="2"></g>
   <g data-comp-entity="observability" data-entity="observability">
     <rect x="32" y="136" width="300" height="124" rx="12" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface" data-stroke-role="rule" data-layout-item="cards-row-0"/>
-    <circle cx="68" cy="198" r="17" fill="#E4EDF3" data-fill-role="surface-tint"/><g transform="translate(59,189) scale(0.8)"><path d="M2 12 L7 12 L10 5 L14 19 L17 12 L22 12" fill="none" data-stroke-role="focus" stroke="#2E6DA4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <circle cx="68" cy="198" r="17" fill="#E4EDF3" data-fill-role="surface-tint"/><g data-icon-id="activity" transform="translate(59,189) scale(0.8)"><path d="M2 12 L7 12 L10 5 L14 19 L17 12 L22 12" fill="none" data-stroke-role="focus" stroke="#2E6DA4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
     <text font-size="15" font-weight="700" fill="#252B35" data-fill-role="ink" dominant-baseline="central"><tspan x="94" y="189.5">관측 가능성 확보</tspan></text>
     <text font-size="12.5" fill="#636A75" data-fill-role="muted" dominant-baseline="central"><tspan x="94" y="210.5">로그·지표·추적을 한 흐름으로</tspan></text>
   </g>
   <g data-comp-entity="delivery" data-entity="delivery">
     <rect x="348" y="136" width="300" height="124" rx="12" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface" data-stroke-role="rule" data-layout-item="cards-row-0"/>
-    <circle cx="384" cy="198" r="17" fill="#E4EDF3" data-fill-role="surface-tint"/><g transform="translate(375,189) scale(0.8)"><path d="M12 3 C15 7 15 13 12 21 C9 13 9 7 12 3" fill="none" data-stroke-role="focus" stroke="#2E6DA4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <circle cx="384" cy="198" r="17" fill="#E4EDF3" data-fill-role="surface-tint"/><g data-icon-id="rocket" transform="translate(375,189) scale(0.8)"><path d="M12 3 C15 7 15 13 12 21 C9 13 9 7 12 3" fill="none" data-stroke-role="focus" stroke="#2E6DA4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
     <text font-size="15" font-weight="700" fill="#252B35" data-fill-role="ink" dominant-baseline="central"><tspan x="410" y="189.5">배포 자동화</tspan></text>
     <text font-size="12.5" fill="#636A75" data-fill-role="muted" dominant-baseline="central"><tspan x="410" y="210.5">검증 통과분만 자동 반영</tspan></text>
   </g>
   <g data-comp-entity="cost" data-entity="cost">
     <rect x="32" y="276" width="300" height="124" rx="12" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface" data-stroke-role="rule" data-layout-item="cards-row-1"/>
-    <circle cx="68" cy="338" r="17" fill="#E4EDF3" data-fill-role="surface-tint"/><g transform="translate(59,329) scale(0.8)"><path d="M4 8 A8 4 0 1 0 20 8 A8 4 0 1 0 4 8 M4 8 L4 15 A8 4 0 0 0 20 15 L20 8" fill="none" data-stroke-role="focus" stroke="#2E6DA4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <circle cx="68" cy="338" r="17" fill="#E4EDF3" data-fill-role="surface-tint"/><g data-icon-id="coins" transform="translate(59,329) scale(0.8)"><path d="M4 8 A8 4 0 1 0 20 8 A8 4 0 1 0 4 8 M4 8 L4 15 A8 4 0 0 0 20 15 L20 8" fill="none" data-stroke-role="focus" stroke="#2E6DA4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
     <text font-size="15" font-weight="700" fill="#252B35" data-fill-role="ink" dominant-baseline="central"><tspan x="94" y="329.5">비용 가시성</tspan></text>
     <text font-size="12.5" fill="#636A75" data-fill-role="muted" dominant-baseline="central"><tspan x="94" y="350.5">팀별 사용량을 주간 단위로</tspan></text>
   </g>
   <g data-comp-entity="security" data-entity="security">
     <rect x="348" y="276" width="300" height="124" rx="12" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface" data-stroke-role="rule" data-layout-item="cards-row-1"/>
-    <circle cx="384" cy="338" r="17" fill="#E4EDF3" data-fill-role="surface-tint"/><g transform="translate(375,329) scale(0.8)"><path d="M12 3 L20 6 V12 C20 17 16 20 12 21 C8 20 4 17 4 12 V6 Z" fill="none" data-stroke-role="focus" stroke="#2E6DA4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <circle cx="384" cy="338" r="17" fill="#E4EDF3" data-fill-role="surface-tint"/><g data-icon-id="shield" transform="translate(375,329) scale(0.8)"><path d="M12 3 L20 6 V12 C20 17 16 20 12 21 C8 20 4 17 4 12 V6 Z" fill="none" data-stroke-role="focus" stroke="#2E6DA4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
     <text font-size="15" font-weight="700" fill="#252B35" data-fill-role="ink" dominant-baseline="central"><tspan x="410" y="329.5">보안 기본값</tspan></text>
     <text font-size="12.5" fill="#636A75" data-fill-role="muted" dominant-baseline="central"><tspan x="410" y="350.5">기본값이 안전하게 동작</tspan></text>
   </g>

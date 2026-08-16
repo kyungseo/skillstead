@@ -20,7 +20,10 @@ import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { preflight, guardPackagePath, provenance, SKILL_LOCATOR } from "./preflight-lib.mjs";
-import { parseYaml, derivePanelFloor, deriveAlignInventory, serializeAlignInventory, deriveMatrixPlacement } from "./skin.mjs";
+import { parseYaml, validateInputPayload, derivePanelFloor, deriveAlignInventory, serializeAlignInventory, deriveMatrixPlacement } from "./skin.mjs";
+import { iconPath } from "./icon-registry.mjs";
+import { KIND_PALETTE_FAMILY, NODE_KINDS, TOPOLOGY_VARIANTS, canonicalNodeKind,
+  edgeDirection } from "./topology-contract.mjs";
 import { loadTreatment, treatmentDefs, paperRect, displacementBound, filterAttr } from "./treatment.mjs";
 import { estimateWidth } from "./check-svg.mjs";
 import { planChannels, routeEdges, pathData, auditTopology, alignRows, ROUTE_DEFAULTS } from "./route-orthogonal.mjs";
@@ -134,19 +137,6 @@ function header(pf, title, eyebrow, subtitle, contentTop) {
     <text data-layout-role="cluster-subtitle" data-fill-role="muted" x="${r1(x)}" y="${r1(subY)}" font-size="${hs.subtitle}" fill="#636A75" dominant-baseline="central">${esc(subtitle)}</text>
   </g>`;
 }
-const ICON_PATH = {   // the bundled line-icon set (simple geometry — palette roles only)
-  activity: "M2 12 L7 12 L10 5 L14 19 L17 12 L22 12", rocket: "M12 3 C15 7 15 13 12 21 C9 13 9 7 12 3",
-  coins: "M4 8 A8 4 0 1 0 20 8 A8 4 0 1 0 4 8 M4 8 L4 15 A8 4 0 0 0 20 15 L20 8",
-  shield: "M12 3 L20 6 V12 C20 17 16 20 12 21 C8 20 4 17 4 12 V6 Z",
-  database: "M4 6 A8 3 0 1 0 20 6 A8 3 0 1 0 4 6 M4 6 V18 A8 3 0 0 0 20 18 V6",
-  cloud: "M6 17 A4 4 0 1 1 8 9 A5 5 0 0 1 18 10 A4 4 0 1 1 18 17 Z",
-  lock: "M6 11 H18 V20 H6 Z M9 11 V8 A3 3 0 0 1 15 8 V11", gauge: "M4 17 A8 8 0 1 1 20 17 M12 17 L16 10",
-  layers: "M12 3 L21 8 L12 13 L3 8 Z M3 13 L12 18 L21 13", route: "M5 19 H12 A4 4 0 0 0 12 11 H8 A4 4 0 0 1 8 3 H19",
-  flag: "M6 3 V21 M6 4 H18 L15 8 L18 12 H6", check: "M4 12 L10 18 L20 6", clock: "M12 4 A8 8 0 1 0 12 20 A8 8 0 1 0 12 4 M12 8 V12 L15 14",
-  users: "M8 11 A3 3 0 1 0 8 5 A3 3 0 1 0 8 11 M2 20 A6 6 0 0 1 14 20 M16 6 A3 3 0 0 1 16 11 M15 20 A6 6 0 0 0 22 20",
-  server: "M4 5 H20 V10 H4 Z M4 14 H20 V19 H4 Z M8 7.5 H8.01 M8 16.5 H8.01",
-  queue: "M4 7 H20 M4 12 H20 M4 17 H14",
-};
 // Line breaking is computed with the same estimator lint uses — if the generator and the guard
 // measured with different rulers, "it generated but the check rejects it" would keep recurring.
 // Exceeding the permitted line count is an error.
@@ -165,10 +155,31 @@ function wrapLines(text, maxW, fontSize, bold, maxLines) {
 const tspans = (lines, x, yStart, lh = 19) => lines.map((l, i) =>
   `<tspan x="${r1(x)}" y="${r1(yStart + i * lh)}">${esc(l)}</tspan>`).join("");
 
-const icon = (id, cx, cy, s = 18) => {
-  const d = ICON_PATH[id] ?? ICON_PATH.check;
-  return `<g transform="translate(${r1(cx - s / 2)},${r1(cy - s / 2)}) scale(${r1(s / 24)})"><path d="${d}" fill="none" data-stroke-role="focus" stroke="#2E6DA4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+const icon = (id, cx, cy, s = 18, role = "focus", stroke = "#2E6DA4") => {
+  const d = iconPath(id);
+  return `<g data-icon-id="${id}" transform="translate(${r1(cx - s / 2)},${r1(cy - s / 2)}) scale(${r1(s / 24)})"><path d="${d}" fill="none" data-stroke-role="${role}" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>`;
 };
+
+function topologySemanticReceipt(input) {
+  const variant = input.variant, V = TOPOLOGY_VARIANTS[variant], K = ROUTE_DEFAULTS;
+  const zones = input.zones ?? [];
+  return {
+    schemaVersion: 1,
+    variant,
+    coverage: input.purpose === "full-primitive-specimen" ? "full-primitive-specimen" : "representative-core-primitives",
+    primitiveSet: [...new Set(zones.flatMap((z) => (z.nodes ?? []).map((nd) => canonicalNodeKind(nd.kind))))].sort(),
+    nodes: zones.flatMap((z) => (z.nodes ?? []).map((nd) => ({ id: nd.id, zone: z.id,
+      kind: canonicalNodeKind(nd.kind), declaredKind: nd.kind, icon: nd.icon, iconSource: "registry" }))),
+    edges: (input.edges ?? []).map((e) => ({ id: e.id, from: e.from, to: e.to, kind: e.kind,
+      direction: edgeDirection(e.kind), delivery: e.delivery, visibility: e.visibility })),
+    structure: { zones: zones.map((z) => z.id), boundary: Boolean(input.boundary) },
+    contract: { zonePadding: V.zonePadding, nodePadding: V.nodePadding, iconSize: V.iconSize,
+      nodeTextSize: V.nodeTextSize, zoneLabelSize: V.zoneLabelSize, nodeHeightMax: V.nodeHeightMax,
+      nodeWidthMax: V.nodeWidthMax,
+      portInset: K.portInset, targetGap: K.targetGap, outerClearance: K.outerClearance },
+    verification: { primitiveAndVariant: "verified", reachability: "unverified", cycles: "unverified", completeness: "unverified" },
+  };
+}
 
 // ---------- TypePack renderers (they consume the payload only) ----------
 function renderCards(input, loc, cb, sc, tp) {
@@ -223,11 +234,13 @@ function renderCards(input, loc, cb, sc, tp) {
 
 function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) => n }) {
   const zones = input.zones, nz = zones.length;
+  const variant = input.variant;
+  const V = TOPOLOGY_VARIANTS[variant];
   // The zone label band comes from the **actual label size**, not from a constant. When optical
   // calibration enlarges the text the band must grow with it, or the routing corridor cuts across
   // the label. (The text is not shrunk back to fit the old band — that would undo the point of the
   // calibration.)
-  const pad = 12;
+  const pad = V.zonePadding;
   // A zone is a **label band plus a node area**. The band height is no constant: it comes from the
   // resolved label line-box and the shared padding (at scale 1.0 it yields the old value of 22).
   // The band must also leave an **entry corridor** for connectors to come through — the corridor
@@ -237,7 +250,7 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
   // entry corridor: the width in which a connector crosses the band **outside** the label bounds.
   // Computed from the lane spacing and the clearance, with no per-file coordinates.
   const corridorReserve = 2 * K.labelPad + K.laneGap + K.outerClearance;
-  const labelLineH = (n) => Math.round(F.fs(12) * 1.5 * n + 4);
+  const labelLineH = (n) => Math.round(F.fs(V.zoneLabelSize) * 1.5 * n + 4);
 
   // A declared boundary is a **container, not an overlay**. It reserves its padding and label band
   // first and the zone layout then runs inside what is left; reserving afterwards would put the
@@ -249,12 +262,12 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
   let bband = 0, bWrap = null;
   if (input.boundary) {
     const bMaxW = cb.w - 2 * bpad - 2 * K.labelPad;
-    bWrap = ["ko", "en"].map((lc) => wrapLines(String(input.boundary.label?.[lc] ?? ""), bMaxW, F.fs(12), true, 1));
+    bWrap = ["ko", "en"].map((lc) => wrapLines(String(input.boundary.label?.[lc] ?? ""), bMaxW, F.fs(V.zoneLabelSize), true, 1));
     if (bWrap.some((x) => x.overflow)) {
       console.error(`generate: boundary label does not fit the ${r1(bMaxW)}px band on one line — shorten it or widen the preset`);
       process.exit(1);
     }
-    bband = Math.round(F.fs(12) * 1.5 + 4);
+    bband = Math.round(F.fs(V.zoneLabelSize) * 1.5 + 4);
   }
   // The box the zone layout actually gets. With no boundary it **is** the content box, so a diagram
   // that declares none keeps its existing geometry to the pixel.
@@ -268,7 +281,9 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
   const edgesIn = (input.edges ?? []).map((e) => ({
     id: e.id, from: e.from, to: e.to,
     dashed: e.delivery === "async" || e.visibility === "private",
-    weight: e.kind === "request" ? "primary" : "secondary",
+    weight: ["request", "event"].includes(e.kind) ? "primary" : "secondary",
+    semanticKind: e.kind,
+    semanticDirection: edgeDirection(e.kind),
   }));
   // The layout first orders the slots within each row so primary edges can run straight.
   const aligned = alignRows({ zoneOrder: zones.map((z) => z.id), nodeZone,
@@ -287,23 +302,26 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
   const corridorTotal = corridors.reduce((a, b) => a + b, 0);
   const intraH = (zid) => (plan.intraLanes.get(zid) ?? 0) * K.laneGap;
   const maxIntra = Math.max(0, ...zones.map((z) => intraH(z.id)));
+  const styleSet = new Set(edgesIn.map((e) => e.dashed ? "dashed" : "solid"));
+  const legendReserve = styleSet.has("solid") && styleSet.has("dashed") ? 34 : 0;
   // A label **wraps** within the width left after the corridor — it is never shrunk to be forced
   // onto one line. The corridor must sit within the **node's port range**, not merely within the
   // zone width, because a line descending from the zone above attaches to the top of the target
   // node. So the label width ceiling derives from the node width.
-  const nwProbe = (zoneW - 2 * pad - (Math.max(...zones.map((z) => (z.nodes ?? []).length)) - 1) * K.laneGap) / Math.max(...zones.map((z) => (z.nodes ?? []).length));
+  const nwProbe = Math.min(V.nodeWidthMax,
+    (zoneW - 2 * pad - (Math.max(...zones.map((z) => (z.nodes ?? []).length)) - 1) * K.laneGap) / Math.max(...zones.map((z) => (z.nodes ?? []).length)));
   const labelMaxW = Math.min(zoneW - 2 * pad - corridorReserve,
     nwProbe - K.portInset - K.outerClearance - 2 * K.labelPad);
-  if (process.env.SVGINFO_DEBUG_TOPOLOGY) console.error(`[topo] zoneW=${r1(zoneW)} nwProbe=${r1(nwProbe)} labelMaxW=${r1(labelMaxW)} fs=${F.fs(12)}`);
+  if (process.env.SVGINFO_DEBUG_TOPOLOGY) console.error(`[topo] zoneW=${r1(zoneW)} nwProbe=${r1(nwProbe)} labelMaxW=${r1(labelMaxW)} fs=${F.fs(V.zoneLabelSize)}`);
   const labelWrap = new Map();
   for (const z of zones) {
-    const w = ["ko", "en"].map((lc) => wrapLines(String(z.label[lc] ?? ""), labelMaxW, F.fs(12), true, 2));
+    const w = ["ko", "en"].map((lc) => wrapLines(String(z.label[lc] ?? ""), labelMaxW, F.fs(V.zoneLabelSize), true, 2));
     if (w.some((x) => x.overflow)) { console.error(`generate: zone label "${z.id}" does not fit the ${r1(labelMaxW)}px label band even wrapped — widen the preset or shorten the label`); process.exit(1); }
     labelWrap.set(z.id, w);
   }
   const labelLines = Math.max(1, ...[...labelWrap.values()].flat().map((x) => x.lines.length));
-  const band = labelLines === 1 ? Math.round(F.fs(12) * 1.5 + 4) : labelLineH(labelLines);
-  const nodeH = Math.min(96, (ib.h - corridorTotal - nz * (band + 2 * pad + maxIntra)) / nz);
+  const band = labelLines === 1 ? Math.round(F.fs(V.zoneLabelSize) * 1.5 + 4) : labelLineH(labelLines);
+  const nodeH = Math.min(V.nodeHeightMax, (ib.h - legendReserve - corridorTotal - nz * (band + 2 * pad + maxIntra)) / nz);
   const zoneH = (zid) => band + 2 * pad + nodeH + intraH(zid);
 
   // One spacing serves every row — differing per row would misalign the columns of the same slot and break the straight runs.
@@ -314,15 +332,17 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
     const zh = zoneH(z.id);
     consumed.push(z.id);
     const ns = rowOf(z);
-    const nw = (zoneW - 2 * pad - (ns.length - 1) * nodeGap) / ns.length;
+    const nw = Math.min(V.nodeWidthMax, (zoneW - 2 * pad - (ns.length - 1) * nodeGap) / ns.length);
+    const rowW = ns.length * nw + (ns.length - 1) * nodeGap;
+    const rowX = zoneX + (zoneW - rowW) / 2;
     ns.forEach((nd, ni) => {
-      nodeBox[nd.id] = { x: zoneX + pad + ni * (nw + nodeGap), y: zy + band + pad, w: nw, h: nodeH };
+      nodeBox[nd.id] = { x: rowX + ni * (nw + nodeGap), y: zy + band + pad, w: nw, h: nodeH };
       consumed.push(nd.id);
     });
     // A label's width as an obstacle is measured with the same estimator lint uses, not guessed
     // from a character count, and is fixed at **whichever of KO and EN is wider** — the routing
     // geometry must not vary by language.
-    const labelTextW = Math.max(...labelWrap.get(z.id).flatMap((w) => w.lines.map((l) => estimateWidth(l, F.fs(12), true, 0))));
+    const labelTextW = Math.max(...labelWrap.get(z.id).flatMap((w) => w.lines.map((l) => estimateWidth(l, F.fs(V.zoneLabelSize), true, 0))));
     const labelW = Math.min(labelMaxW, labelTextW * 1.08 + 2 * ROUTE_DEFAULTS.labelPad);
     zoneBoxes.push({ id: z.id, x: zoneX, y: zy, w: zoneW, h: zh,
       labelBox: { x: zoneX + pad, y: zy + 4, w: labelW, h: band - 4 } });
@@ -422,19 +442,19 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
   </g>`);
     labels.push(`  <g data-layout-role="zone-label" data-label-bounds="${r1(zb.labelBox.x)},${r1(zb.labelBox.y)},${r1(zb.labelBox.w)},${r1(zb.labelBox.h)}">
     <rect x="${r1(zb.labelBox.x)}" y="${r1(zb.labelBox.y)}" width="${r1(zb.labelBox.w)}" height="${r1(zb.labelBox.h)}" rx="4" fill="#E4EDF3" data-fill-role="surface-tint"/>
-    ${(() => { const L = labelWrap.get(z.id)[loc === "ko" ? 0 : 1].lines, lh = F.fs(12) * 1.5,
+    ${(() => { const L = labelWrap.get(z.id)[loc === "ko" ? 0 : 1].lines, lh = F.fs(V.zoneLabelSize) * 1.5,
         y0 = zb.y + (band - (L.length - 1) * lh) / 2 + 4;
       // On a single line, keep the existing single-text form — changing the markup where there is
       // no wrapping would break the flat baseline for no reason.
       return L.length === 1
-        ? `<text x="${r1(zb.x + pad)}" y="${r1(y0)}" font-size="${F.fs(12)}" font-weight="700" fill="#636A75" data-fill-role="muted" dominant-baseline="central">${esc(L[0])}</text>`
-        : `<text font-size="${F.fs(12)}" font-weight="700" fill="#636A75" data-fill-role="muted" dominant-baseline="central">${tspans(L, zb.x + pad, y0, lh)}</text>`; })()}
+        ? `<text x="${r1(zb.x + pad)}" y="${r1(y0)}" font-size="${F.fs(V.zoneLabelSize)}" font-weight="700" fill="#636A75" data-fill-role="muted" dominant-baseline="central">${esc(L[0])}</text>`
+        : `<text font-size="${F.fs(V.zoneLabelSize)}" font-weight="700" fill="#636A75" data-fill-role="muted" dominant-baseline="central">${tspans(L, zb.x + pad, y0, lh)}</text>`; })()}
   </g>`);
   });
   if (bFrame) {
     const bText = bWrap[loc === "ko" ? 0 : 1].lines[0] ?? "";
     labels.push(`  <g data-layout-role="boundary-label">
-    <text x="${r1(bFrame.x + bpad + K.labelPad)}" y="${r1(bFrame.y + bband / 2 + 2)}" font-size="${F.fs(12)}" font-weight="700" fill="#636A75" data-fill-role="muted" dominant-baseline="central">${esc(bText)}</text>
+    <text x="${r1(bFrame.x + bpad + K.labelPad)}" y="${r1(bFrame.y + bband / 2 + 2)}" font-size="${F.fs(V.zoneLabelSize)}" font-weight="700" fill="#636A75" data-fill-role="muted" dominant-baseline="central">${esc(bText)}</text>
   </g>`);
   }
 
@@ -443,14 +463,20 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
     consumed.push(rt.id);
     const shaft = SHAFT(rt.weight);
     const mk = rt.weight === "primary" ? "ah-primary" : "ah-secondary";
-    connectors.push(`  <g data-comp-entity="${rt.id}" data-entity="${rt.id}"><path data-route-id="${rt.id}" data-route-from="${rt.from}" data-route-to="${rt.to}" data-route-kind="${rt.kindPath}" data-route-weight="${rt.weight}" d="${pathData(rt)}" fill="none" data-stroke-role="edge-line" stroke="${EDGE}" stroke-width="${shaft}" stroke-linecap="round" stroke-linejoin="round"${rt.style === "dashed" ? ' stroke-dasharray="5 4"' : ""} marker-end="url(#${mk})"/></g>`);
+    connectors.push(`  <g data-comp-entity="${rt.id}" data-entity="${rt.id}"><path data-route-id="${rt.id}" data-route-from="${rt.from}" data-route-to="${rt.to}" data-route-kind="${rt.kindPath}" data-route-weight="${rt.weight}" data-edge-kind="${rt.semanticKind}" data-edge-direction="${rt.semanticDirection}" data-port-from="${rt.sideFrom}" data-port-to="${rt.sideTo}" data-target-gap="${rt.targetGap}" d="${pathData(rt)}" fill="none" data-stroke-role="edge-line" stroke="${EDGE}" stroke-width="${shaft}" stroke-linecap="round" stroke-linejoin="round"${rt.style === "dashed" ? ' stroke-dasharray="5 4"' : ""} marker-end="url(#${mk})"/></g>`);
   }
+  const FAMILY_PAINT = {
+    edge: { fill: "#EAF0F6", line: "#2E6DA4" }, api: { fill: "#EFEEF6", line: "#5B54A8" },
+    compute: { fill: "#ECF4F1", line: "#3F8F72" }, data: { fill: "#F4F5F5", line: "#636A75" },
+    external: { fill: "#F9F9F9", line: "#B9BCC1" },
+  };
   for (const z of zones) for (const nd of rowOf(z)) {
     const b = nodeBox[nd.id];
-    nodeArt.push(`  <g data-comp-entity="${nd.id}" data-entity="${nd.id}">
-    <rect x="${r1(b.x)}" y="${r1(b.y)}" width="${r1(b.w)}" height="${r1(b.h)}" rx="10" fill="#FFFFFF" stroke="#DEE0E2" stroke-width="1" data-fill-role="surface" data-stroke-role="rule" data-layout-parent="${nodeZone.get(nd.id)}" data-layout-item="${nodeZone.get(nd.id)}-row"/>
-    ${icon(nd.icon, b.x + b.w / 2, b.y + b.h / 2 - 14, 20)}
-    <text x="${r1(b.x + b.w / 2)}" y="${r1(b.y + b.h / 2 + 16)}" font-size="${F.fs(12)}" fill="#252B35" data-fill-role="ink" text-anchor="middle" dominant-baseline="central">${esc(nd.name[loc])}</text>
+    const kind = canonicalNodeKind(nd.kind), family = KIND_PALETTE_FAMILY[kind], paint = FAMILY_PAINT[family];
+    nodeArt.push(`  <g data-comp-entity="${nd.id}" data-entity="${nd.id}" data-node-kind="${kind}" data-node-icon="${nd.icon}" data-node-variant="${variant}" data-node-padding="${V.nodePadding}" data-port-inset="${K.portInset}">
+    <rect x="${r1(b.x)}" y="${r1(b.y)}" width="${r1(b.w)}" height="${r1(b.h)}" rx="${V.nodeRadius}" fill="${paint.fill}" stroke="${paint.line}" stroke-width="1" data-fill-role="${family}-fill" data-stroke-role="${family}-line" data-layout-parent="${nodeZone.get(nd.id)}" data-layout-item="${nodeZone.get(nd.id)}-row"/>
+    ${icon(nd.icon, b.x + b.w / 2, b.y + b.h / 2 - V.nodeTextSize, V.iconSize, `${family}-line`, paint.line)}
+    <text x="${r1(b.x + b.w / 2)}" y="${r1(b.y + b.h / 2 + V.nodeTextSize)}" font-size="${F.fs(V.nodeTextSize)}" fill="#252B35" data-fill-role="ink" text-anchor="middle" dominant-baseline="central">${esc(nd.name[loc])}</text>
   </g>`);
   }
 
@@ -479,11 +505,14 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
     }).join("\n    ")}
   </defs>`;
   const body = [
+    `  <g data-topology-variant="${variant}" data-zone-padding="${V.zonePadding}" data-node-padding="${V.nodePadding}" data-icon-size="${V.iconSize}" data-node-text-size="${V.nodeTextSize}" data-zone-label-size="${V.zoneLabelSize}" data-node-height-max="${V.nodeHeightMax}" data-node-width-max="${V.nodeWidthMax}" data-port-inset="${K.portInset}" data-target-gap="${K.targetGap}" data-outer-clearance="${K.outerClearance}">`,
     `  <g data-layer="containers">`, ...containers, `  </g>`,
     `  <g data-layer="connectors">`, ...connectors, `  </g>`,
     `  <g data-layer="nodes">`, ...nodeArt, `  </g>`,
     `  <g data-layer="annotations">`, ...labels, `  </g>`,
+    `  </g>`,
   ];
+  const topology = topologySemanticReceipt(input);
   return {
     body: defs + "\n" + body.join("\n"), consumed,
     // The frame is content: the bounds (and through them contentFlowBounds and the residual)
@@ -495,9 +524,11 @@ function renderTopology(input, loc, cb, sc, tp, degradeLevel = 0, F = { fs: (n) 
       legend: routed.legendRequired,
       demoted: routed.demoted.map((e) => e.id),
       routes: routed.routes.map((rt) => ({ id: rt.id, from: rt.from, to: rt.to, path: rt.kindPath,
+        semanticKind: rt.semanticKind, semanticDirection: rt.semanticDirection,
         ports: [rt.sideFrom, rt.sideTo], bends: rt.bends, style: rt.style, targetGap: rt.targetGap,
         hops: rt.hops.length })),
     },
+    topology,
   };
 }
 
@@ -1176,8 +1207,18 @@ function embedSubset(svg, delivery, treatment = "flat") {
 function build(argv) {
   const opt = (n, d = null) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };
   const tid = opt("typepack"), caseId = opt("case"), loc = opt("locale"), out = opt("out"), rcp = opt("receipt");
-  if (!tid || !caseId || !["ko", "en"].includes(loc) || !rcp) { console.error("usage: generate.mjs build --typepack <id> --case <case> --locale ko|en --out <svg> --receipt <json>"); process.exit(2); }
+  if (!tid || !caseId || !["ko", "en"].includes(loc) || !out || !rcp) { console.error("usage: generate.mjs build --typepack <id> --case <case> --locale ko|en --out <svg> --receipt <json>"); process.exit(2); }
+  // A failed retry must not leave an earlier success looking current. Remove both outputs before
+  // reading or validating any input; only the success/degrade branches below may recreate them.
+  rmSync(out, { force: true });
+  rmSync(rcp, { force: true });
   const { tp, sc, input, inputDigest } = loadCase(tid, caseId);
+  const inputErrors = [];
+  validateInputPayload(input, tid, sc.count, (message) => inputErrors.push(message));
+  if (inputErrors.length) {
+    for (const message of inputErrors) console.error(`generate: input payload — ${message}`);
+    process.exit(1);
+  }
   const override = opt("preset");
   const audition = argv.includes("--audition");
   const preset = override ?? (tp.presets.includes(sc.preset) ? sc.preset : tp.presets[0]);
@@ -1339,6 +1380,7 @@ ${body}
       tool: embedded.tool ?? null, wrapperDigest: embedded.wrapperDigest ?? null, identity: embedded.identity ?? [] },
     treatment: { name: tx.name, mode: tx.mode, overlay: tx.overlay, displacementBound: displacementBound(tx) },
     routing: R.routing ?? null,
+    ...(R.topology ? { topology: R.topology } : {}),
     matrix: R.matrix ?? null,
     timeline: R.timeline ?? null,
     residual, residualDisposition: appliedDisposition,
@@ -1685,6 +1727,61 @@ function auditPortIntervals(svg, rcp) {
   return errs;
 }
 
+// Primitive/variant verification is deliberately narrower than a graph verifier. It proves the
+// semantic kind + registry icon + variant + connector safety annotations against the original
+// input, while reachability/cycle/completeness stay explicitly unverified in the receipt.
+function auditTopologyContract(svg, input, rcp) {
+  const errs = [], expected = topologySemanticReceipt(input);
+  if (JSON.stringify(rcp.topology) !== JSON.stringify(expected))
+    errs.push("E-TOPO-RECEIPT topology receipt does not exact-match the original input and runtime contract");
+  const wrapper = (svg.match(/<g[^>]*data-topology-variant="[^"]+"[^>]*>/) ?? [])[0];
+  if (!wrapper) return [...errs, "E-TOPO-VARIANT artifact carries no topology variant annotation"];
+  const attr = (s, k) => (s.match(new RegExp(`\\b${k}="([^"]*)"`)) ?? [])[1];
+  const contractAttrs = { "data-zone-padding": "zonePadding", "data-node-padding": "nodePadding",
+    "data-icon-size": "iconSize", "data-node-text-size": "nodeTextSize", "data-zone-label-size": "zoneLabelSize",
+    "data-node-height-max": "nodeHeightMax", "data-node-width-max": "nodeWidthMax", "data-port-inset": "portInset", "data-target-gap": "targetGap",
+    "data-outer-clearance": "outerClearance" };
+  if (attr(wrapper, "data-topology-variant") !== expected.variant)
+    errs.push(`E-TOPO-VARIANT artifact variant "${attr(wrapper, "data-topology-variant")}" != input "${expected.variant}"`);
+  for (const [a, k] of Object.entries(contractAttrs))
+    if (Number(attr(wrapper, a)) !== expected.contract[k])
+      errs.push(`E-TOPO-CONTRACT ${a}="${attr(wrapper, a)}" != ${expected.contract[k]}`);
+
+  const nodeTags = new Map();
+  for (const m of svg.matchAll(/<g[^>]*data-entity="([^"]+)"[^>]*data-node-kind="[^"]+"[^>]*>/g)) nodeTags.set(m[1], m[0]);
+  for (const n of expected.nodes) {
+    const tag = nodeTags.get(n.id);
+    if (!tag) { errs.push(`E-TOPO-NODE artifact has no semantic annotation for node "${n.id}"`); continue; }
+    for (const [a, want] of [["data-node-kind", n.kind], ["data-node-icon", n.icon], ["data-node-variant", expected.variant],
+      ["data-node-padding", expected.contract.nodePadding], ["data-port-inset", expected.contract.portInset]])
+      if (String(attr(tag, a)) !== String(want)) errs.push(`E-TOPO-NODE node "${n.id}" ${a}="${attr(tag, a)}" != "${want}"`);
+    const im = svg.match(new RegExp(`<g[^>]*data-icon-id="${n.icon}"[^>]*>\\s*<path[^>]*\\bd="([^"]+)"`));
+    if (!im) errs.push(`E-TOPO-ICON node "${n.id}" has no concrete registry icon path for "${n.icon}"`);
+    else if (im[1] !== iconPath(n.icon)) errs.push(`E-TOPO-ICON node "${n.id}" path differs from registry icon "${n.icon}"`);
+  }
+  if (nodeTags.size !== expected.nodes.length)
+    errs.push(`E-TOPO-NODE artifact carries ${nodeTags.size} semantic node annotation(s), expected ${expected.nodes.length}`);
+
+  for (const e of expected.edges) {
+    const tag = (svg.match(new RegExp(`<path[^>]*data-route-id="${e.id}"[^>]*>`)) ?? [])[0];
+    if (!tag) { errs.push(`E-TOPO-EDGE artifact has no routed edge "${e.id}"`); continue; }
+    for (const [a, want] of [["data-edge-kind", e.kind], ["data-edge-direction", e.direction],
+      ["data-target-gap", expected.contract.targetGap]])
+      if (String(attr(tag, a)) !== String(want)) errs.push(`E-TOPO-EDGE edge "${e.id}" ${a}="${attr(tag, a)}" != "${want}"`);
+    const rr = (rcp.routing?.routes ?? []).find((r) => r.id === e.id);
+    if (!rr) errs.push(`E-TOPO-EDGE receipt routing omits edge "${e.id}"`);
+    else {
+      if (rr.semanticKind !== e.kind || rr.semanticDirection !== e.direction)
+        errs.push(`E-TOPO-EDGE route receipt meaning for "${e.id}" does not match the topology receipt`);
+      if (attr(tag, "data-port-from") !== rr.ports?.[0] || attr(tag, "data-port-to") !== rr.ports?.[1])
+        errs.push(`E-TOPO-PORT edge "${e.id}" SVG ports do not match the routing receipt`);
+    }
+  }
+  if (expected.coverage === "full-primitive-specimen" && expected.primitiveSet.join("|") !== [...NODE_KINDS].sort().join("|"))
+    errs.push("E-TOPO-COVERAGE full primitive specimen does not carry the exact canonical kind set");
+  return errs;
+}
+
 
 function verify(argv) {
   const opt = (n, d = null) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };
@@ -1723,6 +1820,7 @@ function verify(argv) {
         errors.push(`E-GEN-ALIGN alignment inventory recomputed from the input does not match the artifact\n    input:    ${expectedInv}\n    artifact: ${gotInv ?? "(none)"}`);
       if (rcp.typepack === "decision-matrix") for (const e of auditMatrixAxes(svg, input, rcp.locale)) errors.push(e);
       if (rcp.typepack === "roadmap-timeline") for (const e of auditTimeline(svg, input, rcp, caseTp)) errors.push(e);
+      if (rcp.typepack === "topology-component") for (const e of auditTopologyContract(svg, input, rcp)) errors.push(e);
       for (const e of auditTreatment(svg, rcp)) errors.push(e);
       for (const e of auditPortIntervals(svg, rcp)) errors.push(e);
       // The residual likewise does not take the receipt as the answer — it is re-measured from the final contentFlowBounds and contentBox.
@@ -1744,6 +1842,8 @@ function verify(argv) {
     const a = [...(rcp.consumed ?? [])].sort().join(","), b = [...(other.consumed ?? [])].sort().join(",");
     if (a !== b) errors.push("E-GEN-PAIR KO/EN consumed entity id sets differ — both locales must carry the same topology");
     if (rcp.geometry !== other.geometry) errors.push("E-GEN-PAIR KO/EN geometry decisions differ");
+    if (rcp.typepack === "topology-component" && JSON.stringify(rcp.topology) !== JSON.stringify(other.topology))
+      errors.push("E-GEN-PAIR KO/EN topology primitive and variant receipts differ");
   }
   const out = { schemaVersion: 1, command: "generate-verify", file: path.basename(rcpP), errors };
   if (argv.includes("--json")) console.log(JSON.stringify(out, null, 1));

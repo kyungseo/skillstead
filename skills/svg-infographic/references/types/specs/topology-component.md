@@ -23,15 +23,19 @@ Systems, components and their links inside zones.
 | Field | Cardinality | Budget |
 | --- | --- | --- |
 | `zones[].label` | 2–4 zones, entry → app → data | one line, ≤ 18 CJK / ≤ 28 Latin |
-| `zones[].nodes[]` | 1–4 per zone, **9 in total or fewer** (both caps apply at once) | name ≤ 2 lines, one icon |
+| `zones[].nodes[]` | 1–4 per zone, **9 in total or fewer**; the explicit full-primitive specimen may carry 10 | required semantic `kind`, required registry `icon`, name ≤ 2 lines |
 | `edges[]` | ≤ 12 | optional label ≤ 1 line |
 | `boundary` | optional, one system boundary | label ≤ 1 line |
+| `variant` | exactly one | `compact \| regular` |
+| `purpose` | optional | `full-primitive-specimen` \| `wave1-reference`; see the bounded effects below |
 
 ## 3. Semantic model and invariants
 
-- Entities are **components** grouped into ordered **zones**; edges are directed dependencies.
-- Invariants: every node belongs to exactly one zone; an edge references existing nodes; direction is consumer → provider; external actors sit outside the boundary frame when one is declared.
+- Entities are **components** grouped into ordered **zones**; `node.kind` carries architecture meaning and `node.icon` carries its registry representation. They are required separately.
+- Canonical kinds are `actor`, `service`, `gateway`, `compute`, `database`, `cache`, `queue`, `object-storage`, `external-provider`, and `observability`. Input aliases normalize as `user|client → actor`, `worker → compute`, and `event-bus → queue`; receipts and SVG annotations always use the canonical value.
+- Invariants: every node belongs to exactly one zone; an edge references existing nodes; request/dependency direction is consumer → provider while event direction is producer → consumer; external actors sit outside the boundary frame when one is declared.
 - The zone order encodes depth (ingress → app → data) and is not decorative.
+- `purpose: full-primitive-specimen` is the only 10-node exception: it requires exactly 10 nodes whose normalized kinds equal the canonical vocabulary, and its manifest scenario must use `artifact_policy: transient`. `purpose: wave1-reference` identifies retained prior geometry for regression work; it keeps the standard 9-node cap and grants no artifact-ownership exception.
 
 ## 4. Intrinsic fit and variant contract
 
@@ -43,6 +47,7 @@ placement, and drop to the §6 ladder when it does not. Never shrink type or spa
 let the two copies drift, so this section records only the arrangement and the decision boundary.
 
 - Arrangement: grid (zones × nodes per zone)
+- `regular` preserves the Wave 1 12px text/icon geometry. `compact` is the small-card presentation variant: it limits semantic breadth, uses 9px zone/node padding (the extra pixel keeps a 1px stroked frame above the 8px visual-paint floor), a 36px icon, and 24px node label. Both variants keep the same router-owned 16px port inset, 10px target gap, and 14px outer clearance; density never weakens connector safety.
 - Evidence level: while the manifest's `fit.floor_basis` reads `geometry`, these numbers are a
   **geometric assumption**, not a value confirmed by rendering. They are promoted to `rendered`
   only after passing the CP2B stress render (getBBox, containment, PNG inspection).
@@ -61,6 +66,23 @@ let the two copies drift, so this section records only the arrangement and the d
 - **No crossing edges**: route orthogonally around, or move the node. When nodes collide, assign each to a 3×3 zone cell and route only between cells, grouping co-located nodes in one frame.
 - Every arrow lands with an 8–12px gap before its target; edge labels sit beside the line, never on it.
 - A legend is required when both solid (request) and dashed (private/async) lines appear.
+
+`current-v1` intentionally maps the ten semantic kinds onto five palette families:
+
+| Kind | Palette family |
+| --- | --- |
+| `actor` | `external` |
+| `service` | `api` |
+| `gateway` | `edge` |
+| `compute` | `compute` |
+| `database` | `data` |
+| `cache` | `data` |
+| `queue` | `data` |
+| `object-storage` | `data` |
+| `external-provider` | `external` |
+| `observability` | `edge` |
+
+Palette family therefore does not uniquely identify a primitive. The registry icon is the primary visual discriminator between kinds that share a family; the text label remains the accessible identity.
 
 ## 6. Degrade ladder
 
@@ -137,16 +159,19 @@ Nodes are `node-<slug>` and zones are `zone-<slug>`; ids are stable within one a
 An edge records three axes **separately** — collapsing meaning (kind), delivery and exposure
 (visibility) into one would erase combinations such as a "private sync edge" from the receipt.
 
-- `kind: request | dependency` — what it means
+- `kind: request | dependency | event` — what it means
 - `delivery: sync | async` — synchronous or asynchronous
 - `visibility: public | private` — exposure across the boundary
 
-Direction always reads consumer → provider. **The line style derives from these three**: dashed when
+Request and dependency direction reads consumer → provider. Event direction reads producer → consumer
+and event delivery must be async. **The line style derives from these three**: dashed when
 `delivery: async` or `visibility: private`, solid otherwise. When both styles appear a legend is
 required, and the legend explains the axis it stands for rather than the style itself.
 
 ### Cardinality
-At most 12 edges and 9 nodes per artifact; a node may have any in-degree but an edge references exactly one source and one target, both of which must exist.
+At most 12 edges and 9 nodes per normal artifact; the explicit `full-primitive-specimen` acceptance
+case may carry exactly 10 nodes only when its normalized kind set equals the ten canonical kinds.
+A node may have any in-degree but an edge references exactly one source and one target, both of which must exist.
 
 ### Cycle policy
 Cycles are permitted only when the input declares them (a feedback dependency); an undeclared cycle is an input error, not a routing problem, because it usually means the direction convention was inverted.
@@ -155,4 +180,6 @@ Cycles are permitted only when the input declares them (a feedback dependency); 
 Traversal is declared explicitly and must agree with DOM order; the default is zone order (ingress → app → data) and, inside a zone, left to right.
 
 ### Topology verifier and receipt boundary
-Wave 1 ships no topology verifier: the receipt records nodes, zones, edges and direction, and the generic lint proves geometry only. Any claim about reachability, cycles or completeness needs the Wave 2 verifier before it may be asserted, and `core` promotion is blocked until then.
+Wave 2 verifies the exact primitive set, registry icon origin, selected variant, and the port/padding/
+clearance annotations against the receipt and original input. Reachability, cycles, and completeness
+remain explicitly unverified; `core` promotion stays blocked until that separate verifier exists.

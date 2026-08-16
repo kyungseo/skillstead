@@ -10,12 +10,15 @@ import path from "node:path";
 import fs from "node:fs";
 import os from "node:os";
 import { fileURLToPath } from "node:url";
+import { ICON_IDS } from "./icon-registry.mjs";
+import { KIND_PALETTE_FAMILY, NODE_KINDS, TOPOLOGY_LIMITS } from "./topology-contract.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const SKIN = path.join(here, "skin.mjs");
 const FIX = path.join(here, "skin-fixtures");
 const NEG = path.join(FIX, "skins-negative");
 const CUR = path.join(here, "..", "references", "skins", "current-v1.yaml");
+const AUTHORING = path.join(here, "..", "references", "authoring.md");
 
 function run(args, env = {}) {
   const r = spawnSync(process.execPath, [SKIN, ...args], { encoding: "utf8", env: { ...process.env, ...env } });
@@ -95,6 +98,23 @@ test("palette validation fails when the sibling derivation is defective", () => 
 test("registry validates slots and current uniqueness", () => {
   const r = run(["registry"]);
   assert.equal(r.code, 0, r.out);
+});
+test("icon registry is the exact 22-id SSoT exposed to authoring", () => {
+  const expected = ["activity", "api", "check", "clock", "cloud", "coins", "database", "doc",
+    "flag", "gauge", "gear", "layers", "lock", "loop", "network", "queue", "rocket", "route",
+    "server", "shield", "terminal", "users"];
+  assert.deepEqual(ICON_IDS, expected);
+  const r = run(["icons", "--json"]);
+  assert.equal(r.code, 0, r.out);
+  const j = JSON.parse(r.out);
+  assert.equal(j.count, expected.length);
+  assert.deepEqual(j.ids, expected);
+  assert.deepEqual(j.icons.map((entry) => entry.id), expected);
+  assert.ok(j.icons.every((entry) => entry.viewBox === "0 0 24 24" && entry.path.length > 0));
+  const authoring = readFileSync(AUTHORING, "utf8");
+  assert.match(authoring, /skin\.mjs icons --json/);
+  assert.doesNotMatch(authoring, /id=["']ic-/,
+    "authoring must query the registry rather than maintain a second icon-id list");
 });
 test("resolve current uses the registry selection and reports it", () => {
   const r = run(["resolve", "current", "--mode", "light", "--json"]);
@@ -773,6 +793,85 @@ test("R1B-P1: the topology fit is computed as a hierarchical bounding box includ
   assert.doesNotMatch(spec, /4 zones × 4 nodes per zone hold in both presets/, "wording conflicting with the total-of-9 contract is removed");
 });
 
+test("Wave2 CP2: topology cardinality is an exact spec-validator-manifest fixture ledger", () => {
+  const spec = fs.readFileSync(path.join(here, "..", "references", "types", "specs", "topology-component.md"), "utf8");
+  assert.match(spec, new RegExp(`${TOPOLOGY_LIMITS.nodesPerZone[0]}–${TOPOLOGY_LIMITS.nodesPerZone[1]} per zone`));
+  assert.match(spec, new RegExp(`\\*\\*${TOPOLOGY_LIMITS.nodesTotal} in total or fewer\\*\\*`));
+  assert.match(spec, new RegExp(`At most ${TOPOLOGY_LIMITS.maxEdges} edges and ${TOPOLOGY_LIMITS.nodesTotal} nodes`));
+  assert.match(spec, new RegExp(`exactly ${TOPOLOGY_LIMITS.specimenNodesTotal} nodes`));
+  assert.match(spec, /`full-primitive-specimen` \\| `wave1-reference`/);
+  for (const [kind, family] of Object.entries(KIND_PALETTE_FAMILY))
+    assert.ok(spec.includes(`| \`${kind}\` | \`${family}\` |`), `${kind} → ${family} must be documented`);
+  const stress = fs.readFileSync(path.join(here, "..", "references", "types", "inputs", "topology-component.stress-cardinality.yaml"), "utf8");
+  assert.equal((stress.match(/^      - id:/gm) ?? []).length, TOPOLOGY_LIMITS.nodesTotal);
+  assert.equal((stress.match(/^  - id: "e\d+"/gm) ?? []).length, TOPOLOGY_LIMITS.maxEdges);
+  const manifest = fs.readFileSync(path.join(here, "..", "references", "types", "manifest.yaml"), "utf8");
+  const topo = manifest.split(/^  - id: topology-component$/m)[1].split(/^  - id: /m)[0];
+  assert.match(topo, /path: types\/inputs\/topology-component\.stress-cardinality\.yaml/);
+  assert.match(topo, /covers: \[cardinality-max, edge-density\]/);
+});
+
+test("Wave2 R1-F1: full specimen purpose, exact kind set, and transient policy fail closed", () => {
+  const input = (pkg) => path.join(typesOf(pkg), "inputs", "topology-component.stress-primitive-coverage.yaml");
+  const cases = [
+    ["missing purpose", (pkg) => {
+      const f = input(pkg), src = fs.readFileSync(f, "utf8");
+      const changed = src.replace("purpose: full-primitive-specimen\n", "");
+      assert.notEqual(changed, src, "the fixture must remove the purpose declaration");
+      fs.writeFileSync(f, changed);
+    }, /standard contract caps it at 9/],
+    ["incomplete kind set", (pkg) => {
+      const f = input(pkg), src = fs.readFileSync(f, "utf8");
+      const changed = src.replace('kind: "database"\n        icon: "database"', 'kind: "cache"\n        icon: "layers"');
+      assert.notEqual(changed, src, "the fixture must replace one canonical kind with a duplicate");
+      fs.writeFileSync(f, changed);
+    }, /full primitive specimen kind set must equal the canonical vocabulary/],
+    ["non-transient artifact policy", (pkg) => {
+      const f = path.join(typesOf(pkg), "manifest.yaml"), src = fs.readFileSync(f, "utf8");
+      const marker = "        - id: topology-component-stress-primitive-coverage";
+      const at = src.indexOf(marker);
+      assert.notEqual(at, -1, "the manifest must contain the specimen scenario");
+      const head = src.slice(0, at), tail = src.slice(at);
+      const changedTail = tail.replace("          artifact_policy: transient", "          artifact_policy: tracked");
+      assert.notEqual(changedTail, tail, "the fixture must change the specimen artifact policy");
+      fs.writeFileSync(f, head + changedTail);
+    }, /full-primitive-specimen must declare artifact_policy: transient/],
+  ];
+  for (const [label, mutate, expected] of cases) {
+    const pkg = pkgCopy();
+    mutate(pkg);
+    const r = runIn(pkg, ["manifest"]);
+    assert.equal(r.code, 1, `${label}: ${r.out}`);
+    assert.match(r.out, expected, label);
+    drop(pkg);
+  }
+});
+
+test("Wave2 CP3: node kind is separate from icon, aliases normalize, and event direction is a distinct axis", () => {
+  const F = (pkg) => path.join(typesOf(pkg), "inputs", "topology-component.canonical.yaml");
+  const cases = [
+    ["unknown kind", (t) => t.replace('kind: "gateway"', 'kind: "vendor-router"'), /not in the architecture vocabulary/],
+    ["kind-icon mismatch", (t) => t.replace('icon: "route"', 'icon: "database"'), /not allowed for kind "gateway"/],
+    ["event must be async", (t) => t.replace('kind: "request"', 'kind: "event"'), /event edge "request-client-gateway" must use async delivery/],
+  ];
+  for (const [label, mutate, re] of cases) {
+    const pkg = pkgCopy(), f = F(pkg);
+    fs.writeFileSync(f, mutate(fs.readFileSync(f, "utf8")));
+    const r = runIn(pkg, ["manifest"]);
+    assert.equal(r.code, 1, `${label}: ${r.out}`);
+    assert.match(r.out, re, label);
+    drop(pkg);
+  }
+  const pkg = pkgCopy(), f = F(pkg);
+  fs.writeFileSync(f, fs.readFileSync(f, "utf8")
+    .replace('kind: "gateway"\n        icon: "route"', 'kind: "client"\n        icon: "users"')
+    .replace('kind: "request"\n    delivery: "sync"', 'kind: "event"\n    delivery: "async"'));
+  const r = runIn(pkg, ["manifest"]);
+  assert.equal(r.code, 0, r.out);
+  drop(pkg);
+  assert.equal(NODE_KINDS.length, 10);
+});
+
 test("R1B-P1c: content floors are distinguished by name and carry their evidence level", () => {
   const doc = fs.readFileSync(path.join(here, "..", "references", "types", "manifest.yaml"), "utf8");
   assert.equal((doc.match(/floor_basis: geometry/g) ?? []).length, 9, "every Wave 1 number is a geometric assumption");
@@ -817,7 +916,7 @@ test("CP2A: a missing payload, an over-budget value, a missing locale and a wron
       fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('      en: "Observability in place"\n', "")); },
      /is missing the en value/],
     [(pkg) => { const f = F(pkg, "topology-component.canonical.yaml");
-      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('    to: "api"', '    to: "ghost-node"')); },
+      fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('    to: "service"', '    to: "ghost-node"')); },
      /is not an existing node/],
     [(pkg) => { const f = F(pkg, "roadmap-timeline.canonical.yaml");
       fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('status: "future"', 'status: "current"')); },
@@ -949,7 +1048,7 @@ test("CA-1 and CA-2: a topology node icon and a roadmap milestone card are requi
   const cases = [
     [(pkg) => { const f = path.join(typesOf(pkg), "inputs", "topology-component.canonical.yaml");
       fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace('        icon: "route"\n', "")); },
-     /node "gw" is missing its icon/],
+     /node "gateway" is missing its icon/],
     [(pkg) => { const f = path.join(typesOf(pkg), "inputs", "roadmap-timeline.canonical.yaml");
       fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace(/^    card:\n(?: {6}.*\n| {8}.*\n)+/m, "")); },
      /is missing its required milestone card/],

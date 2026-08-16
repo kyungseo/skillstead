@@ -33,6 +33,9 @@ import { readFileSync, readdirSync, realpathSync, writeFileSync } from "node:fs"
 const await_import_fs = () => ({ writeFileSync });
 import { createHash } from "node:crypto";
 import path from "node:path";
+import { ICON_IDS, ICON_PATHS, hasIcon } from "./icon-registry.mjs";
+import { EDGE_KINDS, KIND_ICONS, NODE_KINDS, NODE_KIND_ALIASES, TOPOLOGY_LIMITS,
+  TOPOLOGY_VARIANTS, canonicalNodeKind, edgeDirection, isIconAllowedForKind, isNodeKind } from "./topology-contract.mjs";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { preflight, guardPackagePath, state, isUnder } from "./preflight-lib.mjs";
@@ -625,6 +628,7 @@ const OPTION_SPEC = {
   validate: { "--json": false },
   resolve: { "--mode": true, "--treatment": true, "--json": false },
   registry: { "--json": false },
+  icons: { "--json": false },
   materialize: { "--profile": true, "--mode": true, "--treatment": true, "--check": false, "--json": false },
   manifest: { "--json": false },
   selection: { "--check": false, "--write": false, "--json": false },
@@ -729,8 +733,6 @@ function materializeSvg(text, tokens) {
 // its line fit proven by a character count. The latter is an **authoring sanity ceiling**; the real
 // line count and any overflow are settled by the CP2B browser measurement.
 const LOCALES = ["ko", "en"];
-const ICON_SET = ["activity", "rocket", "coins", "shield", "database", "cloud", "lock",
-  "gauge", "layers", "route", "flag", "check", "clock", "users", "server", "queue"];
 const graphemes = (str) => {
   try { return [...new Intl.Segmenter(undefined, { granularity: "grapheme" }).segment(String(str))].length; }
   catch { return [...String(str)].length; }   // code point fallback
@@ -757,7 +759,9 @@ const INPUT_SCHEMA = {
   "topology-component": {
     root: ["zones", "edges", "boundary"], collection: "zones",
     entity: { required: { label: B(18, 28, "hard") }, optional: { nodes: "nodes" } },
-    limits: { nodesPerZone: [1, 4], nodesTotal: 9, maxEdges: 12, nodeName: B(24, 36) },
+    limits: { nodesPerZone: TOPOLOGY_LIMITS.nodesPerZone, nodesTotal: TOPOLOGY_LIMITS.nodesTotal,
+      specimenNodesTotal: TOPOLOGY_LIMITS.specimenNodesTotal, maxEdges: TOPOLOGY_LIMITS.maxEdges,
+      nodeName: B(24, 36) },
   },
   "process-flow": {
     root: ["steps", "feedback", "lanes", "branches"], collection: "steps",
@@ -794,10 +798,10 @@ const INPUT_SCHEMA = {
 // not actually observed is false coverage and is refused.
 const COVERS_VOCAB = ["cardinality-max", "copy-boundary-candidate", "optionals-max",
   "edge-density", "containment-depth", "mirrored-slots", "status-and-marker",
-  "gate-caption", "chips-max", "degrade-path", "terminal-current"];
+  "gate-caption", "chips-max", "degrade-path", "terminal-current", "primitive-coverage", "wave1-reference"];
 // Audited axes: whatever is observed must be declared (not only declared within observed, but the converse too).
 const AUDITABLE_COVERS = ["cardinality-max", "copy-boundary-candidate", "optionals-max",
-  "edge-density", "containment-depth", "mirrored-slots", "status-and-marker", "chips-max", "degrade-path", "terminal-current"];
+  "edge-density", "containment-depth", "mirrored-slots", "status-and-marker", "chips-max", "degrade-path", "terminal-current", "primitive-coverage", "wave1-reference"];
 
 function localized(v, budget, ctx, report, required = true) {
   if (v == null) { if (required) report(`${ctx} is missing`); return; }
@@ -826,7 +830,7 @@ const exactKeys = (obj, allowed, ctx, report) => {
 export function validateInputPayload(doc, tid, declaredCount, report) {
   const sc = INPUT_SCHEMA[tid];
   if (!sc) return new Set();
-  const META = ["schema_version", "kind", "typepack", "case", "preset", "layout", "cols", "floor", "count", "prompt_ko", "prompt_en", "title"];
+  const META = ["schema_version", "kind", "typepack", "case", "preset", "layout", "cols", "floor", "count", "prompt_ko", "prompt_en", "title", "variant", "purpose"];
   exactKeys(doc, [...META, ...sc.root], "payload root", report);
   // The H1 is the artifact's concluding sentence — the input owns it so the generator cannot invent it.
   localized(doc.title, B(30, 46), "payload title", report);
@@ -856,7 +860,7 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
     }
     for (const [f, budget] of Object.entries(opt)) {
       if (e[f] === undefined) continue;
-      if (budget === "icon") { if (!ICON_SET.includes(e[f])) report(`entity "${e.id}" ${f} "${e[f]}" is not a bundled icon id`); continue; }
+      if (budget === "icon") { if (!hasIcon(e[f])) report(`entity "${e.id}" ${f} "${e[f]}" is not a bundled icon id`); continue; }
       if (budget === "chips") {
         if (!Array.isArray(e[f])) { report(`entity "${e.id}" items must be a list`); continue; }
         if (e[f].length > sc.limits.chipsPerLayer) report(`entity "${e.id}" holds ${e[f].length} chips, over the ${sc.limits.chipsPerLayer} cap`);
@@ -894,23 +898,44 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
         if (r.core_icon !== undefined && i !== list.length - 1) report(`ring "${r.id}" carries core_icon but only the innermost ring may`);
     },
     "topology-component": () => {
+      if (!Object.hasOwn(TOPOLOGY_VARIANTS, doc.variant))
+        report(`topology variant must be ${Object.keys(TOPOLOGY_VARIANTS).join("|")} (got "${doc.variant}")`);
+      const specimen = doc.purpose === "full-primitive-specimen";
+      const wave1Reference = doc.purpose === "wave1-reference";
+      if (doc.purpose !== undefined && !specimen && !wave1Reference)
+        report(`topology purpose must be full-primitive-specimen|wave1-reference when present (got "${doc.purpose}")`);
+      if (wave1Reference) observed.add("wave1-reference");
       const nodeIds = new Set();
+      const kinds = [];
       for (const z of list) {
         const ns = z.nodes ?? [];
         subIds(ns, `node of "${z.id}"`, report);
         const [lo, hi] = sc.limits.nodesPerZone;
         if (ns.length < lo || ns.length > hi) report(`zone "${z.id}" holds ${ns.length} nodes; the contract allows ${lo}–${hi}`);
         for (const n of ns) {
-          exactKeys(n, ["id", "name", "icon"], `node "${n.id}"`, report);
+          exactKeys(n, ["id", "name", "kind", "icon"], `node "${n.id}"`, report);
           if (!n.id) { report("topology node needs an id"); continue; }
           if (nodeIds.has(n.id)) report(`topology node id "${n.id}" appears in more than one zone`);
           nodeIds.add(n.id);
           localized(n.name, sc.limits.nodeName, `node "${n.id}" name`, report);
+          if (n.kind === undefined) report(`node "${n.id}" is missing its semantic kind`);
+          else if (!isNodeKind(n.kind)) report(`node "${n.id}" kind "${n.kind}" is not in the architecture vocabulary`);
+          else kinds.push(canonicalNodeKind(n.kind));
           if (n.icon === undefined) report(`node "${n.id}" is missing its icon (spec: one icon badge per component)`);
-          else if (!ICON_SET.includes(n.icon)) report(`node "${n.id}" icon "${n.icon}" is not a bundled icon id`);
+          else if (!hasIcon(n.icon)) report(`node "${n.id}" icon "${n.icon}" is not a bundled icon id`);
+          else if (isNodeKind(n.kind) && !isIconAllowedForKind(n.kind, n.icon))
+            report(`node "${n.id}" icon "${n.icon}" is not allowed for kind "${canonicalNodeKind(n.kind)}" (allowed: ${KIND_ICONS[canonicalNodeKind(n.kind)].join("|")})`);
         }
       }
-      if (nodeIds.size > sc.limits.nodesTotal) report(`topology declares ${nodeIds.size} nodes but the contract caps it at ${sc.limits.nodesTotal}`);
+      const nodeCap = specimen ? sc.limits.specimenNodesTotal : sc.limits.nodesTotal;
+      if (nodeIds.size > nodeCap) report(`topology declares ${nodeIds.size} nodes but the ${specimen ? "full primitive specimen" : "standard"} contract caps it at ${nodeCap}`);
+      if (specimen) {
+        observed.add("primitive-coverage");
+        const actual = [...new Set(kinds)].sort();
+        const expected = [...NODE_KINDS].sort();
+        if (actual.join("|") !== expected.join("|"))
+          report(`full primitive specimen kind set must equal the canonical vocabulary (${expected.join("|")}); got ${actual.join("|")}`);
+      }
       const edges = doc.edges ?? [];
       if (!edges.length) report("topology payload must declare at least one edge");
       if (edges.length > sc.limits.maxEdges) report(`topology declares ${edges.length} edges, over the ${sc.limits.maxEdges} cap`);
@@ -922,10 +947,12 @@ export function validateInputPayload(doc, tid, declaredCount, report) {
         else if (eids.has(ed.id)) report(`duplicate edge id "${ed.id}"`);
         else eids.add(ed.id);
         for (const end of ["from", "to"]) if (!nodeIds.has(ed[end])) report(`edge "${ed.id}" ${end} "${ed[end]}" is not an existing node`);
-        if (!["request", "dependency"].includes(ed.kind)) report(`edge "${ed.id}" kind must be request|dependency`);
+        if (!EDGE_KINDS.includes(ed.kind)) report(`edge "${ed.id}" kind must be ${EDGE_KINDS.join("|")}`);
         if (!["sync", "async"].includes(ed.delivery)) report(`edge "${ed.id}" delivery must be sync|async`);
         if (!["public", "private"].includes(ed.visibility)) report(`edge "${ed.id}" visibility must be public|private`);
         if (ed.label !== undefined) localized(ed.label, B(16, 24), `edge "${ed.id}" label`, report);
+        if (EDGE_KINDS.includes(ed.kind) && edgeDirection(ed.kind) === "producer-to-consumer" && ed.delivery !== "async")
+          report(`event edge "${ed.id}" must use async delivery (producer to consumer)`);
       }
       if (doc.boundary !== undefined) {
         exactKeys(doc.boundary, ["label"], "boundary", report);
@@ -1198,7 +1225,7 @@ function computePageFrame(P, opts) {
 function main() {
   preflight({ entrypointUrl: import.meta.url });
   const [cmd, ...restAll] = process.argv.slice(2);
-  if (!cmd || !(cmd in OPTION_SPEC)) fail(2, "usage: skin.mjs validate|resolve <profile.yaml> [options] | registry|manifest|selection|gallery|delivery [--json]");
+  if (!cmd || !(cmd in OPTION_SPEC)) fail(2, "usage: skin.mjs validate|resolve <profile.yaml> [options] | registry|icons|manifest|selection|gallery|delivery [--json]");
   let profileArg = null, rest = restAll, selectionBasis = "explicit-path", svgArg = null;
   if (cmd === "pageframe") {
     const preset = restAll[0];
@@ -1849,8 +1876,10 @@ function main() {
         let maxCardScenario = null;
         for (const [cse, c] of cases) {
           if (!c || typeof c !== "object") { errors.push(`manifest: ${id}: inputs.${cse} is required`); continue; }
-          const allowed = ["id", "path", "preset", "layout", "cols", "floor", "count", "residual_disposition", "routing_expected"].concat(cse === "stress" ? ["geometry_expected", "covers"] : []);
+          const allowed = ["id", "path", "preset", "layout", "cols", "floor", "count", "residual_disposition", "routing_expected", "artifact_policy"].concat(cse === "stress" ? ["geometry_expected", "covers"] : []);
           for (const k of Object.keys(c)) if (!allowed.includes(k)) errors.push(`manifest: ${id}: inputs.${cse} unknown field "${k}"`);
+          if (c.artifact_policy !== undefined && !["tracked", "transient"].includes(c.artifact_policy))
+            errors.push(`manifest: ${id}: inputs.${cse} artifact_policy must be tracked|transient`);
           if (!c.id || !/^[a-z0-9][a-z0-9-]*$/.test(String(c.id))) errors.push(`manifest: ${id}: inputs.${cse} id invalid`);
           else if (inputIds.has(c.id)) errors.push(`manifest: ${id}: duplicate input id "${c.id}"`);
           else inputIds.add(c.id);
@@ -1915,6 +1944,8 @@ function main() {
               if (String(idoc[k]) !== String(c[k])) errors.push(`manifest: ${id}: inputs.${cse} file ${k} "${idoc[k]}" != manifest "${c[k]}"`);
             for (const loc of ["ko", "en"]) if (!idoc[`prompt_${loc}`]) errors.push(`manifest: ${id}: inputs.${cse} prompt_${loc} is required (explaining the intent)`);
             const obsExtra = validateInputPayload(idoc, id, c.count, (m) => errors.push(`manifest: ${id}: inputs.${cse} payload — ${m}`));
+            if (idoc.purpose === "full-primitive-specimen" && c.artifact_policy !== "transient")
+              errors.push(`manifest: ${id}: full-primitive-specimen must declare artifact_policy: transient (it is acceptance evidence, not a gallery artifact)`);
             if (cse === "stress") {
               // covers must be observed in the payload, not taken from a declared label — blocking false coverage
               const obs = observedCoverage(idoc, id, c.count, fit?.cardinality?.max, c.geometry_expected, obsExtra);
@@ -2204,7 +2235,7 @@ function main() {
     }
     process.exit(errors.length ? 1 : 0);
   }
-  if (cmd !== "registry" && cmd !== "delivery") {
+  if (cmd !== "registry" && cmd !== "icons" && cmd !== "delivery") {
     profileArg = restAll[0];
     if (!profileArg || profileArg.startsWith("--")) fail(2, `${cmd} requires a profile path or "current"`);
     rest = restAll.slice(1);
@@ -2217,6 +2248,15 @@ function main() {
     }
   }
   const opts = parseOptions(cmd, rest);
+
+  if (cmd === "icons") {
+    const receipt = { schemaVersion: 1, command: "icons", count: ICON_IDS.length,
+      ids: ICON_IDS, icons: ICON_IDS.map((id) => ({ id, viewBox: "0 0 24 24", path: ICON_PATHS[id] })),
+      errors: [], warnings: [] };
+    if (opts["--json"]) console.log(JSON.stringify(receipt, null, 1));
+    else process.stdout.write(ICON_IDS.join("\n") + "\n");
+    process.exit(0);
+  }
 
   if (cmd === "delivery") {
     rest = restAll;

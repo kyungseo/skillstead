@@ -33,13 +33,18 @@ function runIn(pkg, args) {
 }
 const out = (pkg, name) => path.join(path.dirname(pkg), name);
 const manifestPath = (pkg) => path.join(pkg, "references", "types", "manifest.yaml");
+const digest = (text) => `sha256:${createHash("sha256").update(text).digest("hex")}`;
 // The declared value is read from the package under test, not written into the assertion. A literal
 // here goes stale the moment the layout legitimately changes, and then the fixture passes for the
 // wrong reason: the edit silently becomes a no-op and the build it was meant to break succeeds.
 const flatResidualEntry = (pkg) => {
-  const m = readFileSync(manifestPath(pkg), "utf8").match(/\{ treatment: flat, bottom: (\d+) \}/);
-  assert.ok(m, "topology-component must declare a flat residual entry for these fixtures to mean anything");
-  return { text: m[0], bottom: Number(m[1]) };
+  const m = readFileSync(manifestPath(pkg), "utf8").match(/residual_disposition: \{ bottom: (\d+), reason: "Wave 1 canonical geometry[^\n]+/);
+  assert.ok(m, "the Wave 1 topology reference must declare its measured flat residual");
+  return {
+    text: m[0],
+    bottom: Number(m[1]),
+    withBottom(bottom) { return m[0].replace(/bottom: \d+/, `bottom: ${bottom}`); },
+  };
 };
 const editManifest = (pkg, fn) => writeFileSync(manifestPath(pkg), fn(readFileSync(manifestPath(pkg), "utf8")));
 
@@ -97,12 +102,124 @@ test("G-3: with no title in the payload it fails rather than making up an H1", (
   drop(pkg);
 });
 
+test("G-51: an unknown icon fails closed and removes stale SVG and receipt outputs", () => {
+  const pkg = pkgCopy();
+  const p = path.join(pkg, "references", "types", "inputs", "topology-component.canonical.yaml");
+  const src = readFileSync(p, "utf8");
+  const changed = src.replace('icon: "route"', 'icon: "unknown-wave2-icon"');
+  assert.notEqual(changed, src, "the fixture must replace a live icon id");
+  writeFileSync(p, changed);
+  const svg = out(pkg, "topology-component-canonical-ko.svg");
+  const rcp = out(pkg, "topology-component-canonical-ko.json");
+  writeFileSync(svg, "stale-svg");
+  writeFileSync(rcp, "stale-receipt");
+  const b = build(pkg, "topology-component", "canonical", "ko");
+  assert.equal(b.code, 1, b.out);
+  assert.match(b.out, /unknown-wave2-icon.*not a bundled icon id/);
+  assert.equal(existsSync(svg), false, "a stale artifact must not survive failed validation");
+  assert.equal(existsSync(rcp), false, "a stale success receipt must not survive failed validation");
+  const generator = readFileSync(path.join(pkg, "scripts", "generate.mjs"), "utf8");
+  assert.doesNotMatch(generator, /\?\?\s*ICON_PATH(?:S)?\.check/,
+    "the renderer must not silently substitute the check icon");
+  drop(pkg);
+});
+
+test("G-52: topology receipt and SVG exact-match semantic kinds, registry icons, variant and safety contract", () => {
+  const pkg = pkgCopy();
+  const b = build(pkg, "topology-component", "canonical", "ko");
+  assert.equal(b.code, 0, b.out);
+  const rc = JSON.parse(readFileSync(b.rcp, "utf8"));
+  assert.equal(rc.topology.variant, "compact");
+  assert.equal(rc.topology.coverage, "representative-core-primitives");
+  assert.deepEqual(rc.topology.contract, { zonePadding: 9, nodePadding: 9, iconSize: 36,
+    nodeTextSize: 24, zoneLabelSize: 16, nodeHeightMax: 128, nodeWidthMax: 720, portInset: 16,
+    targetGap: 10, outerClearance: 14 });
+  assert.equal(rc.topology.verification.reachability, "unverified");
+  assert.ok(rc.topology.nodes.every((n) => n.iconSource === "registry"));
+  const v = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
+  assert.equal(v.code, 0, v.out);
+  drop(pkg);
+});
+
+test("G-53: aliases normalize in receipts and event edges retain producer-to-consumer meaning", () => {
+  const pkg = pkgCopy();
+  const b = build(pkg, "topology-component", "stress-primitive-coverage", "ko");
+  assert.equal(b.code, 0, b.out);
+  const rc = JSON.parse(readFileSync(b.rcp, "utf8"));
+  const client = rc.topology.nodes.find((n) => n.id === "client"), e1 = rc.topology.edges.find((e) => e.id === "event-queue-worker");
+  assert.deepEqual({ kind: client.kind, declaredKind: client.declaredKind }, { kind: "actor", declaredKind: "client" });
+  assert.deepEqual({ kind: e1.kind, direction: e1.direction, delivery: e1.delivery },
+    { kind: "event", direction: "producer-to-consumer", delivery: "async" });
+  assert.match(readFileSync(b.svg, "utf8"), /data-edge-kind="event" data-edge-direction="producer-to-consumer"/);
+  const v = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
+  assert.equal(v.code, 0, v.out);
+  drop(pkg);
+});
+
+test("G-55: topology stress builds pin semantic edge axes, visual style, legend, and verification", () => {
+  const scenarios = [
+    ["stress-wave1-reference", [
+      ["e1", "request", "consumer-to-provider", "sync", "public", "solid"],
+      ["e2", "dependency", "consumer-to-provider", "sync", "private", "dashed"],
+      ["e3", "request", "consumer-to-provider", "async", "private", "dashed"],
+    ]],
+    ["stress-primitive-coverage", [
+      ["request-client-gateway", "request", "consumer-to-provider", "sync", "public", "solid"],
+      ["request-gateway-service", "request", "consumer-to-provider", "sync", "private", "dashed"],
+      ["dependency-service-database", "dependency", "consumer-to-provider", "sync", "private", "dashed"],
+      ["dependency-service-queue", "dependency", "consumer-to-provider", "async", "private", "dashed"],
+      ["event-queue-worker", "event", "producer-to-consumer", "async", "private", "dashed"],
+    ]],
+  ];
+  for (const [caseId, expected] of scenarios) {
+    const pkg = pkgCopy();
+    const b = build(pkg, "topology-component", caseId, "ko");
+    assert.equal(b.code, 0, `${caseId}: ${b.out}`);
+    const rc = JSON.parse(readFileSync(b.rcp, "utf8"));
+    assert.deepEqual(rc.topology.edges.map((e) => [e.id, e.kind, e.direction, e.delivery, e.visibility]),
+      expected.map((e) => e.slice(0, 5)), caseId);
+    const svg = readFileSync(b.svg, "utf8");
+    for (const [id, kind, direction, , , style] of expected) {
+      const tag = svg.match(new RegExp(`<path[^>]*data-route-id="${id}"[^>]*>`))?.[0];
+      assert.ok(tag, `${caseId}: ${id} must be rendered`);
+      assert.match(tag, new RegExp(`data-edge-kind="${kind}"`));
+      assert.match(tag, new RegExp(`data-edge-direction="${direction}"`));
+      assert.equal(tag.includes("stroke-dasharray="), style === "dashed", `${caseId}: ${id} style`);
+      const route = rc.routing.routes.find((entry) => entry.id === id);
+      assert.equal(route?.style, style, `${caseId}: ${id} routing receipt style`);
+    }
+    assert.equal(rc.routing.legend, true, `${caseId}: mixed solid/dashed styles require a legend`);
+    assert.match(svg, /data-layout-role="legend"/, `${caseId}: legend must be present in the SVG`);
+    const v = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
+    assert.equal(v.code, 0, `${caseId}: ${v.out}`);
+    drop(pkg);
+  }
+});
+
+test("G-54: compact is annotated and tampering a node kind fails the primitive verifier", () => {
+  const pkg = pkgCopy();
+  const b = build(pkg, "topology-component", "canonical", "ko");
+  assert.equal(b.code, 0, b.out);
+  const rc = JSON.parse(readFileSync(b.rcp, "utf8"));
+  assert.deepEqual({ variant: rc.topology.variant, zonePadding: rc.topology.contract.zonePadding,
+    nodePadding: rc.topology.contract.nodePadding }, { variant: "compact", zonePadding: 9, nodePadding: 9 });
+  const tampered = readFileSync(b.svg, "utf8").replace('data-node-kind="gateway"', 'data-node-kind="database"');
+  writeFileSync(b.svg, tampered);
+  rc.artifactDigest = digest(tampered);
+  writeFileSync(b.rcp, JSON.stringify(rc, null, 1));
+  const v = runIn(pkg, ["verify", "--receipt", b.rcp, "--svg", b.svg]);
+  assert.equal(v.code, 1, v.out);
+  assert.match(v.out, /E-TOPO-NODE/);
+  drop(pkg);
+});
+
 // --- undeclared dead space does not pass -------------------------------
 test("G-4: a bottom residual over the floor with no declaration fails", () => {
   const pkg = pkgCopy();
   // the topology canonical leaves declared breathing room on a fixed canvas — deleting that declaration must not pass
-  editManifest(pkg, (m) => m.replace(/\n *residual_disposition:\n(?: +[^\n]*\n)+?(?= *routing_expected:)/, "\n"));
-  const b = build(pkg, "topology-component", "canonical", "ko");
+  const e = flatResidualEntry(pkg);
+  editManifest(pkg, (m) => m.replace(`${e.text}\n`, ""));
+  const b = build(pkg, "topology-component", "stress-wave1-reference", "ko");
   assert.equal(b.code, 1, b.out);
   assert.match(b.out, /residual_disposition/);
   drop(pkg);
@@ -111,8 +228,8 @@ test("G-4: a bottom residual over the floor with no declaration fails", () => {
 test("G-5: a declared residual that differs from the measurement fails", () => {
   const pkg = pkgCopy();
   const e5 = flatResidualEntry(pkg);
-  editManifest(pkg, (m) => m.replace(e5.text, `{ treatment: flat, bottom: ${e5.bottom + 40} }`));
-  const b = build(pkg, "topology-component", "canonical", "ko");
+  editManifest(pkg, (m) => m.replace(e5.text, e5.withBottom(e5.bottom + 40)));
+  const b = build(pkg, "topology-component", "stress-wave1-reference", "ko");
   assert.equal(b.code, 1, b.out);
   assert.match(b.out, /does not match the measured/);
   drop(pkg);
@@ -632,7 +749,7 @@ test("G-35: a port outside the interval is refused by verify", () => {
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
   const svg = out(pkg, "s.svg"), rcp = out(pkg, "s.json");
-  assert.equal(runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical",
+  assert.equal(runIn(pkg, ["build", "--typepack", "topology-component", "--case", "stress-wave1-reference",
     "--locale", "ko", ...FD, "--out", svg, "--receipt", rcp]).code, 0);
   const t = JSON.parse(readFileSync(rcp, "utf8"));
   const pc = t.routing.portConstraints;
@@ -653,7 +770,7 @@ test("G-36: an interval declaration exceeding the node's port range is refused",
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
   const svg = out(pkg, "s.svg"), rcp = out(pkg, "s.json");
-  runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko", ...FD, "--out", svg, "--receipt", rcp]);
+  runIn(pkg, ["build", "--typepack", "topology-component", "--case", "stress-wave1-reference", "--locale", "ko", ...FD, "--out", svg, "--receipt", rcp]);
   const t = JSON.parse(readFileSync(rcp, "utf8"));
   t.routing.portConstraints[0].allowed.hi += 500;   // claiming to allow positions outside the node
   writeFileSync(rcp, JSON.stringify(t));
@@ -667,7 +784,7 @@ test("G-37: an interval that does not satisfy the label clearance is refused", (
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
   const svg = out(pkg, "s.svg"), rcp = out(pkg, "s.json");
-  runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko", ...FD, "--out", svg, "--receipt", rcp]);
+  runIn(pkg, ["build", "--typepack", "topology-component", "--case", "stress-wave1-reference", "--locale", "ko", ...FD, "--out", svg, "--receipt", rcp]);
   const t = JSON.parse(readFileSync(rcp, "utf8"));
   t.routing.portConstraints[0].allowed.lo -= 120;   // claiming the interval was widened toward the label
   writeFileSync(rcp, JSON.stringify(t));
@@ -681,7 +798,7 @@ test("G-38: routing succeeds even when the legal interval lies outside the old s
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
   const svg = out(pkg, "s.svg"), rcp = out(pkg, "s.json");
-  const b = runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko", ...FD, "--out", svg, "--receipt", rcp]);
+  const b = runIn(pkg, ["build", "--typepack", "topology-component", "--case", "stress-wave1-reference", "--locale", "ko", ...FD, "--out", svg, "--receipt", rcp]);
   assert.equal(b.code, 0, b.out);
   const t = JSON.parse(readFileSync(rcp, "utf8"));
   // every edge survives the interval the label clearance imposes
@@ -695,8 +812,8 @@ test("G-39: straight-first and determinism hold under the interval too", () => {
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
   const a = out(pkg, "a.svg"), ar = out(pkg, "a.json"), c = out(pkg, "c.svg"), cr = out(pkg, "c.json");
-  runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko", ...FD, "--out", a, "--receipt", ar]);
-  runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical", "--locale", "ko", ...FD, "--out", c, "--receipt", cr]);
+  runIn(pkg, ["build", "--typepack", "topology-component", "--case", "stress-wave1-reference", "--locale", "ko", ...FD, "--out", a, "--receipt", ar]);
+  runIn(pkg, ["build", "--typepack", "topology-component", "--case", "stress-wave1-reference", "--locale", "ko", ...FD, "--out", c, "--receipt", cr]);
   assert.equal(readFileSync(a, "utf8"), readFileSync(c, "utf8"), "the same input must give the same artifact");
   const t = JSON.parse(readFileSync(ar, "utf8"));
   for (const rt of t.routing.routes) assert.equal(rt.path, "straight", `${rt.id} must be straight (no needless dogleg)`);
@@ -756,20 +873,20 @@ test("G-45: an artifact that drops the boundary group fails the consumption chec
 
 test("G-46: with no boundary declared nothing is drawn, counted, or reserved", () => {
   const pkg = pkgCopy();
-  const withBoundary = build(pkg, "topology-component", "canonical", "ko");
+  const withBoundary = build(pkg, "topology-component", "stress-wave1-reference", "ko");
   assert.equal(withBoundary.code, 0, withBoundary.out);
   const before = JSON.parse(readFileSync(withBoundary.rcp, "utf8"));
 
-  const f = inputPath(pkg, "topology-component.canonical.yaml");
+  const f = inputPath(pkg, "topology-component.stress-wave1-reference.yaml");
   const src = readFileSync(f, "utf8");
   const cut = src.replace(/\nboundary:\n(?: {2}.*\n| {4}.*\n)*/, "\n");
   assert.notEqual(cut, src, "the fixture must actually drop the boundary block");
   writeFileSync(f, cut);
   // the declaration it was measured against no longer applies once the frame stops reserving space
   const e = flatResidualEntry(pkg);
-  editManifest(pkg, (t) => t.replace(e.text, `{ treatment: flat, bottom: ${e.bottom + 46} }`));
+  editManifest(pkg, (t) => t.replace(e.text, e.withBottom(e.bottom + 46)));
 
-  const b = build(pkg, "topology-component", "canonical", "ko");
+  const b = build(pkg, "topology-component", "stress-wave1-reference", "ko");
   assert.equal(b.code, 0, b.out);
   const svg = readFileSync(b.svg, "utf8"), rcp = JSON.parse(readFileSync(b.rcp, "utf8"));
   assert.ok(!rcp.consumed.includes("boundary"), "nothing to count");
@@ -826,7 +943,7 @@ test("G-49: topology-component under sketch fails closed on the corridor it cann
   if (!hasSubsetter()) return;
   const pkg = pkgCopy();
   const svg = out(pkg, "s.svg"), rcp = out(pkg, "s.json");
-  const b = runIn(pkg, ["build", "--typepack", "topology-component", "--case", "canonical",
+  const b = runIn(pkg, ["build", "--typepack", "topology-component", "--case", "stress-wave1-reference",
     "--locale", "ko", ...TX, "--out", svg, "--receipt", rcp]);
   assert.notEqual(b.code, 0, "a preview that cannot hold the clearance must not produce an artifact");
   assert.match(b.out, /routing_expected routable but routing failed/,
@@ -877,7 +994,7 @@ test("G-48: the floor decides, and below it the declaration is never read", asyn
 
 test("G-49: above the floor the receipt carries the entry that was applied, not the whole declaration", () => {
   const pkg = pkgCopy();
-  const b = build(pkg, "topology-component", "canonical", "ko");
+  const b = build(pkg, "topology-component", "stress-wave1-reference", "ko");
   assert.equal(b.code, 0, b.out);
   const d = JSON.parse(readFileSync(b.rcp, "utf8")).residualDisposition;
   assert.equal(d.treatment, "flat");
@@ -894,12 +1011,13 @@ test("G-41: a residual declaration with no entry for the treatment fails closed"
   // an edit that quietly matches nothing would let the build succeed and the fixture "pass" for the
   // wrong reason, so the removal is asserted before it is used
   editManifest(pkg, (t) => {
-    const cut = t.replace(new RegExp(`\\n\\s*- \\{ treatment: flat, bottom: ${e.bottom} \\}`), "");
+    const cut = t.replace(e.text,
+      'residual_disposition:\n            reason: "Only sketch is declared for the negative fixture."\n            by_treatment:\n              - { treatment: sketch, bottom: 148 }');
     assert.notEqual(cut, t, "the flat entry must actually be removed");
     return cut;
   });
   assert.throws(() => flatResidualEntry(pkg), "and it must be gone from the copy");
-  const b = build(pkg, "topology-component", "canonical", "ko");
+  const b = build(pkg, "topology-component", "stress-wave1-reference", "ko");
   assert.notEqual(b.code, 0, b.out);
   assert.match(b.out, /declares no entry for treatment "flat"/);
   drop(pkg);
@@ -923,8 +1041,8 @@ test("G-42 (sentinel): no declared scenario reaches the residual floor under a c
 test("G-43: the residual is an exact match — smaller than declared does not pass either", () => {
   const pkg = pkgCopy();
   const e = flatResidualEntry(pkg);
-  editManifest(pkg, (t) => t.replace(e.text, `{ treatment: flat, bottom: ${e.bottom + 150} }`));
-  const b = build(pkg, "topology-component", "canonical", "ko");
+  editManifest(pkg, (t) => t.replace(e.text, e.withBottom(e.bottom + 150)));
+  const b = build(pkg, "topology-component", "stress-wave1-reference", "ko");
   assert.notEqual(b.code, 0, b.out);
   assert.match(b.out, /does not match the measured/);
   drop(pkg);

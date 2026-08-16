@@ -219,14 +219,14 @@ The receipt records `consumed` (every declared entity id), `geometry` vs `geomet
 **Choose it when** Systems or components and their connections — request paths, cloud/network zones, service architecture with a system boundary
 
 - Spec: [`topology-component.md`](types/specs/topology-component.md)
-- Profile `editorial-composition` · maturity `experimental` · presets social-4x5, presentation-16x9 · preferred `social-4x5`
-- Canonical input: [`topology-component.canonical.yaml`](types/inputs/topology-component.canonical.yaml) (`social-4x5`, zones, count 3)
+- Profile `editorial-composition` · maturity `experimental` · presets social-4x5, presentation-16x9 · preferred `presentation-16x9`
+- Canonical input: [`topology-component.canonical.yaml`](types/inputs/topology-component.canonical.yaml) (`presentation-16x9`, zones, count 3)
 
 Canonical prompt — these are the payload's own `prompt_ko` / `prompt_en`, not a restatement:
 
 ```text
-ko: 요청 경로를 3개 zone으로 나눠 컴포넌트와 연결을 보여줘. 4:5.
-en: Show the request path across three zones with components and links. 4:5.
+ko: 사용자에서 게이트웨이와 서비스로 이어지는 대표 architecture 흐름을 보여줘. 16:9.
+en: Show the representative architecture flow from user to gateway to service. 16:9.
 ```
 
 Build and verify:
@@ -237,4 +237,4 @@ node scripts/generate.mjs build --typepack topology-component --case canonical -
 node scripts/generate.mjs verify --receipt <out>.json --svg <out>.svg
 ```
 
-The receipt records `consumed` (every declared entity id), `geometry` vs `geometryExpected`, `residual` with its disposition, and `fontDelivery`. Declared variants: `stress-cardinality` (social-4x5, fits) · `stress-copy` (social-4x5, fits). A configuration that does not fit returns `needs-split` with a degrade receipt and **no artifact** — that is a non-success, not a smaller render.
+The receipt records `consumed` (every declared entity id), `geometry` vs `geometryExpected`, `residual` with its disposition, and `fontDelivery`. Declared variants: `stress-wave1-reference` (social-4x5, fits) · `stress-cardinality` (social-4x5, fits) · `stress-copy` (social-4x5, fits) · `stress-primitive-coverage` (presentation-16x9, fits). A configuration that does not fit returns `needs-split` with a degrade receipt and **no artifact** — that is a non-success, not a smaller render.

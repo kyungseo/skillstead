@@ -240,6 +240,25 @@ test("R-19: a return edge separates from the primary right down to the endpoint 
   }
 });
 
+test("R-28: a reverse primary edge is legal only when its semantic kind is event", () => {
+  const nodes = { producer: { x: 60, y: 200, w: 150, h: 70 }, consumer: { x: 60, y: 30, w: 150, h: 70 } };
+  const zoneOrder = ["upstream", "downstream"];
+  const nodeZone = new Map([["consumer", "upstream"], ["producer", "downstream"]]);
+  const nodeIndex = new Map([["consumer", 0], ["producer", 0]]);
+  const frame = { x: 0, y: 0, w: 400, h: 330 };
+  const edge = { id: "event", from: "producer", to: "consumer", weight: "primary",
+    semanticKind: "event", semanticDirection: "producer-to-consumer" };
+  const event = routeEdges({ nodes, zones: [], frame,
+    plan: planChannels({ zoneOrder, nodeZone, nodeIndex, edges: [edge] }) });
+  assert.equal(event.problems.length, 0, event.problems.join("\n"));
+  assert.equal(event.routes[0].kindPath, "side-channel");
+  assert.equal(event.routes[0].role, "return");
+  const dependency = routeEdges({ nodes, zones: [], frame,
+    plan: planChannels({ zoneOrder, nodeZone, nodeIndex, edges: [{ ...edge, semanticKind: "dependency" }] }) });
+  assert.equal(dependency.routes.length, 0);
+  assert.ok(dependency.diagnostics.some((d) => d.code === "R-MONOTONIC"));
+});
+
 test("R-20: passing through the zone label bounds fails (for long KO and EN text alike)", () => {
   const boxes = { a: { x: 60, y: 30, w: 200, h: 70 }, b: { x: 60, y: 240, w: 200, h: 70 } };
   const rect = (id, n) => `<rect data-entity="${id}" x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}"/>`;

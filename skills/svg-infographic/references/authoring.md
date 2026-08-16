@@ -94,7 +94,7 @@ The line box is a **source-coordinate model**, not rendered ink measurement. `mi
 Icon-first is the default: a simple **line icon inside a soft tinted circle** per card or node.
 
 - **Icon vs number:** a **number badge only when sequence or cross-reference matters** (numbered steps). When the icon alone identifies the item, use the icon only — never icon + redundant number.
-- **Placement:** icon circle `r≈34–38` with a light tint fill (`#E3EEF8`), the icon centered inside at ~40px via `<use>`. Derive both the circle center and the complete text cluster from card geometry (`centerY = card_y + card_h/2`) — never a hand-tuned per-language offset; EN and KO variants share the same formula. For repeated icon-text cards, annotate the card group with `data-layout-role="icon-text-card" data-layout-center-y="118"`; mark its actual background rect `card-frame`, the circle `icon-center`, and centered-baseline text lines `card-title` / `card-body`. The lint checks frame, icon, and the accumulated text cluster against the same target. The card-specific `data-layout-center-tolerance` defaults to 2px; keep explicit values in the reviewed 0–8px range. For backward compatibility, a larger value emits `W-LAYOUT` but remains the supplied comparison tolerance, unlike the page-title contract's 2px fallback. Treat that warning as unverified geometry requiring correction or explicit 2× PNG disposition, never as alignment proof.
+- **Placement:** icon circle `r≈34–38` with a light tint fill (`#E3EEF8`), with the selected registry path expanded as a concrete path and centered inside at ~40px. Derive both the circle center and the complete text cluster from card geometry (`centerY = card_y + card_h/2`) — never a hand-tuned per-language offset; EN and KO variants share the same formula. For repeated icon-text cards, annotate the card group with `data-layout-role="icon-text-card" data-layout-center-y="118"`; mark its actual background rect `card-frame`, the circle `icon-center`, and centered-baseline text lines `card-title` / `card-body`. The lint checks frame, icon, and the accumulated text cluster against the same target. The card-specific `data-layout-center-tolerance` defaults to 2px; keep explicit values in the reviewed 0–8px range. For backward compatibility, a larger value emits `W-LAYOUT` but remains the supplied comparison tolerance, unlike the page-title contract's 2px fallback. Treat that warning as unverified geometry requiring correction or explicit 2× PNG disposition, never as alignment proof.
 
 ```xml
 <g data-layout-role="icon-text-card" data-layout-center-y="118">
@@ -109,23 +109,14 @@ Icon-first is the default: a simple **line icon inside a soft tinted circle** pe
 
 The source-coordinate model limitation described in §4 also applies to card-center checks; confirm rendered ink and optical centering in the final 2× PNG.
 
-- **Recolor:** the `<symbol>`/`<use>` library is an *authoring convenience source only*. Before an SVG counts as canonical, expand each used icon into **concrete paths** carrying `data-stroke-role` (and `data-fill-role` where filled) with direct paint — today this expansion is the generator/author's responsibility (the CP4 pilot generator does it); automatic expansion inside the materializer is a named the catalog regeneration candidate (`svg-infographic-materializer-icon-expansion`). Per-instance `currentColor` recoloring never appears in canonical output.
+- **Recolor:** the icon registry is the authoring source. Before an SVG counts as canonical, place the selected registry geometry as **concrete paths** carrying `data-stroke-role` (and `data-fill-role` where filled) with direct paint — today this expansion is the generator/author's responsibility; automatic expansion inside the materializer remains the catalog regeneration candidate (`svg-infographic-materializer-icon-expansion`). Per-instance `currentColor` recoloring never appears in canonical output.
 - **Style options to offer:** default = soft circular background + thin line icon. Alternatives: no background (line icon only), filled/solid icon, or mono. Stroke width ~1.7–1.9.
 
-Reusable icon library (authoring convenience; all 24×24, `fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"` — the placeholder stroke is replaced with role-annotated direct paint when icons are expanded into canonical output):
-
-```xml
-<symbol id="ic-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 9l3 3-3 3"/><path d="M13 15h4"/></symbol>
-<symbol id="ic-doc" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 16.5h6M9 9.5h2"/></symbol>
-<symbol id="ic-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
-<symbol id="ic-loop" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 0 1 12.8-5.3L20 9"/><path d="M20 3.5V9h-5.5"/><path d="M19.5 12a7.5 7.5 0 0 1-12.8 5.3L4 15"/><path d="M4 20.5V15h5.5"/></symbol>
-<symbol id="ic-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1 0-8 5 5 0 0 1 9.6-1.3A3.5 3.5 0 0 1 18 18z"/></symbol>
-<symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
-<symbol id="ic-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v14c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></symbol>
-<symbol id="ic-network" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V13M12 13l-5 4M12 13l5 4"/></symbol>
-<symbol id="ic-server" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="7" rx="2"/><rect x="4" y="13" width="16" height="7" rx="2"/><path d="M8 7.5h.01M8 16.5h.01"/></symbol>
-<symbol id="ic-api" viewBox="0 0 24 24"><path d="M9 5l-4 7 4 7M15 5l4 7-4 7"/></symbol>
-```
+The bundled icon list is not copied into this document. Query the registry SSoT with
+`node scripts/skin.mjs icons`; use `node scripts/skin.mjs icons --json` when path data is needed
+for authoring or tooling. Each entry is a 24×24 concrete path in the same round-cap/round-join line
+grammar. The placeholder stroke is replaced with role-annotated direct paint when an icon is
+expanded into canonical output.
 
 Canonical example (icon expanded to a concrete path): `<circle cx="172" cy="726" r="38" data-fill-role="icon-tint" fill="#EAF0F6"/><path d="…terminal glyph at 152,706 scaled 40px…" data-stroke-role="edge-line" stroke="#2E6DA4" fill="none" stroke-width="3"/>`. There is no separate `data-color-role` schema — fill/stroke annotations cover icons too.
 

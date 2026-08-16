@@ -39,7 +39,7 @@
   <g data-comp-entity="gate-1" data-entity="gate-1" data-layout-role="gate">
     <path d="M223 162 V224" fill="none" stroke="#B08434" stroke-width="1.4" stroke-dasharray="3 3" data-stroke-role="warning"/>
     <rect x="167.1" y="136" width="111.8" height="26" rx="13" fill="#FBF3E6" stroke="#D8B075" stroke-width="1" data-fill-role="surface-tint" data-stroke-role="warning"/>
-    <g transform="translate(176.6,142.5) scale(0.5)"><path d="M4 12 L10 18 L20 6" fill="none" data-stroke-role="focus" stroke="#2E6DA4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <g data-icon-id="check" transform="translate(176.6,142.5) scale(0.5)"><path d="M4 12 L10 18 L20 6" fill="none" data-stroke-role="focus" stroke="#2E6DA4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
     <text x="195.1" y="149" font-size="12" font-weight="700" fill="#8A5D22" data-fill-role="warning" dominant-baseline="central">승인 게이트</text>
   </g>
   <g data-layout-role="gate-caption">

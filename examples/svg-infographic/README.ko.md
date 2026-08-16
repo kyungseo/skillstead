@@ -10,7 +10,7 @@
 
 | 분류 | 경로 | 검증 근거 |
 | --- | --- | --- |
-| Canonical TypePack 산출물 | [`typepacks/`](./typepacks) | `generate.mjs`가 receipt와 함께 생성. source lint·layout 통과. 현행 palette profile에서 **error 0건**, 고정된 warning debt 9색·52건. `generate.mjs verify`가 receipt와 대조해 재측정 |
+| Canonical TypePack 산출물 | [`typepacks/`](./typepacks) | `generate.mjs`가 receipt와 함께 생성. source lint·layout 통과. 현행 palette profile에서 **error 0건**, 고정된 warning debt 9색·46건. `generate.mjs verify`가 receipt와 대조해 재측정 |
 | 과도기 legacy 예제 | 아래 디렉터리들 | source lint·layout·typography까지만. receipt 없음 — TypePack 계약 이전에 만들어졌습니다 |
 | 과거 릴리스 자산 | [`release-announcement/`](./release-announcement) | 공개 시점에 고정. 기록으로 보존하며 현행 계약으로 재검증하지 않습니다 |
 
@@ -69,7 +69,7 @@ Codex App 실행을 가리키며 모든 Windows 환경을 뜻하지 않습니다
 전체를 하나로 묶어 주장하지 않고 분류별로 적습니다.
 
 **Canonical TypePack 산출물** — source lint 오류 0건. 현행 palette profile 기준으로 **error 0건이며 warning은
-9색 52건으로 고정**돼 있습니다 — profile이 아직 표현하지 못하는 단계이며, 색·pack·발생 수까지 묶어 두어
+9색 46건으로 고정**돼 있습니다 — profile이 아직 표현하지 못하는 단계이며, 색·pack·발생 수까지 묶어 두어
 debt가 늘거나 옮겨가면 드러납니다. layout container·binding·reservation을 재측정. PNG는 SVG viewBox의 정확히
 2×. receipt를 산출물과 대조 검증하므로, receipt가 세지만 그림에 없는 요소는 오차가 아니라 오류입니다.
 

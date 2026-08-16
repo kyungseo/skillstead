@@ -290,8 +290,7 @@ typepacks:
     support: experimental
     spec: types/specs/topology-component.md
     presets: [social-4x5, presentation-16x9]
-    # This batch has not re-evaluated the preset — the current default is recorded as-is.
-    preferred_preset: social-4x5
+    preferred_preset: presentation-16x9
     orientations: [portrait, landscape]
     verifier: null
     receipt_schema: null
@@ -309,23 +308,21 @@ typepacks:
       canonical:
         id: topology-component-canonical
         path: types/inputs/topology-component.canonical.yaml
-        preset: social-4x5
+        preset: presentation-16x9
         layout: zones
         count: 3
-        # Residual is not a maximum: it is a declaration that **matches the measurement**.
-        # Each treatment measures differently, so each declares its exact value — a one-sided
-        # comparison would pass stale declarations and excessive content expansion.
-        residual_disposition:
-          reason: "Zone height derives from node geometry and corridors open only as far as routing demand requires — the remaining space is declared breathing (kernel §8)."
-          # sketch is not declared here. With the boundary frame reserved its residual falls below
-          # the disposition floor, so the gate never consults an entry — a declared number nothing
-          # compares against is a claim without a check. The measurement itself is not lost: the
-          # receipt carries residual.bottom. If a future change pushes it back over the floor the
-          # absence fails closed, and the entry is added from that measurement.
-          by_treatment:
-            - { treatment: flat, bottom: 148 }
         routing_expected: routable
       stress:
+        - id: topology-component-stress-wave1-reference
+          path: types/inputs/topology-component.stress-wave1-reference.yaml
+          preset: social-4x5
+          layout: zones
+          count: 3
+          artifact_policy: transient
+          residual_disposition: { bottom: 148, reason: "Wave 1 canonical geometry is retained as a bounded reference while the tracked canonical moves to the approved compact flagship." }
+          routing_expected: routable
+          geometry_expected: fits
+          covers: [wave1-reference]
         - id: topology-component-stress-cardinality
           path: types/inputs/topology-component.stress-cardinality.yaml
           preset: social-4x5
@@ -343,6 +340,15 @@ typepacks:
           routing_expected: routable
           geometry_expected: fits
           covers: [copy-boundary-candidate]
+        - id: topology-component-stress-primitive-coverage
+          path: types/inputs/topology-component.stress-primitive-coverage.yaml
+          preset: presentation-16x9
+          layout: zones
+          count: 4
+          artifact_policy: transient
+          routing_expected: routable
+          geometry_expected: fits
+          covers: [cardinality-max, primitive-coverage]
     fit:
       floor_basis: geometry
       cardinality: { min: 2, canonical: 3, max: 4 }

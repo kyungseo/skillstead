@@ -2,74 +2,62 @@ schema_version: 1
 kind: typepack-input
 typepack: topology-component
 case: canonical
-preset: social-4x5
+preset: presentation-16x9
 layout: zones
+variant: compact
 count: 3
-prompt_ko: "요청 경로를 3개 zone으로 나눠 컴포넌트와 연결을 보여줘. 4:5."
-prompt_en: "Show the request path across three zones with components and links. 4:5."
+prompt_ko: "사용자에서 게이트웨이와 서비스로 이어지는 대표 architecture 흐름을 보여줘. 16:9."
+prompt_en: "Show the representative architecture flow from user to gateway to service. 16:9."
 title:
-  ko: "요청은 zone을 따라 흐른다"
-  en: "Requests flow across the zones"
+  ko: "요청은 서비스까지 한눈에 흐른다"
+  en: "The request path stays visible at a glance"
 zones:
-  - id: "zone-1"
+  - id: "zone-interaction"
     label:
-      ko: "진입 zone"
-      en: "Ingress zone"
+      ko: "사용자와 진입"
+      en: "User and ingress"
     nodes:
-      - id: "gw"
+      - id: "client"
+        name:
+          ko: "사용자 클라이언트"
+          en: "User client"
+        kind: "client"
+        icon: "users"
+  - id: "zone-edge"
+    label:
+      ko: "진입"
+      en: "Ingress"
+    nodes:
+      - id: "gateway"
         name:
           ko: "게이트웨이"
           en: "Gateway"
+        kind: "gateway"
         icon: "route"
-      - id: "waf"
-        name:
-          ko: "방화벽"
-          en: "WAF"
-        icon: "shield"
-  - id: "zone-2"
+  - id: "zone-application"
     label:
-      ko: "애플리케이션 zone"
-      en: "Application zone"
+      ko: "애플리케이션"
+      en: "Application"
     nodes:
-      - id: "api"
+      - id: "service"
         name:
-          ko: "API 서비스"
-          en: "API service"
-        icon: "server"
-      - id: "auth"
-        name:
-          ko: "인증 서비스"
-          en: "Auth service"
-        icon: "lock"
-  - id: "zone-3"
-    label:
-      ko: "비동기 처리 zone"
-      en: "Async processing zone"
-    nodes:
-      - id: "queue"
-        name:
-          ko: "메시지 큐"
-          en: "Message queue"
-        icon: "queue"
+          ko: "서비스"
+          en: "Service"
+        kind: "service"
+        icon: "api"
 edges:
-  - id: "e1"
-    from: "gw"
-    to: "api"
+  - id: "request-client-gateway"
+    from: "client"
+    to: "gateway"
     kind: "request"
     delivery: "sync"
     visibility: "public"
-  - id: "e2"
-    from: "api"
-    to: "auth"
-    kind: "dependency"
-    delivery: "sync"
-    visibility: "private"
-  - id: "e3"
-    from: "api"
-    to: "queue"
+  - id: "request-gateway-service"
+    from: "gateway"
+    to: "service"
     kind: "request"
-    delivery: "async"
-    visibility: "private"
+    delivery: "sync"
+    visibility: "public"
 boundary:
   label:
     ko: "시스템 경계"
