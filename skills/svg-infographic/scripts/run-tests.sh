@@ -29,6 +29,9 @@ mkdir -p "$log_dir"
 parallel_suites=(skin preflight check-svg check-layout route-orthogonal check-language)
 # These launch a headless browser — strictly one at a time.
 serial_suites=(font-probe render compose generate)
+# How much of a failing suite log to print. Enough for the assertion and its context; a whole
+# browser-measurement log is not a build artifact.
+dump_lines="${SVGINFO_DUMP_LINES:-400}"
 
 status=0
 declare -a failed=()
@@ -64,6 +67,18 @@ for s in "${serial_suites[@]}"; do run_suite "$s"; report "$s"; done
 if [ "$status" != "0" ]; then
   echo "FAILED: ${failed[*]}"
   echo "full output per suite: $log_dir/<suite>.log"
+  # A summary that names the suite but not the reason is not actionable anywhere the log_dir is
+  # thrown away with the machine — CI, most of all. Only the suites that failed are dumped, and
+  # the dump changes nothing about the exit code below.
+  for s in "${failed[@]}"; do
+    echo "----- $s.log (first ${dump_lines} lines) -----"
+    # Token-shaped values are redacted rather than trusted not to appear: a test that echoed its
+    # environment on failure would otherwise put them in a public build log.
+    sed -E 's/((TOKEN|SECRET|KEY|PASSWORD|PASSWD|CREDENTIAL)[A-Z_]*[=:] *)[^ ]+/\1<redacted>/Ig' \
+      "$log_dir/$s.log" | head -n "$dump_lines"
+    lines="$(wc -l <"$log_dir/$s.log" | tr -d ' ')"
+    [ "$lines" -gt "$dump_lines" ] && echo "----- truncated: $s.log has $lines lines -----"
+  done
 else
   echo "all suites green"
 fi
