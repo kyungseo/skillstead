@@ -436,3 +436,5 @@ changes the specification the pin no longer reflects; procurement through
 the pin fails repeatedly; or `skillstead_validate` absorbs the spec-level
 checks, making the reference run redundant. A failure to procure or run the
 pinned validator fails the build (fail-closed).
+
+<!-- ci-scope smoke check: temporary docs-only PR, closed without merge -->
