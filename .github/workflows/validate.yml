@@ -51,8 +51,14 @@ jobs:
       - name: Gallery model drift (CP3B)
         run: PYTHONPATH=tools python3 -m skillstead_validate gallery --repo-root .
 
+      # The release protocol creates the tag only after the version-bump
+      # commit has merged, so this push/PR run may observe the merge→tag
+      # window. The bounded grace turns exactly that window into a visible
+      # I-5-PENDING notice instead of a red run; tag events and the periodic
+      # workflow run without grace, so a genuinely deleted tag still fails
+      # there immediately and a never-created tag hardens after the window.
       - name: Continuous tag checks (M3)
-        run: PYTHONPATH=tools python3 -m skillstead_validate tags --main-ref origin/main --repo-root .
+        run: PYTHONPATH=tools python3 -m skillstead_validate tags --main-ref origin/main --repo-root . --release-grace-minutes 1440
 
       - name: Cutover verdict (M4)
         env:
@@ -64,10 +70,11 @@ jobs:
 
   # Tag creation or deletion re-runs the continuous tag checks immediately
   # (a deleted tag leaves no ref to check out, so main is checked out
-  # explicitly). Branch create/delete events also land here; the extra run
-  # is harmless.
+  # explicitly). Branch create/delete events say nothing about tag state, so
+  # they are filtered out here — before the filter every release left a red
+  # run from the branch auto-delete that fired inside the merge→tag window.
   tag-event:
-    if: github.event_name == 'create' || github.event_name == 'delete'
+    if: (github.event_name == 'create' || github.event_name == 'delete') && github.event.ref_type == 'tag'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4

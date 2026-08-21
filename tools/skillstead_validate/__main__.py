@@ -45,6 +45,11 @@ def main(argv: list[str] | None = None) -> int:
     tags = sub.add_parser("tags", help="continuous tag checks (M3)")
     tags.add_argument("--main-ref", default="main")
     tags.add_argument("--repo-root", type=Path, default=Path.cwd())
+    tags.add_argument(
+        "--release-grace-minutes", type=int, default=None,
+        help="event-workflow opt-in: report a missing tag whose version-change "
+             "commit is younger than this as I-5-PENDING (exit 0) instead of "
+             "red; tag events and the periodic run must not pass it")
     gal = sub.add_parser("gallery", help="gallery model join + drift check (CP3B)")
     gal.add_argument("--repo-root", type=Path, default=Path.cwd())
     gal.add_argument("--write", action="store_true", help="regenerate gallery/model.json")
@@ -124,10 +129,18 @@ def main(argv: list[str] | None = None) -> int:
         return 1 if verdict.verdict == "red" else 0
 
     if args.mode == "tags":
-        findings = run_tag_checks(args.repo_root.resolve(), args.main_ref)
+        pending: list = []
+        findings = run_tag_checks(
+            args.repo_root.resolve(), args.main_ref,
+            release_grace_minutes=args.release_grace_minutes, pending=pending)
         for f in findings:
             print(f, file=sys.stderr)
-        print(f"skillstead_validate tags: {len(findings)} finding(s)")
+        for p in pending:
+            print(p, file=sys.stderr)
+        if args.release_grace_minutes is None:
+            print(f"skillstead_validate tags: {len(findings)} finding(s)")
+        else:
+            print(f"skillstead_validate tags: {len(findings)} finding(s), {len(pending)} pending")
         return 1 if findings else 0
 
     if args.mode == "gallery":

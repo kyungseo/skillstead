@@ -13,6 +13,17 @@ creation-time checks guarantee nothing durable. Checks:
 * I-5  — partial deletion of a multi-skill release: every skill whose version
   changed at an observed release commit must still have its tag there.
 
+The release protocol creates the tag only after the version-bump commit has
+merged and the post-merge gates have passed, so an event-driven run between
+merge and tag creation observes a structurally missing tag. Callers that know
+they run in that window (the event workflow's push/PR job) may opt in to a
+bounded grace: a missing tag whose version-change commit is younger than
+``release_grace_minutes`` is reported to ``pending`` as ``I-5-PENDING``
+instead of red. Everything else — older changes, unobservable timestamps,
+every non-opted-in caller (release gate, cutover, tag events, periodic) —
+keeps today's fail-closed red, so a genuinely deleted tag still turns red at
+the delete event and at the next periodic run.
+
 Comparisons use peeled commit SHAs (annotated and lightweight tags mix in
 this repository's history). Every unobservable input is a finding
 (fail-closed).
@@ -22,6 +33,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from pathlib import Path
 
 from . import record_schema
@@ -226,7 +238,13 @@ def _retirement_history_findings(
     return findings
 
 
-def run_tag_checks(repo: Path, main_ref: str = "main") -> list[Finding]:
+def run_tag_checks(
+    repo: Path,
+    main_ref: str = "main",
+    *,
+    release_grace_minutes: int | None = None,
+    pending: list[Finding] | None = None,
+) -> list[Finding]:
     findings: list[Finding] = []
     try:
         main_tip = peeled(repo, main_ref)
@@ -316,6 +334,18 @@ def run_tag_checks(repo: Path, main_ref: str = "main") -> list[Finding]:
     reported_i5: set[str] = set()
     position = {c: i for i, c in enumerate(history.commits)}
 
+    def _within_release_grace(commit: str) -> bool:
+        """Opted-in callers only: the version-change commit is young enough to
+        be the normal merge→tag window. An unobservable timestamp is never
+        grace (fail-closed)."""
+        if release_grace_minutes is None or pending is None:
+            return False
+        try:
+            committed = int(git(repo, "log", "-1", "--format=%ct", commit))
+        except (GitError, ValueError):
+            return False
+        return time.time() - committed <= release_grace_minutes * 60
+
     def _expect_changes_at(commit: str) -> None:
         idx = position[commit]
         parent = history.commits[idx + 1] if idx + 1 < len(history.commits) else None
@@ -335,7 +365,11 @@ def run_tag_checks(repo: Path, main_ref: str = "main") -> list[Finding]:
                 continue  # baseline existence is checked from the record list
             if tag not in targets and tag not in reported_i5:
                 reported_i5.add(tag)
-                findings.append(Finding("I-5", tag, f"version changed at {commit[:12]} but the tag does not exist (deletion suspected)"))
+                if _within_release_grace(commit):
+                    assert pending is not None  # guaranteed by _within_release_grace
+                    pending.append(Finding("I-5-PENDING", tag, f"version changed at {commit[:12]} but the tag does not exist yet (release grace window; hardens at tag events and the periodic run)"))
+                else:
+                    findings.append(Finding("I-5", tag, f"version changed at {commit[:12]} but the tag does not exist (deletion suspected)"))
 
     for commit in sorted(set(targets.values())):
         if commit in position:  # off-main targets already reported via I-8
