@@ -208,6 +208,15 @@ class GalleryModelFixtures(unittest.TestCase):
         self.assertIn("GAL-PROJECTION", {f.check for f in findings})
         self.assertTrue(any("output digest differs" in f.detail for f in findings), findings)
 
+    def test_tampered_projection_geometry_is_refused_by_invariant_verifier(self):
+        _, receipt = self.a_projection()
+        data = json.loads(receipt.read_text(encoding="utf-8"))
+        data["geometry"]["content_plane"]["points"][0]["x"] += 1
+        receipt.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+        findings = run_gallery(self.repo)
+        self.assertIn("GAL-PROJECTION", {f.check for f in findings})
+        self.assertTrue(any("receipt content plane" in f.detail for f in findings), findings)
+
     def test_projection_selection_must_match_bundled_surfaces(self):
         p = self.repo / PROJECTIONS_PATH
         data = json.loads(p.read_text(encoding="utf-8"))

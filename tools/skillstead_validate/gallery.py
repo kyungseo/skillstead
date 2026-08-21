@@ -28,9 +28,11 @@ receipt pass here that the verifier would reject.
 
 **What carries the claim.** Canonical verification attaches to the **SVG**, because that is what the
 TypePack verifier re-checks. Canonical and Featured PNGs are renders or inventories and are never
-described as verified. Presentation projection PNGs are a separate class: their verifier regenerates
-the canonical pair and derived output, then checks the receipt-bound bytes. They are verified only as
-derived projections and never promoted to canonical artifacts.
+described as verified. Presentation projection PNGs are a separate class. Their producer-environment
+receipt records the exact canonical-pair regeneration, while this cross-environment repository gate
+re-checks the receipt-bound inputs, registered surface and deterministic output pixels. It does not
+relabel a Linux CI run as the macOS render recorded in the receipt. They are verified only as derived
+projections and never promoted to canonical artifacts.
 
 The contact sheet is the one exception, because there the PNG *is* what the README displays. It
 carries `contact-sheet.render.json`, written by the render step and never by `--write`, binding the
@@ -65,6 +67,7 @@ TOKENS_PATH = "gallery/tokens.json"
 LOCALE_PATH = "gallery/locale.json"
 PROJECTIONS_PATH = "gallery/projections.json"
 EXPORTER = "tools/gallery_export.mjs"
+PROJECTION_INVARIANT_VERIFIER = "tools/gallery_projection_verify.mjs"
 LOCALES = ("ko", "en")
 LEGACY_FEATURED_HEADER_ROLES = (
     'data-layout-role="page-title-header"',
@@ -172,10 +175,10 @@ class NodeRunner:
         return r.returncode == 0 and " 0 error(s)" in out, out
 
     def verify_projection(self, receipt: Path, output: Path) -> tuple[bool, str]:
-        r = self._run([f"{SKILL}/scripts/projection.mjs", "verify",
+        r = self._run([PROJECTION_INVARIANT_VERIFIER, "--repo-root", str(self.repo_root),
                        "--receipt", str(receipt), "--out", str(output)])
         out = (r.stdout + r.stderr).strip()
-        return r.returncode == 0 and "projection verify: pass" in out, out
+        return r.returncode == 0 and "gallery projection invariant verify: pass" in out, out
 
 
 def _rendered_entities(svg: Path) -> set:

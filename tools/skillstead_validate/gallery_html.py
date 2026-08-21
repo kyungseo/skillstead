@@ -23,7 +23,8 @@ facts from receipts, the featured selection from `gallery/featured.json`, the pr
 `gallery/projections.json`, and every colour, radius and step from `gallery/tokens.json`.
 
 Canonical and Featured images point at the **SVG**, because that is what their gates re-checked. Projection cards
-point at the derived PNG because `projection.mjs verify` regenerates and receipt-checks those exact bytes. Featured
+point at the derived PNG because the producer receipt binds the same-environment canonical regeneration and the
+gallery's cross-environment invariant gate re-checks its inputs, registered surface and output pixels. Featured
 artifacts differ widely in aspect ratio, while projection artifacts share one 4:5 viewport. Each frame is a link to
 the artifact, which gives full size with no scripting; where scripting exists the click opens a dialog instead.
 """
