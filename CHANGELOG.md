@@ -8,6 +8,28 @@ Granular, per-change entries begin at the first public release. Earlier developm
 
 Repository-level changes since the last dated entry.
 
+## 2026-08-21
+
+### Gallery
+
+- **Presentation projections.** The gallery now places one verified canonical infographic on the three bundled
+  presentation surfaces: paper notebook, gallery wall, and portrait monitor. Each projection remains a separate
+  derived PNG with its own verification receipt; the editable SVG and exact canonical 2× PNG stay unchanged.
+
+### Skills
+
+- `svg-infographic` `0.11.0` — explicit opt-in presentation projection with three restrained starter surfaces,
+  optional signatures, strict local raster manifests, bounded rect/quad geometry, registered print/display
+  blending, and deterministic build/verify receipts. Projection requests without a surface use paper notebook;
+  ordinary requests still produce only the canonical SVG/PNG pair.
+
+### Verification
+
+- **Projection receipts and cross-environment checks.** Repository validation rechecks selected gallery projections
+  against their manifests and receipts. Same-environment runs retain the byte-regeneration oracle, while
+  cross-environment validation checks invariant geometry, content identity, surface identity, signature state,
+  and output integrity without requiring platform-identical PNG bytes.
+
 ## 2026-08-16
 
 ### Gallery
