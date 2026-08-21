@@ -2,7 +2,7 @@
  "schemaVersion": 2,
  "generatedBy": "skillstead_validate gallery",
  "note": "Generated view. Every field is owned by the manifest, locale catalog, an input payload, a receipt or an artifact — this file is authority for none of them. `verified` attaches to the SVG only; PNGs are a present/digest inventory.",
- "runtimeSurfaceDigest": "sha256:12819c706448cb154730024e8db459dd469bc8a0159df235ffd16e6d710ec2b4",
+ "runtimeSurfaceDigest": "sha256:996d911ae7e06519c0cec94155c775e297f47930f99e7ecca99a7fc4e53f8a0a",
  "tokens": "gallery/tokens.json",
  "presentation": {
   "source": "gallery/locale.json",
@@ -54,6 +54,22 @@
    "featuredLegacyNote": {
     "en": "These hand-authored examples predate TypePack receipts. They pass the lint, layout and typography gates, but have no receipt; that is why the receipt facet says none instead of disappearing.",
     "ko": "이 예제들은 TypePack receipt가 도입되기 전에 수작업으로 작성되었습니다. lint·layout·typography gate는 통과하지만 receipt는 없습니다. 그래서 receipt 항목을 생략하지 않고 none으로 표시합니다."
+   },
+   "projectionTitle": {
+    "en": "Place the result in context",
+    "ko": "결과를 맥락에 놓아보기"
+   },
+   "projectionNote": {
+    "en": "Here is the same image presented with the paper notebook, gallery wall and portrait monitor templates. If you do not choose a template, paper notebook is used. Click an image to see it full size.",
+    "ko": "같은 이미지를 paper notebook, gallery wall, portrait monitor 템플릿에 각각 담아 보았습니다. 템플릿을 따로 고르지 않으면 paper notebook을 사용합니다. 이미지를 누르면 크게 볼 수 있습니다."
+   },
+   "projectionDerivedNote": {
+    "en": "These template versions are created separately while preserving the original SVG and PNG. If you do not request a template, only the original result is created.",
+    "ko": "이 템플릿 이미지는 원본 SVG와 PNG를 그대로 보존한 채 별도로 만들어집니다. 템플릿을 요청하지 않으면 원본 결과만 생성됩니다."
+   },
+   "projectionEvidence": {
+    "en": "Technical evidence",
+    "ko": "기술 검증 근거"
    },
    "catalogTitle": {
     "en": "Choose a TypePack",
@@ -170,6 +186,14 @@
    "facetDataAccuracy": {
     "en": "data accuracy",
     "ko": "데이터 정확성"
+   },
+   "facetCanonicalPair": {
+    "en": "canonical pair",
+    "ko": "canonical pair"
+   },
+   "facetProjectionReceipt": {
+    "en": "projection receipt",
+    "ko": "projection receipt"
    },
    "verdictPass": {
     "en": "pass",
@@ -1792,6 +1816,66 @@
      "sourceGates": "pass",
      "typePackReceipt": "none",
      "dataAccuracy": "not-applicable"
+    }
+   }
+  ]
+ },
+ "projectionExamples": {
+  "source": "gallery/projections.json",
+  "note": "Three selected opt-in derived projection PNGs built from one canonical pair. They demonstrate presentation surfaces and do not become canonical artifacts.",
+  "canonical": {
+   "svg": "examples/svg-infographic/presentation-projections/agent-development-loop.svg",
+   "svgDigest": "sha256:ab3a05fc3d73247c93250213f2285f29047b7364abe4ca5211fb4511ffdadfe7",
+   "png": "examples/svg-infographic/presentation-projections/agent-development-loop.png",
+   "pngDigest": "sha256:551e76f2f916c5d1f21316c75260b43ab6ec5076f9fc3487f8437c78224c70d7"
+  },
+  "entries": [
+   {
+    "surface": "paper-notebook",
+    "name": "Paper notebook",
+    "nameKo": "Paper notebook",
+    "caption": "quiet tactile framing with the opt-in default tilt",
+    "captionKo": "차분한 종이 질감과 projection 내부 기본 tilt",
+    "output": "gallery/presentation/paper-notebook.png",
+    "outputDigest": "sha256:36bfa697f7feb2f4045a960b05715306b5394654b7665833a2a74ae3e9469467",
+    "receipt": "gallery/presentation/paper-notebook.receipt.json",
+    "manifest": "skills/svg-infographic/references/presentation/surfaces/paper-notebook.json",
+    "verified": true,
+    "evidence": {
+     "canonicalPair": "pass",
+     "projectionReceipt": "pass"
+    }
+   },
+   {
+    "surface": "gallery-wall",
+    "name": "Gallery wall",
+    "nameKo": "Gallery wall",
+    "caption": "a restrained exhibition frame with no perspective distortion",
+    "captionKo": "원근 왜곡 없이 절제된 전시 맥락",
+    "output": "gallery/presentation/gallery-wall.png",
+    "outputDigest": "sha256:eb61df4e1bd22d52508f8859ff4f8bf62850eb33fe19b75cb2fea00812e20e39",
+    "receipt": "gallery/presentation/gallery-wall.receipt.json",
+    "manifest": "skills/svg-infographic/references/presentation/surfaces/gallery-wall.json",
+    "verified": true,
+    "evidence": {
+     "canonicalPair": "pass",
+     "projectionReceipt": "pass"
+    }
+   },
+   {
+    "surface": "portrait-monitor",
+    "name": "Portrait monitor",
+    "nameKo": "Portrait monitor",
+    "caption": "a compact digital display context with a mild angle",
+    "captionKo": "작은 기울기를 가진 간결한 디지털 화면 맥락",
+    "output": "gallery/presentation/portrait-monitor.png",
+    "outputDigest": "sha256:9013b36fc9c0be151041a8866da5f49638452a9dec06404a2a09ef02f21420de",
+    "receipt": "gallery/presentation/portrait-monitor.receipt.json",
+    "manifest": "skills/svg-infographic/references/presentation/surfaces/portrait-monitor.json",
+    "verified": true,
+    "evidence": {
+     "canonicalPair": "pass",
+     "projectionReceipt": "pass"
     }
    }
   ]

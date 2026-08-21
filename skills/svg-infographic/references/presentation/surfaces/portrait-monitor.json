@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "portrait-monitor",
+  "asset": {
+    "path": "assets/presentation-surfaces/portrait-monitor.png", "sha256": "500dfe7e1de05fea956dd6a3cfc80ea3a595c3c9232931da9825d3d657a38939",
+    "width": 2160, "height": 2700, "color_space": "srgb",
+    "license": "OpenAI generated output under the applicable service terms; see provenance", "redistribution": "allowed",
+    "provenance": {
+      "kind": "generated", "creator": "OpenAI ImageGen directed by Codex", "created_on": "2026-08-20",
+      "tool": "OpenAI built-in image_gen", "tool_identifier": "exec-0df2a662-6e1c-4610-91cf-27a9e57ad5dc",
+      "terms_basis": "OpenAI service terms applicable to user-generated image output",
+      "human_disposition": "Selected for the bundled v1 set after same-input geometry, budget, visual-fatigue, and identifiable-work review under Owner-approved Option A",
+      "identifiable_work_mark_character_absent": true,
+      "source_sha256": "472071a11315103cede2d2478b85fa37071ddd6c9e51e469e7fb18e63766c6d7",
+      "normalization": { "tool": "ImageMagick", "tool_version": "7.1.2-29 Q16-HDRI aarch64", "profile": "svginfo-surface-normalize-v1", "operations": "strip metadata; resize exact 2160x2700; Gaussian blur 0x0.35; posterize 128 levels; encode PNG RGB8 compression 9", "performed_on": "2026-08-20" }
+    }
+  },
+  "content_plane": { "kind": "quad", "points": [{"x":354,"y":395},{"x":1440,"y":501},{"x":1440,"y":1905},{"x":354,"y":1936}] },
+  "safe_area": { "x": 40, "y": 40, "width": 2080, "height": 2620 },
+  "minimum_projected_scale": 0.5,
+  "canvas_adaptation": { "mode": "boundary-connected-dominant-border-exact-rgba", "alpha": 255, "connectivity": 4, "minimum_border_share": 0.5 },
+  "blend_profile": "matte-display-v1",
+  "layers": { "shadow": { "enabled": false, "offset_x": 0, "offset_y": 0, "blur_radius": 0, "opacity": 0 }, "grain": { "enabled": false, "seed": 4404, "amplitude": 0 }, "ambient_gradient": { "enabled": false, "from": "#000000", "to": "#000000", "opacity": 0 } },
+  "signature_slot": { "x": 1740, "y": 2480, "width": 300, "height": 70, "default": null, "color": "#5b6675" },
+  "required_attribution": null
+}

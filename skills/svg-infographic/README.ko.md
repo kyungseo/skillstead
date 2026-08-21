@@ -57,6 +57,23 @@ svg-infographic으로 이 아키텍처 메모를 수정 가능한 한국어 기�
    `scripts/render.sh`도 같은 렌더러를 호출합니다. 렌더러는 browser를 열기 전에 lint를 다시 실행하고
    PNG 크기를 자동 확인하며, 그다음 실제 이미지의 렌더링, 배치와 메시지를 검토합니다.
 
+사용자가 명시적으로 요청한 경우에만, 이미 검증된 canonical SVG/PNG를 세 가지 4:5 표현 평면
+(paper notebook, gallery wall, portrait monitor) 또는 사용자의 strict manifest에 투영할 수 있습니다.
+Projection을 요청하면서 surface를 지정하지 않으면 paper notebook을 사용하고, 명시한 surface는 항상
+우선합니다. 종이·재질 평면에는 고정된 인쇄형 blend를, 화면에는 절제된 display 처리를 사용하며 자유형
+필터는 허용하지 않습니다. 이 파생 PNG와 receipt는 편집 가능한 SVG나 canonical PNG를 대체하지 않습니다.
+
+### 선택형 presentation projection
+
+“`svg-infographic`으로 지금 설명한 내용에 맞는 이미지를 만들어 줘. 결과는 노트 템플릿으로 보여 줘.”처럼
+자연스럽게 요청하면 됩니다. 노트 대신 갤러리 벽이나 세로형 모니터 템플릿을 선택할 수도 있습니다. 현재 기본
+제공 템플릿은 paper notebook, gallery wall, portrait monitor 세 가지이며, projection을 요청하고 템플릿을
+따로 고르지 않으면 paper notebook을 사용합니다.
+
+우측 하단에 서명을 표시하려면 “`kyungseo.github.io`를 서명으로 넣어 줘”처럼 원하는 문구를 함께 알려 주세요.
+서명은 생략할 수도 있습니다. 먼저 **[presentation 예제](../../gallery/index.html)** 를 보고, CLI·custom manifest·검증
+상세가 필요한 개발자는 [`presentation contract`](./references/presentation/contract.md)를 참고하세요.
+
 이 과정을 몰라도 스킬을 사용할 수 있습니다. 다만 각 단계에서 어떤 안내를 받는지, 결과물이 처음부터
 안정적으로 나오는 이유가 궁금할 때 참고할 수 있습니다.
 
@@ -257,7 +274,8 @@ Claude Code 또는 Codex의 skills 디렉터리에 패키지를 복사합니다.
 ├── CHANGELOG.md              # 이 스킬의 릴리스 이력
 ├── LICENSE.txt               # Apache-2.0 전문(패키지와 함께 이동)
 ├── assets/
-│   └── fonts/                # 번들 서체와 OFL 고지(Pretendard, Hi Melody)
+│   ├── fonts/                # 번들 서체와 OFL 고지(Pretendard, Hi Melody)
+│   └── presentation-surfaces/ # 선택형 3종 raster 배경
 ├── references/
 │   ├── design-kernel.md      # 패키지 전체가 따르는 계약
 │   ├── archetypes.md         # 다이어그램 유형별 골격, 시각 표현 지침, 점검 항목
@@ -271,6 +289,7 @@ Claude Code 또는 Codex의 skills 디렉터리에 패키지를 복사합니다.
 │   ├── typography/           # 서체 family·face·라이선스
 │   ├── types/                # TypePack manifest, 타입별 spec과 입력
 │   ├── media/                # canonical skin contact sheet
+│   ├── presentation/         # projection 계약과 strict surface manifest
 │   └── legacy/               # 대체된 계약의 출처 보존본
 └── scripts/
     ├── generate.mjs          # TypePack 생성과 receipt 검증(진입점)
@@ -282,6 +301,7 @@ Claude Code 또는 Codex의 skills 디렉터리에 패키지를 복사합니다.
     ├── preflight.mjs         # digest 계산과 패키지 무결성
     ├── measure-text.mjs      # 브라우저 텍스트 측정(번들 서체, fail-closed)
     ├── render.mjs            # shell 공통 표준 lint → browser 렌더링 → 2× 검증
+    ├── projection.mjs        # 선택형 검증 surface projection + receipt
     ├── render.sh             # render.mjs를 호출하는 얇은 Bash wrapper
     ├── font-probe.mjs        # 런타임 폰트 로드·computed 확인
     ├── font-subset.py        # OFL 준수 subsetter(빌드 전용, fontTools·brotli 고정)

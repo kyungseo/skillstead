@@ -307,7 +307,8 @@ test("browser spawn failure prints a canonical retry command with no temporary r
     const cmdLine = res.stderr.split("\n").find((l) => l.includes("render.mjs"));
     assert.ok(cmdLine, "a canonical render.mjs retry command must be printed");
     assert.ok(!res.stderr.includes("--screenshot="), "the retry must not be a raw browser command");
-    assert.ok(!/svg-infographic-[A-Za-z0-9]+/.test(cmdLine) && !cmdLine.includes("wrapper.html") && !cmdLine.includes("diagram.svg"), "the retry command must not reference the renderer's temporary staging files");
+    const rendererTmpPrefix = join(tmpdir(), "svg-infographic-");
+    assert.ok(!cmdLine.includes(rendererTmpPrefix) && !cmdLine.includes("wrapper.html") && !cmdLine.includes("diagram.svg"), "the retry command must not reference the renderer's temporary staging files");
     const tokens = parseCommandLine(cmdLine.trim());
     assert.ok(tokens[1].endsWith("render.mjs"));
     assert.ok(tokens.includes(fixture("valid.svg")), "the retry uses the persistent original SVG");

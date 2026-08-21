@@ -5,6 +5,7 @@ pass", so it puts verification on every card. A reader arriving here is asking s
 "can this thing draw what I need, and which type do I pick" — so the page answers in that order:
 
     featured   six existing outputs, shaped as differently as the catalog can manage
+    projection three opt-in derived PNGs, one per selected presentation surface
     catalog    the nine TypePacks, compact enough to scan in one screen
 
 Evidence is reported as three independent facets rather than a single word or a ranking. An artifact
@@ -18,14 +19,14 @@ choice. Everything stays fully visible without scripting: the controls are hidde
 `<details>` opens on its own. The fallback is the whole bilingual page, not a reduced one.
 
 Everything is derived — artifact copy from payloads, presentation copy from `gallery/locale.json`, geometry
-facts from receipts, the featured selection from `gallery/featured.json`, and every colour, radius and step
-from `gallery/tokens.json`.
+facts from receipts, the featured selection from `gallery/featured.json`, the projection selection from
+`gallery/projections.json`, and every colour, radius and step from `gallery/tokens.json`.
 
-Images point at the **SVG**, because that is what the gates and the verifier re-checked. The featured
-artifacts differ widely in aspect ratio, and the section's claim is that they are one managed set, so
-every one gets the same media viewport and keeps its own proportions inside it. Each frame is a link
-to the artifact, which gives full size with no scripting; where scripting exists the click opens a
-dialog instead.
+Canonical and Featured images point at the **SVG**, because that is what their gates re-checked. Projection cards
+point at the derived PNG because the producer receipt binds the same-environment canonical regeneration and the
+gallery's cross-environment invariant gate re-checks its inputs, registered surface and output pixels. Featured
+artifacts differ widely in aspect ratio, while projection artifacts share one 4:5 viewport. Each frame is a link to
+the artifact, which gives full size with no scripting; where scripting exists the click opens a dialog instead.
 """
 
 from __future__ import annotations
@@ -39,7 +40,8 @@ GITHUB_DOC_BASE = ("https://github.com/kyungseo/skillstead/blob/main/"
                    "skills/svg-infographic/references")
 LOCALE_LABEL = {"ko": "한국어", "en": "ENGLISH"}
 FACET_COPY_KEY = {"sourceGates": "facetSourceGates", "typePackReceipt": "facetTypePackReceipt",
-                  "dataAccuracy": "facetDataAccuracy"}
+                  "dataAccuracy": "facetDataAccuracy", "canonicalPair": "facetCanonicalPair",
+                  "projectionReceipt": "facetProjectionReceipt"}
 
 
 def _e(v) -> str:
@@ -188,6 +190,23 @@ dialog button {{
   font: 600 10px/1 var(--font-caption); letter-spacing: .08em; text-transform: uppercase;
 }}
 
+/* ---- projection ---------------------------------------------------------------------- */
+.projection-grid {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--pair-gap); }}
+@media (max-width: 900px) {{ .projection-grid {{ grid-template-columns: minmax(0, 1fr); }} }}
+.projection-card {{
+  background: var(--card); border: 1px solid var(--card-edge);
+  border-radius: var(--card-radius); padding: 13px; min-width: 0;
+}}
+.projection-frame {{
+  aspect-ratio: 4 / 5; background: var(--ground); border: 1px solid var(--card-edge);
+  border-radius: var(--image-radius); display: flex; align-items: center; justify-content: center;
+  overflow: hidden; cursor: zoom-in;
+}}
+.projection-frame img {{ width: 100%; height: 100%; object-fit: contain; }}
+.projection-card .cap {{ margin-top: 10px; min-height: 3.8em; }}
+.projection-card .nm {{ display: block; font: 600 13px/1.3 var(--font-identifier); }}
+.projection-card .sub {{ display: block; color: var(--ink-muted); font-size: 12px; margin-top: 4px; }}
+
 /* ---- catalog ------------------------------------------------------------------------- */
 .catalog {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--pair-gap); }}
 @media (max-width: 900px) {{ .catalog {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} }}
@@ -287,6 +306,35 @@ def _featured_card(f: dict) -> str:
             f'</div></div>')
 
 
+def _projection_card(entry: dict) -> str:
+    name = _bi_value(entry.get("name"), entry.get("nameKo"))
+    caption = _bi_value(entry.get("caption"), entry.get("captionKo"))
+    alt = f'{entry.get("nameKo")} — {entry.get("captionKo")} / {entry.get("name")} — {entry.get("caption")}'
+    output = str(entry.get("output") or "")
+    output_href = str(Path(output).relative_to("gallery"))
+    return (f'<div class="projection-card" id="projection-{_e(entry.get("surface"))}">'
+            f'<a class="projection-frame" href="{_e(output_href)}" '
+            f'data-full="{_e(output_href)}">'
+            f'<img src="{_e(output_href)}" alt="{_e(alt)}" loading="lazy"></a>'
+            f'<div class="cap"><span class="nm stable-copy">{name}</span>'
+            f'<span class="sub stable-copy">{caption}</span></div></div>')
+
+
+def _projection_evidence(entries: list[dict], copy: dict) -> str:
+    rows = []
+    for entry in entries:
+        receipt_href = str(Path(str(entry.get("receipt") or "")).relative_to("gallery"))
+        manifest = str(entry.get("manifest") or "")
+        rows.append(
+            f'<li><code>{_e(entry.get("surface"))}</code> — '
+            f'<a href="{_e(receipt_href)}">receipt</a> · '
+            f'<a href="{GITHUB_DOC_BASE}/presentation/surfaces/{_e(Path(manifest).name)}">manifest</a></li>')
+    facets = _facet_line((entries[0]["evidence"] if entries else {}),
+                         ("canonicalPair", "projectionReceipt"), copy)
+    return (f'<details class="projection-evidence"><summary>{_bi(copy, "projectionEvidence")}</summary>'
+            f'{facets}<ul>{"".join(rows)}</ul></details>')
+
+
 def _detail(t: dict, copy: dict) -> str:
     ko, en = t["locales"]["ko"], t["locales"]["en"]
     facts = [("factProfile", t.get("profile")), ("factPreset", t.get("preset")),
@@ -359,6 +407,7 @@ def _catalog_card(t: dict, copy: dict) -> str:
 def render(model: dict, tokens: dict) -> str:
     packs = model.get("typepacks") or []
     feat = (model.get("featured") or {}).get("entries") or []
+    projections = (model.get("projectionExamples") or {}).get("entries") or []
     copy = (model.get("presentation") or {}).get("copy") or {}
     verified = sum(1 for t in packs for e in t["locales"].values() if e.get("verified"))
     total = sum(len(t["locales"]) for t in packs)
@@ -380,11 +429,12 @@ def render(model: dict, tokens: dict) -> str:
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{_e(_copy(copy, "pageTitle", "en"))}</title>
 <!-- GENERATED VIEW — do not edit by hand.
-     Source of truth: gallery/model.json + gallery/tokens.json (+ gallery/featured.json + gallery/locale.json).
+     Source of truth: gallery/model.json + gallery/tokens.json
+     (+ gallery/featured.json + gallery/projections.json + gallery/locale.json).
      Regenerate with `python3 -m skillstead_validate gallery --write`;
      `--check` fails when this file drifts.
-     A single generated HTML entrypoint with no external network dependencies; images are
-     repository-relative SVGs. -->
+     A single generated HTML entrypoint with no external network dependencies; canonical and
+     Featured images are repository-relative SVGs, while projection examples are receipt-bound PNGs. -->
 <style>
 {_css(tokens)}
 </style>
@@ -409,6 +459,12 @@ def render(model: dict, tokens: dict) -> str:
 {_facet_line(feat_ev, ("sourceGates", "typePackReceipt"), copy)}
 <div class="featured">{"".join(_featured_card(f) for f in feat)}</div>
 <p class="note stable-copy">{_bi(copy, "featuredLegacyNote")}</p>
+
+<h2 class="sec stable-copy">{_bi(copy, "projectionTitle")}</h2>
+<p class="sec-note stable-copy">{_bi(copy, "projectionNote")}</p>
+<div class="projection-grid">{"".join(_projection_card(p) for p in projections)}</div>
+<p class="note stable-copy">{_bi(copy, "projectionDerivedNote")}</p>
+{_projection_evidence(projections, copy)}
 
 <h2 class="sec stable-copy">{_bi(copy, "catalogTitle")}</h2>
 <p class="sec-note stable-copy">{_bi(copy, "catalogNote")}</p>

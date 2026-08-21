@@ -1,0 +1,134 @@
+{
+  "schema": {
+    "name": "svg-infographic-projection-receipt",
+    "version": 1
+  },
+  "status": "pass",
+  "classification": "projection-pass",
+  "inputs": {
+    "svg": {
+      "locator": "../../examples/svg-infographic/presentation-projections/agent-development-loop.svg",
+      "sha256": "ab3a05fc3d73247c93250213f2285f29047b7364abe4ca5211fb4511ffdadfe7"
+    },
+    "canonical_png": {
+      "locator": "../../examples/svg-infographic/presentation-projections/agent-development-loop.png",
+      "sha256": "551e76f2f916c5d1f21316c75260b43ab6ec5076f9fc3487f8437c78224c70d7"
+    }
+  },
+  "canonical_verification": {
+    "classification": "pass",
+    "cause": null,
+    "render_exit": 0,
+    "renderer": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome (Google Chrome 151.0.7922.169) [via documented known path]",
+    "stdout_sha256": "a93c5da264caed3feff22c536a31c60c2226bb87b00bfcb9df26c8a75c72862f",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "regenerated_png_sha256": "551e76f2f916c5d1f21316c75260b43ab6ec5076f9fc3487f8437c78224c70d7",
+    "supplied_png_sha256": "551e76f2f916c5d1f21316c75260b43ab6ec5076f9fc3487f8437c78224c70d7"
+  },
+  "surface": {
+    "id": "portrait-monitor",
+    "manifest_locator": "../../skills/svg-infographic/references/presentation/surfaces/portrait-monitor.json",
+    "manifest_sha256": "6df3282f7a8ba0c0f3c8e2ac316d935f7cbd0c1f388a53546219deb3e8ada001",
+    "asset_sha256": "500dfe7e1de05fea956dd6a3cfc80ea3a595c3c9232931da9825d3d657a38939"
+  },
+  "geometry": {
+    "content_plane": {
+      "kind": "quad",
+      "points": [
+        {
+          "x": 354,
+          "y": 395
+        },
+        {
+          "x": 1440,
+          "y": 501
+        },
+        {
+          "x": 1440,
+          "y": 1905
+        },
+        {
+          "x": 354,
+          "y": 1936
+        }
+      ]
+    },
+    "safe_area": {
+      "x": 40,
+      "y": 40,
+      "width": 2080,
+      "height": 2620
+    },
+    "projected_scale": 0.7549981648801677,
+    "minimum_projected_scale": 0.5
+  },
+  "layers": {
+    "shadow": {
+      "enabled": false,
+      "offset_x": 0,
+      "offset_y": 0,
+      "blur_radius": 0,
+      "opacity": 0
+    },
+    "grain": {
+      "enabled": false,
+      "seed": 4404,
+      "amplitude": 0
+    },
+    "ambient_gradient": {
+      "enabled": false,
+      "from": "#000000",
+      "to": "#000000",
+      "opacity": 0
+    }
+  },
+  "canvas_adaptation": {
+    "declared": {
+      "mode": "boundary-connected-dominant-border-exact-rgba",
+      "alpha": 255,
+      "connectivity": 4,
+      "minimum_border_share": 0.5
+    },
+    "resolved": {
+      "mode": "boundary-connected-dominant-border-exact-rgba",
+      "target_rgba": [
+        247,
+        247,
+        245,
+        255
+      ],
+      "border_share": 1,
+      "masked_pixels": 1739650
+    }
+  },
+  "blend_profile": "matte-display-v1",
+  "compositor": {
+    "id": "svginfo-png-rgba8-v1",
+    "accepted_color_types": [
+      2,
+      6
+    ],
+    "bit_depth": 8,
+    "interlace": 0,
+    "color_space": "srgb-no-icc",
+    "scanline_filter": 4,
+    "zlib_level": 9,
+    "zlib_strategy": "Z_FIXED",
+    "resampling_kernel": "bilinear-rgba8-v1",
+    "node": "v24.19.0",
+    "zlib": "1.3.2.1-motley-3246f1b"
+  },
+  "signature": {
+    "requested": false,
+    "status": "absent"
+  },
+  "attribution": {
+    "required": null,
+    "status": "not-required"
+  },
+  "output": {
+    "sha256": "9013b36fc9c0be151041a8866da5f49638452a9dec06404a2a09ef02f21420de",
+    "bytes": 3889451,
+    "path": "portrait-monitor.png"
+  }
+}

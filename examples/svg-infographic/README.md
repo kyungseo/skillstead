@@ -11,6 +11,7 @@ What lives here, and what each class is proved to:
 | Class | Path | Evidence |
 | --- | --- | --- |
 | Canonical TypePack artifacts | [`typepacks/`](./typepacks) | Built by `generate.mjs` with a receipt; source lint and layout pass; the current palette profile reports **zero errors** against a pinned warning debt of 9 colours / 46 occurrences; `generate.mjs verify` re-measures each against its receipt |
+| Presentation projection source | [`presentation-projections/`](./presentation-projections) | One verified canonical pair used to generate the public gallery's three opt-in derived projection PNGs; each projection carries its own receipt under `gallery/presentation/` |
 | Transitional legacy examples | the directories below | Source lint, layout and typography only. No receipt — they predate the TypePack contract |
 | Historical release asset | [`release-announcement/`](./release-announcement) | Frozen at publication. Kept as a record, not maintained against current contracts |
 
@@ -30,6 +31,13 @@ typepacks/<type>/<type>.{ko,en}.json   # receipt: what was consumed, measured, a
 
 Request phrasing and the build command for each type are in
 [`references/PROMPT-GALLERY.md`](../../skills/svg-infographic/references/PROMPT-GALLERY.md).
+
+## Presentation projection source
+
+[`presentation-projections/`](./presentation-projections) contains one representative canonical SVG/PNG pair.
+The gallery projects that unchanged pair onto paper notebook, gallery wall and portrait monitor so the visual
+difference comes from the selected surface rather than different content. The derived PNGs and receipts live under
+[`gallery/presentation/`](../../gallery/presentation) and are re-verified by the gallery validator.
 
 ## Transitional legacy examples
 
@@ -77,7 +85,7 @@ artifact, so an entity it counts but the drawing never shows is an error.
 **Transitional legacy examples** — source lint, layout and typography pass. They are not measured against the
 current palette profile and carry no receipt.
 
-**Canonical TypePack artifacts and transitional legacy examples** (not the historical release asset, which is
+**Canonical TypePack artifacts, the presentation canonical pair and transitional legacy examples** (not the historical release asset, which is
 frozen) — no text overflow, no tofu in Korean/CJK, `<title>`/`<desc>` present, no host-specific or client paths,
 icons resolve, paired boxes keep visible gutters.
 

@@ -11,6 +11,7 @@ the authority for its own fields:
     manifest.yaml          TypePack identity, selection signal, presets, declared fit boundaries
     gallery/locale.json    repository-owned KO display signals and bilingual page copy
     gallery/featured.json  editorial selection and localized Featured metadata
+    gallery/projections.json selected presentation examples and localized captions
     input payload (.yaml)  KO/EN prompts and titles
     receipt (.json)        preset, treatment, fontDelivery, geometry, residual, consumed, provenance
     artifact (.svg)        bytes, and the digest over them
@@ -25,11 +26,13 @@ canonical owner of the exact receipt schema and of the semantic and geometry che
 deliberately does not re-implement a schema check; a second, weaker one in Python would let a
 receipt pass here that the verifier would reject.
 
-**What carries the claim.** Verification attaches to the **SVG**, because that is what the verifier
-re-checks. The PNG is a render of it, and re-rendering then rebuilding the model would happily bless
-whatever bytes were produced. The example PNGs are therefore recorded as a
-present/digest inventory and are never described as verified; promoting them would need a
-render-evidence contract that does not exist for them.
+**What carries the claim.** Canonical verification attaches to the **SVG**, because that is what the
+TypePack verifier re-checks. Canonical and Featured PNGs are renders or inventories and are never
+described as verified. Presentation projection PNGs are a separate class. Their producer-environment
+receipt records the exact canonical-pair regeneration, while this cross-environment repository gate
+re-checks the receipt-bound inputs, registered surface and deterministic output pixels. It does not
+relabel a Linux CI run as the macOS render recorded in the receipt. They are verified only as derived
+projections and never promoted to canonical artifacts.
 
 The contact sheet is the one exception, because there the PNG *is* what the README displays. It
 carries `contact-sheet.render.json`, written by the render step and never by `--write`, binding the
@@ -62,7 +65,9 @@ EXAMPLES = "examples/svg-infographic/typepacks"
 MODEL_PATH = "gallery/model.json"
 TOKENS_PATH = "gallery/tokens.json"
 LOCALE_PATH = "gallery/locale.json"
+PROJECTIONS_PATH = "gallery/projections.json"
 EXPORTER = "tools/gallery_export.mjs"
+PROJECTION_INVARIANT_VERIFIER = "tools/gallery_projection_verify.mjs"
 LOCALES = ("ko", "en")
 LEGACY_FEATURED_HEADER_ROLES = (
     'data-layout-role="page-title-header"',
@@ -72,12 +77,14 @@ LEGACY_FEATURED_HEADER_ROLES = (
 REQUIRED_COPY_KEYS = (
     "pageTitle", "heroTitle", "heroLede", "languageLabel", "viewLabel", "korean", "english",
     "singleView", "bothView", "featuredTitle", "featuredNote", "featuredLegacyNote",
+    "projectionTitle", "projectionNote", "projectionDerivedNote", "projectionEvidence",
     "catalogTitle", "catalogNote", "currentVerifier", "trackedLimitation", "sourcePolicy",
     "detailSummary", "canonicalPrompt", "commandTemplate", "receiptFacts", "whereStops",
     "declaredStress", "knownLimitation", "sources", "needsSplitNote", "unrenderedOne",
     "unrenderedMany", "tablePreset", "tableCount", "tableVerdict", "tableScenario",
     "tableExpected", "factProfile", "factPreset", "factTreatment", "factDelivery",
     "factEntities", "facetSourceGates", "facetTypePackReceipt", "facetDataAccuracy",
+    "facetCanonicalPair", "facetProjectionReceipt",
     "verdictPass", "verdictNone", "close",
 )
 
@@ -167,6 +174,12 @@ class NodeRunner:
         out = (r.stdout + r.stderr).strip()
         return r.returncode == 0 and " 0 error(s)" in out, out
 
+    def verify_projection(self, receipt: Path, output: Path) -> tuple[bool, str]:
+        r = self._run([PROJECTION_INVARIANT_VERIFIER, "--repo-root", str(self.repo_root),
+                       "--receipt", str(receipt), "--out", str(output)])
+        out = (r.stdout + r.stderr).strip()
+        return r.returncode == 0 and "gallery projection invariant verify: pass" in out, out
+
 
 def _rendered_entities(svg: Path) -> set:
     """Entity ids the artifact actually carries, by the same marker the verifier reads."""
@@ -182,6 +195,28 @@ def _read_json(p: Path) -> dict:
         return json.loads(p.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as e:
         raise GalleryError(f"{p}: unreadable ({e})") from e
+
+
+def _safe_locator(root: Path, receipt: Path, value: object) -> Path | None:
+    if not isinstance(value, str) or not value or Path(value).is_absolute() or "\\" in value:
+        return None
+    resolved = (receipt.parent / value).resolve()
+    try:
+        resolved.relative_to(root)
+    except ValueError:
+        return None
+    return resolved
+
+
+def _repo_path(root: Path, value: object) -> Path | None:
+    if not isinstance(value, str) or not value or Path(value).is_absolute() or "\\" in value:
+        return None
+    resolved = (root / value).resolve()
+    try:
+        resolved.relative_to(root)
+    except ValueError:
+        return None
+    return resolved
 
 
 def _token(tokens: dict, dotted: str):
@@ -418,6 +453,105 @@ def build_model(repo_root: Path, runner: NodeRunner | None = None) -> tuple[dict
                                 "pass" if entry.get("hasReceipt") else "none"),
         })
 
+    # --- presentation projections: verified derived PNGs, never canonical gallery entries ----
+    projection_p = root / PROJECTIONS_PATH
+    if not projection_p.exists():
+        raise GalleryError(f"{PROJECTIONS_PATH} is missing — projection examples have no selection authority")
+    projection_source = _read_json(projection_p)
+    if projection_source.get("schemaVersion") != 1:
+        findings.append(Finding("GAL-PROJECTION", PROJECTIONS_PATH, "schemaVersion must be 1"))
+
+    canonical_decl = projection_source.get("canonical") or {}
+    canonical_svg = _repo_path(root, canonical_decl.get("svg"))
+    canonical_png = _repo_path(root, canonical_decl.get("png"))
+    canonical_ok = bool(canonical_svg and canonical_svg.is_file() and
+                        canonical_png and canonical_png.is_file())
+    if not canonical_ok:
+        findings.append(Finding("GAL-PROJECTION", PROJECTIONS_PATH,
+                                "declared canonical SVG/PNG pair must be safe repository files"))
+    canonical_svg_digest = _sha256(canonical_svg) if canonical_svg and canonical_svg.is_file() else None
+    canonical_png_digest = _sha256(canonical_png) if canonical_png and canonical_png.is_file() else None
+
+    bundled = root / SKILL / "references/presentation/surfaces"
+    selected_ids = {p.stem for p in bundled.glob("*.json")}
+    declared_entries = projection_source.get("entries") or []
+    declared_ids = {str(e.get("surface") or "") for e in declared_entries}
+    if declared_ids != selected_ids or len(declared_entries) != len(selected_ids):
+        findings.append(Finding(
+            "GAL-PROJECTION", PROJECTIONS_PATH,
+            "projection entries must exactly match bundled selected surfaces "
+            f"(missing={sorted(selected_ids - declared_ids)}, extra={sorted(declared_ids - selected_ids)})"))
+
+    projection_entries = []
+    for entry in declared_entries:
+        surface = str(entry.get("surface") or "")
+        output = _repo_path(root, entry.get("output"))
+        receipt = _repo_path(root, entry.get("receipt"))
+        expected_manifest = (bundled / f"{surface}.json").resolve()
+        problems = []
+        for field in ("name", "name_ko", "caption", "caption_ko"):
+            if not isinstance(entry.get(field), str) or not entry.get(field).strip():
+                problems.append(f'{field} must be a non-empty string')
+        if not output or not output.is_file():
+            problems.append("output PNG is missing or unsafe")
+        if not receipt or not receipt.is_file():
+            problems.append("projection receipt is missing or unsafe")
+        if not expected_manifest.is_file():
+            problems.append("selected bundled manifest is missing")
+
+        data = _read_json(receipt) if receipt and receipt.is_file() else {}
+        if data.get("schema") != {"name": "svg-infographic-projection-receipt", "version": 1}:
+            problems.append("receipt schema is invalid")
+        if data.get("status") != "pass" or data.get("classification") != "projection-pass":
+            problems.append("receipt status/classification is not pass")
+        if (data.get("surface") or {}).get("id") != surface:
+            problems.append("receipt surface id differs from the selection")
+
+        svg_locator = _safe_locator(
+            root, receipt, ((data.get("inputs") or {}).get("svg") or {}).get("locator")) if receipt else None
+        png_locator = _safe_locator(
+            root, receipt, ((data.get("inputs") or {}).get("canonical_png") or {}).get("locator")) if receipt else None
+        manifest_locator = _safe_locator(
+            root, receipt, (data.get("surface") or {}).get("manifest_locator")) if receipt else None
+        if canonical_ok and canonical_svg and svg_locator != canonical_svg.resolve():
+            problems.append("receipt SVG locator differs from the declared canonical")
+        if canonical_ok and canonical_png and png_locator != canonical_png.resolve():
+            problems.append("receipt canonical PNG locator differs from the declared canonical")
+        if manifest_locator != expected_manifest:
+            problems.append("receipt manifest locator differs from the selected bundled surface")
+        if canonical_svg_digest and ((data.get("inputs") or {}).get("svg") or {}).get(
+                "sha256") != canonical_svg_digest.removeprefix("sha256:"):
+            problems.append("receipt SVG digest differs from the canonical bytes")
+        if canonical_png_digest and ((data.get("inputs") or {}).get("canonical_png") or {}).get(
+                "sha256") != canonical_png_digest.removeprefix("sha256:"):
+            problems.append("receipt canonical PNG digest differs from the canonical bytes")
+        if output and output.is_file() and (data.get("output") or {}).get(
+                "sha256") != _sha256(output).removeprefix("sha256:"):
+            problems.append("receipt output digest differs from the projection bytes")
+
+        verified, verify_out = runner.verify_projection(receipt, output) if (
+            canonical_ok and output and output.is_file() and receipt and receipt.is_file() and
+            expected_manifest.is_file() and not problems) else (False, "")
+        if not verified:
+            problems.append("projection verifier did not pass" +
+                            (f" — {verify_out.splitlines()[-1]}" if verify_out else ""))
+        if problems:
+            for problem in problems:
+                findings.append(Finding("GAL-PROJECTION", surface or PROJECTIONS_PATH, problem))
+
+        projection_entries.append({
+            "surface": surface,
+            "name": entry.get("name"), "nameKo": entry.get("name_ko"),
+            "caption": entry.get("caption"), "captionKo": entry.get("caption_ko"),
+            "output": str(entry.get("output") or ""),
+            "outputDigest": _sha256(output) if output and output.is_file() else None,
+            "receipt": str(entry.get("receipt") or ""),
+            "manifest": str(expected_manifest.relative_to(root)) if expected_manifest.is_file() else None,
+            "verified": verified or None,
+            "evidence": {"canonicalPair": "pass" if verified else "none",
+                         "projectionReceipt": "pass" if verified else "none"},
+        })
+
     model = {
         "schemaVersion": 2,
         "generatedBy": "skillstead_validate gallery",
@@ -441,6 +575,16 @@ def build_model(repo_root: Path, runner: NodeRunner | None = None) -> tuple[dict
                     "retaining an entry is a valid, recorded outcome. Until then the legacy "
                     "provenance and absent receipt stand as the facets report them.",
             "entries": featured,
+        },
+        "projectionExamples": {
+            "source": PROJECTIONS_PATH,
+            "note": "Three selected opt-in derived projection PNGs built from one canonical pair. "
+                    "They demonstrate presentation surfaces and do not become canonical artifacts.",
+            "canonical": {
+                "svg": str(canonical_decl.get("svg") or ""), "svgDigest": canonical_svg_digest,
+                "png": str(canonical_decl.get("png") or ""), "pngDigest": canonical_png_digest,
+            },
+            "entries": projection_entries,
         },
     }
     return model, findings

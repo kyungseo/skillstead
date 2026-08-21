@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "gallery-wall",
+  "asset": {
+    "path": "assets/presentation-surfaces/gallery-wall.png", "sha256": "6d1a5cbf92ffcff15a054584a800a8120cf94096f20810b7ca5120f9d6f3bbe6",
+    "width": 1900, "height": 2375, "color_space": "srgb",
+    "license": "OpenAI generated output under the applicable service terms; see provenance", "redistribution": "allowed",
+    "provenance": {
+      "kind": "generated", "creator": "OpenAI ImageGen directed by Codex", "created_on": "2026-08-20",
+      "tool": "OpenAI built-in image_gen", "tool_identifier": "exec-df8a0f9f-5ced-4e31-865a-5efff11c9e5f",
+      "terms_basis": "OpenAI service terms applicable to user-generated image output",
+      "human_disposition": "Selected for the bundled v1 set after same-input geometry, budget, visual-fatigue, and identifiable-work review under Owner-approved Option A",
+      "identifiable_work_mark_character_absent": true,
+      "source_sha256": "851065206c57bd6b9e70d483c5ba50857b9ce747e290173ae2676db95c532b03",
+      "normalization": { "tool": "ImageMagick", "tool_version": "7.1.2-29 Q16-HDRI aarch64", "profile": "svginfo-surface-normalize-v1", "operations": "strip metadata; resize exact 1900x2375; Gaussian blur 0x0.35; posterize 128 levels; encode PNG RGB8 compression 9", "performed_on": "2026-08-20" }
+    }
+  },
+  "content_plane": { "kind": "rect", "x": 488, "y": 524, "width": 1084, "height": 1355 },
+  "safe_area": { "x": 40, "y": 40, "width": 1820, "height": 2295 },
+  "minimum_projected_scale": 0.5,
+  "canvas_adaptation": { "mode": "boundary-connected-dominant-border-exact-rgba", "alpha": 255, "connectivity": 4, "minimum_border_share": 0.5 },
+  "blend_profile": "ink-on-surface-v1",
+  "layers": { "shadow": { "enabled": false, "offset_x": 0, "offset_y": 0, "blur_radius": 0, "opacity": 0 }, "grain": { "enabled": false, "seed": 2202, "amplitude": 0 }, "ambient_gradient": { "enabled": false, "from": "#000000", "to": "#000000", "opacity": 0 } },
+  "signature_slot": { "x": 1500, "y": 2200, "width": 300, "height": 70, "default": null, "color": "#5b6675" },
+  "required_attribution": null
+}
