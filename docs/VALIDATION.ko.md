@@ -85,7 +85,7 @@ release의 `published_at`이 null이거나 빈 문자열인 경우 포함), tran
 
 | 파일 | trigger | 목적 |
 | --- | --- | --- |
-| `validate.yml` | PR, `main` push, tag 생성/삭제 | event 기반 M1+M3+M4 (tag event는 명시적 `main` checkout으로 M3+M4 실행) |
+| `validate.yml` | PR, `main` push, tag 생성/삭제 | event 기반 검증을 병렬 job으로 실행 — package suite와 validator self-test suite가 경량 검사(M1+gallery+M3+M4+skills-ref) 옆에서 돌고, `validate` aggregate job이 기존 check 이름을 유지. PR에서는 diff가 해당 suite의 입력을 건드릴 때만 무거운 두 suite를 실행(`skills/**` / `tools/**`+`tests/**`; workflow 변경은 둘 다 실행, diff 판독 불가 시 전체 실행). push는 항상 전체 실행. tag event는 명시적 `main` checkout으로 M3+M4 실행, branch 생성/삭제 event는 아무것도 실행하지 않음 |
 | `validate-periodic.yml` | 매일 schedule(`17 3 * * *` UTC), 수동 dispatch | event가 발생하지 않는 상태 변화(예: push 밖의 tag repoint)를 잡는 주기적 안전망 |
 | `release.yml` | 수동 dispatch 전용 | M5 wrapper 진입점. dry-run이 기본값이며 checkout이 `main`에 고정되어 있어 dispatch가 미검토 wrapper나 request를 write token으로 실행할 수 없음 |
 
