@@ -285,6 +285,19 @@ For every `<name>/vX.Y.Z` tag, on every run:
   next check's job). After the cutover record exists, the expected tag set
   is also derived independently from `main` first-parent version changes, so
   deleting *all* tags of a release is still detected.
+* **Release grace window (event runs only)** — the release protocol creates
+  the tag only after the version-bump commit has merged, so the push/PR run
+  that fires between merge and tag creation observes a structurally missing
+  tag. That job alone passes `--release-grace-minutes 1440`: a missing tag
+  whose version-change commit is younger than the window is reported as a
+  visible `I-5-PENDING` notice with exit 0 instead of a red run. Everything
+  else stays fail-closed red — older changes, unobservable timestamps, and
+  every run without the flag (the release gate, the cutover evaluator, tag
+  create/delete events, the periodic schedule, and branch create/delete
+  events no longer run M3 at all since they say nothing about tag state).
+  A genuinely deleted tag therefore still turns red at its delete event
+  immediately, and a tag that is never created hardens to red at the next
+  periodic run after the window expires.
 * **Expected target** — derived without looking at the tag: for an ordinary
   tag, the oldest `main` first-parent commit where the skill's declared
   version changed to the tag's version; for the four baseline tags (exact

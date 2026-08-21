@@ -322,5 +322,98 @@ class CanonicalConstantsGuard(unittest.TestCase):
         self.assertEqual(record_schema.PHASES, frozenset({"prepared", "aborted"}))
 
 
+class ReleaseGraceWindow(unittest.TestCase):
+    """Merge→tag window classification: pending is bounded and opt-in.
+
+    Only the event workflow's push/PR job passes ``release_grace_minutes``;
+    the default call (release gate, cutover, tag events, periodic) must keep
+    today's red on the same state.
+    """
+
+    GRACE = 1440
+
+    def setUp(self) -> None:
+        # BaselineRecordBranch와 같은 record 앵커 설정 — 실제 repo처럼
+        # record-anchored I-5 파생이 활성인 상태에서 window를 재현한다.
+        self._tmp = tempfile.TemporaryDirectory()
+        self.repo = build_released_repo(Path(self._tmp.name) / "repo", {"alpha-skill": "1.2.3"})
+        _git(self.repo, "tag", "-d", "alpha-skill/v1.2.3")
+        record_dir = self.repo / ".skillstead"
+        record_dir.mkdir()
+        (record_dir / "cutover-record.json").write_text(
+            json.dumps(_fixture_record()), encoding="utf-8")
+        self.record_sha = commit_all(self.repo, "cutover commit with record")
+        _git(self.repo, "tag", "alpha-skill/v1.2.3", self.record_sha)
+        patcher = patch.object(record_schema, "BASELINE_TAGS", FIXTURE_BASELINE)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.addCleanup(self._tmp.cleanup)
+
+    def _bump_alpha_untagged(self, version: str, prev: str) -> str:
+        """Valid release commit for alpha-skill WITHOUT its tag (the
+        merge→tag window state)."""
+        skill_md = self.repo / "skills/alpha-skill/SKILL.md"
+        skill_md.write_text(
+            skill_md.read_text(encoding="utf-8").replace(
+                f"  version: {prev}", f"  version: {version}") + "\nBody change.\n",
+            encoding="utf-8")
+        changelog = self.repo / "skills/alpha-skill/CHANGELOG.md"
+        changelog.write_text(
+            changelog.read_text(encoding="utf-8").replace(
+                f"## [{prev}]", f"## [{version}] — 2026-07-28\n\nEntry.\n\n## [{prev}]", 1),
+            encoding="utf-8")
+        for fname in ("README.md", "README.ko.md"):
+            f = self.repo / fname
+            f.write_text(f.read_text(encoding="utf-8").replace(f"`{prev}`", f"`{version}`"),
+                         encoding="utf-8")
+        record_root_release(self.repo, "alpha-skill", version)
+        return commit_all(self.repo, f"release alpha {version} (tag pending)")
+
+    def _age_head(self, date: str) -> None:
+        """Rewrite HEAD's committer (and author) timestamp."""
+        import os
+        import subprocess
+        env = dict(os.environ, GIT_COMMITTER_DATE=date, GIT_AUTHOR_DATE=date)
+        subprocess.run(
+            ["git", "-C", str(self.repo), "commit", "-q", "--amend",
+             "--no-edit", "--date", date],
+            capture_output=True, text=True, check=True, env=env)
+
+    def _graced(self) -> tuple[list, list]:
+        pending: list = []
+        findings = run_tag_checks(
+            self.repo, release_grace_minutes=self.GRACE, pending=pending)
+        return findings, pending
+
+    def test_window_state_is_pending_with_grace_and_red_without(self) -> None:
+        self._bump_alpha_untagged("1.3.0", "1.2.3")
+        # Default call: today's fail-closed red is unchanged.
+        self.assertIn("I-5", {f.check for f in run_tag_checks(self.repo)})
+        # Opted-in event run: visible pending, zero red findings.
+        findings, pending = self._graced()
+        self.assertEqual(findings, [])
+        self.assertEqual([p.check for p in pending], ["I-5-PENDING"])
+        self.assertEqual(pending[0].subject, "alpha-skill/v1.3.0")
+
+    def test_grace_expiry_hardens_to_red(self) -> None:
+        self._bump_alpha_untagged("1.3.0", "1.2.3")
+        self._age_head("2026-01-01T00:00:00 +0000")
+        findings, pending = self._graced()
+        self.assertIn("I-5", {f.check for f in findings})
+        self.assertEqual(pending, [])
+
+    def test_recent_deletion_is_pending_only_for_opted_in_runs(self) -> None:
+        # A fresh tag deleted inside the window is indistinguishable from the
+        # normal merge→tag gap for a push run; the delete event and the
+        # periodic run call without grace and stay red immediately.
+        _release_alpha(self.repo, "1.3.0", "1.2.3")
+        self.assertEqual(run_tag_checks(self.repo), [])
+        _git(self.repo, "tag", "-d", "alpha-skill/v1.3.0")
+        self.assertIn("I-5", {f.check for f in run_tag_checks(self.repo)})
+        findings, pending = self._graced()
+        self.assertEqual(findings, [])
+        self.assertEqual([p.check for p in pending], ["I-5-PENDING"])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -247,6 +247,15 @@ Bump-Adjustment: <기본 단계를 조정한 이유>
 * **I-5** — 관측된 릴리스 commit에서 버전이 바뀐 모든 skill의 tag가 존재한다(존재만 검사 —
   대상 정확성은 다음 검사의 몫). cutover record가 생긴 뒤에는 `main` first-parent 버전 변경에서
   기대 tag 집합을 독립적으로 파생하므로 릴리스의 tag를 *전부* 삭제해도 검출된다.
+* **release grace window (event run 한정)** — 릴리스 절차는 version-bump commit이 merge된 뒤에야
+  tag를 만들기 때문에, merge와 tag 생성 사이에 실행되는 push/PR run은 구조적으로 tag 부재를
+  관측합니다. 그 job만 `--release-grace-minutes 1440`을 전달합니다: version-change commit이
+  window보다 젊은 누락 tag는 red run 대신 가시적 `I-5-PENDING` 통지 + exit 0으로 분류됩니다.
+  그 외는 전부 fail-closed red를 유지합니다 — window보다 오래된 변경, 관측 불가 timestamp,
+  그리고 flag 없이 실행되는 모든 경로(release gate, cutover evaluator, tag 생성/삭제 event,
+  periodic schedule. branch 생성/삭제 event는 tag 상태와 무관하므로 이제 M3를 실행하지
+  않습니다). 따라서 실제로 삭제된 tag는 delete event에서 즉시 red가 되고, 끝내 생성되지 않은
+  tag는 window 경과 후 다음 periodic run에서 red로 굳습니다.
 * **expected target** — tag를 보지 않고 파생한다: 일반 tag는 `main` first-parent에서 해당
   skill의 선언 버전이 그 버전으로 바뀐 가장 오래된 commit, baseline tag 4개(record의 exact ref
   membership으로만 판정 — 버전 문자열 비교 아님)는 record가 도입된 commit. 다른 곳을 가리키는
