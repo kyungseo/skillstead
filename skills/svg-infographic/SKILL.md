@@ -26,6 +26,8 @@ Nuances: a **simple qualitative** 2×2/3×3 matrix or a status-count badge is fi
 | `references/authoring.md` | **Always, before writing SVG** — detailed geometry/connector/panel/emphasis/color rules and the full icon set; also the manual render fallback |
 | `references/sketch.md` | Only when the user asks for a hand-drawn / sketchnote / handwritten feel — the opt-in sketch preset (paper, handwriting font, rough filters, highlighter) |
 | `scripts/render.mjs` | **Canonical renderer** (Node 18+, stdlib only) — lint gate → browser discovery → 2× render → exact IHDR verification in one entrypoint; works from any shell incl. Windows CMD/PowerShell without Git Bash |
+| `references/presentation/contract.md` | Only when the user explicitly asks to place an already verified canonical result on a notebook, wall, board, portrait monitor, ambient screen, or a custom registered surface |
+| `scripts/projection.mjs` | Explicit opt-in derived-sibling builder/verifier; never replaces or post-processes the canonical SVG/PNG |
 | `scripts/render.sh` | Thin POSIX/Git-Bash wrapper that delegates to `render.mjs` (adds only the no-Node diagnostics) |
 | `scripts/check-svg.mjs` | Source lint gate (Node 18+, standard library only; no npm install) — the renderer runs it automatically; run it directly while iterating on the SVG source |
 - `scripts/check-layout.mjs` — layout contract guard (container padding/symmetry, equal-gap distribution, atomic card clusters; design-kernel §7). The renderer runs it automatically on layout-annotated SVGs.
@@ -204,6 +206,13 @@ Keep wrapper/intermediate files in the session scratchpad, not the repo. In nati
 - Font: follow the typography profile SSoT — flat: Pretendard plus the normalized fallback (system); sketch: an embedded Hi Melody subset (weight 400). Never declare a stack outside the profile
 - Changeable: brand color, ratio (docs vs 4:5 social), dark mode (a separate direct-paint artifact re-materialized from the profile — `diagram.dark.svg`; never a media query in one SVG), icon style, Korean/English, SVG-only vs SVG+PNG
 - Optional attribution/footer layer: **off by default.** On request, add a small footer strip (source, author, or date) as its own bottom layer — a labeled footer, not a watermark laid over the content.
+- Optional presentation surface: **off by default.** Only after the editable SVG + exact canonical 2× PNG pass,
+  and only when the user explicitly asks for presentation projection, read
+  `references/presentation/contract.md` and create a separately named projection PNG + receipt. Never describe
+  it as the canonical PNG or use it as acceptance evidence for the source artifact. Use only the surface
+  manifest's registered blend profile; never improvise opacity, filters, or per-run color tuning. If projection
+  is requested without a named surface, use the bundled `paper-notebook`; an explicit bundled or user manifest
+  always overrides it.
 
 ## 7. Verify the PNG (quality bar)
 

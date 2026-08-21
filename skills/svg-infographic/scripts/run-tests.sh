@@ -26,7 +26,7 @@ done
 mkdir -p "$log_dir"
 
 # These launch no browser — running them together causes no interference.
-parallel_suites=(skin preflight check-svg check-layout route-orthogonal check-language)
+parallel_suites=(skin preflight check-svg check-layout route-orthogonal check-language projection)
 # These launch a headless browser — strictly one at a time.
 serial_suites=(font-probe render compose generate)
 # How much of a failing suite log to print. Enough for the assertion and its context; a whole

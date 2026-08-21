@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "paper-notebook",
+  "asset": {
+    "path": "assets/presentation-surfaces/paper-notebook.png",
+    "sha256": "b09cfe070bb8a61d6506a8c140ded39196449bf1742dd5473ba9965531b70191",
+    "width": 1900,
+    "height": 2375,
+    "color_space": "srgb",
+    "license": "OpenAI generated output under the applicable service terms; see provenance",
+    "redistribution": "allowed",
+    "provenance": {
+      "kind": "generated",
+      "creator": "OpenAI ImageGen directed by Codex",
+      "created_on": "2026-08-20",
+      "tool": "OpenAI built-in image_gen",
+      "tool_identifier": "exec-25997bd6-66a7-4ef2-8a62-f0036aeaf0d2",
+      "terms_basis": "OpenAI service terms applicable to user-generated image output",
+      "human_disposition": "Selected for the bundled v1 set after same-input geometry, budget, visual-fatigue, and identifiable-work review under Owner-approved Option A",
+      "identifiable_work_mark_character_absent": true,
+      "source_sha256": "5dc595b977b5d85e1aca5741cfbd82624226b6bec3f0d4927eecd6b6a89ad82a",
+      "normalization": {
+        "tool": "ImageMagick",
+        "tool_version": "7.1.2-29 Q16-HDRI aarch64",
+        "profile": "svginfo-surface-normalize-v1",
+        "operations": "strip metadata; resize exact 1900x2375; Gaussian blur 0x0.35; posterize 128 levels; encode PNG RGB8 compression 9",
+        "performed_on": "2026-08-20"
+      }
+    }
+  },
+  "content_plane": { "kind": "quad", "points": [{"x":197,"y":379},{"x":1498,"y":202},{"x":1782,"y":1877},{"x":389,"y":2093}] },
+  "safe_area": { "x": 40, "y": 40, "width": 1820, "height": 2295 },
+  "minimum_projected_scale": 0.5,
+  "canvas_adaptation": { "mode": "boundary-connected-dominant-border-exact-rgba", "alpha": 255, "connectivity": 4, "minimum_border_share": 0.5 },
+  "blend_profile": "ink-on-surface-v1",
+  "layers": {
+    "shadow": { "enabled": false, "offset_x": 0, "offset_y": 0, "blur_radius": 0, "opacity": 0 },
+    "grain": { "enabled": false, "seed": 1101, "amplitude": 0 },
+    "ambient_gradient": { "enabled": false, "from": "#000000", "to": "#000000", "opacity": 0 }
+  },
+  "signature_slot": { "x": 1500, "y": 2250, "width": 300, "height": 70, "default": null, "color": "#5b6675" },
+  "required_attribution": null
+}

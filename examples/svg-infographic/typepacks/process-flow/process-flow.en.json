@@ -221,18 +221,14 @@
    "version": 1,
    "canonicalization": 2
   },
-  "executionMode": "source-development",
+  "executionMode": "installed-runtime",
   "skillRoot": "skills/svg-infographic",
   "package": {
    "id": "svg-infographic",
-   "surfaceRevision": 17
+   "surfaceRevision": 18
   },
-  "runtimeSurfaceDigest": "sha256:12819c706448cb154730024e8db459dd469bc8a0159df235ffd16e6d710ec2b4",
-  "source": {
-   "headCommit": "f7d78e44973970df460b363508967b9fe3683ea5",
-   "repoDirty": false,
-   "runtimeSurfaceDirty": false
-  },
+  "runtimeSurfaceDigest": "sha256:996d911ae7e06519c0cec94155c775e297f47930f99e7ecca99a7fc4e53f8a0a",
+  "source": null,
   "producer": {
    "kind": "generator",
    "generatorDigest": "sha256:6385ee4dbd7a5b332cee75f243a8e03b1f9125155f0b4c0c52aa1ab0c99852b2"

@@ -11,6 +11,16 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [Unreleased]
+
+- Added an explicit opt-in presentation projection sibling with three restrained 4:5 starter surfaces, strict generated
+  asset provenance, bounded rect/quad mapping, a deterministic stdlib-only PNG compositor, optional
+  receipt-bound ASCII signature, registered print/display blend profiles, confidence-gated dominant-border exact
+  canvas adaptation, and independent build/verify commands. Editable SVG plus the exact canonical 2× PNG remains
+  the default and acceptance authority; an explicit projection request without a surface uses paper notebook.
+  The notebook content plane is calibrated to the page's upper edge so repeated projections do not appear to sag
+  toward the right.
+
 ## [0.10.0] — 2026-08-16
 
 This release rebuilds how the skill is selected, generated and verified. The nine core TypePacks are a

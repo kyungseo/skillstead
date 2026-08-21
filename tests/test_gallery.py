@@ -24,7 +24,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 
 from skillstead_validate.gallery import (  # noqa: E402
-    EXAMPLES, LOCALE_PATH, MODEL_PATH, TOKENS_PATH, GalleryError, NodeRunner, build_model, run_gallery,
+    EXAMPLES, LOCALE_PATH, MODEL_PATH, PROJECTIONS_PATH, TOKENS_PATH,
+    GalleryError, NodeRunner, build_model, run_gallery,
 )
 from skillstead_validate.contact_sheet import RENDER_RECEIPT, sheet_paths  # noqa: E402
 from skillstead_validate.gallery_html import GALLERY_HTML, GITHUB_DOC_BASE, render  # noqa: E402
@@ -96,6 +97,10 @@ class GalleryModelFixtures(unittest.TestCase):
     def an_svg(self, tid: str = "cards-kpi-grid", loc: str = "ko") -> Path:
         return self.repo / EXAMPLES / tid / f"{tid}.{loc}.svg"
 
+    def a_projection(self, surface: str = "paper-notebook") -> tuple[Path, Path]:
+        return (self.repo / "gallery/presentation" / f"{surface}.png",
+                self.repo / "gallery/presentation" / f"{surface}.receipt.json")
+
     # ---- positive ----------------------------------------------------------------------
 
     def test_committed_model_is_current(self):
@@ -136,6 +141,11 @@ class GalleryModelFixtures(unittest.TestCase):
                 self.assertTrue(e["consumed"], f"{t['id']}/{loc}: receipt consumed missing")
                 self.assertTrue(e["svgDigest"].startswith("sha256:"))
                 self.assertTrue(e["verified"], f"{t['id']}/{loc}: should verify")
+        self.assertEqual([e["surface"] for e in model["projectionExamples"]["entries"]],
+                         ["paper-notebook", "gallery-wall", "portrait-monitor"])
+        self.assertTrue(all(e["verified"] for e in model["projectionExamples"]["entries"]))
+        self.assertEqual(model["projectionExamples"]["canonical"]["svg"],
+                         "examples/svg-infographic/presentation-projections/agent-development-loop.svg")
 
     # ---- the four verification facts, broken one at a time -----------------------------
 
@@ -190,6 +200,22 @@ class GalleryModelFixtures(unittest.TestCase):
         self.assertTrue(self.checks(write=True))
         self.assertEqual((self.repo / MODEL_PATH).read_text(encoding="utf-8"), before,
                          "a failing build must leave the previous model untouched")
+
+    def test_tampered_projection_output_is_refused(self):
+        output, _ = self.a_projection()
+        output.write_bytes(output.read_bytes() + b"\x00")
+        findings = run_gallery(self.repo)
+        self.assertIn("GAL-PROJECTION", {f.check for f in findings})
+        self.assertTrue(any("output digest differs" in f.detail for f in findings), findings)
+
+    def test_projection_selection_must_match_bundled_surfaces(self):
+        p = self.repo / PROJECTIONS_PATH
+        data = json.loads(p.read_text(encoding="utf-8"))
+        data["entries"].pop()
+        p.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+        findings = run_gallery(self.repo)
+        self.assertIn("GAL-PROJECTION", {f.check for f in findings})
+        self.assertTrue(any("exactly match" in f.detail for f in findings), findings)
 
     def test_missing_required_locale_field_is_refused(self):
         """A field CP3C will render must come from its authority — a null is a finding, not a gap
@@ -336,7 +362,9 @@ class GalleryModelFixtures(unittest.TestCase):
             self.assertIn(rule, h)
         self.assertIn('data-copy-loc="ko" lang="ko"', h)
         self.assertIn('data-copy-loc="en" lang="en"', h)
-        self.assertEqual(h.count("<details>"), 9)
+        self.assertEqual(h.count("<details"), 10,
+                         "nine TypePack details plus one collapsed projection evidence block")
+        self.assertIn('class="projection-evidence"', h)
 
     def test_language_and_artifact_view_are_independent(self):
         """Language changes prose, alt selection and html.lang; view changes only artifact pairing."""
@@ -406,8 +434,9 @@ class GalleryModelFixtures(unittest.TestCase):
         # describe — asserted separately below rather than counted here.
         content, _, shell = h.partition("<dialog")
         alts = re.findall(r'alt="([^"]*)"', content)
-        expected = 2 * (len(model["typepacks"]) + len(model["featured"]["entries"]))
-        self.assertEqual(len(alts), expected, "every image in both sections needs alt text")
+        expected = (2 * (len(model["typepacks"]) + len(model["featured"]["entries"])) +
+                    len(model["projectionExamples"]["entries"]))
+        self.assertEqual(len(alts), expected, "every image in all three sections needs alt text")
         self.assertFalse([a for a in alts if not a.strip()])
         self.assertIn('alt = a.querySelector("img").alt', shell,
                       "the zoom placeholder must take the alt of the image it is showing")
@@ -423,15 +452,21 @@ class GalleryModelFixtures(unittest.TestCase):
                 caption = f["captionKo"] if loc == "ko" else f["caption"]
                 self.assertIn(f'{name} — {caption} ({loc.upper()})', alts,
                               f'{f["slug"]}/{loc}: featured alt text describes the picture too')
+        for p in model["projectionExamples"]["entries"]:
+            self.assertIn(f'{p["nameKo"]} — {p["captionKo"]} / {p["name"]} — {p["caption"]}', alts)
 
-    def test_page_shows_the_verified_svg_not_the_png(self):
+    def test_page_uses_only_the_claim_bearing_format_for_each_class(self):
         h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
         import re
         model, _ = build_model(self.repo)
         srcs = re.findall(r'<img src="([^"]+)"', h)
-        self.assertEqual(len(srcs), 2 * (len(model["typepacks"]) + len(model["featured"]["entries"])))
-        self.assertTrue(all(s.endswith(".svg") for s in srcs),
-                        "the SVG is what the gates and the verifier re-checked")
+        canonical_count = 2 * (len(model["typepacks"]) + len(model["featured"]["entries"]))
+        self.assertEqual(sum(s.endswith(".svg") for s in srcs), canonical_count,
+                         "canonical and Featured cards must keep showing the gated SVG")
+        self.assertCountEqual([s for s in srcs if s.endswith(".png")],
+                              [str(Path(e["output"]).relative_to("gallery"))
+                               for e in model["projectionExamples"]["entries"]],
+                              "only receipt-verified projection PNGs may be promoted into the page")
 
     def test_page_links_resolve(self):
         import os, re
@@ -440,25 +475,41 @@ class GalleryModelFixtures(unittest.TestCase):
         missing = [l for l in sorted(links) if not (self.repo / "gallery" / l).exists()]
         self.assertEqual(missing, [], "repository -> package relative links must resolve")
 
-    def test_page_document_links_are_the_exact_public_set(self):
+        local = set(re.findall(r'(?:src|href)="(presentation/[^"#]+)', h))
+        self.assertTrue(local, "projection examples must be linked from the generated page")
+        missing_local = [l for l in sorted(local) if not (self.repo / "gallery" / l).exists()]
+        self.assertEqual(missing_local, [], "gallery-local projection links must resolve")
+
+    def test_page_document_links_are_the_exact_public_sets(self):
         import re
         h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
         model, _ = build_model(self.repo)
         links = re.findall(r'href="(https://github\.com/kyungseo/skillstead/blob/main/'
                            r'skills/svg-infographic/references/[^"]+)"', h)
-        expected = []
+        expected_typepack = []
         prompt_gallery = self.repo / "skills/svg-infographic/references/PROMPT-GALLERY.md"
         prompt_text = prompt_gallery.read_text(encoding="utf-8")
         for t in model["typepacks"]:
             spec = t["spec"]
-            expected.extend((f"{GITHUB_DOC_BASE}/{spec}",
-                             f"{GITHUB_DOC_BASE}/PROMPT-GALLERY.md#{t['id']}"))
+            expected_typepack.extend((f"{GITHUB_DOC_BASE}/{spec}",
+                                      f"{GITHUB_DOC_BASE}/PROMPT-GALLERY.md#{t['id']}"))
             self.assertTrue((self.repo / "skills/svg-infographic/references" / spec).is_file(),
                             f"{t['id']}: public spec link target must exist")
             self.assertIn(f"## {t['id']}\n", prompt_text,
                           f"{t['id']}: public Prompt Gallery anchor must have a heading")
-        self.assertEqual(len(links), 18, "nine specs and nine prompt anchors are public")
-        self.assertCountEqual(links, expected, "public document links must follow the TypePack model")
+        expected_projection = []
+        references = Path("skills/svg-infographic/references")
+        for projection in model["projectionExamples"]["entries"]:
+            manifest = Path(projection["manifest"])
+            expected_projection.append(f"{GITHUB_DOC_BASE}/{manifest.relative_to(references)}")
+            self.assertTrue((self.repo / manifest).is_file(),
+                            f"{projection['surface']}: public surface manifest target must exist")
+
+        expected = expected_typepack + expected_projection
+        self.assertEqual(len(links), len(expected),
+                         "public links are nine specs, nine prompt anchors and selected surface manifests")
+        self.assertCountEqual(links, expected,
+                              "public document links must follow the TypePack and projection models")
         self.assertIn("Specification and prompt links follow the current", h)
         self.assertIn("명세와 prompt 링크는 현재", h)
 
@@ -933,6 +984,8 @@ class GalleryModelFixtures(unittest.TestCase):
         h = (self.repo / GALLERY_HTML).read_text(encoding="utf-8")
         self.assertIn("source gates", h)
         self.assertIn("TypePack receipt", h)
+        self.assertIn("canonical pair", h)
+        self.assertIn("projection receipt", h)
         # not-applicable facets are omitted rather than shown as an empty claim
         self.assertNotIn("not-applicable", h)
         # No ranking vocabulary around the evidence. Matched as ordinals rather than as substrings:

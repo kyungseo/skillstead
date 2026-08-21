@@ -11,6 +11,7 @@
 | 분류 | 경로 | 검증 근거 |
 | --- | --- | --- |
 | Canonical TypePack 산출물 | [`typepacks/`](./typepacks) | `generate.mjs`가 receipt와 함께 생성. source lint·layout 통과. 현행 palette profile에서 **error 0건**, 고정된 warning debt 9색·46건. `generate.mjs verify`가 receipt와 대조해 재측정 |
+| Presentation projection source | [`presentation-projections/`](./presentation-projections) | Public gallery의 선택형 derived projection PNG 3종을 만드는 하나의 verified canonical pair. 각 projection은 `gallery/presentation/` 아래에 별도 receipt를 가집니다 |
 | 과도기 legacy 예제 | 아래 디렉터리들 | source lint·layout·typography까지만. receipt 없음 — TypePack 계약 이전에 만들어졌습니다 |
 | 과거 릴리스 자산 | [`release-announcement/`](./release-announcement) | 공개 시점에 고정. 기록으로 보존하며 현행 계약으로 재검증하지 않습니다 |
 
@@ -30,6 +31,13 @@ typepacks/<type>/<type>.{ko,en}.json   # receipt: 무엇을 소비·측정했고
 
 각 타입의 요청 문구와 생성 명령은
 [`references/PROMPT-GALLERY.md`](../../skills/svg-infographic/references/PROMPT-GALLERY.md)에 있습니다.
+
+## Presentation projection source
+
+[`presentation-projections/`](./presentation-projections)에는 대표 canonical SVG/PNG pair 하나가 있습니다. Gallery는
+이 pair를 바꾸지 않고 paper notebook, gallery wall, portrait monitor에 각각 투영합니다. 따라서 세 결과의 시각적
+차이는 내용이 아니라 선택한 surface에서 옵니다. Derived PNG와 receipt는
+[`gallery/presentation/`](../../gallery/presentation)에 있으며 gallery validator가 다시 검증합니다.
 
 ## 과도기 legacy 예제
 
@@ -76,7 +84,7 @@ debt가 늘거나 옮겨가면 드러납니다. layout container·binding·reser
 **과도기 legacy 예제** — source lint·layout·typography 통과. 현행 palette profile로는 측정하지 않으며
 receipt가 없습니다.
 
-**Canonical TypePack 산출물과 과도기 legacy 예제** (고정된 과거 릴리스 자산은 제외) — 텍스트 넘침 없음,
+**Canonical TypePack 산출물, presentation canonical pair와 과도기 legacy 예제** (고정된 과거 릴리스 자산은 제외) — 텍스트 넘침 없음,
 한국어·CJK tofu 없음, `<title>`/`<desc>` 존재, 호스트·고객 경로 없음, 아이콘 참조 정상,
 짝을 이루는 박스의 여백 유지.
 

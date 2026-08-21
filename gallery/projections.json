@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "presentation-projection-examples",
+  "canonical": {
+    "svg": "examples/svg-infographic/presentation-projections/agent-development-loop.svg",
+    "png": "examples/svg-infographic/presentation-projections/agent-development-loop.png"
+  },
+  "entries": [
+    {
+      "surface": "paper-notebook",
+      "name": "Paper notebook",
+      "name_ko": "Paper notebook",
+      "caption": "quiet tactile framing with the opt-in default tilt",
+      "caption_ko": "차분한 종이 질감과 projection 내부 기본 tilt",
+      "output": "gallery/presentation/paper-notebook.png",
+      "receipt": "gallery/presentation/paper-notebook.receipt.json"
+    },
+    {
+      "surface": "gallery-wall",
+      "name": "Gallery wall",
+      "name_ko": "Gallery wall",
+      "caption": "a restrained exhibition frame with no perspective distortion",
+      "caption_ko": "원근 왜곡 없이 절제된 전시 맥락",
+      "output": "gallery/presentation/gallery-wall.png",
+      "receipt": "gallery/presentation/gallery-wall.receipt.json"
+    },
+    {
+      "surface": "portrait-monitor",
+      "name": "Portrait monitor",
+      "name_ko": "Portrait monitor",
+      "caption": "a compact digital display context with a mild angle",
+      "caption_ko": "작은 기울기를 가진 간결한 디지털 화면 맥락",
+      "output": "gallery/presentation/portrait-monitor.png",
+      "receipt": "gallery/presentation/portrait-monitor.receipt.json"
+    }
+  ]
+}

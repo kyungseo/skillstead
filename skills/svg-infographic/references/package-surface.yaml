@@ -17,7 +17,7 @@
 # stored only as detached evidence or a CI artifact.
 
 schema_version: 1
-surface_revision: 17
+surface_revision: 18
 
 canonicalization:
   version: 2
@@ -47,16 +47,19 @@ entries:
   - { path: scripts/check-layout.mjs, kind: production-entrypoint }
   - { path: scripts/check-language.mjs, kind: verification }
   - { path: scripts/render.mjs, kind: production-entrypoint }
+  - { path: scripts/projection.mjs, kind: production-entrypoint }
   - { path: scripts/compose.mjs, kind: production-entrypoint }
   - { path: scripts/measure-text.mjs, kind: production-entrypoint }
   - { path: scripts/font-probe.mjs, kind: production-entrypoint }
   - { path: scripts/render.sh, kind: production-shim }
   - { path: scripts/preflight-lib.mjs, kind: production-lib }
   - { path: scripts/treatment.mjs, kind: production-lib }
+  - { path: scripts/projection-contract.mjs, kind: production-lib }
 
   # --- normative docs (the agent-judgement surface) ---------------------------
   - { path: SKILL.md, kind: normative-doc }
   - { path: references/design-kernel.md, kind: normative-doc }
+  - { path: references/presentation/contract.md, kind: normative-doc }
   - { path: references/authoring.md, kind: normative-doc }
   - { path: references/archetypes.md, kind: normative-doc }
   - { path: references/sketch.md, kind: normative-doc }
@@ -86,6 +89,7 @@ entries:
   - { path: references/typography/typography-v1.yaml, kind: profile }
   - { path: references/delivery/font-delivery-v1.yaml, kind: profile }
   - { path: references/types/manifest.yaml, kind: profile }
+  - { tree: references/presentation/surfaces, kind: profile }
 
   # --- bundled assets (license evidence included) -----------------------------
   - { path: assets/fonts/HiMelody-Regular.ttf, kind: asset }
@@ -93,6 +97,7 @@ entries:
   - { path: assets/fonts/Pretendard-Regular.otf, kind: asset }
   - { path: assets/fonts/Pretendard-Bold.otf, kind: asset }
   - { path: assets/fonts/Pretendard-OFL.txt, kind: asset }
+  - { tree: assets/presentation-surfaces, kind: asset }
 
   # --- approved canonical reference: design-kernel embeds and links it normatively, so it
   #     affects agent judgement — a runtime asset, not evidence.
@@ -119,6 +124,7 @@ entries:
   - { path: scripts/generate.test.mjs, kind: verification }
   - { path: scripts/route-orthogonal.test.mjs, kind: verification }
   - { path: scripts/check-language.test.mjs, kind: verification }
+  - { path: scripts/projection.test.mjs, kind: verification }
   - { tree: scripts/legacy, kind: verification }
   - { tree: scripts/fixtures, kind: verification }
   - { tree: scripts/skin-fixtures, kind: verification }

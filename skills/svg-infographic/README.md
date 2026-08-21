@@ -54,6 +54,24 @@ The skill follows a fixed five-step workflow designed so the **first render pass
    verifies the PNG dimensions; the skill then reviews the pixels against a quality bar (rendering, containment,
    message).
 
+When explicitly requested, a separate optional step may project that already verified canonical pair onto one of
+three bundled 4:5 presentation surfaces (paper notebook, gallery wall, portrait monitor) or a strict user manifest.
+If the request asks for projection but names no surface, paper notebook is used; an explicit surface always wins.
+Paper/material surfaces use a fixed print-like blend while displays retain a restrained screen treatment; neither
+permits free-form filtering. The derived PNG and receipt never replace the editable SVG or canonical PNG.
+
+### Optional presentation projection
+
+Ask in ordinary language: “Use `svg-infographic` to create an image that fits what I described, then present the
+result with the notebook template.” You can choose the gallery wall or portrait monitor instead. The skill currently
+includes three starter templates—paper notebook, gallery wall, and portrait monitor—and uses paper notebook when you
+request projection without choosing one.
+
+To show a signature in the lower-right corner, add something like, “Use `kyungseo.github.io` as the signature.” You
+can also leave it blank. Start with the **[presentation examples](../../gallery/index.html)**. Developers who need the
+CLI, custom manifests or verification details can open the
+[`presentation contract`](./references/presentation/contract.md).
+
 You don't need to know any of this to use the skill — but it explains what the skill tells you at each step, and why the output tends to be right the first time.
 
 ## Supported Archetypes
@@ -241,7 +259,8 @@ project. The skill is a multi-file package, so copy the whole folder:
 ├── CHANGELOG.md              # per-skill release history
 ├── LICENSE.txt               # Apache-2.0 full text (travels with the package)
 ├── assets/
-│   └── fonts/                # bundled faces + their OFL notices (Pretendard, Hi Melody)
+│   ├── fonts/                # bundled faces + their OFL notices (Pretendard, Hi Melody)
+│   └── presentation-surfaces/ # three opt-in raster backgrounds
 ├── references/
 │   ├── design-kernel.md      # the contract the whole package answers to
 │   ├── archetypes.md         # archetype catalog: skeletons, premium recipe, checks
@@ -255,6 +274,7 @@ project. The skill is a multi-file package, so copy the whole folder:
 │   ├── typography/           # families, faces, licensing
 │   ├── types/                # TypePack manifest, per-type specs and inputs
 │   ├── media/                # canonical skin contact sheet
+│   ├── presentation/         # projection contract + strict surface manifests
 │   └── legacy/               # superseded contracts kept for provenance
 └── scripts/
     ├── generate.mjs          # TypePack build + receipt verify (entry point)
@@ -266,6 +286,7 @@ project. The skill is a multi-file package, so copy the whole folder:
     ├── preflight.mjs         # digest computation and package integrity
     ├── measure-text.mjs      # browser text measurement (bundled face, fail-closed)
     ├── render.mjs            # canonical lint → browser render → 2× verification
+    ├── projection.mjs        # opt-in verified surface projection + receipt
     ├── render.sh             # thin Bash wrapper for render.mjs
     ├── font-probe.mjs        # runtime font load/computed check
     ├── font-subset.py        # OFL-safe subsetter (build-only; pinned fontTools + brotli)
