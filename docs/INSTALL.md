@@ -11,7 +11,7 @@ Each skill has its own release tag. Choose the matching tag and folder as a pair
 
 | Skill folder | Current pinned tag | Runtime support |
 | --- | --- | --- |
-| `svg-infographic` | `svg-infographic/v0.10.0` | Claude Code and Codex |
+| `svg-infographic` | `svg-infographic/v0.11.0` | Claude Code and Codex |
 | `docs-claim-check` | `docs-claim-check/v0.9.1` | Claude Code |
 | `github-release-guide` | `github-release-guide/v0.9.0` | Claude Code and Codex |
 | `writing-quality-editor` | `writing-quality-editor/v0.11.0` | Claude Code and Codex |
