@@ -96,7 +96,7 @@ would state something the run did not observe.
 
 | File | Triggers | Purpose |
 | --- | --- | --- |
-| `validate.yml` | PR, push to `main`, tag create/delete | event-driven M1+M3+M4 (tag events run M3+M4 against an explicit `main` checkout) |
+| `validate.yml` | PR, push to `main`, tag create/delete | event-driven validation as parallel jobs — the package suite and the validator self-test suite run beside the fast checks (M1+gallery+M3+M4+skills-ref), and a `validate` aggregate job carries the historical check name. On PRs the two heavy suites run only when the diff touches their inputs (`skills/**` / `tools/**`+`tests/**`; workflow changes run both, an unreadable diff runs everything). Pushes always run everything. Tag events run M3+M4 against an explicit `main` checkout; branch create/delete events run nothing |
 | `validate-periodic.yml` | daily schedule (`17 3 * * *` UTC), manual dispatch | periodic fallback for state changes that fire no event (e.g. a tag repointed outside a push) |
 | `release.yml` | manual dispatch only | M5 wrapper entry; dry-run by default; checkout pinned to `main` so a dispatch can never run an unreviewed wrapper or request under the write token |
 

@@ -3,6 +3,14 @@
 # GitHub's automatic 60-day-inactivity disable of scheduled workflows — never
 # silences the other. Continuous tag checks (M3) and the cutover evaluator
 # (M4) are added by later stages of the validator work.
+#
+# The two heavy suites run as parallel jobs, and on pull_request events they
+# run only when the change set touches their inputs (the `scope` job derives
+# that from the diff, fail-closed to "run everything" when it cannot tell).
+# Push and dispatch runs always run everything, and the daily periodic
+# workflow stays full, so a scoping mistake on a PR is caught at the merge
+# push at the latest. The `validate` job aggregates the results under the
+# historical check name.
 name: validate
 
 on:
@@ -16,15 +24,57 @@ permissions:
   contents: read
 
 jobs:
-  validate:
+  # PR-only diff classification; push runs get "run everything" without a
+  # checkout. A failed diff also means "run everything" — never skip on an
+  # unobserved change set.
+  scope:
     if: github.event_name == 'pull_request' || github.event_name == 'push'
     runs-on: ubuntu-latest
+    outputs:
+      package: ${{ steps.diff.outputs.package }}
+      validator: ${{ steps.diff.outputs.validator }}
     steps:
-      # Full hydration is contractual: first-parent history, all tags, and
-      # origin/main must be observable for the tag and cutover checks.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        if: github.event_name == 'pull_request'
         with:
           fetch-depth: 0
+
+      - id: diff
+        run: |
+          set -u
+          run_all() {
+            echo "package=true" >> "$GITHUB_OUTPUT"
+            echo "validator=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
+          if [ "${GITHUB_EVENT_NAME}" != "pull_request" ]; then
+            run_all
+          fi
+          changed="$(git diff --name-only "origin/${GITHUB_BASE_REF}...HEAD")" || run_all
+          package=false
+          validator=false
+          while IFS= read -r f; do
+            [ -n "$f" ] || continue
+            case "$f" in
+              skills/*|.github/workflows/*) package=true ;;
+            esac
+            case "$f" in
+              tools/*|tests/*|.github/workflows/*) validator=true ;;
+            esac
+          done <<EOF
+          $changed
+          EOF
+          echo "package=$package" >> "$GITHUB_OUTPUT"
+          echo "validator=$validator" >> "$GITHUB_OUTPUT"
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+
+  package-suite:
+    needs: scope
+    if: needs.scope.outputs.package == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       # The package's own suite subsets fonts, and its subsetter-dependent fixtures used to skip
       # themselves silently when the toolchain was absent — which is what CI looked like, so those
@@ -42,8 +92,25 @@ jobs:
           SVGINFO_STRICT: "1"        # absence of the subsetter fails here; it never silently skips
         run: bash skills/svg-infographic/scripts/run-tests.sh
 
+  validator-suite:
+    needs: scope
+    if: needs.scope.outputs.validator == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
       - name: Validator self-tests (fixtures)
         run: python3 -m unittest discover -s tests
+
+  # Full hydration is contractual: first-parent history, all tags, and
+  # origin/main must be observable for the tag and cutover checks.
+  checks:
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
 
       - name: Repo validation (M1)
         run: PYTHONPATH=tools python3 -m skillstead_validate repo --repo-root .
@@ -67,6 +134,35 @@ jobs:
 
       - name: Spec reference validator (pinned skills-ref)
         run: python3 tools/run_skills_ref.py
+
+  # Aggregate under the historical check name: green only when every job that
+  # was supposed to run succeeded, and a skipped heavy suite is acceptable
+  # only when `scope` explicitly ruled it out.
+  validate:
+    needs: [scope, package-suite, validator-suite, checks]
+    if: ${{ always() && (github.event_name == 'pull_request' || github.event_name == 'push') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aggregate results
+        run: |
+          set -u
+          fail() { echo "$1" >&2; exit 1; }
+          [ "${{ needs.scope.result }}" = "success" ] || fail "scope job did not succeed"
+          [ "${{ needs.checks.result }}" = "success" ] || fail "checks job did not succeed"
+          suite_ok() {
+            result="$1"; wanted="$2"; name="$3"
+            if [ "$wanted" = "true" ]; then
+              [ "$result" = "success" ] || fail "$name was required but did not succeed"
+            else
+              case "$result" in
+                success|skipped) : ;;
+                *) fail "$name failed" ;;
+              esac
+            fi
+          }
+          suite_ok "${{ needs.package-suite.result }}" "${{ needs.scope.outputs.package }}" "package-suite"
+          suite_ok "${{ needs.validator-suite.result }}" "${{ needs.scope.outputs.validator }}" "validator-suite"
+          echo "all required jobs green"
 
   # Tag creation or deletion re-runs the continuous tag checks immediately
   # (a deleted tag leaves no ref to check out, so main is checked out
