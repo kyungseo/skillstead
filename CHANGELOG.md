@@ -8,6 +8,21 @@ Granular, per-change entries begin at the first public release. Earlier developm
 
 Repository-level changes since the last dated entry.
 
+## 2026-08-22
+
+### Skills
+
+- `writing-quality-editor` `0.12.0` — stronger same-language Korean revision boundaries for honorific and formality
+  retention, intentional fragments, quotation and citation attachment, embedded source instructions, and exact
+  no-edit output for direct short-text requests. Maturity remains Beta.
+
+### Verification
+
+- **Korean editing boundary evidence.** Five synthetic fixtures extend the set from 28 to 33 scenarios. Repository
+  tests passed `272/272`, the repository validator reported `0 finding(s)`, and the hosted pull-request checks
+  passed. The two measured runtimes did not cover the new fixtures to the same extent, and separate regression
+  misses remain recorded rather than being promoted into a Stable claim.
+
 ## 2026-08-21
 
 ### Gallery

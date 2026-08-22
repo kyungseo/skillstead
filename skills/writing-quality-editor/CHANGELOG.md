@@ -11,7 +11,7 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
-## [Unreleased]
+## [0.12.0] — 2026-08-22
 
 - Applied the Korean profile to same-language `Revise`, preserving same-audience honorific and formality choices,
   intentional fragments, and contextual—not token-list—translationese judgment.
