@@ -14,7 +14,7 @@ Skillstead의 각 스킬은 폴더 하나로 설치할 수 있는 독립 패키�
 | `svg-infographic` | `svg-infographic/v0.11.0` | Claude Code와 Codex |
 | `docs-claim-check` | `docs-claim-check/v0.9.1` | Claude Code |
 | `github-release-guide` | `github-release-guide/v0.9.0` | Claude Code와 Codex |
-| `writing-quality-editor` | `writing-quality-editor/v0.11.0` | Claude Code와 Codex |
+| `writing-quality-editor` | `writing-quality-editor/v0.12.0` | Claude Code와 Codex |
 
 아래 명령은 `github-release-guide`를 설치하는 예시입니다. 다른 스킬을 설치하려면
 `github-release-guide/v0.9.0`과 `github-release-guide`를 같은 행에 있는 값으로 함께 바꾸세요.

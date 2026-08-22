@@ -14,7 +14,7 @@ Each skill has its own release tag. Choose the matching tag and folder as a pair
 | `svg-infographic` | `svg-infographic/v0.11.0` | Claude Code and Codex |
 | `docs-claim-check` | `docs-claim-check/v0.9.1` | Claude Code |
 | `github-release-guide` | `github-release-guide/v0.9.0` | Claude Code and Codex |
-| `writing-quality-editor` | `writing-quality-editor/v0.11.0` | Claude Code and Codex |
+| `writing-quality-editor` | `writing-quality-editor/v0.12.0` | Claude Code and Codex |
 
 The commands below use `github-release-guide` as a worked example. To install another skill, replace both
 `github-release-guide/v0.9.0` and `github-release-guide` with the matching values from the same row. Replacing
