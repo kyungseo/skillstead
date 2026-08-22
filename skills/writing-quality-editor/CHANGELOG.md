@@ -11,6 +11,17 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [Unreleased]
+
+- Applied the Korean profile to same-language `Revise`, preserving same-audience honorific and formality choices,
+  intentional fragments, and contextual—not token-list—translationese judgment.
+- Made the direct short-text no-edit path return the exact source without labels or reports when no material reader
+  problem exists.
+- Locked direct quotations with their punctuation and attached citation or footnote markers, and treated editor-
+  or agent-directed instructions inside supplied source as data unless the external user activates them.
+- Kept unsupported-wording cleanup subtractive so removing canned wording cannot introduce new praise, benefits,
+  certainty, or conclusions.
+
 ## [0.11.0] — 2026-08-09
 
 - Made local editing the default for wording, naturalness, and clarity requests when the existing paragraph and

@@ -3,6 +3,22 @@
 Use this reference for `Adapt` mode and bilingual parity review. The initial localization profile under behavioral
 validation is English↔Korean, with Korean output following `ko-KR` conventions.
 
+For same-language Korean `Revise`, also use the Korean profile below. The cross-language transformation rules in
+the rest of this reference still apply only to `Adapt`.
+
+## Same-Language Korean Revise
+
+- In prose, repair omitted sentence components, particles, or endings when a reader must infer a material actor,
+  condition, or consequence. Do not force sentence endings onto headings, list labels, table cells, UI labels,
+  code, or clearly intentional fragments.
+- For the same audience, preserve the source's honorific level and formality, including choices such as `해요` /
+  `합니다` and `했다` / `하였다`. Change them only when the user requests a new register or the source register
+  demonstrably conflicts with the stated audience.
+- Diagnose translationese as a contextual or repeated pattern. A single nominalization, connective, or borrowed
+  expression is not a defect by itself; revise it only when it creates a named reader problem.
+- Removing canned or unsupported wording is subtractive with respect to claims: do not replace it with new praise,
+  benefit, certainty, or conclusion that the source and approved evidence do not establish.
+
 ## Adaptation Goal
 
 Produce text that reads as if a skilled writer composed it directly for the target-language audience. Preserve

@@ -4,12 +4,12 @@ This ledger separates static contract review from fresh-context runtime behavior
 for Claude Code and Codex within the recorded evidence scope after pinned `v0.7.0` installation/discovery and the
 post-release claim closeout passed.
 
-## Static Contract Gate Through F27
+## Static Contract Gate Through F33
 
 | Check | Result |
 | --- | --- |
 | Official skill validator | Pass: `Skill is valid!` |
-| Scenario and answer-key parity | Pass: 27 scenarios / 27 answer-key rows |
+| Scenario and answer-key parity | Pass: 33 scenario headings / 32 matrix rows plus the separate F27 frozen-candidate judgment |
 | Intent-inference coverage | Pass: F01 unnamed ambiguous review, F02 named skill without mode, F12 unnamed revision |
 | KO→EN coverage | Pass: F04, F13, F14 |
 | Premature `validated` claim and stale 12-count scan | Pass: 0 matches |
@@ -25,8 +25,8 @@ Status: static source and fixture consistency pass; fresh-context behavior parti
   distinguishes concrete phrasing from structural rewriting.
 - Added contextual handling for `임의로`, `승인 없이`, and `알리지 않고`; the editor must preserve the supplied
   policy, approval, or notification boundary instead of applying a mechanical replacement.
-- Added F28 as a Korean technical-guide fixture with A/B controlled variants under one scenario ID. The current
-  shape is 28 scenario headings, 27 Scenario Matrix rows for F01–F26 and F28, and one separate frozen-candidate
+- Added F28 as a Korean technical-guide fixture with A/B controlled variants under one scenario ID. At that
+  amendment, the shape was 28 scenario headings, 27 Scenario Matrix rows for F01–F26 and F28, and one separate frozen-candidate
   answer-key section for F27.
 - Repository validation passes: `python3 -m unittest discover -s tests` ran 178 tests, and
   `PYTHONPATH=tools python3 -m skillstead_validate repo --repo-root .` returned 0 findings.
@@ -58,6 +58,43 @@ Fresh-context amendment evidence:
   project-local candidate. No runtime-support claim has been promoted from these results.
 - Static checks for the current candidate remain green: repository unit tests `178/178`, repository validator
   `0 finding(s)`, generic quick validator `Skill is valid!`, and `git diff --check` pass.
+
+## F29–F33 Korean Preservation Amendment — 2026-08-22
+
+Status: observable-load remeasurement complete; current-package maturity gate failed; maturity remains Beta.
+
+- Added Korean controls for no-edit identity, compressed prose, same-audience honorific and formality retention,
+  direct-quotation/citation attachment, and embedded source instructions that the external user did not activate.
+- The reduced current candidate package contains nine files. Its critical seals are `SKILL.md`
+  `f3b569a5d7d7f236ebbfe1815dcc4d2d78d21c976119132db161c23bcf145668`, review rubric
+  `8b0a3376d461dffe54fa52eff65965bfb6a9b22a362c2e6d45fd555fb55e1d5c`, and Korean profile
+  `1d294d8eb7d781e4c5392a479117297a4682ea2a33fcb7b8fb58e7b6b8094cc2`.
+- Earlier contract candidates remain diagnostic evidence only. The reduced candidate removes fixture-derived
+  Neutral examples, limits embedded-instruction locking to editor- or agent-directed source notes, and limits the
+  exact-only no-edit response to direct short-text requests.
+- Claude Code loaded the project-local reduced candidate in all 21 behavior runs. It passed seven of eight Korean
+  tuples: all eight bodies satisfied their semantic fixture, but the third repeated no-edit run added an unrequested
+  report and failed the direct short-text output contract. It passed 12 of 13 regression tuples. F13 used
+  imperatives but kept the actor ambiguity provisional and explicit with viable actor choices, so it passes the
+  sealed key. F28-B missed the protected before-action timing relationship after explicitly holding it out of the
+  source sentence; this is an explicit-hold protected-meaning precedence miss, not a silent omission.
+- Under the same observable-load protocol, the published 0.11.0 package passed 12 of 13 Claude regression tuples.
+  The reduced candidate fixed F12's unrequested no-edit report but had a point-in-time miss on F28-B. One
+  run per tuple supports a current comparison, not deterministic causal attribution.
+- Codex loaded the project-local reduced candidate in all seven focused runs. Korean no-edit identity passed `3/3`
+  and F15, F28-A, and F28-B passed. F25 preserved the opening but recast an unaffected sentence, changing the
+  network-boundary claim from metrics never leaving the user's network to the dashboard running entirely within
+  that network. The focused result is `6/7`. The nine regression tuples measured before candidate reduction are
+  not promoted as current-package evidence.
+- A separate three-prompt bare-request sample loaded the project-local skill in Claude Code `3/3`. This supports
+  discovery for the sampled clean project-only layout; it is not merged into contract-behavior scoring or a broad
+  support claim.
+- Static checks pass: repository unit tests `272/272`, repository validator `0 finding(s)`, generic quick validator
+  `Skill is valid!`, and `git diff --check`.
+- Do not remove the Beta label or claim F29–F33 as validated runtime support from this bounded evidence. Fresh
+  install, claim promotion, and a Stable release remain blocked. The point-in-time all-tuples first-run gate is not
+  reused as a future maturity definition; a separate DR-worthy successor will distinguish product maturity from
+  model-, date-, and package-stamped runtime support evidence.
 
 ## Fresh-Context Executions
 
@@ -288,7 +325,7 @@ corrective reruns. Fix the contract before restarting; do not increase the rerun
 
 ## Claim Boundary
 
-- F01–F18 and F21 are synthetic contract material; F19–F20 require live public-source research. None is user
+- F01–F18 and F21–F33 are synthetic contract material; F19–F20 require live public-source research. None is user
   research.
 - Static review does not establish runtime support or English↔Korean behavioral validation.
 - Passing the runtime set and repository dogfood does not by itself establish a public runtime support claim.
