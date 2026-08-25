@@ -24,6 +24,22 @@ Repository-level changes since the last dated entry.
   also passed. A live fork-push run remained unavailable because no maintainer-controlled fork existed, so the fork
   boundary remains backed by the focused workflow contract and documented manual-dispatch prerequisite.
 
+## 2026-08-25
+
+### Skills
+
+- `writing-quality-editor` `0.13.0` — document-wide transfer from user examples to the same reader-friction defect
+  class, clearer explanatory relationships and causation boundaries, and stronger preservation of already-natural
+  no-edit alternatives. Maturity remains Beta.
+
+### Verification
+
+- **Reader-friction and no-edit evidence.** Repository tests passed `282/282`, the repository validator reported
+  `0 finding(s)`, and hosted PR #85 passed. Answer-key-blind isolated runs with Claude Fable 5 and Codex passed the
+  new English and Korean transfer fixtures plus causation-boundary coverage; both runtimes preserved the F29 and
+  F35 A no-edit controls byte-for-byte in three independent runs. This is bounded amendment-level evidence rather
+  than a full-matrix maturity promotion.
+
 ## 2026-08-22
 
 ### Skills

@@ -11,7 +11,7 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
-## [Unreleased]
+## [0.13.0] — 2026-08-25
 
 - Treat explanatory reader friction as a concrete revision problem when the intended audience must reconstruct a
   relationship, decode shorthand or metaphor in place of the point, find an unexplained term elsewhere, or separate
