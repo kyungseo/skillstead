@@ -8,6 +8,22 @@ Granular, per-change entries begin at the first public release. Earlier developm
 
 Repository-level changes since the last dated entry.
 
+### Repository
+
+- **Skill-scoped pull-request validation.** Independent Skill changes keep the fast repository-wide checks without
+  paying for the unrelated `svg-infographic` regression suite. SVG package and example inputs run both the SVG and
+  validator suites; workflow, classifier and unclassifiable-path changes fail closed to both.
+- **Fork-safe Pages deployment.** Pushes publish Pages automatically only from `kyungseo/skillstead`. Fork owners may
+  opt in with a manual dispatch after enabling Pages in their own repository.
+
+### Verification
+
+- **Hosted routing evidence.** PR #82 ran both heavy suites and the stable `validate` aggregate successfully. A
+  disposable WQE-only PR #83 then confirmed that both unrelated heavy suites skip while the shared checks and stable
+  aggregate remain green; it was closed without merge. The merge-push full validation and canonical Pages deployment
+  also passed. A live fork-push run remained unavailable because no maintainer-controlled fork existed, so the fork
+  boundary remains backed by the focused workflow contract and documented manual-dispatch prerequisite.
+
 ## 2026-08-22
 
 ### Skills
