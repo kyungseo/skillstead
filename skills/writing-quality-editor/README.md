@@ -168,3 +168,5 @@ Install the complete `skills/writing-quality-editor/` folder. The skill is self-
 synthetic fixtures and the answer key live in [`examples/writing-quality-editor`](https://github.com/kyungseo/skillstead/tree/main/examples/writing-quality-editor).
 
 See the catalog-wide installation options in [`docs/INSTALL.md`](https://github.com/kyungseo/skillstead/blob/main/docs/INSTALL.md).
+
+<!-- CI scope probe: this non-SVG Skill change is intentionally not for merge. -->
