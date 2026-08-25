@@ -4,18 +4,46 @@ This ledger separates static contract review from fresh-context runtime behavior
 for Claude Code and Codex within the recorded evidence scope after pinned `v0.7.0` installation/discovery and the
 post-release claim closeout passed.
 
-## Static Contract Gate Through F33
+## Static Contract Gate Through F36
 
 | Check | Result |
 | --- | --- |
 | Official skill validator | Pass: `Skill is valid!` |
-| Scenario and answer-key parity | Pass: 33 scenario headings / 32 matrix rows plus the separate F27 frozen-candidate judgment |
+| Scenario and answer-key parity | Pass: 36 scenario headings / 35 matrix rows plus the separate F27 frozen-candidate judgment |
 | Intent-inference coverage | Pass: F01 unnamed ambiguous review, F02 named skill without mode, F12 unnamed revision |
 | KO→EN coverage | Pass: F04, F13, F14 |
 | Premature `validated` claim and stale 12-count scan | Pass: 0 matches |
 | Whitespace validation | Pass: `git diff --check` |
 
 This gate verifies package consistency, not independent model behavior.
+
+## F34–F36 Explanatory Reader-Friction Amendment — 2026-08-25
+
+Status: static source and fixture consistency pass; bounded fresh-context behavior pass. This amendment does not
+change the package-wide runtime-support or maturity label.
+
+- The common `Revise` threshold now treats a passage as defective when it leaves a necessary relationship, term,
+  action, or evidence boundary for its intended audience to reconstruct, even if a patient reader could infer it.
+- The amendment does not add a document profile, adopter phrase, or token blacklist. A longer or more explicit
+  alternative alone remains `Neutral` when the current text already performs its role.
+- F34 transfers the decision across Korean release-note and comparison prose plus an English README. F35 supplies
+  Korean and English specialist no-edit controls. F36 verifies that user examples identify a document-wide defect
+  class rather than an exhaustive phrase list, while its final paragraph remains byte-identical.
+- A diagnostic A/B run exposed over-editing in equally natural Korean active/passive and modifier-position variants.
+  The final contract therefore treats those transformations as `Neutral`, resolves ordinary local antecedents
+  before declaring ambiguity, and limits `Needs Human` to material unresolved choices that block a safe result.
+- Loaded behavior-contract hash: `sha256:6bfa908421661f378d5fa60cb0ae290104b21d3bc4d0a30e682f2248b8c4b8e9`
+  over `SKILL.md`, `references/review-rubric.md`, and `references/en-ko-adaptation.md`.
+- Claude Code `claude-fable-5`, effort `high`: answer-key-blind isolated first runs passed F34 A/B/C and F36. F29
+  and F35 A each returned the source byte-for-byte in three independent runs. Sessions used no persistence and
+  loaded only the project-local candidate skill plus the selected scenario.
+- Codex isolated subagents, model identifier not surfaced by the runner: answer-key-blind first runs passed F34
+  A/B/C, F36, F25, and F35 B. F29 and F35 A each returned the source byte-for-byte in three independent runs.
+- Static checks pass: repository unit tests `282/282`, repository validator `0 finding(s)`, generic quick validator
+  `Skill is valid!`, scenario/answer-key parity, added-line public-identifier scan, GFM render of all 13 changed
+  Markdown files with no literal `**` outside code, and `git diff --check`.
+- This evidence reaches the amendment's transfer and no-edit contract. It is not a full-matrix rerun and therefore
+  does not independently promote broader runtime maturity.
 
 ## F28 Local-Naturalness Amendment — 2026-08-08 to 2026-08-09
 

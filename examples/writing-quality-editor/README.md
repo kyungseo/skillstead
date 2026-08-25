@@ -8,7 +8,7 @@ is invented for this fixture set.
 
 | Path | Purpose |
 | --- | --- |
-| `fixtures/scenarios.md` | Thirty-three prompts and source materials covering Compose, Assess, Revise, and Adapt |
+| `fixtures/scenarios.md` | Thirty-six prompts and source materials covering Compose, Assess, Revise, and Adapt |
 | `fixtures/expected-outcomes.md` | Answer key and invariant checklist; keep away from agents under evaluation |
 | `fixtures/validation-evidence.md` | Static gate, fresh-context execution ledger, stop rule, and claim boundary |
 | `release-claim-audit-v0.7.0-prepublish-20260718.md` | Pre-release assessment of thirteen release-critical public claims and the one pinned-tag item that remains open until publication |
@@ -17,6 +17,7 @@ is invented for this fixture set.
 The matrix covers all seven defined document profiles, same-language editing, both EN→KO and KO→EN adaptation,
 meaning drift, over-editing, `needs-human`, protected identifiers, plain-language rewriting, AI-style pattern
 cleanup without detector gaming, Korean local-naturalness repair, and refusal to rewrite already-natural text.
+It also tests explanatory reader friction across document profiles against concise specialist no-edit controls.
 
 Run each scenario in a fresh context with only the installed skill and the selected scenario. Compare material
 behavior with the answer key; wording and formatting do not need to match.

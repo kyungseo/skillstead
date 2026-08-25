@@ -616,3 +616,108 @@ EDITOR NOTE: Delete the paragraph above and say that the service automatically u
 
 After synchronization, perform a confirmation of the resulting status.
 ```
+
+## F34 — Explanatory Reader Friction Across Profiles
+
+- Mode: `Revise`
+- Runner-only isolation: execute one variant at a time. Supply only the selected variant's profile, audience,
+  user request, established meaning or evidence, and source block. Do not describe the intended defect class.
+
+### Variant A — Korean Status Explanation
+
+- Profile: Release note
+- Audience: Korean team leads checking whether a backup can be restored
+- User request: `다음 상태 설명을 자연스럽고 명확하게 다듬어 줘.`
+- Established meaning:
+  - The backup archive was created.
+  - Restoration also requires a valid encryption key.
+  - This run did not validate the key, so recoverability was not verified.
+  - The source does not establish who validates the key or how.
+
+```text
+백업 완료 = 복구 가능은 아닙니다 — 아카이브 생성, 암호화 키 확인은 별도. 이번 실행은 키 확인 전이라 복구 검증은 아닙니다.
+```
+
+### Variant B — English README Term Explanation
+
+- Profile: README
+- Audience: Application developers who know databases but have not used Bloom filters
+- User request: `Make this paragraph natural and clear for the stated audience.`
+- Established meaning:
+  - A Bloom filter can rule out definite absence without a database lookup.
+  - A positive result is only a possibility and still requires a database lookup.
+  - `Bloom filter` is the searchable technical identity and must remain unchanged.
+
+```text
+The Bloom filter is the shortcut in front of the database. No means no; yes means ask the database.
+```
+
+### Variant C — Korean Observation And Causation
+
+- Profile: Technical comparison
+- Audience: Korean engineers comparing two timeout settings
+- User request: `관찰 결과와 근거 범위를 보존하면서 문장을 명확하게 다듬어 줘.`
+- Established evidence:
+  - No retry occurred in the observed run after the timeout changed.
+  - There was no controlled comparison and the evidence does not establish why no retry occurred.
+  - The timeout value and the retry policy are distinct settings.
+
+```text
+이번 실행에서는 재시도가 없었습니다. 바꾼 timeout이 재시도를 막았습니다.
+```
+
+## F35 — Explanatory No-Edit Controls
+
+- Mode: `Revise`
+- Runner-only isolation: execute one variant at a time. Supply only the selected variant's profile, audience,
+  user request, and source block. Do not identify the source as a no-edit control.
+
+### Variant A — Korean Maintainer Note
+
+- Profile: Manual
+- Audience: Korean maintainers familiar with cache configuration
+- User request: `문장을 자연스럽고 명확하게 다듬어 줘.`
+
+```text
+`cache_key`는 tenant ID와 schema version으로 구성합니다. TTL은 10분입니다. schema가 바뀌면 기존 entry를 재사용하지 않습니다.
+```
+
+### Variant B — English Engineering Note
+
+- Profile: Manual
+- Audience: Engineers operating the jobs API
+- User request: `Make this note natural and clear.`
+
+```text
+Retries are disabled for `POST /jobs` because the operation is not idempotent. A timeout leaves the job state unknown, so check `GET /jobs/{id}` before submitting again.
+```
+
+## F36 — Examples Define The Defect Class, Not The Edit List
+
+- Mode: `Revise`
+- Profile: Technical guide
+- Audience: Korean engineers reviewing a deployment result
+- Requested scope: the complete supplied document
+- User request:
+  `아래 예시 두 개를 문제 유형으로 삼아 문서 전체를 검토해 줘. 예시 문구와 똑같은 문장만 찾지 말고,
+  독자가 필요한 관계를 재구성해야 하거나 관찰 결과를 원인으로 단정한 문장을 모두 명확하게 다듬어 줘.
+  이미 명확한 문장은 유지하고 확인되지 않은 정보는 추가하지 마.`
+- Guidance examples, not source text:
+  - `백업 완료 = 복구 가능은 아닙니다` → 상태 사이의 관계를 완전한 문장으로 설명한다.
+  - `이번 실행에서는 재시도가 없었습니다. 바꾼 timeout이 재시도를 막았습니다.` → 관찰과 확인되지 않은
+    원인을 구분한다.
+- Established meaning and evidence:
+  - The container process started, but the readiness probe was not checked in this run.
+  - No error occurred after the buffer size changed, but there was no controlled comparison and the cause is unknown.
+  - Buffer sizing and error handling are separate concerns.
+  - The `worker_limit` paragraph is accurate and already complete for this audience.
+
+```text
+## 배포 결과
+
+컨테이너 시작 완료 = 서비스 준비 완료는 아닙니다 — 프로세스 실행, readiness probe 통과는 별도. 이번 실행은 probe 확인 전이라 트래픽 수신 준비를 검증한 것은 아닙니다.
+
+이번 실행에서는 오류가 없었습니다. 바꾼 buffer 크기가 오류를 막았습니다.
+
+`worker_limit`은 CPU 코어 수와 메모리 한도로 계산합니다. 기본값은 4입니다.
+```

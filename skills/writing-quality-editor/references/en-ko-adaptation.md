@@ -16,6 +16,19 @@ the rest of this reference still apply only to `Adapt`.
   demonstrably conflicts with the stated audience.
 - Diagnose translationese as a contextual or repeated pattern. A single nominalization, connective, or borrowed
   expression is not a defect by itself; revise it only when it creates a named reader problem.
+- Treat equally natural Korean alternatives as `Neutral`, not as evidence of improvement. In particular, do not
+  switch active and passive endings, relocate an already-clear modifier, expand a concise synonymous phrase, or
+  change digits to Korean number words merely to make the output different. Make one of these changes only when
+  the source creates a named reader problem for the stated audience.
+- Use these as `Neutral` contrasts, not preferred replacements. If the source-side sentence is already clear,
+  preserve it exactly:
+
+  | Source-side form | Equally acceptable alternative | Default decision |
+  | --- | --- | --- |
+  | `키는 tenant ID와 version으로 구성합니다.` | `키는 tenant ID와 version으로 구성됩니다.` | Preserve the source |
+  | `로컬 보고서 2개가 생성됩니다.` | `보고서 2개가 로컬에 생성됩니다.` | Preserve the source |
+  | `schema가 바뀌면` | `schema가 변경되면` | Preserve the source |
+
 - Removing canned or unsupported wording is subtractive with respect to claims: do not replace it with new praise,
   benefit, certainty, or conclusion that the source and approved evidence do not establish.
 
