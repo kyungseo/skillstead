@@ -141,7 +141,7 @@ sentence structure. It may change information order, sentence rhythm, idioms, an
 does not invent claims or hide ambiguity. AI-detector gaming and provenance concealment are explicit non-goals.
 
 - Friendly guide: [`writing-quality-editor` README](./skills/writing-quality-editor/README.md)
-- Validation material: [33 scenarios and a separate answer key](./examples/writing-quality-editor)
+- Validation material: [36 scenarios and a separate answer key](./examples/writing-quality-editor)
 - Name the skill: `Use writing-quality-editor to make the document below read naturally. Preserve its core facts, conditions, and requirements.`
 - Use the shorthand: `Use WQE to review this onboarding guide. Identify problems, but do not revise it yet.`
 - Or ask naturally: `Review this README. Do not revise the prose yet.` · `Write a new README using only information supported by the material below.` · `Rewrite this English release note so it reads naturally to Korean readers. Preserve its meaning and conditions.`

@@ -55,16 +55,30 @@ These are completed contrasts for three different claims, not interchangeable sy
 If the source says only “조용히 바꾸지 않는다” and context does not distinguish these meanings, return
 `needs-human`. Continue other safe local edits; fluency does not authorize the editor to select a governance rule.
 
+Do not manufacture ambiguity from an ordinary local antecedent or an optional specificity improvement. Use
+`needs-human` only when unresolved readings would materially change an action, promise, authority, condition, risk,
+or claim boundary and that unresolved choice blocks a safe usable result. Otherwise preserve the wording or make
+the safe local edit without an appended uncertainty report.
+
 ### Plain-Language Accessibility
 
 - Lead with the conclusion, user value, or purpose before internal machinery.
 - Explain an internal abstraction, metaphor, or technical term at first use when the reader cannot recover its
   meaning from the sentence itself.
+- When a passage is responsible for explaining, comparing, or instructing, state the necessary proposition and
+  relationship instead of making the audience reconstruct them from note-like fragments, equations, or slogans.
+- Keep observation, inference, and causation at the strength established by the evidence. A missing event in one
+  run does not by itself establish which prompt, policy, setting, or component prevented it.
 - Preserve commands, paths, codes, status values, and product identities exactly.
 - Treat easy writing as information design, not information deletion.
 
 For a wording-level `Revise`, use conclusion-first as a diagnostic question, not as permission to reorder the
 source. The strategy gate in `SKILL.md` decides whether structural change is warranted.
+
+Inference cost is a reader problem only when the passage leaves its own job unfinished for the stated audience.
+Do not expand established notation, ordinary technical shorthand, headings, table cells, UI labels, or compact
+maintainer prose merely because a longer explanation is possible. If the missing relationship or definition is not
+established by the source or approved evidence, return `needs-human` rather than inventing it.
 
 ### Argument And Information Flow
 
@@ -137,6 +151,10 @@ Keep captions readable at their actual display size. Do not imply that a curated
   change in the same pull request.
 - A command such as `git diff --check` must not be translated; explain its purpose around it.
 - A compact maintainer note is not automatically too technical. Judge it against the maintainer audience.
+- Equation-like shorthand is not automatically defective in a label, table, or established notation. In explanatory
+  prose, revise it only when it replaces a relationship the audience needs the passage to state.
+- A vivid metaphor is not automatically vague. Keep it when the intended audience can understand the point
+  immediately and no actor, action, relationship, condition, or evidence boundary is hidden behind it.
 - A repeated phrase is not automatically AI-like. Flag it only when it weakens flow, tone, or reader trust.
 
 ## Register, Voice, And Structure

@@ -67,9 +67,25 @@ For a wording, naturalness, or clarity request whose paragraph and section order
 before applying the broader writing guidance below. After respecting any host artifact workflow and building the
 invariant ledger, establish the allowed change surface before drafting:
 
-First decide whether any span has a reader problem that blocks correct understanding or safe use. A more explicit
-or idiomatic alternative, or a possible but non-material reading, is `Neutral`, not a problem. If no span qualifies,
-then for a direct short-text request return only the exact source: no label, code fence, analysis, or change note.
+First decide whether any span has a named reader problem that materially obstructs correct understanding, safe use,
+or the role that passage must perform for its intended audience. A patient reader's ability to infer the intended
+meaning does not by itself make the passage effective. When a passage is responsible for explaining, comparing, or
+instructing, treat it as a problem if the audience must reconstruct a necessary relationship, decode shorthand or a
+metaphor in place of the actual point, search elsewhere for an unexplained term, or separate an observation from a
+causal claim that the prose conflates. A merely more explicit or idiomatic alternative remains `Neutral` when the
+current text already performs its role without requiring that reconstruction. If no span qualifies, then for a
+direct short-text request return only the exact source: no label, code fence, analysis, or change note.
+
+Do not classify a grammar-complete sentence as unfinished merely because the same idea could be smoother or more
+explicit. A conventional modifier whose local reading is clear to the stated audience does not become a missing
+relationship just because it could be moved into a predicate. Active/passive alternation, modifier relocation,
+synonymous expansion, and number-style normalization are `Neutral` unless the original creates a named material
+reader problem.
+
+Do not require the user to identify every defective span or supply examples before applying this gate. For a
+document-wide request, evaluate the whole requested document and mark each span that independently meets the same
+reader-problem test. Treat user examples as evidence for the defect class, not as a mechanical replacement list or
+an implicit limit to those examples. Never expand beyond the document or file scope the user requested.
 
 1. Copy the source and mark only the smallest complete phrase, clause, or sentence that has a named reader problem.
 2. Lock every unmarked span, paragraph boundary, and paragraph position. Do not improve locked text opportunistically.
@@ -77,7 +93,14 @@ then for a direct short-text request return only the exact source: no label, cod
    that span unchanged and report the ambiguity under `Needs Human`. Continue other safe edits.
 4. Replace only the marked spans, then compare the result with the source and revert every out-of-scope delta.
 5. For a direct short-text request, return only the usable text by default. Add a concise `Needs Human` note only
-   when unresolved ambiguity remains or when the user asked for an explanation.
+   when an unresolved choice inside a marked defective span blocks a safe usable result, or when the user asked for
+   an explanation. Do not attach a note for a possible refinement outside the marked span or for information the
+   requested text does not need to perform its stated role.
+
+Resolve ordinary local references by their nearest natural antecedent before declaring ambiguity. Do not create a
+`Needs Human` item merely because a noun could be made more specific. Two readings are materially ambiguous only
+when they would change the reader's action, promise, authority, condition, risk, or claim boundary and the supplied
+source or context does not resolve which applies.
 
 These defaults outrank optional improvements to rhythm, information order, vocabulary, punctuation, or
 specificity. Use structural revise only when the separate strategy gate below passes.
@@ -238,7 +261,8 @@ without changing paragraph shape:
 
 1. Quote the smallest phrase that makes a target reader pause, reread, or guess.
 2. Name the cause: translated syntax, an awkward collocation, stacked nominalizations, mixed-language clutter,
-   an indirect metaphor, or a missing actor, action, timing, or authority boundary.
+   note-like compression in explanatory prose, an indirect metaphor, an unexplained term, a missing logical
+   relationship, an observation presented as causation, or a missing actor, action, timing, or authority boundary.
 3. Rewrite that span with the concrete actor and action, or with the collocation a capable native writer would
    normally choose for this profile.
 4. Check the replacement against the invariant ledger and the author's working voice. A more explicit sentence
@@ -277,6 +301,7 @@ Watch for patterns, not banned words:
 - mechanical symmetry, forced three-part lists, and uniform sentence length,
 - excessive headings or bullets that replace an argument,
 - inflated certainty, vague praise, and defensive provenance wording,
+- note-like shorthand that makes the reader reconstruct the proposition or relationship the passage must explain,
 - technical detail presented before the reader knows why it matters.
 
 After identifying a concrete wording defect in a local request, check whether the sentence uses natural
@@ -293,6 +318,10 @@ If every candidate change is `Neutral`, return the source exactly as provided. D
 split or merge already-clear sentences, change punctuation, or reformat an inline command merely for variety or
 claimed scanability. Reformat only when the existing form materially obstructs the document's purpose or the user
 requested that formatting change.
+
+Before returning a local revision, compare every character outside the marked spans with the source. Any textual,
+punctuation, whitespace, line-break, or formatting delta outside those spans is a failed preservation check and must
+be reverted, even when the alternative is grammatical or stylistically preferable.
 
 For `Compose`, define the reader outcome and choose the smallest document structure that achieves it before
 drafting. Write the useful document immediately rather than emitting generic scaffolding for a later editing pass.

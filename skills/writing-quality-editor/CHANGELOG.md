@@ -11,6 +11,20 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [Unreleased]
+
+- Treat explanatory reader friction as a concrete revision problem when the intended audience must reconstruct a
+  relationship, decode shorthand or metaphor in place of the point, find an unexplained term elsewhere, or separate
+  an observation from unsupported causation.
+- Apply that decision across the requested document without requiring the user to identify every occurrence;
+  supplied examples define a defect class rather than a phrase-level replacement list or edit-scope limit.
+- Preserve the no-edit boundary for established notation, audience-appropriate technical shorthand, labels, and
+  concise prose that already performs its role; a longer or more explicit alternative alone remains `Neutral`.
+- Limit `Needs Human` to material unresolved choices that block a safe usable result, and preserve ordinary local
+  antecedents plus equally natural active/passive, modifier-position, synonym, and number-style alternatives.
+- Add cross-profile English and Korean transfer fixtures, document-wide example-generalization coverage, and
+  no-edit controls without introducing an adopter-specific phrase list or a new document profile.
+
 ## [0.12.0] — 2026-08-22
 
 - Applied the Korean profile to same-language `Revise`, preserving same-audience honorific and formality choices,

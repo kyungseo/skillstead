@@ -50,12 +50,24 @@ leaves the surrounding text unchanged. If a phrase could mean discretion, approv
 leaves that span unchanged under `Needs Human` and continues with other safe edits instead of choosing the most
 fluent interpretation silently. Structural revision remains a separate choice for a named structural problem.
 
+A sentence can create a reader problem even when a patient reader could eventually infer its meaning. When a
+passage is responsible for explaining, comparing, or instructing, the skill repairs shorthand, metaphors, or
+fragments that make the intended audience reconstruct a necessary relationship, term, or evidence boundary. It
+still leaves established notation, audience-appropriate technical shorthand, and already-effective concise prose
+unchanged.
+
+For a document-wide request, the user does not need to point out every occurrence. Examples clarify the kind of
+reader problem to find; they do not limit the review to matching phrases or authorize changes outside the requested
+document.
+
 For a direct short-text request, already-natural source text is returned exactly as supplied, without a label or
 change report. Same-language Korean revision also preserves the source's honorific level and formality for the
 same audience unless the user requests a new register or the source register demonstrably conflicts with that
-audience. It repairs compressed prose only where a material actor, condition, or consequence would otherwise have
-to be guessed, and does not force sentence endings onto headings, list labels, UI labels, code, or other intentional
-fragments.
+audience. Equally natural active/passive endings, modifier positions, synonymous phrases, and number styles are
+not changes by themselves. It repairs compressed prose only where a material actor, condition, or consequence
+would otherwise have to be guessed, and does not force sentence endings onto headings, list labels, UI labels,
+code, or other intentional fragments. `Needs Human` is reserved for unresolved material choices that block a safe
+usable result, not optional specificity improvements.
 
 Both modes keep the author's voice: the warmth, directness, and rhythm the writing carries. A trait changes only
 when you ask for it or where it genuinely conflicts with the intended reader, and then only that trait.
