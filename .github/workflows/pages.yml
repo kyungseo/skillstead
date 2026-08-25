@@ -19,6 +19,10 @@ concurrency:
 
 jobs:
   deploy:
+    # Forks inherit this workflow. Their pushes must not attempt an implicit
+    # Pages deployment; a fork owner can still opt in deliberately by running
+    # the workflow manually after enabling Pages in that repository.
+    if: github.repository == 'kyungseo/skillstead' || github.event_name == 'workflow_dispatch'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

@@ -85,9 +85,10 @@ release의 `published_at`이 null이거나 빈 문자열인 경우 포함), tran
 
 | 파일 | trigger | 목적 |
 | --- | --- | --- |
-| `validate.yml` | PR, `main` push, tag 생성/삭제 | event 기반 검증을 병렬 job으로 실행 — package suite와 validator self-test suite가 경량 검사(M1+gallery+M3+M4+skills-ref) 옆에서 돌고, `validate` aggregate job이 기존 check 이름을 유지. PR에서는 diff가 해당 suite의 입력을 건드릴 때만 무거운 두 suite를 실행(`skills/**` / `tools/**`+`tests/**`; workflow 변경은 둘 다 실행, diff 판독 불가 시 전체 실행). push는 항상 전체 실행. tag event는 명시적 `main` checkout으로 M3+M4 실행, branch 생성/삭제 event는 아무것도 실행하지 않음 |
+| `validate.yml` | PR, `main` push, tag 생성/삭제 | event 기반 검증을 병렬 job으로 실행 — `svg-infographic` regression suite와 validator self-test suite가 경량 검사(M1+gallery+M3+M4+skills-ref) 옆에서 돌고, `validate` aggregate job이 기존 check 이름을 유지. PR에서 SVG suite는 `skills/svg-infographic/**`와 `examples/svg-infographic/**`가 바뀔 때 실행하며, 다른 독립 Skill 변경은 모든 Skill에 적용되는 경량 검사를 유지하되 무관한 SVG suite 비용은 내지 않음. Repository fixture가 SVG script를 직접 실행하므로 SVG input은 validator self-test도 실행함. `tools/**`·`tests/**`는 validator self-test를 실행하고 `.github/**`·diff 판독 불가·모든 push는 양 heavy suite를 실행함. 알 수 없는 scope output은 skip으로 완화하지 않고 aggregate를 실패시킴. tag event는 명시적 `main` checkout으로 M3+M4 실행, branch 생성/삭제 event는 아무것도 실행하지 않음 |
 | `validate-periodic.yml` | 매일 schedule(`17 3 * * *` UTC), 수동 dispatch | event가 발생하지 않는 상태 변화(예: push 밖의 tag repoint)를 잡는 주기적 안전망 |
 | `release.yml` | 수동 dispatch 전용 | M5 wrapper 진입점. dry-run이 기본값이며 checkout이 `main`에 고정되어 있어 dispatch가 미검토 wrapper나 request를 write token으로 실행할 수 없음 |
+| `pages.yml` | `main` push, 수동 dispatch | 제한된 gallery/examples site를 게시함. 자동 배포는 `kyungseo/skillstead`에만 허용되어 fork push에서는 deploy job을 skip함. Fork owner는 수동 dispatch로 opt-in할 수 있지만, 해당 fork에서 GitHub Pages를 활성화하지 않았다면 Pages setup 단계에서 계속 실패함 |
 
 두 검증 workflow는 별도 파일입니다 — 어느 한쪽의 비활성화(저장소 60일 미활동 시 GitHub의
 schedule workflow 자동 비활성화 포함)가 다른 쪽을 침묵시키지 않도록 하기 위해서입니다.

@@ -7,7 +7,10 @@
 # The two heavy suites run as parallel jobs, and on pull_request events they
 # run only when the change set touches their inputs (the `scope` job derives
 # that from the diff, fail-closed to "run everything" when it cannot tell).
-# Push and dispatch runs always run everything, and the daily periodic
+# The SVG suite is package-specific; changing another independent skill does
+# not make that suite relevant. SVG package/example changes also run the
+# validator suite because repository fixtures invoke those scripts directly.
+# Push runs always run everything, and the daily periodic
 # workflow stays full, so a scoping mistake on a PR is caught at the merge
 # push at the latest. The `validate` job aggregates the results under the
 # historical check name.
@@ -31,7 +34,7 @@ jobs:
     if: github.event_name == 'pull_request' || github.event_name == 'push'
     runs-on: ubuntu-latest
     outputs:
-      package: ${{ steps.diff.outputs.package }}
+      svg_infographic: ${{ steps.diff.outputs.svg_infographic }}
       validator: ${{ steps.diff.outputs.validator }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -43,35 +46,25 @@ jobs:
         run: |
           set -u
           run_all() {
-            echo "package=true" >> "$GITHUB_OUTPUT"
+            echo "svg_infographic=true" >> "$GITHUB_OUTPUT"
             echo "validator=true" >> "$GITHUB_OUTPUT"
             exit 0
           }
           if [ "${GITHUB_EVENT_NAME}" != "pull_request" ]; then
             run_all
           fi
-          changed="$(git diff --name-only "origin/${GITHUB_BASE_REF}...HEAD")" || run_all
-          package=false
-          validator=false
-          while IFS= read -r f; do
-            [ -n "$f" ] || continue
-            case "$f" in
-              skills/*|.github/workflows/*) package=true ;;
-            esac
-            case "$f" in
-              tools/*|tests/*|.github/workflows/*) validator=true ;;
-            esac
-          done <<EOF
-          $changed
-          EOF
-          echo "package=$package" >> "$GITHUB_OUTPUT"
-          echo "validator=$validator" >> "$GITHUB_OUTPUT"
+          # --no-renames exposes both sides of a move, so moving a file out of
+          # an SVG input path cannot hide the removed path from classification.
+          changed="$(git -c core.quotePath=off diff --name-only --no-renames "origin/${GITHUB_BASE_REF}...HEAD")" || run_all
+          classified="$(printf '%s\n' "$changed" | \
+            PYTHONPATH=tools python3 -m skillstead_validate.ci_scope)" || run_all
+          printf '%s\n' "$classified" >> "$GITHUB_OUTPUT"
         env:
           GITHUB_BASE_REF: ${{ github.base_ref }}
 
-  package-suite:
+  svg-infographic-suite:
     needs: scope
-    if: needs.scope.outputs.package == 'true'
+    if: needs.scope.outputs.svg_infographic == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -139,7 +132,7 @@ jobs:
   # was supposed to run succeeded, and a skipped heavy suite is acceptable
   # only when `scope` explicitly ruled it out.
   validate:
-    needs: [scope, package-suite, validator-suite, checks]
+    needs: [scope, svg-infographic-suite, validator-suite, checks]
     if: ${{ always() && (github.event_name == 'pull_request' || github.event_name == 'push') }}
     runs-on: ubuntu-latest
     steps:
@@ -151,16 +144,20 @@ jobs:
           [ "${{ needs.checks.result }}" = "success" ] || fail "checks job did not succeed"
           suite_ok() {
             result="$1"; wanted="$2"; name="$3"
-            if [ "$wanted" = "true" ]; then
-              [ "$result" = "success" ] || fail "$name was required but did not succeed"
-            else
-              case "$result" in
-                success|skipped) : ;;
-                *) fail "$name failed" ;;
-              esac
-            fi
+            case "$wanted" in
+              true)
+                [ "$result" = "success" ] || fail "$name was required but did not succeed"
+                ;;
+              false)
+                case "$result" in
+                  success|skipped) : ;;
+                  *) fail "$name failed" ;;
+                esac
+                ;;
+              *) fail "$name has unknown scope decision: ${wanted:-<empty>}" ;;
+            esac
           }
-          suite_ok "${{ needs.package-suite.result }}" "${{ needs.scope.outputs.package }}" "package-suite"
+          suite_ok "${{ needs.svg-infographic-suite.result }}" "${{ needs.scope.outputs.svg_infographic }}" "svg-infographic-suite"
           suite_ok "${{ needs.validator-suite.result }}" "${{ needs.scope.outputs.validator }}" "validator-suite"
           echo "all required jobs green"
 
