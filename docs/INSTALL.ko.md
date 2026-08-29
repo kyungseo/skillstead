@@ -15,6 +15,7 @@ Skillstead의 각 스킬은 폴더 하나로 설치할 수 있는 독립 패키�
 | `docs-claim-check` | `docs-claim-check/v0.9.1` | Claude Code |
 | `github-release-guide` | `github-release-guide/v0.9.0` | Claude Code와 Codex |
 | `writing-quality-editor` | `writing-quality-editor/v0.13.0` | Claude Code와 Codex |
+| `street-portrait-artist` | `street-portrait-artist/v0.1.0` | Validation pending |
 
 아래 명령은 `github-release-guide`를 설치하는 예시입니다. 다른 스킬을 설치하려면
 `github-release-guide/v0.9.0`과 `github-release-guide`를 같은 행에 있는 값으로 함께 바꾸세요.
@@ -63,6 +64,7 @@ cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 | `docs-claim-check` | Supported | Not yet claimed | Claude Code Fable과 Sonnet에서 동작 검증 자료를 통과했습니다 |
 | `github-release-guide` | Supported | Supported | 보호 설정 검증 자료를 포함한 핵심 행동 일치 검증, 일회용 first-public과 Guided tag-ruleset 실제 E2E, 고정 `v0.5.0`/`v0.6.0` 프로젝트 설치·발견, 릴리스 주장 검토를 통과했습니다 |
 | `writing-quality-editor` | Supported | Supported | 4개 mode, 21개 시나리오의 실행 환경 간 동작 검증, 저장소 문서 적용, 고정 `v0.7.0` 프로젝트 설치, 패키지 일치, 발견과 최종 주장 검토를 통과했습니다 |
+| `street-portrait-artist` | Not yet claimed | Not yet claimed | package와 공개 가능한 합성 gallery는 release-ready이지만 새 tagged install·discovery·invocation·reference-image·fallback·output-delivery evidence는 아직 없습니다 |
 
 위 근거는 각 지원 표시를 확정할 때 기록한 검사 내용을 설명합니다. 과거 근거에 적힌 시나리오 수는
 현재 검증 자료의 개수와 다를 수 있습니다. 일반적인 용도에서는 사용하는 실행 환경 열이
@@ -187,6 +189,10 @@ github-release-guide/
 `writing-quality-editor`에도 같은 전체 폴더 규칙이 적용됩니다. 패키지에는 `CHANGELOG.md`,
 `LICENSE.txt`, `SKILL.md`, 영문·한국어 README, `agents/openai.yaml`, 참고 파일 3개가 들어 있습니다.
 저장소 전용 검증 자료는 `examples/writing-quality-editor/`에 남습니다.
+
+`street-portrait-artist`에도 같은 전체 폴더 규칙이 적용됩니다. 패키지에는 `CHANGELOG.md`, `LICENSE.txt`,
+`SKILL.md`, 영문·한국어 README, `agents/openai.yaml`, 참고 파일 4개가 들어 있습니다. 합성 gallery와 저장소
+전용 behavior fixture는 `examples/street-portrait-artist/`에 남습니다.
 
 ## 삭제된 파일을 남기지 않고 업데이트하기
 
