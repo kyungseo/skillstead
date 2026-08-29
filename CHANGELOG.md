@@ -10,6 +10,8 @@ Repository-level changes since the last dated entry.
 
 ### Repository
 
+- **Locale-matched catalog links.** Skill names in the Korean catalog now open each package's Korean README directly;
+  the catalog validator accepts folder links or explicit README links only when the target matches the catalog locale.
 - **Street Artist public package.** Added the self-contained `street-portrait-artist` package, bilingual guides,
   public-safe synthetic Twin Portrait gallery, and repository-only behavior fixtures without publishing private
   portrait inputs or outputs.
@@ -33,7 +35,7 @@ Repository-level changes since the last dated entry.
 ### Skills
 
 - `street-portrait-artist` `0.1.0` — one shared Impression Map for a relationship-driven, near-monochrome Street
-  Caricature or a lyrical Romance Watercolor portrait from permitted references. Maturity is Experimental; ChatGPT
+  Caricature or a lyrical Romance Watercolor portrait from supplied references. Maturity is Experimental; ChatGPT
   and Codex runtime support remain `Validation pending`.
 
 ## 2026-08-25

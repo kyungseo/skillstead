@@ -2,7 +2,7 @@
 
 **English** · [한국어](./README.ko.md)
 
-Practical, portable skills for agentic work — interpret permitted portraits, create clearer artifacts, check public
+Practical, portable skills for agentic work — interpret portraits, create clearer artifacts, check public
 claims, guide safer GitHub releases, and turn rough or translated text into natural, precise writing.
 
 > [!TIP]
@@ -40,7 +40,7 @@ Each skill installs and works independently. When a project needs a wider path, 
 `writing-quality-editor` for clear prose, `svg-infographic` for visual explanation, `docs-claim-check` for
 evidence-bounded public claims, and `github-release-guide` for approval-gated release decisions. This is not a
 required pipeline: start with the skill you need, skip the others, and recheck an earlier artifact when it changes.
-`street-portrait-artist` is a separate creative workflow for character portraits from permitted references; it does
+`street-portrait-artist` is a separate creative workflow for character portraits from supplied references; it does
 not need to participate in that release path.
 
 ## Choose a skill
@@ -51,7 +51,7 @@ not need to participate in that release path.
 | [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | `0.9.1` | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | `0.9.0` | Supported: Claude Code + Codex | Stable |
 | [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | `0.13.0` | Supported: Claude Code + Codex | Beta |
-| [`street-portrait-artist`](./skills/street-portrait-artist) | Turning permitted portrait references into a relationship-driven Street Caricature or Romance Watercolor character portrait | `0.1.0` | Validation pending: ChatGPT + Codex | Experimental |
+| [`street-portrait-artist`](./skills/street-portrait-artist) | Turning portrait references into a relationship-driven Street Caricature or Romance Watercolor character portrait | `0.1.0` | Validation pending: ChatGPT + Codex | Experimental |
 
 Each skill is self-contained and can be installed independently. You do not need to install the entire
 catalog—copy only the complete folder for the skill you want to use. See
@@ -156,13 +156,13 @@ does not invent claims or hide ambiguity. AI-detector gaming and provenance conc
 anchor—before drawing. It offers two interpretations from the same identity grammar: a kind, near-monochrome
 `Street Caricature` and a lyrical pen-and-watercolor `Romance Watercolor` portrait.
 
-Use it with portraits you own or have permission to use. Supplied portraits, analysis, and outputs remain task-scoped
-unless separate publication permission is given.
+Provide one or more clear portrait references. Supplied portraits, analysis, and outputs remain task-scoped unless the
+user separately asks to publish or retain them.
 
 - Friendly guide: [`street-portrait-artist` README](./skills/street-portrait-artist/README.md)
 - Public-safe gallery: [two synthetic Twin Portrait examples](./examples/street-portrait-artist)
 - Name the skill: `Use street-portrait-artist to make a kind Street Caricature from my attached portrait.`
-- Or ask naturally: `Turn this permitted portrait into a delicate pen-and-watercolor character portrait. Keep the jaw, hairline, and expression recognizable.`
+- Or ask naturally: `Turn this portrait into a delicate pen-and-watercolor character portrait. Keep the jaw, hairline, and expression recognizable.`
 
 ## Playbooks (maintainer reference)
 

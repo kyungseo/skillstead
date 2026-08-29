@@ -32,7 +32,7 @@ the second image must not silently redefine the person to match the first.
 
 ## Start Here
 
-Supply a clear portrait that you own or have permission to use. Name a mode or describe the result. If no mode is given,
+Supply one or more clear portrait references. Name a mode or describe the result. If no mode is given,
 the skill discloses and uses `Street Caricature` as the default.
 
 ```text
@@ -62,7 +62,7 @@ named living artist, studio, brand, or existing artwork.
 
 For text-heavy posters and infographics, this skill may create only the portrait layer; the host artifact workflow owns
 layout, typography, file placement, and publication. A supplied portrait, Impression Map, or output remains task-scoped
-and is not reusable as a public example or persistent character profile without separate permission.
+and is not reused as a public example or persistent character profile by default.
 
 The workflow does not guarantee likeness, deterministic regeneration, identical output across products, human
 authorship, or an exact export that the current surface cannot perform and verify.

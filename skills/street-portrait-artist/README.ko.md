@@ -30,7 +30,7 @@
 
 ## 시작하기
 
-본인이 소유했거나 초상 사용 권한이 있는 선명한 사진을 제공하고 mode 또는 원하는 결과를 설명합니다. mode를
+한 장 이상의 선명한 인물 사진을 제공하고 mode 또는 원하는 결과를 설명합니다. mode를
 지정하지 않으면 `Street Caricature`를 기본값으로 사용한다고 먼저 밝힙니다.
 
 ```text
@@ -59,7 +59,7 @@ graffiti, mural, 복원, 채색, face swap, 미화, 연령 변환, photorealisti
 
 텍스트가 많은 poster나 infographic에서는 이 skill이 portrait layer만 만들 수 있으며, layout·typography·file
 placement·publication은 host artifact workflow가 소유합니다. 제공한 사진·Impression Map·결과물은 해당 작업에만
-사용하며, 별도 허가 없이 public example이나 영구적인 character profile로 재사용하지 않습니다.
+사용하며, 기본적으로 public example이나 영구적인 character profile로 재사용하지 않습니다.
 
 얼굴 유사성, deterministic regeneration, 제품 간 동일한 결과, 사람의 직접 창작 또는 현재 surface가 생성·검증할 수
 없는 exact export를 보장하지 않습니다.
