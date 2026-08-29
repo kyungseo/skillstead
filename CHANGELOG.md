@@ -10,6 +10,9 @@ Repository-level changes since the last dated entry.
 
 ### Repository
 
+- **Street Artist public package.** Added the self-contained `street-portrait-artist` package, bilingual guides,
+  public-safe synthetic Twin Portrait gallery, and repository-only behavior fixtures without publishing private
+  portrait inputs or outputs.
 - **Skill-scoped pull-request validation.** Independent Skill changes keep the fast repository-wide checks without
   paying for the unrelated `svg-infographic` regression suite. SVG package and example inputs run both the SVG and
   validator suites; workflow, classifier and unclassifiable-path changes fail closed to both.
@@ -18,11 +21,20 @@ Repository-level changes since the last dated entry.
 
 ### Verification
 
+- **Bounded portrait evidence.** The synthetic gallery documents the intended two-mode visual direction and exact
+  `1080 x 1350 px` files. Fresh tagged installation and ChatGPT/Codex runtime evidence remain pending and are not
+  promoted into support claims.
 - **Hosted routing evidence.** PR #82 ran both heavy suites and the stable `validate` aggregate successfully. A
   disposable WQE-only PR #83 then confirmed that both unrelated heavy suites skip while the shared checks and stable
   aggregate remain green; it was closed without merge. The merge-push full validation and canonical Pages deployment
   also passed. A live fork-push run remained unavailable because no maintainer-controlled fork existed, so the fork
   boundary remains backed by the focused workflow contract and documented manual-dispatch prerequisite.
+
+### Skills
+
+- `street-portrait-artist` `0.1.0` — one shared Impression Map for a relationship-driven, near-monochrome Street
+  Caricature or a lyrical Romance Watercolor portrait from permitted references. Maturity is Experimental; ChatGPT
+  and Codex runtime support remain `Validation pending`.
 
 ## 2026-08-25
 

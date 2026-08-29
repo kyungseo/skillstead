@@ -2,8 +2,8 @@
 
 **English** · [한국어](./README.ko.md)
 
-Practical, portable skills for agentic coding workflows — create clearer artifacts, check public claims,
-guide safer GitHub releases, and turn rough or translated text into natural, precise writing.
+Practical, portable skills for agentic work — interpret permitted portraits, create clearer artifacts, check public
+claims, guide safer GitHub releases, and turn rough or translated text into natural, precise writing.
 
 > [!TIP]
 > **Skillstead = skill + homestead.** A small, durable place for skills that coding agents can carry into
@@ -40,6 +40,8 @@ Each skill installs and works independently. When a project needs a wider path, 
 `writing-quality-editor` for clear prose, `svg-infographic` for visual explanation, `docs-claim-check` for
 evidence-bounded public claims, and `github-release-guide` for approval-gated release decisions. This is not a
 required pipeline: start with the skill you need, skip the others, and recheck an earlier artifact when it changes.
+`street-portrait-artist` is a separate creative workflow for character portraits from permitted references; it does
+not need to participate in that release path.
 
 ## Choose a skill
 
@@ -49,6 +51,7 @@ required pipeline: start with the skill you need, skip the others, and recheck a
 | [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | `0.9.1` | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | `0.9.0` | Supported: Claude Code + Codex | Stable |
 | [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | `0.13.0` | Supported: Claude Code + Codex | Beta |
+| [`street-portrait-artist`](./skills/street-portrait-artist) | Turning permitted portrait references into a relationship-driven Street Caricature or Romance Watercolor character portrait | `0.1.0` | Validation pending: ChatGPT + Codex | Experimental |
 
 Each skill is self-contained and can be installed independently. You do not need to install the entire
 catalog—copy only the complete folder for the skill you want to use. See
@@ -147,6 +150,20 @@ does not invent claims or hide ambiguity. AI-detector gaming and provenance conc
 - Or ask naturally: `Review this README. Do not revise the prose yet.` · `Write a new README using only information supported by the material below.` · `Rewrite this English release note so it reads naturally to Korean readers. Preserve its meaning and conditions.`
 - Specify a mode only when needed: `Use writing-quality-editor in Assess mode to review this release note. Do not draft revisions.`
 
+### street-portrait-artist
+
+`street-portrait-artist` analyzes visible relationships—head frame, feature spacing, expression, and one primary
+anchor—before drawing. It offers two interpretations from the same identity grammar: a kind, near-monochrome
+`Street Caricature` and a lyrical pen-and-watercolor `Romance Watercolor` portrait.
+
+Use it with portraits you own or have permission to use. Supplied portraits, analysis, and outputs remain task-scoped
+unless separate publication permission is given.
+
+- Friendly guide: [`street-portrait-artist` README](./skills/street-portrait-artist/README.md)
+- Public-safe gallery: [two synthetic Twin Portrait examples](./examples/street-portrait-artist)
+- Name the skill: `Use street-portrait-artist to make a kind Street Caricature from my attached portrait.`
+- Or ask naturally: `Turn this permitted portrait into a delicate pen-and-watercolor character portrait. Keep the jaw, hairline, and expression recognizable.`
+
 ## Playbooks (maintainer reference)
 
 [`playbooks/public-release`](./playbooks/public-release/README.md) contains the canonical public-release playbook:
@@ -188,6 +205,10 @@ live E2E, pinned `v0.5.0` project installation and discovery smoke, and the fina
 skill discovery from the published `v0.7.0` tag. It is `Supported` for Claude Code and Codex within that recorded
 evidence scope; maturity remains Beta.
 
+`street-portrait-artist` has two public-safe synthetic Twin Portrait cases that document its intended visual direction
+and privacy boundary. They do not establish fresh installation, skill discovery, invocation, likeness quality, or
+product runtime support. ChatGPT and Codex remain `Validation pending` for 0.1.0.
+
 ## Current limitations
 
 - `svg-infographic` browser rendering is verified on macOS and in the recorded Windows 11 ARM64 VM.
@@ -199,6 +220,8 @@ evidence scope; maturity remains Beta.
   it does not prove that the repository being assessed has no secrets, private information, or security risks.
 - `writing-quality-editor` is designed as locale-neutral, but its initial localization fixtures cover only
   English↔Korean (`ko-KR` for Korean output). Other locale pairs are not yet claimed as behaviorally validated.
+- `street-portrait-artist` likeness and image quality remain non-deterministic, exact pixel export depends on the
+  active image surface, and final artwork requires human review. ChatGPT and Codex runtime support are not yet claimed.
 - Agent output is non-deterministic. `writing-quality-editor` defaults to local-first edits and holds ambiguous
   wording for review, but it cannot guarantee that every run avoids preference-driven changes outside the marked
   spans. Review the final delta before publishing or relying on an important document.

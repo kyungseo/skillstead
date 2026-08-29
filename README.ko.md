@@ -2,8 +2,9 @@
 
 [English](./README.md) · **한국어**
 
-코딩 에이전트와 함께 쓸 수 있는 실용적인 스킬을 모았습니다. 기술 다이어그램 제작, 공개 문서의 주장
-검증, GitHub 릴리스 준비, 자연스럽고 정확한 글쓰기에 필요한 스킬을 골라 설치할 수 있습니다.
+에이전트와 함께 쓸 수 있는 실용적인 스킬을 모았습니다. 사용 권한이 있는 사진의 캐릭터 초상화, 기술
+다이어그램 제작, 공개 문서의 주장 검증, GitHub 릴리스 준비와 자연스럽고 정확한 글쓰기에 필요한 스킬을
+골라 설치할 수 있습니다.
 
 > [!TIP]
 > **Skillstead = skill + homestead.** 코딩 에이전트가 실제 저장소에서 사용할 수 있는 스킬을 모아 두는
@@ -41,7 +42,8 @@
 글을 작성하고 다듬고, `svg-infographic`으로 구조를 시각화하고, `docs-claim-check`로 공개할 주장을
 근거에 대조하고, `github-release-guide`로 승인이 필요한 릴리스 결정을 진행할 수 있습니다. 반드시 이
 순서대로 모두 사용해야 하는 것은 아닙니다. 필요한 스킬부터 사용하고, 산출물이 바뀌면 앞 단계의 결과를
-다시 확인하면 됩니다.
+다시 확인하면 됩니다. `street-portrait-artist`는 사용 권한이 있는 사진을 캐릭터 초상화로 만드는 별도의
+창작 workflow이며, 이 릴리스 흐름에 참여할 필요가 없습니다.
 
 ## 필요한 스킬을 선택하세요
 
@@ -51,6 +53,7 @@
 | [`docs-claim-check`](./skills/docs-claim-check) | 공개 문서의 주장이 제공된 근거로 뒷받침되는지 확인 | `0.9.1` | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide) | 비공개 GitHub 저장소의 첫 공개 전환 또는 공개 후 매 버전 릴리스를 점검하고 단계별로 안내 | `0.9.0` | Supported: Claude Code + Codex | Stable |
 | [`writing-quality-editor`](./skills/writing-quality-editor) | 사용자 문서를 처음부터 작성하거나 자연스럽게 다듬고, 사실·의도·목소리·운영 제약을 보존하면서 영어↔한국어 내용을 재구성 | `0.13.0` | Supported: Claude Code + Codex | Beta |
+| [`street-portrait-artist`](./skills/street-portrait-artist) | 사용 권한이 있는 인물 사진을 특징 관계에 기반한 Street Caricature 또는 Romance Watercolor 캐릭터 초상화로 재해석 | `0.1.0` | Validation pending: ChatGPT + Codex | Experimental |
 
 각 스킬은 필요한 파일을 모두 갖춘 독립 패키지입니다. 전체 목록을 설치할 필요 없이, 사용할 스킬의
 폴더만 통째로 복사하면 됩니다. 개인용·프로젝트용 설치 경로, 고정 버전 설치, 깨끗한 업데이트 방법,
@@ -150,6 +153,20 @@ release-critical blocker를 해소한 뒤 전환을 명시적으로 선택했을
 - 자연스럽게 요청하는 예시: `이 README를 검토해 줘. 아직 문장은 수정하지 마.` · `아래 자료에서 확인할 수 있는 내용만 바탕으로 새 README를 작성해 줘.` · `이 영어 릴리스 노트를 한국어 독자가 자연스럽게 읽을 수 있도록 다시 써 줘. 의미와 조건은 바꾸지 마.`
 - 필요할 때만 mode를 지정하는 예시: `writing-quality-editor를 Assess mode로 사용해 이 릴리스 노트를 검토해 줘. 수정안은 작성하지 마.`
 
+### street-portrait-artist
+
+`street-portrait-artist`는 head frame, 이목구비 간격, 표정과 하나의 primary anchor처럼 눈에 보이는 관계를
+먼저 분석한 뒤 그립니다. 같은 identity grammar에서 다정하고 거의 무채색인 `Street Caricature`와 서정적인
+pen-and-watercolor `Romance Watercolor`라는 두 가지 해석을 만듭니다.
+
+본인이 소유했거나 초상 사용 권한이 있는 사진에 사용합니다. 별도의 게시 허가가 없다면 제공한 사진·분석·결과를
+해당 작업 안에서만 사용합니다.
+
+- 자세한 안내: [`street-portrait-artist` 한국어 README](./skills/street-portrait-artist/README.ko.md)
+- 공개 가능한 gallery: [합성 원본으로 만든 Twin Portrait 예시 두 쌍](./examples/street-portrait-artist/README.ko.md)
+- 스킬 이름을 쓰는 예시: `street-portrait-artist를 사용해 첨부한 사진을 다정한 Street Caricature로 만들어 줘.`
+- 자연스럽게 요청하는 예시: `사용 권한이 있는 이 사진을 섬세한 펜과 수채화 캐릭터 초상화로 바꿔 줘. 턱선, 헤어라인과 표정은 알아볼 수 있게 유지해 줘.`
+
 ## Playbook 모음 (유지관리자 참고 자료)
 
 [`playbooks/public-release`](./playbooks/public-release/README.ko.md)에는 비공개 저장소를 공개로 전환하고 이후를
@@ -191,6 +208,10 @@ E2E, `v0.5.0` 고정 버전의 프로젝트 설치와 발견 확인과 최종 �
 고정 버전의 새 프로젝트 설치와 스킬 발견 확인을 통과했습니다. 기록된 검증 범위에서 Claude Code와
 Codex를 `Supported`로 표시하며, 성숙도는 Beta로 유지합니다.
 
+`street-portrait-artist`는 공개 가능한 합성 원본으로 만든 `Twin Portrait` 두 사례를 통해 의도한 visual
+direction과 privacy boundary를 기록했습니다. 이 사례는 새 설치·skill discovery·호출·likeness 품질 또는 제품별
+runtime 지원을 입증하지 않습니다. 0.1.0의 ChatGPT와 Codex 상태는 `Validation pending`입니다.
+
 ## 현재 제한
 
 - `svg-infographic`의 브라우저 렌더링은 macOS와 Windows 11 ARM64 VM에서 검증했습니다. 이 결과를
@@ -203,6 +224,9 @@ Codex를 `Supported`로 표시하며, 성숙도는 Beta로 유지합니다.
   뿐입니다. 점검 대상 저장소에 민감 정보나 보안 위험이 전혀 없다는 보장은 아닙니다.
 - `writing-quality-editor`는 특정 언어에 고정되지 않도록 설계했지만, 초기 현지화 검증 자료는
   영어↔한국어(한국어 결과는 `ko-KR`)만 다룹니다. 다른 언어 조합까지 실제 동작을 검증했다고 주장하지
+  않습니다.
+- `street-portrait-artist`의 likeness와 이미지 품질은 실행마다 달라질 수 있고 exact pixel export는 사용 중인
+  image surface에 의존하므로 최종 작품을 사람이 검토해야 합니다. ChatGPT와 Codex runtime 지원은 아직 주장하지
   않습니다.
 - 에이전트의 결과는 실행마다 달라질 수 있습니다. `writing-quality-editor`는 구조를 유지하는 국소 편집과
   모호한 표현의 판단 보류를 기본값으로 삼지만, 모든 실행에서 표시하지 않은 구간까지 바뀌는 일이 전혀

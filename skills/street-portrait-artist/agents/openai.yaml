@@ -1,0 +1,4 @@
+interface:
+  display_name: "Street Artist"
+  short_description: "Turn a face into two authored portrait interpretations"
+  default_prompt: "Use $street-portrait-artist to analyze this portrait and create a social-feed Street Caricature with a concise Artist's Note."
