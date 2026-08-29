@@ -93,6 +93,121 @@ def _entry_section(changelog_text: str, version: str) -> str | None:
     return "\n".join(lines[start:end])
 
 
+def _initial_release_history_findings(
+        repo: Path, target: str, skill: str, proposed_version: str,
+        positions: dict[str, int]) -> list[Finding]:
+    """Prove atomic introduction while allowing continuous pre-tag amendments.
+
+    The package and both catalog rows must first appear together on main's
+    first-parent history. Later commits may amend the unreleased package, but
+    none of the three release surfaces may disappear or leave the proposed
+    version before the tag target.
+    """
+    findings: list[Finding] = []
+    package_path = f"skills/{skill}"
+    try:
+        package_history = git(
+            repo, "log", "--first-parent", "--reverse", "--format=%H",
+            target, "--", package_path).split()
+    except GitError as error:
+        return [Finding(
+            "GIT", skill,
+            f"initial-release package history unobservable (fail-closed): {error}")]
+    if not package_history:
+        return [Finding(
+            "D3-3", skill,
+            "package introduction commit is unobservable (fail-closed)")]
+
+    intro = package_history[0]
+    intro_idx = positions.get(intro)
+    target_idx = positions[target]
+    if intro_idx is None or intro_idx < target_idx:
+        return [Finding(
+            "D3-3", skill,
+            "package introduction is not on the target's main first-parent history")]
+
+    def state_at(commit: str) -> tuple[bool, dict[str, str | None]] | None:
+        try:
+            package_present = skill in dirs_at(repo, commit, "skills")
+        except GitError as error:
+            findings.append(Finding(
+                "GIT", skill,
+                f"initial-release inventory at {commit[:12]} unobservable "
+                f"(fail-closed): {error}"))
+            return None
+        versions: dict[str, str | None] = {}
+        for fname, header in (("README.md", EN_HEADER),
+                              ("README.ko.md", KO_HEADER)):
+            text = file_at(repo, commit, fname)
+            if text is None:
+                findings.append(Finding(
+                    "D3-3", skill,
+                    f"{fname} absent at {commit[:12]}; initial-release history "
+                    "is unprovable (fail-closed)"))
+                return None
+            try:
+                versions[fname] = catalog_versions(text, header).get(skill)
+            except CatalogError as error:
+                findings.append(Finding(
+                    "D3-3", skill,
+                    f"{fname} catalog at {commit[:12]} unreadable; "
+                    f"initial-release history unprovable (fail-closed): {error}"))
+                return None
+        return package_present, versions
+
+    intro_state = state_at(intro)
+    if intro_state is not None:
+        package_present, versions = intro_state
+        if (not package_present
+                or any(value != proposed_version for value in versions.values())):
+            findings.append(Finding(
+                "D3-3", skill,
+                "initial release must introduce the package and both catalog "
+                f"rows at version {proposed_version} in one commit"))
+
+    ordered = sorted(positions, key=positions.__getitem__)
+    intro_parent = ordered[intro_idx + 1] if intro_idx + 1 < len(ordered) else None
+    if intro_parent is not None:
+        parent_state = state_at(intro_parent)
+        if parent_state is not None:
+            package_present, versions = parent_state
+            if package_present or any(value is not None for value in versions.values()):
+                findings.append(Finding(
+                    "D3-3", skill,
+                    "package or catalog row existed before the atomic "
+                    "initial-release introduction commit"))
+
+    try:
+        changed_commits = git(
+            repo, "log", "--first-parent", "--format=%H", target, "--",
+            package_path, "README.md", "README.ko.md").split()
+    except GitError as error:
+        findings.append(Finding(
+            "GIT", skill,
+            f"pre-tag amendment history unobservable (fail-closed): {error}"))
+        return findings
+
+    checkpoints = {target, intro}
+    checkpoints.update(
+        commit for commit in changed_commits
+        if commit in positions and target_idx <= positions[commit] <= intro_idx)
+    for commit in sorted(checkpoints, key=positions.__getitem__, reverse=True):
+        if commit == intro:
+            continue
+        state = state_at(commit)
+        if state is None:
+            continue
+        package_present, versions = state
+        if (not package_present
+                or any(value != proposed_version for value in versions.values())):
+            findings.append(Finding(
+                "D3-3", skill,
+                "initial-release surfaces were not continuously present at "
+                f"version {proposed_version} through pre-tag amendment "
+                f"commit {commit[:12]}"))
+    return findings
+
+
 def _retired_row(skill: str, last_release_ref: str | None) -> str:
     release = last_release_ref or "unreleased"
     path = retirement_path(skill)
@@ -440,7 +555,9 @@ def preflight(repo: Path, plan: ReleasePlan, main_ref: str = "main") -> list[Fin
                 if not _ADJUSTMENT_LINE.search(section):
                     findings.append(Finding("I-6", e.skill, f"step {step} != path default {default} and CHANGELOG entry has no standalone non-empty '{ADJUSTMENT_MARKER}' reason line"))
         else:
-            # New-skill initial release (all artifacts land in one commit).
+            # New-skill initial release. The release surfaces are introduced
+            # atomically, then may receive continuous amendments before the
+            # first tag is bound to the reviewed target.
             if e.proposed_version != "0.1.0":
                 findings.append(Finding("D3-3", e.skill, f"initial release must be 0.1.0, got {e.proposed_version}"))
             license_ok = False
@@ -464,30 +581,12 @@ def preflight(repo: Path, plan: ReleasePlan, main_ref: str = "main") -> list[Fin
                     findings.append(Finding("I-7", e.skill, f"{fname}: {err}"))
                     continue
                 if table.get(e.skill) != e.proposed_version:
-                    findings.append(Finding("I-7", e.skill, f"{fname} catalog row missing or version != {e.proposed_version} (initial release must add it in the same commit)"))
-            # §D3-3 ⓒ~ⓔ land in ONE commit: neither the package nor a catalog
-            # row may predate the target commit (MR1-F3).
-            if target_parent is not None:
-                try:
-                    parent_dirs = dirs_at(repo, target_parent, "skills")
-                except GitError as err:
-                    findings.append(Finding("GIT", e.skill, f"parent inventory unobservable (fail-closed): {err}"))
-                    parent_dirs = set()
-                if e.skill in parent_dirs:
-                    findings.append(Finding("D3-3", e.skill, "package existed before the target commit — initial release must introduce ⓒ~ⓔ in one commit"))
-                for fname, header in (("README.md", EN_HEADER), ("README.ko.md", KO_HEADER)):
-                    parent_text = file_at(repo, target_parent, fname)
-                    if parent_text is None:
-                        continue
-                    try:
-                        parent_table = catalog_versions(parent_text, header)
-                    except CatalogError as err:
-                        # Unobservable parent state cannot prove the
-                        # same-commit condition (fail-closed — MR1R-F3).
-                        findings.append(Finding("D3-3", e.skill, f"parent {fname} catalog unreadable, same-commit introduction unprovable (fail-closed): {err}"))
-                        continue
-                    if e.skill in parent_table:
-                        findings.append(Finding("D3-3", e.skill, f"{fname} catalog row existed before the target commit"))
+                    findings.append(Finding(
+                        "I-7", e.skill,
+                        f"{fname} catalog row missing or version != "
+                        f"{e.proposed_version} at the tag target"))
+            findings.extend(_initial_release_history_findings(
+                repo, target, e.skill, e.proposed_version, positions))
 
     # I-10: inventory reduction requires a target-bound retirement record and
     # the complete target-tree removal predicate.

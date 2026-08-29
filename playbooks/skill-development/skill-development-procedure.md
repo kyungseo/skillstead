@@ -91,6 +91,10 @@ During the merge-to-tag window, do not suppress a temporary red result. Re-run o
 after the actual merge target and remote refs are observable. Unexpected codes or partial refs require an owner
 decision.
 
+For a new skill, introduce the package and both catalog rows together in one `main` first-parent commit. Review
+fixes may follow before the first tag, provided all three release surfaces remain continuously present at `0.1.0`
+and the final tag target passes M1. A split introduction or remove-and-re-add sequence is not a supported shortcut.
+
 The publish step itself needs no such judgement. The release wrapper already retries its own post-publish read
 when — and only when — that observation contradicts itself, within a bounded budget it reports. A red the
 wrapper returns has therefore already survived that retry, so read it as a real finding rather than a timing

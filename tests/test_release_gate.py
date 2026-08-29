@@ -107,6 +107,8 @@ def _add_unreleased_gamma(repo: Path) -> None:
     (pkg / "SKILL.md").write_text(
         "---\n"
         "name: gamma-skill\n"
+        "description: >\n"
+        "  Fixture skill package used by validator tests.\n"
         "license: LICENSE.txt\n"
         "metadata:\n"
         "  version: 0.1.0\n"
@@ -131,6 +133,7 @@ def _add_unreleased_gamma(repo: Path) -> None:
                 "Fixture | `0.1.0` | Claude Code | Beta |",
                 1),
             encoding="utf-8")
+    record_root_release(repo, "gamma-skill", "0.1.0")
     commit_all(repo, "add unreleased gamma-skill")
 
 
@@ -354,6 +357,62 @@ class ReleaseGateFixtures(unittest.TestCase):
             (self.repo / "LICENSE").read_text(encoding="utf-8"), encoding="utf-8")
         commit_all(self.repo, "add gamma without catalog rows")
         self.assertIn("I-7", self._preflight([entry("gamma-skill", None, "0.1.0")]))
+
+    def test_new_skill_allows_continuous_pre_tag_amendments(self) -> None:
+        _add_unreleased_gamma(self.repo)
+        skill_md = self.repo / "skills/gamma-skill/SKILL.md"
+        skill_md.write_text(
+            skill_md.read_text(encoding="utf-8")
+            + "\nReviewed wording amendment.\n",
+            encoding="utf-8")
+        for fname in ("README.md", "README.ko.md"):
+            readme = self.repo / fname
+            readme.write_text(
+                readme.read_text(encoding="utf-8").replace(
+                    "| [`gamma-skill`](./skills/gamma-skill) | Fixture |",
+                    "| [`gamma-skill`](./skills/gamma-skill) | Reviewed fixture |"),
+                encoding="utf-8")
+        commit_all(self.repo, "amend unreleased gamma package and catalogs")
+        self.assertEqual(
+            self._preflight([entry("gamma-skill", None, "0.1.0")]), set())
+
+    def test_new_skill_rejects_package_gap_before_first_tag(self) -> None:
+        import shutil
+
+        _add_unreleased_gamma(self.repo)
+        pkg = self.repo / "skills/gamma-skill"
+        saved = {
+            path.name: path.read_text(encoding="utf-8")
+            for path in pkg.iterdir()
+        }
+        shutil.rmtree(pkg)
+        commit_all(self.repo, "temporarily remove unreleased gamma package")
+        pkg.mkdir()
+        for name, content in saved.items():
+            (pkg / name).write_text(content, encoding="utf-8")
+        commit_all(self.repo, "restore unreleased gamma package")
+        self.assertIn(
+            "D3-3",
+            self._preflight([entry("gamma-skill", None, "0.1.0")]))
+
+    def test_new_skill_rejects_catalog_gap_before_first_tag(self) -> None:
+        _add_unreleased_gamma(self.repo)
+        originals = {}
+        for fname in ("README.md", "README.ko.md"):
+            readme = self.repo / fname
+            originals[fname] = readme.read_text(encoding="utf-8")
+            readme.write_text(
+                "\n".join(
+                    line for line in originals[fname].splitlines()
+                    if "gamma-skill" not in line) + "\n",
+                encoding="utf-8")
+        commit_all(self.repo, "temporarily remove unreleased gamma catalog rows")
+        for fname, content in originals.items():
+            (self.repo / fname).write_text(content, encoding="utf-8")
+        commit_all(self.repo, "restore unreleased gamma catalog rows")
+        self.assertIn(
+            "D3-3",
+            self._preflight([entry("gamma-skill", None, "0.1.0")]))
 
     # apply-tags: preflight 위반 시 거부, green이면 계획된 tag를 생성
     def test_apply_tags_refuses_on_findings(self) -> None:

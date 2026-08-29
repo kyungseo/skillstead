@@ -120,8 +120,11 @@ I-4 finding입니다. payload는 정확히 두 개의 bookkeeping 산출물(`met
 bump 단계는 major transition 분기가 적용되는 경우를 제외하면 경로 기본값과 일치해야 합니다.
 한 단계 major transition에는 아래의 정확한 추적 승인 record가 필요하고, inventory 감소에는 아래의
 정확한 retirement record와 전체 제거 predicate가 필요합니다. 신규 skill의 최초 릴리스는 package와
-양쪽 카탈로그 행을 target commit에서 함께 도입해야 하고, 기존 tag와 SemVer precedence가 같은
-버전(`+build` alias 포함)은 만들 수 없습니다.
+양쪽 카탈로그 행을 하나의 `main` first-parent commit에서 함께 도입해야 합니다. Review 보정을 첫
+릴리스 전에 반영할 수 있도록 이 도입 commit이 tag target보다 앞서는 것은 허용하지만, package와
+양쪽 행은 제안 버전으로 target까지 끊김 없이 유지되어야 하고 target은 여전히 전체 M1을 통과해야
+합니다. 분리 도입, 제거 후 재추가, 연속성을 읽을 수 없는 상태는 fail-closed입니다. 기존 tag와
+SemVer precedence가 같은 버전(`+build` alias 포함)은 만들 수 없습니다.
 
 일회성 baseline 분기는 target에 canonical prepared cutover record가 있을 때만 활성화됩니다. Plan은
 record의 `baseline_tags` 네 항목과 순서까지 같아야 하고, 모든 항목은 `previous_ref: null`과 버전
