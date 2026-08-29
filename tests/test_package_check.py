@@ -208,6 +208,33 @@ class CatalogFixtures(unittest.TestCase):
                 encoding="utf-8")
         self.assertIn("I-7", self.checks())
 
+    def test_locale_specific_readme_links_are_accepted(self) -> None:
+        replacements = {
+            "README.md": "README.md",
+            "README.ko.md": "README.ko.md",
+        }
+        for fname, target in replacements.items():
+            readme = self.repo / fname
+            text = readme.read_text(encoding="utf-8")
+            for skill in ("alpha-skill", "beta-skill"):
+                text = text.replace(
+                    f"](./skills/{skill})",
+                    f"](./skills/{skill}/{target})",
+                )
+            readme.write_text(text, encoding="utf-8")
+        self.assertEqual(self.checks(), set())
+
+    def test_cross_locale_readme_link_fails_closed(self) -> None:
+        readme = self.repo / "README.ko.md"
+        readme.write_text(
+            readme.read_text(encoding="utf-8").replace(
+                "](./skills/alpha-skill)",
+                "](./skills/alpha-skill/README.md)",
+            ),
+            encoding="utf-8",
+        )
+        self.assertIn("I-7", self.checks())
+
     def test_inventory_is_not_fixed_to_four(self) -> None:
         # A fifth package must be validated and demanded in the catalog.
         pkg = self.repo / "skills" / "gamma-skill"

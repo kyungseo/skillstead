@@ -2,7 +2,7 @@
 
 [English](./README.md) · **한국어**
 
-에이전트와 함께 쓸 수 있는 실용적인 스킬을 모았습니다. 사용 권한이 있는 사진의 캐릭터 초상화, 기술
+에이전트와 함께 쓸 수 있는 실용적인 스킬을 모았습니다. 인물 사진의 캐릭터 초상화, 기술
 다이어그램 제작, 공개 문서의 주장 검증, GitHub 릴리스 준비와 자연스럽고 정확한 글쓰기에 필요한 스킬을
 골라 설치할 수 있습니다.
 
@@ -42,18 +42,18 @@
 글을 작성하고 다듬고, `svg-infographic`으로 구조를 시각화하고, `docs-claim-check`로 공개할 주장을
 근거에 대조하고, `github-release-guide`로 승인이 필요한 릴리스 결정을 진행할 수 있습니다. 반드시 이
 순서대로 모두 사용해야 하는 것은 아닙니다. 필요한 스킬부터 사용하고, 산출물이 바뀌면 앞 단계의 결과를
-다시 확인하면 됩니다. `street-portrait-artist`는 사용 권한이 있는 사진을 캐릭터 초상화로 만드는 별도의
+다시 확인하면 됩니다. `street-portrait-artist`는 인물 사진을 캐릭터 초상화로 만드는 별도의
 창작 workflow이며, 이 릴리스 흐름에 참여할 필요가 없습니다.
 
 ## 필요한 스킬을 선택하세요
 
 | 스킬 | 이런 작업에 적합 | 버전 | 지원 실행 환경 | 성숙도 |
 | --- | --- | --- | --- | --- |
-| [`svg-infographic`](./skills/svg-infographic) | 아키텍처 설명, 작업 흐름, 비교 자료를 수정 가능한 SVG와 검증된 2× PNG로 제작 | `0.11.0` | Supported: Claude Code + Codex | Stable |
-| [`docs-claim-check`](./skills/docs-claim-check) | 공개 문서의 주장이 제공된 근거로 뒷받침되는지 확인 | `0.9.1` | Claude Code | Beta |
-| [`github-release-guide`](./skills/github-release-guide) | 비공개 GitHub 저장소의 첫 공개 전환 또는 공개 후 매 버전 릴리스를 점검하고 단계별로 안내 | `0.9.0` | Supported: Claude Code + Codex | Stable |
-| [`writing-quality-editor`](./skills/writing-quality-editor) | 사용자 문서를 처음부터 작성하거나 자연스럽게 다듬고, 사실·의도·목소리·운영 제약을 보존하면서 영어↔한국어 내용을 재구성 | `0.13.0` | Supported: Claude Code + Codex | Beta |
-| [`street-portrait-artist`](./skills/street-portrait-artist) | 사용 권한이 있는 인물 사진을 특징 관계에 기반한 Street Caricature 또는 Romance Watercolor 캐릭터 초상화로 재해석 | `0.1.0` | Validation pending: ChatGPT + Codex | Experimental |
+| [`svg-infographic`](./skills/svg-infographic/README.ko.md) | 아키텍처 설명, 작업 흐름, 비교 자료를 수정 가능한 SVG와 검증된 2× PNG로 제작 | `0.11.0` | Supported: Claude Code + Codex | Stable |
+| [`docs-claim-check`](./skills/docs-claim-check/README.ko.md) | 공개 문서의 주장이 제공된 근거로 뒷받침되는지 확인 | `0.9.1` | Claude Code | Beta |
+| [`github-release-guide`](./skills/github-release-guide/README.ko.md) | 비공개 GitHub 저장소의 첫 공개 전환 또는 공개 후 매 버전 릴리스를 점검하고 단계별로 안내 | `0.9.0` | Supported: Claude Code + Codex | Stable |
+| [`writing-quality-editor`](./skills/writing-quality-editor/README.ko.md) | 사용자 문서를 처음부터 작성하거나 자연스럽게 다듬고, 사실·의도·목소리·운영 제약을 보존하면서 영어↔한국어 내용을 재구성 | `0.13.0` | Supported: Claude Code + Codex | Beta |
+| [`street-portrait-artist`](./skills/street-portrait-artist/README.ko.md) | 인물 사진을 특징 관계에 기반한 Street Caricature 또는 Romance Watercolor 캐릭터 초상화로 재해석 | `0.1.0` | Validation pending: ChatGPT + Codex | Experimental |
 
 각 스킬은 필요한 파일을 모두 갖춘 독립 패키지입니다. 전체 목록을 설치할 필요 없이, 사용할 스킬의
 폴더만 통째로 복사하면 됩니다. 개인용·프로젝트용 설치 경로, 고정 버전 설치, 깨끗한 업데이트 방법,
@@ -159,13 +159,13 @@ release-critical blocker를 해소한 뒤 전환을 명시적으로 선택했을
 먼저 분석한 뒤 그립니다. 같은 identity grammar에서 다정하고 거의 무채색인 `Street Caricature`와 서정적인
 pen-and-watercolor `Romance Watercolor`라는 두 가지 해석을 만듭니다.
 
-본인이 소유했거나 초상 사용 권한이 있는 사진에 사용합니다. 별도의 게시 허가가 없다면 제공한 사진·분석·결과를
-해당 작업 안에서만 사용합니다.
+한 장 이상의 선명한 인물 사진을 제공합니다. 사용자가 별도로 게시하거나 보관해 달라고 요청하지 않는 한 제공한
+사진·분석·결과는 해당 작업 안에서만 사용합니다.
 
 - 자세한 안내: [`street-portrait-artist` 한국어 README](./skills/street-portrait-artist/README.ko.md)
 - 공개 가능한 gallery: [합성 원본으로 만든 Twin Portrait 예시 두 쌍](./examples/street-portrait-artist/README.ko.md)
 - 스킬 이름을 쓰는 예시: `street-portrait-artist를 사용해 첨부한 사진을 다정한 Street Caricature로 만들어 줘.`
-- 자연스럽게 요청하는 예시: `사용 권한이 있는 이 사진을 섬세한 펜과 수채화 캐릭터 초상화로 바꿔 줘. 턱선, 헤어라인과 표정은 알아볼 수 있게 유지해 줘.`
+- 자연스럽게 요청하는 예시: `이 사진을 섬세한 펜과 수채화 캐릭터 초상화로 바꿔 줘. 턱선, 헤어라인과 표정은 알아볼 수 있게 유지해 줘.`
 
 ## Playbook 모음 (유지관리자 참고 자료)
 

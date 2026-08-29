@@ -1,9 +1,10 @@
 """Root README catalog table reader (I-7).
 
 Both ``README.md`` and ``README.ko.md`` carry a catalog table whose header and
-Version column position are fixed by the baseline. The reader locates the table
-by its exact header row and fails closed if the header or any row cannot be
-read.
+Version column position are fixed by the baseline. A row may link to the skill
+folder or directly to the README matching the catalog locale. The reader
+locates the table by its exact header row and fails closed if the header, link,
+or any row cannot be read.
 """
 
 from __future__ import annotations
@@ -36,9 +37,13 @@ def catalog_versions(text: str, header: str) -> dict[str, str]:
         m = _ROW_SKILL.match(line)
         if not m:
             raise CatalogError(f"unparseable catalog row: {line!r}")
-        name, folder = m.group(1), m.group(2)
-        if name != folder:
-            raise CatalogError(f"catalog row name {name!r} != folder {folder!r}")
+        name, target = m.group(1), m.group(2)
+        locale_readme = "README.ko.md" if header == KO_HEADER else "README.md"
+        allowed_targets = {name, f"{name}/{locale_readme}"}
+        if target not in allowed_targets:
+            raise CatalogError(
+                f"catalog row name {name!r} has invalid target {target!r}; "
+                f"expected one of {sorted(allowed_targets)!r}")
         cells = [c.strip() for c in line.strip().strip("|").split("|")]
         if len(cells) != 5:
             raise CatalogError(f"catalog row does not have 5 columns: {line!r}")
