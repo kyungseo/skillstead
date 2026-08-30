@@ -6,8 +6,8 @@ creation-time checks guarantee nothing durable. Checks:
 * I-2  — the peeled target declares exactly the tag's version.
 * I-8  — the peeled target is a commit on ``main``.
 * I-3-ⓒ — durable relation: the expected target is derived *without looking
-  at the tag*. A recorded initial release uses its exact immutable target;
-  other general tags use the oldest ``main`` first-parent commit where the
+  at the tag*. A recorded release uses its exact immutable target; other
+  general tags use the oldest ``main`` first-parent commit where the
   skill's declared version changed to the tag's version. Baseline tags (exact
   ref membership in the cutover record's ``baseline_tags``): the first-parent
   commit where the record with the current ``attempt`` was introduced.
@@ -247,11 +247,12 @@ def _retirement_history_findings(
 def _initial_release_target_history(
         repo: Path, history: _History
 ) -> tuple[dict[tuple[str, str], InitialReleaseTargetRecord], list[Finding]]:
-    """Read immutable initial-target bindings from first-parent history.
+    """Read immutable explicit target bindings from first-parent history.
 
     A current-tree-only lookup would let a record be deleted and the tag be
     repointed to the legacy introduction commit. Once a valid binding appears,
-    its path and semantic value therefore remain durable.
+    its path and semantic value therefore remain durable. The directory keeps
+    its historical initial-release name for repository compatibility.
     """
     findings: list[Finding] = []
     known: dict[tuple[str, str], InitialReleaseTargetRecord] = {}
@@ -428,7 +429,7 @@ def run_tag_checks(
             if expected is None:
                 findings.append(Finding("I-3-c", name, f"no main first-parent commit introduces version {version} for {skill} (fail-closed)"))
             elif target != expected:
-                source = "initial-release target record" if binding else "version introduction"
+                source = "explicit release target record" if binding else "version introduction"
                 findings.append(Finding("I-3-c", name, f"target {target[:12]} != expected {expected[:12]} from {source} (repoint suspected)"))
 
     # I-5: existence only — target correctness is I-3-ⓒ's job, and merging

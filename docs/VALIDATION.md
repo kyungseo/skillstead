@@ -174,15 +174,15 @@ validator applies those bounded hygiene patterns; owner review of the exact
 record and diff remains authoritative for other sensitive or identifying
 content.
 
-### Initial-release target record
+### Explicit release target record (legacy path)
 
-Path: `.skillstead/initial-release-targets/<skill>-v0.1.0.json`
+Path: `.skillstead/initial-release-targets/<skill>-v<version>.json`
 
 ```json
 {
   "schema_version": 1,
   "skill": "<skill>",
-  "version": "0.1.0",
+  "version": "<path-bound SemVer>",
   "target_commit": "<full 40-character lowercase commit SHA>",
   "authorization_id": "owner-YYYYMMDD-<16 lowercase hex>",
   "approved_at": "YYYY-MM-DD",
@@ -190,14 +190,17 @@ Path: `.skillstead/initial-release-targets/<skill>-v0.1.0.json`
 }
 ```
 
-The record is required only when a new skill's reviewed `0.1.0` tag target is
-later than its atomic package-and-catalog introduction commit. Commit it to
-`main` after selecting the exact already-existing target and before creating
-the tag. The target must be on `main` and declare the path-bound version. Once
-a valid record appears, its path and semantic value are immutable; mutation,
-deletion, rename, an off-main target, or a mismatched version is a durable M3
-finding. Existing releases and initial releases tagged at their atomic
-introduction commit keep the legacy expected-target derivation unchanged.
+The directory retains its initial-release name for compatibility, but the
+record can bind any reviewed release target that is later than the oldest
+`main` first-parent commit introducing that version. Normally, commit the
+record to `main` after selecting the exact already-existing target and before
+creating the tag. For an already-published protected tag, a recovery record is
+an exceptional owner-authorized binding; do not move or recreate the tag. The
+target must be on `main` and declare the path-bound version. Once a valid
+record appears, its path and semantic value are immutable; mutation, deletion,
+rename, an off-main target, or a mismatched version is a durable M3 finding.
+Releases tagged at their version-introduction commit keep the default
+expected-target derivation unchanged.
 
 ### Retirement record
 
@@ -338,9 +341,9 @@ For every `<name>/vX.Y.Z` tag, on every run:
   keep checking the published `origin/main` state without grace. This split
   lets a repair PR prove its candidate result without hiding a red published
   state after merge.
-* **Expected target** — derived without looking at the tag: for an initial
-  `0.1.0` tag with a strict target record, the record's exact commit; for an
-  ordinary tag without such a record, the oldest `main` first-parent commit
+* **Expected target** — derived without looking at the tag: for any tag with a
+  strict explicit target record, the record's exact commit; for an ordinary
+  tag without such a record, the oldest `main` first-parent commit
   where the skill's declared version changed to the tag's version; for the
   four baseline tags (exact ref membership in the cutover record, never
   version-string matching), the commit that introduced the record. A tag

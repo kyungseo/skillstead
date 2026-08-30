@@ -151,15 +151,15 @@ absolute path, 저장소·외부 URL을 포함할 수 없습니다. Validator는
 검사합니다. 그 밖의 민감하거나 식별 가능한 내용은 owner가 정확한 record와 diff를 검토하는 것이
 최종 기준입니다.
 
-### Initial-release target record
+### 명시적 릴리스 target record (기존 경로 유지)
 
-경로: `.skillstead/initial-release-targets/<skill>-v0.1.0.json`
+경로: `.skillstead/initial-release-targets/<skill>-v<version>.json`
 
 ```json
 {
   "schema_version": 1,
   "skill": "<skill>",
-  "version": "0.1.0",
+  "version": "<경로에 결속된 SemVer>",
   "target_commit": "<40자 lowercase commit SHA 전체>",
   "authorization_id": "owner-YYYYMMDD-<16 lowercase hex>",
   "approved_at": "YYYY-MM-DD",
@@ -167,12 +167,14 @@ absolute path, 저장소·외부 URL을 포함할 수 없습니다. Validator는
 }
 ```
 
-새 skill의 검토된 `0.1.0` tag target이 package·catalog atomic introduction commit보다 뒤일 때만
-이 record가 필요합니다. 정확한 기존 target을 선택한 뒤, tag를 만들기 전에 record를 `main`에
-commit합니다. Target은 `main` 위에 있고 path-bound version을 선언해야 합니다. 유효한 record가 한 번
+디렉터리 이름은 호환성을 위해 initial-release 명칭을 유지하지만, 이 record는 검토된 릴리스 target이
+해당 버전을 처음 도입한 `main` first-parent commit보다 뒤인 경우 모든 버전에 사용할 수 있습니다.
+보통 정확한 기존 target을 선택한 뒤 tag를 만들기 전에 record를 `main`에 commit합니다. 이미 공개된
+보호 tag에는 owner가 승인한 예외적 복구 결속으로만 사용하며, tag 자체를 이동하거나 다시 만들지
+않습니다. Target은 `main` 위에 있고 path-bound version을 선언해야 합니다. 유효한 record가 한 번
 나타나면 path와 semantic value는 불변입니다. 수정·삭제·이름 변경, off-main target 또는 version
-불일치는 영구적인 M3 finding입니다. 기존 릴리스와 atomic introduction commit 자체에 tag를 만드는
-initial release는 기존 expected-target 파생 규칙을 그대로 사용합니다.
+불일치는 영구적인 M3 finding입니다. 버전 도입 commit 자체에 tag를 만드는 릴리스는 기존
+expected-target 파생 규칙을 그대로 사용합니다.
 
 ### Retirement record
 
@@ -290,7 +292,7 @@ Bump-Adjustment: <기본 단계를 조정한 이유>
   candidate(`HEAD`)를 검사합니다. `main` push는 `origin/main`을 검사하고, tag event와 periodic
   workflow도 grace 없이 공개된 `origin/main` 상태를 계속 검사합니다. 이 분리로 repair PR은
   candidate 결과를 증명하되, merge 뒤에도 공개 상태가 red라면 그 사실을 숨기지 않습니다.
-* **expected target** — tag를 보지 않고 파생한다: strict target record가 있는 initial `0.1.0` tag는
+* **expected target** — tag를 보지 않고 파생한다: strict explicit target record가 있는 모든 tag는
   record의 exact commit, 해당 record가 없는 일반 tag는 `main` first-parent에서 skill의 선언 버전이
   그 버전으로 바뀐 가장 오래된 commit, baseline tag 4개(record의 exact ref
   membership으로만 판정 — 버전 문자열 비교 아님)는 record가 도입된 commit. 다른 곳을 가리키는

@@ -139,6 +139,11 @@ class InitialReleaseTargetRecordParsing(unittest.TestCase):
             initial_target(), "alpha-skill", "0.1.0")
         self.assertEqual(record.target_commit, "a" * 40)
 
+    def test_valid_later_release_record(self) -> None:
+        record = parse_initial_release_target_record(
+            initial_target(version="0.1.1"), "alpha-skill", "0.1.1")
+        self.assertEqual(record.version, "0.1.1")
+
     def test_wrong_version_target_and_private_reason_rejected(self) -> None:
         for value in (
                 initial_target(version="0.2.0"),
