@@ -14,7 +14,8 @@
 # Workflow/classifier changes run everything. The daily periodic workflow also
 # stays full, so it remains the eventless fallback for repository state that a
 # scoped event run cannot observe. The `validate` job aggregates the results
-# under the historical check name.
+# under an event-specific check name so skipped create/delete jobs cannot
+# satisfy the pull-request gate.
 name: validate
 
 on:
@@ -150,10 +151,12 @@ jobs:
       - name: Spec reference validator (pinned skills-ref)
         run: python3 tools/run_skills_ref.py
 
-  # Aggregate under the historical check name: green only when every job that
-  # was supposed to run succeeded, and a skipped heavy suite is acceptable
-  # only when `scope` explicitly ruled it out.
+  # Aggregate under an event-specific check name: green only when every job
+  # that was supposed to run succeeded, and a skipped heavy suite is acceptable
+  # only when `scope` explicitly ruled it out. `validate / pull_request` is the
+  # single required status check for main.
   validate:
+    name: validate / ${{ github.event_name }}
     needs: [scope, svg-infographic-suite, validator-suite, checks]
     if: ${{ always() && (github.event_name == 'pull_request' || github.event_name == 'push') }}
     runs-on: ubuntu-latest
