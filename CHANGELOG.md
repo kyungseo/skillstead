@@ -10,6 +10,8 @@ Repository-level changes since the last dated entry.
 
 ### Repository
 
+- **Reviewable first-release window.** M2 still requires a new skill package and both catalog rows to be introduced
+  atomically, while allowing continuous pre-tag review amendments before the first `0.1.0` tag target.
 - **Locale-matched catalog links.** Skill names in the Korean catalog now open each package's Korean README directly;
   the catalog validator accepts folder links or explicit README links only when the target matches the catalog locale.
 - **Street Artist public package.** Added the self-contained `street-portrait-artist` package, bilingual guides,

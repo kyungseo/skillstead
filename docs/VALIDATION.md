@@ -136,8 +136,13 @@ step unless the major-transition branch applies; a single-step major
 transition requires the exact tracked approval record below; an inventory
 reduction requires the exact retirement record and full-removal predicate
 below; a new skill's initial release must introduce the package and both
-catalog rows in the target commit itself; no existing tag may share the
-proposed version's SemVer precedence (including `+build` aliases).
+catalog rows together in one `main` first-parent commit. That introduction
+commit may precede the tag target so review fixes can land before the first
+release, but the package and both rows must remain continuously present at
+the proposed version through the target, which must still pass full M1. Any
+split introduction, removal/re-addition gap, or unreadable continuity state
+fails closed. No existing tag may share the proposed version's SemVer
+precedence (including `+build` aliases).
 
 The one-time baseline branch activates only when the target carries the
 canonical prepared cutover record. The plan must equal the record's four
