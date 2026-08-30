@@ -10,6 +10,9 @@ Repository-level changes since the last dated entry.
 
 ### Repository
 
+- **Node 24 workflow runtime.** Updated every remaining `actions/checkout` pin to the verified `v7.0.1` commit,
+  removing the deprecated Node.js 20 action runtime while preserving immutable action references.
+
 - **Explicit release target recovery.** Generalized the legacy-named target
   record beyond initial `0.1.0` releases so an owner-authorized immutable
   binding can recover a reviewed protected tag without moving or recreating it.
