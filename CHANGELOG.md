@@ -38,11 +38,17 @@ Repository-level changes since the last dated entry.
 - **Change-scoped event validation.** Pull requests and `main` pushes keep the fast repository-wide checks while
   running heavy suites only for their observed inputs. SVG package and example inputs run both the SVG and validator
   suites; workflow, classifier, unreadable and non-ancestor changes fail closed to both, and the daily run stays full.
-  Event-specific aggregate names isolate the required PR check from skipped create/delete jobs.
+  Event-specific aggregate names isolate the required PR check from skipped create/delete jobs. Four deterministic
+  process shards distribute every validator test ID across isolated runners in event and periodic workflows.
 - **Fork-safe Pages deployment.** Pushes publish Pages automatically only from `kyungseo/skillstead`. Fork owners may
   opt in with a manual dispatch after enabling Pages in their own repository.
 
 ### Verification
+
+- **Validator shard evidence.** A sequential module baseline ran 297 tests in approximately 573.5 seconds, with
+  `test_gallery.py` alone consuming 456.6 seconds. After sharding, 304 tests passed exactly once across four isolated
+  local processes in 140.7, 185.5, 182.9 and 159.3 seconds, for an observed wall time of approximately 185.5 seconds.
+  This is local macOS evidence; hosted-run timing remains environment-specific.
 
 - **Bounded portrait runtime evidence.** ChatGPT and Codex each produced and delivered a `1122 x 1402 px` portrait from
   the published package and reported exact `1080 x 1350 px` export unavailable. The result establishes runtime support

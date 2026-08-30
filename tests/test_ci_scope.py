@@ -87,12 +87,35 @@ class WorkflowContract(unittest.TestCase):
         text = (REPO / ".github/workflows/validate.yml").read_text(encoding="utf-8")
         self.assertIn("name: validate / ${{ github.event_name }}", text)
         self.assertIn("`validate / pull_request` is the", text)
+        self.assertIn("name: validator-suite / ${{ matrix.shard }}", text)
+        self.assertIn("fail-fast: false", text)
+        self.assertIn("max-parallel: 4", text)
+        self.assertIn("shard: [0, 1, 2, 3]", text)
+        self.assertIn(
+            'tools/run_unittest_shard.py --shard-index "${{ matrix.shard }}" '
+            "--shard-count 4",
+            text,
+        )
         self.assertIn("svg_infographic: ${{ steps.diff.outputs.svg_infographic }}", text)
         self.assertIn("if: needs.scope.outputs.svg_infographic == 'true'", text)
         self.assertIn('"${{ needs.scope.outputs.svg_infographic }}"', text)
         self.assertNotIn("needs.scope.outputs.package", text)
         self.assertIn('*) fail "$name has unknown scope decision', text)
         self.assertIn("git -c core.quotePath=off diff --name-only --no-renames", text)
+
+    def test_periodic_validation_uses_the_same_four_process_shards(self):
+        text = (REPO / ".github/workflows/validate-periodic.yml").read_text(
+            encoding="utf-8")
+        self.assertIn("name: validator-suite / ${{ matrix.shard }}", text)
+        self.assertIn("fail-fast: false", text)
+        self.assertIn("max-parallel: 4", text)
+        self.assertIn("shard: [0, 1, 2, 3]", text)
+        self.assertIn(
+            'tools/run_unittest_shard.py --shard-index "${{ matrix.shard }}" '
+            "--shard-count 4",
+            text,
+        )
+        self.assertIn("  checks:\n    runs-on: ubuntu-latest", text)
 
     def test_main_push_uses_observed_ancestor_diff_and_fails_closed(self):
         text = (REPO / ".github/workflows/validate.yml").read_text(encoding="utf-8")

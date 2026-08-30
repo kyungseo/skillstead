@@ -100,14 +100,20 @@ jobs:
         run: bash skills/svg-infographic/scripts/run-tests.sh
 
   validator-suite:
+    name: validator-suite / ${{ matrix.shard }}
     needs: scope
     if: needs.scope.outputs.validator == 'true'
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: [0, 1, 2, 3]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Validator self-tests (fixtures)
-        run: python3 -m unittest discover -s tests
+      - name: Validator self-tests (fixtures, shard ${{ matrix.shard }})
+        run: python3 tools/run_unittest_shard.py --shard-index "${{ matrix.shard }}" --shard-count 4
 
   # Full hydration is contractual: first-parent history, all tags, and
   # origin/main must be observable for the tag and cutover checks.
