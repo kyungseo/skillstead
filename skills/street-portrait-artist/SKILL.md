@@ -3,7 +3,7 @@ name: street-portrait-artist
 description: Analyze supplied portrait references into a stable impression map, then create a kind Street Caricature or Romance Watercolor character portrait with coherent feature relationships and targeted revision. Use when a real person's recognizable visual identity should be interpreted rather than traced. Do not use for graffiti or murals, restoration, face swaps, photorealistic retouching, personality inference, or imitation of a named living artist.
 license: LICENSE.txt
 metadata:
-  version: 0.1.0
+  version: 0.1.1
 ---
 
 # Street Artist
@@ -60,7 +60,9 @@ If a required reference cannot be read, stop and report that the package is inco
 3. Choose the mode from the request. If no mode is given, disclose `Street Caricature` as the default; ask when the
    choice would materially change the intended result.
 4. Redesign relationships coherently. Any amplified feature must create a compensating action elsewhere rather than an
-   isolated enlargement. Keep non-anchor features supportive and preserve the subject's expression and reference roles.
+   isolated enlargement. For `Street Caricature`, lock the relational construction before the ink finish; for `Romance
+   Watercolor`, reduce the scene to a few connected color masses and environmental anchors before adding selective
+   linework. Keep non-anchor features supportive and preserve the subject's expression and reference roles.
 5. Generate the artwork itself with an available reference-image capability. Default to `social-feed-portrait` at
    `4:5`, targeting an exact `1080 x 1350 px` export when the current surface can create and verify it. Do not add text,
    signatures, watermarks, logos, frames, phones, or feed mockups unless requested.

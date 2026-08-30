@@ -10,6 +10,11 @@ Repository-level changes since the last dated entry.
 
 ### Repository
 
+- **Street Artist runtime support and visual correction.** Promoted ChatGPT and Codex to Supported after fresh
+  published `0.1.0` package discovery, invocation, synthetic reference-image generation, fail-visible size fallback, and
+  output delivery. The package now separates caricature construction from ink finish and reduces watercolor scenes to
+  connected color masses, selected anchors, and broad paper space while remaining Experimental.
+
 - **Repairable PR tag validation.** Pull requests now run M3 against the checked-out merge candidate, while
   `main` pushes, tag events and the periodic workflow continue to validate the actual `origin/main` state. A
   validator repair can therefore prove its post-merge result without weakening continuous checks on published state.
@@ -31,9 +36,13 @@ Repository-level changes since the last dated entry.
 
 ### Verification
 
-- **Bounded portrait evidence.** The synthetic gallery documents the intended two-mode visual direction and exact
-  `1080 x 1350 px` files. Fresh tagged installation and ChatGPT/Codex runtime evidence remain pending and are not
-  promoted into support claims.
+- **Bounded portrait runtime evidence.** ChatGPT and Codex each produced and delivered a `1122 x 1402 px` portrait from
+  the published package and reported exact `1080 x 1350 px` export unavailable. The result establishes runtime support
+  and honest fallback behavior, not exact-size capability or broad visual-quality maturity.
+
+- **Initial portrait evidence boundary.** At the `0.1.0` publication point, the synthetic gallery documented the
+  intended two-mode visual direction and exact `1080 x 1350 px` files while fresh runtime evidence remained pending.
+  The later runtime evidence above changes the current support status without rewriting that historical Release note.
 - **Hosted routing evidence.** PR #82 ran both heavy suites and the stable `validate` aggregate successfully. A
   disposable WQE-only PR #83 then confirmed that both unrelated heavy suites skip while the shared checks and stable
   aggregate remain green; it was closed without merge. The merge-push full validation and canonical Pages deployment
@@ -42,9 +51,12 @@ Repository-level changes since the last dated entry.
 
 ### Skills
 
+- `street-portrait-artist` `0.1.1` — construction-first relational caricature, more selective watercolor scene
+  reduction, and Supported ChatGPT + Codex runtime claims. Maturity remains Experimental.
+
 - `street-portrait-artist` `0.1.0` — one shared Impression Map for a relationship-driven, near-monochrome Street
-  Caricature or a lyrical Romance Watercolor portrait from supplied references. Maturity is Experimental; ChatGPT
-  and Codex runtime support remain `Validation pending`.
+  Caricature or a lyrical Romance Watercolor portrait from supplied references. Maturity was Experimental and runtime
+  support was `Validation pending` when this initial Release was published.
 
 ## 2026-08-25
 

@@ -45,9 +45,11 @@ No personality, health, ethnicity, attractiveness, or other sensitive or unverif
 
 - `Street Caricature` / `Exaggerate`: stronger relational transformation, one witty and kind anchor, varied analog line
   weight, sparse decisive black mass, open-paper facial planes, a near-monochrome base, at most a tiny muted spot color,
-  and a subject-first blank background.
+  and a subject-first blank background. Lock sparse relational construction before the ink finish so polished rendering
+  cannot collapse back into photographic proportions with only an enlarged head.
 - `Romance Watercolor` / `Illuminate`: gentler structural simplification, selective emphasis, lyrical line, transparent
-  watercolor physicality, and softly retained meaningful environment.
+  watercolor physicality, and a softly retained meaningful environment reduced to connected color masses and selected
+  scene anchors rather than photographic detail or unrelated decoration.
 
 `Twin Portrait` creates both as separate artworks from one shared map. It is not a before/after collage and does not
 permit the second output to redefine the subject from the first.

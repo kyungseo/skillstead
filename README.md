@@ -51,7 +51,7 @@ not need to participate in that release path.
 | [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | `0.9.1` | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | `0.9.0` | Supported: Claude Code + Codex | Stable |
 | [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | `0.13.0` | Supported: Claude Code + Codex | Beta |
-| [`street-portrait-artist`](./skills/street-portrait-artist) | Turning portrait references into a relationship-driven Street Caricature or Romance Watercolor character portrait | `0.1.0` | Validation pending: ChatGPT + Codex | Experimental |
+| [`street-portrait-artist`](./skills/street-portrait-artist) | Turning portrait references into a relationship-driven Street Caricature or Romance Watercolor character portrait | `0.1.1` | Supported: ChatGPT + Codex | Experimental |
 
 Each skill is self-contained and can be installed independently. You do not need to install the entire
 catalog—copy only the complete folder for the skill you want to use. See
@@ -206,8 +206,10 @@ skill discovery from the published `v0.7.0` tag. It is `Supported` for Claude Co
 evidence scope; maturity remains Beta.
 
 `street-portrait-artist` has two public-safe synthetic Twin Portrait cases that document its intended visual direction
-and privacy boundary. They do not establish fresh installation, skill discovery, invocation, likeness quality, or
-product runtime support. ChatGPT and Codex remain `Validation pending` for 0.1.0.
+and privacy boundary. Fresh installations of the published `0.1.0` package were then discovered and invoked in ChatGPT and
+Codex with synthetic portrait input, reference-image generation, fail-visible size fallback, and output delivery. Both
+runtimes are `Supported` within that recorded scope. Maturity remains Experimental because likeness and the refined
+visual behavior have not passed a broad cross-subject regression set.
 
 ## Current limitations
 
@@ -221,7 +223,8 @@ product runtime support. ChatGPT and Codex remain `Validation pending` for 0.1.0
 - `writing-quality-editor` is designed as locale-neutral, but its initial localization fixtures cover only
   English↔Korean (`ko-KR` for Korean output). Other locale pairs are not yet claimed as behaviorally validated.
 - `street-portrait-artist` likeness and image quality remain non-deterministic, exact pixel export depends on the
-  active image surface, and final artwork requires human review. ChatGPT and Codex runtime support are not yet claimed.
+  active image surface, and final artwork requires human review. The recorded ChatGPT and Codex support does not
+  promise exact dimensions or consistent visual quality across different image-generation runs.
 - Agent output is non-deterministic. `writing-quality-editor` defaults to local-first edits and holds ambiguous
   wording for review, but it cannot guarantee that every run avoids preference-driven changes outside the marked
   spans. Review the final delta before publishing or relying on an important document.

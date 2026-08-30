@@ -53,7 +53,7 @@
 | [`docs-claim-check`](./skills/docs-claim-check/README.ko.md) | 공개 문서의 주장이 제공된 근거로 뒷받침되는지 확인 | `0.9.1` | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide/README.ko.md) | 비공개 GitHub 저장소의 첫 공개 전환 또는 공개 후 매 버전 릴리스를 점검하고 단계별로 안내 | `0.9.0` | Supported: Claude Code + Codex | Stable |
 | [`writing-quality-editor`](./skills/writing-quality-editor/README.ko.md) | 사용자 문서를 처음부터 작성하거나 자연스럽게 다듬고, 사실·의도·목소리·운영 제약을 보존하면서 영어↔한국어 내용을 재구성 | `0.13.0` | Supported: Claude Code + Codex | Beta |
-| [`street-portrait-artist`](./skills/street-portrait-artist/README.ko.md) | 인물 사진을 특징 관계에 기반한 Street Caricature 또는 Romance Watercolor 캐릭터 초상화로 재해석 | `0.1.0` | Validation pending: ChatGPT + Codex | Experimental |
+| [`street-portrait-artist`](./skills/street-portrait-artist/README.ko.md) | 인물 사진을 특징 관계에 기반한 Street Caricature 또는 Romance Watercolor 캐릭터 초상화로 재해석 | `0.1.1` | Supported: ChatGPT + Codex | Experimental |
 
 각 스킬은 필요한 파일을 모두 갖춘 독립 패키지입니다. 전체 목록을 설치할 필요 없이, 사용할 스킬의
 폴더만 통째로 복사하면 됩니다. 개인용·프로젝트용 설치 경로, 고정 버전 설치, 깨끗한 업데이트 방법,
@@ -209,8 +209,10 @@ E2E, `v0.5.0` 고정 버전의 프로젝트 설치와 발견 확인과 최종 �
 Codex를 `Supported`로 표시하며, 성숙도는 Beta로 유지합니다.
 
 `street-portrait-artist`는 공개 가능한 합성 원본으로 만든 `Twin Portrait` 두 사례를 통해 의도한 visual
-direction과 privacy boundary를 기록했습니다. 이 사례는 새 설치·skill discovery·호출·likeness 품질 또는 제품별
-runtime 지원을 입증하지 않습니다. 0.1.0의 ChatGPT와 Codex 상태는 `Validation pending`입니다.
+direction과 privacy boundary를 기록했습니다. 이후 공개된 `0.1.0` package를 새로 설치한 ChatGPT와 Codex에서 합성 인물 사진을
+입력해 skill discovery·호출·reference-image 생성·fail-visible size fallback·output delivery를 확인했습니다. 이 기록된
+범위에서 두 runtime을 `Supported`로 표시합니다. 얼굴 유사성과 보강된 visual behavior를 여러 인물에서 회귀 검증하지
+않았으므로 성숙도는 Experimental로 유지합니다.
 
 ## 현재 제한
 
@@ -226,8 +228,8 @@ runtime 지원을 입증하지 않습니다. 0.1.0의 ChatGPT와 Codex 상태는
   영어↔한국어(한국어 결과는 `ko-KR`)만 다룹니다. 다른 언어 조합까지 실제 동작을 검증했다고 주장하지
   않습니다.
 - `street-portrait-artist`의 likeness와 이미지 품질은 실행마다 달라질 수 있고 exact pixel export는 사용 중인
-  image surface에 의존하므로 최종 작품을 사람이 검토해야 합니다. ChatGPT와 Codex runtime 지원은 아직 주장하지
-  않습니다.
+  image surface에 의존하므로 최종 작품을 사람이 검토해야 합니다. 기록된 ChatGPT와 Codex 지원은 서로 다른 image
+  generation 실행에서 exact dimensions나 일관된 시각 품질을 보장하지 않습니다.
 - 에이전트의 결과는 실행마다 달라질 수 있습니다. `writing-quality-editor`는 구조를 유지하는 국소 편집과
   모호한 표현의 판단 보류를 기본값으로 삼지만, 모든 실행에서 표시하지 않은 구간까지 바뀌는 일이 전혀
   없다고 보장하지는 않습니다. 중요한 문서는 게시하거나 사용하기 전에 최종 변경 사항을 직접 확인하세요.
