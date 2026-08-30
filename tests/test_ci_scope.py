@@ -92,6 +92,23 @@ class WorkflowContract(unittest.TestCase):
         self.assertIn('*) fail "$name has unknown scope decision', text)
         self.assertIn("git -c core.quotePath=off diff --name-only --no-renames", text)
 
+    def test_main_push_uses_observed_ancestor_diff_and_fails_closed(self):
+        text = (REPO / ".github/workflows/validate.yml").read_text(encoding="utf-8")
+        self.assertIn("GITHUB_EVENT_BEFORE: ${{ github.event.before }}", text)
+        self.assertIn("0000000000000000000000000000000000000000) run_all", text)
+        self.assertIn('git cat-file -e "${GITHUB_EVENT_BEFORE}^{commit}"', text)
+        self.assertIn(
+            'git merge-base --is-ancestor "${GITHUB_EVENT_BEFORE}" HEAD || run_all',
+            text,
+        )
+        self.assertIn('diff_base="${GITHUB_EVENT_BEFORE}"', text)
+        self.assertNotIn(
+            'if [ "${GITHUB_EVENT_NAME}" != "pull_request" ]; then', text)
+        self.assertNotIn(
+            "if: github.event_name == 'pull_request'\n        with:\n          fetch-depth: 0",
+            text,
+        )
+
     def test_pull_request_m3_checks_candidate_while_push_checks_main(self):
         text = (REPO / ".github/workflows/validate.yml").read_text(encoding="utf-8")
         self.assertIn("main_ref=origin/main", text)
