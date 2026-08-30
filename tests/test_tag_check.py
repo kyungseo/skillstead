@@ -78,20 +78,26 @@ def _initial_gamma_with_amendment(repo: Path) -> tuple[str, str]:
     return introduction, target
 
 
-def _write_initial_target_record(repo: Path, target: str) -> Path:
+def _write_release_target_record(
+        repo: Path, skill: str, version: str, target: str) -> Path:
     path = (repo / ".skillstead/initial-release-targets/"
-            "gamma-skill-v0.1.0.json")
+            f"{skill}-v{version}.json")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps({
         "schema_version": 1,
-        "skill": "gamma-skill",
-        "version": "0.1.0",
+        "skill": skill,
+        "version": version,
         "target_commit": target,
         "authorization_id": "owner-20260830-0123456789abcdef",
         "approved_at": "2026-08-30",
-        "reason": "The reviewed amendments are bound to this initial release target.",
+        "reason": "The reviewed amendments are bound to this release target.",
     }), encoding="utf-8")
     return path
+
+
+def _write_initial_target_record(repo: Path, target: str) -> Path:
+    return _write_release_target_record(
+        repo, "gamma-skill", "0.1.0", target)
 
 
 def _retire_beta(repo: Path) -> str:
@@ -172,6 +178,22 @@ class TagCheckFixtures(unittest.TestCase):
         path.unlink()
         commit_all(self.repo, "delete gamma target record")
         self.assertIn("INITIAL-RELEASE-TARGET-HISTORY", self.checks())
+
+    def test_later_release_binding_is_green_and_repoint_safe(self) -> None:
+        introduction = _release_alpha(self.repo, "1.3.0", "1.2.3")
+        skill_md = self.repo / "skills/alpha-skill/SKILL.md"
+        skill_md.write_text(
+            skill_md.read_text(encoding="utf-8")
+            + "\nReviewed release amendment.\n", encoding="utf-8")
+        target = commit_all(self.repo, "amend alpha before tag finalization")
+        _git(self.repo, "tag", "-f", "alpha-skill/v1.3.0", target)
+        _write_release_target_record(
+            self.repo, "alpha-skill", "1.3.0", target)
+        commit_all(self.repo, "bind reviewed alpha target")
+        self.assertEqual(run_tag_checks(self.repo), [])
+
+        _git(self.repo, "tag", "-f", "alpha-skill/v1.3.0", introduction)
+        self.assertIn("I-3-c", self.checks())
 
     # E7-ⓕ: multi-skill release tag의 부분 삭제 → I-5
     def test_e7f_partial_deletion_of_multi_skill_release(self) -> None:

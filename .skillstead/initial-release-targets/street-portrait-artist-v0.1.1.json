@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "skill": "street-portrait-artist",
+  "version": "0.1.1",
+  "target_commit": "311fa92db43256fcbfff103fdabb43b2be1cd9a2",
+  "authorization_id": "owner-20260830-3f7a2c9d8e1b6045",
+  "approved_at": "2026-08-30",
+  "reason": "The reviewed patch release includes a release-gate correction after its version introduction commit."
+}

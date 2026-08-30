@@ -213,9 +213,10 @@ def parse_initial_release_target_record(
     authorization_id, approved_at = _require_authorization(raw)
 
     version = raw["version"]
-    if version != "0.1.0" or version != expected_version:
-        raise RecordError(
-            "version must be the path-bound initial release 0.1.0")
+    if not isinstance(version, str) \
+            or _VERSION_RE.fullmatch(version) is None \
+            or version != expected_version:
+        raise RecordError("version must be the path-bound semantic version")
     target_commit = raw["target_commit"]
     if not isinstance(target_commit, str) \
             or not re.fullmatch(r"[0-9a-f]{40}", target_commit):

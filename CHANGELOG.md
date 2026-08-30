@@ -10,6 +10,10 @@ Repository-level changes since the last dated entry.
 
 ### Repository
 
+- **Explicit release target recovery.** Generalized the legacy-named target
+  record beyond initial `0.1.0` releases so an owner-authorized immutable
+  binding can recover a reviewed protected tag without moving or recreating it.
+
 - **Street Artist runtime support and visual correction.** Promoted ChatGPT and Codex to Supported after fresh
   published `0.1.0` package discovery, invocation, synthetic reference-image generation, fail-visible size fallback, and
   output delivery. The package now separates caricature construction from ink finish and reduces watercolor scenes to
