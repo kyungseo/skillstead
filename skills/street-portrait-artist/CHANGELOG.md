@@ -14,8 +14,8 @@ Notable changes to the `street-portrait-artist` skill package.
   remains surface-dependent and likeness remains non-deterministic.
 - Kept maturity Experimental because the new visual refinements have bounded synthetic evidence rather than a broad
   cross-subject regression set.
-- Released this as a patch rather than a minor version because it corrects outputs that missed the existing 0.1.0
-  relational-caricature and simplified-watercolor contracts; it does not add a mode, input profile, or capability.
+Bump-Adjustment: This patch corrects outputs that missed the existing 0.1.0 relational-caricature and
+simplified-watercolor contracts; it adds no mode, input profile, or capability.
 
 ## [0.1.0] — 2026-08-29
 
