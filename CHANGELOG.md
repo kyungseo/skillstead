@@ -6,22 +6,20 @@ Granular, per-change entries begin at the first public release. Earlier developm
 
 ## [Unreleased]
 
-Repository-level changes since the last dated entry.
+No unreleased changes.
+
+## 2026-08-30
 
 ### Repository
 
+- **Faster installation paths.** Reworked the bilingual installation guide around a top-level skill index and
+  copy-ready prompts pinned to each skill's current release. Direct installation commands and support evidence remain
+  available as reference material, and the Codex personal install path now matches `~/.codex/skills`.
 - **Node 24 workflow runtime.** Updated every remaining `actions/checkout` pin to the verified `v7.0.1` commit,
   removing the deprecated Node.js 20 action runtime while preserving immutable action references.
-
 - **Explicit release target recovery.** Generalized the legacy-named target
   record beyond initial `0.1.0` releases so an owner-authorized immutable
   binding can recover a reviewed protected tag without moving or recreating it.
-
-- **Street Artist runtime support and visual correction.** Promoted ChatGPT and Codex to Supported after fresh
-  published `0.1.0` package discovery, invocation, synthetic reference-image generation, fail-visible size fallback, and
-  output delivery. The package now separates caricature construction from ink finish and reduces watercolor scenes to
-  connected color masses, selected anchors, and broad paper space while remaining Experimental.
-
 - **Repairable PR tag validation.** Pull requests now run M3 against the checked-out merge candidate, while
   `main` pushes, tag events and the periodic workflow continue to validate the actual `origin/main` state. A
   validator repair can therefore prove its post-merge result without weakening continuous checks on published state.
@@ -30,49 +28,58 @@ Repository-level changes since the last dated entry.
   a record keep their prior expected-target rule, while record mutation, deletion and tag repointing fail closed.
 - **Reviewable first-release window.** M2 still requires a new skill package and both catalog rows to be introduced
   atomically, while allowing continuous pre-tag review amendments before the first `0.1.0` tag target.
-- **Locale-matched catalog links.** Skill names in the Korean catalog now open each package's Korean README directly;
-  the catalog validator accepts folder links or explicit README links only when the target matches the catalog locale.
-- **Street Artist public package.** Added the self-contained `street-portrait-artist` package, bilingual guides,
-  public-safe synthetic Twin Portrait gallery, and repository-only behavior fixtures without publishing private
-  portrait inputs or outputs.
 - **Change-scoped event validation.** Pull requests and `main` pushes keep the fast repository-wide checks while
   running heavy suites only for their observed inputs. SVG package and example inputs run both the SVG and validator
   suites; workflow, classifier, unreadable and non-ancestor changes fail closed to both, and the daily run stays full.
   Event-specific aggregate names isolate the required PR check from skipped create/delete jobs. Four deterministic
   process shards distribute every validator test ID across isolated runners in event and periodic workflows.
-- **Fork-safe Pages deployment.** Pushes publish Pages automatically only from `kyungseo/skillstead`. Fork owners may
-  opt in with a manual dispatch after enabling Pages in their own repository.
 
 ### Verification
 
 - **Validator shard evidence.** A sequential module baseline ran 297 tests in approximately 573.5 seconds, with
   `test_gallery.py` alone consuming 456.6 seconds. After sharding, 304 tests passed exactly once across four isolated
   local processes in 140.7, 185.5, 182.9 and 159.3 seconds, for an observed wall time of approximately 185.5 seconds.
-  This is local macOS evidence; hosted-run timing remains environment-specific.
-
+  On GitHub-hosted runners, the four shards completed in 2m05s, 3m08s, 3m27s and 2m35s; the 3m27s wall-clock
+  bottleneck was approximately 61–68% shorter than the prior 8m54s–10m59s single-validator runs. The event aggregate
+  remained `validate / pull_request` and passed as the protected required check.
 - **Bounded portrait runtime evidence.** ChatGPT and Codex each produced and delivered a `1122 x 1402 px` portrait from
   the published package and reported exact `1080 x 1350 px` export unavailable. The result establishes runtime support
   and honest fallback behavior, not exact-size capability or broad visual-quality maturity.
-
 - **Initial portrait evidence boundary.** At the `0.1.0` publication point, the synthetic gallery documented the
   intended two-mode visual direction and exact `1080 x 1350 px` files while fresh runtime evidence remained pending.
   The later runtime evidence above changes the current support status without rewriting that historical Release note.
-- **Hosted routing evidence.** PR #82 ran both heavy suites and the stable `validate` aggregate successfully. A
-  disposable WQE-only PR #83 then confirmed that both unrelated heavy suites skip while the shared checks and stable
-  aggregate remain green; it was closed without merge. The merge-push full validation and canonical Pages deployment
-  also passed. A live fork-push run remained unavailable because no maintainer-controlled fork existed, so the fork
-  boundary remains backed by the focused workflow contract and documented manual-dispatch prerequisite.
 
 ### Skills
 
 - `street-portrait-artist` `0.1.1` — construction-first relational caricature, more selective watercolor scene
-  reduction, and Supported ChatGPT + Codex runtime claims. Maturity remains Experimental.
+  reduction, and Supported ChatGPT + Codex runtime claims. Release metadata now also records why the path-default
+  minor bump was adjusted to a patch without changing package behavior. Maturity remains Experimental.
+
+## 2026-08-29
+
+### Repository
+
+- **Locale-matched catalog links.** Skill names in the Korean catalog now open each package's Korean README directly;
+  the catalog validator accepts folder links or explicit README links only when the target matches the catalog locale.
+- **Street Artist public package.** Added the self-contained `street-portrait-artist` package, bilingual guides,
+  public-safe synthetic Twin Portrait gallery, and repository-only behavior fixtures without publishing private
+  portrait inputs or outputs.
+
+### Skills
 
 - `street-portrait-artist` `0.1.0` — one shared Impression Map for a relationship-driven, near-monochrome Street
-  Caricature or a lyrical Romance Watercolor portrait from supplied references. Maturity was Experimental and runtime
-  support was `Validation pending` when this initial Release was published.
+  Caricature or a lyrical Romance Watercolor portrait from supplied references. Maturity was Experimental and
+  runtime support was `Validation pending` when this initial Release was published.
 
 ## 2026-08-25
+
+### Repository
+
+- **Skill-scoped pull-request validation.** Independent Skill changes keep the fast repository-wide checks without
+  paying for the unrelated `svg-infographic` regression suite. SVG package and example inputs run both the SVG and
+  validator suites; workflow, classifier and unclassifiable-path changes fail closed to both.
+- **Fork-safe Pages deployment.** Pushes publish Pages automatically only from `kyungseo/skillstead`. Fork owners may
+  opt in with a manual dispatch after enabling Pages in their own repository.
 
 ### Skills
 
@@ -82,6 +89,11 @@ Repository-level changes since the last dated entry.
 
 ### Verification
 
+- **Hosted routing evidence.** PR #82 ran both heavy suites and the stable `validate` aggregate successfully. A
+  disposable WQE-only PR #83 then confirmed that both unrelated heavy suites skip while the shared checks and stable
+  aggregate remain green; it was closed without merge. The merge-push full validation and canonical Pages deployment
+  also passed. A live fork-push run remained unavailable because no maintainer-controlled fork existed, so the fork
+  boundary remains backed by the focused workflow contract and documented manual-dispatch prerequisite.
 - **Reader-friction and no-edit evidence.** Repository tests passed `282/282`, the repository validator reported
   `0 finding(s)`, and hosted PR #85 passed. Answer-key-blind isolated runs with Claude Fable 5 and Codex passed the
   new English and Korean transfer fixtures plus causation-boundary coverage; both runtimes preserved the F29 and
