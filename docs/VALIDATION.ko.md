@@ -123,7 +123,10 @@ bump 단계는 major transition 분기가 적용되는 경우를 제외하면 �
 양쪽 카탈로그 행을 하나의 `main` first-parent commit에서 함께 도입해야 합니다. Review 보정을 첫
 릴리스 전에 반영할 수 있도록 이 도입 commit이 tag target보다 앞서는 것은 허용하지만, package와
 양쪽 행은 제안 버전으로 target까지 끊김 없이 유지되어야 하고 target은 여전히 전체 M1을 통과해야
-합니다. 분리 도입, 제거 후 재추가, 연속성을 읽을 수 없는 상태는 fail-closed입니다. 기존 tag와
+합니다. 분리 도입, 제거 후 재추가, 연속성을 읽을 수 없는 상태는 fail-closed입니다. `tag target`이
+atomic introduction commit보다 뒤라면 현재 `main` tree에 아래의 exact initial-release target
+record가 있어야 합니다. M2와 M3는 이 record를 함께 사용하며, 같은 버전을 선언한 모든 commit을
+서로 바꿔 쓸 수 있는 대상으로 취급하지 않습니다. 기존 tag와
 SemVer precedence가 같은 버전(`+build` alias 포함)은 만들 수 없습니다.
 
 일회성 baseline 분기는 target에 canonical prepared cutover record가 있을 때만 활성화됩니다. Plan은
@@ -137,7 +140,7 @@ commit이어야 합니다. T1과 T2도 유지되어 최초 attempt는 `1`, 이�
 
 ## 추적 transition 증거
 
-두 증거 유형은 모두 strict JSON object입니다. 알 수 없거나 중복된 key, 잘못된 type,
+모든 증거 유형은 strict JSON object입니다. 알 수 없거나 중복된 key, 잘못된 type,
 path/content identity 불일치, 잘못된 날짜와 관측 불가 상태는 fail-closed입니다.
 `authorization_id`는 `owner-YYYYMMDD-<16 lowercase hex>` 형식이어야 하고 그 날짜는
 `approved_at`과 같아야 합니다. 이 식별자는 저장소 안에서 사용하는 allowlist handle이지 승인자를
@@ -147,6 +150,29 @@ path/content identity 불일치, 잘못된 날짜와 관측 불가 상태는 fai
 absolute path, 저장소·외부 URL을 포함할 수 없습니다. Validator는 이 한정된 hygiene pattern을
 검사합니다. 그 밖의 민감하거나 식별 가능한 내용은 owner가 정확한 record와 diff를 검토하는 것이
 최종 기준입니다.
+
+### Initial-release target record
+
+경로: `.skillstead/initial-release-targets/<skill>-v0.1.0.json`
+
+```json
+{
+  "schema_version": 1,
+  "skill": "<skill>",
+  "version": "0.1.0",
+  "target_commit": "<40자 lowercase commit SHA 전체>",
+  "authorization_id": "owner-YYYYMMDD-<16 lowercase hex>",
+  "approved_at": "YYYY-MM-DD",
+  "reason": "<중립적인 공개 안전 설명>"
+}
+```
+
+새 skill의 검토된 `0.1.0` tag target이 package·catalog atomic introduction commit보다 뒤일 때만
+이 record가 필요합니다. 정확한 기존 target을 선택한 뒤, tag를 만들기 전에 record를 `main`에
+commit합니다. Target은 `main` 위에 있고 path-bound version을 선언해야 합니다. 유효한 record가 한 번
+나타나면 path와 semantic value는 불변입니다. 수정·삭제·이름 변경, off-main target 또는 version
+불일치는 영구적인 M3 finding입니다. 기존 릴리스와 atomic introduction commit 자체에 tag를 만드는
+initial release는 기존 expected-target 파생 규칙을 그대로 사용합니다.
 
 ### Retirement record
 
@@ -260,8 +286,9 @@ Bump-Adjustment: <기본 단계를 조정한 이유>
   periodic schedule. branch 생성/삭제 event는 tag 상태와 무관하므로 이제 M3를 실행하지
   않습니다). 따라서 실제로 삭제된 tag는 delete event에서 즉시 red가 되고, 끝내 생성되지 않은
   tag는 window 경과 후 다음 periodic run에서 red로 굳습니다.
-* **expected target** — tag를 보지 않고 파생한다: 일반 tag는 `main` first-parent에서 해당
-  skill의 선언 버전이 그 버전으로 바뀐 가장 오래된 commit, baseline tag 4개(record의 exact ref
+* **expected target** — tag를 보지 않고 파생한다: strict target record가 있는 initial `0.1.0` tag는
+  record의 exact commit, 해당 record가 없는 일반 tag는 `main` first-parent에서 skill의 선언 버전이
+  그 버전으로 바뀐 가장 오래된 commit, baseline tag 4개(record의 exact ref
   membership으로만 판정 — 버전 문자열 비교 아님)는 record가 도입된 commit. 다른 곳을 가리키는
   tag는 repoint finding이다.
 

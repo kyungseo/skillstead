@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
 
 from skillstead_validate.evidence_records import (  # noqa: E402
     RecordError,
+    parse_initial_release_target_record,
     parse_major_approval_record,
     parse_retirement_record,
 )
@@ -39,6 +40,20 @@ def major(**overrides) -> str:
         "authorization_id": "owner-20260729-fedcba9876543210",
         "approved_at": "2026-07-29",
         "reason": "The version transition intentionally communicates a breaking change.",
+    }
+    record.update(overrides)
+    return json.dumps(record)
+
+
+def initial_target(**overrides) -> str:
+    record = {
+        "schema_version": 1,
+        "skill": "alpha-skill",
+        "version": "0.1.0",
+        "target_commit": "a" * 40,
+        "authorization_id": "owner-20260830-0123456789abcdef",
+        "approved_at": "2026-08-30",
+        "reason": "The reviewed amendments are bound to this initial release target.",
     }
     record.update(overrides)
     return json.dumps(record)
@@ -116,6 +131,24 @@ class MajorApprovalRecordParsing(unittest.TestCase):
                 major(
                     authorization_id="owner-20260729-FEDCBA9876543210"),
                 "alpha-skill", "2.0.0")
+
+
+class InitialReleaseTargetRecordParsing(unittest.TestCase):
+    def test_valid_record(self) -> None:
+        record = parse_initial_release_target_record(
+            initial_target(), "alpha-skill", "0.1.0")
+        self.assertEqual(record.target_commit, "a" * 40)
+
+    def test_wrong_version_target_and_private_reason_rejected(self) -> None:
+        for value in (
+                initial_target(version="0.2.0"),
+                initial_target(target_commit="A" * 40),
+                initial_target(target_commit="abc"),
+                initial_target(reason="See /Users/example/private-note.")):
+            with self.subTest(value=value):
+                with self.assertRaises(RecordError):
+                    parse_initial_release_target_record(
+                        value, "alpha-skill", "0.1.0")
 
 
 if __name__ == "__main__":

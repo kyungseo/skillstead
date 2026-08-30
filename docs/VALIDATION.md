@@ -141,7 +141,10 @@ commit may precede the tag target so review fixes can land before the first
 release, but the package and both rows must remain continuously present at
 the proposed version through the target, which must still pass full M1. Any
 split introduction, removal/re-addition gap, or unreadable continuity state
-fails closed. No existing tag may share the proposed version's SemVer
+fails closed. When the tag target is later than the atomic introduction, the
+current `main` tree must carry the exact initial-release target record below;
+M2 and M3 both use that record instead of treating every same-version commit
+as interchangeable. No existing tag may share the proposed version's SemVer
 precedence (including `+build` aliases).
 
 The one-time baseline branch activates only when the target carries the
@@ -157,7 +160,7 @@ inventory with `baseline_finalization_sha:skills`; any decrease is a finding.
 
 ## Tracked transition evidence
 
-Both evidence types are strict JSON objects. Unknown or duplicate keys, wrong
+All evidence types are strict JSON objects. Unknown or duplicate keys, wrong
 types, path/content identity mismatches, malformed dates, and unobservable
 state fail closed. `authorization_id` must match
 `owner-YYYYMMDD-<16 lowercase hex>` and its date must equal `approved_at`.
@@ -170,6 +173,31 @@ tracker identifiers, local absolute paths, or repository/external URLs. The
 validator applies those bounded hygiene patterns; owner review of the exact
 record and diff remains authoritative for other sensitive or identifying
 content.
+
+### Initial-release target record
+
+Path: `.skillstead/initial-release-targets/<skill>-v0.1.0.json`
+
+```json
+{
+  "schema_version": 1,
+  "skill": "<skill>",
+  "version": "0.1.0",
+  "target_commit": "<full 40-character lowercase commit SHA>",
+  "authorization_id": "owner-YYYYMMDD-<16 lowercase hex>",
+  "approved_at": "YYYY-MM-DD",
+  "reason": "<neutral public-safe explanation>"
+}
+```
+
+The record is required only when a new skill's reviewed `0.1.0` tag target is
+later than its atomic package-and-catalog introduction commit. Commit it to
+`main` after selecting the exact already-existing target and before creating
+the tag. The target must be on `main` and declare the path-bound version. Once
+a valid record appears, its path and semantic value are immutable; mutation,
+deletion, rename, an off-main target, or a mismatched version is a durable M3
+finding. Existing releases and initial releases tagged at their atomic
+introduction commit keep the legacy expected-target derivation unchanged.
 
 ### Retirement record
 
@@ -304,12 +332,13 @@ For every `<name>/vX.Y.Z` tag, on every run:
   A genuinely deleted tag therefore still turns red at its delete event
   immediately, and a tag that is never created hardens to red at the next
   periodic run after the window expires.
-* **Expected target** — derived without looking at the tag: for an ordinary
-  tag, the oldest `main` first-parent commit where the skill's declared
-  version changed to the tag's version; for the four baseline tags (exact
-  ref membership in the cutover record, never version-string matching), the
-  commit that introduced the record. A tag pointing anywhere else is a
-  repoint finding.
+* **Expected target** — derived without looking at the tag: for an initial
+  `0.1.0` tag with a strict target record, the record's exact commit; for an
+  ordinary tag without such a record, the oldest `main` first-parent commit
+  where the skill's declared version changed to the tag's version; for the
+  four baseline tags (exact ref membership in the cutover record, never
+  version-string matching), the commit that introduced the record. A tag
+  pointing anywhere else is a repoint finding.
 
 Comparisons use peeled commit SHAs — annotated and lightweight tags mix in
 this repository's history and tag-object SHAs would split them.

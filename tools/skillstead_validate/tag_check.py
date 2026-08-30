@@ -6,7 +6,8 @@ creation-time checks guarantee nothing durable. Checks:
 * I-2  — the peeled target declares exactly the tag's version.
 * I-8  — the peeled target is a commit on ``main``.
 * I-3-ⓒ — durable relation: the expected target is derived *without looking
-  at the tag*. General tags: the oldest ``main`` first-parent commit where the
+  at the tag*. A recorded initial release uses its exact immutable target;
+  other general tags use the oldest ``main`` first-parent commit where the
   skill's declared version changed to the tag's version. Baseline tags (exact
   ref membership in the cutover record's ``baseline_tags``): the first-parent
   commit where the record with the current ``attempt`` was introduced.
@@ -38,9 +39,12 @@ from pathlib import Path
 
 from . import record_schema
 from .evidence_records import (
+    INITIAL_RELEASE_TARGET_DIR,
     RETIREMENT_DIR,
+    InitialReleaseTargetRecord,
     RecordError,
     RetirementRecord,
+    parse_initial_release_target_record,
     parse_retirement_record,
 )
 from .findings import Finding
@@ -58,6 +62,8 @@ from .gitio import (
 RECORD_PATH = record_schema.RECORD_PATH
 _TAG_RE = re.compile(r"^([a-z0-9][a-z0-9-]*)/v(\d+\.\d+\.\d+)$")
 _TAG_SHAPE = re.compile(r"^[^/]+/v")
+_INITIAL_TARGET_FILE = re.compile(
+    r"^([a-z0-9][a-z0-9-]*)-v(\d+\.\d+\.\d+)\.json$")
 
 
 class _RecordError(ValueError):
@@ -238,6 +244,105 @@ def _retirement_history_findings(
     return findings
 
 
+def _initial_release_target_history(
+        repo: Path, history: _History
+) -> tuple[dict[tuple[str, str], InitialReleaseTargetRecord], list[Finding]]:
+    """Read immutable initial-target bindings from first-parent history.
+
+    A current-tree-only lookup would let a record be deleted and the tag be
+    repointed to the legacy introduction commit. Once a valid binding appears,
+    its path and semantic value therefore remain durable.
+    """
+    findings: list[Finding] = []
+    known: dict[tuple[str, str], InitialReleaseTargetRecord] = {}
+    reported: set[tuple[str, str, str]] = set()
+    commit_set = set(history.commits)
+
+    def report(kind: str, key: tuple[str, str], commit: str,
+               detail: str) -> None:
+        identity = (kind, *key)
+        if identity not in reported:
+            reported.add(identity)
+            findings.append(Finding(
+                "INITIAL-RELEASE-TARGET-HISTORY", "/".join(key),
+                f"{detail} at {commit[:12]} (fail-closed)"))
+
+    try:
+        changed_commits = git(
+            repo, "log", "--first-parent", "--reverse", "--format=%H",
+            history.commits[0], "--", INITIAL_RELEASE_TARGET_DIR).split()
+    except GitError as error:
+        findings.append(Finding(
+            "GIT", INITIAL_RELEASE_TARGET_DIR,
+            f"initial-target history unobservable (fail-closed): {error}"))
+        return known, findings
+
+    for commit in changed_commits:  # oldest change -> newest change
+        try:
+            paths = files_at(repo, commit, INITIAL_RELEASE_TARGET_DIR)
+        except GitError as error:
+            findings.append(Finding(
+                "GIT", INITIAL_RELEASE_TARGET_DIR,
+                f"initial-target history unobservable at {commit[:12]} "
+                f"(fail-closed): {error}"))
+            return known, findings
+
+        current: dict[tuple[str, str], InitialReleaseTargetRecord] = {}
+        prefix = INITIAL_RELEASE_TARGET_DIR + "/"
+        for path in sorted(paths):
+            leaf = path.removeprefix(prefix)
+            match = _INITIAL_TARGET_FILE.fullmatch(leaf)
+            if "/" in leaf or match is None:
+                findings.append(Finding(
+                    "INITIAL-RELEASE-TARGET-HISTORY", path,
+                    f"unexpected initial-target record path at "
+                    f"{commit[:12]} (fail-closed)"))
+                continue
+            skill, version = match.groups()
+            text = file_at(repo, commit, path)
+            if text is None:
+                findings.append(Finding(
+                    "INITIAL-RELEASE-TARGET-HISTORY", path,
+                    f"record content unobservable at {commit[:12]} "
+                    "(fail-closed)"))
+                continue
+            try:
+                record = parse_initial_release_target_record(
+                    text, skill, version)
+            except RecordError as error:
+                findings.append(Finding(
+                    "INITIAL-RELEASE-TARGET-HISTORY", path,
+                    f"record rejected at {commit[:12]} "
+                    f"(fail-closed): {error}"))
+                continue
+            key = (skill, version)
+            current[key] = record
+            if record.target_commit not in commit_set:
+                report(
+                    "off-main", key, commit,
+                    f"record target {record.target_commit[:12]} is not on main")
+            elif history.version_at(
+                    record.target_commit, skill) != version:
+                report(
+                    "wrong-version", key, commit,
+                    "record target does not declare the path-bound version")
+
+        for key, original in known.items():
+            observed = current.get(key)
+            if observed is None:
+                report(
+                    "missing", key, commit,
+                    "initial-target record disappeared or moved")
+            elif observed != original:
+                report(
+                    "mutated", key, commit,
+                    "initial-target record semantic value changed")
+        for key, record in current.items():
+            known.setdefault(key, record)
+
+    return known, findings
+
+
 def run_tag_checks(
     repo: Path,
     main_ref: str = "main",
@@ -253,6 +358,9 @@ def run_tag_checks(
         return [Finding("GIT", main_ref, f"main history unobservable (fail-closed): {e}")]
 
     findings.extend(_retirement_history_findings(repo, history))
+    initial_targets, initial_target_findings = \
+        _initial_release_target_history(repo, history)
+    findings.extend(initial_target_findings)
 
     record: dict | None = None
     try:
@@ -312,11 +420,16 @@ def run_tag_checks(
             if record_intro is not None and target != record_intro:
                 findings.append(Finding("I-3-c", name, f"baseline tag target {target[:12]} != record introduction commit {record_intro[:12]}"))
         else:
-            expected = history.oldest_version_change(skill, version) if on_main else None
+            binding = initial_targets.get((skill, version))
+            expected = (
+                binding.target_commit if binding is not None
+                else history.oldest_version_change(skill, version)
+            ) if on_main else None
             if expected is None:
                 findings.append(Finding("I-3-c", name, f"no main first-parent commit introduces version {version} for {skill} (fail-closed)"))
             elif target != expected:
-                findings.append(Finding("I-3-c", name, f"target {target[:12]} != expected {expected[:12]} (repoint suspected)"))
+                source = "initial-release target record" if binding else "version introduction"
+                findings.append(Finding("I-3-c", name, f"target {target[:12]} != expected {expected[:12]} from {source} (repoint suspected)"))
 
     # I-5: existence only — target correctness is I-3-ⓒ's job, and merging
     # the two would leak the baseline exception into I-5 (the contract requires

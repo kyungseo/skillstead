@@ -58,6 +58,23 @@ def _write_major_record(
     }), encoding="utf-8")
 
 
+def _write_initial_target_record(
+        repo: Path, target: str, *, skill: str = "gamma-skill",
+        version: str = "0.1.0") -> None:
+    path = repo / ".skillstead/initial-release-targets" / (
+        f"{skill}-v{version}.json")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({
+        "schema_version": 1,
+        "skill": skill,
+        "version": version,
+        "target_commit": target,
+        "authorization_id": "owner-20260830-0123456789abcdef",
+        "approved_at": "2026-08-30",
+        "reason": "The reviewed amendments are bound to this initial release target.",
+    }), encoding="utf-8")
+
+
 def _retire_beta(
         repo: Path, *, last_release_ref: str | None = "beta-skill/v0.4.0",
         include_record: bool = True) -> None:
@@ -358,7 +375,7 @@ class ReleaseGateFixtures(unittest.TestCase):
         commit_all(self.repo, "add gamma without catalog rows")
         self.assertIn("I-7", self._preflight([entry("gamma-skill", None, "0.1.0")]))
 
-    def test_new_skill_allows_continuous_pre_tag_amendments(self) -> None:
+    def test_new_skill_amendment_target_requires_exact_binding(self) -> None:
         _add_unreleased_gamma(self.repo)
         skill_md = self.repo / "skills/gamma-skill/SKILL.md"
         skill_md.write_text(
@@ -372,9 +389,33 @@ class ReleaseGateFixtures(unittest.TestCase):
                     "| [`gamma-skill`](./skills/gamma-skill) | Fixture |",
                     "| [`gamma-skill`](./skills/gamma-skill) | Reviewed fixture |"),
                 encoding="utf-8")
-        commit_all(self.repo, "amend unreleased gamma package and catalogs")
+        target = commit_all(
+            self.repo, "amend unreleased gamma package and catalogs")
+        plan = parse_plan(plan_json(
+            target, [entry("gamma-skill", None, "0.1.0")]))
+        self.assertIn(
+            "INITIAL-RELEASE-TARGET",
+            {finding.check for finding in preflight(self.repo, plan)})
+
+        _write_initial_target_record(self.repo, target)
+        commit_all(self.repo, "bind reviewed initial release target")
         self.assertEqual(
-            self._preflight([entry("gamma-skill", None, "0.1.0")]), set())
+            preflight(self.repo, plan), [])
+
+    def test_new_skill_target_binding_rejects_different_target(self) -> None:
+        _add_unreleased_gamma(self.repo)
+        skill_md = self.repo / "skills/gamma-skill/SKILL.md"
+        skill_md.write_text(
+            skill_md.read_text(encoding="utf-8") + "\nReviewed amendment.\n",
+            encoding="utf-8")
+        target = commit_all(self.repo, "amend unreleased gamma")
+        _write_initial_target_record(self.repo, "a" * 40)
+        commit_all(self.repo, "bind wrong initial target")
+        plan = parse_plan(plan_json(
+            target, [entry("gamma-skill", None, "0.1.0")]))
+        self.assertIn(
+            "INITIAL-RELEASE-TARGET",
+            {finding.check for finding in preflight(self.repo, plan)})
 
     def test_new_skill_rejects_package_gap_before_first_tag(self) -> None:
         import shutil
