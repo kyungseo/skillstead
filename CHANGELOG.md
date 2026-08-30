@@ -32,9 +32,9 @@ Repository-level changes since the last dated entry.
 - **Street Artist public package.** Added the self-contained `street-portrait-artist` package, bilingual guides,
   public-safe synthetic Twin Portrait gallery, and repository-only behavior fixtures without publishing private
   portrait inputs or outputs.
-- **Skill-scoped pull-request validation.** Independent Skill changes keep the fast repository-wide checks without
-  paying for the unrelated `svg-infographic` regression suite. SVG package and example inputs run both the SVG and
-  validator suites; workflow, classifier and unclassifiable-path changes fail closed to both.
+- **Change-scoped event validation.** Pull requests and `main` pushes keep the fast repository-wide checks while
+  running heavy suites only for their observed inputs. SVG package and example inputs run both the SVG and validator
+  suites; workflow, classifier, unreadable and non-ancestor changes fail closed to both, and the daily run stays full.
 - **Fork-safe Pages deployment.** Pushes publish Pages automatically only from `kyungseo/skillstead`. Fork owners may
   opt in with a manual dispatch after enabling Pages in their own repository.
 

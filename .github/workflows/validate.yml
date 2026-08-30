@@ -4,16 +4,17 @@
 # silences the other. Continuous tag checks (M3) and the cutover evaluator
 # (M4) are added by later stages of the validator work.
 #
-# The two heavy suites run as parallel jobs, and on pull_request events they
-# run only when the change set touches their inputs (the `scope` job derives
-# that from the diff, fail-closed to "run everything" when it cannot tell).
+# The two heavy suites run as parallel jobs, and on pull_request and main-push
+# events they run only when the change set touches their inputs (the `scope`
+# job derives that from the diff, fail-closed to "run everything" when it
+# cannot tell).
 # The SVG suite is package-specific; changing another independent skill does
 # not make that suite relevant. SVG package/example changes also run the
 # validator suite because repository fixtures invoke those scripts directly.
-# Push runs always run everything, and the daily periodic
-# workflow stays full, so a scoping mistake on a PR is caught at the merge
-# push at the latest. The `validate` job aggregates the results under the
-# historical check name.
+# Workflow/classifier changes run everything. The daily periodic workflow also
+# stays full, so it remains the eventless fallback for repository state that a
+# scoped event run cannot observe. The `validate` job aggregates the results
+# under the historical check name.
 name: validate
 
 on:
@@ -27,9 +28,8 @@ permissions:
   contents: read
 
 jobs:
-  # PR-only diff classification; push runs get "run everything" without a
-  # checkout. A failed diff also means "run everything" — never skip on an
-  # unobserved change set.
+  # PR and main-push diff classification. A missing, non-ancestor or unreadable
+  # diff means "run everything" — never skip on an unobserved change set.
   scope:
     if: github.event_name == 'pull_request' || github.event_name == 'push'
     runs-on: ubuntu-latest
@@ -38,7 +38,6 @@ jobs:
       validator: ${{ steps.diff.outputs.validator }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        if: github.event_name == 'pull_request'
         with:
           fetch-depth: 0
 
@@ -50,17 +49,31 @@ jobs:
             echo "validator=true" >> "$GITHUB_OUTPUT"
             exit 0
           }
-          if [ "${GITHUB_EVENT_NAME}" != "pull_request" ]; then
-            run_all
-          fi
+          case "${GITHUB_EVENT_NAME}" in
+            pull_request)
+              diff_base="origin/${GITHUB_BASE_REF}"
+              ;;
+            push)
+              case "${GITHUB_EVENT_BEFORE}" in
+                ""|0000000000000000000000000000000000000000) run_all ;;
+              esac
+              git cat-file -e "${GITHUB_EVENT_BEFORE}^{commit}" 2>/dev/null || run_all
+              git merge-base --is-ancestor "${GITHUB_EVENT_BEFORE}" HEAD || run_all
+              diff_base="${GITHUB_EVENT_BEFORE}"
+              ;;
+            *)
+              run_all
+              ;;
+          esac
           # --no-renames exposes both sides of a move, so moving a file out of
           # an SVG input path cannot hide the removed path from classification.
-          changed="$(git -c core.quotePath=off diff --name-only --no-renames "origin/${GITHUB_BASE_REF}...HEAD")" || run_all
+          changed="$(git -c core.quotePath=off diff --name-only --no-renames "${diff_base}...HEAD")" || run_all
           classified="$(printf '%s\n' "$changed" | \
             PYTHONPATH=tools python3 -m skillstead_validate.ci_scope)" || run_all
           printf '%s\n' "$classified" >> "$GITHUB_OUTPUT"
         env:
           GITHUB_BASE_REF: ${{ github.base_ref }}
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
 
   svg-infographic-suite:
     needs: scope
