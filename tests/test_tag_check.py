@@ -56,6 +56,44 @@ def _release_alpha(repo: Path, version: str, prev: str) -> str:
     return sha
 
 
+def _initial_gamma_with_amendment(repo: Path) -> tuple[str, str]:
+    pkg = repo / "skills/gamma-skill"
+    pkg.mkdir(parents=True)
+    (pkg / "SKILL.md").write_text(
+        "---\nname: gamma-skill\nlicense: LICENSE.txt\nmetadata:\n"
+        "  version: 0.1.0\n---\n\nInitial body.\n",
+        encoding="utf-8")
+    (pkg / "CHANGELOG.md").write_text(
+        "# Changelog\n\n## [0.1.0] — 2026-08-30\n\nInitial.\n",
+        encoding="utf-8")
+    (pkg / "LICENSE.txt").write_text(
+        (repo / "LICENSE").read_text(encoding="utf-8"),
+        encoding="utf-8")
+    introduction = commit_all(repo, "introduce gamma 0.1.0")
+    (pkg / "SKILL.md").write_text(
+        (pkg / "SKILL.md").read_text(encoding="utf-8")
+        + "\nReviewed amendment.\n", encoding="utf-8")
+    target = commit_all(repo, "amend gamma before first tag")
+    _git(repo, "tag", "gamma-skill/v0.1.0", target)
+    return introduction, target
+
+
+def _write_initial_target_record(repo: Path, target: str) -> Path:
+    path = (repo / ".skillstead/initial-release-targets/"
+            "gamma-skill-v0.1.0.json")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({
+        "schema_version": 1,
+        "skill": "gamma-skill",
+        "version": "0.1.0",
+        "target_commit": target,
+        "authorization_id": "owner-20260830-0123456789abcdef",
+        "approved_at": "2026-08-30",
+        "reason": "The reviewed amendments are bound to this initial release target.",
+    }), encoding="utf-8")
+    return path
+
+
 def _retire_beta(repo: Path) -> str:
     import shutil
     shutil.rmtree(repo / "skills/beta-skill")
@@ -105,6 +143,35 @@ class TagCheckFixtures(unittest.TestCase):
         self.assertNotIn("I-2", checks)
         self.assertNotIn("I-8", checks)
         self.assertNotIn("I-5", checks)
+
+    def test_initial_amendment_tag_requires_binding(self) -> None:
+        _initial_gamma_with_amendment(self.repo)
+        self.assertIn("I-3-c", self.checks())
+
+    def test_initial_amendment_binding_is_green_and_repoint_safe(self) -> None:
+        introduction, target = _initial_gamma_with_amendment(self.repo)
+        _write_initial_target_record(self.repo, target)
+        commit_all(self.repo, "bind reviewed gamma target")
+        self.assertEqual(run_tag_checks(self.repo), [])
+
+        _git(self.repo, "tag", "-f", "gamma-skill/v0.1.0", introduction)
+        self.assertIn("I-3-c", self.checks())
+
+    def test_initial_target_record_mutation_and_deletion_are_durable_red(self) -> None:
+        _, target = _initial_gamma_with_amendment(self.repo)
+        path = _write_initial_target_record(self.repo, target)
+        commit_all(self.repo, "bind reviewed gamma target")
+        original = path.read_text(encoding="utf-8")
+
+        path.write_text(
+            original.replace("reviewed amendments", "different amendments"),
+            encoding="utf-8")
+        commit_all(self.repo, "mutate gamma target record")
+        self.assertIn("INITIAL-RELEASE-TARGET-HISTORY", self.checks())
+
+        path.unlink()
+        commit_all(self.repo, "delete gamma target record")
+        self.assertIn("INITIAL-RELEASE-TARGET-HISTORY", self.checks())
 
     # E7-ⓕ: multi-skill release tag의 부분 삭제 → I-5
     def test_e7f_partial_deletion_of_multi_skill_release(self) -> None:

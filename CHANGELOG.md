@@ -10,6 +10,12 @@ Repository-level changes since the last dated entry.
 
 ### Repository
 
+- **Repairable PR tag validation.** Pull requests now run M3 against the checked-out merge candidate, while
+  `main` pushes, tag events and the periodic workflow continue to validate the actual `origin/main` state. A
+  validator repair can therefore prove its post-merge result without weakening continuous checks on published state.
+- **Durable first-release target binding.** When review amendments make a new skill's `0.1.0` tag target later
+  than its atomic introduction commit, M2 and M3 now share one strict immutable target record. Tags without such
+  a record keep their prior expected-target rule, while record mutation, deletion and tag repointing fail closed.
 - **Reviewable first-release window.** M2 still requires a new skill package and both catalog rows to be introduced
   atomically, while allowing continuous pre-tag review amendments before the first `0.1.0` tag target.
 - **Locale-matched catalog links.** Skill names in the Korean catalog now open each package's Korean README directly;

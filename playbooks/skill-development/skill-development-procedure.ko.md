@@ -94,7 +94,10 @@ Merge-to-tag 구간의 임시 red를 숨기지 않습니다. 실제 merge target
 
 신규 skill은 package와 양쪽 catalog row를 하나의 `main` first-parent commit에서 함께 도입합니다.
 첫 tag 전 review 보정 commit은 허용하지만, 세 release surface가 `0.1.0`으로 끊김 없이 유지되고 최종
-tag target이 M1을 통과해야 합니다. 분리 도입이나 제거 후 재추가는 지원되는 우회 경로가 아닙니다.
+tag target이 M1을 통과해야 합니다. 검토된 target이 atomic introduction보다 뒤라면 exact SHA를 선택하고
+strict `.skillstead/initial-release-targets/<skill>-v0.1.0.json` binding을 `main`에 commit한 뒤 tag 생성 전에
+M2를 다시 실행합니다. Binding commit 자체는 tag target이 아닙니다. 분리 도입, 제거 후 재추가, mutable
+record 또는 binding 없는 후속 target은 지원되는 우회 경로가 아닙니다.
 
 Publish 단계 자체에는 그런 판단이 필요하지 않습니다. Release wrapper는 발행 직후의 관측이 스스로
 모순될 때에 **한해서만** 정해진 예산 안에서 재관측하고 그 결과를 보고합니다. 따라서 wrapper가 돌려준

@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "skill": "street-portrait-artist",
+  "version": "0.1.0",
+  "target_commit": "b2cad05ec351820b7d173bf413f738210641aa1e",
+  "authorization_id": "owner-20260830-8d0c1f74a6b293e5",
+  "approved_at": "2026-08-30",
+  "reason": "The reviewed initial release includes continuous pre-tag amendments after its atomic introduction."
+}

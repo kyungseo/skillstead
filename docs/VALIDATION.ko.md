@@ -19,7 +19,7 @@
 | M1 | 저장소 검증 — package 구조, `metadata.version` ↔ 스킬별 CHANGELOG 일치와 루트 CHANGELOG의 현재 버전 수록 여부(I-1), 카탈로그 `Version` 열(I-7), package 완전성(I-9), 라이선스 사본 바이트 일치, active identity 예약어 | 모든 PR, `main` push, 매일 schedule | `PYTHONPATH=tools python3 -m skillstead_validate repo` |
 | M2 | 릴리스 preflight와 tag 생성 — 통상 payload diff gate와 exact-record baseline 분기, bump 단계 검사(I-6), inventory·retirement 보호(I-10), major transition 승인, 신규 skill 최초 릴리스, tag 고유성 | 릴리스 제안 시. dry-run 가능 | `… preflight --plan PLAN.json` / `… apply-tags --plan PLAN.json` (`git push --atomic`으로 remote에 발행. push 실패 시 local ref rollback) |
 | M2-SVG | `svg-infographic` artifact release gate — exact canonical inventory, clean source identity, package pair 검증, 2× PNG 크기, staging→repository byte 동일성과 source/artifact commit 경계 | 해당 스킬의 M2 preflight 전. read-only | `… svg-release-artifacts --staging STAGING --source-commit SHA [--compare-repository] [--artifact-commit SHA]` |
-| M3 | tag·retirement history 지속 검사 — 모든 namespaced tag의 I-2·I-5·I-8, durable expected-target 관계, retirement record 지속성과 identity 재활성화를 매 실행 검사 | 모든 PR, push, tag 생성/삭제, 매일 schedule | `… tags --main-ref origin/main` |
+| M3 | tag·retirement history 지속 검사 — 모든 namespaced tag의 I-2·I-5·I-8, durable expected-target 관계, retirement record 지속성과 identity 재활성화를 매 실행 검사 | 모든 PR, push, tag 생성/삭제, 매일 schedule | PR merge candidate: `… tags --main-ref HEAD`; 공개 상태: `… tags --main-ref origin/main` |
 | M4 | cutover verdict — cutover record·INSTALL pin·baseline ref·GitHub Releases에 대한 ordered evaluator | CI 상시 + 모든 릴리스 작업 전후 | `… cutover --live --repo-slug OWNER/REPO` |
 | M5 | canonical release wrapper — **GitHub Release 작업의 유일한 지원 경로** | 수동 또는 `release` workflow | `… release --request REQUEST.json --repo-slug OWNER/REPO [--dry-run]` |
 
@@ -85,7 +85,7 @@ release의 `published_at`이 null이거나 빈 문자열인 경우 포함), tran
 
 | 파일 | trigger | 목적 |
 | --- | --- | --- |
-| `validate.yml` | PR, `main` push, tag 생성/삭제 | event 기반 검증을 병렬 job으로 실행 — `svg-infographic` regression suite와 validator self-test suite가 경량 검사(M1+gallery+M3+M4+skills-ref) 옆에서 돌고, `validate` aggregate job이 기존 check 이름을 유지. PR에서 SVG suite는 `skills/svg-infographic/**`와 `examples/svg-infographic/**`가 바뀔 때 실행하며, 다른 독립 Skill 변경은 모든 Skill에 적용되는 경량 검사를 유지하되 무관한 SVG suite 비용은 내지 않음. Repository fixture가 SVG script를 직접 실행하므로 SVG input은 validator self-test도 실행함. `tools/**`·`tests/**`는 validator self-test를 실행하고 `.github/**`·diff 판독 불가·모든 push는 양 heavy suite를 실행함. 알 수 없는 scope output은 skip으로 완화하지 않고 aggregate를 실패시킴. tag event는 명시적 `main` checkout으로 M3+M4 실행, branch 생성/삭제 event는 아무것도 실행하지 않음 |
+| `validate.yml` | PR, `main` push, tag 생성/삭제 | event 기반 검증을 병렬 job으로 실행 — `svg-infographic` regression suite와 validator self-test suite가 경량 검사(M1+gallery+M3+M4+skills-ref) 옆에서 돌고, `validate` aggregate job이 기존 check 이름을 유지. PR에서 SVG suite는 `skills/svg-infographic/**`와 `examples/svg-infographic/**`가 바뀔 때 실행하며, 다른 독립 Skill 변경은 모든 Skill에 적용되는 경량 검사를 유지하되 무관한 SVG suite 비용은 내지 않음. Repository fixture가 SVG script를 직접 실행하므로 SVG input은 validator self-test도 실행함. `tools/**`·`tests/**`는 validator self-test를 실행하고 `.github/**`·diff 판독 불가·모든 push는 양 heavy suite를 실행함. 알 수 없는 scope output은 skip으로 완화하지 않고 aggregate를 실패시킴. PR M3는 checkout된 merge candidate를, `main` push M3는 `origin/main`을 검사함. tag event는 명시적 `main` checkout으로 M3+M4 실행, branch 생성/삭제 event는 아무것도 실행하지 않음 |
 | `validate-periodic.yml` | 매일 schedule(`17 3 * * *` UTC), 수동 dispatch | event가 발생하지 않는 상태 변화(예: push 밖의 tag repoint)를 잡는 주기적 안전망 |
 | `release.yml` | 수동 dispatch 전용 | M5 wrapper 진입점. dry-run이 기본값이며 checkout이 `main`에 고정되어 있어 dispatch가 미검토 wrapper나 request를 write token으로 실행할 수 없음 |
 | `pages.yml` | `main` push, 수동 dispatch | 제한된 gallery/examples site를 게시함. 자동 배포는 `kyungseo/skillstead`에만 허용되어 fork push에서는 deploy job을 skip함. Fork owner는 수동 dispatch로 opt-in할 수 있지만, 해당 fork에서 GitHub Pages를 활성화하지 않았다면 Pages setup 단계에서 계속 실패함 |
@@ -123,7 +123,10 @@ bump 단계는 major transition 분기가 적용되는 경우를 제외하면 �
 양쪽 카탈로그 행을 하나의 `main` first-parent commit에서 함께 도입해야 합니다. Review 보정을 첫
 릴리스 전에 반영할 수 있도록 이 도입 commit이 tag target보다 앞서는 것은 허용하지만, package와
 양쪽 행은 제안 버전으로 target까지 끊김 없이 유지되어야 하고 target은 여전히 전체 M1을 통과해야
-합니다. 분리 도입, 제거 후 재추가, 연속성을 읽을 수 없는 상태는 fail-closed입니다. 기존 tag와
+합니다. 분리 도입, 제거 후 재추가, 연속성을 읽을 수 없는 상태는 fail-closed입니다. `tag target`이
+atomic introduction commit보다 뒤라면 현재 `main` tree에 아래의 exact initial-release target
+record가 있어야 합니다. M2와 M3는 이 record를 함께 사용하며, 같은 버전을 선언한 모든 commit을
+서로 바꿔 쓸 수 있는 대상으로 취급하지 않습니다. 기존 tag와
 SemVer precedence가 같은 버전(`+build` alias 포함)은 만들 수 없습니다.
 
 일회성 baseline 분기는 target에 canonical prepared cutover record가 있을 때만 활성화됩니다. Plan은
@@ -137,7 +140,7 @@ commit이어야 합니다. T1과 T2도 유지되어 최초 attempt는 `1`, 이�
 
 ## 추적 transition 증거
 
-두 증거 유형은 모두 strict JSON object입니다. 알 수 없거나 중복된 key, 잘못된 type,
+모든 증거 유형은 strict JSON object입니다. 알 수 없거나 중복된 key, 잘못된 type,
 path/content identity 불일치, 잘못된 날짜와 관측 불가 상태는 fail-closed입니다.
 `authorization_id`는 `owner-YYYYMMDD-<16 lowercase hex>` 형식이어야 하고 그 날짜는
 `approved_at`과 같아야 합니다. 이 식별자는 저장소 안에서 사용하는 allowlist handle이지 승인자를
@@ -147,6 +150,29 @@ path/content identity 불일치, 잘못된 날짜와 관측 불가 상태는 fai
 absolute path, 저장소·외부 URL을 포함할 수 없습니다. Validator는 이 한정된 hygiene pattern을
 검사합니다. 그 밖의 민감하거나 식별 가능한 내용은 owner가 정확한 record와 diff를 검토하는 것이
 최종 기준입니다.
+
+### Initial-release target record
+
+경로: `.skillstead/initial-release-targets/<skill>-v0.1.0.json`
+
+```json
+{
+  "schema_version": 1,
+  "skill": "<skill>",
+  "version": "0.1.0",
+  "target_commit": "<40자 lowercase commit SHA 전체>",
+  "authorization_id": "owner-YYYYMMDD-<16 lowercase hex>",
+  "approved_at": "YYYY-MM-DD",
+  "reason": "<중립적인 공개 안전 설명>"
+}
+```
+
+새 skill의 검토된 `0.1.0` tag target이 package·catalog atomic introduction commit보다 뒤일 때만
+이 record가 필요합니다. 정확한 기존 target을 선택한 뒤, tag를 만들기 전에 record를 `main`에
+commit합니다. Target은 `main` 위에 있고 path-bound version을 선언해야 합니다. 유효한 record가 한 번
+나타나면 path와 semantic value는 불변입니다. 수정·삭제·이름 변경, off-main target 또는 version
+불일치는 영구적인 M3 finding입니다. 기존 릴리스와 atomic introduction commit 자체에 tag를 만드는
+initial release는 기존 expected-target 파생 규칙을 그대로 사용합니다.
 
 ### Retirement record
 
@@ -260,8 +286,13 @@ Bump-Adjustment: <기본 단계를 조정한 이유>
   periodic schedule. branch 생성/삭제 event는 tag 상태와 무관하므로 이제 M3를 실행하지
   않습니다). 따라서 실제로 삭제된 tag는 delete event에서 즉시 red가 되고, 끝내 생성되지 않은
   tag는 window 경과 후 다음 periodic run에서 red로 굳습니다.
-* **expected target** — tag를 보지 않고 파생한다: 일반 tag는 `main` first-parent에서 해당
-  skill의 선언 버전이 그 버전으로 바뀐 가장 오래된 commit, baseline tag 4개(record의 exact ref
+* **reference selection** — PR은 제안된 validator와 record 상태가 포함된 checkout된 merge
+  candidate(`HEAD`)를 검사합니다. `main` push는 `origin/main`을 검사하고, tag event와 periodic
+  workflow도 grace 없이 공개된 `origin/main` 상태를 계속 검사합니다. 이 분리로 repair PR은
+  candidate 결과를 증명하되, merge 뒤에도 공개 상태가 red라면 그 사실을 숨기지 않습니다.
+* **expected target** — tag를 보지 않고 파생한다: strict target record가 있는 initial `0.1.0` tag는
+  record의 exact commit, 해당 record가 없는 일반 tag는 `main` first-parent에서 skill의 선언 버전이
+  그 버전으로 바뀐 가장 오래된 commit, baseline tag 4개(record의 exact ref
   membership으로만 판정 — 버전 문자열 비교 아님)는 record가 도입된 commit. 다른 곳을 가리키는
   tag는 repoint finding이다.
 

@@ -17,7 +17,9 @@ from .changelog import ChangelogError, topmost_released_version
 from .catalog import EN_HEADER, KO_HEADER, CatalogError, catalog_versions
 from .evidence_records import (
     RecordError,
+    initial_release_target_path,
     major_approval_path,
+    parse_initial_release_target_record,
     parse_major_approval_record,
     parse_retirement_record,
     retirement_path,
@@ -206,6 +208,54 @@ def _initial_release_history_findings(
                 f"version {proposed_version} through pre-tag amendment "
                 f"commit {commit[:12]}"))
     return findings
+
+
+def _initial_release_target_findings(
+        repo: Path, main_tip: str, target: str, skill: str,
+        proposed_version: str) -> list[Finding]:
+    """Bind a reviewed amendment target independently of the future tag.
+
+    The atomic introduction remains the default expected target. A later
+    continuous pre-tag amendment is valid only when current ``main`` carries
+    a strict owner-authorized record naming the exact earlier commit. This
+    lets M2 and M3 derive the same target without trusting the tag itself.
+    """
+    path = initial_release_target_path(skill, proposed_version)
+    text = file_at(repo, main_tip, path)
+    try:
+        history = git(
+            repo, "log", "--first-parent", "--reverse", "--format=%H",
+            target, "--", f"skills/{skill}").split()
+    except GitError as error:
+        return [Finding(
+            "GIT", skill,
+            f"initial-release target history unobservable (fail-closed): {error}")]
+    if not history:
+        return [Finding(
+            "D3-3", skill,
+            "initial-release target cannot be derived (fail-closed)")]
+    introduction = history[0]
+
+    if text is None:
+        if target == introduction:
+            return []
+        return [Finding(
+            "INITIAL-RELEASE-TARGET", path,
+            f"reviewed target {target[:12]} follows introduction "
+            f"{introduction[:12]} but has no exact target record")]
+    try:
+        record = parse_initial_release_target_record(
+            text, skill, proposed_version)
+    except RecordError as error:
+        return [Finding(
+            "INITIAL-RELEASE-TARGET", path,
+            f"record rejected (fail-closed): {error}")]
+    if record.target_commit != target:
+        return [Finding(
+            "INITIAL-RELEASE-TARGET", path,
+            f"record target {record.target_commit[:12]} != proposed target "
+            f"{target[:12]}")]
+    return []
 
 
 def _retired_row(skill: str, last_release_ref: str | None) -> str:
@@ -437,6 +487,7 @@ def preflight(repo: Path, plan: ReleasePlan, main_ref: str = "main") -> list[Fin
     if target not in positions:
         return [Finding("I-8", plan.target_commit, f"target {target[:12]} is not on {main_ref} first-parent history")]
     ordered = sorted(positions, key=positions.__getitem__)
+    main_tip = ordered[0]
     idx = positions[target]
     target_parent = ordered[idx + 1] if idx + 1 < len(ordered) else None
 
@@ -587,6 +638,8 @@ def preflight(repo: Path, plan: ReleasePlan, main_ref: str = "main") -> list[Fin
                         f"{e.proposed_version} at the tag target"))
             findings.extend(_initial_release_history_findings(
                 repo, target, e.skill, e.proposed_version, positions))
+            findings.extend(_initial_release_target_findings(
+                repo, main_tip, target, e.skill, e.proposed_version))
 
     # I-10: inventory reduction requires a target-bound retirement record and
     # the complete target-tree removal predicate.

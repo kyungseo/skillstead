@@ -16,6 +16,7 @@ from dataclasses import dataclass
 
 RETIREMENT_DIR = ".skillstead/retirements"
 MAJOR_APPROVAL_DIR = ".skillstead/major-approvals"
+INITIAL_RELEASE_TARGET_DIR = ".skillstead/initial-release-targets"
 RESERVED_SKILL_NAMES = frozenset({"sample-skill"})
 
 _NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
@@ -46,6 +47,16 @@ class MajorApprovalRecord:
     skill: str
     previous_ref: str
     proposed_version: str
+    authorization_id: str
+    approved_at: str
+    reason: str
+
+
+@dataclass(frozen=True)
+class InitialReleaseTargetRecord:
+    skill: str
+    version: str
+    target_commit: str
     authorization_id: str
     approved_at: str
     reason: str
@@ -190,9 +201,44 @@ def parse_major_approval_record(
     )
 
 
+def parse_initial_release_target_record(
+        text: str, expected_skill: str,
+        expected_version: str) -> InitialReleaseTargetRecord:
+    raw = _load_object(text)
+    _require_exact_keys(raw, {
+        "schema_version", "skill", "version", "target_commit",
+        "authorization_id", "approved_at", "reason",
+    })
+    _require_schema_and_identity(raw, expected_skill)
+    authorization_id, approved_at = _require_authorization(raw)
+
+    version = raw["version"]
+    if version != "0.1.0" or version != expected_version:
+        raise RecordError(
+            "version must be the path-bound initial release 0.1.0")
+    target_commit = raw["target_commit"]
+    if not isinstance(target_commit, str) \
+            or not re.fullmatch(r"[0-9a-f]{40}", target_commit):
+        raise RecordError(
+            "target_commit must be a full 40-character lowercase commit SHA")
+
+    return InitialReleaseTargetRecord(
+        skill=expected_skill,
+        version=version,
+        target_commit=target_commit,
+        authorization_id=authorization_id,
+        approved_at=approved_at,
+        reason=raw["reason"].strip(),
+    )
+
+
 def retirement_path(skill: str) -> str:
     return f"{RETIREMENT_DIR}/{skill}.json"
 
 
 def major_approval_path(skill: str, version: str) -> str:
     return f"{MAJOR_APPROVAL_DIR}/{skill}-v{version}.json"
+
+
+def initial_release_target_path(skill: str, version: str) -> str:
+    return f"{INITIAL_RELEASE_TARGET_DIR}/{skill}-v{version}.json"
