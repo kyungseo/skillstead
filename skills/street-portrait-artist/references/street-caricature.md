@@ -14,6 +14,22 @@ The portrait may be boldly transformed, but it should remain affectionate, reada
   explicitly depends on simplifying them.
 - Aim for “clearly this person, seen through one clever idea,” not anatomical copying or maximum distortion.
 
+## Construction Before Finish
+
+Use two distinct passes when the image surface supports an intermediate image or a targeted edit:
+
+1. `Construction Study`: establish the head envelope, center and eye axes, T-axis, mouth-chin rhythm, outer-anchor
+   silhouette, primary anchor, and its action-reaction response. Use sparse searching contours and simple value masses.
+   Do not finish the eyes, lips, skin, hair strands, clothing texture, or photographic shading in this pass.
+2. `Ink Final`: use the original portrait as identity correction and the accepted study as structural authority. Add
+   expressive line weight, open-paper planes, decisive black masses, and only the detail that supports recognition.
+   Rendering must not pull the face back toward anatomical copying or an enlarged-head photograph.
+
+Before the final pass, compare the study with the original reference. The head frame, T-axis, mouth-chin rhythm,
+expression, and primary anchor must still identify the subject. If the construction is wrong, revise the study rather
+than hiding the error under polished ink. When the surface cannot carry an intermediate image, include the same
+construction constraints in one generation and inspect structure before accepting finish quality.
+
 ## Material And Mark Contract
 
 - Surface: warm white or lightly toned drawing paper with visible but restrained fiber.
@@ -47,6 +63,8 @@ desired intensity.
 - The result reads as a colored realistic portrait, watercolor-photo render, or photo with an enlarged head rather
   than a redrawn relational caricature.
 - Dense crosshatching, black fill, or background detail buries the face and expression.
+- The construction study already looks like a finished portrait, leaving no clear relational design for the ink pass.
+- The final rendering restores photographic proportions and keeps only an oversized head as the caricature signal.
 
 ## Artist's Note
 

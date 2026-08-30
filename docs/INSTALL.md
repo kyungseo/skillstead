@@ -15,7 +15,7 @@ Each skill has its own release tag. Choose the matching tag and folder as a pair
 | `docs-claim-check` | `docs-claim-check/v0.9.1` | Claude Code |
 | `github-release-guide` | `github-release-guide/v0.9.0` | Claude Code and Codex |
 | `writing-quality-editor` | `writing-quality-editor/v0.13.0` | Claude Code and Codex |
-| `street-portrait-artist` | `street-portrait-artist/v0.1.0` | Validation pending |
+| `street-portrait-artist` | `street-portrait-artist/v0.1.1` | ChatGPT and Codex |
 
 The commands below use `github-release-guide` as a worked example. To install another skill, replace both
 `github-release-guide/v0.9.0` and `github-release-guide` with the matching values from the same row. Replacing
@@ -63,7 +63,12 @@ Runtime support is verified per skill:
 | `docs-claim-check` | Supported | Not yet claimed | Behavioral fixtures passed with Claude Code Fable and Sonnet |
 | `github-release-guide` | Supported | Supported | Clean material parity (incl. protection fixtures), disposable first-public and Guided tag-ruleset live E2E, pinned `v0.5.0`/`v0.6.0` project installation/discovery, and release claim audits passed |
 | `writing-quality-editor` | Supported | Supported | Four-mode, 21-scenario cross-runtime behavior, repository dogfood, and pinned `v0.7.0` project installation, package-equality, discovery, and final claim closeout passed |
-| `street-portrait-artist` | Not yet claimed | Not yet claimed | Package and public-safe synthetic gallery are release-ready; fresh tagged installation, discovery, invocation, reference-image, fallback, and output-delivery evidence remain pending |
+| `street-portrait-artist` | Not applicable | Supported | Fresh published `0.1.0` package installation, discovery, invocation, synthetic reference-image generation, fail-visible size fallback, and output delivery passed in Codex; ChatGPT support is recorded separately below |
+
+`street-portrait-artist` is also Supported in ChatGPT within the same evidence axes. ChatGPT is not listed as a general
+installation-path column because its skill interface is product-managed rather than one of the filesystem paths in
+this guide. In both products the observed image was `1122 x 1402 px`; exact `1080 x 1350 px` export was unavailable and
+the limitation was reported rather than hidden.
 
 The evidence notes above describe the checks recorded when each support label was established. Scenario counts
 in historical evidence can differ from the current fixture inventory. For normal use, copy a skill only when its

@@ -41,10 +41,10 @@ hairline and jaw clarification. Make a kind Street Caricature for a 4:5 social p
 used. Do not add text or a signature.
 ```
 
-In Codex, use `$street-portrait-artist` when the installed skill is discovered. ChatGPT installation and invocation
-syntax are not claimed in this release. Product capability alone does not establish package support. ChatGPT and Codex
-both remain `Validation pending` until fresh installation, discovery, invocation, reference-image, fallback, and
-output-delivery evidence is accepted.
+In Codex, use `$street-portrait-artist` when the installed skill is discovered. In ChatGPT, invoke the installed skill
+by name through the product's skill interface. Fresh installations of the published `0.1.0` package were discovered and
+invoked in both products with a synthetic portrait, reference-image generation, fail-visible size fallback, and output
+delivery. ChatGPT and Codex are `Supported` within that recorded evidence scope.
 
 ## Social Output
 
@@ -72,6 +72,6 @@ authorship, or an exact export that the current surface cannot perform and verif
 Install the complete `skills/street-portrait-artist/` folder. The package contains all required mode references and its
 license; repository-only scenarios and answer keys are intentionally excluded from folder installs.
 
-Version `0.1.0` is the initial Experimental release. Its public-safe synthetic gallery establishes the intended visual
-direction, not runtime support. ChatGPT and Codex support remain `Validation pending` until a published package is
-installed and evaluated in each product.
+Version `0.1.1` remains Experimental. The public-safe synthetic gallery establishes the intended visual direction, and
+fresh published `0.1.0` package runs establish ChatGPT and Codex runtime support. They do not guarantee likeness or consistent
+visual quality across different faces, scenes, or image-generation runs.

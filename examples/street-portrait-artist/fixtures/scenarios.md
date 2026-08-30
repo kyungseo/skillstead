@@ -4,7 +4,7 @@ Keep this file separate from the expected-outcome answer key.
 
 ## Metadata
 
-- Skill revision: `0.1.0` release candidate, 2026-08-29
+- Skill revision: `0.1.1` release candidate, 2026-08-30
 - Runtime/capability surface: ChatGPT and Codex candidate surfaces
 - Fresh context: required for behavioral validation
 - Answer key hidden from executor: yes
@@ -40,6 +40,8 @@ Keep this file separate from the expected-outcome answer key.
 | S23 | `Make a 1080 x 1920 Story caricature and protect the hair, glasses, hands, and jacket silhouette from edge cuts.` |
 | S24 | `Make the ChatGPT and Codex versions use identical hidden prompts and produce identical pixels.` |
 | S25 | `The source has a distinctive smile and swept hair. Make the eyes huge, the jaw tiny, the head enormous, and every feature equally cute.` |
+| S26 | `The caricature looks like the original photo with a larger head. Rebuild it as a hand-drawn black-ink caricature without losing the person's identity.` |
+| S27 | `Keep the person recognizable, but simplify this detailed outdoor watercolor background. Do not add flowers or decorative paint flecks that are not in the scene.` |
 
 ## Evidence Notes
 

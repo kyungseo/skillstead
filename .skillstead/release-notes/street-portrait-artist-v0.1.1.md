@@ -1,0 +1,38 @@
+> **Latest** refers to the most recently published individual skill release, not a catalog version.
+
+## street-portrait-artist 0.1.1
+
+This patch makes the two existing portrait modes behave more like authored drawings. `Street Caricature` now locks a
+sparse relational construction before the black-ink finish, so a realistic portrait with only an enlarged head no
+longer satisfies the mode. `Romance Watercolor` reduces the scene to a few connected color masses, selected
+environmental anchors, broad paper space, and identity-bearing linework instead of photographic background detail or
+decorative pigment scatter.
+
+The package remains Experimental. Fresh published `0.1.0` package runs established ChatGPT and Codex discovery, invocation,
+synthetic reference-image generation, fail-visible size fallback, and output delivery. They do not establish exact-size
+export or broad cross-subject visual consistency.
+
+### 한국어
+
+이번 patch는 기존 두 portrait mode가 실제로 그린 작품에 더 가깝게 동작하도록 보강합니다. `Street Caricature`는
+black-ink 마감 전에 관계 중심의 간결한 construction을 먼저 고정합니다. 따라서 실사 초상화에서 머리만 키운 결과는
+더 이상 이 mode를 충족하지 않습니다. `Romance Watercolor`는 사진 같은 배경 묘사나 장식적인 물감 점 대신 몇 개의
+연결된 큰 색면, 선택한 환경 anchor, 넓은 종이 여백과 identity를 보여 주는 선을 중심으로 장면을 축약합니다.
+
+package의 성숙도는 Experimental로 유지합니다. 공개된 `0.1.0` package를 새로 설치한 ChatGPT와 Codex에서 discovery·invocation·
+합성 reference-image 생성·fail-visible size fallback·output delivery를 확인했습니다. 이 결과는 exact-size export나 여러
+인물에서 일관된 시각 품질까지 입증하지 않습니다.
+
+## Evidence And Limits
+
+- Package: `skills/street-portrait-artist/`
+- Tag: `street-portrait-artist/v0.1.1`
+- Public evidence: two synthetic `Twin Portrait` cases; all six gallery PNG files are `1080 x 1350 px`
+- Runtime support: ChatGPT and Codex are Supported within recorded fresh published-package evidence
+- Observed runtime output: `1122 x 1402 px` in both products; exact `1080 x 1350 px` export unavailable and reported
+- Compatibility or migration: no mode or input-profile change; replace the complete installed skill folder
+- Known limitations: likeness and image generation are non-deterministic; exact raster export depends on the active
+  image surface; review the final artwork before publication
+
+The versioned unit is the package above. GitHub's source archive is a snapshot of the whole repository at the tagged
+commit; it is not a standalone package artifact.

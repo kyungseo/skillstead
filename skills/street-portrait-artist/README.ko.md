@@ -39,10 +39,10 @@ hairline and jaw clarification. Make a kind Street Caricature for a 4:5 social p
 used. Do not add text or a signature.
 ```
 
-설치한 skill이 발견되는 Codex에서는 `$street-portrait-artist`를 사용합니다. 이번 release에서는 ChatGPT의 설치 방법이나
-호출 syntax를 주장하지 않습니다. 제품에 image 기능이 있다는 사실만으로 package 지원이 입증되지는 않습니다. fresh
-install·discovery·invocation·reference-image·fallback·output-delivery evidence가 승인될 때까지 ChatGPT와 Codex는 모두
-`Validation pending`입니다.
+설치한 skill이 발견되는 Codex에서는 `$street-portrait-artist`를 사용합니다. ChatGPT에서는 제품의 skill interface에서
+설치된 skill을 이름으로 호출합니다. 공개된 `0.1.0` package를 새로 설치한 뒤 두 제품에서 합성 인물 사진으로 discovery·invocation·
+reference-image 생성·fail-visible size fallback·output delivery를 확인했습니다. 이 기록된 범위에서 ChatGPT와 Codex를
+`Supported`로 표시합니다.
 
 ## Social Output
 
@@ -69,6 +69,6 @@ placement·publication은 host artifact workflow가 소유합니다. 제공한 �
 `skills/street-portrait-artist/` folder 전체를 설치합니다. 필요한 mode reference와 license가 package 안에 있으며,
 repository-only scenario와 answer key는 folder 설치본에서 제외합니다.
 
-Version `0.1.0`은 첫 Experimental release입니다. 공개 가능한 합성 gallery는 의도한 visual direction을 보여 주지만
-runtime 지원을 입증하지 않습니다. ChatGPT와 Codex 지원은 공개된 package를 각 제품에 설치하고 평가할 때까지
-`Validation pending`으로 유지합니다.
+Version `0.1.1`도 Experimental입니다. 공개 가능한 합성 gallery는 의도한 visual direction을, 공개된 `0.1.0` package를 새로
+설치한 실행 결과는 ChatGPT와 Codex runtime 지원을 보여 줍니다. 하지만 서로 다른 얼굴·장면·image generation 실행에서
+얼굴 유사성이나 시각 품질이 일관된다고 보장하지는 않습니다.

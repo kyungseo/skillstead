@@ -2,6 +2,21 @@
 
 Notable changes to the `street-portrait-artist` skill package.
 
+## [0.1.1] — 2026-08-30
+
+- Added a construction-first Street Caricature path that locks the head envelope, feature axes, primary anchor, and
+  action-reaction response before expressive black-ink rendering. This prevents a realistic portrait with only an
+  enlarged head from passing as a relational caricature.
+- Refined Romance Watercolor around a few connected color masses, selected environmental anchors, broad paper space,
+  and identity-bearing linework instead of photographic background detail or decorative pigment scatter.
+- Recorded fresh published `0.1.0` package discovery, invocation, reference-image generation, fail-visible size fallback, and
+  output delivery on ChatGPT and Codex. Both runtimes are Supported within that evidence scope; exact raster export
+  remains surface-dependent and likeness remains non-deterministic.
+- Kept maturity Experimental because the new visual refinements have bounded synthetic evidence rather than a broad
+  cross-subject regression set.
+- Released this as a patch rather than a minor version because it corrects outputs that missed the existing 0.1.0
+  relational-caricature and simplified-watercolor contracts; it does not add a mode, input profile, or capability.
+
 ## [0.1.0] — 2026-08-29
 
 - Added the initial Experimental `Street Artist` release with one shared Impression Map and two interpretations:
