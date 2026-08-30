@@ -96,13 +96,20 @@ would state something the run did not observe.
 
 | File | Triggers | Purpose |
 | --- | --- | --- |
-| `validate.yml` | PR, push to `main`, tag create/delete | event-driven validation as parallel jobs — the `svg-infographic` regression suite and validator self-test suite run beside the fast checks (M1+gallery+M3+M4+skills-ref), and a `validate` aggregate job carries the historical check name. PRs classify `origin/<base>...HEAD`; `main` pushes classify the observed `github.event.before...HEAD` range. The SVG suite runs for `skills/svg-infographic/**` and `examples/svg-infographic/**`, while other independent skill and documentation changes retain the fast all-skill checks without paying for unrelated heavy suites. SVG inputs also run validator self-tests because repository fixtures invoke the SVG scripts. `tools/**` and `tests/**` run validator self-tests. `.github/**`, workflow/classifier changes, a zero or non-ancestor push base, and an unreadable diff fail closed to both heavy suites. Unknown scope output fails the aggregate rather than becoming a skip. PR M3 evaluates the checked-out merge candidate; `main` push M3 evaluates `origin/main`. Tag events run M3+M4 against an explicit `main` checkout; branch create/delete events run nothing |
+| `validate.yml` | PR, push to `main`, tag create/delete | event-driven validation as parallel jobs — the `svg-infographic` regression suite and validator self-test suite run beside the fast checks (M1+gallery+M3+M4+skills-ref), and an event-specific aggregate reports `validate / pull_request` or `validate / push`. PRs classify `origin/<base>...HEAD`; `main` pushes classify the observed `github.event.before...HEAD` range. The SVG suite runs for `skills/svg-infographic/**` and `examples/svg-infographic/**`, while other independent skill and documentation changes retain the fast all-skill checks without paying for unrelated heavy suites. SVG inputs also run validator self-tests because repository fixtures invoke the SVG scripts. `tools/**` and `tests/**` run validator self-tests. `.github/**`, workflow/classifier changes, a zero or non-ancestor push base, and an unreadable diff fail closed to both heavy suites. Unknown scope output fails the aggregate rather than becoming a skip. PR M3 evaluates the checked-out merge candidate; `main` push M3 evaluates `origin/main`. Tag events run M3+M4 against an explicit `main` checkout; branch create/delete events run nothing |
 | `validate-periodic.yml` | daily schedule (`17 3 * * *` UTC), manual dispatch | periodic fallback for state changes that fire no event (e.g. a tag repointed outside a push) |
 | `release.yml` | manual dispatch only | M5 wrapper entry; dry-run by default; checkout pinned to `main` so a dispatch can never run an unreviewed wrapper or request under the write token |
 | `pages.yml` | push to `main`, manual dispatch | publishes the bounded gallery/examples site. Automatic deployment is limited to `kyungseo/skillstead`; a fork push skips the deploy job. A fork owner may opt in with a manual dispatch, but that run still fails at Pages setup when GitHub Pages has not been enabled in the fork |
 
 The daily periodic workflow remains a full, unscoped run and catches state
 changes or classification mistakes that an event-scoped run did not observe.
+The canonical `protect-main` ruleset requires the GitHub Actions check
+`validate / pull_request` under a loose policy: every observed PR aggregate
+must pass, but the branch need not be rebuilt solely because `main` advanced.
+Individual heavy suites are not required directly; the aggregate verifies each
+suite that scope selected. Event-specific naming prevents a skipped
+create/delete job from satisfying the PR requirement.
+
 The two validation workflows are separate files so that disabling either —
 including GitHub's automatic disable of scheduled workflows after 60 days of
 repository inactivity — never silences the other. Nominal maximum detection

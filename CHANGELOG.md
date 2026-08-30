@@ -38,6 +38,7 @@ Repository-level changes since the last dated entry.
 - **Change-scoped event validation.** Pull requests and `main` pushes keep the fast repository-wide checks while
   running heavy suites only for their observed inputs. SVG package and example inputs run both the SVG and validator
   suites; workflow, classifier, unreadable and non-ancestor changes fail closed to both, and the daily run stays full.
+  Event-specific aggregate names isolate the required PR check from skipped create/delete jobs.
 - **Fork-safe Pages deployment.** Pushes publish Pages automatically only from `kyungseo/skillstead`. Fork owners may
   opt in with a manual dispatch after enabling Pages in their own repository.
 

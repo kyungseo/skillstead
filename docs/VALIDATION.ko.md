@@ -85,7 +85,7 @@ release의 `published_at`이 null이거나 빈 문자열인 경우 포함), tran
 
 | 파일 | trigger | 목적 |
 | --- | --- | --- |
-| `validate.yml` | PR, `main` push, tag 생성/삭제 | event 기반 검증을 병렬 job으로 실행 — `svg-infographic` regression suite와 validator self-test suite가 경량 검사(M1+gallery+M3+M4+skills-ref) 옆에서 돌고, `validate` aggregate job이 기존 check 이름을 유지. PR은 `origin/<base>...HEAD`, `main` push는 관측된 `github.event.before...HEAD` 범위를 분류함. SVG suite는 `skills/svg-infographic/**`와 `examples/svg-infographic/**`가 바뀔 때 실행하며, 다른 독립 Skill과 문서 변경은 모든 Skill에 적용되는 경량 검사를 유지하되 무관한 heavy suite 비용은 내지 않음. Repository fixture가 SVG script를 직접 실행하므로 SVG input은 validator self-test도 실행함. `tools/**`·`tests/**`는 validator self-test를 실행함. `.github/**`, workflow/classifier 변경, 0 또는 비조상 push base, diff 판독 불가는 fail-closed로 양 heavy suite를 실행함. 알 수 없는 scope output은 skip으로 완화하지 않고 aggregate를 실패시킴. PR M3는 checkout된 merge candidate를, `main` push M3는 `origin/main`을 검사함. tag event는 명시적 `main` checkout으로 M3+M4 실행, branch 생성/삭제 event는 아무것도 실행하지 않음 |
+| `validate.yml` | PR, `main` push, tag 생성/삭제 | event 기반 검증을 병렬 job으로 실행 — `svg-infographic` regression suite와 validator self-test suite가 경량 검사(M1+gallery+M3+M4+skills-ref) 옆에서 돌고, event별 aggregate가 `validate / pull_request` 또는 `validate / push`를 보고함. PR은 `origin/<base>...HEAD`, `main` push는 관측된 `github.event.before...HEAD` 범위를 분류함. SVG suite는 `skills/svg-infographic/**`와 `examples/svg-infographic/**`가 바뀔 때 실행하며, 다른 독립 Skill과 문서 변경은 모든 Skill에 적용되는 경량 검사를 유지하되 무관한 heavy suite 비용은 내지 않음. Repository fixture가 SVG script를 직접 실행하므로 SVG input은 validator self-test도 실행함. `tools/**`·`tests/**`는 validator self-test를 실행함. `.github/**`, workflow/classifier 변경, 0 또는 비조상 push base, diff 판독 불가는 fail-closed로 양 heavy suite를 실행함. 알 수 없는 scope output은 skip으로 완화하지 않고 aggregate를 실패시킴. PR M3는 checkout된 merge candidate를, `main` push M3는 `origin/main`을 검사함. tag event는 명시적 `main` checkout으로 M3+M4 실행, branch 생성/삭제 event는 아무것도 실행하지 않음 |
 | `validate-periodic.yml` | 매일 schedule(`17 3 * * *` UTC), 수동 dispatch | event가 발생하지 않는 상태 변화(예: push 밖의 tag repoint)를 잡는 주기적 안전망 |
 | `release.yml` | 수동 dispatch 전용 | M5 wrapper 진입점. dry-run이 기본값이며 checkout이 `main`에 고정되어 있어 dispatch가 미검토 wrapper나 request를 write token으로 실행할 수 없음 |
 | `pages.yml` | `main` push, 수동 dispatch | 제한된 gallery/examples site를 게시함. 자동 배포는 `kyungseo/skillstead`에만 허용되어 fork push에서는 deploy job을 skip함. Fork owner는 수동 dispatch로 opt-in할 수 있지만, 해당 fork에서 GitHub Pages를 활성화하지 않았다면 Pages setup 단계에서 계속 실패함 |
@@ -93,6 +93,12 @@ release의 `published_at`이 null이거나 빈 문자열인 경우 포함), tran
 매일 실행되는 periodic workflow는 scope를 적용하지 않는 전체 검증으로 남아, event 기반 scope가
 관측하지 못한 상태 변경이나 분류 실수를 탐지합니다. 두 검증 workflow는 별도 파일입니다 — 어느 한쪽의 비활성화(저장소 60일 미활동 시 GitHub의
 schedule workflow 자동 비활성화 포함)가 다른 쪽을 침묵시키지 않도록 하기 위해서입니다.
+Canonical `protect-main` ruleset은 GitHub Actions의 `validate / pull_request`를 loose policy로
+요구합니다. 관측된 PR aggregate는 반드시 통과해야 하지만, `main`이 앞서갔다는 이유만으로 branch를
+다시 build하지는 않습니다. 개별 heavy suite는 직접 required로 두지 않고 scope가 선택한 suite를
+aggregate가 검증합니다. Event별 이름은 skip된 create/delete job이 PR requirement를 만족시키는 것을
+막습니다.
+
 event 없는 변경의 명목상 최대 탐지 지연은 schedule 주기 1회(~24시간) + 스케줄러 지연입니다.
 schedule workflow가 자동 비활성화되면 다음 활동 후 Actions 탭에서 재활성화하거나 수동
 dispatch로 1회 실행하십시오.

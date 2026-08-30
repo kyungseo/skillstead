@@ -85,6 +85,8 @@ class CiScopeClassifier(unittest.TestCase):
 class WorkflowContract(unittest.TestCase):
     def test_validate_wires_the_exact_scope_output_and_rejects_unknown_values(self):
         text = (REPO / ".github/workflows/validate.yml").read_text(encoding="utf-8")
+        self.assertIn("name: validate / ${{ github.event_name }}", text)
+        self.assertIn("`validate / pull_request` is the", text)
         self.assertIn("svg_infographic: ${{ steps.diff.outputs.svg_infographic }}", text)
         self.assertIn("if: needs.scope.outputs.svg_infographic == 'true'", text)
         self.assertIn('"${{ needs.scope.outputs.svg_infographic }}"', text)
