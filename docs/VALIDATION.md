@@ -21,7 +21,7 @@ verdict, never a silent pass.
 | M1 | Repository validation — package structure, `metadata.version` ↔ per-skill CHANGELOG and root CHANGELOG current-version coverage (I-1), catalog `Version` columns (I-7), package completeness (I-9), licence copy byte-equality, and reserved active identities | every PR, push to `main`, daily schedule | `PYTHONPATH=tools python3 -m skillstead_validate repo` |
 | M2 | Release preflight and tag creation — ordinary payload-diff gate plus the exact-record baseline branch, bump-step check (I-6), inventory/retirement guard (I-10), major-transition approval, new-skill initial release, tag uniqueness | invoked for a proposed release; dry-runnable | `… preflight --plan PLAN.json` / `… apply-tags --plan PLAN.json` (publishes to the remote with `git push --atomic`; a push failure rolls local refs back) |
 | M2-SVG | `svg-infographic` artifact release gate — exact canonical inventory, clean source identity, package pair verification, 2× PNG dimensions, staging-to-repository byte identity and source/artifact commit boundary | before its M2 preflight; read-only | `… svg-release-artifacts --staging STAGING --source-commit SHA [--compare-repository] [--artifact-commit SHA]` |
-| M3 | Continuous tag and retirement-history checks — I-2, I-5, I-8, the durable expected-target relation for every namespaced tag, and retirement-record persistence/reactivation on every run | every PR, push, tag create/delete, daily schedule | `… tags --main-ref origin/main` |
+| M3 | Continuous tag and retirement-history checks — I-2, I-5, I-8, the durable expected-target relation for every namespaced tag, and retirement-record persistence/reactivation on every run | every PR, push, tag create/delete, daily schedule | PR merge candidate: `… tags --main-ref HEAD`; published state: `… tags --main-ref origin/main` |
 | M4 | Cutover verdict — the ordered evaluator over the cutover record, INSTALL pins, baseline refs, and GitHub Releases | CI runs + before/after every release operation | `… cutover --live --repo-slug OWNER/REPO` |
 | M5 | Canonical release wrapper — **the only supported path for GitHub Release operations** | manual, or the `release` workflow | `… release --request REQUEST.json --repo-slug OWNER/REPO [--dry-run]` |
 
@@ -96,7 +96,7 @@ would state something the run did not observe.
 
 | File | Triggers | Purpose |
 | --- | --- | --- |
-| `validate.yml` | PR, push to `main`, tag create/delete | event-driven validation as parallel jobs — the `svg-infographic` regression suite and validator self-test suite run beside the fast checks (M1+gallery+M3+M4+skills-ref), and a `validate` aggregate job carries the historical check name. On PRs the SVG suite runs for `skills/svg-infographic/**` and `examples/svg-infographic/**`, while other independent skill changes retain the fast all-skill checks without paying for that unrelated suite. SVG inputs also run validator self-tests because repository fixtures invoke the SVG scripts. `tools/**` and `tests/**` run validator self-tests; `.github/**`, an unreadable diff and every push run both heavy suites. Unknown scope output fails the aggregate rather than becoming a skip. Tag events run M3+M4 against an explicit `main` checkout; branch create/delete events run nothing |
+| `validate.yml` | PR, push to `main`, tag create/delete | event-driven validation as parallel jobs — the `svg-infographic` regression suite and validator self-test suite run beside the fast checks (M1+gallery+M3+M4+skills-ref), and a `validate` aggregate job carries the historical check name. On PRs the SVG suite runs for `skills/svg-infographic/**` and `examples/svg-infographic/**`, while other independent skill changes retain the fast all-skill checks without paying for that unrelated suite. SVG inputs also run validator self-tests because repository fixtures invoke the SVG scripts. `tools/**` and `tests/**` run validator self-tests; `.github/**`, an unreadable diff and every push run both heavy suites. Unknown scope output fails the aggregate rather than becoming a skip. PR M3 evaluates the checked-out merge candidate; `main` push M3 evaluates `origin/main`. Tag events run M3+M4 against an explicit `main` checkout; branch create/delete events run nothing |
 | `validate-periodic.yml` | daily schedule (`17 3 * * *` UTC), manual dispatch | periodic fallback for state changes that fire no event (e.g. a tag repointed outside a push) |
 | `release.yml` | manual dispatch only | M5 wrapper entry; dry-run by default; checkout pinned to `main` so a dispatch can never run an unreviewed wrapper or request under the write token |
 | `pages.yml` | push to `main`, manual dispatch | publishes the bounded gallery/examples site. Automatic deployment is limited to `kyungseo/skillstead`; a fork push skips the deploy job. A fork owner may opt in with a manual dispatch, but that run still fails at Pages setup when GitHub Pages has not been enabled in the fork |
@@ -332,6 +332,12 @@ For every `<name>/vX.Y.Z` tag, on every run:
   A genuinely deleted tag therefore still turns red at its delete event
   immediately, and a tag that is never created hardens to red at the next
   periodic run after the window expires.
+* **Reference selection** — a pull request checks the checked-out merge
+  candidate (`HEAD`), which includes the proposed validator and record state.
+  A `main` push checks `origin/main`; tag events and the periodic workflow also
+  keep checking the published `origin/main` state without grace. This split
+  lets a repair PR prove its candidate result without hiding a red published
+  state after merge.
 * **Expected target** — derived without looking at the tag: for an initial
   `0.1.0` tag with a strict target record, the record's exact commit; for an
   ordinary tag without such a record, the oldest `main` first-parent commit

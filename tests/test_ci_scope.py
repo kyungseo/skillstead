@@ -92,6 +92,14 @@ class WorkflowContract(unittest.TestCase):
         self.assertIn('*) fail "$name has unknown scope decision', text)
         self.assertIn("git -c core.quotePath=off diff --name-only --no-renames", text)
 
+    def test_pull_request_m3_checks_candidate_while_push_checks_main(self):
+        text = (REPO / ".github/workflows/validate.yml").read_text(encoding="utf-8")
+        self.assertIn("main_ref=origin/main", text)
+        self.assertIn(
+            'if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then', text)
+        self.assertIn("main_ref=HEAD", text)
+        self.assertEqual(text.count('--main-ref "$main_ref"'), 1)
+
     def test_pages_automatic_deploy_is_canonical_only_and_manual_is_explicit(self):
         text = (REPO / ".github/workflows/pages.yml").read_text(encoding="utf-8")
         self.assertIn(

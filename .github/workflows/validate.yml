@@ -118,7 +118,16 @@ jobs:
       # workflow run without grace, so a genuinely deleted tag still fails
       # there immediately and a never-created tag hardens after the window.
       - name: Continuous tag checks (M3)
-        run: PYTHONPATH=tools python3 -m skillstead_validate tags --main-ref origin/main --repo-root . --release-grace-minutes 1440
+        run: |
+          set -u
+          main_ref=origin/main
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            # The checked-out PR merge ref is the candidate post-merge state.
+            # Using origin/main here would make a validator repair PR prove
+            # only that the still-broken base is broken.
+            main_ref=HEAD
+          fi
+          PYTHONPATH=tools python3 -m skillstead_validate tags --main-ref "$main_ref" --repo-root . --release-grace-minutes 1440
 
       - name: Cutover verdict (M4)
         env:
