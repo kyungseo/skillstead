@@ -4,6 +4,31 @@ This ledger separates static contract review from fresh-context runtime behavior
 for Claude Code and Codex within the recorded evidence scope after pinned `v0.7.0` installation/discovery and the
 post-release claim closeout passed.
 
+## Korean Compose Routing Candidate — 2026-09-06
+
+Status: bounded behavior remains partial. Independent review was conditional on correcting public claims; the
+driver applied and checked those documentation corrections. Release completion is not recorded here.
+Historical support evidence below does not validate this new execution path.
+
+- Seven explicit local-package requests read the entrypoint and their required references completely. Recorded read
+  output matched the candidate files. Korean new drafts selected the dedicated contract; revision, assessment and
+  translation selected the established contract. Installed auto-discovery was not tested.
+- Two supplied-fact Korean drafts retained their required information under driver audit. One Korean and one
+  English clear-text control returned the original. One adaptation retained its command, approval obligation,
+  success limitation and failure-handling conditions. These are observations, not a naturalness preference score.
+- A sparse factual-story request still produced an unsupported adoption motive before asking for the missing
+  history and measurements. A later question does not remove an earlier unsupported statement.
+- The unchanged assessment path diagnosed an ambiguous commitment but first characterized it as prohibiting
+  indiscriminate changes. That interpretation was not supplied. Without a matched prior-version run, it cannot be
+  attributed to the routing change.
+- A separate six-paragraph supplied-fact article loaded the new path completely. It covered the requested
+  subjects but weakened a prescribed practice into advice and changed a prohibition on automatic integration
+  into a statement that integration does not happen automatically. A driver-reviewed copy restored these
+  meanings and simplified abstract closing prose. The raw first output remains distinct from that copy.
+- Owner acceptance, other-runtime evidence and general quality superiority remain unestablished. Independent
+  post-implementation review covered the earlier outputs; the additional article received driver review only.
+  No retry was used to replace these first outputs with passing results.
+
 ## Static Contract Gate Through F36
 
 | Check | Result |

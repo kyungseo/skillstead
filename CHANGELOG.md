@@ -4,9 +4,11 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
-## [Unreleased]
+## 2026-09-06
 
-No unreleased changes.
+### Skills
+
+- `writing-quality-editor` `0.14.0` — added a dedicated Korean new-draft contract with instructions to check for required facts and conditional contract loading. Missing-material handling was inconsistent in limited checks, including an inferred purpose in an explicit package-load run. The established editing, assessment, adaptation, and non-Korean drafting contract is retained. The skill remains Beta; automatic discovery after installation and other-runtime behavior for the new path remain unverified.
 
 ## 2026-08-30
 
