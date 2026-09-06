@@ -22,6 +22,22 @@ every command, path, prerequisite, warning, and recovery step.
 If you want findings without replacement text, say that explicitly. The skill will use its read-only `Assess`
 mode. You usually do not need to choose a mode for ordinary drafting, revision, or adaptation.
 
+## Korean New Drafts
+
+For a new Korean text, WQE uses a focused drafting contract designed to check whether the supplied material
+supports the required account and ask for missing facts without assuming experiences or outcomes. This behavior
+was not consistent in limited checks: one explicit package-load run inferred an adoption purpose before asking
+for missing facts. A separate development check using the contract inline asked without that inference; the
+conditions differ and do not establish a success rate. With enough material, the new path writes directly in
+Korean without a routine audit report. Research-backed claims still need sources.
+
+The new path has been checked through explicit local package loading. Automatic discovery after installation
+and behavior on other runtimes have not been verified for this change.
+
+Existing Korean prose uses the established revision contract. This drafting change does not establish better
+same-language editing or general superiority over ordinary writing instructions. The skill remains Beta.
+
+
 ## Four Modes
 
 | Mode | Use it for | Mutation |

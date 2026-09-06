@@ -33,7 +33,7 @@ Skillstead의 각 스킬은 폴더 하나로 설치하는 독립 패키지입니
 | `svg-infographic` | `svg-infographic/v0.11.0` | Claude Code와 Codex |
 | `docs-claim-check` | `docs-claim-check/v0.9.1` | Claude Code |
 | `github-release-guide` | `github-release-guide/v0.9.0` | Claude Code와 Codex |
-| `writing-quality-editor` | `writing-quality-editor/v0.13.0` | Claude Code와 Codex |
+| `writing-quality-editor` | `writing-quality-editor/v0.14.0` | Claude Code와 Codex |
 | `street-portrait-artist` | `street-portrait-artist/v0.1.1` | ChatGPT와 Codex |
 
 기본 요청은 개인 전역 범위에 설치합니다. 파일 시스템에 설치하는 스킬을 현재 저장소 안에서만 쓰려면
@@ -110,14 +110,15 @@ Claude Code나 Codex에 다음 한 줄을 붙여 넣으세요.
 
 ## `writing-quality-editor`
 
-- 현재 릴리스: `writing-quality-editor/v0.13.0`
+- 현재 릴리스: `writing-quality-editor/v0.14.0`
+- 새 한국어 Compose 경로: 로컬 패키지를 명시해 읽히는 방식으로 확인했으며, 이번 변경의 설치 후 자동 발견과 다른 runtime 동작은 미확인입니다.
 - 지원 실행 환경: Claude Code와 Codex
 - 패키지 안내: [`skills/writing-quality-editor/README.ko.md`](../skills/writing-quality-editor/README.ko.md)
 
 Claude Code나 Codex에 다음 한 줄을 붙여 넣으세요.
 
 ```text
-다음 고정 GitHub 폴더의 Skillstead 스킬을 전역으로 설치해 줘: https://github.com/kyungseo/skillstead/tree/writing-quality-editor/v0.13.0/skills/writing-quality-editor
+다음 고정 GitHub 폴더의 Skillstead 스킬을 전역으로 설치해 줘: https://github.com/kyungseo/skillstead/tree/writing-quality-editor/v0.14.0/skills/writing-quality-editor
 ```
 
 패키지에는 영문·한글 작성과 검토에 필요한 참고 문서가 함께 들어 있습니다. `SKILL.md`만 따로 복사하지

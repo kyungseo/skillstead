@@ -33,7 +33,7 @@ folder so they cannot drift apart.
 | `svg-infographic` | `svg-infographic/v0.11.0` | Claude Code and Codex |
 | `docs-claim-check` | `docs-claim-check/v0.9.1` | Claude Code |
 | `github-release-guide` | `github-release-guide/v0.9.0` | Claude Code and Codex |
-| `writing-quality-editor` | `writing-quality-editor/v0.13.0` | Claude Code and Codex |
+| `writing-quality-editor` | `writing-quality-editor/v0.14.0` | Claude Code and Codex |
 | `street-portrait-artist` | `street-portrait-artist/v0.1.1` | ChatGPT and Codex |
 
 The default request installs a personal/global skill. To keep a filesystem-installed skill inside the current
@@ -110,14 +110,15 @@ Release, settings change, destructive cleanup, or credential action.
 
 ## `writing-quality-editor`
 
-- Current release: `writing-quality-editor/v0.13.0`
+- Current release: `writing-quality-editor/v0.14.0`
+- New Korean Compose path: explicit local-package loading checked; automatic discovery after installation and other-runtime behavior remain unverified for this change.
 - Supported runtime: Claude Code and Codex
 - Package guide: [`skills/writing-quality-editor/README.md`](../skills/writing-quality-editor/README.md)
 
 Paste this into Claude Code or Codex:
 
 ```text
-Install this Skillstead skill globally from the pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/writing-quality-editor/v0.13.0/skills/writing-quality-editor
+Install this Skillstead skill globally from the pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/writing-quality-editor/v0.14.0/skills/writing-quality-editor
 ```
 
 The package includes the complete English/Korean authoring and review references. Install the whole folder rather

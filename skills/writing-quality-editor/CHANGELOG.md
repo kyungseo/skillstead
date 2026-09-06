@@ -11,6 +11,13 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [0.14.0] — 2026-09-06
+
+- Added a dedicated Korean Compose contract designed to check for required facts before drafting and ask for missing experience or outcome data. Limited checks did not consistently follow that instruction: an explicit package-load run inferred an adoption purpose before asking; a separate inline development check did not. These different conditions do not establish a success rate.
+- Made the entrypoint select the relevant contract. Existing assessment, revision, adaptation, and non-Korean composition retain the established contract text and references.
+- Kept Korean writing examples and source-meaning distinctions in the new drafting path without requiring the full editing rubric or routine source-notes report for a supplied brief.
+- This change does not establish improved same-language editing, general naturalness superiority, or Stable maturity.
+
 ## [0.13.0] — 2026-08-25
 
 - Treat explanatory reader friction as a concrete revision problem when the intended audience must reconstruct a
