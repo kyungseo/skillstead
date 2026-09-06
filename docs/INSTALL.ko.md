@@ -30,11 +30,11 @@ Skillstead의 각 스킬은 폴더 하나로 설치하는 독립 패키지입니
 
 | 스킬 | 현재 고정 태그 | 지원 실행 환경 |
 | --- | --- | --- |
-| `svg-infographic` | `svg-infographic/v0.11.0` | Claude Code와 Codex |
-| `docs-claim-check` | `docs-claim-check/v0.9.1` | Claude Code |
-| `github-release-guide` | `github-release-guide/v0.9.0` | Claude Code와 Codex |
-| `writing-quality-editor` | `writing-quality-editor/v0.14.0` | Claude Code와 Codex |
-| `street-portrait-artist` | `street-portrait-artist/v0.1.1` | ChatGPT와 Codex |
+| `svg-infographic` | `svg-infographic/v0.11.1` | Claude Code와 Codex |
+| `docs-claim-check` | `docs-claim-check/v0.9.2` | Claude Code |
+| `github-release-guide` | `github-release-guide/v0.9.1` | Claude Code와 Codex |
+| `writing-quality-editor` | `writing-quality-editor/v0.14.1` | Claude Code와 Codex |
+| `street-portrait-artist` | `street-portrait-artist/v0.1.2` | ChatGPT와 Codex |
 
 기본 요청은 개인 전역 범위에 설치합니다. 파일 시스템에 설치하는 스킬을 현재 저장소 안에서만 쓰려면
 `전역으로`를 `현재 프로젝트에`로 바꾸세요. ChatGPT는 제품 안에서 스킬을 관리하므로 이 문서의 파일
@@ -46,14 +46,14 @@ Skillstead의 각 스킬은 폴더 하나로 설치하는 독립 패키지입니
 
 ## `svg-infographic`
 
-- 현재 릴리스: `svg-infographic/v0.11.0`
+- 현재 릴리스: `svg-infographic/v0.11.1`
 - 지원 실행 환경: Claude Code와 Codex
 - 패키지 안내: [`skills/svg-infographic/README.ko.md`](../skills/svg-infographic/README.ko.md)
 
 Claude Code나 Codex에 다음 한 줄을 붙여 넣으세요.
 
 ```text
-다음 고정 GitHub 폴더의 Skillstead 스킬을 전역으로 설치해 줘: https://github.com/kyungseo/skillstead/tree/svg-infographic/v0.11.0/skills/svg-infographic
+다음 고정 GitHub 폴더의 Skillstead 스킬을 전역으로 설치해 줘: https://github.com/kyungseo/skillstead/tree/svg-infographic/v0.11.1/skills/svg-infographic
 ```
 
 `svg-infographic`을 복사하거나 실행 환경이 발견하는 데는 Node.js가 필요하지 않습니다. Node.js 18 이상은
@@ -68,14 +68,14 @@ Claude Code나 Codex에 다음 한 줄을 붙여 넣으세요.
 
 ## `docs-claim-check`
 
-- 현재 릴리스: `docs-claim-check/v0.9.1`
+- 현재 릴리스: `docs-claim-check/v0.9.2`
 - 지원 실행 환경: Claude Code
 - 패키지 안내: [`skills/docs-claim-check/README.ko.md`](../skills/docs-claim-check/README.ko.md)
 
 Claude Code에 다음 한 줄을 붙여 넣으세요.
 
 ```text
-다음 고정 GitHub 폴더의 Skillstead 스킬을 전역으로 설치해 줘: https://github.com/kyungseo/skillstead/tree/docs-claim-check/v0.9.1/skills/docs-claim-check
+다음 고정 GitHub 폴더의 Skillstead 스킬을 전역으로 설치해 줘: https://github.com/kyungseo/skillstead/tree/docs-claim-check/v0.9.2/skills/docs-claim-check
 ```
 
 이 스킬은 아직 Codex 지원을 표시하지 않습니다. 다른 실행 환경에 평가용으로 설치하더라도 그것만으로
@@ -89,14 +89,14 @@ Claude Code에 다음 한 줄을 붙여 넣으세요.
 
 ## `github-release-guide`
 
-- 현재 릴리스: `github-release-guide/v0.9.0`
+- 현재 릴리스: `github-release-guide/v0.9.1`
 - 지원 실행 환경: Claude Code와 Codex
 - 패키지 안내: [`skills/github-release-guide/README.ko.md`](../skills/github-release-guide/README.ko.md)
 
 Claude Code나 Codex에 다음 한 줄을 붙여 넣으세요.
 
 ```text
-다음 고정 GitHub 폴더의 Skillstead 스킬을 전역으로 설치해 줘: https://github.com/kyungseo/skillstead/tree/github-release-guide/v0.9.0/skills/github-release-guide
+다음 고정 GitHub 폴더의 Skillstead 스킬을 전역으로 설치해 줘: https://github.com/kyungseo/skillstead/tree/github-release-guide/v0.9.1/skills/github-release-guide
 ```
 
 설치는 재사용 가능한 안내만 추가합니다. 저장소 공개 전환, tag, GitHub Release, 설정 변경, 파괴적 정리,
@@ -110,7 +110,7 @@ Claude Code나 Codex에 다음 한 줄을 붙여 넣으세요.
 
 ## `writing-quality-editor`
 
-- 현재 릴리스: `writing-quality-editor/v0.14.0`
+- 현재 릴리스: `writing-quality-editor/v0.14.1`
 - 새 한국어 Compose 경로: 로컬 패키지를 명시해 읽히는 방식으로 확인했으며, 이번 변경의 설치 후 자동 발견과 다른 runtime 동작은 미확인입니다.
 - 지원 실행 환경: Claude Code와 Codex
 - 패키지 안내: [`skills/writing-quality-editor/README.ko.md`](../skills/writing-quality-editor/README.ko.md)
@@ -118,7 +118,7 @@ Claude Code나 Codex에 다음 한 줄을 붙여 넣으세요.
 Claude Code나 Codex에 다음 한 줄을 붙여 넣으세요.
 
 ```text
-다음 고정 GitHub 폴더의 Skillstead 스킬을 전역으로 설치해 줘: https://github.com/kyungseo/skillstead/tree/writing-quality-editor/v0.14.0/skills/writing-quality-editor
+다음 고정 GitHub 폴더의 Skillstead 스킬을 전역으로 설치해 줘: https://github.com/kyungseo/skillstead/tree/writing-quality-editor/v0.14.1/skills/writing-quality-editor
 ```
 
 패키지에는 영문·한글 작성과 검토에 필요한 참고 문서가 함께 들어 있습니다. `SKILL.md`만 따로 복사하지
@@ -132,20 +132,20 @@ Claude Code나 Codex에 다음 한 줄을 붙여 넣으세요.
 
 ## `street-portrait-artist`
 
-- 현재 릴리스: `street-portrait-artist/v0.1.1`
+- 현재 릴리스: `street-portrait-artist/v0.1.2`
 - 지원 실행 환경: ChatGPT와 Codex
 - 패키지 안내: [`skills/street-portrait-artist/README.ko.md`](../skills/street-portrait-artist/README.ko.md)
 
 ChatGPT에 다음 한 줄을 붙여 넣으세요.
 
 ```text
-다음 고정 GitHub 폴더의 street-portrait-artist 스킬을 설치해 줘: https://github.com/kyungseo/skillstead/tree/street-portrait-artist/v0.1.1/skills/street-portrait-artist
+다음 고정 GitHub 폴더의 street-portrait-artist 스킬을 설치해 줘: https://github.com/kyungseo/skillstead/tree/street-portrait-artist/v0.1.2/skills/street-portrait-artist
 ```
 
 Codex에 다음 한 줄을 붙여 넣으세요.
 
 ```text
-다음 고정 GitHub 폴더의 Skillstead 스킬을 전역으로 설치해 줘: https://github.com/kyungseo/skillstead/tree/street-portrait-artist/v0.1.1/skills/street-portrait-artist
+다음 고정 GitHub 폴더의 Skillstead 스킬을 전역으로 설치해 줘: https://github.com/kyungseo/skillstead/tree/street-portrait-artist/v0.1.2/skills/street-portrait-artist
 ```
 
 ChatGPT가 설치 확인을 요청할 수 있습니다. 현재 대화에서 이전에 캐시한 버전이 계속 발견되면 설치 후
@@ -181,7 +181,7 @@ Windows에서 `~`는 `%USERPROFILE%`을 뜻합니다. 새로 복사한 스킬이
 #### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.9.1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 ```
@@ -189,7 +189,7 @@ cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 #### Codex — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.9.1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.codex/skills
 cp -R /tmp/skillstead/skills/github-release-guide ~/.codex/skills/
 ```
@@ -197,7 +197,7 @@ cp -R /tmp/skillstead/skills/github-release-guide ~/.codex/skills/
 #### Claude Code — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch github-release-guide/v0.9.1 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.claude\skills\"
 ```
@@ -205,7 +205,7 @@ Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$e
 #### Codex — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch github-release-guide/v0.9.1 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.codex\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.codex\skills\"
 ```
@@ -217,7 +217,7 @@ Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$e
 #### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.9.1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 ```
@@ -225,7 +225,7 @@ cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 #### Codex — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.9.1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .agents/skills
 cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
 ```
@@ -233,7 +233,7 @@ cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
 #### Claude Code — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch github-release-guide/v0.9.1 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force ".claude\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" ".claude\skills\"
 ```
@@ -241,7 +241,7 @@ Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" ".c
 #### Codex — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch github-release-guide/v0.9.1 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force ".agents\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" ".agents\skills\"
 ```
@@ -263,7 +263,7 @@ Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" ".a
 | `docs-claim-check` | Supported | Not yet claimed | — | Claude Code Fable과 Sonnet에서 동작 검증 자료를 통과했습니다 |
 | `github-release-guide` | Supported | Supported | — | 핵심 행동 일치, 일회용 first-public과 Guided tag-ruleset 실제 E2E, 고정 설치·발견, 릴리스 주장 검토를 통과했습니다 |
 | `writing-quality-editor` | Supported | Supported | — | 4개 mode의 실행 환경 간 동작, 저장소 문서 적용, 고정 설치, 패키지 일치, 발견과 주장 종결을 확인했습니다 |
-| `street-portrait-artist` | Not applicable | Supported | ChatGPT: Supported | 공개된 `0.1.0` package의 새 설치·발견·호출·합성 reference-image 생성·fail-visible 크기 fallback·결과 전달로 실행 환경 지원을 확인했으며, 현재 설치 릴리스는 `0.1.1`입니다 |
+| `street-portrait-artist` | Not applicable | Supported | ChatGPT: Supported | 공개된 `0.1.0` package의 새 설치·발견·호출·합성 reference-image 생성·fail-visible 크기 fallback·결과 전달로 실행 환경 지원을 확인했으며, 현재 설치 릴리스는 `0.1.2`입니다 |
 
 이전 릴리스에서 기록한 근거가 제한된 실행 능력을 뒷받침할 수 있지만, 해당 릴리스가 현재 설치 대상이라는
 뜻은 아닙니다. 일반적인 용도에서는 사용하는 실행 환경이 `Supported`인 스킬을 선택하세요. `Not yet

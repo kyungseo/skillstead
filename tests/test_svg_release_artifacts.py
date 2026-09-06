@@ -7,10 +7,12 @@ import json
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
+from types import SimpleNamespace
 from pathlib import Path
 
 from tools.skillstead_validate.svg_release_artifacts import (
-    EXAMPLES, check_release_artifacts, expected_inventory,
+    EXAMPLES, check_release_artifacts, expected_inventory, _runtime_identity,
 )
 
 
@@ -52,7 +54,7 @@ class SvgReleaseArtifactGate(unittest.TestCase):
                         "provenance": {
                             "schema": {"canonicalization": 2},
                             "executionMode": "source-development",
-                            "package": {"surfaceRevision": 17},
+                            "package": {"surfaceRevision": 18},
                             "runtimeSurfaceDigest": DIGEST,
                             "source": {"headCommit": self.source, "repoDirty": False,
                                        "runtimeSurfaceDirty": False},
@@ -65,12 +67,40 @@ class SvgReleaseArtifactGate(unittest.TestCase):
     def check(self, **kwargs):
         return check_release_artifacts(
             self.repo, self.staging, self.source, typepack_ids=self.ids,
-            runtime_digest=DIGEST, verify_pairs=False, **kwargs,
+            runtime_digest=DIGEST, surface_revision=18, verify_pairs=False, **kwargs,
         )
 
     def test_exact_clean_staging_and_copy_pass(self) -> None:
         self.assertEqual(len(expected_inventory(self.ids)), 54)
         self.assertEqual(self.check(compare_repository=True), [])
+
+    def test_old_revision_is_rejected_against_live_package(self) -> None:
+        path = next((self.staging / EXAMPLES).glob("*/*.json"))
+        receipt = json.loads(path.read_text())
+        receipt["provenance"]["package"]["surfaceRevision"] = 17
+        path.write_text(json.dumps(receipt))
+        with patch("tools.skillstead_validate.svg_release_artifacts._runtime_identity",
+                   return_value=(DIGEST, 18)):
+            findings = check_release_artifacts(
+                self.repo, self.staging, self.source, typepack_ids=self.ids,
+                verify_pairs=False)
+        self.assertTrue(any("surface revision" in f.detail for f in findings), findings)
+
+    def test_runtime_identity_reads_the_observed_revision(self) -> None:
+        identity = {"digests": {"runtimeSurfaceDigest": DIGEST},
+                    "package": {"surfaceRevision": 19}}
+        result = SimpleNamespace(returncode=0, stdout=json.dumps(identity))
+        with patch("tools.skillstead_validate.svg_release_artifacts.subprocess.run",
+                   return_value=result):
+            self.assertEqual(_runtime_identity(self.repo), (DIGEST, 19))
+
+    def test_unobservable_runtime_identity_fails_closed(self) -> None:
+        with patch("tools.skillstead_validate.svg_release_artifacts._runtime_identity",
+                   side_effect=ValueError("invalid surface revision")):
+            findings = check_release_artifacts(
+                self.repo, self.staging, self.source, typepack_ids=self.ids,
+                verify_pairs=False)
+        self.assertTrue(any(f.check == "SVG-REL-OBSERVE" for f in findings), findings)
 
     def test_dirty_receipt_fails(self) -> None:
         path = next((self.staging / EXAMPLES).glob("*/*.json"))

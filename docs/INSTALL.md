@@ -30,11 +30,11 @@ folder so they cannot drift apart.
 
 | Skill | Current pinned tag | Supported runtime |
 | --- | --- | --- |
-| `svg-infographic` | `svg-infographic/v0.11.0` | Claude Code and Codex |
-| `docs-claim-check` | `docs-claim-check/v0.9.1` | Claude Code |
-| `github-release-guide` | `github-release-guide/v0.9.0` | Claude Code and Codex |
-| `writing-quality-editor` | `writing-quality-editor/v0.14.0` | Claude Code and Codex |
-| `street-portrait-artist` | `street-portrait-artist/v0.1.1` | ChatGPT and Codex |
+| `svg-infographic` | `svg-infographic/v0.11.1` | Claude Code and Codex |
+| `docs-claim-check` | `docs-claim-check/v0.9.2` | Claude Code |
+| `github-release-guide` | `github-release-guide/v0.9.1` | Claude Code and Codex |
+| `writing-quality-editor` | `writing-quality-editor/v0.14.1` | Claude Code and Codex |
+| `street-portrait-artist` | `street-portrait-artist/v0.1.2` | ChatGPT and Codex |
 
 The default request installs a personal/global skill. To keep a filesystem-installed skill inside the current
 repository, replace `globally` with `in the current project`. ChatGPT manages its skill library in the product and
@@ -46,14 +46,14 @@ does not use the filesystem scopes in this guide.
 
 ## `svg-infographic`
 
-- Current release: `svg-infographic/v0.11.0`
+- Current release: `svg-infographic/v0.11.1`
 - Supported runtime: Claude Code and Codex
 - Package guide: [`skills/svg-infographic/README.md`](../skills/svg-infographic/README.md)
 
 Paste this into Claude Code or Codex:
 
 ```text
-Install this Skillstead skill globally from the pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/svg-infographic/v0.11.0/skills/svg-infographic
+Install this Skillstead skill globally from the pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/svg-infographic/v0.11.1/skills/svg-infographic
 ```
 
 Copying or discovering `svg-infographic` does not require Node.js. Node.js 18+ is needed only for its automated
@@ -68,14 +68,14 @@ source-check and Node-free Chromium visual-QA fallback.
 
 ## `docs-claim-check`
 
-- Current release: `docs-claim-check/v0.9.1`
+- Current release: `docs-claim-check/v0.9.2`
 - Supported runtime: Claude Code
 - Package guide: [`skills/docs-claim-check/README.md`](../skills/docs-claim-check/README.md)
 
 Paste this into Claude Code:
 
 ```text
-Install this Skillstead skill globally from the pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/docs-claim-check/v0.9.1/skills/docs-claim-check
+Install this Skillstead skill globally from the pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/docs-claim-check/v0.9.2/skills/docs-claim-check
 ```
 
 Codex runtime support is not yet claimed for this skill. Installing it experimentally in another runtime does not
@@ -89,14 +89,14 @@ establish a public support claim.
 
 ## `github-release-guide`
 
-- Current release: `github-release-guide/v0.9.0`
+- Current release: `github-release-guide/v0.9.1`
 - Supported runtime: Claude Code and Codex
 - Package guide: [`skills/github-release-guide/README.md`](../skills/github-release-guide/README.md)
 
 Paste this into Claude Code or Codex:
 
 ```text
-Install this Skillstead skill globally from the pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/github-release-guide/v0.9.0/skills/github-release-guide
+Install this Skillstead skill globally from the pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/github-release-guide/v0.9.1/skills/github-release-guide
 ```
 
 Installation adds the reusable guidance only. It does not approve a repository visibility change, tag, GitHub
@@ -110,7 +110,7 @@ Release, settings change, destructive cleanup, or credential action.
 
 ## `writing-quality-editor`
 
-- Current release: `writing-quality-editor/v0.14.0`
+- Current release: `writing-quality-editor/v0.14.1`
 - New Korean Compose path: explicit local-package loading checked; automatic discovery after installation and other-runtime behavior remain unverified for this change.
 - Supported runtime: Claude Code and Codex
 - Package guide: [`skills/writing-quality-editor/README.md`](../skills/writing-quality-editor/README.md)
@@ -118,7 +118,7 @@ Release, settings change, destructive cleanup, or credential action.
 Paste this into Claude Code or Codex:
 
 ```text
-Install this Skillstead skill globally from the pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/writing-quality-editor/v0.14.0/skills/writing-quality-editor
+Install this Skillstead skill globally from the pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/writing-quality-editor/v0.14.1/skills/writing-quality-editor
 ```
 
 The package includes the complete English/Korean authoring and review references. Install the whole folder rather
@@ -132,20 +132,20 @@ than copying only `SKILL.md`.
 
 ## `street-portrait-artist`
 
-- Current release: `street-portrait-artist/v0.1.1`
+- Current release: `street-portrait-artist/v0.1.2`
 - Supported runtime: ChatGPT and Codex
 - Package guide: [`skills/street-portrait-artist/README.md`](../skills/street-portrait-artist/README.md)
 
 Paste this into ChatGPT:
 
 ```text
-Install the street-portrait-artist skill from this pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/street-portrait-artist/v0.1.1/skills/street-portrait-artist
+Install the street-portrait-artist skill from this pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/street-portrait-artist/v0.1.2/skills/street-portrait-artist
 ```
 
 Paste this into Codex:
 
 ```text
-Install this Skillstead skill globally from the pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/street-portrait-artist/v0.1.1/skills/street-portrait-artist
+Install this Skillstead skill globally from the pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/street-portrait-artist/v0.1.2/skills/street-portrait-artist
 ```
 
 ChatGPT may ask you to confirm the installation. If the current conversation still discovers an older cached
@@ -182,7 +182,7 @@ temporary path. For another skill, replace the tag and folder together with the 
 #### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.9.1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 ```
@@ -190,7 +190,7 @@ cp -R /tmp/skillstead/skills/github-release-guide ~/.claude/skills/
 #### Codex — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.9.1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p ~/.codex/skills
 cp -R /tmp/skillstead/skills/github-release-guide ~/.codex/skills/
 ```
@@ -198,7 +198,7 @@ cp -R /tmp/skillstead/skills/github-release-guide ~/.codex/skills/
 #### Claude Code — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch github-release-guide/v0.9.1 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.claude\skills\"
 ```
@@ -206,7 +206,7 @@ Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$e
 #### Codex — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch github-release-guide/v0.9.1 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.codex\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" "$env:USERPROFILE\.codex\skills\"
 ```
@@ -218,7 +218,7 @@ Run these commands from the target repository root.
 #### Claude Code — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.9.1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .claude/skills
 cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 ```
@@ -226,7 +226,7 @@ cp -R /tmp/skillstead/skills/github-release-guide .claude/skills/
 #### Codex — macOS/Linux
 
 ```bash
-git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git /tmp/skillstead
+git clone --depth 1 --branch github-release-guide/v0.9.1 https://github.com/kyungseo/skillstead.git /tmp/skillstead
 mkdir -p .agents/skills
 cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
 ```
@@ -234,7 +234,7 @@ cp -R /tmp/skillstead/skills/github-release-guide .agents/skills/
 #### Claude Code — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch github-release-guide/v0.9.1 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force ".claude\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" ".claude\skills\"
 ```
@@ -242,7 +242,7 @@ Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" ".c
 #### Codex — Windows PowerShell
 
 ```powershell
-git clone --depth 1 --branch github-release-guide/v0.9.0 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
+git clone --depth 1 --branch github-release-guide/v0.9.1 https://github.com/kyungseo/skillstead.git "$env:TEMP\skillstead"
 New-Item -ItemType Directory -Force ".agents\skills" | Out-Null
 Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" ".agents\skills\"
 ```
@@ -264,7 +264,7 @@ Runtime support is verified per skill:
 | `docs-claim-check` | Supported | Not yet claimed | — | Behavioral fixtures passed with Claude Code Fable and Sonnet |
 | `github-release-guide` | Supported | Supported | — | Material parity, disposable first-public and Guided tag-ruleset E2E, pinned installation/discovery, and release claim audits passed |
 | `writing-quality-editor` | Supported | Supported | — | Four-mode cross-runtime behavior, repository dogfood, pinned installation, package equality, discovery, and claim closeout passed |
-| `street-portrait-artist` | Not applicable | Supported | ChatGPT: Supported | Fresh published `0.1.0` package installation, discovery, invocation, synthetic reference-image generation, fail-visible size fallback, and output delivery established runtime support; `0.1.1` is the current install release |
+| `street-portrait-artist` | Not applicable | Supported | ChatGPT: Supported | Fresh published `0.1.0` package installation, discovery, invocation, synthetic reference-image generation, fail-visible size fallback, and output delivery established runtime support; `0.1.2` is the current install release |
 
 Evidence recorded for an earlier release can establish a bounded runtime capability without making that older
 release the current install target. For normal use, choose only a runtime marked `Supported`. `Not yet claimed`

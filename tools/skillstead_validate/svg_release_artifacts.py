@@ -85,7 +85,7 @@ def _typepack_ids(repo: Path) -> set[str]:
     return {str(p["id"]) for p in json.loads(result.stdout).get("typepacks") or []}
 
 
-def _runtime_digest(repo: Path) -> str:
+def _runtime_identity(repo: Path) -> tuple[str, int]:
     env = dict(os.environ)
     env["SVGINFO_EXECUTION_MODE"] = "source-development"
     result = subprocess.run(
@@ -94,7 +94,14 @@ def _runtime_digest(repo: Path) -> str:
     )
     if result.returncode != 0:
         raise ValueError(f"package preflight failed: {(result.stderr or result.stdout).strip()}")
-    return str(json.loads(result.stdout)["digests"]["runtimeSurfaceDigest"])
+    identity = json.loads(result.stdout)
+    digest = identity["digests"]["runtimeSurfaceDigest"]
+    revision = identity["package"]["surfaceRevision"]
+    if not isinstance(digest, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", digest):
+        raise ValueError("package preflight returned an invalid runtime digest")
+    if type(revision) is not int or revision < 1:
+        raise ValueError("package preflight returned an invalid surface revision")
+    return digest, revision
 
 
 def check_release_artifacts(
@@ -106,6 +113,7 @@ def check_release_artifacts(
     artifact_commit: str | None = None,
     typepack_ids: set[str] | None = None,
     runtime_digest: str | None = None,
+    surface_revision: int | None = None,
     verify_pairs: bool = True,
 ) -> list[Finding]:
     """Return findings without mutation. Test-only overrides avoid reimplementing repo fixtures."""
@@ -118,7 +126,10 @@ def check_release_artifacts(
 
     try:
         ids = typepack_ids if typepack_ids is not None else _typepack_ids(repo)
-        live_digest = runtime_digest if runtime_digest is not None else _runtime_digest(repo)
+        if runtime_digest is None or surface_revision is None:
+            observed_digest, observed_revision = _runtime_identity(repo)
+        live_digest = runtime_digest if runtime_digest is not None else observed_digest
+        live_revision = surface_revision if surface_revision is not None else observed_revision
     except (OSError, ValueError, KeyError, json.JSONDecodeError) as error:
         return findings + [Finding("SVG-REL-OBSERVE", "svg-infographic", str(error))]
     expected = expected_inventory(ids)
@@ -147,7 +158,7 @@ def check_release_artifacts(
             source = prov.get("source") or {}
             checks = {
                 "provenance canonicalization": (prov.get("schema") or {}).get("canonicalization") == 2,
-                "surface revision": (prov.get("package") or {}).get("surfaceRevision") == 17,
+                "surface revision": (prov.get("package") or {}).get("surfaceRevision") == live_revision,
                 "execution mode": prov.get("executionMode") == "source-development",
                 "runtime digest": prov.get("runtimeSurfaceDigest") == live_digest,
                 "source head": source.get("headCommit") == source_commit,
