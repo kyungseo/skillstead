@@ -2,7 +2,7 @@
 
 Notable changes to the `street-portrait-artist` skill package.
 
-## [Unreleased]
+## [0.1.2] — 2026-09-07
 
 ### Documentation
 

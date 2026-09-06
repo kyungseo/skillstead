@@ -3,7 +3,7 @@ name: street-portrait-artist
 description: Analyze supplied portrait references into a stable impression map, then create a kind Street Caricature or Romance Watercolor character portrait with coherent feature relationships and targeted revision. Use when a real person's recognizable visual identity should be interpreted rather than traced. Do not use for graffiti or murals, restoration, face swaps, photorealistic retouching, personality inference, or imitation of a named living artist.
 license: LICENSE.txt
 metadata:
-  version: 0.1.1
+  version: 0.1.2
 ---
 
 # Street Artist

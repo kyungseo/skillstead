@@ -4,15 +4,27 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
-## [Unreleased]
+## 2026-09-07
+
+### Validation
+
+- Read the SVG artifact surface revision from the current package preflight instead of a stale fixed value; mismatched revisions and unavailable identity still fail the release gate.
+
+### Skills
+
+- `docs-claim-check` `0.9.2` — documentation patch; clarifies what the claim review returns and removes repeated explanations in the English and Korean guides.
+- `github-release-guide` `0.9.1` — documentation patch; clarifies the Korean explanations of execution approval, exposed-tag corrections, and release automation checks.
+- `street-portrait-artist` `0.1.2` — documentation patch; explains photo roles, face shape, expression, and drawing choices in familiar terms across the English and Korean guides.
+- `svg-infographic` `0.11.1` — documentation patch; clarifies the introductory guide and aligns the documented Codex personal installation path with the catalog installation guide.
+- `writing-quality-editor` `0.14.1` — documentation patch; clarifies when to use each writing mode and separates editing principles from measured results. The guides distinguish earlier runtime evidence from the newer Korean drafting path.
 
 ### Documentation
 
 - Put the skill selection table before the catalog galleries and clarified the writing and portrait guides.
 - Reviewed English/Korean guides, corrected the missing portrait entry and inconsistent Codex installation path,
   and distinguished historical four-skill evidence from the current catalog and the newer Korean drafting path.
-- Recorded documentation changes in the five affected package changelogs. Package versions and published install
-  pins remain unchanged pending patch release preparation; runtime instructions and maturity labels are unchanged.
+- Published the five documentation patches with matching package versions and installation pins. Runtime instructions
+  and maturity labels are unchanged.
 
 ## 2026-09-06
 

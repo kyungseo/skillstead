@@ -41,7 +41,7 @@ admin bypass가 있으므로 이 경계는 hard guarantee가 아니라 disciplin
 
 `svg-infographic`은 M2 전에 clean source commit에서 만든 repository 밖 staging directory를 M2-SVG로
 검사합니다. canonical file은 정확히 54개(아홉 TypePack × 두 locale × SVG·receipt·PNG)여야 하며,
-receipt canonicalization v2, surface revision 17, 선택한 source commit, clean source flag, live runtime digest,
+receipt canonicalization v2, 현재 package의 surface revision, 선택한 source commit, clean source flag, live runtime digest,
 package verifier 통과와 SVG viewBox의 정확히 두 배인 PNG 크기를 요구합니다. `--compare-repository`는 복사한
 byte의 완전 일치를 추가로 검사합니다. artifact commit 뒤 `--artifact-commit`을 사용하면 source commit의
 descendant인지, canonical artifact delta가 source snapshot과 staging의 byte가 실제로 다른 파일과 정확히
