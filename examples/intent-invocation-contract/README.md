@@ -2,9 +2,10 @@
 
 **English** · [한국어](./README.ko.md)
 
-These repository-only validation scenarios (fixtures) check how Skillstead's four independent skills should
-respond when users name a skill, ask naturally, use the `WQE` shorthand, omit required input, or combine more
-than one kind of work.
+These repository-only validation scenarios cover four skills: `svg-infographic`, `docs-claim-check`,
+`github-release-guide`, and `writing-quality-editor`. They check responses to named and natural requests, the
+`WQE` shorthand, missing input, and combined tasks. For `street-portrait-artist`, see its
+[separate examples](../street-portrait-artist/README.md).
 
 They do not define a keyword command grammar. Runtime and model behavior can vary, so the canonical skill name is
 the most predictable choice. Natural-language selection is acceptable when the selected workflow preserves the

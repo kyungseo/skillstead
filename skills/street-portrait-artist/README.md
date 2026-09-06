@@ -2,17 +2,19 @@
 
 **English** · [한국어](./README.ko.md)
 
-`Street Artist` turns one or more portrait references into a recognizably similar character portrait by analyzing the
-person's visible feature relationships before rendering. It is not a style filter. One shared `Impression Map` supports
-two intentionally different readings of the same face—“one face, two truths.”
+`Street Artist` draws character portraits from the face shape and expression in your photos. Choose a kind
+caricature or a pen-and-watercolor portrait. Ask for both to get two separate artworks based on the same observed
+features. Supply one or more portrait references.
 
-## What Makes It Different
+## How It Interprets The Photos
 
-The workflow separates four decisions that generic portrait filters often collapse:
+Before drawing, the skill assigns each photo a role and records the person’s features. After drawing, it explains
+its choices:
 
 1. `Reference Triangulation`: one image owns pose and crop; additional images clarify named identity features without
    averaging faces or combining poses.
-2. `Impression Map`: head frame, T-axis, mouth-chin rhythm, outer anchors, expression, and one primary anchor.
+2. `Impression Map`: face shape, eye-and-nose alignment, the relationship between mouth and chin, surrounding
+   features such as hair, expression, and one main distinguishing feature.
 3. `Action-Reaction Distortion`: any amplification changes supporting relationships coherently instead of enlarging one
    feature in isolation.
 4. `Artist's Note`: the delivery explains the main visual idea and its structural consequence without inferring
@@ -27,7 +29,7 @@ Choose `Quick Sketch` for one usable reference or `Studio Portrait` for two or t
 | `Street Caricature` / `Exaggerate` | Finds one witty, kind structural idea and pushes it coherently | Warm drawing paper, open-paper facial planes, near-monochrome ink or graphite, decisive black mass, and at most a tiny muted spot color |
 | `Romance Watercolor` / `Illuminate` | Reveals the same identity through lyrical simplification and restrained character idealization | Cold-pressed paper, precise varied pen contours, transparent washes, grouped hair and clothing, softly retained environment |
 
-The modes share one identity grammar. `Twin Portrait` produces both as separate artworks from the same Impression Map;
+The modes use the same record of the person’s features. `Twin Portrait` produces both as separate artworks from the same Impression Map;
 the second image must not silently redefine the person to match the first.
 
 ## Start Here
@@ -72,6 +74,6 @@ authorship, or an exact export that the current surface cannot perform and verif
 Install the complete `skills/street-portrait-artist/` folder. The package contains all required mode references and its
 license; repository-only scenarios and answer keys are intentionally excluded from folder installs.
 
-Version `0.1.1` remains Experimental. The public-safe synthetic gallery establishes the intended visual direction, and
+Maturity remains Experimental. The public-safe synthetic gallery establishes the intended visual direction, and
 fresh published `0.1.0` package runs establish ChatGPT and Codex runtime support. They do not guarantee likeness or consistent
 visual quality across different faces, scenes, or image-generation runs.

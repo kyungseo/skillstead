@@ -2,8 +2,8 @@
 
 [English](./skill-development-procedure.md) · **한국어**
 
-사용자 권한이나 public support claim을 실수로 넓히지 않으면서 intent를 self-contained,
-evidence-backed skill로 만드는 절차입니다.
+사용자가 하려는 일을 독립적으로 설치할 수 있는 스킬로 만들고 검증하는 절차입니다.
+과정에서 사용자가 승인한 작업 범위나 검증된 지원 범위를 임의로 넓히지 않습니다.
 
 ## 1. 작업 범위 설정
 
@@ -84,7 +84,7 @@ arbiter에게 올립니다. Review approval 자체는 commit, publication, tag �
 
 Package, fixture, evidence가 일치한 뒤 root catalog와 maintainer entrypoint를 갱신합니다. Per-skill
 versioning·release gate를 따릅니다. INSTALL pin, validator lifecycle state, supported syntax가 바뀌면
-production validator와 관련 real-repository fixture를 같은 pull request에서 회전합니다.
+실제 검증 도구와 관련 저장소 검증 시나리오를 같은 pull request에서 갱신합니다.
 
 Publish 전에 release note를 준비합니다. Versioned unit은 하나의 `skills/<name>/` package입니다.
 GitHub source archive는 repository snapshot이며 standalone package artifact가 아닙니다.

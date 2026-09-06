@@ -19,9 +19,9 @@ contract. All documents now change through this repository's normal pull-request
 [Apache-2.0 license](../LICENSE).
 
 These playbooks are the canonical source for generic release mechanics.
-[`skills/github-release-guide`](../skills/github-release-guide) is an installable, self-contained operational
-projection with intentional product behavior of its own. The playbook is not an edit-order gate: a change may
-be designed in the skill first, but shared generic mechanics must still be reflected here.
+[`skills/github-release-guide`](../skills/github-release-guide) is a self-contained, installable
+implementation with intentional product behavior of its own. Changes may be designed in the skill first;
+the playbook does not have to be edited first. Shared generic release procedures must still be reflected here.
 
 Resolve a difference by ownership. Follow the playbook for generic release mechanics. Follow the skill for its
 Assess/Guided state machine, readiness status, approval, refusal, handoff, and runtime output rules only when

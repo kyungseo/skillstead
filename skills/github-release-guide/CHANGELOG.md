@@ -11,6 +11,12 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [Unreleased]
+
+### Documentation
+
+- Clarified Korean explanations of execution approval, published-tag corrections, and release-automation checks. Approval rules and runtime behavior are unchanged.
+
 ## [0.9.0] — 2026-07-30
 
 - Separated consumer exposure from platform mutability for Release-object corrections and made metadata edits,

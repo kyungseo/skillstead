@@ -19,8 +19,8 @@ Git 이력은 가져오지 않았습니다. `recurring-release-protection-checkp
 
 이 playbook은 범용 릴리스 절차의 최종 기준입니다.
 [`skills/github-release-guide`](../skills/github-release-guide)는 자체 product behavior를 가진,
-독립 설치 가능한 operational projection입니다. Playbook은 수정 순서 gate가 아닙니다. Skill에서
-변경을 먼저 설계할 수 있지만, 공유하는 범용 mechanics는 이 playbook에도 반영해야 합니다.
+독립 설치형 구현입니다. 반드시 playbook부터 수정해야 하는 것은 아닙니다. 스킬에서 변경을 먼저
+설계할 수 있지만, 함께 사용하는 범용 릴리스 절차는 이 playbook에도 반영해야 합니다.
 
 차이가 있으면 ownership에 따라 판정합니다. 범용 release mechanics는 playbook을 따릅니다.
 Assess/Guided state machine, readiness status, approval, refusal, handoff와 runtime output은 해당 차이와

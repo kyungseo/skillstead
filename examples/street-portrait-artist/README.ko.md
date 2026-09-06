@@ -2,11 +2,12 @@
 
 [English](./README.md) · **한국어**
 
-이 repository-only gallery는 공개 가능한 합성 원본으로 만든 `Twin Portrait` 두 사례를 보여 줍니다. Woodland Path pair는
-대표 visual example이고, Rooftop Garden pair는 같은 workflow가 특정 성별·머리 모양·head frame·표정·환경에만 의존하지
-않는지 확인하는 generalization example입니다.
+합성 인물 이미지로 만든 `Twin Portrait` 두 사례입니다. 원본 한 장을 캐리커처와 수채화 초상화로 각각
+어떻게 해석했는지 나란히 볼 수 있습니다. Woodland Path는 대표 예제이고, Rooftop Garden은 성별·머리
+모양·얼굴형·표정·환경이 다른 인물에도 같은 작업 방식을 적용해 본 예제입니다.
 
-이 gallery는 설치되는 skill package에 포함되지 않으며 runtime 지원이나 deterministic output을 입증하지 않습니다.
+이 갤러리는 설치 패키지에 포함되지 않습니다. 실행 환경 지원이나 매번 같은 결과가 나온다는 근거로
+사용하지 않습니다.
 
 ## Featured — Woodland Path
 
@@ -16,21 +17,22 @@
 
 ### Impression Map
 
-- `Head frame`: compact하고 둥근 chin으로 좁아지는 부드러운 oval-to-heart frame.
-- `T-axis`: 완만한 arch의 eyebrow, 자연스러운 크기의 almond eye와 곧고 좁은-to-medium nose.
-- `Mouth-chin rhythm`: 넓은 closed-lip smile, 비대칭 cheek lift, 잔잔한 dimple과 compact chin.
-- `Outer anchors`: 어깨 길이의 wavy black hair, 깊은 side part, 열린 cheek의 beauty mark, charcoal top과 편안한
-  three-quarter pose.
-- `Primary anchor`: 크게 흐르는 hair arc와 반대편 열린 cheek의 beauty mark·dimple·quiet smile이 만드는 대응.
+- `Head frame`: 부드럽고 약간 긴 타원형과 하트형 사이의 얼굴형. 아래로 갈수록 작고 둥근 턱으로 좁아집니다.
+- `T-axis`: 완만한 곡선의 눈썹, 자연스러운 크기의 아몬드형 눈, 좁거나 중간 정도 너비의 곧은 코.
+- `Mouth-chin rhythm`: 입을 다문 넓은 미소, 한쪽이 더 올라간 볼, 옅은 보조개와 작은 턱.
+- `Outer anchors`: 어깨 길이의 물결치는 검은 머리, 옆으로 깊게 탄 가르마, 드러난 볼의 점, 짙은 회색 상의와
+  몸을 약간 옆으로 돌린 편안한 자세.
+- `Primary anchor`: 크게 휘어 흐르는 머리카락과 반대편 드러난 볼의 점·보조개·잔잔한 미소가 이루는 대비.
 
 ### 해석 기록
 
-`Street Caricature`는 hair sweep을 확장하고 단순화하며 웃는 cheek arc를 강화하고 chin을 압축하는 하나의
-action-reaction 설계를 사용했습니다. 얼굴에는 따뜻한 종이를 드러내고 거의 무채색인 ink와 graphite로 형태를 잡으며,
-머리카락은 과감한 검정 면으로 처리하고 피부나 의상에는 넓은 색 면을 쓰지 않습니다.
+`Street Caricature`는 머리카락의 큰 곡선을 넓히고 단순화하면서 웃는 볼의 곡선을 강조하고 턱을 줄였습니다.
+이 변화들을 함께 적용해 비율을 맞췄습니다. 얼굴에는 따뜻한 종이의 여백을 살리고 잉크와 흑연으로 형태를
+잡았습니다. 머리카락은 과감한 검정 면으로 표현하고, 피부나 의상에는 넓게 색을 칠하지 않았습니다.
 
-`Romance Watercolor`는 같은 hair-to-cheek 비대칭과 굽은 woodland path를 유지합니다. 얼굴의 정밀한 pen contour,
-투명한 green-gold wash, granulation, paper gap과 lost edge로 환경보다 인물을 선명하게 남깁니다.
+`Romance Watercolor`는 머리카락과 볼의 비대칭, 굽은 숲길을 유지했습니다. 얼굴에는 섬세한 펜 선을 남기고
+주변에는 초록·금빛의 투명한 색과 안료가 맺히는 질감, 종이 여백, 흐려지는 윤곽을 사용했습니다. 그래서
+배경보다 인물이 선명하게 보입니다.
 
 ## Generalization — Rooftop Garden
 
@@ -40,29 +42,29 @@ action-reaction 설계를 사용했습니다. 얼굴에는 따뜻한 종이를 �
 
 ### Impression Map
 
-- `Head frame`: 아래쪽 rhythm이 compact한 넓고 부드러운 사각형 얼굴.
-- `T-axis`: 약간 넓게 떨어진 눈과 compact한 곧은 코 위로 흐르는 선명한 diagonal side-part arc.
-- `Mouth-chin rhythm`: 한쪽 cheek과 dimple이 올라가는 조용한 비대칭 closed-mouth smile.
-- `Outer anchors`: 짧게 넘긴 머리, moss색 chore jacket, mustard knit collar와 편안하게 앉은 pose.
-- `Primary anchor`: diagonal hair arc와 작고 한쪽으로 치우친 dimple smile의 대응.
+- `Head frame`: 아래쪽이 짧게 모이는 넓고 부드러운 사각형 얼굴.
+- `T-axis`: 약간 넓게 떨어진 눈과 작고 곧은 코. 그 위로 옆가르마 머리카락이 뚜렷한 사선 곡선을 이룹니다.
+- `Mouth-chin rhythm`: 입을 다물고 한쪽 볼과 보조개가 올라가는 잔잔한 비대칭 미소.
+- `Outer anchors`: 짧게 넘긴 머리, 이끼색 작업 재킷, 겨자색 니트 깃과 편안하게 앉은 자세.
+- `Primary anchor`: 사선으로 휘는 머리카락과 한쪽에 작게 잡히는 보조개 미소의 조합.
 
 ### 해석 기록
 
-`Street Caricature`는 넓은 사각형 frame을 부드러운 사다리꼴로 다시 구성하고 얼굴 요소 사이 간격을 압축하며,
-비대칭 smile이 cheek과 eye에 함께 반응하도록 만들었습니다. 얼굴은 대부분 종이로 열어 두고 black ink와 graphite로
-구조를 잡으며, 빈 배경 위에서 의상의 outer anchor만 극소량의 차분한 olive·ochre로 받칩니다.
+`Street Caricature`는 넓은 사각형 얼굴을 부드러운 사다리꼴로 바꾸고 이목구비 사이 간격을 줄였습니다.
+비대칭 미소에 맞춰 볼과 눈도 함께 조정했습니다. 얼굴은 대부분 종이의 여백으로 남기고 검정 잉크와
+흑연으로 형태를 잡았습니다. 배경은 비워 두고 의상에만 차분한 올리브색·황토색을 아주 조금 넣었습니다.
 
-`Romance Watercolor`는 같은 특징 관계를 유지하면서 얼굴 plane을 단순화하고 머리카락·의상을 큰 덩어리로 묶었습니다.
-얼굴 주변에는 정밀한 pen contour를 남기고, 투명 wash·granulation·lost edge와 느슨한 옥상 도시 환경으로 analog 마감을
-만듭니다.
+`Romance Watercolor`는 같은 특징 관계를 유지하면서 얼굴의 면을 단순화하고 머리카락·의상을 큰 덩어리로
+묶었습니다. 얼굴 주변은 펜 선으로 섬세하게 그리고, 투명한 색과 안료가 맺히는 질감, 흐려지는 윤곽으로
+수채화의 느낌을 살렸습니다. 옥상 너머 도시 배경은 느슨하게 남겼습니다.
 
-## Provenance와 Claim Boundary
+## 원본 출처와 이 예제로 확인할 수 있는 것
 
-- 두 원본은 모두 가상의 합성 성인입니다. 실존 인물의 사진이나 likeness를 identity input으로 사용하지 않았습니다.
-- 각 pair에서 identity를 제공한 입력은 gallery에 포함된 해당 합성 원본뿐입니다. 별도의 합성 drawing은 Rooftop Garden
-  Street Caricature의 일반적인 brush-pen·paper 물성에만 참고했으며 그 인물과 구도는 제외했습니다.
+- 두 원본은 모두 가상의 합성 성인입니다. 실존 인물의 사진이나 외모를 인물 특징의 기준으로 쓰지 않았습니다.
+- 각 작품 쌍의 인물 특징은 여기에 실린 해당 합성 원본만 참고했습니다. Rooftop Garden의 Street Caricature는
+  붓펜과 종이 질감에 한해 별도의 합성 그림도 참고했으며, 그 그림의 인물과 구도는 사용하지 않았습니다.
 - PNG 여섯 개는 모두 실제 `1080 x 1350 px`로 검증했습니다.
-- 이 example은 likeness 보장, deterministic regeneration 또는 모든 product runtime의 지원을 입증하지 않습니다.
+- 이 예제가 얼굴 유사성, 재생성 결과의 일치나 모든 실행 환경의 지원을 입증하지는 않습니다.
 
-Repository-only intent·behavior fixture는 [`intent-contract.md`](./intent-contract.md)와
+스킬을 선택하는 조건과 동작을 확인하는 저장소 전용 검증 자료는 [`intent-contract.md`](./intent-contract.md)와
 [`fixtures/`](./fixtures/)에 유지합니다.

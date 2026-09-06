@@ -2,19 +2,22 @@
 
 [English](./README.md) · **한국어**
 
-`Street Artist`는 한 장 이상의 인물 사진에서 눈에 보이는 특징 관계를 먼저 분석한 뒤, 그 사람임을 알아볼 수 있는
-캐릭터 초상화로 재해석합니다. 단순한 style filter가 아닙니다. 하나의 `Impression Map`을 공유하는 두 가지 해석으로
-“한 얼굴, 두 개의 진실”을 만듭니다.
+`Street Artist`는 사진 속 얼굴형과 표정을 살려 캐릭터 초상화를 그립니다.
+다정한 캐리커처와 펜·수채화 초상화 중에서 고를 수 있습니다. 두 가지를 모두 요청하면 같은 인물의
+특징을 바탕으로 각각 한 작품씩 만듭니다. 사진은 한 장 이상 제공하면 됩니다.
 
-## 차별점
+## 사진을 어떻게 해석하나요?
 
-일반적인 portrait filter가 한꺼번에 처리하기 쉬운 네 가지 판단을 분리합니다.
+그리기 전에 사진의 용도와 인물의 특징을 정리하고, 완성 후에는 어떤 표현을 선택했는지 설명합니다.
 
-1. `Reference Triangulation`: 한 사진이 pose와 crop을 소유하고, 추가 사진은 얼굴을 평균 내거나 pose를 섞지 않은 채
-   이름 붙인 identity feature만 보완합니다.
-2. `Impression Map`: head frame, T-axis, mouth-chin rhythm, outer anchor, expression과 하나의 primary anchor를 기록합니다.
-3. `Action-Reaction Distortion`: 한 특징만 따로 키우지 않고, 과장에 맞춰 주변 관계도 일관되게 반응시킵니다.
-4. `Artist's Note`: 성격을 추론하지 않고 핵심 시각 아이디어와 그에 따른 구조 선택을 설명합니다.
+1. **사진별 용도 정하기** (`Reference Triangulation`): 한 사진을 자세와 구도의 기준으로 삼고, 다른 사진은
+   헤어라인이나 턱선처럼 지정한 특징만 보완하는 데 씁니다. 얼굴을 평균 내거나 여러 자세를 섞지 않습니다.
+2. **인물 특징 정리하기** (`Impression Map`): 얼굴형, 눈·코의 배치, 입과 턱의 관계, 머리카락 같은 주변 특징,
+   표정과 인상을 결정하는 핵심 특징 하나를 기록합니다.
+3. **주변 특징과 함께 과장하기** (`Action-Reaction Distortion`): 한 부위만 키우지 않고, 그 변화에 맞게
+   주변 부위의 간격과 비율도 함께 조정합니다.
+4. **표현 의도 설명하기** (`Artist's Note`): 어떤 특징을 강조했고 형태를 어떻게 바꿨는지 알려줍니다.
+   외모로 성격을 추측하지 않습니다.
 
 사용 가능한 사진이 한 장이면 `Quick Sketch`, 서로 보완하는 사진이 두세 장이면 `Studio Portrait`를 선택합니다.
 
@@ -22,11 +25,11 @@
 
 | Mode | 해석 | 대표적인 마감 |
 | --- | --- | --- |
-| `Street Caricature` / `Exaggerate` | 재치 있고 다정한 구조 아이디어 하나를 찾아 관계 전체에 일관되게 적용 | 따뜻한 drawing paper, 종이를 살린 얼굴 면, 거의 무채색인 ink·graphite, 과감한 검정 면과 극소량의 차분한 point color |
-| `Romance Watercolor` / `Illuminate` | 같은 identity를 서정적으로 단순화하고 절제된 character idealization으로 드러냄 | cold-pressed paper, 굵기가 달라지는 정밀한 pen contour, 투명 wash, 묶어서 표현한 머리카락·의상, 부드럽게 남긴 환경 |
+| `Street Caricature` / `Exaggerate` | 인물의 특징 하나를 재치 있고 다정하게 과장하고, 주변 비율도 함께 조정 | 따뜻한 종이 위에 잉크·흑연으로 그린 흑백 중심 그림. 얼굴에는 종이의 여백을 살리고, 과감한 검정 면과 극소량의 차분한 색 사용 |
+| `Romance Watercolor` / `Illuminate` | 같은 사람의 특징을 알아볼 수 있게 단순화하고, 절제된 서정적 캐릭터로 표현 | 결이 있는 수채화지, 굵기를 달리한 섬세한 펜 선, 투명하게 번지는 색. 머리카락·의상은 큰 덩어리로 묶고 배경은 부드럽게 표현 |
 
-두 mode는 하나의 identity grammar를 공유합니다. `Twin Portrait`는 같은 Impression Map에서 두 작품을 따로 만들며,
-두 번째 이미지가 첫 번째 결과에 맞춰 인물을 새로 정의하면 안 됩니다.
+두 mode는 같은 인물 특징 기록을 사용합니다. `Twin Portrait`는 그 기록으로 두 작품을 따로 만듭니다.
+두 번째 작품을 그릴 때 첫 번째 그림을 기준으로 인물의 특징을 다시 정하지 않습니다.
 
 ## 시작하기
 
@@ -39,36 +42,37 @@ hairline and jaw clarification. Make a kind Street Caricature for a 4:5 social p
 used. Do not add text or a signature.
 ```
 
-설치한 skill이 발견되는 Codex에서는 `$street-portrait-artist`를 사용합니다. ChatGPT에서는 제품의 skill interface에서
-설치된 skill을 이름으로 호출합니다. 공개된 `0.1.0` package를 새로 설치한 뒤 두 제품에서 합성 인물 사진으로 discovery·invocation·
-reference-image 생성·fail-visible size fallback·output delivery를 확인했습니다. 이 기록된 범위에서 ChatGPT와 Codex를
+설치한 스킬이 발견되는 Codex에서는 `$street-portrait-artist`를 사용합니다. ChatGPT에서는 제품의 skill interface에서
+설치된 스킬을 이름으로 호출합니다. 공개된 `0.1.0` 패키지를 새로 설치한 뒤 두 제품에서 합성 인물 사진으로
+스킬 발견·호출·참고 이미지 기반 생성·결과 전달을 확인했습니다. 요청한 크기를 만들 수 없을 때 그 한계를
+알리는 동작도 확인했습니다. 이 기록된 범위에서 ChatGPT와 Codex를
 `Supported`로 표시합니다.
 
 ## Social Output
 
-기본 `social-feed-portrait`는 `4:5` 구도이며, 현재 surface가 생성하고 검증할 수 있을 때 exact
-`1080 x 1350 px` PNG를 목표로 합니다. 요청한 경우 `social-square` (`1080 x 1080 px`)와 `story-vertical`
-(`1080 x 1920 px`)을 사용할 수 있습니다. 이미지를 늘이거나 크기를 지어내지 않고 실제 치수를 알리며, exact export가
-불가능하면 그 사실을 명시합니다.
+기본 `social-feed-portrait`는 `4:5` 구도입니다. 사용하는 이미지 생성 환경에서 정확한 크기로 만들고
+확인할 수 있을 때는 `1080 x 1350 px` PNG를 목표로 합니다. 요청한 경우 `social-square` (`1080 x 1080 px`)와 `story-vertical`
+(`1080 x 1920 px`)을 사용할 수 있습니다. 이미지를 늘이거나 크기를 지어내지 않고 실제 치수를 알리며, 정확한 크기로 내보낼 수
+없으면 그 사실을 명시합니다.
 
-## 경계
+## 사용하지 않는 작업과 결과의 한계
 
-graffiti, mural, 복원, 채색, face swap, 미화, 연령 변환, photorealistic retouching 또는 likeness reference가 없는
-가상 인물에는 사용하지 않습니다. 외모에서 성격·민족성·건강·매력도처럼 민감하거나 확인할 수 없는 특성을 추론하지
-않습니다. 특정 생존 작가·studio·brand·기존 작품을 모방하지 않습니다.
+그래피티, 벽화, 복원, 채색, 얼굴 바꾸기, 미화, 나이 바꾸기, 사진처럼 사실적인 보정이나
+외모를 참고할 이미지가 없는 가상 인물에는 사용하지 않습니다. 외모에서 성격·민족성·건강·매력도처럼 민감하거나 확인할 수 없는 특성을 추론하지
+않습니다. 특정 생존 작가·스튜디오·브랜드·기존 작품을 모방하지 않습니다.
 
-텍스트가 많은 poster나 infographic에서는 이 skill이 portrait layer만 만들 수 있으며, layout·typography·file
-placement·publication은 host artifact workflow가 소유합니다. 제공한 사진·Impression Map·결과물은 해당 작업에만
-사용하며, 기본적으로 public example이나 영구적인 character profile로 재사용하지 않습니다.
+텍스트가 많은 포스터나 인포그래픽에서는 초상화 부분만 만듭니다. 전체 배치, 글꼴, 파일 저장 위치와
+게시 여부는 해당 문서를 만드는 작업 절차에서 정합니다. 제공한 사진·Impression Map·결과물은 해당 작업에만
+사용하며, 기본적으로 공개 예제나 계속 재사용할 캐릭터 프로필로 남기지 않습니다.
 
-얼굴 유사성, deterministic regeneration, 제품 간 동일한 결과, 사람의 직접 창작 또는 현재 surface가 생성·검증할 수
-없는 exact export를 보장하지 않습니다.
+얼굴이 닮은 정도, 다시 생성했을 때나 다른 제품에서의 결과 일치, 사람이 직접 그린 작품이라는 주장은
+보장하지 않습니다. 현재 환경에서 만들고 확인할 수 없는 정확한 출력 크기도 보장하지 않습니다.
 
 ## Package
 
-`skills/street-portrait-artist/` folder 전체를 설치합니다. 필요한 mode reference와 license가 package 안에 있으며,
-repository-only scenario와 answer key는 folder 설치본에서 제외합니다.
+`skills/street-portrait-artist/` 폴더 전체를 설치합니다. 필요한 mode별 참고 문서와 라이선스가 포함돼 있습니다.
+저장소에서만 쓰는 검증 시나리오와 정답표는 설치 폴더에 포함되지 않습니다.
 
-Version `0.1.1`도 Experimental입니다. 공개 가능한 합성 gallery는 의도한 visual direction을, 공개된 `0.1.0` package를 새로
-설치한 실행 결과는 ChatGPT와 Codex runtime 지원을 보여 줍니다. 하지만 서로 다른 얼굴·장면·image generation 실행에서
-얼굴 유사성이나 시각 품질이 일관된다고 보장하지는 않습니다.
+현재 성숙도는 Experimental입니다. 합성 인물로 만든 갤러리는 의도한 그림의 스타일을 보여 줍니다.
+ChatGPT와 Codex 지원은 공개된 `0.1.0` 패키지를 새로 설치한 실행 결과에 근거합니다. 서로 다른 얼굴이나
+장면에서도 닮은 정도와 그림 품질이 일관된지는 아직 충분히 검증하지 않았습니다.

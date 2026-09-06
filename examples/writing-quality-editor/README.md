@@ -24,3 +24,7 @@ behavior with the answer key; wording and formatting do not need to match.
 
 F19 and F20 use a bounded research budget recorded in the scenario. They test evidence handling, not exhaustive
 research depth; the budget does not limit real user work.
+
+For results and limits of the Korean drafting path added in `0.14.0`, see the
+[skill guide](../../skills/writing-quality-editor/README.md#korean-new-drafts). Historical results from the 36
+scenarios above do not substitute for validation of that new path.

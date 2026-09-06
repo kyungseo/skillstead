@@ -2,8 +2,8 @@
 
 [English](./skill-package-standard.md) · **한국어**
 
-Skillstead skill에 필요한 최소 package·evidence contract를 설명합니다. 각 규칙은 명시된 조건이
-성립할 때만 적용하며, 일부 package에서 관측한 패턴을 모든 skill의 의무로 일반화하지 않습니다.
+Skillstead 스킬을 배포하려면 어떤 파일과 검증 근거가 필요한지 설명합니다. 각 규칙은 명시된 조건이
+성립할 때만 적용합니다. 일부 패키지에 필요한 사항을 모든 스킬의 의무로 확대하지 않습니다.
 
 ## Package 경계
 

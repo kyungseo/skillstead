@@ -11,6 +11,12 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [Unreleased]
+
+### Documentation
+
+- Aligned the documented Codex personal installation path with the catalog installation guide and clarified the introductory explanation. Rendering behavior and support are unchanged.
+
 ## [0.11.0] — 2026-08-21
 
 - Added an explicit opt-in presentation projection sibling with three restrained 4:5 starter surfaces, strict generated

@@ -14,7 +14,7 @@ Provide two things:
 2. the evidence the assessment may use.
 
 Ask for findings only. The skill does not search for missing material, run verification commands, or rewrite the
-document. Its result states the reviewed scope first, then assigns one confidence label to each claim.
+document.
 
 The skill splits composite statements into atomic claims and walks each one through a
 fixed decision tree, producing exactly one confidence label per claim:

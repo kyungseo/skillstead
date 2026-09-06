@@ -4,6 +4,16 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## [Unreleased]
+
+### Documentation
+
+- Put the skill selection table before the catalog galleries and clarified the writing and portrait guides.
+- Reviewed English/Korean guides, corrected the missing portrait entry and inconsistent Codex installation path,
+  and distinguished historical four-skill evidence from the current catalog and the newer Korean drafting path.
+- Recorded documentation changes in the five affected package changelogs. Package versions and published install
+  pins remain unchanged pending patch release preparation; runtime instructions and maturity labels are unchanged.
+
 ## 2026-09-06
 
 ### Skills

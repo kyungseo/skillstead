@@ -2,7 +2,7 @@
 
 [English](./README.md) · **한국어**
 
-에이전트 기반 코딩 작업에 필요한 평면형 기술 시각 자료를 만듭니다. 아키텍처 다이어그램, 클라우드
+시스템 구성이나 작업 순서를 수정 가능한 기술 다이어그램으로 만듭니다. 아키텍처 다이어그램, 클라우드
 토폴로지, 프로세스 흐름, 변경 전후 비교, 로드맵과 공유용 인포그래픽에 적합합니다. Claude Code와
 Codex에서 사용할 수 있습니다.
 
@@ -75,7 +75,7 @@ Projection을 요청하면서 surface를 지정하지 않으면 paper notebook�
 상세가 필요한 개발자는 [`presentation contract`](./references/presentation/contract.md)를 참고하세요.
 
 이 과정을 몰라도 스킬을 사용할 수 있습니다. 다만 각 단계에서 어떤 안내를 받는지, 결과물이 처음부터
-안정적으로 나오는 이유가 궁금할 때 참고할 수 있습니다.
+어떤 검사를 거치는지 궁금할 때 참고할 수 있습니다.
 
 ## 지원하는 다이어그램 유형
 
@@ -263,7 +263,7 @@ Chrome, Edge 또는 Chromium을 직접 실행해 2× PNG를 만든 뒤 크기와
 
 Claude Code 또는 Codex의 skills 디렉터리에 패키지를 복사합니다. Claude Code는 전역
 `~/.claude/skills/` 또는 프로젝트의 `.claude/skills/`를 사용하고, Codex는 전역
-`~/.agents/skills/` 또는 프로젝트의 `.agents/skills/`를 사용합니다. 여러 파일로 구성된 패키지이므로
+`~/.codex/skills/` 또는 프로젝트의 `.agents/skills/`를 사용합니다. 여러 파일로 구성된 패키지이므로
 폴더 전체를 복사해야 합니다.
 
 ```text

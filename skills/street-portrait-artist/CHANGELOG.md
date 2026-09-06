@@ -2,6 +2,12 @@
 
 Notable changes to the `street-portrait-artist` skill package.
 
+## [Unreleased]
+
+### Documentation
+
+- Explained photo roles and portrait choices in plain language, with a clearer Korean guide. Portrait modes, privacy rules, runtime support, and Experimental maturity are unchanged.
+
 ## [0.1.1] — 2026-08-30
 
 - Added a construction-first Street Caricature path that locks the head envelope, feature axes, primary anchor, and

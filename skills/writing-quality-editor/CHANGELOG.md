@@ -11,6 +11,12 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [Unreleased]
+
+### Documentation
+
+- Clarified the writing and editing guide, separated intended behavior from unmeasured time savings, and organized revision guidance by task. Runtime contracts and Beta maturity are unchanged.
+
 ## [0.14.0] — 2026-09-06
 
 - Added a dedicated Korean Compose contract designed to check for required facts before drafting and ask for missing experience or outcome data. Limited checks did not consistently follow that instruction: an explicit package-load run inferred an adoption purpose before asking; a separate inline development check did not. These different conditions do not establish a success rate.
