@@ -15,6 +15,7 @@ references to install or use a skill.
 | Check public claims against supplied evidence | [`docs-claim-check`](../skills/docs-claim-check/README.md) |
 | Prepare a GitHub repository release safely | [`github-release-guide`](../skills/github-release-guide/README.md) |
 | Write, review, revise, or adapt user-facing prose | [`writing-quality-editor`](../skills/writing-quality-editor/README.md) |
+| Create character portraits from supplied photos | [`street-portrait-artist`](../skills/street-portrait-artist/README.md) |
 | See example outputs and validation material | Browse [`examples/`](../examples/) |
 
 Each skill is a self-contained folder. Its README explains who it is for, what it does, what it does not do,

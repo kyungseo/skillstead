@@ -2,8 +2,8 @@
 
 **English** · [한국어](./README.ko.md)
 
-Practical, portable skills for agentic work — interpret portraits, create clearer artifacts, check public
-claims, guide safer GitHub releases, and turn rough or translated text into natural, precise writing.
+Practical, portable skills for agentic work — create clearer artifacts, check public claims, guide safer GitHub
+releases, turn rough or translated text into natural, precise writing, and interpret portraits.
 
 > [!TIP]
 > **Skillstead = skill + homestead.** A small, durable place for skills that coding agents can carry into
@@ -18,6 +18,31 @@ claims, guide safer GitHub releases, and turn rough or translated text into natu
 
 Looking for a particular guide? The [documentation index](./docs/README.md) separates user guides from
 maintainer references.
+
+## Choose a skill
+
+| Skill | Best for | Version | Runtime support | Maturity |
+| --- | --- | --- | --- | --- |
+| [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | `0.11.0` | Supported: Claude Code + Codex | Stable |
+| [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | `0.9.1` | Claude Code | Beta |
+| [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | `0.9.0` | Supported: Claude Code + Codex | Stable |
+| [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | `0.14.0` | Supported: Claude Code + Codex | Beta |
+| [`street-portrait-artist`](./skills/street-portrait-artist) | Creating a caricature or pen-and-watercolor portrait from the face shape and expression in supplied photos | `0.1.1` | Supported: ChatGPT + Codex | Experimental |
+
+Each skill is self-contained and can be installed independently. You do not need to install the entire
+catalog—copy only the complete folder for the skill you want to use. See
+[`docs/INSTALL.md`](./docs/INSTALL.md) for global/project paths, pinned tags, clean updates, Windows commands,
+and the per-skill runtime matrix.
+
+The `Version` column above is per skill, not a catalog version. See
+[`docs/VERSIONING.md`](./docs/VERSIONING.md) for what it means and how it changes.
+
+For more examples—including natural requests, the `WQE` shorthand, and requests that involve more than one
+skill—see the repository-only
+[`intent and invocation contract`](./examples/intent-invocation-contract).
+
+GitHub's **Latest** badge identifies the most recently published individual skill release. It does not represent
+a catalog version.
 
 ## Highlights
 
@@ -42,31 +67,6 @@ evidence-bounded public claims, and `github-release-guide` for approval-gated re
 required pipeline: start with the skill you need, skip the others, and recheck an earlier artifact when it changes.
 `street-portrait-artist` is a separate creative workflow for character portraits from supplied references; it does
 not need to participate in that release path.
-
-## Choose a skill
-
-| Skill | Best for | Version | Runtime support | Maturity |
-| --- | --- | --- | --- | --- |
-| [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | `0.11.0` | Supported: Claude Code + Codex | Stable |
-| [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | `0.9.1` | Claude Code | Beta |
-| [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | `0.9.0` | Supported: Claude Code + Codex | Stable |
-| [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | `0.14.0` | Supported: Claude Code + Codex | Beta |
-| [`street-portrait-artist`](./skills/street-portrait-artist) | Turning portrait references into a relationship-driven Street Caricature or Romance Watercolor character portrait | `0.1.1` | Supported: ChatGPT + Codex | Experimental |
-
-Each skill is self-contained and can be installed independently. You do not need to install the entire
-catalog—copy only the complete folder for the skill you want to use. See
-[`docs/INSTALL.md`](./docs/INSTALL.md) for global/project paths, pinned tags, clean updates, Windows commands,
-and the per-skill runtime matrix.
-
-The `Version` column above is per skill, not a catalog version. See
-[`docs/VERSIONING.md`](./docs/VERSIONING.md) for what it means and how it changes.
-
-For more examples—including natural requests, the `WQE` shorthand, and requests that involve more than one
-skill—see the repository-only
-[`intent and invocation contract`](./examples/intent-invocation-contract).
-
-GitHub's **Latest** badge identifies the most recently published individual skill release. It does not represent
-a catalog version.
 
 ## Skill details
 
@@ -130,10 +130,9 @@ approved separately from changing the repository, and neither implies the other.
 
 ### writing-quality-editor
 
-Writing can start generic, over-structured, or translated sentence by sentence.
-`writing-quality-editor` composes new documents directly from reliable briefs or reviewed public sources and
-improves existing prose so it reads like careful work by a skilled writer or editor while preserving facts, intent,
-author voice, commands, conditions, limitations, risks, and next actions.
+`writing-quality-editor` writes new text from notes and evidence or makes existing prose easier to understand.
+Its editing rules require preserving facts, intent, author voice, commands, conditions, limitations, risks, and
+next actions. Those rules do not make every result natural or accurate; important writing still needs a final review.
 
 For wording and naturalness requests, it now starts with the smallest complete span that has a concrete reader
 problem and leaves the surrounding text unchanged. Ambiguous discretion, approval, or notification wording stays unchanged
@@ -152,9 +151,9 @@ does not invent claims or hide ambiguity. AI-detector gaming and provenance conc
 
 ### street-portrait-artist
 
-`street-portrait-artist` analyzes visible relationships—head frame, feature spacing, expression, and one primary
-anchor—before drawing. It offers two interpretations from the same identity grammar: a kind, near-monochrome
-`Street Caricature` and a lyrical pen-and-watercolor `Romance Watercolor` portrait.
+`street-portrait-artist` studies face shape, feature spacing, expression, and the main distinguishing feature before
+drawing. It uses those observations for a kind, near-monochrome `Street Caricature` or a pen-and-watercolor
+`Romance Watercolor` portrait. Both are designed to retain the same person’s recognizable features.
 
 Provide one or more clear portrait references. Supplied portraits, analysis, and outputs remain task-scoped unless the
 user separately asks to publish or retain them.
@@ -203,7 +202,9 @@ live E2E, pinned `v0.5.0` project installation and discovery smoke, and the fina
 
 `writing-quality-editor` has passed its four-mode behavior set, repository dogfood, and fresh installation and
 skill discovery from the published `v0.7.0` tag. It is `Supported` for Claude Code and Codex within that recorded
-evidence scope; maturity remains Beta.
+evidence scope; maturity remains Beta. The new Korean drafting path in `0.14.0` has only been checked through
+explicit local package loading. Post-install automatic discovery and other runtimes remain unverified for this
+change. See the [WQE guide](./skills/writing-quality-editor/README.md) for results and known failures.
 
 `street-portrait-artist` has two public-safe synthetic Twin Portrait cases that document its intended visual direction
 and privacy boundary. Fresh installations of the published `0.1.0` package were then discovered and invoked in ChatGPT and

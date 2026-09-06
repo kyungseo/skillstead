@@ -6,7 +6,7 @@ A two-lane swimlane flow produced by `svg-infographic`, in English and Korean.
 The top lane tracks an **agent session's states** (working → waiting → resumed →
 done); the bottom lane tracks the **user's actions** in parallel. Dashed
 cross-lane arrows carry the waiting alert down and the one-click approval back
-up — making the point that with alerts, the workflow never stalls at an approval.
+up. The diagram shows how an alert lets the user notice a pending approval and resume the work.
 
 | English | 한국어 |
 | --- | --- |
@@ -63,8 +63,8 @@ dashed = cross-lane alert/approval), and give it a conclusion title like
 `svg-infographic`으로 영문판과 한국어판을 만든 두 줄짜리 swimlane 흐름도입니다. 위쪽은
 **에이전트 세션 상태**(작업 중 → 승인 대기 → 작업 재개 → 완료), 아래쪽은 같은 시간대의
 **사용자 행동**을 보여줍니다. 줄 사이의 점선 화살표는 대기 알림을 사용자에게 보내고 원클릭
-승인을 에이전트에 돌려주는 흐름을 나타냅니다. 알림이 있으면 작업이 승인 대기에서 멈추지 않는다는
-결론을 전달합니다.
+승인을 에이전트에 돌려주는 흐름을 나타냅니다. 사용자가 대기 중인 승인을 알림으로 확인하고
+작업을 재개하는 과정을 보여줍니다.
 
 ## 이 예제가 보여주는 것
 

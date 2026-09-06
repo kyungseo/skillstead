@@ -11,6 +11,12 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [Unreleased]
+
+### Documentation
+
+- Removed a repeated output description and repaired Korean Markdown emphasis. Assessment behavior and Beta maturity are unchanged.
+
 ## [0.9.1] — 2026-07-30
 
 - Added first-use guidance for supplying claim text and evidence, requesting findings only, and installing the

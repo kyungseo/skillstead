@@ -2,7 +2,7 @@
 
 **English** · [한국어](./README.ko.md)
 
-Create flat, structured technical visuals for agentic coding workflows: architecture diagrams, cloud topologies,
+Turn system structures or work sequences into editable technical diagrams: architecture diagrams, cloud topologies,
 process flows, before/after comparisons, roadmaps, and share-ready infographics. The package supports Claude Code
 and Codex.
 
@@ -72,7 +72,8 @@ can also leave it blank. Start with the **[presentation examples](../../gallery/
 CLI, custom manifests or verification details can open the
 [`presentation contract`](./references/presentation/contract.md).
 
-You don't need to know any of this to use the skill — but it explains what the skill tells you at each step, and why the output tends to be right the first time.
+You can use the skill without learning these steps. They explain what guidance to expect and which checks the
+output goes through.
 
 ## Supported Archetypes
 
@@ -248,7 +249,7 @@ draft with both limitations stated.
 ## Install
 
 Copy the complete package into a Claude Code or Codex skills directory. Claude Code uses `~/.claude/skills/`
-globally or `.claude/skills/` in a project; Codex uses `~/.agents/skills/` globally or `.agents/skills/` in a
+globally or `.claude/skills/` in a project; Codex uses `~/.codex/skills/` globally or `.agents/skills/` in a
 project. The skill is a multi-file package, so copy the whole folder:
 
 ```text

@@ -1,6 +1,7 @@
 # Current Catalog Standard Mapping
 
-This mapping checks four current packages against the authoring standard. It records applicability; it does not
+This record maps the four existing skills named below to the authoring standard. It is not an inventory of the
+full current catalog. It records applicability; it does not
 change their runtime or maturity claims.
 
 | Standard area | docs-claim-check | github-release-guide | svg-infographic | writing-quality-editor |
@@ -27,5 +28,5 @@ change their runtime or maturity claims.
 
 ## Evidence Boundary
 
-The mapping is based on the current package trees and production repository validator. It does not establish
+The mapping is based on the package trees and production repository validator at the time of that review. It does not establish
 support for a new runtime, locale, provider, or maturity level.

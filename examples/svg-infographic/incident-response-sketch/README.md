@@ -19,7 +19,7 @@ issues branch to the backlog; the retro feeds prevention back into detection.
   layout pass: aligned column, even spacing, arithmetic containment)
 - **Subset font embed** — the OFL handwriting font is subset to the glyphs
   actually used (~69 KB) and embedded as a base64 data URI, so the SVG stays
-  ~100 KB instead of ~4 MB and renders identically everywhere
+  ~100 KB instead of ~4 MB, with the needed font glyphs included
 - **Icon–label grouping** by formula (icon + gap + estimated text width, centered
   as one unit), gentle hand-drawn curves for branch and loop-back edges,
   dashed-leader side annotations kept clear of the long loop edge
@@ -82,8 +82,8 @@ paper background, rough boxes. Subset the font before embedding. SVG + 2× PNG.
   종이 질감, 손글씨 폰트, 밑줄형 형광펜과 열린 V자 화살촉을 사용합니다. 배치는 정렬된 열, 균등한
   간격과 영역 포함 계산을 거쳐 정확하게 유지합니다.
 - **필요한 글자만 포함한 폰트** — OFL 손글씨 폰트에서 실제 사용하는 글자만 추려 약 69 KB로 만들고
-  base64 data URI로 포함했습니다. 덕분에 SVG를 약 4 MB가 아닌 약 100 KB로 유지하면서 환경에 관계없이
-  같은 모양으로 렌더링할 수 있습니다.
+  base64 data URI로 포함했습니다. 필요한 글자 데이터를 파일 안에 담으면서도 SVG 크기를 약 4 MB에서
+  약 100 KB로 줄였습니다.
 - **계산식에 따른 아이콘과 라벨 배치** — 아이콘, 간격과 예상 글자 너비를 한 단위로 묶어 가운데에
   배치했습니다. 분기와 되돌아오는 연결선은 완만한 손그림 곡선으로 그리고, 점선 설명선은 긴 연결선과
   겹치지 않게 놓았습니다.

@@ -1,6 +1,6 @@
 # Current Catalog Standard Mapping
 
-현재 package 4개를 authoring 표준에 대조한 결과입니다. 적용 가능성을 기록하며 runtime·maturity
+아래에 이름을 적은 기존 스킬 4개를 작성 표준에 대조한 기록입니다. 전체 현행 카탈로그의 점검표는 아닙니다. 적용 가능성을 기록하며 runtime·maturity
 claim은 변경하지 않습니다.
 
 | 표준 영역 | docs-claim-check | github-release-guide | svg-infographic | writing-quality-editor |
@@ -27,5 +27,5 @@ claim은 변경하지 않습니다.
 
 ## Evidence Boundary
 
-현재 package tree와 production repository validator를 근거로 한 mapping입니다. 새로운 runtime,
+점검 당시의 패키지 파일과 실제 저장소 검증 도구를 근거로 한 기록입니다. 새로운 runtime,
 locale, provider, maturity support를 증명하지 않습니다.

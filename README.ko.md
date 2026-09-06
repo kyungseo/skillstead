@@ -2,8 +2,8 @@
 
 [English](./README.md) · **한국어**
 
-에이전트와 함께 쓸 수 있는 실용적인 스킬을 모았습니다. 인물 사진의 캐릭터 초상화, 기술
-다이어그램 제작, 공개 문서의 주장 검증, GitHub 릴리스 준비와 자연스럽고 정확한 글쓰기에 필요한 스킬을
+에이전트와 함께 쓸 수 있는 실용적인 스킬을 모았습니다. 기술 다이어그램 제작, 공개 문서의 주장 검증,
+GitHub 릴리스 준비, 자연스럽고 정확한 글쓰기, 인물 사진을 활용한 캐릭터 초상화 제작에 필요한 스킬을
 골라 설치할 수 있습니다.
 
 > [!TIP]
@@ -21,30 +21,6 @@
 특정 문서를 찾고 있다면 [문서 안내](./docs/README.ko.md)에서 사용자 문서와 유지관리자용 참고 문서를
 나누어 볼 수 있습니다.
 
-## 하이라이트
-
-### SVG 갤러리
-
-[![svg-infographic으로 만든 결과 여섯 가지: 클라우드 토폴로지, 분기하는 스윔레인, 의사결정 매트릭스, 중첩된 신뢰 경계, 변경 전후 비교, 손그림 느낌의 시스템 구성도](./gallery/contact-sheet.ko.png)](https://kyungseo.github.io/skillstead/gallery/)
-
-`svg-infographic`은 일반적인 아키텍처 구성도보다 다양한 결과를 만들 수 있습니다. 위 여섯 가지는 형태가
-서로 얼마나 다른지를 기준으로 고른 것입니다. lint·layout·typography gate를 통과하며, TypePack receipt
-체계보다 먼저 만들어졌기 때문에 receipt는 주장하지 않습니다. contact sheet는 locale별 artifact 주위에
-영문 evidence frame을 유지하며, live gallery 페이지 전체는 한국어로 전환됩니다. 갤러리에는 receipt를
-갖춘 TypePack 9종이 함께 있습니다. [live gallery 열기](https://kyungseo.github.io/skillstead/gallery/) 또는
-[legacy 예제와 검증된 TypePack 카탈로그 확인하기](./examples/svg-infographic/README.ko.md).
-
-### 하나만 사용하거나 릴리스 흐름으로 연결하세요
-
-[![독립적인 Skillstead 스킬을 프로젝트와 릴리스 흐름에서 연결하는 방법](./examples/catalog-overview.ko.png)](./examples/catalog-overview.ko.svg)
-
-각 스킬은 독립적으로 설치하고 사용할 수 있습니다. 더 넓은 과정이 필요하다면 `writing-quality-editor`로
-글을 작성하고 다듬고, `svg-infographic`으로 구조를 시각화하고, `docs-claim-check`로 공개할 주장을
-근거에 대조하고, `github-release-guide`로 승인이 필요한 릴리스 결정을 진행할 수 있습니다. 반드시 이
-순서대로 모두 사용해야 하는 것은 아닙니다. 필요한 스킬부터 사용하고, 산출물이 바뀌면 앞 단계의 결과를
-다시 확인하면 됩니다. `street-portrait-artist`는 인물 사진을 캐릭터 초상화로 만드는 별도의
-창작 workflow이며, 이 릴리스 흐름에 참여할 필요가 없습니다.
-
 ## 필요한 스킬을 선택하세요
 
 | 스킬 | 이런 작업에 적합 | 버전 | 지원 실행 환경 | 성숙도 |
@@ -53,7 +29,7 @@
 | [`docs-claim-check`](./skills/docs-claim-check/README.ko.md) | 공개 문서의 주장이 제공된 근거로 뒷받침되는지 확인 | `0.9.1` | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide/README.ko.md) | 비공개 GitHub 저장소의 첫 공개 전환 또는 공개 후 매 버전 릴리스를 점검하고 단계별로 안내 | `0.9.0` | Supported: Claude Code + Codex | Stable |
 | [`writing-quality-editor`](./skills/writing-quality-editor/README.ko.md) | 사용자 문서를 처음부터 작성하거나 자연스럽게 다듬고, 사실·의도·목소리·운영 제약을 보존하면서 영어↔한국어 내용을 재구성 | `0.14.0` | Supported: Claude Code + Codex | Beta |
-| [`street-portrait-artist`](./skills/street-portrait-artist/README.ko.md) | 인물 사진을 특징 관계에 기반한 Street Caricature 또는 Romance Watercolor 캐릭터 초상화로 재해석 | `0.1.1` | Supported: ChatGPT + Codex | Experimental |
+| [`street-portrait-artist`](./skills/street-portrait-artist/README.ko.md) | 인물 사진의 얼굴형·표정을 살려 캐리커처 또는 펜·수채화 초상화 제작 | `0.1.1` | Supported: ChatGPT + Codex | Experimental |
 
 각 스킬은 필요한 파일을 모두 갖춘 독립 패키지입니다. 전체 목록을 설치할 필요 없이, 사용할 스킬의
 폴더만 통째로 복사하면 됩니다. 개인용·프로젝트용 설치 경로, 고정 버전 설치, 깨끗한 업데이트 방법,
@@ -68,6 +44,29 @@ Windows 명령과 실행 환경별 지원 상태는 [`docs/INSTALL.ko.md`](./doc
 
 GitHub의 **Latest** 배지는 가장 최근에 발행된 개별 스킬 릴리스를 가리킵니다. 카탈로그 버전을 뜻하지
 않습니다.
+
+## 하이라이트
+
+### SVG 갤러리
+
+[![svg-infographic으로 만든 결과 여섯 가지: 클라우드 토폴로지, 분기하는 스윔레인, 의사결정 매트릭스, 중첩된 신뢰 경계, 변경 전후 비교, 손그림 느낌의 시스템 구성도](./gallery/contact-sheet.ko.png)](https://kyungseo.github.io/skillstead/gallery/)
+
+`svg-infographic`으로 만들 수 있는 서로 다른 형태의 그림 여섯 가지입니다. 원본·배치·글꼴 검사를
+통과한 예제입니다. 자동 생성 기록(receipt)을 남기는 TypePack 체계보다 먼저 만들어져 receipt는 없습니다.
+모아 보기 이미지의 바깥 제목과 검증 표시는 영문이며, 갤러리 페이지에서는 전체 안내를 한국어로 볼 수
+있습니다. 갤러리에는 생성 기록까지 확인할 수 있는 TypePack 9종도 있습니다. [live gallery 열기](https://kyungseo.github.io/skillstead/gallery/) 또는
+[legacy 예제와 검증된 TypePack 카탈로그 확인하기](./examples/svg-infographic/README.ko.md).
+
+### 하나만 사용하거나 릴리스 흐름으로 연결하세요
+
+[![독립적인 Skillstead 스킬을 프로젝트와 릴리스 흐름에서 연결하는 방법](./examples/catalog-overview.ko.png)](./examples/catalog-overview.ko.svg)
+
+각 스킬은 독립적으로 설치하고 사용할 수 있습니다. 더 넓은 과정이 필요하다면 `writing-quality-editor`로
+글을 작성하고 다듬고, `svg-infographic`으로 구조를 시각화하고, `docs-claim-check`로 공개할 주장을
+근거에 대조하고, `github-release-guide`로 승인이 필요한 릴리스 결정을 진행할 수 있습니다. 반드시 이
+순서대로 모두 사용해야 하는 것은 아닙니다. 필요한 스킬부터 사용하고, 산출물이 바뀌면 앞 단계의 결과를
+다시 확인하면 됩니다. `street-portrait-artist`는 인물 사진을 캐릭터 초상화로 만드는 별도의
+창작 workflow이며, 이 릴리스 흐름에 참여할 필요가 없습니다.
 
 ## 스킬별 상세 안내
 
@@ -132,11 +131,9 @@ release-critical blocker를 해소한 뒤 전환을 명시적으로 선택했을
 
 ### writing-quality-editor
 
-글을 처음 쓸 때부터 지나치게 틀에 박히거나, 원문을 문장별로 옮긴 번역처럼 작성될 수 있습니다.
-`writing-quality-editor`는 신뢰할 수 있는 작성 자료 또는 검토한 공개 자료에서 새 문서를 곧바로 작성하거나
-기존 글을 다듬습니다.
-사실, 의도, 작성자 목소리, 명령, 조건, 제약, 위험과 다음 행동을 보존하면서 숙련된 작성자나 편집자가
-쓴 글처럼 자연스럽게 만듭니다.
+`writing-quality-editor`는 메모와 근거로 새 글을 쓰거나, 기존 글을 독자가 이해하기 쉽게 다듬습니다.
+사실, 의도, 작성자 목소리, 명령, 조건, 제약, 위험과 다음 행동을 보존하는 것이 편집 원칙입니다.
+원칙을 따른다고 모든 결과가 자연스럽거나 정확해지는 것은 아니므로, 중요한 글은 최종본을 확인해야 합니다.
 
 문장 표현이나 자연스러움을 고칠 때는 독자가 실제로 막히는 가장 작은 완결 구간부터 수정하고 나머지는
 그대로 둡니다. 임의 변경, 승인 없는 변경, 사전 고지 없는 변경 중 어느 의미인지 모호한 표현은 그대로
@@ -155,9 +152,9 @@ release-critical blocker를 해소한 뒤 전환을 명시적으로 선택했을
 
 ### street-portrait-artist
 
-`street-portrait-artist`는 head frame, 이목구비 간격, 표정과 하나의 primary anchor처럼 눈에 보이는 관계를
-먼저 분석한 뒤 그립니다. 같은 identity grammar에서 다정하고 거의 무채색인 `Street Caricature`와 서정적인
-pen-and-watercolor `Romance Watercolor`라는 두 가지 해석을 만듭니다.
+`street-portrait-artist`는 얼굴형, 이목구비 간격, 표정과 인상을 결정하는 핵심 특징을 먼저 살펴봅니다.
+그 특징을 바탕으로 다정한 흑백 캐리커처인 `Street Caricature`와 펜·수채화 초상화인
+`Romance Watercolor`를 그립니다. 두 작품에서도 같은 사람의 특징을 유지하도록 설계했습니다.
 
 한 장 이상의 선명한 인물 사진을 제공합니다. 사용자가 별도로 게시하거나 보관해 달라고 요청하지 않는 한 제공한
 사진·분석·결과는 해당 작업 안에서만 사용합니다.
@@ -206,7 +203,9 @@ E2E, `v0.5.0` 고정 버전의 프로젝트 설치와 발견 확인과 최종 �
 
 `writing-quality-editor`는 네 가지 mode의 동작 검증, 저장소 문서에 대한 실제 적용, 공개된 `v0.7.0`
 고정 버전의 새 프로젝트 설치와 스킬 발견 확인을 통과했습니다. 기록된 검증 범위에서 Claude Code와
-Codex를 `Supported`로 표시하며, 성숙도는 Beta로 유지합니다.
+Codex를 `Supported`로 표시하며, 성숙도는 Beta로 유지합니다. `0.14.0`의 새 한국어 작성 경로는
+로컬 패키지를 명시해 읽히는 방식으로만 확인했습니다. 이 변경의 설치 후 자동 발견과 다른 실행 환경의
+동작은 미확인입니다. 자세한 결과와 실패 사례는 [WQE 안내](./skills/writing-quality-editor/README.ko.md)에 있습니다.
 
 `street-portrait-artist`는 공개 가능한 합성 원본으로 만든 `Twin Portrait` 두 사례를 통해 의도한 visual
 direction과 privacy boundary를 기록했습니다. 이후 공개된 `0.1.0` package를 새로 설치한 ChatGPT와 Codex에서 합성 인물 사진을

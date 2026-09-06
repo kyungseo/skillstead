@@ -2,8 +2,8 @@
 
 **English** · [한국어](./README.ko.md)
 
-Create or improve user-facing writing so it reads like clear, natural work by a skilled writer or editor—without
-inventing what the text is allowed to mean.
+Turn notes into new writing, or make existing prose easier to read while keeping its meaning.
+The rules require preserving facts, conditions, author intent, and voice; review the result before using it.
 
 Use `writing-quality-editor` for README files, onboarding, release notes, manuals, app UI, error messages, and
 gallery copy. It can write a new document directly from a reliable brief, review existing prose, revise it in the
@@ -47,9 +47,13 @@ same-language editing or general superiority over ordinary writing instructions.
 | `Revise` | Improve writing in the same language | Only the requested scope |
 | `Adapt` | Rewrite between English and Korean so the result feels native to the target language | Only the requested scope |
 
+### Adapting A Text For Another Language
+
 `Adapt` is not word-for-word translation. It may change sentence boundaries, information order, idioms, and
 explanation density to fit the target audience and document type. It must preserve factual claims, intent,
 conditions, numbers, identifiers, exceptions, limitations, risks, approvals, and next actions.
+
+### Deciding What To Change
 
 `Revise` works the same way on a document that is already in the right language. A draft carries what the
 document means, but supplied facts and reviewed evidence outrank it — a claim that contradicts them, or reaches
@@ -88,7 +92,10 @@ usable result, not optional specificity improvements.
 Both modes keep the author's voice: the warmth, directness, and rhythm the writing carries. A trait changes only
 when you ask for it or where it genuinely conflicts with the intended reader, and then only that trait.
 
-`Compose` avoids a separate write-then-polish cycle. It writes directly for the intended reader and profile, but
+### Writing From Supplied Facts Or Research
+
+`Compose` writes a new text directly from the supplied material. Whether it saves time or revision effort
+compared with a separate draft-and-polish workflow has not been measured. It writes directly for the intended reader and profile, but
 it creates prose—not facts. Missing capabilities, evidence, compatibility, metrics, or operating decisions remain
 missing until they are supplied or established by reviewed sources.
 

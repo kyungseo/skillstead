@@ -15,6 +15,7 @@
 | 공개 문서의 주장을 제공된 근거와 대조하기 | [`docs-claim-check`](../skills/docs-claim-check/README.ko.md) |
 | GitHub 저장소 릴리스를 안전하게 준비하기 | [`github-release-guide`](../skills/github-release-guide/README.ko.md) |
 | 사용자 문서를 작성·검토·수정하거나 다른 언어에 맞게 다시 쓰기 | [`writing-quality-editor`](../skills/writing-quality-editor/README.ko.md) |
+| 인물 사진으로 캐리커처나 수채화 초상화 만들기 | [`street-portrait-artist`](../skills/street-portrait-artist/README.ko.md) |
 | 결과 예시와 검증 자료 살펴보기 | [`examples/`](../examples/) |
 
 각 스킬은 폴더 하나로 설치할 수 있는 독립 패키지입니다. 스킬별 README에는 적합한 용도, 하는 일과
