@@ -31,7 +31,7 @@ folder so they cannot drift apart.
 | Skill | Current pinned tag | Supported runtime |
 | --- | --- | --- |
 | `svg-infographic` | `svg-infographic/v0.12.0` | Claude Code and Codex |
-| `docs-claim-check` | `docs-claim-check/v0.9.2` | Claude Code |
+| `docs-claim-check` | `docs-claim-check/v0.10.0` | Claude Code |
 | `github-release-guide` | `github-release-guide/v0.9.1` | Claude Code and Codex |
 | `writing-quality-editor` | `writing-quality-editor/v0.15.0` | Claude Code and Codex |
 | `street-portrait-artist` | `street-portrait-artist/v0.2.0` | ChatGPT and Codex |
@@ -68,14 +68,14 @@ source-check and Node-free Chromium visual-QA fallback.
 
 ## `docs-claim-check`
 
-- Current release: `docs-claim-check/v0.9.2`
+- Current release: `docs-claim-check/v0.10.0`
 - Supported runtime: Claude Code
 - Package guide: [`skills/docs-claim-check/README.md`](../skills/docs-claim-check/README.md)
 
 Paste this into Claude Code:
 
 ```text
-Install this Skillstead skill globally from the pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/docs-claim-check/v0.9.2/skills/docs-claim-check
+Install this Skillstead skill globally from the pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/docs-claim-check/v0.10.0/skills/docs-claim-check
 ```
 
 Codex runtime support is not yet claimed for this skill. Installing it experimentally in another runtime does not

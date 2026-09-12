@@ -1,7 +1,7 @@
 # Fixture answer key
 
 Contract-verification reference for `fixtures/sample-readme.md` against
-`fixtures/evidence/`, updated for the unreleased evidence-applicability contract (atomicity pass,
+`fixtures/evidence/`, updated for the 0.10.0 evidence-applicability contract (atomicity pass,
 batch-row exception, completeness rule, component-based coverage).
 **Do not show this file to an agent being evaluated** (for example a fresh-context
 dogfood run) — it leaks the intended labels.

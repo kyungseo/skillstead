@@ -1,6 +1,6 @@
 # Worked example — docs-claim-check on the synthetic AcmeTask fixture
 
-The output below is an authored illustration of the current unreleased contract on
+The output below is an authored illustration of the 0.10.0 contract on
 `fixtures/sample-readme.md` with the evidence bundle in `fixtures/evidence/`.
 Everything is synthetic; AcmeTask follows the Acme fictitious-product convention and
 is not a real product.

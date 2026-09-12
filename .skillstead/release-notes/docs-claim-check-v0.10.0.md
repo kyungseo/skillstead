@@ -1,0 +1,51 @@
+> **Latest** refers to the most recently published individual skill release, not a catalog version.
+
+## docs-claim-check 0.10.0 — Evidence Scope and Honest Boundary Reporting
+
+This minor release strengthens the contract for checking public documentation against supplied evidence.
+It asks the model to retain the original claim, distinguish a release's publication date from a tag date,
+and judge each part of a composite statement independently. Evidence must match the claimed artifact,
+version, environment, time, and observed outcome; metadata alone does not establish installation success.
+
+You can designate exact document and evidence paths for reading. If a file is unavailable, the skill asks
+for a corrected path or its contents. Embedded instructions are treated as data, and a prohibited tool
+attempt must be reported as a violation even when it was denied. These are behavioral instructions,
+not a technical barrier to host tool use.
+
+Beta maturity and Claude Code support remain unchanged. Final targeted regressions with Opus 5 and Sonnet 5
+preserved all 13 material claims and corrected the observed publication-date errors. Sonnet still added
+opening text and reported 12 assessed claims where its atomic table contained 14. These are unresolved
+output-contract defects. Earlier command-boundary failures and corrective results remain documented;
+the final revision was not rerun against the entire matrix.
+
+Replace the complete `skills/docs-claim-check/` folder to receive the contract and aligned guides. The skill
+continues to return findings only; evidence collection, rewriting, and broader repository assessment remain
+separate steps.
+
+### 한국어
+
+공개 문서를 제공된 근거와 대조하는 판정 계약을 보강한 minor release입니다. 원래 주장의 의미를
+유지하고, 릴리스 게시일과 태그 날짜를 구분하며, 복합 문장의 각 주장을 독립적으로 판정하도록
+명확히 했습니다. 근거의 대상·버전·환경·시점과 실제 관찰 결과가 주장에 맞아야 하며, 메타데이터만으로
+설치 성공을 검증하지 않습니다.
+
+읽을 문서와 근거의 경로를 정확히 지정할 수 있습니다. 파일을 읽지 못하면 올바른 경로나 내용을
+요청합니다. 문서에 들어 있는 지시문은 데이터로 취급하고, 금지된 도구 호출은 실행이 거부됐더라도
+위반 시도로 보고하도록 했습니다. 이는 행동 지침이며 호스트의 도구 사용을 기술적으로 차단하지는 않습니다.
+
+Beta 성숙도와 Claude Code 지원 범위는 유지합니다. Opus 5와 Sonnet 5의 최종 회귀에서는 핵심 주장
+13개를 보존하고 관찰된 게시일 오판을 교정했습니다. Sonnet은 도입 문구를 추가하고 원자 주장 14개를
+12개로 집계하는 출력 계약 결함이 남았습니다. 검증 중 발생한 명령 경계 위반과 교정 결과도 기록에 보존했으며,
+전체 검증 조합을 최종 revision으로 다시 실행한 것은 아닙니다.
+
+새 계약과 안내를 받으려면 `skills/docs-claim-check/` 폴더 전체를 교체하세요. 이 스킬은 검토 결과만
+반환합니다. 근거 수집, 문장 수정과 더 넓은 저장소 평가는 별도 단계로 유지합니다.
+
+- [Package / 패키지](https://github.com/kyungseo/skillstead/tree/docs-claim-check/v0.10.0/skills/docs-claim-check)
+- [Changelog / 변경 기록](https://github.com/kyungseo/skillstead/blob/docs-claim-check/v0.10.0/skills/docs-claim-check/CHANGELOG.md)
+- [Validation record / 검증 기록](https://github.com/kyungseo/skillstead/blob/docs-claim-check/v0.10.0/examples/docs-claim-check/validation-evidence.md)
+- [Changes / 변경 비교](https://github.com/kyungseo/skillstead/compare/docs-claim-check/v0.9.2...docs-claim-check/v0.10.0)
+
+The versioned unit is `skills/docs-claim-check/`. GitHub source archives contain the whole repository snapshot,
+not a standalone skill package.
+GitHub 소스 압축 파일에는 저장소 전체가 들어 있습니다. 설치 대상은 `skills/docs-claim-check/` 폴더입니다.

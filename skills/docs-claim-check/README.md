@@ -54,7 +54,7 @@ coverage, confidence-label semantics, evidence boundaries, and output-contract
 compliance are the compatibility criteria.
 
 The [2026-09-12 hardening record](../../examples/docs-claim-check/validation-evidence.md)
-separately documents current candidate failures, corrections, and remaining output-format limits. It does not
+separately documents hardening-candidate failures, corrections, and remaining output-format limits. It does not
 replace the historical result above or establish new runtime support.
 
 ## Try it
