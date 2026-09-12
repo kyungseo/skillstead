@@ -20,15 +20,23 @@ local path, do not claim that the path was inspected.
 ## Mode And Deliverable Selection
 
 Choose `Street Caricature` for witty structural exaggeration, compact cuteness, bold ink, or a street-fair sketch.
-Choose `Romance Watercolor` for an elegant character portrait, softer transformation, watercolor environment, or a
-romance-comic protagonist feeling. When neither is stated, disclose `Street Caricature` as the default.
+Choose `Romance Watercolor` for an elegant watercolor portrait, softer transformation, watercolor environment, or a
+romance-comic protagonist feeling. Use its Editorial Watercolor profile for natural facial detail and loose painted
+surroundings. Choose `Paper-Cut Illustration` for a drawn person inside a preserved photographic scene.
+When no mode is stated, disclose `Street Caricature` as the default.
 
-For a `Twin Portrait`, build one Impression Map, then generate both modes as separate artworks. Keep reference roles,
+For a `Twin Portrait`, build one Impression Map, then generate Street Caricature and Romance Watercolor as separate artworks. Keep reference roles,
 expression, and identity anchors shared. Do not let the second image silently redefine the subject to match the first.
+
+For a series or revision, load `references/consistency.md`. An accepted image can own a local edit and treatment
+choices while the original reference remains the identity source.
 
 ## Social Output Profiles
 
-The default is `social-feed-portrait`:
+Paper-Cut Illustration defaults to the original aspect ratio and framing; a requested output profile is an explicit
+reframe choice. Do not promise exact background preservation without a capable edit and verification.
+
+For the other modes, the default is `social-feed-portrait`:
 
 - composition: `4:5`;
 - exact raster target: `1080 x 1350 px`;
@@ -84,6 +92,9 @@ Classify the defect before editing:
 - `rendering defect`: correct identity design but wrong line, wash, paper, scene, or finish—keep the map fixed;
 - `composition defect`: wrong crop, pose, background, or edge safety—keep map and accepted rendering qualities fixed;
 - `artifact defect`: unintended text, mark, anatomy, or delivery error—edit only the affected region when possible.
+
+For a new variation, carry the original reference and accepted treatment forward. For a local correction, edit the
+accepted result rather than automatically rebuilding it. Follow `references/consistency.md`.
 
 Restate accepted invariants in every edit. If two targeted revisions worsen identity, return to the best accepted result
 and ask whether to change the primary anchor. Do not continue generating variants without a new hypothesis.

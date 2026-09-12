@@ -4,6 +4,18 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## Unreleased
+
+### Skills
+
+- `writing-quality-editor` — add a conditional reader-question flow check for multi-paragraph drafts, document
+  assessment, and justified structural revision; preserve local-edit and no-edit boundaries.
+- `street-portrait-artist` — separate identity, treatment, and requested variation; add an Editorial Watercolor
+  treatment with optional stronger simplification or a controlled tidy finish, plus a cartoon Paper-Cut Illustration mode with flat colors,
+  economical facial marks, source-framing, and preservation limits. New behavior remains
+  under bounded development validation; published versions, installation pins, and maturity labels are unchanged.
+  Clarify gentle ink interpretation and scene-rich watercolor without making distortion or blank backgrounds mandatory.
+
 ## 2026-09-07
 
 ### Validation

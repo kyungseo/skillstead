@@ -3,7 +3,7 @@
 **English** · [한국어](./README.ko.md)
 
 `Street Artist` draws character portraits from the face shape and expression in your photos. Choose a kind
-caricature or a pen-and-watercolor portrait. Ask for both to get two separate artworks based on the same observed
+caricature, watercolor portrait, or drawn paper-cut figure in a photographic scene. Ask for a Twin Portrait to get separate caricature and watercolor artworks based on the same observed
 features. Supply one or more portrait references.
 
 ## How It Interprets The Photos
@@ -16,21 +16,42 @@ its choices:
 2. `Impression Map`: face shape, eye-and-nose alignment, the relationship between mouth and chin, surrounding
    features such as hair, expression, and one main distinguishing feature.
 3. `Action-Reaction Distortion`: any amplification changes supporting relationships coherently instead of enlarging one
-   feature in isolation.
+   feature in isolation. Observational watercolor and paper-cut can preserve source proportions.
 4. `Artist's Note`: the delivery explains the main visual idea and its structural consequence without inferring
    personality.
 
 Choose `Quick Sketch` for one usable reference or `Studio Portrait` for two or three complementary references.
 
-## Two Modes
+## Modes
+
+The Editorial Watercolor profile, Paper-Cut Illustration mode, and series-consistency guidance below are unreleased
+source additions. The published `0.1.2` package and installation pins have not changed.
 
 | Mode | Interpretation | Typical finish |
 | --- | --- | --- |
 | `Street Caricature` / `Exaggerate` | Finds one witty, kind structural idea and pushes it coherently | Warm drawing paper, open-paper facial planes, near-monochrome ink or graphite, decisive black mass, and at most a tiny muted spot color |
 | `Romance Watercolor` / `Illuminate` | Reveals the same identity through lyrical simplification and restrained character idealization | Cold-pressed paper, precise varied pen contours, transparent washes, grouped hair and clothing, softly retained environment |
+| `Paper-Cut Illustration` | Simplifies the person inside the original scene and silhouette | Photographic surroundings, simple dot/oval eyes and mouth marks, flat colors, loose contours, thin paper edge |
 
-The modes use the same record of the person’s features. `Twin Portrait` produces both as separate artworks from the same Impression Map;
+Within Romance Watercolor, request `Editorial Watercolor` for more observational facial detail, selective edges,
+and loosely painted clothing and surroundings. Original identity, age cues, clothing, and palette remain authoritative
+unless you request a change; a white shirt and blue washes are not mandatory. For a much airier result, ask for
+clothing dissolved into pale washes and broad paper reserves, with the face as the main detailed area.
+For a tidier finish, ask for larger quiet paper areas, grouped washes, and fewer competing small marks while retaining
+the scene anchors that matter.
+
+The modes use the same record of the person’s features. `Twin Portrait` still produces Street Caricature and Romance Watercolor as separate artworks from the same Impression Map;
 the second image must not silently redefine the person to match the first.
+
+Black-ink requests can use gentle facial stylization or stronger caricature. Romance Watercolor can retain a rich
+scene through transparent color and selective detail; the minimal Editorial treatment is a separate compositional choice.
+
+## Consistency And Revisions
+
+For a series, keep the original identity reference, approved rendering choices, and each requested change separate.
+A local correction edits the best accepted artwork; a new variation returns to the original identity evidence with
+those rendering choices. The skill does not require JSON for a single portrait or treat a generated face as a new
+likeness source. Task records remain private unless you authorize another use.
 
 ## Start Here
 
@@ -50,7 +71,10 @@ delivery. ChatGPT and Codex are `Supported` within that recorded evidence scope.
 
 ## Social Output
 
-The default `social-feed-portrait` is a `4:5` composition targeting an exact `1080 x 1350 px` PNG when the current
+Paper-Cut Illustration keeps the original aspect ratio and framing by default. Exact background preservation depends
+on a capable editing surface and verification; a generation prompt alone cannot guarantee unchanged pixels.
+
+For the other modes, the default `social-feed-portrait` is a `4:5` composition targeting an exact `1080 x 1350 px` PNG when the current
 surface can create and verify it. Optional profiles are `social-square` (`1080 x 1080 px`) and `story-vertical`
 (`1080 x 1920 px`) when requested. The workflow reports actual dimensions and marks exact export unavailable rather than
 stretching an image or fabricating a size.

@@ -69,3 +69,9 @@ environment carry the analog finish.
 
 Repository-only intent and behavior fixtures remain in [`intent-contract.md`](./intent-contract.md) and
 [`fixtures/`](./fixtures/).
+
+Unreleased consistency, Editorial Watercolor, and Paper-Cut Illustration use additional
+[development scenarios](./fixtures/enhancement-scenarios.md) and a separate
+[answer key](./fixtures/enhancement-expected-outcomes.md). The gallery above remains historical evidence of the original two modes.
+
+Read the [development observations and limits](./fixtures/enhancement-validation.md).

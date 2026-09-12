@@ -62,6 +62,10 @@ do not copy distinctive phrases, invent a persona, or supply experiences the aut
 
 ## Check The Draft And Deliver
 
+For a multi-paragraph draft, apply `references/reader-flow.md` to the supported material. Check what each
+paragraph contributes before polishing its wording; do not force a narrative or print a routine question map.
+
+
 Check the draft against the supplied facts, commitments, exact items, and required brief content. Correct or remove
 unsupported claims before returning it. Do not hide a missing required fact by giving the prose a fluent ending.
 Distinguish a complete text from supported material that cannot yet satisfy the whole request.
