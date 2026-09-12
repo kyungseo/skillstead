@@ -27,3 +27,8 @@ F19·F20에는 시나리오에 적힌 제한된 조사 예산을 적용합니다
 `0.14.0`에서 추가한 한국어 새 글 작성 경로의 결과와 한계는
 [스킬 안내](../../skills/writing-quality-editor/README.ko.md#새-한국어-글-작성)에서 확인하세요.
 위 36개 시나리오를 통과했다는 과거 기록이 새 작성 경로의 검증을 대신하지는 않습니다.
+
+아직 출시하지 않은 문단 흐름 후보의 [시나리오](./reader-flow/scenarios.md)와
+[별도 정답표](./reader-flow/expected-outcomes.md)를 추가했습니다. 기존 36개 사례의 과거 결과와는 구분합니다.
+
+[개발 검증 결과와 한계](./reader-flow/development-validation.ko.md)를 함께 확인할 수 있습니다.

@@ -1,6 +1,6 @@
 ---
 name: street-portrait-artist
-description: Analyze supplied portrait references into a stable impression map, then create a kind Street Caricature or Romance Watercolor character portrait with coherent feature relationships and targeted revision. Use when a real person's recognizable visual identity should be interpreted rather than traced. Do not use for graffiti or murals, restoration, face swaps, photorealistic retouching, personality inference, or imitation of a named living artist.
+description: Analyze supplied portrait references into a stable impression map, then create a kind Street Caricature, Romance Watercolor portrait, or Paper-Cut Illustration with coherent feature relationships and targeted revision. Use when a real person's recognizable visual identity should be interpreted rather than traced. Do not use for graffiti or murals, restoration, face swaps, photorealistic retouching, personality inference, or imitation of a named living artist.
 license: LICENSE.txt
 metadata:
   version: 0.1.2
@@ -9,13 +9,14 @@ metadata:
 # Street Artist
 
 Create a portrait that feels observed and drawn by an artist, not passed through a style filter. Extract the subject's
-recognizable visual grammar once, then interpret it through one of two modes:
+recognizable visual grammar once, then interpret it through one of three modes:
 
 - `Street Caricature` / `Exaggerate`: a kind, compact caricature with one relational idea, open-paper facial planes,
   near-monochrome ink or graphite, and at most a tiny muted spot color.
-- `Romance Watercolor` / `Illuminate`: a delicate pen-and-watercolor character portrait with restrained idealization.
+- `Romance Watercolor` / `Illuminate`: a delicate watercolor portrait; choose the optional Editorial Watercolor treatment for a more observational face with loose painted surroundings.
+- `Paper-Cut Illustration`: a simple flat-color cartoon person with a thin paper edge inside the preserved photographic scene.
 
-Both modes must preserve the same identity relationships. They differ in what they amplify, not in who the subject is.
+All modes must preserve the same identity relationships. They differ in how they interpret the subject. Paper-Cut Illustration preserves source proportions and placement.
 
 ## Required References
 
@@ -29,7 +30,10 @@ Before generating or editing, read these files completely:
 Then read only the selected mode reference:
 
 - [`references/street-caricature.md`](references/street-caricature.md) for `Street Caricature`.
-- [`references/romance-watercolor.md`](references/romance-watercolor.md) for `Romance Watercolor`.
+- [`references/romance-watercolor.md`](references/romance-watercolor.md) for `Romance Watercolor`; also read
+  [`references/editorial-watercolor.md`](references/editorial-watercolor.md) when that treatment is requested.
+- [`references/paper-cut-illustration.md`](references/paper-cut-illustration.md) for `Paper-Cut Illustration`.
+- [`references/consistency.md`](references/consistency.md) for a series, treatment changes, or edits to accepted results.
 
 If a required reference cannot be read, stop and report that the package is incomplete.
 
@@ -37,7 +41,7 @@ If a required reference cannot be read, stop and report that the package is inco
 
 - The user supplies one or more clear portraits and wants a recognizably similar, visibly authored character portrait.
 - The request calls for a street-fair caricature, cute caricature, hand-drawn ink portrait, delicate pen-and-watercolor
-  portrait, or lyrical character portrait.
+  portrait, lyrical character portrait, or a drawn paper-cut person inside a photographic setting.
 - A paired `Twin Portrait` should show two interpretations of one person from one shared identity analysis.
 
 ## Do Not Use When
@@ -62,13 +66,16 @@ If a required reference cannot be read, stop and report that the package is inco
 4. Redesign relationships coherently. Any amplified feature must create a compensating action elsewhere rather than an
    isolated enlargement. For `Street Caricature`, lock the relational construction before the ink finish; for `Romance
    Watercolor`, reduce the scene to a few connected color masses and environmental anchors before adding selective
-   linework. Keep non-anchor features supportive and preserve the subject's expression and reference roles.
-5. Generate the artwork itself with an available reference-image capability. Default to `social-feed-portrait` at
+   linework. For `Paper-Cut Illustration`, simplify inside the preserved silhouette and keep scene contacts and
+   occlusion. Preserve reference roles and expression unless the user requests a change.
+5. Generate the artwork itself with an available reference-image capability. For Paper-Cut Illustration, preserve
+   the source aspect ratio and framing by default. For the other modes, default to `social-feed-portrait` at
    `4:5`, targeting an exact `1080 x 1350 px` export when the current surface can create and verify it. Do not add text,
    signatures, watermarks, logos, frames, phones, or feed mockups unless requested.
 6. Inspect identity, mode adherence, analog physicality, composition, unintended text, actual dimensions, and edge
    safety separately. Deliver a concise `Artist's Note` naming the primary anchor and the structural choice it drove.
-7. For revision, change the Impression Map or one named rendering defect, restate accepted invariants, and preserve the
+7. For a series or revision, use the consistency reference to separate identity, treatment, and requested changes.
+   Change the Impression Map or one named rendering defect, restate accepted invariants, and preserve the
    best accepted result. Do not blindly regenerate after repeated identity drift.
 
 ## Failure Boundary

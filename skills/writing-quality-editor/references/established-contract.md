@@ -332,6 +332,9 @@ and build the ledger before drafting. Public availability is not proof of reliab
 search snippets, or one vendor's framing as verified evidence. If research access is unavailable or the evidence is
 insufficient, ask for sources or return a bounded partial result instead of improvising.
 
+For multi-paragraph Compose, document-level Assess, or a structural Revise that passed its gate, use
+`references/reader-flow.md`. Do not load it to broaden a local-edit request.
+
 ## Run The Delta Audit
 
 Compare the result with the invariant ledger and the selected profile. Check:

@@ -68,3 +68,9 @@
 
 스킬을 선택하는 조건과 동작을 확인하는 저장소 전용 검증 자료는 [`intent-contract.md`](./intent-contract.md)와
 [`fixtures/`](./fixtures/)에 유지합니다.
+
+아직 출시하지 않은 일관성·Editorial Watercolor·Paper-Cut Illustration은
+[추가 개발 시나리오](./fixtures/enhancement-scenarios.md)와
+[별도 정답표](./fixtures/enhancement-expected-outcomes.md)로 확인합니다. 위 갤러리는 기존 두 mode의 과거 결과로 유지합니다.
+
+[개발 검증 결과와 한계](./fixtures/enhancement-validation.ko.md)를 함께 확인할 수 있습니다.
