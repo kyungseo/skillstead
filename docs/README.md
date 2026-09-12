@@ -1,5 +1,7 @@
 # Skillstead documentation
 
+For repository changes and release follow-up, read the [maintainer workflow](./MAINTAINER-WORKFLOW.md).
+
 **English** · [한국어](./README.ko.md)
 
 Start with the document that matches what you are trying to do. You do not need to read the maintainer

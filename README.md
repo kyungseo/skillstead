@@ -169,6 +169,9 @@ user separately asks to publish or retain them.
 
 ## Playbooks (maintainer reference)
 
+For changes to Skillstead itself, start with the [maintainer workflow](./docs/MAINTAINER-WORKFLOW.md):
+document alignment, root changelog, version announcements, blog follow-up, and optional social drafts.
+
 [`playbooks/public-release`](./playbooks/public-release/README.md) contains the canonical public-release playbook:
 generic checklists and templates for taking a private repository public and verifying it afterward. These are
 reference documents for maintainers — not installable skills, and installing any skill never requires them.

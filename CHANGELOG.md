@@ -16,6 +16,12 @@ Granular, per-change entries begin at the first public release. Earlier developm
   under bounded development validation; published versions, installation pins, and maturity labels are unchanged.
   Clarify gentle ink interpretation and scene-rich watercolor without making distortion or blank backgrounds mandatory.
 
+### Maintainer Workflow
+
+- Added a repository-specific change and release follow-up procedure with shared agent entry points and a PR
+  checklist. It requires root changelog/document alignment and version announcements, records blog disposition,
+  and keeps social drafts optional with user-owned posting. Existing versioning and release gates remain canonical.
+
 ## 2026-09-07
 
 ### Validation
