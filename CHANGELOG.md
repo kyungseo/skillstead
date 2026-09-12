@@ -4,6 +4,14 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## Unreleased
+
+### Skills
+
+- `svg-infographic` — reuse settled visual choices and file-creation authorization during preflight, including
+  source-first key-message selection. Preserve separate tool-installation and host-permission checks; add
+  independent decision scenarios and clarify private execution receipts in the validation ledger.
+
 ## 2026-09-07
 
 ### Validation
