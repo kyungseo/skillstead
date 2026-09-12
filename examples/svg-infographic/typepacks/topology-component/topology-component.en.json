@@ -71,7 +71,7 @@
   "tool": {
    "fonttools": "4.53.1",
    "brotli": "1.1.0",
-   "python": "3.14.7"
+   "python": "3.12.14"
   },
   "wrapperDigest": "sha256:f265dff7e9041e5c90e8fea0b92f43b2ba1e278e812ad6af2d28d6864a6c527f",
   "identity": [
@@ -291,9 +291,9 @@
    "id": "svg-infographic",
    "surfaceRevision": 18
   },
-  "runtimeSurfaceDigest": "sha256:996d911ae7e06519c0cec94155c775e297f47930f99e7ecca99a7fc4e53f8a0a",
+  "runtimeSurfaceDigest": "sha256:de50338dacfad52b03584ef595b8c9ce096d836aae46e2abb5c2703a4f579721",
   "source": {
-   "headCommit": "3d4f2a5362cc9e40dc377705e073b2d135118830",
+   "headCommit": "c78c63e64abc7eb3998919d5bc355d84d88b13b9",
    "repoDirty": false,
    "runtimeSurfaceDirty": false
   },

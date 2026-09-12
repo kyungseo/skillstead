@@ -8,6 +8,15 @@
 - Validator version/revision:
 - Runtime/capability surface:
 - Locale:
+- Runtime version/build:
+- Loaded package version/content digest:
+- Tools actually available / used:
+- Private execution receipt: recorded / unavailable
+
+Keep the requested and observed model, reasoning effort (including changes during a run), fallback or routing
+observations, and exact invocation in a private execution receipt. Mark unobserved values explicitly; do not infer
+them from an alias or product default. Public ledgers use neutral executor labels and omit model/session identity.
+A prompt with supplied skill text is not evidence of installed-skill discovery. Record which loading path was tested.
 
 ## Claim Ledger
 

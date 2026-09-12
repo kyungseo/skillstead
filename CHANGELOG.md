@@ -8,6 +8,9 @@ Granular, per-change entries begin at the first public release. Earlier developm
 
 ### Skills
 
+- `svg-infographic` — reuse settled visual choices and file-creation authorization during preflight, including
+  source-first key-message selection. Preserve separate tool-installation and host-permission checks; add
+  independent decision scenarios and clarify private execution receipts in the validation ledger.
 - `writing-quality-editor` — add a conditional reader-question flow check for multi-paragraph drafts, document
   assessment, and justified structural revision; preserve local-edit and no-edit boundaries.
 - `street-portrait-artist` — separate identity, treatment, and requested variation; add an Editorial Watercolor

@@ -42,8 +42,9 @@ not every Windows machine or filesystem. Linux browser rendering remains documen
 
 The skill follows a fixed five-step workflow designed so the **first render passes review**:
 
-1. **Preflight** — confirms intent, audience, ratio, and language; shows the defaults you can change; checks the
-   tools needed for the requested output; and proposes an output directory before writing anything.
+1. **Preflight** — uses the intent, audience, ratio, language, and output directory already supplied; states
+   inferred defaults; and checks the tools needed for the requested output. It asks only about material missing
+   choices or file creation that has not been authorized, without reconfirming settled choices.
 2. **Archetype** — picks the diagram shape from your content (see the table below) and loads that archetype's layout skeleton, visual guidance, and failure checks.
 3. **Layout pass** — fixes the canvas regions, card grid, and per-box text budgets *numerically* before drawing. Copy that won't fit its box is shortened here — not after a broken render.
 4. **Author + source lint** — writes the SVG from the computed numbers, runs `scripts/check-svg.mjs` to catch
@@ -95,7 +96,7 @@ Each archetype ships with a layout skeleton, visual guidance, and its own checks
 Start from whatever you have — the skill adapts to the input mode:
 
 - **brief-first** — just a topic or goal; the skill asks a few focused questions, then proposes a structure.
-- **source-first** — a doc, notes, an existing SVG, or a README; the skill summarizes it and agrees the key message before drawing.
+- **source-first** — a doc, notes, an existing SVG, or a README; the skill summarizes it and states the key message. It proceeds when the message is clear, asking only when different interpretations would materially change the diagram.
 - **research-first** — "draft it from scratch"; the skill states its assumptions first (external lookup may be unavailable depending on your environment).
 
 To make it clear that you want this skill, name `svg-infographic` directly. You can also describe the artifact
@@ -192,7 +193,8 @@ When you run it, the skill shows defaults like the table below before writing fi
 
 ## Output
 
-The skill proposes an output directory inside your current project before writing files.
+The skill uses the output directory supplied by you or the host workflow. Otherwise, it proposes one inside
+your current project. It proceeds when file creation is already authorized and asks before writing otherwise.
 
 - `*.svg` — primary editable vector asset for docs, HTML, and PPTX workflows
 - `*.png` — 2x preview/export for sharing, thumbnails, and social posts

@@ -2,7 +2,7 @@
  "schemaVersion": 2,
  "generatedBy": "skillstead_validate gallery",
  "note": "Generated view. Every field is owned by the manifest, locale catalog, an input payload, a receipt or an artifact — this file is authority for none of them. `verified` attaches to the SVG only; PNGs are a present/digest inventory.",
- "runtimeSurfaceDigest": "sha256:996d911ae7e06519c0cec94155c775e297f47930f99e7ecca99a7fc4e53f8a0a",
+ "runtimeSurfaceDigest": "sha256:de50338dacfad52b03584ef595b8c9ce096d836aae46e2abb5c2703a4f579721",
  "tokens": "gallery/tokens.json",
  "presentation": {
   "source": "gallery/locale.json",

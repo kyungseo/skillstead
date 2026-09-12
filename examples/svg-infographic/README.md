@@ -114,3 +114,8 @@ filesystem. Linux rendering remains documented but unverified.
 Flat, structural technical diagrams, plus the opt-in **sketch preset** ("tidy hand-drawn" — hand-drawn
 appearance, computed layout). Mascots, character art, and scene illustration remain **out of scope**; keeping
 that boundary is what makes the output consistent.
+
+## Preflight decisions
+
+- [Scenarios](./preflight/scenarios.md) — settled choices, composition-only requests, and separate tool-installation authority.
+- [Expected outcomes](./preflight/expected-outcomes.md) — keep separate from fresh executor inputs. These are decision probes, not rendering evidence.
