@@ -4,6 +4,12 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## Unreleased
+
+- `docs-claim-check`: harden evidence applicability, outcome judgments, designated-path input, and truthful
+  boundary reporting; align user guides and synthetic examples. No version, maturity, or runtime-support
+  promotion is included yet.
+
 ## 2026-09-12
 
 ### Skills

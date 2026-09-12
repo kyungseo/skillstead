@@ -1,7 +1,7 @@
 # Fixture answer key
 
 Contract-verification reference for `fixtures/sample-readme.md` against
-`fixtures/evidence/`, aligned with the final v1 contract (atomicity pass,
+`fixtures/evidence/`, updated for the unreleased evidence-applicability contract (atomicity pass,
 batch-row exception, completeness rule, component-based coverage).
 **Do not show this file to an agent being evaluated** (for example a fresh-context
 dogfood run) — it leaks the intended labels.
@@ -10,13 +10,13 @@ dogfood run) — it leaks the intended labels.
 | --- | --- | --- | --- | --- |
 | C1 | "fastest task runner in its class" | `needs-human` | — | comparative/subjective; cannot be reduced to user-providable evidence (tree step 1) |
 | C2 | "Requires Node.js 18 or newer" | `verified` | — | `package.json` `engines.node >=18` directly supports it |
-| C3 | "Works on Linux" (split from the platform enumeration) | `verified` | — | linux-runner CI capture shows the test suite passing; **limitation required**: valid for that CI run's scope, not a full functional guarantee |
-| C4 | "Works on Windows" / "Works on macOS" (homogeneous batch row — 2 atomic components) | `unsupported` | `missing-evidence` | no evidence for either platform; identical predicate/anchor/label/reason permits one batch row; expect request for per-OS CI output |
-| C5 | "`npm install -g acmetask-fixture` installs it" (registry availability) | `unsupported` | `insufficient-coverage` | the manifest name match is a **partial anchor** — it affirmatively supports a necessary component (the package name) but the operational outcome (registry publication, install success) remains unverified; expect request for `npm view` / install output. Narrowing the claim to "the command targets this package name" and verifying that instead is NOT acceptable |
+| C3 | "Works on Linux" (split from the platform enumeration) | `unsupported` | `insufficient-coverage` | the Linux test summary does not record the claimed product behavior; request a matching functional smoke transcript. Do not make the broad outcome verified by adding a CI limitation |
+| C4 | "Works on Windows" / "Works on macOS" (homogeneous batch row — 2 atomic components) | `unsupported` | `missing-evidence` | no evidence for either platform; identical predicate/anchor/label/reason permits one batch row; expect request for per-OS product-behavior transcripts |
+| C5 | "`npm install -g acmetask-fixture` installs it" (registry availability) | `unsupported` | `insufficient-coverage` | the manifest name match is a **partial anchor** — it affirmatively supports a necessary component (the package name) but the operational outcome (registry publication, install success) remains unverified; expect request for successful installation output. `npm view` alone cannot settle installation. Narrowing the claim to "the command targets this package name" and verifying that instead is NOT acceptable |
 | C6 | "Installs in under a minute" (split from composite) | `unsupported` | `missing-evidence` | objective and settleable by a user-provided timed install log — none provided (NOT `needs-human`) |
 | C7 | "Runs fully offline after the first run" (split) | `unsupported` | `missing-evidence` | no network-isolation evidence provided |
-| C8 | "Latest release: v2.3.0" | `stale-suspected` | — | tags show v2.4.0 and v2.4.1 after it; true once, currency not supported (tree step 2) |
-| C9 | "v2.3.0 was released November 2025" (split from C8) | `verified` | — | `release-tags.txt`: v2.3.0 2025-11-20 |
+| C8 | "Latest release: v2.3.0" | `stale-suspected` | — | tags show v2.4.0 and v2.4.1 after it; currency not supported; does not prove it was once true (tree step 2) |
+| C9 | "v2.3.0 was released November 2025" (split from C8) | `unsupported` | `insufficient-coverage` | tag date is not release-publication date; request a release publication record |
 | C10 | "Zero runtime dependencies" | `unsupported` | `contradicted` | `package.json` lists two runtime dependencies |
 | C11 | "All commands are covered by integration tests" | `unsupported` | `insufficient-coverage` | the vitest summary shows an exhaustive inventory of executed test files but **no mapping** from test files to commands (`scheduler.test.ts` might exercise anything) — per the completeness rule this is insufficient-coverage, not contradicted |
 | C12 | "MIT licensed" | `verified` | — | `package.json` `license: MIT` **plus** `LICENSE` (MIT text); applies to the provided file pair |
