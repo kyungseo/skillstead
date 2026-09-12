@@ -4,11 +4,13 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
-## Unreleased
+## 2026-09-13
 
-- `docs-claim-check`: harden evidence applicability, outcome judgments, designated-path input, and truthful
-  boundary reporting; align user guides and synthetic examples. No version, maturity, or runtime-support
-  promotion is included yet.
+### Skills
+
+- `docs-claim-check` `0.10.0` — harden evidence applicability, outcome judgments, designated-path input, and truthful
+  boundary reporting; align user guides and synthetic examples. Beta maturity and Claude Code support remain
+  unchanged. Preserve initial failures, corrective results, and unresolved output-contract defects in the validation record.
 
 ## 2026-09-12
 

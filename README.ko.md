@@ -26,7 +26,7 @@ GitHub 릴리스 준비, 자연스럽고 정확한 글쓰기, 인물 사진을 �
 | 스킬 | 이런 작업에 적합 | 버전 | 지원 실행 환경 | 성숙도 |
 | --- | --- | --- | --- | --- |
 | [`svg-infographic`](./skills/svg-infographic/README.ko.md) | 아키텍처 설명, 작업 흐름, 비교 자료를 수정 가능한 SVG와 검증된 2× PNG로 제작 | `0.12.0` | Supported: Claude Code + Codex | Stable |
-| [`docs-claim-check`](./skills/docs-claim-check/README.ko.md) | 공개 문서의 주장이 제공된 근거로 뒷받침되는지 확인 | `0.9.2` | Claude Code | Beta |
+| [`docs-claim-check`](./skills/docs-claim-check/README.ko.md) | 공개 문서의 주장이 제공된 근거로 뒷받침되는지 확인 | `0.10.0` | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide/README.ko.md) | 비공개 GitHub 저장소의 첫 공개 전환 또는 공개 후 매 버전 릴리스를 점검하고 단계별로 안내 | `0.9.1` | Supported: Claude Code + Codex | Stable |
 | [`writing-quality-editor`](./skills/writing-quality-editor/README.ko.md) | 사용자 문서를 처음부터 작성하거나 자연스럽게 다듬고, 사실·의도·목소리·운영 제약을 보존하면서 영어↔한국어 내용을 재구성 | `0.15.0` | Supported: Claude Code + Codex | Beta |
 | [`street-portrait-artist`](./skills/street-portrait-artist/README.ko.md) | 인물 사진으로 캐리커처, 펜·수채화 초상화 또는 손그림 종이 오림 제작 | `0.2.0` | Supported: ChatGPT + Codex | Experimental |

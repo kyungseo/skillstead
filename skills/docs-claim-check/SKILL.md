@@ -14,7 +14,7 @@ description: >
   only the out-of-scope part — by contract it does not execute commands or edit files.
 license: LICENSE.txt
 metadata:
-  version: 0.9.2
+  version: 0.10.0
 ---
 
 # docs-claim-check

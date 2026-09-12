@@ -24,7 +24,7 @@ maintainer references.
 | Skill | Best for | Version | Runtime support | Maturity |
 | --- | --- | --- | --- | --- |
 | [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | `0.12.0` | Supported: Claude Code + Codex | Stable |
-| [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | `0.9.2` | Claude Code | Beta |
+| [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | `0.10.0` | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | `0.9.1` | Supported: Claude Code + Codex | Stable |
 | [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | `0.15.0` | Supported: Claude Code + Codex | Beta |
 | [`street-portrait-artist`](./skills/street-portrait-artist) | Creating a caricature, pen-and-watercolor portrait, or drawn paper-cut figure from supplied photos | `0.2.0` | Supported: ChatGPT + Codex | Experimental |

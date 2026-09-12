@@ -14,7 +14,7 @@ The validation record separately identifies the use and limits of real public do
 | `fixtures/boundary-requests.md` | Three prompts the skill must refuse (execute / patch / code-review) |
 | `fixtures/applicability-*.md`, `fixtures/applicability-evidence.txt` | Paired outcome, version/environment, conflict, publication, and embedded-instruction cases; keep the answer key separate |
 | `fixtures/expected-outcomes.md` | Answer key — keep away from agents under evaluation |
-| [`validation-evidence.md`](./validation-evidence.md) | Dated observations, corrections, and remaining limits for the unreleased candidate |
+| [`validation-evidence.md`](./validation-evidence.md) | Dated observations, corrections, and remaining limits for the 0.10.0 development candidate |
 | `example-output.md` | A complete, contract-conforming worked output |
 
 The fixture matrix covers: all four labels (`verified`, `unsupported`,

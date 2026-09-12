@@ -1,7 +1,8 @@
 # Hardening validation record — 2026-09-12
 
-This record covers an unreleased `docs-claim-check` candidate. It preserves the distinction between initial
-failures and corrective results. It does not change the published version, Beta status, or runtime support.
+This record covers the `docs-claim-check` 0.10.0 development candidate, which was unreleased when these runs
+were captured. It preserves the distinction between initial failures and corrective results. The results do
+not establish new runtime support or a change from Beta maturity.
 
 ## Method and scope
 
