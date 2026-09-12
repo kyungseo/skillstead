@@ -1,11 +1,11 @@
 {
-  "action": "create-draft",
+  "action": "publish",
   "recovery_mode": "none",
   "tag": "writing-quality-editor/v0.15.0",
   "title": "writing-quality-editor 0.15.0 — Reader Flow Without Forced Rewriting",
   "body": "> **Latest** refers to the most recently published individual skill release, not a catalog version.\n\n## writing-quality-editor 0.15.0 — Reader Flow Without Forced Rewriting\n\nThis minor release adds a conditional reader-question check for multi-paragraph Compose, document-level Assess,\nand justified structural Revise. It looks for required answers that are missing or repeated, while keeping a sound\nstructure unchanged and using local edits when they are enough.\n\nTechnical-article and review-reply guidance now protects the reasoning and evidence a reader needs. An edit-cost\ncheck prevents shorter prose from being treated as automatically better, so useful explanations survive cleanup.\nThe existing meaning, claim, voice, local-edit, and no-edit boundaries remain in force.\n\nBeta maturity and supported runtimes are unchanged. Bounded model-only development comparisons preserved supplied\nfacts, limitations, and the no-edit case, but showed only a modest paragraph-grouping difference. They do not\nestablish general writing-quality superiority, faster execution, or installed-skill discovery.\n\n### 한국어\n\n이번 minor release에서는 여러 문단으로 새 글을 쓰거나 문서 전체를 진단하고, 근거가 있는 구조 수정을 할\n때 독자가 필요한 답이 빠지거나 반복되는지 조건부로 확인합니다. 이미 잘 작동하는 구조는 그대로 두고,\n부분 수정으로 충분하면 문단 전체를 다시 쓰지 않습니다.\n\n기술 글과 review reply에서는 독자에게 필요한 판단 근거와 설명을 보존합니다. 글이 짧아졌다는 이유만으로\n더 나아졌다고 판단하지 않도록 edit-cost를 확인해, 의미 있는 설명이 정리 과정에서 사라지지 않게 합니다.\n기존의 의미·주장·목소리 보존, 부분 수정과 no-edit 경계는 유지합니다.\n\nBeta 성숙도와 지원 실행 환경은 바뀌지 않습니다. 제한된 model-only 개발 비교에서는 주어진 사실·한계와\nno-edit 사례를 보존했지만, 문단을 조금 더 묶은 정도의 차이만 관찰했습니다. 이 결과는 일반적인 글 품질\n우위, 빠른 실행이나 설치된 스킬의 자동 발견을 입증하지 않습니다.\n\n- [Package / 패키지](https://github.com/kyungseo/skillstead/tree/writing-quality-editor/v0.15.0/skills/writing-quality-editor)\n- [Changelog / 변경 기록](https://github.com/kyungseo/skillstead/blob/writing-quality-editor/v0.15.0/skills/writing-quality-editor/CHANGELOG.md)\n- [Changes / 변경 비교](https://github.com/kyungseo/skillstead/compare/writing-quality-editor/v0.14.1...writing-quality-editor/v0.15.0)\n\nThe versioned unit is `skills/writing-quality-editor/`. GitHub source archives contain the whole repository snapshot, not a standalone skill package.\nGitHub 소스 압축 파일에는 저장소 전체가 들어 있습니다. 설치 대상은 `skills/writing-quality-editor/` 폴더입니다.\n",
-  "draft": true,
+  "draft": false,
   "prerelease": false,
-  "latest_intent": false,
+  "latest_intent": true,
   "owner_authorization": null
 }
