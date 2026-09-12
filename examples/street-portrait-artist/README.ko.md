@@ -2,9 +2,9 @@
 
 [English](./README.md) · **한국어**
 
-합성 인물 이미지로 만든 `Twin Portrait` 두 사례입니다. 원본 한 장을 캐리커처와 수채화 초상화로 각각
-어떻게 해석했는지 나란히 볼 수 있습니다. Woodland Path는 대표 예제이고, Rooftop Garden은 성별·머리
-모양·얼굴형·표정·환경이 다른 인물에도 같은 작업 방식을 적용해 본 예제입니다.
+공개해도 되는 합성 인물 원본 두 장으로 만든 갤러리입니다. `Twin Portrait` 두 사례와 Rooftop Garden
+원본으로 만든 `Paper-Cut Illustration` 한 장을 볼 수 있습니다. Woodland Path는 대표 예제이고,
+Rooftop Garden은 성별·머리 모양·얼굴형·표정·환경이 다른 인물에 적용한 결과입니다.
 
 이 갤러리는 설치 패키지에 포함되지 않습니다. 실행 환경 지원이나 매번 같은 결과가 나온다는 근거로
 사용하지 않습니다.
@@ -58,19 +58,34 @@
 묶었습니다. 얼굴 주변은 펜 선으로 섬세하게 그리고, 투명한 색과 안료가 맺히는 질감, 흐려지는 윤곽으로
 수채화의 느낌을 살렸습니다. 옥상 너머 도시 배경은 느슨하게 남겼습니다.
 
+### Paper-Cut Illustration — 0.2.0
+
+| 합성 원본 | Paper-Cut Illustration |
+| --- | --- |
+| ![옥상 정원에 앉은 합성 성인 인물](./gallery/rooftop-garden/source-synthetic.png) | ![옥상 정원 속 만화풍 Paper-Cut Illustration](./gallery/rooftop-garden/paper-cut-illustration.png) |
+
+`0.2.0` 예제에서는 인물을 점과 작은 타원으로 그린 눈, 짧은 입선, 평평한 색면, 느슨한 윤곽과 눈에
+보이는 종이 가장자리로 단순화했습니다. 앉은 자세, 손, 의상 색과 옥상 장면의 큰 관계는 유지했습니다.
+다만 mask로 편집한 결과를 검증한 것이 아니라 전체 이미지를 다시 생성했으므로 배경 pixel도 바뀌었습니다.
+결과는 `1122 x 1402 px`로, `1080 x 1350 px` 원본과 크기가 다릅니다.
+
 ## 원본 출처와 이 예제로 확인할 수 있는 것
 
 - 두 원본은 모두 가상의 합성 성인입니다. 실존 인물의 사진이나 외모를 인물 특징의 기준으로 쓰지 않았습니다.
 - 각 작품 쌍의 인물 특징은 여기에 실린 해당 합성 원본만 참고했습니다. Rooftop Garden의 Street Caricature는
   붓펜과 종이 질감에 한해 별도의 합성 그림도 참고했으며, 그 그림의 인물과 구도는 사용하지 않았습니다.
-- PNG 여섯 개는 모두 실제 `1080 x 1350 px`로 검증했습니다.
+- Paper-Cut 결과의 인물 특징은 여기에 실린 Rooftop Garden 원본만 참고했습니다. 작업 중 제공된 그림
+  한 장은 일반적인 만화 표현만 설명하는 데 사용했으며 공개하지 않고, 그 인물이나 구도는 사용하지 않았습니다.
+- 기존 원본과 Twin Portrait PNG 여섯 개는 `1080 x 1350 px`, Paper-Cut 결과는
+  `1122 x 1402 px`로 확인했습니다.
 - 이 예제가 얼굴 유사성, 재생성 결과의 일치나 모든 실행 환경의 지원을 입증하지는 않습니다.
 
 스킬을 선택하는 조건과 동작을 확인하는 저장소 전용 검증 자료는 [`intent-contract.md`](./intent-contract.md)와
 [`fixtures/`](./fixtures/)에 유지합니다.
 
-아직 출시하지 않은 일관성·Editorial Watercolor·Paper-Cut Illustration은
+`0.2.0`의 일관성·Editorial Watercolor·부분 수정 동작은
 [추가 개발 시나리오](./fixtures/enhancement-scenarios.md)와
-[별도 정답표](./fixtures/enhancement-expected-outcomes.md)로 확인합니다. 위 갤러리는 기존 두 mode의 과거 결과로 유지합니다.
+[별도 정답표](./fixtures/enhancement-expected-outcomes.md)로 확인합니다. Twin Portrait 이미지는 기존
+mode의 과거 결과이고, Paper-Cut 결과는 검증 기록에 설명한 새 mode의 제한적 예제입니다.
 
 [개발 검증 결과와 한계](./fixtures/enhancement-validation.ko.md)를 함께 확인할 수 있습니다.

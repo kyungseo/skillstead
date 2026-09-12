@@ -11,7 +11,7 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
-## [Unreleased]
+## [0.15.0] — 2026-09-12
 
 - Add a conditional reader-question check for multi-paragraph Compose, document-level Assess, and justified
   structural Revise. Check for missing or repeated answers without forcing a story or changing a sound structure.

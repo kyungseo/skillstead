@@ -4,20 +4,21 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
-## Unreleased
+## 2026-09-12
 
 ### Skills
 
-- `svg-infographic` — reuse settled visual choices and file-creation authorization during preflight, including
+- `svg-infographic` `0.12.0` — reuse settled visual choices and file-creation authorization during preflight, including
   source-first key-message selection. Preserve separate tool-installation and host-permission checks; add
   independent decision scenarios and clarify private execution receipts in the validation ledger.
-- `writing-quality-editor` — add a conditional reader-question flow check for multi-paragraph drafts, document
-  assessment, and justified structural revision; preserve local-edit and no-edit boundaries.
-- `street-portrait-artist` — separate identity, treatment, and requested variation; add an Editorial Watercolor
+- `writing-quality-editor` `0.15.0` — add a conditional reader-question flow check for multi-paragraph drafts,
+  document assessment, and justified structural revision; add technical-article, review-reply, and edit-cost
+  guidance while preserving local-edit and no-edit boundaries.
+- `street-portrait-artist` `0.2.0` — separate identity, treatment, and requested variation; add an Editorial Watercolor
   treatment with optional stronger simplification or a controlled tidy finish, plus a cartoon Paper-Cut Illustration mode with flat colors,
-  economical facial marks, source-framing, and preservation limits. New behavior remains
-  under bounded development validation; published versions, installation pins, and maturity labels are unchanged.
-  Clarify gentle ink interpretation and scene-rich watercolor without making distortion or blank backgrounds mandatory.
+  economical facial marks, source-framing, and preservation limits. Clarify gentle ink interpretation and
+  scene-rich watercolor without making distortion or blank backgrounds mandatory. Experimental maturity and the
+  existing runtime-support scope remain unchanged. Add a public-safe synthetic Paper-Cut gallery result.
 
 ### Maintainer Workflow
 

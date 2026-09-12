@@ -25,11 +25,11 @@ GitHub 릴리스 준비, 자연스럽고 정확한 글쓰기, 인물 사진을 �
 
 | 스킬 | 이런 작업에 적합 | 버전 | 지원 실행 환경 | 성숙도 |
 | --- | --- | --- | --- | --- |
-| [`svg-infographic`](./skills/svg-infographic/README.ko.md) | 아키텍처 설명, 작업 흐름, 비교 자료를 수정 가능한 SVG와 검증된 2× PNG로 제작 | `0.11.1` | Supported: Claude Code + Codex | Stable |
+| [`svg-infographic`](./skills/svg-infographic/README.ko.md) | 아키텍처 설명, 작업 흐름, 비교 자료를 수정 가능한 SVG와 검증된 2× PNG로 제작 | `0.12.0` | Supported: Claude Code + Codex | Stable |
 | [`docs-claim-check`](./skills/docs-claim-check/README.ko.md) | 공개 문서의 주장이 제공된 근거로 뒷받침되는지 확인 | `0.9.2` | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide/README.ko.md) | 비공개 GitHub 저장소의 첫 공개 전환 또는 공개 후 매 버전 릴리스를 점검하고 단계별로 안내 | `0.9.1` | Supported: Claude Code + Codex | Stable |
-| [`writing-quality-editor`](./skills/writing-quality-editor/README.ko.md) | 사용자 문서를 처음부터 작성하거나 자연스럽게 다듬고, 사실·의도·목소리·운영 제약을 보존하면서 영어↔한국어 내용을 재구성 | `0.14.1` | Supported: Claude Code + Codex | Beta |
-| [`street-portrait-artist`](./skills/street-portrait-artist/README.ko.md) | 인물 사진의 얼굴형·표정을 살려 캐리커처 또는 펜·수채화 초상화 제작 | `0.1.2` | Supported: ChatGPT + Codex | Experimental |
+| [`writing-quality-editor`](./skills/writing-quality-editor/README.ko.md) | 사용자 문서를 처음부터 작성하거나 자연스럽게 다듬고, 사실·의도·목소리·운영 제약을 보존하면서 영어↔한국어 내용을 재구성 | `0.15.0` | Supported: Claude Code + Codex | Beta |
+| [`street-portrait-artist`](./skills/street-portrait-artist/README.ko.md) | 인물 사진으로 캐리커처, 펜·수채화 초상화 또는 손그림 종이 오림 제작 | `0.2.0` | Supported: ChatGPT + Codex | Experimental |
 
 각 스킬은 필요한 파일을 모두 갖춘 독립 패키지입니다. 전체 목록을 설치할 필요 없이, 사용할 스킬의
 폴더만 통째로 복사하면 됩니다. 개인용·프로젝트용 설치 경로, 고정 버전 설치, 깨끗한 업데이트 방법,
@@ -150,15 +150,15 @@ release-critical blocker를 해소한 뒤 전환을 명시적으로 선택했을
 - 자연스럽게 요청하는 예시: `이 README를 검토해 줘. 아직 문장은 수정하지 마.` · `아래 자료에서 확인할 수 있는 내용만 바탕으로 새 README를 작성해 줘.` · `이 영어 릴리스 노트를 한국어 독자가 자연스럽게 읽을 수 있도록 다시 써 줘. 의미와 조건은 바꾸지 마.`
 - 필요할 때만 mode를 지정하는 예시: `writing-quality-editor를 Assess mode로 사용해 이 릴리스 노트를 검토해 줘. 수정안은 작성하지 마.`
 
-아직 출시하지 않은 소스에는 WQE 문단 흐름 점검과 초상화 일관성, Editorial Watercolor,
-Paper-Cut Illustration을 추가하고 있습니다. 목록의 버전과 지원 표시는 공개 패키지 기준입니다.
-개발 범위와 한계는 각 스킬 안내에서 확인할 수 있습니다.
+위에 표시한 버전에는 WQE 문단 흐름 점검과 초상화 일관성, Editorial Watercolor,
+Paper-Cut Illustration이 포함됩니다. 개발 검증과 한계는 각 스킬 안내에서 확인할 수 있습니다.
 
 ### street-portrait-artist
 
 `street-portrait-artist`는 얼굴형, 이목구비 간격, 표정과 인상을 결정하는 핵심 특징을 먼저 살펴봅니다.
-그 특징을 바탕으로 다정한 흑백 캐리커처인 `Street Caricature`와 펜·수채화 초상화인
-`Romance Watercolor`를 그립니다. 두 작품에서도 같은 사람의 특징을 유지하도록 설계했습니다.
+그 특징을 바탕으로 다정한 흑백 캐리커처인 `Street Caricature`, 펜·수채화 초상화인
+`Romance Watercolor`, 사진 장면 속 평평한 색의 `Paper-Cut Illustration`을 그립니다.
+모든 mode에서 같은 사람의 특징을 유지하도록 설계했습니다.
 
 한 장 이상의 선명한 인물 사진을 제공합니다. 사용자가 별도로 게시하거나 보관해 달라고 요청하지 않는 한 제공한
 사진·분석·결과는 해당 작업 안에서만 사용합니다.

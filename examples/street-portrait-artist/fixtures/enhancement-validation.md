@@ -2,8 +2,8 @@
 
 **English** · [한국어](./enhancement-validation.ko.md)
 
-This is bounded development evidence for unreleased source changes, not new runtime-support certification.
-The published package remains `0.1.2`, with Experimental maturity.
+This check was recorded while `0.1.2` was public. It is bounded development evidence for the changes carried
+into `0.2.0`, not new runtime-support certification. Experimental maturity remains unchanged.
 
 ## Decision Checks
 
@@ -40,8 +40,8 @@ textures also changed, so this only partially met the requested local-edit contr
 the trial does not establish that an accepted portrait can be edited without drift.
 
 Source images, generated results, actual dimensions, exact generation calls, and observations are retained in the
-private development record. The existing public gallery remains evidence of the original modes; these new results
-have not been promoted into that gallery or used to broaden product-support claims.
+private development record. The selected cartoon Paper-Cut result is also copied into the public gallery beside its
+existing synthetic source. The other new results remain private, and none broaden product-support claims.
 
 ## Cartoon Treatment Follow-up
 
@@ -50,7 +50,8 @@ facial marks and flat clothing colors rather than modeled facial planes and text
 image used the same synthetic identity source and a user-supplied example only as a treatment reference.
 It showed dot eyes, a short mouth line and flatter color areas, closer to the requested cartoon direction.
 Fine facial likeness cues were reduced and the head outline softened. This single style-referenced result does not
-establish reference-free reliability or stronger identity preservation. The attachment remains private task input.
+establish reference-free reliability or stronger identity preservation. The generated result uses the public
+synthetic identity source and appears in the gallery; the supplied treatment reference remains private task input.
 
 ## Stronger Editorial Treatment — Bounded Visual Check
 

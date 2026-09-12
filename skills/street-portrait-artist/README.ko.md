@@ -23,8 +23,8 @@
 
 ## Mode
 
-아래 Editorial Watercolor 표현, Paper-Cut Illustration mode와 연속 작업의 일관성 지침은 아직 출시하지 않은
-소스 변경입니다. 공개된 `0.1.2` 패키지와 설치 버전은 바뀌지 않았습니다.
+`0.2.0` 패키지에는 아래 Editorial Watercolor 표현, Paper-Cut Illustration mode와 연속 작업의
+일관성 지침이 추가됐습니다. Experimental 성숙도와 기록된 런타임 지원 범위는 그대로입니다.
 
 | Mode | 해석 | 대표적인 마감 |
 | --- | --- | --- |
