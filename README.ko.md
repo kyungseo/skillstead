@@ -150,6 +150,10 @@ release-critical blocker를 해소한 뒤 전환을 명시적으로 선택했을
 - 자연스럽게 요청하는 예시: `이 README를 검토해 줘. 아직 문장은 수정하지 마.` · `아래 자료에서 확인할 수 있는 내용만 바탕으로 새 README를 작성해 줘.` · `이 영어 릴리스 노트를 한국어 독자가 자연스럽게 읽을 수 있도록 다시 써 줘. 의미와 조건은 바꾸지 마.`
 - 필요할 때만 mode를 지정하는 예시: `writing-quality-editor를 Assess mode로 사용해 이 릴리스 노트를 검토해 줘. 수정안은 작성하지 마.`
 
+아직 출시하지 않은 소스에는 WQE 문단 흐름 점검과 초상화 일관성, Editorial Watercolor,
+Paper-Cut Illustration을 추가하고 있습니다. 목록의 버전과 지원 표시는 공개 패키지 기준입니다.
+개발 범위와 한계는 각 스킬 안내에서 확인할 수 있습니다.
+
 ### street-portrait-artist
 
 `street-portrait-artist`는 얼굴형, 이목구비 간격, 표정과 인상을 결정하는 핵심 특징을 먼저 살펴봅니다.
@@ -165,6 +169,9 @@ release-critical blocker를 해소한 뒤 전환을 명시적으로 선택했을
 - 자연스럽게 요청하는 예시: `이 사진을 섬세한 펜과 수채화 캐릭터 초상화로 바꿔 줘. 턱선, 헤어라인과 표정은 알아볼 수 있게 유지해 줘.`
 
 ## Playbook 모음 (유지관리자 참고 자료)
+
+Skillstead 자체를 변경할 때는 [유지관리 절차](./docs/MAINTAINER-WORKFLOW.ko.md)를 먼저 읽습니다.
+문서 정합성, 루트 changelog, 버전 공지, 블로그 반영과 선택적인 소셜 초안을 다룹니다.
 
 [`playbooks/public-release`](./playbooks/public-release/README.ko.md)에는 비공개 저장소를 공개로 전환하고 이후를
 검증할 때 쓰는 범용 체크리스트와 템플릿이 있습니다. 설치형 스킬이 아니라 유지관리자용 참고 문서이며,

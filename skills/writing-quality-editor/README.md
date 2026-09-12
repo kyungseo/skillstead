@@ -37,6 +37,12 @@ and behavior on other runtimes have not been verified for this change.
 Existing Korean prose uses the established revision contract. This drafting change does not establish better
 same-language editing or general superiority over ordinary writing instructions. The skill remains Beta.
 
+## Unreleased Reader-Flow Check
+
+The source candidate adds a light check of the question each paragraph answers for multi-paragraph drafts,
+document-level reviews, and justified structural revisions. It checks missing links and repetition while preserving
+facts, conditions, author voice, sound templates, and the local-edit boundary. A short polish request does not load
+this extra reference. Early comparisons are development evidence, not a general quality or runtime-support claim.
 
 ## Four Modes
 

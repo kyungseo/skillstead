@@ -149,6 +149,10 @@ does not invent claims or hide ambiguity. AI-detector gaming and provenance conc
 - Or ask naturally: `Review this README. Do not revise the prose yet.` · `Write a new README using only information supported by the material below.` · `Rewrite this English release note so it reads naturally to Korean readers. Preserve its meaning and conditions.`
 - Specify a mode only when needed: `Use writing-quality-editor in Assess mode to review this release note. Do not draft revisions.`
 
+Unreleased source work adds a conditional WQE paragraph-flow check and portrait consistency, Editorial Watercolor,
+and Paper-Cut Illustration. Catalog versions and support rows describe published packages; see the respective
+skill guides for development scope and limitations.
+
 ### street-portrait-artist
 
 `street-portrait-artist` studies face shape, feature spacing, expression, and the main distinguishing feature before
@@ -164,6 +168,9 @@ user separately asks to publish or retain them.
 - Or ask naturally: `Turn this portrait into a delicate pen-and-watercolor character portrait. Keep the jaw, hairline, and expression recognizable.`
 
 ## Playbooks (maintainer reference)
+
+For changes to Skillstead itself, start with the [maintainer workflow](./docs/MAINTAINER-WORKFLOW.md):
+document alignment, root changelog, version announcements, blog follow-up, and optional social drafts.
 
 [`playbooks/public-release`](./playbooks/public-release/README.md) contains the canonical public-release playbook:
 generic checklists and templates for taking a private repository public and verifying it afterward. These are

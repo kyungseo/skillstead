@@ -4,6 +4,10 @@ Create a delicate pen-and-watercolor character portrait with restrained idealiza
 mode should reveal the subject's recognizable visual rhythm through graceful selection and emphasis, not replace the
 person with a generic idealized character.
 
+For an editorial/fashion-sketch request with more natural facial detail and looser surroundings, also load
+`references/editorial-watercolor.md`. Keep this mode's identity safeguards; use that profile's selective line and
+regional detail guidance instead of treating pen contours as mandatory everywhere.
+
 ## Structural Contract
 
 - Start from the same Impression Map used by Street Caricature. Preserve the head frame, T-axis, mouth-chin rhythm,
@@ -38,6 +42,19 @@ Keep the sharpest selective lines around identity-bearing areas such as the eye 
 collar. Let secondary clothing and environmental edges dissolve into wash. Do not add flowers, foliage, pigment flecks,
 or decorative splashes merely to signal watercolor; use them only when the source or requested scene supports them.
 Prefer larger coherent washes to many isolated color spots.
+
+## Keep A Rich Scene Light
+
+A narrative watercolor may retain a garden, architecture, water, clothing pattern, or textured accessory without
+becoming a dense realistic painting. Reduce tonal weight and edge completeness before automatically removing objects.
+Thin descriptive lines, transparent local color, connected washes, paper interruptions, and selective edge loss can
+keep a detailed scene airy. Let a hat weave, dress pattern, or a few flowers receive focused detail when it belongs to
+the source or request; do not give every leaf, fold, and distant edge the same contrast and finish.
+
+Distinguish the intended treatment: a scene-rich Romance Watercolor can keep environmental storytelling, while a
+minimal Editorial Watercolor can emphasize the face against sparse washes. Neither requires the other composition.
+The test is whether the image reads as a coherent drawn-and-painted interpretation, not whether the background is
+blank or the whole image is uniformly pale. Do not import a style example's outfit, props, setting, or idealized face.
 
 ## Character Idealization Without Style Copy
 

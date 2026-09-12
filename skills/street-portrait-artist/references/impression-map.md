@@ -44,6 +44,9 @@ plausible and would produce materially different portraits, show the alternative
 
 ## Action-Reaction Redesign
 
+For observational Editorial Watercolor or Paper-Cut Illustration, the plan may preserve source geometry and simplify
+marks or detail instead. Do not invent a facial amplification just to fill this field.
+
 Exaggeration is relational. When one part moves, enlarge, compress, rotate, or simplify a supporting part so the whole
 face remains coherent:
 
@@ -51,6 +54,9 @@ face remains coherent:
 - widening eye spacing may narrow the central T-axis and reduce competing mouth detail;
 - emphasizing a sweeping hair silhouette may simplify internal strands and keep facial proportions calmer;
 - lifting one mouth corner may echo in the cheek and eye-axis rather than becoming an isolated symbol.
+
+For a series or accepted-image revision, use `references/consistency.md` to separate identity evidence from
+treatment choices and the requested variation.
 
 Preserve the composition anchor's pose and expression unless the user requests a change. Do not enlarge every feature,
 default to a large head and large eyes, or treat generic cuteness as identity.

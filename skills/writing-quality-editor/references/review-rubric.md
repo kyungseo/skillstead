@@ -87,6 +87,9 @@ established by the source or approved evidence, return `needs-human` rather than
 - Use bullets for actual sets, choices, or steps—not to avoid causal explanation.
 - Do not force a template when a shorter natural paragraph is clearer.
 
+For document-level assessment or a justified structural revision, use the concrete question-sequence check in
+`references/reader-flow.md`. A conventional, easy-to-summarize structure is not itself a finding.
+
 ### Actionability
 
 - Make the next action, owner, prerequisite, success/failure signal, and recovery visible when relevant.
