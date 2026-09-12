@@ -36,9 +36,16 @@ Nuances: a **simple qualitative** 2×2/3×3 matrix or a status-count badge is fi
 - `scripts/font-probe.mjs` — browser runtime font receipt (FontFaceSet load + computed family/weight of scoped KO/EN samples; evidence level: computed+load, NOT rendered-face proof).
 | `scripts/skin.mjs` | Skin profile resolver — `validate`/`resolve`/`registry` over `references/skins/` (palette SSoT); use resolved tokens instead of inventing hex values |
 
-## 0. Preflight — confirm, then offer to change
+## 0. Preflight — reuse settled choices, resolve material gaps
 
-Before drawing, confirm visual intent, audience, output ratio, and language. Then state the defaults (§6) and note the user can change any of them. Propose an output directory **inside the current project** and confirm before writing files.
+Use the visual intent, audience, output ratio, language, and output directory already supplied by the user or
+established by the host workflow. Infer routine choices from clear context and state any defaults (§6) you use.
+Ask only when a missing choice would materially change the result; do not ask again for settled choices.
+
+Use the user- or host-selected output directory. If none is specified, propose one inside the current project.
+When file creation is already authorized, proceed without another confirmation. Otherwise ask before writing.
+Authorization to create the requested artifact does not authorize overwriting unrelated files, installing tools,
+or bypassing host permissions. The installation and sandbox approval branches below still apply.
 
 Before promising automated lint or using the bundled `render.sh`, check whether `node --version` reports Node.js
 18 or newer.
@@ -67,7 +74,7 @@ If Node 18+ is missing:
 **Classify the input mode first** (it sets how much to ask before drawing):
 
 - **brief-first** — only a topic/goal is given → ask up to ~3 focused questions (audience, key message, ratio), then propose the structure.
-- **source-first** — a doc, notes, or paste is provided → summarize the source and agree the key message before drawing; don't transcribe it box-for-box.
+- **source-first** — a doc, notes, or paste is provided → summarize the source and state the key message. If the message is clear from the request and material, proceed without a separate agreement step. Ask only when competing interpretations would materially change the diagram; don't transcribe it box-for-box.
 - **research-first** — "just draft it" → state your assumptions (and any missing data) up front; external lookup may be unavailable, so proceed from the given material plus explicit assumptions.
 
 **Lead with the conclusion.** Prefer a conclusion-style title over a topic label — "Phased Migration Cuts Cutover Risk" beats "Migration Plan". Sketch the one-to-two-sentence story spine (context → tension → resolution) before placing boxes. Exception: for a **named pattern or archetype showcase**, a concise topic/pattern title is fine as long as the subtitle or `<desc>` carries the conclusion.
