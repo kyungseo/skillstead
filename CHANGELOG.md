@@ -4,6 +4,14 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## Unreleased
+
+### Maintainer Workflow
+
+- Added a repository-specific change and release follow-up procedure with shared agent entry points and a PR
+  checklist. It requires root changelog/document alignment and version announcements, records blog disposition,
+  and keeps social drafts optional with user-owned posting. Existing versioning and release gates remain canonical.
+
 ## 2026-09-07
 
 ### Validation

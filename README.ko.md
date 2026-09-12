@@ -166,6 +166,9 @@ release-critical blocker를 해소한 뒤 전환을 명시적으로 선택했을
 
 ## Playbook 모음 (유지관리자 참고 자료)
 
+Skillstead 자체를 변경할 때는 [유지관리 절차](./docs/MAINTAINER-WORKFLOW.ko.md)를 먼저 읽습니다.
+문서 정합성, 루트 changelog, 버전 공지, 블로그 반영과 선택적인 소셜 초안을 다룹니다.
+
 [`playbooks/public-release`](./playbooks/public-release/README.ko.md)에는 비공개 저장소를 공개로 전환하고 이후를
 검증할 때 쓰는 범용 체크리스트와 템플릿이 있습니다. 설치형 스킬이 아니라 유지관리자용 참고 문서이며,
 어떤 스킬을 설치하더라도 이 파일들은 필요하지 않습니다.
