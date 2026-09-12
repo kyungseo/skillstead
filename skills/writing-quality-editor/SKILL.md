@@ -36,8 +36,10 @@ All paths below are relative to the installed skill package root. Read the selec
 | `Compose` with Korean output | `references/korean-compose.md` |
 | `Assess`, every `Revise` or `Adapt`, or non-Korean `Compose` | `references/established-contract.md` and the applicable references it requires |
 | `Compose` requiring public-source research | Also read `references/research-backed-compose.md` |
+| Multi-paragraph `Compose`, document-level `Assess`, or justified structural `Revise` | Also read `references/reader-flow.md`; skip for local edits and short replies |
 
-The Korean Compose contract is self-contained for a supplied brief. Do not load the established editing contract
+The Korean Compose contract is focused on supplied briefs; use the light reader-flow reference when routed above.
+Do not load the established editing contract
 or its full review rubric for that path. A request to polish existing Korean prose remains `Revise` and uses the
 established contract; Korean output alone does not select the new-drafting path.
 

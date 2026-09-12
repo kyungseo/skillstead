@@ -14,6 +14,19 @@ The portrait may be boldly transformed, but it should remain affectionate, reada
   explicitly depends on simplifying them.
 - Aim for “clearly this person, seen through one clever idea,” not anatomical copying or maximum distortion.
 
+## Match The Requested Degree Of Stylization
+
+Black-ink hand drawing can range from a lightly stylized portrait to a bolder caricature. When the request or supplied
+visual treatment favors gentle interpretation, keep the observed facial proportions largely intact; organize the
+primary idea through hair silhouette, expressive feature lines, and the contrast between black masses and open paper.
+Do not force a visibly distorted jaw or eye spacing merely to demonstrate an action-reaction change.
+
+Within the chosen ink treatment, let hair carry rich black shapes and white channels while the face stays mostly paper.
+Use finer eye, nose, mouth, or stubble marks where useful, and firmer outer or overlap contours. Selective garment
+hatching may coexist with a quiet face; all-over tonal rendering is not required. Decorative hearts or stars are optional
+only when requested, not identity features to inherit from a style example. A stronger requested caricature still follows
+the relational construction contract above.
+
 ## Construction Before Finish
 
 Use two distinct passes when the image surface supports an intermediate image or a targeted edit:

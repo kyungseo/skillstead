@@ -3,7 +3,7 @@
 ## User Outcome
 
 Given one or more permitted portrait references, create a recognizably similar, visibly authored portrait through one
-shared identity analysis and either a kind street caricature or a romance-watercolor character interpretation. The
+shared identity analysis and a kind street caricature, a watercolor portrait, or a paper-cut illustration within a photographic scene. The
 result should communicate one coherent visual idea rather than a generic style transfer.
 
 ## Selection
@@ -37,8 +37,9 @@ persistent identity profiles, package assets, publication, repository writes, or
 
 ## Shared Identity Contract
 
-Both modes must build from the same Impression Map: head frame, T-axis, mouth-chin rhythm, outer anchors, expression,
-one primary anchor, and a coherent action-reaction plan. Observed appearance must remain separate from artistic choice.
+All modes must build from the same Impression Map: head frame, T-axis, mouth-chin rhythm, outer anchors, expression,
+one primary anchor, and a coherent plan for any amplification. Observational watercolor and paper-cut may preserve
+source geometry instead of exaggerating it. Observed appearance must remain separate from artistic choice.
 No personality, health, ethnicity, attractiveness, or other sensitive or unverifiable attribute may be inferred.
 
 ## Mode Contract
@@ -51,12 +52,20 @@ No personality, health, ethnicity, attractiveness, or other sensitive or unverif
   watercolor physicality, and a softly retained meaningful environment reduced to connected color masses and selected
   scene anchors rather than photographic detail or unrelated decoration.
 
-`Twin Portrait` creates both as separate artworks from one shared map. It is not a before/after collage and does not
+`Twin Portrait` creates Street Caricature and Romance Watercolor as separate artworks from one shared map. It is not a before/after collage and does not
 permit the second output to redefine the subject from the first.
+
+Editorial Watercolor is an optional treatment within Romance Watercolor: natural identity-bearing facial detail,
+loose clothing and environment, selective edges, and consistent painted material. No compulsory age, hair, or outfit change.
+
+Paper-Cut Illustration keeps the source silhouette, pose, framing, contact, and occlusion while simplifying the person
+into flat cartoon colors and economical facial marks inside photographic surroundings. Its default aspect ratio is the source ratio. Pixel-exact background preservation
+needs a capable edit and verification. Series and revisions separate original identity, accepted treatment, and
+requested variations; local corrections use the accepted artwork rather than automatic full regeneration.
 
 ## Output And Claim Boundary
 
-Default to `social-feed-portrait`: `4:5`, exact target `1080 x 1350 px`, no text or mockup. Verify actual dimensions before
+Except for source-framed Paper-Cut Illustration, default to `social-feed-portrait`: `4:5`, exact target `1080 x 1350 px`, no text or mockup. Verify actual dimensions before
 claiming exact export. Image generation unavailable means prompt-only fallback, not completed art. Do not promise
 guaranteed likeness, deterministic results, product pixel parity, human authorship, or runtime support without accepted
 runtime-specific evidence.
