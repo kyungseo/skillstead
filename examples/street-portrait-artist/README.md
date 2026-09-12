@@ -2,9 +2,9 @@
 
 **English** · [한국어](./README.ko.md)
 
-This repository-only gallery demonstrates two `Twin Portrait` cases from public-safe synthetic sources. The Woodland
-Path pair is the featured visual example. The Rooftop Garden pair checks that the same workflow does not depend on one
-gender, hairstyle, head frame, expression, or environment.
+This repository-only gallery uses two public-safe synthetic sources. It demonstrates two `Twin Portrait` cases and
+one `Paper-Cut Illustration` made from the Rooftop Garden source. The Woodland Path pair is the featured visual
+example. The Rooftop Garden results check another gender, hairstyle, head frame, expression, and environment.
 
 The gallery does not ship in the installable skill package and does not establish runtime support or deterministic
 output.
@@ -58,20 +58,35 @@ the structure, while tiny muted olive and ochre clothing accents support the out
 pen contours remain precise around the face; transparent washes, granulation, lost edges, and a loose rooftop-city
 environment carry the analog finish.
 
+### Paper-Cut Illustration — 0.2.0
+
+| Synthetic source | Paper-Cut Illustration |
+| --- | --- |
+| ![Synthetic adult seated in a rooftop garden](./gallery/rooftop-garden/source-synthetic.png) | ![Cartoon Paper-Cut Illustration in the rooftop garden](./gallery/rooftop-garden/paper-cut-illustration.png) |
+
+The `0.2.0` example turns the person into a flat-color cartoon with dot-and-oval eyes, a short mouth line, loose
+contours, and a visible paper edge while retaining the main seated pose, hands, clothing colors, and rooftop setting.
+It is a full-frame generation rather than a verified masked edit: the background pixels changed, and the
+`1122 x 1402 px` result differs from the `1080 x 1350 px` source.
+
 ## Provenance And Claim Boundary
 
 - Both source portraits are synthetic fictional adults. No real person's portrait or likeness was used as their
   identity input.
 - Each pair uses only its included source as identity-bearing input. A separate synthetic drawing informed only the
   Rooftop Garden Street Caricature's generic brush-pen and paper qualities; its person and composition were excluded.
-- All six PNG files are verified `1080 x 1350 px`.
+- The Paper-Cut result uses the included Rooftop Garden source as identity-bearing input. A task-scoped supplied
+  picture informed only the generic cartoon treatment; it is not included and did not supply identity or composition.
+- The six original source and Twin Portrait PNG files are verified `1080 x 1350 px`; the Paper-Cut result is
+  `1122 x 1402 px`.
 - These examples do not prove guaranteed likeness, deterministic regeneration, or support in every product runtime.
 
 Repository-only intent and behavior fixtures remain in [`intent-contract.md`](./intent-contract.md) and
 [`fixtures/`](./fixtures/).
 
-Unreleased consistency, Editorial Watercolor, and Paper-Cut Illustration use additional
+`0.2.0` consistency, Editorial Watercolor, and local-edit behavior use additional
 [development scenarios](./fixtures/enhancement-scenarios.md) and a separate
-[answer key](./fixtures/enhancement-expected-outcomes.md). The gallery above remains historical evidence of the original two modes.
+[answer key](./fixtures/enhancement-expected-outcomes.md). The Twin Portrait images remain historical evidence of the
+original modes; the Paper-Cut result is the bounded new-mode example described in the validation record.
 
 Read the [development observations and limits](./fixtures/enhancement-validation.md).

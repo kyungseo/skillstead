@@ -2,7 +2,7 @@
 
 **English** · [한국어](./development-validation.ko.md)
 
-The unreleased candidate was compared with the published `0.14.1` instruction baseline in four paired
+The `0.15.0` candidate was compared with the published `0.14.1` instruction baseline in four paired
 model-only tasks using Astra (`gpt-6-astra`, high reasoning effort). Each run received the applicable package
 instructions inline in a fresh context. There was one response per arm per task, eight responses in total;
 arm order alternated. The initial no-edit pair omitted the Korean editing reference; both arms were then rerun
@@ -21,6 +21,6 @@ authored, transferable cases, not transcripts of these runs. Exact inputs, outpu
 in the private development record. The observations above are the developer's qualitative assessment, not a blind
 review or a statistical benchmark.
 
-Retain the narrow conditional guidance as a candidate; do not claim broad quality improvement, faster execution,
-or stronger runtime support from this check. Maturity remains Beta. The published version and installation pin
-remain `0.14.1` until a release decision.
+The release decision carries the retained conditional guidance into `0.15.0`. Do not claim broad quality
+improvement, faster execution, or stronger runtime support from this check. Maturity remains Beta; `0.14.1`
+was the published version and installation pin when the comparison ran.

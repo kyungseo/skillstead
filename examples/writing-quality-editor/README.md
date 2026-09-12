@@ -29,7 +29,7 @@ For results and limits of the Korean drafting path added in `0.14.0`, see the
 [skill guide](../../skills/writing-quality-editor/README.md#korean-new-drafts). Historical results from the 36
 scenarios above do not substitute for validation of that new path.
 
-The unreleased reader-flow candidate has additional [scenarios](./reader-flow/scenarios.md) and a separate
+`0.15.0` reader-flow guidance has additional [scenarios](./reader-flow/scenarios.md) and a separate
 [answer key](./reader-flow/expected-outcomes.md). They are distinct from the historical 36-case set.
 
 Read the [development observations and limits](./reader-flow/development-validation.md).

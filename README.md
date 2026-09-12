@@ -23,11 +23,11 @@ maintainer references.
 
 | Skill | Best for | Version | Runtime support | Maturity |
 | --- | --- | --- | --- | --- |
-| [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | `0.11.1` | Supported: Claude Code + Codex | Stable |
+| [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | `0.12.0` | Supported: Claude Code + Codex | Stable |
 | [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | `0.9.2` | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | `0.9.1` | Supported: Claude Code + Codex | Stable |
-| [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | `0.14.1` | Supported: Claude Code + Codex | Beta |
-| [`street-portrait-artist`](./skills/street-portrait-artist) | Creating a caricature or pen-and-watercolor portrait from the face shape and expression in supplied photos | `0.1.2` | Supported: ChatGPT + Codex | Experimental |
+| [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | `0.15.0` | Supported: Claude Code + Codex | Beta |
+| [`street-portrait-artist`](./skills/street-portrait-artist) | Creating a caricature, pen-and-watercolor portrait, or drawn paper-cut figure from supplied photos | `0.2.0` | Supported: ChatGPT + Codex | Experimental |
 
 Each skill is self-contained and can be installed independently. You do not need to install the entire
 catalog—copy only the complete folder for the skill you want to use. See
@@ -149,15 +149,15 @@ does not invent claims or hide ambiguity. AI-detector gaming and provenance conc
 - Or ask naturally: `Review this README. Do not revise the prose yet.` · `Write a new README using only information supported by the material below.` · `Rewrite this English release note so it reads naturally to Korean readers. Preserve its meaning and conditions.`
 - Specify a mode only when needed: `Use writing-quality-editor in Assess mode to review this release note. Do not draft revisions.`
 
-Unreleased source work adds a conditional WQE paragraph-flow check and portrait consistency, Editorial Watercolor,
-and Paper-Cut Illustration. Catalog versions and support rows describe published packages; see the respective
-skill guides for development scope and limitations.
+The versions listed above include a conditional WQE paragraph-flow check and portrait consistency, Editorial
+Watercolor, and Paper-Cut Illustration. See the respective skill guides for development evidence and limitations.
 
 ### street-portrait-artist
 
 `street-portrait-artist` studies face shape, feature spacing, expression, and the main distinguishing feature before
-drawing. It uses those observations for a kind, near-monochrome `Street Caricature` or a pen-and-watercolor
-`Romance Watercolor` portrait. Both are designed to retain the same person’s recognizable features.
+drawing. It uses those observations for a kind, near-monochrome `Street Caricature`, a pen-and-watercolor
+`Romance Watercolor` portrait, or a flat-color `Paper-Cut Illustration` in the supplied scene. All modes are
+designed to retain the same person’s recognizable features.
 
 Provide one or more clear portrait references. Supplied portraits, analysis, and outputs remain task-scoped unless the
 user separately asks to publish or retain them.

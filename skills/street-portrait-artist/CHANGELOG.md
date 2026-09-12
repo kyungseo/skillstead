@@ -2,7 +2,7 @@
 
 Notable changes to the `street-portrait-artist` skill package.
 
-## [Unreleased]
+## [0.2.0] — 2026-09-12
 
 - Clarify gentle black-ink stylization alongside stronger caricature, and distinguish a richly described but
   transparent scene watercolor from the optional sparse Editorial composition.
@@ -14,9 +14,11 @@ Notable changes to the `street-portrait-artist` skill package.
   requested airier treatment can dissolve clothing into pale color hints and omit descriptive scene detail; a tidy
   treatment instead uses calm paper fields and ordered wash groups without making every small mark active.
 - Add Paper-Cut Illustration: preserve photographic setting, source framing, placement, contact, and occlusion while
-  simplifying the person into a flat-color cartoon cutout with economical facial marks, rather than realistic shading. Exact untouched pixels require capable editing and verification.
+  simplifying the person into a flat-color cartoon cutout with economical facial marks, rather than realistic
+  shading. Add a public-safe synthetic gallery result with its actual dimensions and preservation limits. Exact
+  untouched pixels require capable editing and verification.
 - Preserve the default Street Caricature and two-artwork Twin Portrait. Keep Experimental maturity and historical
-  runtime-support evidence separate from these unreleased additions.
+  runtime-support evidence separate from these additions.
 
 ## [0.1.2] — 2026-09-07
 

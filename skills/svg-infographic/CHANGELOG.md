@@ -11,7 +11,7 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
-## [Unreleased]
+## [0.12.0] — 2026-09-12
 
 - Reuse settled visual choices, output paths, and file-creation authorization during preflight. Ask only for
   material missing choices or missing write authorization; apply the same rule to source-first key-message

@@ -30,11 +30,11 @@ folder so they cannot drift apart.
 
 | Skill | Current pinned tag | Supported runtime |
 | --- | --- | --- |
-| `svg-infographic` | `svg-infographic/v0.11.1` | Claude Code and Codex |
+| `svg-infographic` | `svg-infographic/v0.12.0` | Claude Code and Codex |
 | `docs-claim-check` | `docs-claim-check/v0.9.2` | Claude Code |
 | `github-release-guide` | `github-release-guide/v0.9.1` | Claude Code and Codex |
-| `writing-quality-editor` | `writing-quality-editor/v0.14.1` | Claude Code and Codex |
-| `street-portrait-artist` | `street-portrait-artist/v0.1.2` | ChatGPT and Codex |
+| `writing-quality-editor` | `writing-quality-editor/v0.15.0` | Claude Code and Codex |
+| `street-portrait-artist` | `street-portrait-artist/v0.2.0` | ChatGPT and Codex |
 
 The default request installs a personal/global skill. To keep a filesystem-installed skill inside the current
 repository, replace `globally` with `in the current project`. ChatGPT manages its skill library in the product and
@@ -46,14 +46,14 @@ does not use the filesystem scopes in this guide.
 
 ## `svg-infographic`
 
-- Current release: `svg-infographic/v0.11.1`
+- Current release: `svg-infographic/v0.12.0`
 - Supported runtime: Claude Code and Codex
 - Package guide: [`skills/svg-infographic/README.md`](../skills/svg-infographic/README.md)
 
 Paste this into Claude Code or Codex:
 
 ```text
-Install this Skillstead skill globally from the pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/svg-infographic/v0.11.1/skills/svg-infographic
+Install this Skillstead skill globally from the pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/svg-infographic/v0.12.0/skills/svg-infographic
 ```
 
 Copying or discovering `svg-infographic` does not require Node.js. Node.js 18+ is needed only for its automated
@@ -110,7 +110,7 @@ Release, settings change, destructive cleanup, or credential action.
 
 ## `writing-quality-editor`
 
-- Current release: `writing-quality-editor/v0.14.1`
+- Current release: `writing-quality-editor/v0.15.0`
 - New Korean Compose path: explicit local-package loading checked; automatic discovery after installation and other-runtime behavior remain unverified for this change.
 - Supported runtime: Claude Code and Codex
 - Package guide: [`skills/writing-quality-editor/README.md`](../skills/writing-quality-editor/README.md)
@@ -118,7 +118,7 @@ Release, settings change, destructive cleanup, or credential action.
 Paste this into Claude Code or Codex:
 
 ```text
-Install this Skillstead skill globally from the pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/writing-quality-editor/v0.14.1/skills/writing-quality-editor
+Install this Skillstead skill globally from the pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/writing-quality-editor/v0.15.0/skills/writing-quality-editor
 ```
 
 The package includes the complete English/Korean authoring and review references. Install the whole folder rather
@@ -132,20 +132,20 @@ than copying only `SKILL.md`.
 
 ## `street-portrait-artist`
 
-- Current release: `street-portrait-artist/v0.1.2`
+- Current release: `street-portrait-artist/v0.2.0`
 - Supported runtime: ChatGPT and Codex
 - Package guide: [`skills/street-portrait-artist/README.md`](../skills/street-portrait-artist/README.md)
 
 Paste this into ChatGPT:
 
 ```text
-Install the street-portrait-artist skill from this pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/street-portrait-artist/v0.1.2/skills/street-portrait-artist
+Install the street-portrait-artist skill from this pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/street-portrait-artist/v0.2.0/skills/street-portrait-artist
 ```
 
 Paste this into Codex:
 
 ```text
-Install this Skillstead skill globally from the pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/street-portrait-artist/v0.1.2/skills/street-portrait-artist
+Install this Skillstead skill globally from the pinned GitHub folder: https://github.com/kyungseo/skillstead/tree/street-portrait-artist/v0.2.0/skills/street-portrait-artist
 ```
 
 ChatGPT may ask you to confirm the installation. If the current conversation still discovers an older cached
@@ -264,7 +264,7 @@ Runtime support is verified per skill:
 | `docs-claim-check` | Supported | Not yet claimed | — | Behavioral fixtures passed with Claude Code Fable and Sonnet |
 | `github-release-guide` | Supported | Supported | — | Material parity, disposable first-public and Guided tag-ruleset E2E, pinned installation/discovery, and release claim audits passed |
 | `writing-quality-editor` | Supported | Supported | — | Four-mode cross-runtime behavior, repository dogfood, pinned installation, package equality, discovery, and claim closeout passed |
-| `street-portrait-artist` | Not applicable | Supported | ChatGPT: Supported | Fresh published `0.1.0` package installation, discovery, invocation, synthetic reference-image generation, fail-visible size fallback, and output delivery established runtime support; `0.1.2` is the current install release |
+| `street-portrait-artist` | Not applicable | Supported | ChatGPT: Supported | Fresh published `0.1.0` package installation, discovery, invocation, synthetic reference-image generation, fail-visible size fallback, and output delivery established runtime support; `0.2.0` is the current install release |
 
 Evidence recorded for an earlier release can establish a bounded runtime capability without making that older
 release the current install target. For normal use, choose only a runtime marked `Supported`. `Not yet claimed`

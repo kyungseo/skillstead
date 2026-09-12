@@ -24,8 +24,8 @@ Choose `Quick Sketch` for one usable reference or `Studio Portrait` for two or t
 
 ## Modes
 
-The Editorial Watercolor profile, Paper-Cut Illustration mode, and series-consistency guidance below are unreleased
-source additions. The published `0.1.2` package and installation pins have not changed.
+The `0.2.0` package adds the Editorial Watercolor profile, Paper-Cut Illustration mode, and
+series-consistency guidance below. Experimental maturity and the recorded runtime-support scope remain unchanged.
 
 | Mode | Interpretation | Typical finish |
 | --- | --- | --- |
