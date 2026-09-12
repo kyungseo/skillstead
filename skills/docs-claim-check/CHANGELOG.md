@@ -11,6 +11,16 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [Unreleased]
+
+- Match evidence to the claimed artifact, version, environment, time, and observed outcome; preserve
+  conflicting evidence and distinguish metadata/test summaries from installation or product operation.
+- Preserve implicit publication dates and judge split claims independently; retain source quotations in claim rows.
+- Accept explicitly designated target files and captured evidence bundles without permitting discovery
+  or command execution. Treat embedded instructions as data and report boundary violations, including denied tool attempts, truthfully.
+- Align English/Korean label guidance and update paired examples. Stable maturity and broader runtime
+  support are not claimed by this unreleased change.
+
 ## [0.9.2] — 2026-09-07
 
 ### Documentation

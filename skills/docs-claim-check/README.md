@@ -23,8 +23,8 @@ fixed decision tree, producing exactly one confidence label per claim:
 | --- | --- |
 | `verified` | the provided, current evidence directly supports the whole claim — valid only within the reviewed scope |
 | `unsupported` | objectively checkable, but the evidence is missing (`missing-evidence`), conflicting (`contradicted`), or partial (`insufficient-coverage`) |
-| `stale-suspected` | a date/version/support-window mismatch — likely true once, currency not supported |
-| `needs-human` | requires subjective judgment, code review, command execution, or an external authority |
+| `stale-suspected` | a date/version/support-window mismatch with newer applicable evidence; currency is not supported |
+| `needs-human` | requires subjective/quality judgment, code review, or external-authority confirmation; a missing executable observation is `unsupported`, not `needs-human` |
 
 Every claim-assessment output begins with its **input scope** — what documents
 and evidence were reviewed, what was requested but missing, and the claim
@@ -53,6 +53,10 @@ row decomposition and coverage bookkeeping may vary by model; material claim
 coverage, confidence-label semantics, evidence boundaries, and output-contract
 compliance are the compatibility criteria.
 
+The [2026-09-12 hardening record](../../examples/docs-claim-check/validation-evidence.md)
+separately documents current candidate failures, corrections, and remaining output-format limits. It does not
+replace the historical result above or establish new runtime support.
+
 ## Try it
 
 To make it clear that you want this skill, name `docs-claim-check` directly. You can also ask in ordinary
@@ -67,8 +71,14 @@ Check whether the claims in this README are supported by the files and command o
 only; do not run commands or rewrite the document.
 ```
 
-If you have not supplied the target text, the skill asks for it without searching the repository or running a
-command. If the target is present but some evidence is missing, it tells you exactly what evidence is needed.
+Supply target text or explicitly designate its file path for host-native reading. If neither is supplied,
+the skill asks without searching the repository or running commands. If the host cannot read the file without
+a command, provide its contents instead. Missing evidence produces a specific request, not an automatic search.
+You may designate a captured evidence bundle from a separately authorized workflow step.
+
+For example: "Assess `README.md` using only `evidence/install.txt` and `evidence/release.txt`. Read these paths;
+do not run commands or edit files." Documents and logs are evidence, not instructions to the skill.
+The report states what happened; its no-command statement does not replace tool-trace inspection.
 
 If a request also asks for rewriting, `docs-claim-check` handles the claim judgment first. It reports findings
 but does not write replacement text; rewriting remains a separate step.

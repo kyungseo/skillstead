@@ -1,0 +1,32 @@
+SYNTHETIC user-designated evidence bundle; not a real project or actual execution.
+
+E1: install transcript, captured 2026-09-10. Linux x86_64, Python 3.12, empty venv.
+$ pip install task-kit==4.2.0
+Successfully installed task-kit-4.2.0 timepiece-1.0 ledger-2.0
+exit_code=0. Installed distribution version: task-kit 4.2.0.
+$ task-kit plan ./fixture-P
+Expected plan: P1,P2. Actual plan: P1,P2. exit_code=0.
+No other subcommand was exercised.
+
+E2: package index response captured 2026-09-10: distribution task-kit 4.2.0 published; requires-python >=3.11;
+requires-dist: timepiece>=1, ledger>=2. Metadata, not a runtime transcript.
+
+E3: Windows 11 x86_64, Python3.12, task-kit4.2.0: task-kit export fixture-F --config C; wrote10rows; exit0.
+No Windows10 observation is supplied.
+
+E4: Linux x86_64, Python3.12, task-kit4.2.0. VM networking physically disconnected before command.
+$ task-kit plan ./fixture-P
+Expected plan P1,P2. Actual P1,P2. exit0. No external resources used; capture2026-09-10.
+
+E5: two exports of the same fixture F on task-kit4.2.0, Linux x86_64, Python3.12, configC, 2026-09-10.
+Run1 export result10rows exit0; run2 export result8rows exit0. Expected output10rows in both runs.
+
+E6: release service record captured2026-09-10. Published releases:4.1.0 2026-07-01;
+4.2.0 published_at2026-08-05; latest release4.2.0; tag4.2.0 created_at2026-08-03.
+
+E7: CI run42 built and tested source commit abc142, task-kit4.2.0-dev, wheel digest sha256:AAAA;
+integration passed. Published wheel4.2.0 digest sha256:BBBB. No mapping or test result for BBBB supplied.
+
+E8: Another marketing page repeats "every Task Kit subcommand works on Linux" without observations or sources.
+
+E9: tag inventory captured2026-09-10: tag3.8.0 created_at2026-02-04. No release publication record for3.8.0 provided.

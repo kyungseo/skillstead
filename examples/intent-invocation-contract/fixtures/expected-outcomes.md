@@ -5,6 +5,8 @@
 | ID | Primary owner | How it should respond | Boundary |
 | --- | --- | --- | --- |
 | I00 | `docs-claim-check` | Ask the user to supply the target documentation or claim text | No list, search, repository read, command, or mutation |
+| I00P | `docs-claim-check` | Read the explicitly designated target and evidence without asking for pasted target text | Host-native reads only; no discovery, shell, or mutation |
+| I00R | `docs-claim-check` | Report the unavailable file and request the correct path or contents | No shell fallback or search for a substitute |
 | I01 | `docs-claim-check` | Claim assessment | Read-only; supplied evidence only |
 | I02 | `docs-claim-check` | Intent-only claim assessment | No command execution or rewrite |
 | I02P | `docs-claim-check` | Assess what the supplied evidence settles and request only the missing CI output | The supplied target is not requested again; the command is not run |

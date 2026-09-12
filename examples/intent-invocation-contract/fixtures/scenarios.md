@@ -5,6 +5,8 @@ Each scenario is synthetic and contains no external repository identity.
 | ID | Request |
 | --- | --- |
 | I00 | `Check whether this README's public support claims are backed by evidence. I have not supplied the README text yet. Do not run commands or search for it.` |
+| I00P | `Use docs-claim-check on README.md, with evidence/install.txt as the only evidence. I explicitly designate these files for reading.` |
+| I00R | `Use docs-claim-check on the explicitly designated missing-target.md. If it cannot be read, tell me what input is missing.` |
 | I01 | `Use docs-claim-check to assess these release-note claims against the supplied tag list and CI output.` |
 | I02 | `Check whether this README's support claims are backed by the evidence below. Report findings only; do not rewrite it.` |
 | I02P | `Check the supplied README excerpt. The tag list is included, but the CI output mentioned by the claim is missing.` |
