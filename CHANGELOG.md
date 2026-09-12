@@ -24,6 +24,10 @@ Granular, per-change entries begin at the first public release. Earlier developm
 - Added a repository-specific change and release follow-up procedure with shared agent entry points and a PR
   checklist. It requires root changelog/document alignment and version announcements, records blog disposition,
   and keeps social drafts optional with user-owned posting. Existing versioning and release gates remain canonical.
+- Added the owner's standing follow-up for skill-package changes: inspect `codex-personal` and `claude-personal`,
+  synchronize every adopted copy from the exact merged commit or release tag, verify package parity, then commit
+  and push each changed personal repository without repeating the same instruction. New adoption, destructive
+  overwrite, force-push, pull-request merge, and broader changes remain outside this authorization.
 
 ## 2026-09-07
 

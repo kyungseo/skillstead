@@ -58,7 +58,30 @@ requesting publication approval. Use the existing release toolchain and its requ
 with ad hoc tag or Release commands. Verify the published version, tag target, release URL, and installation pin
 before announcing availability. An internal version edit or merged PR is not yet a published release.
 
-## 4. Publish The Required Version Announcement
+## 4. Synchronize Adopted Personal Skill Copies
+
+When a change under `skills/<name>/` reaches `main`, inspect both `codex-personal` and `claude-personal` before
+declaring the Skillstead change complete. For every changed skill that a personal repository already adopts, copy
+the complete `skills/<name>/` package from the exact merged Skillstead commit. For a published version, use the
+immutable release tag as the source. Do not automatically adopt a skill that is absent from a personal repository;
+record `not-adopted`. Preserve unrelated personal-repository work and follow that repository's branch and worktree
+rules.
+
+Verify source and destination file inventories, bytes, and executable modes. Record `up-to-date` instead of making
+an empty commit when an adopted package already matches. A successful sync in one personal repository does not
+stand in for the other.
+
+The owner has authorized this routine follow-up as part of the Skillstead workflow. After verification, commit and
+push each personal repository that changed without asking for the same instruction again. This standing
+authorization covers only exact package synchronization and a normal non-force push to the task's existing or
+isolated branch. It does not cover adopting a new skill, overwriting unrelated changes, force-pushing, merging a
+personal-repository pull request, or expanding scope; request the missing authorization if one of those is required.
+
+Record the Skillstead source commit or tag, each destination commit and pushed ref, and the verification result. Do
+not report the Skillstead change complete while an applicable personal sync is uncommitted or unpushed. If access
+or repository state prevents completion, record the blocker, owner, and next action.
+
+## 5. Publish The Required Version Announcement
 
 Destination: [blog repository Announcements](https://github.com/kyungseo/kyungseo.github.io/discussions/categories/announcements).
 
@@ -78,7 +101,7 @@ release. Repository-only changes with no skill-version release do not trigger a 
 4. Read the posted discussion back and record its URL and covered versions. A successful request without an
    observable matching post is not confirmed publication. Do not repeat a publish merely to obtain a green result.
 
-## 5. Review Related Blog Posts
+## 6. Review Related Blog Posts
 
 For each version release, find related posts in [the blog repository](https://github.com/kyungseo/kyungseo.github.io).
 Read that repository's current agent instructions before editing it. Choose and record one outcome:
@@ -93,7 +116,7 @@ than rewriting an old experience as if it happened with the new version. Keep re
 when they exist. Verify live links/content after an authorized publication and record the affected post URLs.
 Blog publication is not automatically authorized by permission to publish a version announcement.
 
-## 6. Prepare Social Copy Only When Useful
+## 7. Prepare Social Copy Only When Useful
 
 Social posting is optional and is performed by the user. Offer or prepare a concise ready-to-post draft when
 relevant; the owner may decline, and a declined draft does not block completion. Respect an earlier decline
@@ -103,7 +126,7 @@ unrequested channel matrix. Use verified links and clearly identify an unrelease
 Never post through a social account on the basis of this procedure. Record `drafted`, `declined`, or
 `not-applicable` with a brief reason; user posting is not an agent completion requirement.
 
-## 7. Record Completion And Resume Safely
+## 8. Record Completion And Resume Safely
 
 Use the existing change/release PR description or Work record as the completion record; link follow-up records
 instead of inventing another tracking system. Record:
@@ -111,6 +134,8 @@ instead of inventing another tracking system. Record:
 - affected skills, released versions when applicable, commits/PRs, and release URLs;
 - documentation alignment, explicitly including root CHANGELOG status and any no-change reasons;
 - validation results, evidence limits, and unresolved blockers;
+- personal-skill sync status for both `codex-personal` and `claude-personal`, including the source commit/tag,
+  destination commit and pushed ref, or an `up-to-date`/`not-adopted` reason;
 - announcement status, covered versions, and the verified discussion URL;
 - blog outcome and post/draft URLs or a no-change reason;
 - social draft location or a declined/not-applicable reason;
@@ -120,10 +145,11 @@ Use precise states such as `prepared`, `pending-authorization`, `blocked`, `publ
 A change PR can finish before its later version release; mark communication work `pending-release` and carry its
 pointer into the release record. For repository-only changes, mark release communications not applicable with a
 reason. A published Release and completed release follow-up are different states: do not mark the latter complete
-while its required version announcement is missing. Report partial success without rolling back or repeating
-already successful release operations. The blog disposition must be recorded; social publication may be omitted.
+while its required version announcement is missing. Do not mark a skill change complete while an applicable
+personal-repository sync is uncommitted or unpushed. Report partial success without rolling back or repeating
+already successful operations. The blog disposition must be recorded; social publication may be omitted.
 
-## 8. Evolve This Procedure
+## 9. Evolve This Procedure
 
 Update this file and its Korean mirror in the same reviewed change. Record the reason and changed obligations
 in root CHANGELOG, update the date, and adjust entry points or the PR checklist when their pointers or fields
