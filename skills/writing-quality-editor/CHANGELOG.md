@@ -11,6 +11,12 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [0.16.0] — 2026-09-13
+
+- Treat internal editorial and review language used as reader-facing explanation as a writing defect across
+  Korean composition and the established editing path. Draft and check for direct facts, limits, and actions;
+  include an author-approved example without imposing a word blacklist or reopening settled context.
+
 ## [0.15.0] — 2026-09-12
 
 - Add a conditional reader-question check for multi-paragraph Compose, document-level Assess, and justified
