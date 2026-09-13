@@ -85,6 +85,11 @@ Accept facts explicitly settled by the author's correction. With genuinely incom
 an unperformed check. Preserve a real reviewer instruction when that is the passage's purpose, and retain an
 already clear statement such as “Windows에서는 아직 테스트하지 않았습니다.”
 
+Preserve the passage's conclusion as well as its individual facts. When the supplied context establishes that
+an event needed to observe a behavior did not occur in the reported run, explain which behavior this run could
+not assess and why. A list of observations or an aside about unknown separate tests must not replace that
+run-specific limitation. Do not infer why the event was absent or how the unobserved behavior would have worked.
+
 ### Plain-Language Accessibility
 
 - Lead with the conclusion, user value, or purpose before internal machinery.

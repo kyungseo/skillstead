@@ -8,6 +8,9 @@ Granular, per-change entries begin at the first public release. Earlier developm
 
 ### Skills
 
+- `writing-quality-editor` `0.17.0` — connect a run's observed facts to what that run could not assess;
+  document bounded comparison results and remaining quotation, heading, and no-edit limitations.
+
 - `writing-quality-editor` `0.16.0` — address internal review language in reader-facing prose during drafting
   and final review. Clarify direct explanation, author-approved context, and appropriate internal-instruction boundaries.
 

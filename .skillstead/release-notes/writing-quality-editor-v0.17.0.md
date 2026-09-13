@@ -1,0 +1,47 @@
+> **Latest** refers to the most recently published individual skill release, not a catalog version.
+
+## writing-quality-editor 0.17.0 — Explain What The Run Could Show
+
+WQE's editing rubric now asks for the conclusion that connects a run's observations to what it could not assess.
+If the supplied context says a required event never occurred, the revision should explain which behavior could
+not be checked in that run. Listing facts or discussing unknown separate tests can leave that point unstated.
+The guidance does not authorize inventing why the event was absent or how the unobserved behavior would work.
+
+For example: “The model did not call a tool in this run, so this run could not establish how tool-call rejection
+behaves.” This is an editorial example, not a safety or platform validation result.
+
+Small development comparisons used fresh Codex CLI sessions configured for `gpt-6-astra` and `gpt-5.6-sol`,
+with the complete applicable instructions supplied inline. The selected instructions explained the tool-call,
+retry, and recovery limitations directly. General improvement, recurrence rates, and automatic discovery were
+not established. Sol still changed requested or protected wording in a preservation case and rewrote a clear
+sentence; the 0.16.0 baseline had those problems too. A separate heading correction lost an old anchor and was
+not adopted. Review exact wording, quotations, and incoming links before using a revision.
+
+The skill remains Beta, with existing runtime support labels unchanged. Replace the complete
+`skills/writing-quality-editor/` folder to update.
+
+### 한국어
+
+관찰 사실을 고쳐 쓰면서 정작 설명하려던 결론을 빠뜨리지 않도록 편집 기준을 보완했습니다.
+자료에 어떤 사건이 발생하지 않았다고 나와 있다면, 이번 실행에서는 그 때문에 어떤 동작을 확인할 수
+없었는지 직접 설명하도록 했습니다. 사실만 나열하거나 별도 시험 여부를 모른다는 말로 대신하지 않습니다.
+사건이 발생하지 않은 원인이나 확인하지 못한 동작의 결과를 새로 지어내는 것은 허용하지 않습니다.
+
+예를 들면 “이번 실행에서는 모델이 도구를 호출하지 않아 거부 동작을 확인할 수 없었습니다.”처럼 씁니다.
+이는 문장 편집의 예시이며 안전성이나 플랫폼 검증 결과가 아닙니다.
+
+새 Codex CLI 세션을 `gpt-6-astra`와 `gpt-5.6-sol`로 설정하고 필요한 지침 전문을 넣어 소규모로 비교했습니다.
+채택한 지침은 도구 호출·재시도·복구 사례의 한계를 직접 설명했습니다. 일반적인 개선율·재발률·자동 발견은
+확인하지 않았습니다. Sol이 지정 문구·인용을 바꾸거나 명료한 문장을 다시 쓰는 문제는 남았으며,
+0.16.0에서도 나타났습니다. 제목 처리를 별도로 보완한 후보는 이전 앵커를 잃어 채택하지 않았습니다.
+수정 결과를 사용하기 전에 지정 문구·인용·기존 링크를 확인해야 합니다.
+
+Beta와 기존 지원 실행 환경 표시는 유지합니다. 업데이트하려면 `skills/writing-quality-editor/` 폴더 전체를 교체하세요.
+
+- [Package / 패키지](https://github.com/kyungseo/skillstead/tree/writing-quality-editor/v0.17.0/skills/writing-quality-editor)
+- [Install / 설치 안내](https://github.com/kyungseo/skillstead/blob/writing-quality-editor/v0.17.0/docs/INSTALL.md)
+- [Changelog / 변경 기록](https://github.com/kyungseo/skillstead/blob/writing-quality-editor/v0.17.0/skills/writing-quality-editor/CHANGELOG.md)
+- [Changes / 변경 비교](https://github.com/kyungseo/skillstead/compare/writing-quality-editor/v0.16.0...writing-quality-editor/v0.17.0)
+
+GitHub source archives contain the whole repository snapshot; install the selected skill folder.
+GitHub 소스 압축 파일에는 저장소 전체가 들어 있습니다. 설치 대상은 선택한 스킬 폴더입니다.

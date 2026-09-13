@@ -53,6 +53,22 @@ It keeps appropriate reviewer instructions and already clear prose, and uses the
 as context. This release changes instructions; no new behavioral comparison or recurrence-rate measurement
 was performed. Beta maturity and supported runtimes remain unchanged.
 
+## Run Conclusions In 0.17.0
+
+`0.17.0` adds a check to the editing rubric: preserve the conclusion as well as individual observations.
+When supplied context establishes why a run could not assess a behavior, explain that connection directly.
+Do not replace the run's limitation with a list of facts or uncertainty about separate tests.
+
+In small development checks with fresh Codex CLI sessions configured for `gpt-6-astra` and `gpt-5.6-sol`,
+the selected instructions produced direct explanations for the tool-call, retry, and recovery examples.
+Complete applicable instructions were supplied inline. This does not measure general improvement or recurrence,
+and does not test automatic discovery or establish new runtime support.
+
+Preservation remains imperfect: Sol changed an explicitly requested heading and a locked quotation in one
+case, and rewrote an already clear sentence. These also occurred with the 0.16.0 baseline. A separate attempted
+heading correction lost the old incoming-link anchor and was not adopted. Review exact wording, quotations,
+and links before using the result. The skill remains Beta.
+
 ## Four Modes
 
 | Mode | Use it for | Mutation |
