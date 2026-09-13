@@ -11,6 +11,13 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [0.17.0] — 2026-09-13
+
+- Keep a report's conclusion when rewriting its observations: explain which behavior the reported run could
+  not assess and the supplied reason, without inferring the missing event's cause or separate test history.
+- Record the bounded comparison and remaining model-dependent preservation limitations in both user guides.
+  Beta maturity and existing runtime support labels remain unchanged.
+
 ## [0.16.0] — 2026-09-13
 
 - Treat internal editorial and review language used as reader-facing explanation as a writing defect across
