@@ -44,6 +44,20 @@ directly when compressed nouns or an abstract metaphor make the reader reconstru
 Preserve useful technical terms; explain them when the audience needs an explanation supported by the material.
 Do not invent an actor or condition to complete a smoother sentence.
 
+Write the reader's actual subject, not a narration of the writer's editorial reasoning. Do not carry internal
+review shorthand into reader-facing prose: descriptions of how to classify, separate, elevate, or limit a claim
+can be accurate as working notes yet awkward as the finished explanation. State what happened, what was checked,
+what remains untested or unknown, who acts, or what the reader should do, as appropriate to the passage.
+Apply this while drafting, not only after the user points out an awkward sentence.
+
+For example, a verification note should tell the reader which environment was checked and which checks remain,
+using the author's supplied context. Do not merely exchange an abstract verb for a synonym or append a natural
+explanation after leaving the awkward sentence in place. Recast the complete defective clause or sentence.
+Treat the author's approved replacement as the intended meaning and register; do not reopen facts it explicitly
+settles. When a fact is genuinely absent, preserve that uncertainty in ordinary language without inventing it.
+Keep an actual reviewer instruction when the reader is being instructed to review; this is a reader-purpose
+check, not a ban on technical terms or a requirement to expand already clear prose.
+
 These describe different commitments, not stylistic alternatives:
 
 - `설정을 임의로 바꾸지 않는다.` prohibits discretionary changes.
@@ -65,6 +79,11 @@ do not copy distinctive phrases, invent a persona, or supply experiences the aut
 For a multi-paragraph draft, apply `references/reader-flow.md` to the supported material. Check what each
 paragraph contributes before polishing its wording; do not force a narrative or print a routine question map.
 
+
+Before delivery, reread any sentence that describes a judgment about the subject instead of the subject itself.
+If the reader must translate it into “무엇을 했고, 무엇은 하지 않았다는 뜻인가?” or “그래서 무엇을 해야 하나?”,
+replace it with that direct explanation using the established facts. Do this check even when the sentence is
+grammatically correct and preserves the claim boundary.
 
 Check the draft against the supplied facts, commitments, exact items, and required brief content. Correct or remove
 unsupported claims before returning it. Do not hide a missing required fact by giving the prose a fluent ending.

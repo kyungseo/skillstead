@@ -60,6 +60,31 @@ Do not manufacture ambiguity from an ordinary local antecedent or an optional sp
 or claim boundary and that unresolved choice blocks a safe usable result. Otherwise preserve the wording or make
 the safe local edit without an appended uncertainty report.
 
+#### Internal review language in reader-facing prose
+
+Treat internal editorial reasoning presented as finished explanation as a concrete writing defect. A sentence
+may preserve every evidence boundary and still be unsuitable for readers because it talks about classifying,
+separating, elevating, or restricting claims instead of explaining the subject. This applies to limitations,
+comparisons, recommendations, status descriptions, and procedural explanations, not just verification notes.
+
+Ask what the reader needs to understand: what happened, what was checked, what is still untested or unknown,
+who does what, or which action follows. Rewrite the defective sentence to say that directly. Replacing one
+abstract verb with another, or appending a fluent explanation while retaining the original, does not fix it.
+Do not excuse an awkward collocation merely because the intended meaning can eventually be recovered.
+
+Author-approved example; the replacement supplies the intended context and is the target quality:
+
+- Awkward: “로컬 성공을 Windows·클라우드 배포·운영 서비스의 검증으로 확대하지 않습니다.”
+- Appropriate: “이 실습은 macOS 로컬 환경에서 확인했습니다. Windows 환경에서의 실행, 클라우드 배포,
+  실제 서비스 운영은 별도로 검증하지 않았습니다.”
+
+The improvement is the direct account of the actual checks, not merely shorter wording. Generalize that
+relationship to new sentences; do not memorize the sentence or blacklist words such as “검증” or “확대”.
+Accept facts explicitly settled by the author's correction. With genuinely incomplete context, distinguish
+“this result does not establish X” from “X was not tested” in plain language; do not invent an environment or
+an unperformed check. Preserve a real reviewer instruction when that is the passage's purpose, and retain an
+already clear statement such as “Windows에서는 아직 테스트하지 않았습니다.”
+
 ### Plain-Language Accessibility
 
 - Lead with the conclusion, user value, or purpose before internal machinery.

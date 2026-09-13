@@ -8,6 +8,9 @@ Granular, per-change entries begin at the first public release. Earlier developm
 
 ### Skills
 
+- `writing-quality-editor` `0.16.0` — address internal review language in reader-facing prose during drafting
+  and final review. Clarify direct explanation, author-approved context, and appropriate internal-instruction boundaries.
+
 - `docs-claim-check` `0.10.0` — harden evidence applicability, outcome judgments, designated-path input, and truthful
   boundary reporting; align user guides and synthetic examples. Beta maturity and Claude Code support remain
   unchanged. Preserve initial failures, corrective results, and unresolved output-contract defects in the validation record.

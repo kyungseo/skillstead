@@ -275,6 +275,11 @@ and a visibility promise as **not changed without notice**. See the completed Ko
 `references/review-rubric.md`. If the source does not reveal which meaning applies, mark the phrase `needs-human`
 instead of choosing the most fluent option.
 
+Before delivery, check that a repaired sentence explains the subject directly instead of describing how the
+writer handles its claims. Meaning preservation alone does not make internal review language suitable for
+readers. Apply the context-sensitive examples in `references/review-rubric.md`; in `Assess`, report the defect
+without silently rewriting, and in `Revise` or `Adapt`, repair it within the authorized span.
+
 For a direct short-text `Revise`, return only the revised text by default. Add a concise `Needs Human` note when it
 applies or a brief explanation when the user asks for one. Use the full sectioned report for file edits, longer or
 multi-part documents, structural revision, or requests for traceability.
@@ -289,6 +294,7 @@ reordering or opening an otherwise locked span.
 Watch for patterns, not banned words:
 
 - unexplained internal abstractions or architecture metaphors,
+- internal editorial or review reasoning presented in place of the reader-facing facts, limits, or actions,
 - translated source-language syntax and noun chains,
 - empty framing, canned transitions, and repeated summaries,
 - mechanical symmetry, forced three-part lists, and uniform sentence length,

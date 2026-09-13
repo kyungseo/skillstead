@@ -44,6 +44,15 @@ document-level reviews, and justified structural revisions. It checks missing li
 facts, conditions, author voice, sound templates, and the local-edit boundary. A short polish request does not load
 this extra reference. Early comparisons are development evidence, not a general quality or runtime-support claim.
 
+## Direct Explanations In 0.16.0
+
+`0.16.0` instructs WQE to recognize internal editorial or review language that makes readers work out the
+actual point. During drafting and final review, it calls for direct explanations of what happened, what was
+checked, what remains unknown, or what to do. A grammatically correct sentence can still need this repair.
+It keeps appropriate reviewer instructions and already clear prose, and uses the author's approved correction
+as context. This release changes instructions; no new behavioral comparison or recurrence-rate measurement
+was performed. Beta maturity and supported runtimes remain unchanged.
+
 ## Four Modes
 
 | Mode | Use it for | Mutation |
