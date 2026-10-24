@@ -4,6 +4,16 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## Unreleased
+
+### Skills
+
+- `docs-claim-check` `0.11.0` — prepare the instruction-loading contract and Stable maturity within the existing
+  Claude Code scope. Load only the catalog-designated SKILL.md before assessment, disclose the outcome, and
+  retain the prohibition on assessment commands and edits. Two bounded Claude cases passed; Codex validation
+  remains on hold. Preserve earlier failures and output limits; no runtime support is added. This minor
+  preparation supersedes the unpublished 0.10.1 documentation-only draft.
+
 ## 2026-10-24
 
 ### Skills

@@ -15,6 +15,8 @@ manifest 이름에는 의도적으로 `-fixture` 접미사를 붙였습니다. �
 | `fixtures/applicability-*.md`, `fixtures/applicability-evidence.txt` | 결과 관찰·버전/환경·충돌·게시 시점·문서 내 지시문을 다루는 자료. 정답표는 별도 보관 |
 | `fixtures/expected-outcomes.md` | 정답표 — 평가 대상 에이전트에게는 제공하지 않음 |
 | [`validation-evidence.md`](./validation-evidence.md) | 0.10.0 개발 후보의 관찰 결과·교정·남은 한계를 기록한 날짜별 검증 자료 |
+| [`validation-20261024.ko.md`](./validation-20261024.ko.md) | 현재 설치본 호출·한정 행동 관찰, 최초 설정 실패와 남은 한계 |
+| [`validation-loading-20261024.ko.md`](./validation-loading-20261024.ko.md) | 0.11.0 준비에서 수락한 native 로딩·복합 요청 확인; Codex 검증 보류 |
 | `example-output.md` | 계약을 준수하는 완결 출력 예시 |
 
 검증 자료는 판정 상태 4종(`verified`, `unsupported`, `stale-suspected`, `needs-human`),

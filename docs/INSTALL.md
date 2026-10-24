@@ -72,6 +72,11 @@ source-check and Node-free Chromium visual-QA fallback.
 - Supported runtime: Claude Code
 - Package guide: [`skills/docs-claim-check/README.md`](../skills/docs-claim-check/README.md)
 
+Version 0.11.0 is prepared with the instruction-loading change and Stable maturity for the existing Claude
+Code scope; it is not published yet. The command below still installs the published 0.10.0 package.
+Codex validation remains on hold, and runtime support is unchanged.
+
+
 Paste this into Claude Code:
 
 ```text
@@ -261,7 +266,7 @@ Runtime support is verified per skill:
 | Skill | Claude Code | Codex | Other | Evidence boundary |
 | --- | --- | --- | --- | --- |
 | `svg-infographic` | Supported | Supported | — | Frozen fresh-context briefs passed on Claude Code and macOS Codex CLI; a fresh Codex App task also passed in a Windows 11 ARM64 VM. Linux rendering and every Windows machine/filesystem are not claimed |
-| `docs-claim-check` | Supported | Not yet claimed | — | Behavioral fixtures passed with Claude Code Fable and Sonnet |
+| `docs-claim-check` | Supported | Not yet claimed | — | Historical Fable/Sonnet fixtures; [2026-10-24 bounded Opus 5.5/Sonnet 5.5 observations and limits](../examples/docs-claim-check/validation-20261024.md) |
 | `github-release-guide` | Supported | Supported | — | Material parity, disposable first-public and Guided tag-ruleset E2E, pinned installation/discovery, and release claim audits passed |
 | `writing-quality-editor` | Supported | Supported | — | Four-mode cross-runtime behavior, repository dogfood, pinned installation, package equality, discovery, and claim closeout passed |
 | `street-portrait-artist` | Not applicable | Supported | ChatGPT: Supported | Fresh published `0.1.0` package installation, discovery, invocation, synthetic reference-image generation, fail-visible size fallback, and output delivery established runtime support; `0.2.0` is the current install release |
