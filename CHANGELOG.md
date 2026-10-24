@@ -4,6 +4,15 @@ Notable changes to this repository. Format based on [Keep a Changelog](https://k
 
 Granular, per-change entries begin at the first public release. Earlier development history is in the git log.
 
+## 2026-10-24
+
+### Skills
+
+- `writing-quality-editor` `0.18.0` — preserve conditions, scope, and certainty when combining Korean
+  draft material; keep provisional App UI wording within established action and consequence boundaries.
+  Promote maturity to Stable after bounded validation and owner acceptance. Existing runtime support,
+  language scope, and documented limitations remain unchanged.
+
 ## 2026-09-13
 
 ### Skills

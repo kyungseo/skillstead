@@ -9,6 +9,31 @@ Use `writing-quality-editor` for README files, onboarding, release notes, manual
 gallery copy. It can write a new document directly from a reliable brief, review existing prose, revise it in the
 same language, or adapt it naturally between English and Korean.
 
+## Stable In 0.18.0
+
+WQE is Stable within its documented English↔Korean scope, following explicit owner acceptance of the fixed
+candidate. Claude Code and Codex support labels are unchanged. Stable does not guarantee flawless output.
+
+This release strengthens two instructions: keep each fact's conditions, scope, and certainty when combining
+Korean draft material, and check the action, object, affected people, timing, and consequence of App UI wording
+separately. Unresolved effects remain provisional; conditional alternatives must not invent access, recurrence,
+or an effect on every user.
+
+Bounded checks on Codex CLI and Claude Code covered eight regression outputs and forty final outputs: thirty-two
+Compose/Revise comparison outputs, four same-conversation follow-ups, and four adaptations across both language
+directions. No major meaning or authority violation was found in those checks. Applicable package reads were
+verified. Earlier Assess and unaffected Adapt evidence was reused rather than described as a new full rerun.
+
+Minor wording and editing-note issues remain: some explanations were less precise, some notes were too long,
+and one note used an unsupported irreversibility framing. The comparison inputs were known before the candidate
+was frozen; they were not independently hidden holdouts. Four selected drafts, including two ordinary-instruction
+alternatives, were accepted for use after preparation without further owner-requested edits. This is not evidence
+of repeated field use, universal WQE preference, general superiority, or measured time savings. Owner review time
+was not measured. Automatic discovery in other settings and support for other runtimes or locales remain unverified.
+Review important wording, quotations, and links before use.
+
+The version-specific observations below describe earlier releases and retain their original limitations.
+
 ## Start Here
 
 Name the skill and describe the result you want. Include the source text or reliable facts, the intended reader,
@@ -35,7 +60,7 @@ The new path has been checked through explicit local package loading. Automatic 
 and behavior on other runtimes have not been verified for this change.
 
 Existing Korean prose uses the established revision contract. This drafting change does not establish better
-same-language editing or general superiority over ordinary writing instructions. The skill remains Beta.
+same-language editing or general superiority over ordinary writing instructions. Maturity remained Beta in 0.14.0.
 
 ## Reader-Flow Check In 0.15.0
 
@@ -51,7 +76,7 @@ actual point. During drafting and final review, it calls for direct explanations
 checked, what remains unknown, or what to do. A grammatically correct sentence can still need this repair.
 It keeps appropriate reviewer instructions and already clear prose, and uses the author's approved correction
 as context. This release changes instructions; no new behavioral comparison or recurrence-rate measurement
-was performed. Beta maturity and supported runtimes remain unchanged.
+was performed for 0.16.0. That release retained Beta maturity and existing runtime support.
 
 ## Run Conclusions In 0.17.0
 
@@ -67,7 +92,7 @@ and does not test automatic discovery or establish new runtime support.
 Preservation remains imperfect: Sol changed an explicitly requested heading and a locked quotation in one
 case, and rewrote an already clear sentence. These also occurred with the 0.16.0 baseline. A separate attempted
 heading correction lost the old incoming-link anchor and was not adopted. Review exact wording, quotations,
-and links before using the result. The skill remains Beta.
+and links before using the result. Maturity remained Beta in 0.17.0.
 
 ## Four Modes
 
@@ -165,7 +190,7 @@ add fake personal experience, or inject random and unusual wording.
 - Designed as a locale-neutral writing workflow
 - Initial localization profile under release validation: English↔Korean (`ko-KR` for Korean output)
 - Synthetic fixture coverage: README, onboarding, release note, manual, app UI, error message, and gallery copy
-- Maturity: Beta; the initial release remains deliberately bounded while broader document and locale evidence grows
+- Maturity: Stable as of 0.18.0, within the documented scope and limitations above
 
 These are evidence-bounded claims. Other languages and profiles may still benefit, but they are not marked as
 validated.
