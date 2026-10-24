@@ -28,7 +28,7 @@ GitHub 릴리스 준비, 자연스럽고 정확한 글쓰기, 인물 사진을 �
 | [`svg-infographic`](./skills/svg-infographic/README.ko.md) | 아키텍처 설명, 작업 흐름, 비교 자료를 수정 가능한 SVG와 검증된 2× PNG로 제작 | `0.12.0` | Supported: Claude Code + Codex | Stable |
 | [`docs-claim-check`](./skills/docs-claim-check/README.ko.md) | 공개 문서의 주장이 제공된 근거로 뒷받침되는지 확인 | `0.10.0` | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide/README.ko.md) | 비공개 GitHub 저장소의 첫 공개 전환 또는 공개 후 매 버전 릴리스를 점검하고 단계별로 안내 | `0.9.1` | Supported: Claude Code + Codex | Stable |
-| [`writing-quality-editor`](./skills/writing-quality-editor/README.ko.md) | 사용자 문서를 처음부터 작성하거나 자연스럽게 다듬고, 사실·의도·목소리·운영 제약을 보존하면서 영어↔한국어 내용을 재구성 | `0.17.0` | Supported: Claude Code + Codex | Beta |
+| [`writing-quality-editor`](./skills/writing-quality-editor/README.ko.md) | 사용자 문서를 처음부터 작성하거나 자연스럽게 다듬고, 사실·의도·목소리·운영 제약을 보존하면서 영어↔한국어 내용을 재구성 | `0.18.0` | Supported: Claude Code + Codex | Stable |
 | [`street-portrait-artist`](./skills/street-portrait-artist/README.ko.md) | 인물 사진으로 캐리커처, 펜·수채화 초상화 또는 손그림 종이 오림 제작 | `0.2.0` | Supported: ChatGPT + Codex | Experimental |
 
 각 스킬은 필요한 파일을 모두 갖춘 독립 패키지입니다. 전체 목록을 설치할 필요 없이, 사용할 스킬의
@@ -209,11 +209,11 @@ Codex를 `Supported`로 표시합니다.
 E2E, `v0.5.0` 고정 버전의 프로젝트 설치와 발견 확인과 최종 공개 문구 검증을 모두 통과했습니다.
 기록된 검증 범위에서 두 실행 환경을 모두 `Supported`로 표시합니다.
 
-`writing-quality-editor`는 네 가지 mode의 동작 검증, 저장소 문서에 대한 실제 적용, 공개된 `v0.7.0`
-고정 버전의 새 프로젝트 설치와 스킬 발견 확인을 통과했습니다. 기록된 검증 범위에서 Claude Code와
-Codex를 `Supported`로 표시하며, 성숙도는 Beta로 유지합니다. `0.14.0`의 새 한국어 작성 경로는
-로컬 패키지를 명시해 읽히는 방식으로만 확인했습니다. 이 변경의 설치 후 자동 발견과 다른 실행 환경의
-동작은 미확인입니다. 자세한 결과와 실패 사례는 [WQE 안내](./skills/writing-quality-editor/README.ko.md)에 있습니다.
+`writing-quality-editor`는 제한된 검증과 Owner의 명시적 수락을 거쳐 `0.18.0`부터 Stable로 표시합니다.
+Claude Code와 Codex의 기존 `Supported` 표시는 기록된 검증 범위 안에서 유지합니다. 두 CLI에서 고정
+후보의 회귀 출력8개와 최종 출력40개를 확인했으며, 실제 패키지 읽기와 같은 대화의 후속 수정도 포함합니다.
+모든 상황의 자동 발견, 완벽한 의미 보존, 일반적인 품질 우위나 새 실행 환경 지원을 입증한 것은 아닙니다.
+과거 실패와 남은 표현 한계는 [WQE 안내](./skills/writing-quality-editor/README.ko.md)에 보존합니다.
 
 `street-portrait-artist`는 공개 가능한 합성 원본으로 만든 `Twin Portrait` 두 사례를 통해 의도한 visual
 direction과 privacy boundary를 기록했습니다. 이후 공개된 `0.1.0` package를 새로 설치한 ChatGPT와 Codex에서 합성 인물 사진을

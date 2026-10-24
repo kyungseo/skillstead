@@ -26,7 +26,7 @@ maintainer references.
 | [`svg-infographic`](./skills/svg-infographic) | Turning architecture notes, process flows, comparisons, and technical concepts into editable SVG + verified 2× PNG | `0.12.0` | Supported: Claude Code + Codex | Stable |
 | [`docs-claim-check`](./skills/docs-claim-check) | Checking whether public documentation claims are supported by supplied evidence | `0.10.0` | Claude Code | Beta |
 | [`github-release-guide`](./skills/github-release-guide) | Guiding a private repository's first public transition and every later version release, with separate approval before each change | `0.9.1` | Supported: Claude Code + Codex | Stable |
-| [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | `0.17.0` | Supported: Claude Code + Codex | Beta |
+| [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | `0.18.0` | Supported: Claude Code + Codex | Stable |
 | [`street-portrait-artist`](./skills/street-portrait-artist) | Creating a caricature, pen-and-watercolor portrait, or drawn paper-cut figure from supplied photos | `0.2.0` | Supported: ChatGPT + Codex | Experimental |
 
 Each skill is self-contained and can be installed independently. You do not need to install the entire
@@ -208,11 +208,12 @@ Codex evidence includes macOS Codex CLI and a fresh Codex App task in a Windows 
 live E2E, pinned `v0.5.0` project installation and discovery smoke, and the final strict claim audit. It is
 `Supported` for Claude Code and Codex within that recorded evidence scope.
 
-`writing-quality-editor` has passed its four-mode behavior set, repository dogfood, and fresh installation and
-skill discovery from the published `v0.7.0` tag. It is `Supported` for Claude Code and Codex within that recorded
-evidence scope; maturity remains Beta. The new Korean drafting path in `0.14.0` has only been checked through
-explicit local package loading. Post-install automatic discovery and other runtimes remain unverified for this
-change. See the [WQE guide](./skills/writing-quality-editor/README.md) for results and known failures.
+`writing-quality-editor` is Stable as of `0.18.0`, following bounded validation and explicit owner acceptance.
+Its existing `Supported` labels for Claude Code and Codex remain within the recorded evidence scope. The fixed
+candidate was checked through eight regression outputs and forty final outputs on the two CLIs, including
+actual package reads and same-conversation follow-ups. These checks do not establish universal discovery,
+perfect preservation, general superiority, or new runtime support. Historical failures and remaining wording
+limitations are retained in the [WQE guide](./skills/writing-quality-editor/README.md).
 
 `street-portrait-artist` has two public-safe synthetic Twin Portrait cases that document its intended visual direction
 and privacy boundary. Fresh installations of the published `0.1.0` package were then discovered and invoked in ChatGPT and

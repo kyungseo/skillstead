@@ -168,6 +168,14 @@ escalation. Preserve technical precision; a maintainer runbook may remain techni
 Prioritize the user's current state and next action. Keep labels concise and consistent with platform conventions.
 Do not trade clarity for personality or silently change the strength of a consent, warning, or destructive action.
 
+Before writing a label or warning, establish the action, affected objects and people, timing, and consequence
+that the supplied material actually supports. When a material part is unresolved, keep that copy provisional
+and ask for the missing behavior; continue any wording changes that do not depend on it. Do not invent possible
+outcomes to fill the label or warning. If the user supplies alternative behaviors, offer wording only for the
+distinctions those alternatives establish. A condition that settles the action does not also settle its reach,
+recipients, access effects, or repetition. Keep those unresolved parts open in each alternative; marking an
+option hypothetical or adding a clarification note does not make an unsupported consequence safe to include.
+
 ### Error Message
 
 Preserve the stable error code and safe diagnostic identity. Explain what happened and what the user can do next.

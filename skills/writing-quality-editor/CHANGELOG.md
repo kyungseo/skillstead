@@ -11,6 +11,18 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [0.18.0] — 2026-10-24
+
+- Keep differently qualified facts distinct when combining Korean draft material into a shared sentence or list.
+  Use separate clauses when needed; do not turn uncertainty or conditional absence into categorical absence.
+- Do not treat a supplied list of examples or methods as exhaustive without supporting evidence.
+- Keep App UI labels, warnings, and conditional variants within established behavior and consequence boundaries;
+  leave unresolved effects provisional instead of filling them with plausible outcomes.
+- Promote maturity to Stable after bounded validation and explicit owner acceptance of the fixed candidate.
+  Reuse eight regression checks and forty final outputs; retain minor wording and editing-note limitations.
+  Existing Claude Code/Codex support and English↔Korean scope are unchanged; this is not a general quality,
+  success-rate, or time-saving claim.
+
 ## [0.17.0] — 2026-09-13
 
 - Keep a report's conclusion when rewriting its observations: explain which behavior the reported run could

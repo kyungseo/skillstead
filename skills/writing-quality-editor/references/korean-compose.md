@@ -36,6 +36,14 @@ or operational steps. A named artifact alone does not establish how a user must 
 when the task needs research, following the host's research and citation requirements. Cover the required content,
 without forcing a template or producing an intentionally rough draft for another pass.
 
+When combining facts into an overview sentence or list, use a shared predicate only if each item's conditions,
+scope, and certainty remain clear. If the items have different qualifications, keep those qualifications with
+their items or use separate clauses. Do not collapse an unknown outcome, an absence under stated conditions,
+and an established absence into the same categorical negative. Concision may change the arrangement, not these
+relationships; natural equivalent wording is sufficient.
+A supplied list of examples or methods is not necessarily exhaustive. Describe the items covered by the material
+instead of claiming they are all available options unless the source establishes completeness.
+
 
 ## Korean Expression
 

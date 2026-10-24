@@ -1,0 +1,44 @@
+> **Latest** refers to the most recently published individual skill release, not a catalog version.
+
+## writing-quality-editor 0.18.0 — Stable Within Its Documented Scope
+
+WQE is now Stable following bounded validation and explicit owner acceptance. The release strengthens how
+Korean drafts preserve differently qualified facts and how App UI wording handles unresolved effects.
+Conditions, scope, and certainty must survive aggregation; labels, warnings, and conditional alternatives must
+stay within established actions and consequences.
+
+The fixed candidate was checked on Codex CLI and Claude Code through eight regression outputs and forty final
+outputs, including Compose/Revise comparisons, same-conversation follow-ups, and adaptations in both language
+directions. No major meaning or authority violation was found in those checks. Applicable package reads were
+verified; unaffected historical evidence was reused. Minor wording and editing-note issues remain.
+
+Four selected drafts, including two ordinary-instruction alternatives, were accepted for use after preparation
+without further owner-requested edits. Known inputs and model judgments do not establish general superiority,
+recurrence rates, repeated field use, or time savings. Stable does not promise perfect preservation. Existing
+Claude Code/Codex support and English↔Korean scope remain unchanged; no additional runtime or locale is validated.
+Review important wording, quotations, and links. Replace the complete `skills/writing-quality-editor/` folder to update.
+
+### 한국어
+
+제한된 검증과 Owner의 명시적 수락을 거쳐 WQE를 Stable로 표시합니다. 이번 버전은 조건이 서로 다른
+사실을 한국어 글에서 합칠 때 조건·범위·확실성을 보존하고, 앱 UI의 미정 결과를 임의로 채우지 않도록
+보강합니다. 레이블·경고·조건부 대안도 확인된 동작과 결과의 범위 안에서 작성해야 합니다.
+
+Codex CLI와 Claude Code에서 고정 후보의 회귀 출력8개와 최종 출력40개를 확인했습니다. Compose/Revise
+비교, 같은 대화의 후속 수정과 양방향 언어 전환을 포함합니다. 이 범위에서 중요한 의미·권한 위반은
+발견하지 못했고 해당 패키지 읽기도 확인했습니다. 영향 없는 과거 근거는 재사용했으며, 경미한 표현과
+편집 메모의 한계는 남아 있습니다.
+
+일반 지시로 작성한 대안2개를 포함해 선택·정리한 문안4개는 Owner의 추가 수정 요청 없이 사용 적합성을
+수락받았습니다. 이미 알려진 입력과 모델 판정으로 일반적인 품질 우위·재발률·현장 반복 사용·시간 절감을
+주장하지 않습니다. Stable은 완벽한 의미 보존을 보장하지 않습니다. 기존 Claude Code·Codex 지원과
+영어↔한국어 범위는 그대로이며, 다른 실행 환경이나 언어를 새로 검증하지 않았습니다. 중요한 문구·인용·
+링크는 확인해야 합니다. 업데이트하려면 `skills/writing-quality-editor/` 폴더 전체를 교체하세요.
+
+- [Package / 패키지](https://github.com/kyungseo/skillstead/tree/writing-quality-editor/v0.18.0/skills/writing-quality-editor)
+- [Install / 설치 안내](https://github.com/kyungseo/skillstead/blob/writing-quality-editor/v0.18.0/docs/INSTALL.md)
+- [Changelog / 변경 기록](https://github.com/kyungseo/skillstead/blob/writing-quality-editor/v0.18.0/skills/writing-quality-editor/CHANGELOG.md)
+- [Changes / 변경 비교](https://github.com/kyungseo/skillstead/compare/writing-quality-editor/v0.17.0...writing-quality-editor/v0.18.0)
+
+GitHub source archives contain the whole repository snapshot; install the selected skill folder.
+GitHub 소스 압축 파일에는 저장소 전체가 들어 있습니다. 설치 대상은 선택한 스킬 폴더입니다.
