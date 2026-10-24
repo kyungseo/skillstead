@@ -11,6 +11,33 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [0.11.0] — 2026-10-24
+
+Release preparation; not yet published. The date is provisional until publication.
+
+- Separate instruction loading from claim assessment. Use a full body already supplied, or the host's loader
+  at the exact catalog path. A command-backed loader permits one safely quoted literal cat of SKILL.md only;
+  document/evidence commands, edits, discovery, retries and escalation remain prohibited.
+- Disclose loading separately, stop on failed or known-incomplete loads, and report prohibited attempts as invalid.
+- Carry the accepted Stable maturity within the existing Claude Code scope. Two bounded Claude Opus 5.5 cases
+  passed for native loading, missing targets, mixed-request assessment/refusal and disclosure. Reuse earlier
+  claim-assessment evidence where the contract is unchanged. Codex validation remains on hold; no Codex or
+  Windows support is added. Unobserved loading/failure paths and earlier output limitations remain documented.
+- This minor release includes the documentation work from the unpublished 0.10.1 preparation below.
+  The four labels, evidence scope and findings-only role remain unchanged. Update the complete skill folder.
+
+## [0.10.1] — 2026-10-24
+
+Earlier documentation-release preparation; not published and now on hold. The entries below describe that
+earlier contract, before the Unreleased instruction-loading change.
+
+- Promote maturity to Stable for the existing Claude Code support scope after owner acceptance of bounded
+  validation and its known limitations. Stable does not imply additional runtime or platform support.
+- Document installed-invocation observations, the invalid initial setup attempt, evidence metadata/request
+  defects, atomicity/bookkeeping variation, and the unobserved post-load failure-reporting branch.
+- Keep the assessment instructions, labels, evidence boundaries, and findings-only role unchanged. This patch
+  updates package documentation; no migration is required from 0.10.0.
+
 ## [0.10.0] — 2026-09-13
 
 - Match evidence to the claimed artifact, version, environment, time, and observed outcome; preserve

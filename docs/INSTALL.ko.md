@@ -72,6 +72,11 @@ Claude Code나 Codex에 다음 한 줄을 붙여 넣으세요.
 - 지원 실행 환경: Claude Code
 - 패키지 안내: [`skills/docs-claim-check/README.ko.md`](../skills/docs-claim-check/README.ko.md)
 
+지침 로딩 변경과 기존 Claude Code 범위의 Stable 성숙도를 담은 0.11.0을 준비했으며 아직 발행하지
+않았습니다. 아래 명령은 현재 발행된 0.10.0 패키지를 설치합니다. Codex 검증은 보류 중이며
+지원 실행 환경은 그대로입니다.
+
+
 Claude Code에 다음 한 줄을 붙여 넣으세요.
 
 ```text
@@ -260,7 +265,7 @@ Copy-Item -Recurse -Force "$env:TEMP\skillstead\skills\github-release-guide" ".a
 | 스킬 | Claude Code | Codex | 기타 | 근거 범위 |
 | --- | --- | --- | --- | --- |
 | `svg-infographic` | Supported | Supported | — | 고정 fresh-context 요구 사항을 Claude Code와 macOS Codex CLI에서 통과했고 Windows 11 ARM64 VM의 새 Codex App 작업도 통과했습니다. Linux 렌더링과 모든 Windows 장치·파일 시스템을 지원한다는 의미는 아닙니다 |
-| `docs-claim-check` | Supported | Not yet claimed | — | Claude Code Fable과 Sonnet에서 동작 검증 자료를 통과했습니다 |
+| `docs-claim-check` | Supported | Not yet claimed | — | 과거 Fable/Sonnet 검증과 [2026-10-24 Opus 5.5·Sonnet 5.5의 한정 관찰·한계](../examples/docs-claim-check/validation-20261024.ko.md) |
 | `github-release-guide` | Supported | Supported | — | 핵심 행동 일치, 일회용 first-public과 Guided tag-ruleset 실제 E2E, 고정 설치·발견, 릴리스 주장 검토를 통과했습니다 |
 | `writing-quality-editor` | Supported | Supported | — | 4개 mode의 실행 환경 간 동작, 저장소 문서 적용, 고정 설치, 패키지 일치, 발견과 주장 종결을 확인했습니다 |
 | `street-portrait-artist` | Not applicable | Supported | ChatGPT: Supported | 공개된 `0.1.0` package의 새 설치·발견·호출·합성 reference-image 생성·fail-visible 크기 fallback·결과 전달로 실행 환경 지원을 확인했으며, 현재 설치 릴리스는 `0.2.0`입니다 |

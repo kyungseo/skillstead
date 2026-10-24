@@ -1,20 +1,23 @@
 ---
 name: docs-claim-check
 description: >
-  Check whether the claims in public-facing documentation (README, release notes,
-  install/usage docs) are supported by the evidence the user provides — files,
-  manifests, logs, and command outputs supplied in the conversation. Produces
-  per-claim findings with a confidence label (verified / unsupported /
-  stale-suspected / needs-human) and an explicit "input scope reviewed" statement.
-  Advisory only. Use when the user asks to fact-check docs, verify a README against
-  a repo, audit release notes, or find stale or overstated documentation claims.
-  Do NOT use for standalone code review or bug hunting, security audits, fix/patch
-  generation, or pure command-execution tasks. When such requests are mixed with an
-  eligible claim-check, still use this skill for the claim-check portion and decline
-  only the out-of-scope part — by contract it does not execute commands or edit files.
+  Fact-check public docs, verify a README against a repo, audit release notes,
+  or find stale/overstated claims using supplied evidence. Advisory findings
+  only. Not for standalone code/security review, fixes or command execution; use
+  it only for eligible claims in mixed requests. When using this skill, never
+  edit files and run no commands except to load its SKILL.md at the exact
+  host-catalog path. Use an already supplied full body without rereading. Follow
+  the native loader or, for command-backed loading, one safely quoted literal
+  cat of that path; no other file, shell expansion, chaining, redirection or
+  pipeline. Resolve aliases only from host-provided mappings, without commands.
+  If the path is unresolved or loading fails, is denied or finishes incomplete,
+  stop and request full instructions; do not probe, retry, use shell paging or
+  elevate. The command exception never covers target/evidence reads. Disclose
+  loading and its outcome, including failure; a prohibited attempt invalidates
+  the assessment.
 license: LICENSE.txt
 metadata:
-  version: 0.10.0
+  version: 0.11.0
 ---
 
 # docs-claim-check
@@ -27,6 +30,48 @@ This skill renders a judgment backed by evidence. It is not a checklist, not a l
 and not a substitute for code review.
 
 ## Before any tool use
+
+### Load this skill's instructions
+
+Use the full SKILL.md already in context without reading it again. Otherwise load
+only this skill's SKILL.md at the path supplied by the host skill catalog, following
+the host's native skill/read or command-backed loading mechanism. Prefer native
+loading when the host offers a choice; another read tool's presence does not override
+the host's designated loader. This exception never applies to target or evidence reads.
+
+Resolve an alias or relative path only from mappings or working-directory context
+the host has already supplied. Do not guess or query missing values. For command-backed
+loading, permit at most one attempt: a single `cat -- '<literal SKILL.md path>'`
+command body (`--` is optional when the path cannot be parsed as an option), safely
+quoted without shell expansion. No wildcard, extra file, substitution, pipeline,
+redirection, chaining, setup, or other command is allowed. These limits govern the
+agent-supplied command body; they do not authorize adding a shell wrapper or changing
+host startup behavior. Host permissions still apply; do not elevate or change settings.
+
+A native loader may deliver the same file in chunks through its documented
+continuation mechanism; finish that loading operation before assessment. This does
+not authorize shell paging, discovery, or retrying a failed load. If the selected
+path cannot be resolved, loading is denied or fails, or its completed result is known
+to be partial/truncated, stop and request the full instructions or a compatible host.
+Do not proceed on a known incomplete body, repair the load with extra reads/commands,
+or switch loaders after failure. Use the supplied content and host completion/truncation
+signals; do not run a completeness probe. A permitted attempt that fails or is denied
+is a loading failure, not itself a boundary violation. A prohibited preparation
+attempt is a boundary violation even before assessment: stop and use the invalid
+assessment report below, whether or not the attempt executed.
+
+Preparation reads instructions only, never target documents, evidence, package
+README/CHANGELOG, scripts, or metadata; loading cannot verify a claim. Once the full
+body is available, preparation closes and assessment starts with the target check,
+including a missing-input request. Within this invocation, another target or follow-up
+does not reopen preparation or reset a failed/prohibited attempt. Host-controlled
+reinjection on resume is not an agent read and grants no new tool use or erasure of
+prior failures. Disclose loading separately from assessment commands, including in
+short missing-input and failure replies. Identify the selected skill/path and outcome;
+when sharing, user-specific path prefixes may be abbreviated without obscuring identity
+or whether an operation was attempted or executed.
+
+### Check the target
 
 First confirm that the user supplied the target documentation/claim text or explicitly
 identified its file path for reading. A designated file path is sufficient: read that
@@ -50,9 +95,10 @@ is a self-report, not proof of compliance. Validation must also inspect tool tra
 1. **Public-facing documentation claims only.** README files, release notes, install
    and usage docs, landing-page copy. Decline internal design docs and requests to
    judge code quality — point to a code-review tool instead.
-2. **Never execute commands.** If a claim needs a command output that was not
-   provided, do not run it — emit an **evidence request** naming the exact command
-   or file that would settle the claim.
+2. **Never execute commands during assessment.** Only the instruction-loading
+   exception above permits a command in this invocation. If a claim needs a command
+   output that was not provided, do not run it — emit an **evidence request** naming
+   the exact command or file that would settle the claim.
 3. **Never generate fixes.** No patches, no replacement wording, no rewritten docs.
    Findings and caveats only. If asked for a fix, decline and restate this boundary.
 4. **Privacy.** Use only the designated conversation inputs; do not upload them to
@@ -83,8 +129,9 @@ explicitly designated metadata; otherwise omit it or mark it unknown.
 
 **Do not invoke shell/Bash during the assessment at all** — including no-op,
 progress, bookkeeping, `echo`, `pwd`, `ls`, or metadata commands. Use only host
-read/list operations on explicitly designated paths. Setup completed before the
-skill runs (e.g. installing this skill) is not part of the assessment.
+read/list operations on explicitly designated paths. Instruction loading is limited
+to the preparation rule above. Installing the skill outside this invocation does not
+authorize any assessment action or, by itself, make installation output claim evidence.
 
 ## Preflight
 
@@ -229,6 +276,7 @@ violation uses the failure report specified below, never this success template:
 - Evidence reviewed: <each file/log/command output + version/timestamp>
 - Requested but missing: <evidence asked for and not provided, or "none">
 - Excluded: <sections or claim types excluded, or "none">
+- Skill instruction loading: <full body already supplied, or operation + selected skill/path + attempted/executed outcome>
 - Commands executed during the assessment: none
 - Coverage: <N> claims extracted / <N> assessed / <N> excluded
 
@@ -248,8 +296,11 @@ violation uses the failure report specified below, never this success template:
 Rules:
 
 - `Commands executed during the assessment: none` is mandatory for a compliant
-  assessment. Setup completed before the skill runs is outside the assessment;
-  during it no shell command may be invoked for any purpose.
+  assessment. Permitted instruction loading occurs before assessment and is disclosed
+  in `Skill instruction loading`; the assessment field does not assert that the whole
+  invocation used no commands. Include the loading disclosure in short missing-input
+  and failure replies too. During assessment, no shell command may be invoked for any
+  purpose.
 - A prohibited tool-call attempt is a boundary violation even if permission is
   denied and no command executes. If a violation occurred, stop the affected
   assessment and report the attempted action, whether it executed, affected
