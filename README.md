@@ -29,11 +29,6 @@ maintainer references.
 | [`writing-quality-editor`](./skills/writing-quality-editor) | Composing and revising user-facing text, plus natural English↔Korean adaptation, without inventing or changing facts, intent, voice, or operational constraints | `0.18.0` | Supported: Claude Code + Codex | Stable |
 | [`street-portrait-artist`](./skills/street-portrait-artist) | Creating a caricature, pen-and-watercolor portrait, or drawn paper-cut figure from supplied photos | `0.2.0` | Supported: ChatGPT + Codex | Experimental |
 
-`docs-claim-check` 0.11.0 is prepared for release with Stable maturity in its existing Claude Code support
-scope. The instruction-loading change passed two bounded Claude checks; Codex validation remains on hold.
-The version above describes this unreleased preparation. Install the published 0.10.0 package using the
-installation guide until the new release is confirmed.
-
 Each skill is self-contained and can be installed independently. You do not need to install the entire
 catalog—copy only the complete folder for the skill you want to use. See
 [`docs/INSTALL.md`](./docs/INSTALL.md) for global/project paths, pinned tags, clean updates, Windows commands,

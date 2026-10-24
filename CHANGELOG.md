@@ -14,7 +14,8 @@ Granular, per-change entries begin at the first public release. Earlier developm
   Claude Code scope. Load only the catalog-designated SKILL.md before assessment, disclose the outcome, and
   retain the prohibition on assessment commands and edits. Two bounded Claude cases passed; Codex validation
   remains on hold. Preserve earlier failures and output limits; no runtime support is added. This minor
-  release supersedes the unpublished 0.10.1 documentation-only draft.
+  release supersedes the unpublished 0.10.1 documentation-only draft. Published installation
+  pins now point to 0.11.0.
 
 - `writing-quality-editor` `0.18.0` — preserve conditions, scope, and certainty when combining Korean
   draft material; keep provisional App UI wording within established action and consequence boundaries.
