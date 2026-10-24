@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "skill": "docs-claim-check",
+  "version": "0.11.0",
+  "target_commit": "2959746ebdf8e0cf7a0b456aa2cfcd994ce65782",
+  "authorization_id": "owner-20261024-777b2454130a725a",
+  "approved_at": "2026-10-24",
+  "reason": "The authorized release target includes finalized publication-date wording after version introduction; accepted instructions and runtime scope remain unchanged."
+}
