@@ -31,7 +31,7 @@ Skillstead의 각 스킬은 폴더 하나로 설치하는 독립 패키지입니
 | 스킬 | 현재 고정 태그 | 지원 실행 환경 |
 | --- | --- | --- |
 | `svg-infographic` | `svg-infographic/v0.12.0` | Claude Code와 Codex |
-| `docs-claim-check` | `docs-claim-check/v0.10.0` | Claude Code |
+| `docs-claim-check` | `docs-claim-check/v0.11.0` | Claude Code |
 | `github-release-guide` | `github-release-guide/v0.9.1` | Claude Code와 Codex |
 | `writing-quality-editor` | `writing-quality-editor/v0.18.0` | Claude Code와 Codex |
 | `street-portrait-artist` | `street-portrait-artist/v0.2.0` | ChatGPT와 Codex |
@@ -68,19 +68,15 @@ Claude Code나 Codex에 다음 한 줄을 붙여 넣으세요.
 
 ## `docs-claim-check`
 
-- 현재 릴리스: `docs-claim-check/v0.10.0`
+- 현재 릴리스: `docs-claim-check/v0.11.0`
 - 지원 실행 환경: Claude Code
 - 패키지 안내: [`skills/docs-claim-check/README.ko.md`](../skills/docs-claim-check/README.ko.md)
-
-지침 로딩 변경과 기존 Claude Code 범위의 Stable 성숙도를 담은 0.11.0을 준비했으며 아직 발행하지
-않았습니다. 아래 명령은 현재 발행된 0.10.0 패키지를 설치합니다. Codex 검증은 보류 중이며
-지원 실행 환경은 그대로입니다.
 
 
 Claude Code에 다음 한 줄을 붙여 넣으세요.
 
 ```text
-다음 고정 GitHub 폴더의 Skillstead 스킬을 전역으로 설치해 줘: https://github.com/kyungseo/skillstead/tree/docs-claim-check/v0.10.0/skills/docs-claim-check
+다음 고정 GitHub 폴더의 Skillstead 스킬을 전역으로 설치해 줘: https://github.com/kyungseo/skillstead/tree/docs-claim-check/v0.11.0/skills/docs-claim-check
 ```
 
 이 스킬은 아직 Codex 지원을 표시하지 않습니다. 다른 실행 환경에 평가용으로 설치하더라도 그것만으로
