@@ -13,8 +13,6 @@ automated checks read the topmost released heading to confirm it matches `metada
 
 ## [0.11.0] — 2026-10-24
 
-Release preparation; not yet published. The date is provisional until publication.
-
 - Separate instruction loading from claim assessment. Use a full body already supplied, or the host's loader
   at the exact catalog path. A command-backed loader permits one safely quoted literal cat of SKILL.md only;
   document/evidence commands, edits, discovery, retries and escalation remain prohibited.
