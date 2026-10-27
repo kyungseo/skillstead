@@ -54,9 +54,12 @@ Do not invent an actor or condition to complete a smoother sentence.
 
 Write the reader's actual subject, not a narration of the writer's editorial reasoning. Do not carry internal
 review shorthand into reader-facing prose: descriptions of how to classify, separate, elevate, or limit a claim
-can be accurate as working notes yet awkward as the finished explanation. State what happened, what was checked,
-what remains untested or unknown, who acts, or what the reader should do, as appropriate to the passage.
-Apply this while drafting, not only after the user points out an awkward sentence.
+can be accurate as working notes yet awkward as the finished explanation. Lead with the purpose, current status,
+known result, or requirement the reader needs. Place a necessary limitation with that explanation instead of
+repeatedly framing each point as what it does not mean or prove. A direct statement can make a rhetorical rebuttal
+unnecessary; preserve the material constraint without preserving that framing. Keep a useful negative rule and
+do not invent a next step merely to turn it positive. Apply this while drafting, not only after the user points
+out an awkward sentence.
 
 For example, a verification note should tell the reader which environment was checked and which checks remain,
 using the author's supplied context. Do not merely exchange an abstract verb for a synonym or append a natural
