@@ -33,3 +33,6 @@ scenarios above do not substitute for validation of that new path.
 [answer key](./reader-flow/expected-outcomes.md). They are distinct from the historical 36-case set.
 
 Read the [development observations and limits](./reader-flow/development-validation.md).
+
+[Direct explanation examples and bounded observations](./direct-prose.md) cover recurring disclaimers,
+necessary negative rules, already-clear prose, and a protected quotation.

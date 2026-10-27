@@ -9,6 +9,18 @@ Use `writing-quality-editor` for README files, onboarding, release notes, manual
 gallery copy. It can write a new document directly from a reliable brief, review existing prose, revise it in the
 same language, or adapt it naturally between English and Korean.
 
+## Direct Explanation In 0.19.0
+
+Repeated disclaimers can make a guide read like a defense of its claims. This update lets WQE replace that framing
+with a direct explanation of purpose, status, or requirements, and combine adjacent sentences that repeat the
+same point. Material conditions, useful negative rules, quotations, and already-clear wording stay protected.
+
+Four bounded Claude comparison outputs showed small wording improvements while retaining important conditions
+and quotations. A later check of the remaining duplicated paragraph produced one direct sentence with its
+prerequisite intact. The checks used complete instructions inline; they do not measure recurrence rates or
+automatic loading. Existing Stable maturity and Claude Code/Codex support labels are unchanged.
+See the [tasks, observations, and limits](../../examples/writing-quality-editor/direct-prose.md).
+
 ## Stable In 0.18.0
 
 WQE is Stable within its documented English↔Korean scope, following explicit owner acceptance of the fixed
@@ -128,9 +140,11 @@ fluent interpretation silently. Structural revision remains a separate choice fo
 
 A sentence can create a reader problem even when a patient reader could eventually infer its meaning. When a
 passage is responsible for explaining, comparing, or instructing, the skill repairs shorthand, metaphors, or
-fragments that make the intended audience reconstruct a necessary relationship, term, or evidence boundary. It
-still leaves established notation, audience-appropriate technical shorthand, and already-effective concise prose
-unchanged.
+fragments that make the intended audience reconstruct a necessary relationship, term, or evidence boundary.
+Repeated disclaimers or editorial commentary can also need repair when they make an explanation read like a
+defense of its claims. The skill can replace that framing with a direct account of purpose, status, or requirements,
+while keeping real conditions and warnings explicit before the reader acts. It still leaves established notation,
+audience-appropriate technical shorthand, and already-effective concise prose unchanged.
 
 For a document-wide request, the user does not need to point out every occurrence. Examples clarify the kind of
 reader problem to find; they do not limit the review to matching phrases or authorize changes outside the requested

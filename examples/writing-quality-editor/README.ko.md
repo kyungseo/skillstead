@@ -32,3 +32,6 @@ F19·F20에는 시나리오에 적힌 제한된 조사 예산을 적용합니다
 [별도 정답표](./reader-flow/expected-outcomes.md)를 추가했습니다. 기존 36개 사례의 과거 결과와는 구분합니다.
 
 [개발 검증 결과와 한계](./reader-flow/development-validation.ko.md)를 함께 확인할 수 있습니다.
+
+[직접 설명 예제와 한정된 관찰 기록](./direct-prose.md)에서 반복 해명, 필요한 부정 규칙,
+이미 자연스러운 문장과 보호된 인용을 다룹니다.

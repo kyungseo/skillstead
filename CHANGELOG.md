@@ -6,6 +6,15 @@ Granular, per-change entries begin at the first public release. Earlier developm
 
 ## Unreleased
 
+## 2026-10-27
+
+### Skills
+
+- `writing-quality-editor` `0.19.0` — treat recurring defensive commentary as an editing problem; explain purpose,
+  status, and requirements directly while preserving material constraints and necessary negative rules.
+  Add bounded synthetic drafting/revision comparisons and a targeted duplicate-removal check. Existing maturity
+  and runtime support are unchanged.
+
 ## 2026-10-24
 
 ### Skills

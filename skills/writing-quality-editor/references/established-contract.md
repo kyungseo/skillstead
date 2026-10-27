@@ -65,8 +65,11 @@ or the role that passage must perform for its intended audience. A patient reade
 meaning does not by itself make the passage effective. When a passage is responsible for explaining, comparing, or
 instructing, treat it as a problem if the audience must reconstruct a necessary relationship, decode shorthand or a
 metaphor in place of the actual point, search elsewhere for an unexplained term, or separate an observation from a
-causal claim that the prose conflates. A merely more explicit or idiomatic alternative remains `Neutral` when the
-current text already performs its role without requiring that reconstruction. If no span qualifies, then for a
+causal claim that the prose conflates. Repeated disclaimers or editorial commentary also qualify when they make
+an explanation read like a defense of its claims instead of helping the reader understand the subject. An explicit
+request to correct that recurring style authorizes repairing it throughout the requested scope; the reader need
+not be unable to decipher it. A merely more explicit or idiomatic alternative remains `Neutral` when the current
+text already performs its role and fits the requested register. If no span qualifies, then for a
 direct short-text request return only the exact source: no label, code fence, analysis, or change note.
 
 Do not classify a grammar-complete sentence as unfinished merely because the same idea could be smoother or more
@@ -81,6 +84,9 @@ reader-problem test. Treat user examples as evidence for the defect class, not a
 an implicit limit to those examples. Never expand beyond the document or file scope the user requested.
 
 1. Copy the source and mark only the smallest complete phrase, clause, or sentence that has a named reader problem.
+   When adjacent sentences repeat the same substantive point, mark that repetition as one span and keep one
+   direct statement with its necessary conditions. Do not lock the redundant sentence merely because it is clear
+   when read alone.
 2. Lock every unmarked span, paragraph boundary, and paragraph position. Do not improve locked text opportunistically.
 3. If a marked span has more than one material reading—for example discretion, approval, or notification—leave
    that span unchanged and report the ambiguity under `Needs Human`. Continue other safe edits.
@@ -133,7 +139,7 @@ profile, or style decision may change anything in it. For `Compose`, supplied ma
 sources are the ledger; missing information is not permission to complete the story from model memory or general
 knowledge.
 
-- factual claims and evidence boundaries,
+- factual claims and evidence boundaries: what is known, unknown, checked, or required, not the sentence form used to express it,
 - intent, and the position the document commits to,
 - conditions, numbers, dates, versions, units, and comparisons,
 - commands, paths, URLs, status values, error codes, product names, and other identifiers,
@@ -191,8 +197,11 @@ Every adjustment below is allowed only while the semantic contract survives inta
 - an explanation on first use of a term the audience will not know
 - collapsing duplicate explanation and moving a needed explanation to where it is needed
 
-That last item is not permission to thin the text. Dropping a condition, an exception, an actor, or a recovery
-step because the writing felt dense is a claim change, not a register change.
+Preserve the substantive point, not every rhetorical denial used to introduce or defend it. Within a marked
+span, a direct account of purpose, status, or requirements may replace a disclaimer and make its repeated rebuttal
+unnecessary. A real condition, exception, risk, or recovery step must remain explicit for the same reader before
+it governs an action; condense duplicates only when that information still appears in time. Do not add an
+obligation or procedure merely to give a sentence a more actionable ending.
 
 ### What register may never change
 
@@ -275,8 +284,8 @@ and a visibility promise as **not changed without notice**. See the completed Ko
 `references/review-rubric.md`. If the source does not reveal which meaning applies, mark the phrase `needs-human`
 instead of choosing the most fluent option.
 
-Before delivery, check that a repaired sentence explains the subject directly instead of describing how the
-writer handles its claims. Meaning preservation alone does not make internal review language suitable for
+Before delivery, check sentences throughout the authorized scope for direct explanation of the subject instead
+of commentary on how the writer handles its claims. Meaning preservation alone does not make internal review language suitable for
 readers. Apply the context-sensitive examples in `references/review-rubric.md`; in `Assess`, report the defect
 without silently rewriting, and in `Revise` or `Adapt`, repair it within the authorized span.
 

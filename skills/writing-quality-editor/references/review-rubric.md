@@ -80,10 +80,14 @@ Author-approved example; the replacement supplies the intended context and is th
 
 The improvement is the direct account of the actual checks, not merely shorter wording. Generalize that
 relationship to new sentences; do not memorize the sentence or blacklist words such as “검증” or “확대”.
-Accept facts explicitly settled by the author's correction. With genuinely incomplete context, distinguish
-“this result does not establish X” from “X was not tested” in plain language; do not invent an environment or
-an unperformed check. Preserve a real reviewer instruction when that is the passage's purpose, and retain an
-already clear statement such as “Windows에서는 아직 테스트하지 않았습니다.”
+Accept facts explicitly settled by the author's correction. Lead with the relevant purpose, current status,
+known result, or requirement. Add a limitation where the reader needs it. Rewrite repeated “does not mean / is not
+evidence of” framing into that direct account, rather than trading one disclaimer for a synonym. Preserve the
+practical meaning without treating every rhetorical contrast or slight shift of emphasis as a separate claim.
+When the material leaves actual test history unknown, describe the available result or its scope without inventing
+that history. Keep a necessary negative rule when it is the clearest account of the constraint; do not invent
+extra validation steps to turn it positive. Preserve a real reviewer instruction when that is the passage's
+purpose, and retain an already clear statement such as “Windows에서는 아직 테스트하지 않았습니다.”
 
 Preserve the passage's conclusion as well as its individual facts. When the supplied context establishes that
 an event needed to observe a behavior did not occur in the reported run, explain which behavior this run could

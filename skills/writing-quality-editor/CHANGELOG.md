@@ -11,6 +11,15 @@ automated checks read the topmost released heading to confirm it matches `metada
 `SKILL.md`. The full grammar is documented at
 [`docs/VERSIONING.md`](https://github.com/kyungseo/skillstead/blob/main/docs/VERSIONING.md).
 
+## [0.19.0] — 2026-10-27
+
+- Let Korean drafting and local revision replace repeated disclaimers with direct explanations of purpose,
+  status, and requirements. Preserve substantive constraints rather than the rhetorical form defending them.
+- Include recurring editorial commentary in the revision gate and inspect the whole authorized scope.
+  Keep necessary negative rules, protected quotations, already-clear prose, and the existing edit boundary.
+- Add [synthetic comparison material](../../examples/writing-quality-editor/direct-prose.md) for this change.
+  Existing Stable maturity and runtime support are unchanged.
+
 ## [0.18.0] — 2026-10-24
 
 - Keep differently qualified facts distinct when combining Korean draft material into a shared sentence or list.
