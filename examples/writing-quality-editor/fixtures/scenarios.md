@@ -721,3 +721,72 @@ Retries are disabled for `POST /jobs` because the operation is not idempotent. A
 
 `worker_limit`은 CPU 코어 수와 메모리 한도로 계산합니다. 기본값은 4입니다.
 ```
+
+## Running F37–F39
+
+Runner-only instructions: each scenario has two isolated variants sharing exactly the same source. Provide
+only the common user request, the selected variant's context, and that scenario's source. Do not send this
+heading, scenario IDs or titles, variant labels, the other context, answer key, or validation outputs.
+Use the same prompt layout for all six inputs: user request, a blank line, `독자와 문맥:`, the context on the next
+line, a blank line, `원문:`, and the source on the next line. The source is the single line inside its text fence,
+without the fence or a final newline. Context is supplied factual material, not text to rewrite.
+
+Common user request:
+
+```text
+독자와 문맥을 고려해 어색하거나 잘못 전달되는 부분만 다듬어 주세요. 이미 적절한 부분은 그대로 두세요. 제공한 사실과 말투를 유지하고 결과 본문만 주세요.
+```
+
+## F37 — Repetition And Delivery Boundary
+
+- Mode: `Revise` (Korean, same language)
+
+Shared source:
+
+```text
+신청은 금요일 오후 6시에 마감합니다. 신청은 금요일 오후 6시에 마감합니다.
+```
+
+### Variant A
+
+독자는 행사 신청자다. 원문의 두 문장은 한 화면에 연속해서 표시되는 하나의 안내문이다. 이 안내는 한 신청 절차의 마감을 설명한다.
+
+### Variant B
+
+독자는 같은 행사의 온라인 또는 방문 신청자다. 첫 문장은 온라인 신청자에게 발송하는 알림의 본문이고, 둘째 문장은 방문 신청자에게 발송하는 별도 알림의 본문이다. 각 수신자는 해당 알림 하나만 받는다. 두 신청 경로의 마감은 같다.
+
+## F38 — Form Names And Referent Identity
+
+- Mode: `Revise` (Korean, same language)
+
+Shared source:
+
+```text
+신청서를 접수한 뒤 요청서의 내용을 확인합니다. 빠진 항목이 있으면 요청서를 돌려보냅니다.
+```
+
+### Variant A
+
+독자는 교육 신청자다. 이 절차의 공식 서류는 ‘신청서’ 한 종류다. 접수 후 내용을 확인하고 누락이 있으면 신청서를 반환한다.
+
+### Variant B
+
+독자는 같은 교육의 신청자다. 공식 서류는 ‘신청서’와 ‘요청서’ 두 종류다. 신청서는 참가 신청용이고, 요청서는 희망 강의를 적는 별도 서류다. 신청서 접수 뒤 요청서의 내용을 확인하며 누락이 있으면 요청서를 반환한다.
+
+## F39 — Additive Particle And Prior Support
+
+- Mode: `Revise` (Korean, same language)
+
+Shared source:
+
+```text
+이번 버전에서도 오프라인으로 메모를 작성할 수 있습니다.
+```
+
+### Variant A
+
+독자는 업데이트 안내를 읽는 기존 사용자다. 이전 버전은 온라인에서만 메모를 작성할 수 있었고, 이번 버전에서 오프라인 작성을 처음 지원한다. 동기화에 관한 정보는 자료에 없다.
+
+### Variant B
+
+독자는 업데이트 안내를 읽는 기존 사용자다. 이전 버전도 오프라인 메모 작성을 지원했고 이번 버전에도 유지된다. 동기화에 관한 정보는 자료에 없다.

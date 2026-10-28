@@ -6,6 +6,12 @@ Granular, per-change entries begin at the first public release. Earlier developm
 
 ## Unreleased
 
+### Examples
+
+- Add three context-sensitive Korean editing/preservation pairs (F37–F39) for `writing-quality-editor`, with
+  isolated inputs, semantic correction criteria, exact no-edit controls, and six bounded first-run observations.
+  This is a repository-only fixture addition; the 0.19.0 package, installation pins, and support claims are unchanged.
+
 ## 2026-10-27
 
 ### Skills
