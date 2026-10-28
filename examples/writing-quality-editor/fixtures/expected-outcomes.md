@@ -1,7 +1,8 @@
 # Expected Outcomes
 
-This is an answer key, not context for the agent under evaluation. Exact wording is not required. A run passes
-when the material decisions and invariants below are preserved.
+This is an answer key, not context for the agent under evaluation. Exact wording is not required unless a
+scenario explicitly requires unchanged output. A run passes when the material decisions and invariants below
+are preserved.
 
 ## Common Invariants
 
@@ -57,6 +58,9 @@ Every scenario must:
 | F34 | In A, replace the equation-like fragment with complete prose that distinguishes archive creation from verified recoverability, preserves the unvalidated-key boundary, and does not invent a validator or method. In B, keep `Bloom filter` and explain at first use that it can rule out absence while a positive result still requires a database lookup; the shortcut metaphor may stay only if the relationship is immediately clear. In C, preserve the observed absence of a retry but remove or qualify the unsupported timeout-causation claim and keep timeout and retry policy distinct. | Treat recoverability as verified; invent key-validation ownership or procedure; remove the searchable term or turn the Bloom filter into a guarantee of presence; preserve the unsupported causal claim; invent a controlled comparison, retry-policy value, or mechanism; restructure unrelated material. |
 | F35 | Return each source byte-for-byte and without a change report. Both notes are concise but complete for their stated specialist audiences: the necessary relationship, reason, action, identifiers, and boundaries are already explicit. | Expand familiar technical terms for a beginner audience the fixture did not specify; replace identifiers or technical vocabulary; split, merge, reorder, or paraphrase already-effective sentences; add a report or explanation. |
 | F36 | Treat the two user examples as defect-class evidence and scan the complete supplied document. Rewrite the first paragraph as complete prose that distinguishes process start from verified readiness. Preserve the observed no-error result while qualifying or removing the unsupported buffer-causation claim and keeping buffer sizing distinct from error handling. Keep the heading, paragraph order, and final `worker_limit` paragraph byte-for-byte. | Edit only phrases that resemble the examples; leave either analogous defect unchanged; claim readiness, invent a probe result, attribute the missing error to buffer size, invent an error-handling mechanism, or paraphrase the already-effective `worker_limit` paragraph. |
+| F37 | A: remove the consecutive duplicate while retaining Friday at 6 p.m. as the application deadline. B: return the entire source exactly; each sentence is a separate recipient's complete notification. | Leave the consecutive duplicate in A; delete or merge a notification in B, replace it with a cross-reference, or invent capacity, submission rules, or exceptions. |
+| F38 | A: use 신청서 consistently or omit a repeated noun only when the referent stays clear. Preserve receipt→checking→return if incomplete. B: return the source exactly, preserving the distinct 신청서 and 요청서 and which form is checked and returned. | Leave a nonexistent separate 요청서 in A; unify the distinct forms in B or blur the checking/return target; alter the sequence or condition. |
+| F39 | A: remove the false implication that offline writing was already supported; 이번 버전부터 or 이번 버전에서는 are both valid. B: return the source exactly, preserving continued support. | Imply prior offline support in A or first-time support in B; mechanically ban 도; invent synchronization, recovery, or performance behavior. |
 
 ## Register, Voice, And Structure Fixtures
 
@@ -195,3 +199,29 @@ and conventions of that language. Counts and thresholds are never shared across 
 | Brief/technical comparison | F19, F20 |
 | Reads-better enforcement (frozen candidates) | F27 |
 | Korean local naturalness | F28 |
+| Context-sensitive Korean correction and exact preservation | F37, F38, F39 |
+
+## Judging F37–F39
+
+Score each variant separately for the intended correction or preservation, meaning and conditions, unchanged
+non-target text, and output format. Both variants must pass for a pair to pass. Preserve the professional
+합니다 register and return only the result body. A uniformly editing or uniformly preserving strategy fails.
+
+Variant A is judged by meaning, not whole-sentence exact match. F38-A may repeat 신청서 or clearly omit it;
+lexical variety is not itself a quality goal. F39-A's 이번 버전에서는 establishes current support without asserting
+first-time support; it is allowed because removing the false past-support implication is sufficient. The
+presence of the character 도 elsewhere is not a failure rule. Do not require every supplied contextual fact
+in the resulting body.
+
+Variant B follows the existing short-text no-edit contract. Retain the raw result and compare it to the source
+with at most one trailing LF removed; do not trim spaces, normalize punctuation, or collapse body newlines.
+For F37-B, losing or merging a notification is a meaning/delivery failure. Keeping both sentences but adding
+line breaks or path labels is a non-target change. Both fail strict no-edit, but record the different reasons.
+Unrequested fences, labels, or explanations are format failures even if the body preserves meaning.
+
+These pairs add three specific context branches: independent delivery, one form versus two, and a particle's
+prior-support implication. F28 already uses same-source context variants, and earlier fixtures cover general
+meaning preservation and no-edit behavior; the pairing format is not a new capability claim. Do not infer an
+internal reasoning method from an acceptable output. Each first-run observation is bounded to its actual
+model and loading method, not a general Korean-language score. Diagnosis explanations are not requested;
+testing their accuracy would require a separate Assess task.

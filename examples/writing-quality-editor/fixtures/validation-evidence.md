@@ -384,3 +384,87 @@ corrective reruns. Fix the contract before restarting; do not increase the rerun
 - Passing the runtime set and repository dogfood does not by itself establish a public runtime support claim.
 - A Supported or validated label requires recorded runtime comparison, remaining coverage disposition, repository
   dogfood, clean installation/discovery evidence, and final claim audit.
+
+## F37–F39 Korean Context Pairs — 2026-10-28
+
+Status: six bounded first-run observations passed the predeclared criteria under driver evaluation. The fixture
+integration reuses those outputs after checking input and contract identity; it is not a new execution. No
+behavior contract changed. These are synthetic development cases with author-defined expectations, not an
+independent held-out evaluation, a preference score, or evidence of general quality improvement.
+
+- Package: WQE 0.19.0 at `f95bfced525c95c1a305c5aaa9238a3eacd82139`.
+- Runtime: Claude CLI 2.1.310, actual model `claude-opus-5-5`, effort `high`; each input used a distinct fresh
+  session, one turn, no tools/MCP, no session persistence, and no retry or fallback.
+- Loading: complete `SKILL.md`, `references/established-contract.md`, `references/review-rubric.md`, and
+  `references/en-ko-adaptation.md` supplied directly in the system prompt. This did not test installed discovery
+  or reference loading by the evaluated agent. No answer key, opposite context, review history, or scenario label
+  was supplied. User-request layout matches the runner-only instructions in [scenarios.md](./scenarios.md#running-f37f39).
+- Order: F37-A, F38-B, F39-A, F37-B, F38-A, F39-B. Each CLI call took 3.27–5.71 seconds; the sum was 25.21 seconds.
+  Each exited successfully. These are observed call durations, not an end-to-end benchmark.
+- The A variants met semantic criteria; their entire wording was not required to match sample answers. The B
+  results exactly matched their sources without needing trailing-LF removal. All six returned only the body.
+- There was no no-skill control, independent result reviewer, or other-runtime run. The observations do not
+  establish that WQE caused an improvement, validate actual notification delivery, or expand runtime support.
+  Reusing or rerunning these inputs remains development regression evidence.
+
+### First Outputs
+
+Each code block below preserves the result string; the Markdown fence and display newline are not part of it.
+
+#### F37-A
+
+```text
+신청은 금요일 오후 6시에 마감합니다.
+```
+
+#### F37-B
+
+```text
+신청은 금요일 오후 6시에 마감합니다. 신청은 금요일 오후 6시에 마감합니다.
+```
+
+#### F38-A
+
+```text
+신청서를 접수한 뒤 신청서의 내용을 확인합니다. 빠진 항목이 있으면 신청서를 돌려보냅니다.
+```
+
+#### F38-B
+
+```text
+신청서를 접수한 뒤 요청서의 내용을 확인합니다. 빠진 항목이 있으면 요청서를 돌려보냅니다.
+```
+
+#### F39-A
+
+```text
+이번 버전부터 오프라인으로 메모를 작성할 수 있습니다.
+```
+
+#### F39-B
+
+```text
+이번 버전에서도 오프라인으로 메모를 작성할 수 있습니다.
+```
+
+### Result Interpretation
+
+| Pair | Variant A | Variant B |
+| --- | --- | --- |
+| F37 | Removed only the consecutive duplicate; kept the deadline | Kept both independent notifications exactly |
+| F38 | Replaced both 요청서 mentions with 신청서; kept the sequence and return condition | Kept the separate forms and checking/return target exactly |
+| F39 | Replaced 이번 버전에서도 with 이번 버전부터; added no other feature claims | Kept the continued-support implication exactly |
+
+All six met the separate meaning, non-target preservation, and output-format criteria. This did not reveal a
+contract defect requiring a rule change; the pairs retain the observed distinction as regression inputs.
+
+### Contract Identity
+
+SHA-256 of the unchanged package inputs:
+
+| Package path | SHA-256 |
+| --- | --- |
+| `SKILL.md` | `0e7e873c111434511c0cc31c10ae5ce8d5abf53ad444a8856c7aa8a13f0431df` |
+| `references/established-contract.md` | `b5069456431c053f66a48c701d8e14ef5b050fb193eee5925bc401591b75db3f` |
+| `references/review-rubric.md` | `00774482f969a297db5220ce06415d352573cfdf42ed5745fc1fa16b34417b59` |
+| `references/en-ko-adaptation.md` | `728e505641077cf25b70076b0f2aa1e1efb6d33cac98e956c42159124c8f0051` |
